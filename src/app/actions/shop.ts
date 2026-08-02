@@ -15,8 +15,8 @@ import {
   recordAudit,
 } from "@/lib/data";
 import { routeOrder } from "@/lib/fulfillment";
-import { inspectImage, readRenderedPreview } from "@/lib/mockup";
-import { db, uploadFile } from "@/lib/platform";
+import { readStoredImage } from "@/lib/uploads";
+import { db } from "@/lib/platform";
 import { convert } from "@/lib/pricing";
 import { SHOPPER_COOKIE } from "@/lib/session";
 import { chargeCard } from "@/lib/stripe";
@@ -130,41 +130,38 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   }
 
   const catalog = await getCatalogProduct(product.catalogProductId);
-  const file = formData.get("artwork");
+  // The file itself went to /api/uploads before the form was submitted, so only
+  // its stored URL and metadata arrive here.
+  const stored = readStoredImage(formData, "artwork", "shopperArtwork");
   let artworkUrl: string | null = null;
   let artworkFileName: string | null = null;
   let shopperArtwork: Artwork | null = null;
 
-  if (file instanceof File && file.size > 0) {
+  if (stored) {
     if (!product.shopperCustomization.artworkUpload) {
       return { status: "error", message: "This product does not accept uploaded artwork." };
     }
     if (!catalog) return { status: "error", message: "This product is temporarily unavailable." };
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      return { status: "error", message: "Upload a PNG, JPG or WEBP image.", field: "artwork" };
-    }
-    if (file.size > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
+    if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
       return {
         status: "error",
-        message: `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is ${catalog.fileRequirements.maxFileMb} MB.`,
+        message: `That file is ${(stored.sizeBytes / 1024 / 1024).toFixed(1)} MB. The limit is ${catalog.fileRequirements.maxFileMb} MB.`,
         field: "artwork",
       };
     }
 
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const meta = inspectImage(bytes);
     const area = catalog.printAreas[0];
     shopperArtwork = {
       id: newId("art"),
       printAreaId: area.id,
       view: area.view,
-      fileName: file.name,
-      url: "",
-      mimeType: file.type,
-      sizeBytes: file.size,
-      pixelWidth: meta.width,
-      pixelHeight: meta.height,
-      hasAlpha: meta.hasAlpha,
+      fileName: stored.fileName,
+      url: stored.url,
+      mimeType: stored.mimeType,
+      sizeBytes: stored.sizeBytes,
+      pixelWidth: stored.pixelWidth,
+      pixelHeight: stored.pixelHeight,
+      hasAlpha: stored.hasAlpha,
       x: 0.5,
       y: 0.5,
       scale: 0.6,
@@ -178,17 +175,17 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
         field: "artwork",
       };
     }
-    artworkUrl = await uploadFile(bytes, file.type);
-    artworkFileName = file.name;
-    shopperArtwork.url = artworkUrl;
+    artworkUrl = stored.url;
+    artworkFileName = stored.fileName;
   }
 
-  // The browser composites the personalisation onto the product photography and
-  // posts the result with the form, so the basket shows what will be printed.
+  // The browser composites the personalisation onto the product photography,
+  // stores it the same way and posts back the URL, so the basket shows what
+  // will be printed.
   let previewUrl = product.mockups[0]?.url ?? null;
   if (shopperArtwork || text) {
-    const rendered = await readRenderedPreview(formData.get("preview"));
-    if (rendered) previewUrl = await uploadFile(rendered.bytes, rendered.mimeType);
+    const rendered = readStoredImage(formData, "preview", "shopperPreview");
+    if (rendered) previewUrl = rendered.url;
   }
 
   const cart = await loadCart(storeId, true);

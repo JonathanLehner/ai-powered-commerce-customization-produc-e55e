@@ -113,15 +113,3 @@ export async function renderMockup(
 
   return toBlob(canvas);
 }
-
-/** Renders a preview and attaches it to a form submission under `field`. */
-export async function attachMockup(
-  formData: FormData,
-  field: string,
-  baseUrl: string,
-  rect: Rect,
-  layers: MockupLayer[],
-): Promise<void> {
-  const blob = await renderMockup(baseUrl, rect, layers);
-  formData.set(field, new File([blob], `${field}.webp`, { type: "image/webp" }));
-}

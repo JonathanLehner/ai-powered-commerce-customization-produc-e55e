@@ -5,8 +5,9 @@ import Link from "next/link";
 import { addToCart } from "@/app/actions/shop";
 import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
-import { attachMockup, type MockupLayer } from "@/lib/mockup-render";
-import type { StoreProduct } from "@/lib/types";
+import { renderMockup, type MockupLayer } from "@/lib/mockup-render";
+import { appendStoredImage, uploadImage } from "@/lib/upload-client";
+import type { StoredImage, StoreProduct } from "@/lib/types";
 import { classNames, formatMoney } from "@/lib/util";
 
 export interface PurchaseProduct {
@@ -38,7 +39,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
   const [variantId, setVariantId] = useState(sizes[0]?.id ?? product.variants[0]?.id ?? "");
   const [text, setText] = useState("");
   const [artworkPreview, setArtworkPreview] = useState<string | null>(null);
-  const [artworkName, setArtworkName] = useState<string | null>(null);
+  const [artwork, setArtwork] = useState<StoredImage | null>(null);
+  const [artworkStatus, setArtworkStatus] = useState<"idle" | "uploading" | "error">("idle");
+  const [artworkError, setArtworkError] = useState<string | null>(null);
   const [activeMockup, setActiveMockup] = useState(product.mockups[0]?.url ?? null);
   const objectUrl = useRef<string | null>(null);
 
@@ -58,19 +61,47 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
   const variant = product.variants.find((v) => v.id === variantId) ?? product.variants[0];
 
-  function onArtworkChange(event: React.ChangeEvent<HTMLInputElement>) {
+  /**
+   * The artwork is stored as soon as it is chosen. Posting the file with the
+   * add-to-basket action instead would hit the 1 MB Server Action body cap and
+   * fail as a server error the form could not report.
+   */
+  async function onArtworkChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
     if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+    objectUrl.current = null;
+    setArtwork(null);
+    setArtworkError(null);
+
     if (!file) {
-      objectUrl.current = null;
       setArtworkPreview(null);
-      setArtworkName(null);
+      setArtworkStatus("idle");
       return;
     }
+
     const url = URL.createObjectURL(file);
     objectUrl.current = url;
     setArtworkPreview(url);
-    setArtworkName(file.name);
+
+    const limitMb = product.fileRules?.maxFileMb;
+    if (limitMb && file.size > limitMb * 1024 * 1024) {
+      setArtworkStatus("error");
+      setArtworkError(`That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is ${limitMb} MB.`);
+      return;
+    }
+
+    setArtworkStatus("uploading");
+    try {
+      const stored = await uploadImage(file, "shopperArtwork", {
+        storeId: product.storeId,
+        productId: product.id,
+      });
+      setArtwork(stored);
+      setArtworkStatus("idle");
+    } catch (error) {
+      setArtworkStatus("error");
+      setArtworkError(error instanceof Error ? error.message : "That file could not be uploaded.");
+    }
   }
 
   const area = product.printArea;
@@ -81,7 +112,8 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
    * picture the shopper just approved.
    */
   async function renderPreview(formData: FormData) {
-    if (!area || !activeMockup || (!artworkPreview && !text)) return;
+    if (artwork) appendStoredImage(formData, "artwork", artwork);
+    if (!area || !activeMockup || (!artwork && !text)) return;
     const layers: MockupLayer[] = [];
     if (artworkPreview) {
       layers.push({ artworkUrl: artworkPreview, x: 0.5, y: 0.5, scale: 0.6, rotation: 0 });
@@ -96,7 +128,13 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         textColour: variant?.colourHex === "#ffffff" ? "#111827" : "#f8fafc",
       });
     }
-    await attachMockup(formData, "preview", activeMockup, area.rect, layers);
+    const blob = await renderMockup(activeMockup, area.rect, layers);
+    const stored = await uploadImage(
+      new File([blob], "preview.webp", { type: blob.type || "image/webp" }),
+      "shopperPreview",
+      { storeId: product.storeId, productId: product.id },
+    );
+    appendStoredImage(formData, "preview", stored);
   }
 
   return (
@@ -174,6 +212,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         beforeSubmit={renderPreview}
         submitLabel="Add to basket"
         pendingLabel="Adding…"
+        submitDisabled={artworkStatus !== "idle"}
         hidden={{ storeId: product.storeId, productId: product.id }}
         footer={
           <Link href={`/s/${product.storeSlug}/cart`} className="btn-secondary">
@@ -290,15 +329,15 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 </label>
                 <input
                   id="artwork"
-                  name="artwork"
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
                   onChange={onArtworkChange}
-                  aria-invalid={state.field === "artwork" ? true : undefined}
+                  aria-invalid={state.field === "artwork" || artworkStatus === "error" ? true : undefined}
                   aria-describedby="artwork-hint"
                   className={classNames(
                     "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-                    state.field === "artwork" && "input-error",
+                    (state.field === "artwork" || artworkStatus === "error") && "input-error",
+                    artworkStatus === "uploading" && "opacity-60",
                   )}
                 />
                 <p id="artwork-hint" className="field-hint">
@@ -306,11 +345,15 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     ? `Printed at ${area.widthMm} × ${area.heightMm} mm, so we need at least ${Math.max(area.minDpi, product.fileRules.minDpi)} DPI. ${product.fileRules.formats.join(", ")} up to ${product.fileRules.maxFileMb} MB.`
                     : "PNG, JPG or WEBP."}
                 </p>
-                {artworkName ? (
-                  <p className="mt-2">
-                    <Badge tone="brand">{artworkName}</Badge>
-                  </p>
-                ) : null}
+                <p role="status" aria-live="polite" className="mt-2">
+                  {artworkStatus === "uploading" ? (
+                    <span className="text-sm text-muted">Uploading your artwork…</span>
+                  ) : artworkError ? (
+                    <span className="text-sm text-rose-700">{artworkError}</span>
+                  ) : artwork ? (
+                    <Badge tone="brand">{artwork.fileName}</Badge>
+                  ) : null}
+                </p>
               </div>
             ) : null}
           </>

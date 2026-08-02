@@ -231,6 +231,21 @@ export interface CatalogProduct {
   createdAt: string;
 }
 
+/** What a file uploaded through `/api/uploads` becomes once it is stored. */
+export interface StoredImage {
+  url: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  /** Zero for formats with no pixel grid, such as SVG. */
+  pixelWidth: number;
+  pixelHeight: number;
+  hasAlpha: boolean;
+}
+
+/** Upload kinds, each with its own permission check and size/format rules. */
+export type UploadScope = "artwork" | "mockup" | "logo" | "shopperArtwork" | "shopperPreview";
+
 export interface Artwork {
   id: string;
   printAreaId: string;

@@ -12,8 +12,8 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { blockingIssues, validateArtwork } from "@/lib/artwork";
-import { inspectImage, readRenderedPreview } from "@/lib/mockup";
-import { db, uploadFile } from "@/lib/platform";
+import { readStoredImage } from "@/lib/uploads";
+import { db } from "@/lib/platform";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
 import { assertStoreAccess } from "@/lib/session";
@@ -181,7 +181,12 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
 
 /* --------------------------------------------------------------- artwork */
 
-export async function uploadArtwork(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/**
+ * Records artwork that the browser has already put in the asset store through
+ * `/api/uploads`. Only the metadata travels through the action, so the upload
+ * is not bound by the 1 MB Server Action body limit.
+ */
+export async function attachArtwork(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const printAreaId = String(formData.get("printAreaId") ?? "");
@@ -191,43 +196,29 @@ export async function uploadArtwork(_prev: ActionState, formData: FormData): Pro
   const area = catalog.printAreas.find((a) => a.id === printAreaId);
   if (!area) return { status: "error", message: "Choose a print area for the artwork." };
 
-  const file = formData.get("artwork");
-  if (!(file instanceof File) || file.size === 0) {
+  const stored = readStoredImage(formData, "artwork", "artwork");
+  if (!stored || !stored.pixelWidth || !stored.pixelHeight) {
     return { status: "error", message: "Choose an artwork file to upload.", field: "artwork" };
   }
-  if (file.size > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
+  if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
     return {
       status: "error",
-      message: `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. ${catalog.name} accepts up to ${catalog.fileRequirements.maxFileMb} MB.`,
+      message: `That file is ${(stored.sizeBytes / 1024 / 1024).toFixed(1)} MB. ${catalog.name} accepts up to ${catalog.fileRequirements.maxFileMb} MB.`,
       field: "artwork",
     };
   }
-  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-    return {
-      status: "error",
-      message: `Upload a PNG, JPG or WEBP file. This supplier accepts ${catalog.fileRequirements.formats.join(", ")} for production.`,
-      field: "artwork",
-    };
-  }
-
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const meta = inspectImage(bytes);
-  if (!meta.width || !meta.height) {
-    return { status: "error", message: "That file could not be read as an image.", field: "artwork" };
-  }
-  const url = await uploadFile(bytes, file.type);
 
   const artwork: Artwork = {
     id: newId("art"),
     printAreaId: area.id,
     view: area.view,
-    fileName: file.name,
-    url,
-    mimeType: file.type,
-    sizeBytes: file.size,
-    pixelWidth: meta.width,
-    pixelHeight: meta.height,
-    hasAlpha: meta.hasAlpha,
+    fileName: stored.fileName,
+    url: stored.url,
+    mimeType: stored.mimeType,
+    sizeBytes: stored.sizeBytes,
+    pixelWidth: stored.pixelWidth,
+    pixelHeight: stored.pixelHeight,
+    hasAlpha: stored.hasAlpha,
     x: 0.5,
     y: 0.5,
     scale: 0.6,
@@ -242,14 +233,14 @@ export async function uploadArtwork(_prev: ActionState, formData: FormData): Pro
   await recordAudit({
     category: "product_import",
     action: "product.artwork_uploaded",
-    summary: `Uploaded ${file.name} to the ${area.name} print area of “${product.name}”`,
+    summary: `Uploaded ${stored.fileName} to the ${area.name} print area of “${product.name}”`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
     actorName: user.name,
     entity: "store_product",
     entityId: productId,
-    meta: { printArea: area.name, pixels: `${meta.width}x${meta.height}` },
+    meta: { printArea: area.name, pixels: `${stored.pixelWidth}x${stored.pixelHeight}` },
   });
 
   revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
@@ -338,15 +329,15 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
       catalog.mockups.find((m) => m.view === area.view);
     if (!base) continue;
 
-    // The placement is composited in the browser and posted back with the form.
-    const rendered = await readRenderedPreview(formData.get(`mockup_${area.id}`));
+    // The placement is composited in the browser, stored through /api/uploads
+    // and only its URL is posted back with the form.
+    const rendered = readStoredImage(formData, `mockup_${area.id}`, "mockup");
     if (!rendered) continue;
-    const url = await uploadFile(rendered.bytes, rendered.mimeType);
 
     mockups.push({
       id: newId("mck"),
       view: area.view,
-      url,
+      url: rendered.url,
       colour: base.colour,
       generatedAt: new Date().toISOString(),
       approved: false,

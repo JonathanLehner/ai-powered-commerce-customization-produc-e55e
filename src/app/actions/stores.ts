@@ -13,6 +13,7 @@ import {
 import { db } from "@/lib/platform";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";
+import { readStoredImage } from "@/lib/uploads";
 import type { Store, ThemeKey } from "@/lib/types";
 import { newId, slugify } from "@/lib/util";
 
@@ -179,17 +180,10 @@ export async function saveBranding(_prev: ActionState, formData: FormData): Prom
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
 
   const theme = String(formData.get("theme") ?? store.theme) as ThemeKey;
-  const file = formData.get("logo");
-  let logoUrl = store.logoUrl;
-
-  if (file instanceof File && file.size > 0) {
-    if (!["image/png", "image/jpeg", "image/webp", "image/svg+xml"].includes(file.type)) {
-      return fail("Upload the logo as PNG, JPG, WEBP or SVG.", "logo");
-    }
-    if (file.size > 8 * 1024 * 1024) return fail("Logo files must be under 8 MB.", "logo");
-    const { uploadFile } = await import("@/lib/platform");
-    logoUrl = await uploadFile(await file.arrayBuffer(), file.type);
-  }
+  // The logo goes to /api/uploads before the form is submitted — a file posted
+  // through the action itself would exceed the 1 MB Server Action body limit.
+  const stored = readStoredImage(formData, "logo", "logo");
+  const logoUrl = stored ? stored.url : store.logoUrl;
 
   await updateStore(storeId, {
     theme,

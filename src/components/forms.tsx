@@ -98,6 +98,7 @@ export function ActionForm({
   className,
   footer,
   hidden,
+  submitDisabled,
   beforeSubmit,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -108,6 +109,8 @@ export function ActionForm({
   className?: string;
   footer?: ReactNode;
   hidden?: Record<string, string>;
+  /** Locks the submit button while the form is not ready, e.g. an upload in flight. */
+  submitDisabled?: boolean;
   /** Last chance to add fields the browser has to produce, such as a rendered preview. */
   beforeSubmit?: (formData: FormData) => Promise<void>;
 }) {
@@ -140,7 +143,7 @@ export function ActionForm({
       {typeof children === "function" ? children(state) : children}
       <FormStatus state={state} />
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <SubmitButton className={submitClassName} pendingLabel={pendingLabel}>
+        <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
           {submitLabel}
         </SubmitButton>
         {footer}

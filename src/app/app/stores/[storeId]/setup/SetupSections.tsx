@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { flushSync } from "react-dom";
 import {
   saveBranding,
   saveCarriers,
@@ -14,7 +15,8 @@ import {
 } from "@/app/actions/stores";
 import { ActionForm, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
-import { THEMES, type Store, type TaxBracket, type ThemeKey } from "@/lib/types";
+import { uploadImage } from "@/lib/upload-client";
+import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
 import { CARRIER_LABELS, CURRENCY_OPTIONS, LANGUAGE_OPTIONS, STRIPE_COUNTRIES } from "@/lib/util";
 
 function Step({
@@ -56,6 +58,111 @@ function Step({
   );
 }
 
+const LOGO_MAX_MB = 8;
+
+/**
+ * The logo file is stored through `/api/uploads` the moment it is chosen and
+ * only its URL is submitted with the branding form. Posting the file itself
+ * would exceed the 1 MB Server Action body limit and fail as a server error.
+ */
+function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
+  const [uploaded, setUploaded] = useState<StoredImage | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const preview = uploaded?.url ?? store.logoUrl;
+
+  async function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    const form = event.currentTarget.form;
+    event.currentTarget.value = "";
+    if (!file) return;
+
+    setError(null);
+    if (file.size > LOGO_MAX_MB * 1024 * 1024) {
+      setError(`That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Logos must be under ${LOGO_MAX_MB} MB.`);
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const stored = await uploadImage(file, "logo", { storeId: store.id });
+      // The hidden fields have to be in the DOM before the form is submitted.
+      flushSync(() => setUploaded(stored));
+      form?.requestSubmit();
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "That logo could not be uploaded.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-start gap-5">
+      {uploaded ? <StoredImageFields prefix="logo" image={uploaded} /> : null}
+      <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-canvas">
+        {preview ? (
+          <Image
+            src={preview}
+            alt={`${store.name} logo`}
+            width={96}
+            height={96}
+            sizes="96px"
+            className="h-full w-full object-contain p-2"
+          />
+        ) : (
+          <span className="px-2 text-center text-xs text-muted">No logo yet</span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <label htmlFor="logo" className="field-label">
+          Client logo
+        </label>
+        <input
+          id="logo"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/svg+xml"
+          disabled={uploading}
+          onChange={onChange}
+          aria-invalid={invalid || error !== null ? true : undefined}
+          aria-describedby="logo-hint"
+          className={
+            invalid || error
+              ? "input input-error file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
+              : "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
+          }
+        />
+        <p id="logo-hint" className="field-hint">
+          PNG, JPG, WEBP or SVG up to {LOGO_MAX_MB} MB. Uploads as soon as you choose a file.
+        </p>
+        <p role="status" aria-live="polite" className="mt-2 text-sm">
+          {uploading ? <span className="text-muted">Uploading…</span> : null}
+          {error ? <span className="text-rose-700">{error}</span> : null}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** Mirrors `readStoredImage` on the server. */
+function StoredImageFields({ prefix, image }: { prefix: string; image: StoredImage }) {
+  const fields: [string, string][] = [
+    ["Url", image.url],
+    ["Name", image.fileName],
+    ["Type", image.mimeType],
+    ["Bytes", String(image.sizeBytes)],
+    ["Width", String(image.pixelWidth)],
+    ["Height", String(image.pixelHeight)],
+    ["Alpha", image.hasAlpha ? "1" : "0"],
+  ];
+  return (
+    <>
+      {fields.map(([suffix, value]) => (
+        <input key={suffix} type="hidden" name={`${prefix}${suffix}`} value={value} />
+      ))}
+    </>
+  );
+}
+
 export function SetupSections({ store, brackets }: { store: Store; brackets: TaxBracket[] }) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
   const [currencies, setCurrencies] = useState<string[]>(store.currencies);
@@ -79,47 +186,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
         <ActionForm action={saveBranding} submitLabel="Save branding" hidden={hidden}>
           {(state) => (
             <>
-              <div className="flex flex-wrap items-start gap-5">
-                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-canvas">
-                  {store.logoUrl ? (
-                    <Image
-                      src={store.logoUrl}
-                      alt={`${store.name} logo`}
-                      width={96}
-                      height={96}
-                      sizes="96px"
-                      className="h-full w-full object-contain p-2"
-                    />
-                  ) : (
-                    <span className="px-2 text-center text-xs text-muted">No logo yet</span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <label htmlFor="logo" className="field-label">
-                    Client logo
-                  </label>
-                  <input
-                    id="logo"
-                    name="logo"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                    // The logo goes up as soon as it is chosen, rather than
-                    // waiting for the save button further down the step.
-                    onChange={(event) => {
-                      if (event.currentTarget.files?.length) event.currentTarget.form?.requestSubmit();
-                    }}
-                    aria-describedby="logo-hint"
-                    className={
-                      state.field === "logo"
-                        ? "input input-error file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
-                        : "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
-                    }
-                  />
-                  <p id="logo-hint" className="field-hint">
-                    PNG, JPG, WEBP or SVG up to 8 MB. Uploads as soon as you choose a file.
-                  </p>
-                </div>
-              </div>
+              <LogoField store={store} invalid={state.field === "logo"} />
 
               <fieldset className="mt-6">
                 <legend className="field-label">Storefront theme</legend>

@@ -117,22 +117,3 @@ export function inspectImage(bytes: ArrayBuffer | Uint8Array): ImageMeta {
   if (fourcc(b, 0) === "RIFF" && fourcc(b, 8) === "WEBP") return webp(b);
   return EMPTY;
 }
-
-/** Upper bound on a browser-rendered preview, so the field cannot carry a large file. */
-export const MAX_RENDERED_PREVIEW_BYTES = 6 * 1024 * 1024;
-
-/**
- * Validates a preview rendered by the browser before it is stored. Returns the
- * bytes only when the part is a real, plausibly sized raster image.
- */
-export async function readRenderedPreview(
-  value: FormDataEntryValue | null,
-): Promise<{ bytes: Uint8Array; mimeType: string } | null> {
-  if (!(value instanceof File) || value.size === 0) return null;
-  if (value.size > MAX_RENDERED_PREVIEW_BYTES) return null;
-  if (!["image/webp", "image/png", "image/jpeg"].includes(value.type)) return null;
-  const bytes = new Uint8Array(await value.arrayBuffer());
-  const meta = inspectImage(bytes);
-  if (!meta.width || !meta.height) return null;
-  return { bytes, mimeType: value.type };
-}

@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
-import { generateMockups, persistPlacement, removeArtwork, uploadArtwork } from "@/app/actions/products";
+import { startTransition, useActionState, useMemo, useRef, useState } from "react";
+import { attachArtwork, generateMockups, persistPlacement, removeArtwork } from "@/app/actions/products";
 import { ActionForm, FormStatus, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
 import type { ActionState } from "@/app/actions/stores";
 import { placementBox, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
-import { attachMockup, sameOriginAsset } from "@/lib/mockup-render";
+import { renderMockup, sameOriginAsset } from "@/lib/mockup-render";
+import { appendStoredImage, uploadImage } from "@/lib/upload-client";
 import type { Artwork, CatalogProduct, StoreProduct } from "@/lib/types";
 import { classNames } from "@/lib/util";
 
@@ -19,7 +20,9 @@ interface Placement {
 
 /**
  * Artwork goes up the moment a file is chosen — there is no second "upload"
- * click to forget. The input locks while the upload is in flight so a second
+ * click to forget. The file itself is posted to `/api/uploads`, which has no
+ * 1 MB Server Action body cap; the action that records it then only carries the
+ * returned metadata. The input locks while the upload is in flight so a second
  * pick cannot race the first.
  */
 function UploadForm({
@@ -37,56 +40,80 @@ function UploadForm({
   maxFileMb: number;
   needsTransparency: boolean;
 }) {
-  const [state, formAction, pending] = useActionState<ActionState, FormData>(uploadArtwork, {
+  const [state, formAction, saving] = useActionState<ActionState, FormData>(attachArtwork, {
     status: "idle",
   });
-  const formRef = useRef<HTMLFormElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const busy = uploading || saving;
+  const invalid = uploadError !== null || state.field === "artwork";
 
-  // Clearing the input once the upload settles means picking the same file
-  // again still fires a change event.
-  useEffect(() => {
-    if (state.status !== "idle" && inputRef.current) inputRef.current.value = "";
-  }, [state]);
+  async function onFileChosen(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    // Clearing the input straight away means picking the same file again still
+    // fires a change event, and a second pick cannot ride on the first.
+    event.currentTarget.value = "";
+    if (!file) return;
+
+    setUploadError(null);
+    if (file.size > maxFileMb * 1024 * 1024) {
+      setUploadError(
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. This supplier accepts up to ${maxFileMb} MB.`,
+      );
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const image = await uploadImage(file, "artwork", { storeId, productId });
+      const formData = new FormData();
+      formData.set("storeId", storeId);
+      formData.set("productId", productId);
+      formData.set("printAreaId", areaId);
+      appendStoredImage(formData, "artwork", image);
+      startTransition(() => formAction(formData));
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "That file could not be uploaded.");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
-    <form ref={formRef} action={formAction} className="card p-4">
-      <input type="hidden" name="storeId" value={storeId} />
-      <input type="hidden" name="productId" value={productId} />
-      <input type="hidden" name="printAreaId" value={areaId} />
+    <div className="card p-4">
       <label htmlFor="artwork" className="field-label">
         Artwork for {areaName}
       </label>
       <input
         id="artwork"
-        name="artwork"
-        ref={inputRef}
         type="file"
         accept="image/png,image/jpeg,image/webp"
-        disabled={pending}
-        onChange={(event) => {
-          if (event.currentTarget.files?.length) formRef.current?.requestSubmit();
-        }}
-        aria-invalid={state.field === "artwork" ? true : undefined}
+        disabled={busy}
+        onChange={onFileChosen}
+        aria-invalid={invalid ? true : undefined}
         aria-describedby="artwork-hint"
         className={classNames(
           "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-          state.field === "artwork" && "input-error",
-          pending && "opacity-60",
+          invalid && "input-error",
+          busy && "opacity-60",
         )}
       />
       <p id="artwork-hint" className="field-hint">
         PNG, JPG or WEBP up to {maxFileMb} MB. Uploads as soon as you choose a file.
         {needsTransparency ? " This product needs a transparent background." : ""}
       </p>
-      {pending ? (
+      {busy ? (
         <p role="status" aria-live="polite" className="mt-4 text-sm text-muted">
-          Uploading…
+          {uploading ? "Uploading…" : "Saving…"}
+        </p>
+      ) : uploadError ? (
+        <p role="status" aria-live="polite" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          {uploadError}
         </p>
       ) : (
         <FormStatus state={state} />
       )}
-    </form>
+    </div>
   );
 }
 
@@ -183,8 +210,9 @@ export function Configurator({
 
   /**
    * Composites the saved placement onto the supplier photography for every
-   * decorated view and attaches each result to the form. Rendering happens here
-   * because the server has no image toolchain.
+   * decorated view. Rendering happens here because the server has no image
+   * toolchain; each preview is stored through the upload route and only its URL
+   * goes on the form.
    */
   async function renderMockups(formData: FormData) {
     for (const artwork of product.artworks) {
@@ -194,7 +222,7 @@ export function Configurator({
         catalog.mockups.find((m) => m.view === target.view && m.colour === colour) ??
         catalog.mockups.find((m) => m.view === target.view);
       if (!photo) continue;
-      await attachMockup(formData, `mockup_${target.id}`, photo.url, target.rect, [
+      const blob = await renderMockup(photo.url, target.rect, [
         {
           artworkUrl: artwork.url,
           pixelWidth: artwork.pixelWidth,
@@ -205,6 +233,12 @@ export function Configurator({
           rotation: artwork.rotation,
         },
       ]);
+      const stored = await uploadImage(
+        new File([blob], `${target.id}.webp`, { type: blob.type || "image/webp" }),
+        "mockup",
+        { storeId: product.storeId, productId: product.id },
+      );
+      appendStoredImage(formData, `mockup_${target.id}`, stored);
     }
   }
 
