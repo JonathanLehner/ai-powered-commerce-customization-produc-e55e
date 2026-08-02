@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50: #effcfa;
+  --color-brand-100: #c9f6ef;
+  --color-brand-200: #96ebe1;
+  --color-brand-300: #5bd8cd;
+  --color-brand-400: #2bbdb3;
+  --color-brand-500: #12a099;
+  --color-brand-600: #0b807c;
+  --color-brand-700: #0d6663;
+  --color-brand-800: #105150;
+  --color-brand-900: #123f3f;
+
+  --color-iris-50: #f1f0fe;
+  --color-iris-100: #e5e3fd;
+  --color-iris-200: #cecbfb;
+  --color-iris-300: #aba4f7;
+  --color-iris-400: #8b7df1;
+  --color-iris-500: #6d5cf0;
+  --color-iris-600: #5b4bf5;
+  --color-iris-700: #4a37d8;
+  --color-iris-800: #3d2fae;
+  --color-iris-900: #342c8a;
+
+  --color-ink: #0d1524;
+  --color-inksoft: #3d4a60;
+  --color-muted: #6b7789;
+  --color-line: #e3e8ef;
+  --color-canvas: #f6f8fa;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: #ffffff;
+  color: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition
+    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600
+    disabled:cursor-not-allowed disabled:opacity-55;
+}
+
+@utility card {
+  @apply rounded-xl border border-line bg-white;
+}
+
+@utility input {
+  @apply mt-1.5 block w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink
+    placeholder:text-muted focus:border-brand-500 focus:outline-2 focus:outline-offset-0 focus:outline-brand-500/40;
+}
+
+@layer components {
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply btn border border-line bg-white text-ink hover:bg-canvas;
+  }
+  .btn-iris {
+    @apply btn bg-iris-600 text-white hover:bg-iris-700;
+  }
+  .btn-ghost {
+    @apply btn text-inksoft hover:bg-canvas;
+  }
+  .btn-danger {
+    @apply btn border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .field-label {
+    @apply block text-sm font-medium text-ink;
+  }
+  .field-hint {
+    @apply mt-1 text-xs text-muted;
+  }
+  .input-error {
+    @apply border-rose-400 focus:border-rose-500 focus:outline-rose-500/40;
+  }
+  .card-pad {
+    @apply card p-5;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-xs font-medium text-inksoft;
+  }
+  .section-title {
+    @apply text-xs font-semibold tracking-wide text-muted uppercase;
+  }
+}
+
+@keyframes cc-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: cc-fade-up 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+}
+
+.craft-selected {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: -2px;
+}
+.craft-hover {
+  outline: 2px dashed var(--color-brand-300);
+  outline-offset: -2px;
 }

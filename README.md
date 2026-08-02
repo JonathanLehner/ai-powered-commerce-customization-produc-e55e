@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Parcelith
 
-## Getting Started
+The commerce operating system agencies use to launch, customise and run branded
+product stores for every client — from artwork pre-flight to tracked delivery.
 
-First, run the development server:
+An agency creates an isolated store per client, copies apparel and mugs out of a
+shared supplier catalog, places the client's logo inside the supplier's declared
+2D print area, reviews a rendered mockup and the full cost-to-margin breakdown,
+then publishes. Shoppers buy through the client's own storefront and Stripe
+account; paid orders route to the production partner and come back with DHL,
+FedEx or UPS tracking.
+
+## What is in the build
+
+| Area | Routes |
+| --- | --- |
+| Marketing | `/`, `/how-it-works`, `/pricing`, `/legal/terms`, `/legal/privacy` |
+| Agency workspace | `/app`, `/app/stores/new`, `/app/stores/[storeId]/…` |
+| Platform administration | `/admin/…` — suppliers, shared catalog, tax brackets, agencies, audit |
+| Client storefronts | `/s/[slug]/…` — catalog, product, basket, checkout, order status |
+
+Store sections: overview, catalog, sourcing, AI assistant, storefront editor,
+orders, team, guided setup, activity.
+
+### Core capabilities
+
+- **Isolated multi-store tenancy.** Every store owns its users, catalog, prices,
+  orders, storefront and settings. Access is resolved per request from agency
+  ownership plus explicit memberships; a store's data is never merged with
+  another client's, including in the agency dashboard.
+- **Store-scoped roles.** Store administrator, catalog manager, order manager and
+  viewer, enforced by capability (`store.settings`, `store.team`, `store.catalog`,
+  `store.orders`, `store.storefront`, `store.view`) in both pages and server
+  actions.
+- **Guided setup.** Logo upload, theme, default language, selling currencies,
+  custom domain with a CNAME check, Stripe connection, DHL/FedEx/UPS accounts and
+  the store's default tax bracket — each step saves on its own.
+- **Craft.js storefront editor.** Eight approved section types with generated
+  settings panels, page reordering, desktop/tablet/phone preview, version history,
+  publish, and revert-draft-to-published. The published tree is rendered
+  server-side on the storefront.
+- **Shared supplier catalog.** Platform admins curate supplier-backed apparel and
+  mugs: variants, base costs, print areas in millimetres, minimum DPI, file rules,
+  availability and fulfilment regions. Store managers search, filter, compare
+  side by side, and copy into their own catalog as an independent record.
+- **Artwork configurator with real pre-flight.** Position, scale and rotate
+  artwork inside the print area with a pointer or the keyboard. Every check —
+  outside the print area, effective DPI, file format, file size, megapixel
+  ceiling, transparency — blocks approval and states exactly how to correct it.
+- **Server-rendered mockups.** `sharp` composites the saved placement onto the
+  supplier photography for each decorated view, uploads the result, and requires
+  explicit approval before the product can be published.
+- **Cost to margin.** Supplier cost, customisation per print area, estimated
+  shipping, tax bracket and rate, selling price, margin amount and margin
+  percentage, all shown before publication and recomputed on every change.
+- **Gemini assistant.** Product ideas, supplier recommendations, descriptions,
+  tags and prices are stored as pending suggestions with their reasoning. Nothing
+  is written until a person applies it, and the approval is audited.
+- **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
+  the store's own connected account, supplier routing after payment, manual
+  handling flags for sourcing marketplaces and out-of-region destinations,
+  carrier tracking links, refunds, cancellations and exception resolution.
+- **Audit history.** Store setup, imports, price changes, AI approvals,
+  publishing, order routing and administration are all recorded per store and
+  platform-wide.
+
+## Running it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run build && npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` needs a single value:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+CLAWCORP_API_KEY=…
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+It authenticates the ClawCorp platform services used from server code only:
+the project-scoped MongoDB, Gemini text generation, and the asset upload endpoint
+that stores logos, artwork and rendered mockups.
 
-## Learn More
+### Demo accounts
 
-To learn more about Next.js, take a look at the following resources:
+Sign in at `/login` — the password for every demo account is `parcelith`, or use
+the one-click persona cards.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Account | Sees |
+| --- | --- |
+| `alex@northlight.studio` | Agency director — full control of four client stores |
+| `sam@northlight.studio` | Catalog producer — catalog rights on two stores, no access to Rivet |
+| `ines@northlight.studio` | Fulfilment lead — orders only, on Northwind |
+| `dana@northwind.example` | Client stakeholder — viewer on Northwind |
+| `ops@parcelith.com` | Platform operations — suppliers, catalog, tax, agencies |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Storefronts are public: `/s/northwind-supply`, `/s/lumen-studio`,
+`/s/ferro-coffee`, `/s/rivet-hardware`.
 
-## Deploy on Vercel
+Checkout runs against Stripe's published test numbers — `4242 4242 4242 4242`
+succeeds, `4000 0000 0000 0002` is declined, `4000 0000 0000 9995` reports
+insufficient funds.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Seeding
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`scripts/seed.mjs` writes the agencies, users, suppliers, shared catalog, stores,
+storefront layouts, products, orders and audit history. `scripts/generate-images.mjs`
+renders the supplier and marketing photography once and records the permanent
+asset URLs in `scripts/image-manifest.json`, so no image is generated at request
+time.
+
+```bash
+node scripts/seed.mjs         # requires CLAWCORP_API_KEY in the environment
+```
+
+## Architecture notes
+
+- Next.js App Router, React 19, Tailwind CSS v4, TypeScript. Marketing, login and
+  legal pages are pinned static; everything behind a session is dynamic.
+- All platform calls live in `src/lib/platform.ts` and are server-only. The
+  platform DB accepts `sort`/`limit` but does not apply them, so ordering and
+  truncation happen in that wrapper.
+- Documents carry their own `id` field: Mongo `_id` values never match generated
+  string ids, and the API has no upsert.
+- Mutations are server actions. Checkout is idempotent on a per-cart key so a
+  double click or a retried request cannot create a second order.
