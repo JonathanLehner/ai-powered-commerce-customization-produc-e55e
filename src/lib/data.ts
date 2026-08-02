@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { db } from "./platform";
 import { newId } from "./util";
 import type {
@@ -94,6 +95,24 @@ export function getMembership(id: string) {
   return db.findOne<Membership>(COLLECTIONS.memberships, { id });
 }
 
+/**
+ * Suppliers, the shared catalog and tax brackets are small global lists that
+ * almost every screen needs. Reading the whole collection is one round trip and
+ * it is cached (see `lib/platform.ts`), so resolving a single record out of it
+ * is free where a `findOne` would have been another half-second wait. The
+ * direct lookup stays as a fallback, because the API caps a list at 100
+ * documents and a record past that cap would otherwise look deleted.
+ */
+async function fromCollection<T extends { id: string }>(
+  rows: Promise<T[]>,
+  id: string,
+  lookup: () => Promise<T | null>,
+): Promise<T | null> {
+  if (!id) return null;
+  const all = await rows;
+  return all.find((row) => row.id === id) ?? (all.length < 100 ? null : await lookup());
+}
+
 /* --------------------------------------------------------------- suppliers */
 
 export function listSuppliers() {
@@ -101,7 +120,7 @@ export function listSuppliers() {
 }
 
 export function getSupplier(id: string) {
-  return db.findOne<Supplier>(COLLECTIONS.suppliers, { id });
+  return fromCollection(listSuppliers(), id, () => db.findOne<Supplier>(COLLECTIONS.suppliers, { id }));
 }
 
 /* ---------------------------------------------------------- shared catalog */
@@ -111,7 +130,7 @@ export function listCatalogProducts() {
 }
 
 export function getCatalogProduct(id: string) {
-  return db.findOne<CatalogProduct>(COLLECTIONS.catalog, { id });
+  return fromCollection(listCatalogProducts(), id, () => db.findOne<CatalogProduct>(COLLECTIONS.catalog, { id }));
 }
 
 /* ---------------------------------------------------------- store products */
@@ -151,7 +170,7 @@ export function listTaxBrackets() {
 }
 
 export function getTaxBracket(id: string) {
-  return db.findOne<TaxBracket>(COLLECTIONS.taxBrackets, { id });
+  return fromCollection(listTaxBrackets(), id, () => db.findOne<TaxBracket>(COLLECTIONS.taxBrackets, { id }));
 }
 
 /* ------------------------------------------------------------------ orders */
@@ -221,7 +240,24 @@ export interface AuditInput {
   meta?: Record<string, string | number | boolean | null>;
 }
 
-export async function recordAudit(input: AuditInput): Promise<void> {
+/**
+ * Writes an audit entry after the response has been sent.
+ *
+ * Nothing on screen reads the entry that was just written, so making the person
+ * wait another round trip for it only made every save slower. `after` hands the
+ * work to the platform's `waitUntil`, which keeps the invocation alive until the
+ * write finishes. Where there is no request to defer to — a script, or a call
+ * outside a request scope — it falls back to writing inline.
+ */
+export function recordAudit(input: AuditInput): void {
+  try {
+    after(() => writeAudit(input));
+  } catch {
+    void writeAudit(input);
+  }
+}
+
+async function writeAudit(input: AuditInput): Promise<void> {
   const entry: AuditLog = {
     id: newId("aud"),
     category: input.category,
@@ -236,7 +272,13 @@ export async function recordAudit(input: AuditInput): Promise<void> {
     meta: input.meta ?? {},
     at: new Date().toISOString(),
   };
-  await db.insertOne(COLLECTIONS.audit, entry as unknown as Record<string, unknown>);
+  try {
+    await db.insertOne(COLLECTIONS.audit, entry as unknown as Record<string, unknown>);
+  } catch (error) {
+    // The change itself already succeeded and the response has gone out, so a
+    // failed trail entry is logged rather than surfaced as a failed save.
+    console.error("Audit entry could not be written", error);
+  }
 }
 
 export function listAudit(filter: Record<string, unknown>, limit = 60) {

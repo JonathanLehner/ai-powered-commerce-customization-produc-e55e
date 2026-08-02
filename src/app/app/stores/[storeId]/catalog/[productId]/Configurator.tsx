@@ -213,32 +213,49 @@ export function Configurator({
    * decorated view. Rendering happens here because the server has no image
    * toolchain; each preview is stored through the upload route and only its URL
    * goes on the form.
+   *
+   * The views are rendered and uploaded together rather than one after another:
+   * done in sequence, a three-area product waited for three full render-and-
+   * upload cycles before the form was even submitted.
    */
   async function renderMockups(formData: FormData) {
-    for (const artwork of product.artworks) {
+    const jobs = product.artworks.flatMap((artwork) => {
       const target = catalog.printAreas.find((a) => a.id === artwork.printAreaId);
-      if (!target) continue;
+      if (!target) return [];
       const photo =
         catalog.mockups.find((m) => m.view === target.view && m.colour === colour) ??
         catalog.mockups.find((m) => m.view === target.view);
-      if (!photo) continue;
-      const blob = await renderMockup(photo.url, target.rect, [
-        {
-          artworkUrl: artwork.url,
-          pixelWidth: artwork.pixelWidth,
-          pixelHeight: artwork.pixelHeight,
-          x: artwork.x,
-          y: artwork.y,
-          scale: artwork.scale,
-          rotation: artwork.rotation,
-        },
-      ]);
-      const stored = await uploadImage(
-        new File([blob], `${target.id}.webp`, { type: blob.type || "image/webp" }),
-        "mockup",
-        { storeId: product.storeId, productId: product.id },
-      );
-      appendStoredImage(formData, `mockup_${target.id}`, stored);
+      if (!photo) return [];
+      return [{ artwork, target, photo }];
+    });
+
+    // A view that cannot be drawn must not take the others down with it — the
+    // action reports whichever previews did render.
+    const rendered = await Promise.allSettled(
+      jobs.map(async ({ artwork, target, photo }) => {
+        const blob = await renderMockup(photo.url, target.rect, [
+          {
+            artworkUrl: artwork.url,
+            pixelWidth: artwork.pixelWidth,
+            pixelHeight: artwork.pixelHeight,
+            x: artwork.x,
+            y: artwork.y,
+            scale: artwork.scale,
+            rotation: artwork.rotation,
+          },
+        ]);
+        const stored = await uploadImage(
+          new File([blob], `${target.id}.webp`, { type: blob.type || "image/webp" }),
+          "mockup",
+          { storeId: product.storeId, productId: product.id },
+        );
+        return { areaId: target.id, stored };
+      }),
+    );
+
+    for (const result of rendered) {
+      if (result.status !== "fulfilled") continue;
+      appendStoredImage(formData, `mockup_${result.value.areaId}`, result.value.stored);
     }
   }
 

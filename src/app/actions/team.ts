@@ -26,13 +26,15 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
     return { status: "error", message: "Choose one of the four store roles.", field: "role" };
   }
 
-  const { user, store } = await assertStoreAccess(storeId, "store.team");
-  const existing = await listMemberships(storeId);
+  const [{ user, store }, existing, account] = await Promise.all([
+    assertStoreAccess(storeId, "store.team"),
+    listMemberships(storeId),
+    getUserByEmail(email),
+  ]);
   if (existing.some((m) => m.email.toLowerCase() === email)) {
     return { status: "error", message: "That person already has access to this store.", field: "email" };
   }
 
-  const account = await getUserByEmail(email);
   const membership: Membership = {
     id: newId("mem"),
     storeId,
@@ -48,7 +50,7 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
   };
 
   await db.insertOne(COLLECTIONS.memberships, membership as unknown as Record<string, unknown>);
-  await recordAudit({
+  recordAudit({
     category: "team",
     action: "team.invited",
     summary: `Invited ${email} as ${STORE_ROLE_LABELS[role].toLowerCase()}`,
@@ -82,7 +84,7 @@ export async function changeMemberRole(formData: FormData): Promise<void> {
   if (membership.role === role) return;
 
   await db.updateOne(COLLECTIONS.memberships, { id: membershipId }, { $set: { role } });
-  await recordAudit({
+  recordAudit({
     category: "team",
     action: "team.role_changed",
     summary: `Changed ${membership.email} from ${STORE_ROLE_LABELS[membership.role].toLowerCase()} to ${STORE_ROLE_LABELS[role].toLowerCase()}`,
@@ -106,7 +108,7 @@ export async function removeMember(formData: FormData): Promise<void> {
   if (!membership || membership.storeId !== storeId) return;
 
   await db.deleteOne(COLLECTIONS.memberships, { id: membershipId });
-  await recordAudit({
+  recordAudit({
     category: "team",
     action: "team.removed",
     summary: `Removed ${membership.email} from the store team`,
@@ -134,7 +136,7 @@ export async function resendInvite(formData: FormData): Promise<void> {
     { id: membershipId },
     { $set: { invitedAt: new Date().toISOString(), invitedBy: user.name } },
   );
-  await recordAudit({
+  recordAudit({
     category: "team",
     action: "team.invite_resent",
     summary: `Resent the invitation to ${membership.email}`,

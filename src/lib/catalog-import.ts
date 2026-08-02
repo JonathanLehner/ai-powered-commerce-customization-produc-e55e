@@ -14,10 +14,9 @@ export async function copyCatalogProductIntoStore(
   catalogId: string,
   actor: User,
 ): Promise<StoreProduct> {
-  const catalog = await getCatalogProduct(catalogId);
+  const [catalog, existing] = await Promise.all([getCatalogProduct(catalogId), listStoreProducts(store.id)]);
   if (!catalog) throw new Error("That catalog product no longer exists.");
 
-  const existing = await listStoreProducts(store.id);
   let slug = slugify(catalog.name);
   if (existing.some((p) => p.slug === slug)) slug = `${slug}-${newId("x").slice(2, 5)}`;
 
@@ -83,7 +82,7 @@ export async function copyCatalogProductIntoStore(
   product.costs = breakdownFor(product, catalog, bracket, store.pricesIncludeTax);
 
   await db.insertOne(COLLECTIONS.storeProducts, product as unknown as Record<string, unknown>);
-  await recordAudit({
+  recordAudit({
     category: "product_import",
     action: "product.imported",
     summary: `Imported “${catalog.name}” from the shared catalog`,

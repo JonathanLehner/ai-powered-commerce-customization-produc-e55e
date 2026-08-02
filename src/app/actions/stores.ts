@@ -83,21 +83,23 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
     archivedAt: null,
   };
 
-  await db.insertOne(COLLECTIONS.stores, store as unknown as Record<string, unknown>);
-  await db.insertOne(COLLECTIONS.storefronts, {
-    id: newId("sfr"),
-    storeId: store.id,
-    draft: treeFromSections([
-      { type: "HeroSection", props: { eyebrow: clientName, headline: `${clientName} merch, made to order` } },
-      { type: "ProductGrid", props: {} },
-    ]),
-    published: null,
-    publishedAt: null,
-    publishedBy: null,
-    draftUpdatedAt: now,
-    history: [],
-  });
-  await recordAudit({
+  await Promise.all([
+    db.insertOne(COLLECTIONS.stores, store as unknown as Record<string, unknown>),
+    db.insertOne(COLLECTIONS.storefronts, {
+      id: newId("sfr"),
+      storeId: store.id,
+      draft: treeFromSections([
+        { type: "HeroSection", props: { eyebrow: clientName, headline: `${clientName} merch, made to order` } },
+        { type: "ProductGrid", props: {} },
+      ]),
+      published: null,
+      publishedAt: null,
+      publishedBy: null,
+      draftUpdatedAt: now,
+      history: [],
+    }),
+  ]);
+  recordAudit({
     category: "store_setup",
     action: "store.created",
     summary: `Created store “${name}” for ${clientName}`,
@@ -125,7 +127,7 @@ export async function renameStore(_prev: ActionState, formData: FormData): Promi
 
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
   await updateStore(storeId, { name, clientName });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: "store.renamed",
     summary: `Renamed store to “${name}” (${clientName})`,
@@ -154,7 +156,7 @@ export async function setStoreStatus(formData: FormData): Promise<void> {
     status,
     archivedAt: status === "archived" ? new Date().toISOString() : null,
   });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: status === "archived" ? "store.archived" : "store.restored",
     summary:
@@ -190,7 +192,7 @@ export async function saveBranding(_prev: ActionState, formData: FormData): Prom
     logoUrl,
     setup: { ...store.setup, branding: Boolean(logoUrl) },
   });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: "store.branding_updated",
     summary: `Updated branding — theme “${theme}”${logoUrl !== store.logoUrl ? " and a new logo" : ""}`,
@@ -226,7 +228,7 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
     defaultCurrency,
     setup: { ...store.setup, localisation: true },
   });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: "store.localisation_updated",
     summary: `Set selling currencies to ${currencies.join(", ")} (default ${defaultCurrency})`,
@@ -270,7 +272,7 @@ export async function saveDomain(_prev: ActionState, formData: FormData): Promis
     domainStatus: status,
     setup: { ...store.setup, domain: status === "verified" },
   });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: verify ? "store.domain_verified" : "store.domain_set",
     summary: verify ? `Verified custom domain ${domain}` : `Set custom domain ${domain}, awaiting DNS verification`,
@@ -300,7 +302,7 @@ export async function saveStripe(_prev: ActionState, formData: FormData): Promis
       stripe: { connected: false, accountId: null, country: store.stripe.country, chargesEnabled: false, connectedAt: null },
       setup: { ...store.setup, payments: false },
     });
-    await recordAudit({
+    recordAudit({
       category: "store_setup",
       action: "store.stripe_disconnected",
       summary: "Disconnected the Stripe account — checkout is now unavailable",
@@ -332,7 +334,7 @@ export async function saveStripe(_prev: ActionState, formData: FormData): Promis
     },
     setup: { ...store.setup, payments: true },
   });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: "store.stripe_connected",
     summary: `Connected Stripe account ${accountId} (${country})`,
@@ -370,7 +372,7 @@ export async function saveCarriers(_prev: ActionState, formData: FormData): Prom
   }
 
   await updateStore(storeId, { carriers, setup: { ...store.setup, shipping: true } });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: "store.carriers_updated",
     summary: `Shipping carriers set to ${carriers.filter((c) => c.enabled).map((c) => c.carrier.toUpperCase()).join(", ")}`,
@@ -399,7 +401,7 @@ export async function saveTaxSettings(_prev: ActionState, formData: FormData): P
     pricesIncludeTax,
     setup: { ...store.setup, tax: true },
   });
-  await recordAudit({
+  recordAudit({
     category: "store_setup",
     action: "store.tax_updated",
     summary: `Default tax bracket set; displayed prices ${pricesIncludeTax ? "include" : "exclude"} tax`,

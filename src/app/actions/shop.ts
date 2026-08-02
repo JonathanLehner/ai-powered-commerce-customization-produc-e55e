@@ -105,8 +105,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const quantity = Math.max(1, Math.min(50, Number(formData.get("quantity") ?? 1) || 1));
   const text = String(formData.get("text") ?? "").trim();
 
-  const store = await getStore(storeId);
-  const product = await getStoreProduct(productId);
+  const [store, product] = await Promise.all([getStore(storeId), getStoreProduct(productId)]);
   if (!store || store.status !== "active") {
     return { status: "error", message: "This store is not currently taking orders." };
   }
@@ -222,8 +221,7 @@ export async function updateCartItem(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const itemId = String(formData.get("itemId") ?? "");
   const quantity = Number(formData.get("quantity") ?? 1);
-  const store = await getStore(storeId);
-  const cart = await loadCart(storeId, false);
+  const [store, cart] = await Promise.all([getStore(storeId), loadCart(storeId, false)]);
   if (!cart || !store) return;
 
   const items =
@@ -237,8 +235,7 @@ export async function updateCartItem(formData: FormData): Promise<void> {
 export async function removeCartItem(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const itemId = String(formData.get("itemId") ?? "");
-  const store = await getStore(storeId);
-  const cart = await loadCart(storeId, false);
+  const [store, cart] = await Promise.all([getStore(storeId), loadCart(storeId, false)]);
   if (!cart || !store) return;
   await saveCart(
     cart,
@@ -252,18 +249,16 @@ export async function removeCartItem(formData: FormData): Promise<void> {
 export async function placeOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const idempotencyKey = String(formData.get("idempotencyKey") ?? "");
-  const store = await getStore(storeId);
+  const [store, replayed, cart] = await Promise.all([
+    getStore(storeId),
+    // A retried submission must not create a second order.
+    idempotencyKey ? getOrderByIdempotencyKey(idempotencyKey) : Promise.resolve(null),
+    loadCart(storeId, false),
+  ]);
   if (!store || store.status !== "active") {
     return { status: "error", message: "This store is not currently taking orders." };
   }
-
-  // A retried submission must not create a second order.
-  if (idempotencyKey) {
-    const existing = await getOrderByIdempotencyKey(idempotencyKey);
-    if (existing) redirect(`/s/${store.slug}/orders/${existing.code}`);
-  }
-
-  const cart = await loadCart(storeId, false);
+  if (replayed) redirect(`/s/${store.slug}/orders/${replayed.code}`);
   if (!cart || cart.items.length === 0) {
     return { status: "error", message: "Your basket is empty." };
   }
@@ -425,7 +420,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
 
   await db.insertOne(COLLECTIONS.orders, order as unknown as Record<string, unknown>);
   await saveCart(cart, []);
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: decision.routing === "submitted" ? "order.routed" : "order.manual_required",
     summary:

@@ -17,7 +17,7 @@ import { db } from "@/lib/platform";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
 import { assertStoreAccess } from "@/lib/session";
-import type { Artwork, MockupImage, StoreProduct } from "@/lib/types";
+import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct } from "@/lib/types";
 import { formatMoney, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
@@ -35,26 +35,35 @@ export async function importCatalogProduct(formData: FormData): Promise<void> {
 
 /* --------------------------------------------------------------- details */
 
-async function loadEditable(storeId: string, productId: string) {
-  const access = await assertStoreAccess(storeId, "store.catalog");
-  const product = await getStoreProduct(productId);
+/**
+ * Access check and product read run together rather than one after the other —
+ * neither needs the other's answer, and each is a round trip to the platform.
+ */
+async function loadProduct(storeId: string, productId: string) {
+  const [access, product] = await Promise.all([
+    assertStoreAccess(storeId, "store.catalog"),
+    getStoreProduct(productId),
+  ]);
   if (!product || product.storeId !== storeId) throw new Error("Product not found in this store.");
-  const catalog = await getCatalogProduct(product.catalogProductId);
-  return { ...access, product, catalog };
+  return { ...access, product };
 }
 
-async function recost(product: StoreProduct, storeId: string) {
-  const { getStore } = await import("@/lib/data");
-  const store = await getStore(storeId);
-  const catalog = await getCatalogProduct(product.catalogProductId);
+/** As `loadProduct`, plus the shared catalog entry the artwork is checked against. */
+async function loadEditable(storeId: string, productId: string) {
+  const loaded = await loadProduct(storeId, productId);
+  const catalog = await getCatalogProduct(loaded.product.catalogProductId);
+  return { ...loaded, catalog };
+}
+
+async function recost(product: StoreProduct, store: Store, catalog: CatalogProduct | null) {
   const bracket = product.taxBracketId ? await getTaxBracket(product.taxBracketId) : null;
-  return breakdownFor(product, catalog, bracket, store?.pricesIncludeTax ?? false);
+  return breakdownFor(product, catalog, bracket, store.pricesIncludeTax);
 }
 
 export async function saveProductDetails(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product, catalog } = await loadEditable(storeId, productId);
 
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -91,7 +100,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
     visibility,
     shopperCustomization: { artworkUpload, textLine, textLabel, maxTextLength },
   };
-  next.costs = await recost(next, storeId);
+  next.costs = await recost(next, store, catalog);
 
   await updateStoreProduct(productId, {
     name,
@@ -105,7 +114,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
   });
 
   if (priceChanged) {
-    await recordAudit({
+    recordAudit({
       category: "pricing",
       action: "product.price_changed",
       summary: `Changed “${name}” from ${formatMoney(product.price, product.currency)} to ${formatMoney(price, product.currency)}`,
@@ -118,7 +127,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
       meta: { from: product.price, to: price, marginPct: next.costs.marginPct },
     });
   }
-  await recordAudit({
+  recordAudit({
     category: "product_import",
     action: "product.updated",
     summary: `Updated product details for “${name}”`,
@@ -139,7 +148,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
 export async function saveVariants(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product, catalog } = await loadEditable(storeId, productId);
 
   const variants = product.variants.map((variant) => {
     const enabled = formData.get(`enabled_${variant.id}`) === "on";
@@ -161,9 +170,9 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
   }
 
   const next = { ...product, variants };
-  const costs = await recost(next, storeId);
+  const costs = await recost(next, store, catalog);
   await updateStoreProduct(productId, { variants, costs });
-  await recordAudit({
+  recordAudit({
     category: "pricing",
     action: "product.variants_updated",
     summary: `Updated variants and variant pricing on “${product.name}”`,
@@ -227,10 +236,10 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
 
   const artworks = [...product.artworks.filter((a) => a.printAreaId !== area.id), artwork];
   const next = { ...product, artworks, mockups: [] as MockupImage[] };
-  const costs = await recost(next, storeId);
+  const costs = await recost(next, store, catalog);
 
   await updateStoreProduct(productId, { artworks, mockups: [], costs });
-  await recordAudit({
+  recordAudit({
     category: "product_import",
     action: "product.artwork_uploaded",
     summary: `Uploaded ${stored.fileName} to the ${area.name} print area of “${product.name}”`,
@@ -254,10 +263,15 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   };
 }
 
+/**
+ * Moving artwork is the most repeated action in the configurator, so it reads
+ * as little as it can: the access check and the product, in one wave, and no
+ * catalog entry or cost breakdown, because a position change alters neither.
+ */
 export async function saveArtworkPlacement(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { product } = await loadEditable(storeId, productId);
+  const { product } = await loadProduct(storeId, productId);
 
   const artworks = product.artworks.map((artwork) => {
     const read = (key: string, fallback: number) => {
@@ -275,6 +289,19 @@ export async function saveArtworkPlacement(_prev: ActionState, formData: FormDat
     };
   });
 
+  // Saving a placement that has not moved would still cost a write, a cache
+  // invalidation and a full re-render of the page.
+  const moved = artworks.some((artwork, index) => {
+    const before = product.artworks[index];
+    return (
+      artwork.x !== before.x ||
+      artwork.y !== before.y ||
+      artwork.scale !== before.scale ||
+      artwork.rotation !== before.rotation
+    );
+  });
+  if (!moved) return { status: "success", message: "Placement saved." };
+
   await updateStoreProduct(productId, { artworks, mockups: [] });
   revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
   return { status: "success", message: "Placement saved. Generate mockups to preview the result." };
@@ -284,15 +311,15 @@ export async function removeArtwork(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const artworkId = String(formData.get("artworkId") ?? "");
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product, catalog } = await loadEditable(storeId, productId);
 
   const removed = product.artworks.find((a) => a.id === artworkId);
   const artworks = product.artworks.filter((a) => a.id !== artworkId);
   const next = { ...product, artworks };
-  const costs = await recost(next, storeId);
+  const costs = await recost(next, store, catalog);
 
   await updateStoreProduct(productId, { artworks, mockups: [], costs });
-  await recordAudit({
+  recordAudit({
     category: "product_import",
     action: "product.artwork_removed",
     summary: `Removed ${removed?.fileName ?? "artwork"} from “${product.name}”`,
@@ -355,7 +382,7 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   }
 
   await updateStoreProduct(productId, { mockups });
-  await recordAudit({
+  recordAudit({
     category: "product_import",
     action: "product.mockups_generated",
     summary: `Generated ${mockups.length} mockup${mockups.length === 1 ? "" : "s"} for “${product.name}”`,
@@ -388,7 +415,7 @@ export async function approveMockups(formData: FormData): Promise<void> {
     approvedAt: now,
   }));
   await updateStoreProduct(productId, { mockups });
-  await recordAudit({
+  recordAudit({
     category: "publishing",
     action: "product.mockups_approved",
     summary: `Approved ${mockups.length} mockup${mockups.length === 1 ? "" : "s"} for “${product.name}”`,
@@ -409,7 +436,7 @@ export async function rejectMockups(formData: FormData): Promise<void> {
   const { user, store, product } = await loadEditable(storeId, productId);
 
   await updateStoreProduct(productId, { mockups: [], status: product.status === "published" ? "in_review" : product.status });
-  await recordAudit({
+  recordAudit({
     category: "publishing",
     action: "product.mockups_rejected",
     summary: `Rejected the generated mockups for “${product.name}” and returned it for changes`,
@@ -502,7 +529,7 @@ export async function setProductStatus(formData: FormData): Promise<void> {
     status,
     publishedAt: status === "published" ? new Date().toISOString() : product.publishedAt,
   });
-  await recordAudit({
+  recordAudit({
     category: "publishing",
     action: `product.${status}`,
     summary:
@@ -530,7 +557,7 @@ export async function deleteProduct(formData: FormData): Promise<void> {
   const { user, store, product } = await loadEditable(storeId, productId);
 
   await db.deleteOne(COLLECTIONS.storeProducts, { id: productId });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "product.deleted",
     summary: `Deleted “${product.name}” from the store catalog`,

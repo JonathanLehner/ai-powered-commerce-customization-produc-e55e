@@ -34,9 +34,11 @@ async function authorise(scope: UploadScope, params: URLSearchParams): Promise<s
 
   // Storefront uploads are anonymous, so they are tied to a product that is
   // published and actually invites shopper artwork.
-  const store = await getStore(storeId);
+  const [store, product] = await Promise.all([
+    getStore(storeId),
+    getStoreProduct(params.get("productId") ?? ""),
+  ]);
   if (!store || store.status !== "active") return "This store is not currently taking orders.";
-  const product = await getStoreProduct(params.get("productId") ?? "");
   if (!product || product.storeId !== storeId || product.status !== "published") {
     return "That product is no longer available.";
   }
@@ -60,6 +62,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // The file is read off the wire while the permission check runs, so a large
+  // logo is not waiting on a database round trip before its bytes even arrive.
+  // Nothing is stored until the check has passed.
+  const body = request.arrayBuffer();
+  body.catch(() => {});
+
   try {
     const denied = await authorise(scope, params);
     if (denied) return fail(denied, 403);
@@ -67,7 +75,7 @@ export async function POST(request: NextRequest) {
     return fail(error instanceof Error ? error.message : "You are not allowed to upload here.", 403);
   }
 
-  const bytes = new Uint8Array(await request.arrayBuffer());
+  const bytes = new Uint8Array(await body);
   const result = await storeUpload(
     scope,
     bytes,

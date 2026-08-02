@@ -18,7 +18,7 @@ import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { db } from "@/lib/platform";
 import { breakdownFor } from "@/lib/pricing";
 import { assertStoreAccess } from "@/lib/session";
-import type { AiSuggestion } from "@/lib/types";
+import type { AiSuggestion, StoreProduct } from "@/lib/types";
 import { formatMoney, minorFactor, newId } from "@/lib/util";
 import type { ActionState } from "./stores";
 
@@ -166,15 +166,16 @@ export async function applySuggestion(formData: FormData): Promise<void> {
         tags: Array.isArray(suggestion.payload.tags) ? (suggestion.payload.tags as string[]) : created.tags,
       };
       if (price > 0) patch.price = Math.round(price * minorFactor(created.currency));
-      await updateStoreProduct(created.id, patch as never);
 
-      const refreshed = await getStoreProduct(created.id);
-      if (refreshed) {
-        const bracket = refreshed.taxBracketId ? await getTaxBracket(refreshed.taxBracketId) : null;
-        await updateStoreProduct(created.id, {
-          costs: breakdownFor(refreshed, catalog, bracket, storeDoc.pricesIncludeTax),
-        });
-      }
+      // The record that was just written is already in hand, so the costs are
+      // recalculated from it and everything lands in a single write instead of
+      // update, read back, update again.
+      const updated = { ...created, ...(patch as Partial<StoreProduct>) };
+      const bracket = updated.taxBracketId ? await getTaxBracket(updated.taxBracketId) : null;
+      await updateStoreProduct(created.id, {
+        ...(patch as Partial<StoreProduct>),
+        costs: breakdownFor(updated, catalog, bracket, storeDoc.pricesIncludeTax),
+      });
       summary = `Applied AI product idea “${suggestion.title}” — imported ${catalog.name} as a draft product`;
     }
   } else if (suggestion.productId) {
@@ -207,7 +208,7 @@ export async function applySuggestion(formData: FormData): Promise<void> {
     { id: suggestionId },
     { $set: { status: "applied", decidedBy: user.name, decidedAt: new Date().toISOString() } },
   );
-  await recordAudit({
+  recordAudit({
     category: "ai",
     action: "ai.suggestion_applied",
     summary,
@@ -237,7 +238,7 @@ export async function dismissSuggestion(formData: FormData): Promise<void> {
     { id: suggestionId },
     { $set: { status: "dismissed", decidedBy: user.name, decidedAt: new Date().toISOString() } },
   );
-  await recordAudit({
+  recordAudit({
     category: "ai",
     action: "ai.suggestion_dismissed",
     summary: `Dismissed AI suggestion “${suggestion.title}”`,

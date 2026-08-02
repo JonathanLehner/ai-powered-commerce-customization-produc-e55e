@@ -15,8 +15,13 @@ export default async function AgencyDashboard({
 }) {
   const { denied } = await searchParams;
   const user = await requireUser();
-  const stores = await accessibleStores(user);
-  const agency = user.agencyId ? await getAgency(user.agencyId) : null;
+  // The store list, the agency and the activity feed only depend on the user,
+  // so they are read together instead of one round trip after another.
+  const [stores, agency, audit] = await Promise.all([
+    accessibleStores(user),
+    user.agencyId ? getAgency(user.agencyId) : Promise.resolve(null),
+    listAudit(user.platformRole === "platform_admin" ? {} : { agencyId: user.agencyId ?? "__none__" }, 12),
+  ]);
 
   const rows = await Promise.all(
     stores.map(async ({ store, role }) => {
@@ -27,10 +32,6 @@ export default async function AgencyDashboard({
 
   const active = rows.filter((r) => r.store.status === "active");
   const archived = rows.filter((r) => r.store.status === "archived");
-  const audit = await listAudit(
-    user.platformRole === "platform_admin" ? {} : { agencyId: user.agencyId ?? "__none__" },
-    12,
-  );
 
   const totalOrders = active.reduce((sum, r) => sum + r.metrics.orderCount, 0);
   const openIssues = active.reduce((sum, r) => sum + r.metrics.exceptions + r.metrics.manualRouting, 0);

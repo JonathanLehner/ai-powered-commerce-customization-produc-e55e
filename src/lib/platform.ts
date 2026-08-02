@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 
 const BASE = "https://www.clawcorp.ai/api/platform";
 
@@ -91,6 +92,79 @@ function applyOptions<T>(rows: T[], options: Record<string, unknown>): T[] {
   return out;
 }
 
+/* ------------------------------------------------------------------ caching */
+
+/**
+ * Every read is a round trip to the platform API, and one costs roughly half a
+ * second — far more than anything the app itself does. A page that resolved the
+ * session, the store, the membership, the product and its catalog entry paid
+ * that toll once per call, and again for every caller that needed the same
+ * record, which is what made saving a placement or generating a mockup feel
+ * slow.
+ *
+ * Two caches sit in front of the API:
+ *
+ * 1. A per-request memo. React's `cache` gives one map per request, so the
+ *    layout, the page and the action that ran before them share a single read
+ *    of the same document. It is dropped the moment anything is written, so a
+ *    mutation and the re-render that follows it never disagree. Outside a
+ *    request scope (route handlers, scripts) React hands back a fresh map and
+ *    reads simply go straight through.
+ * 2. A short-lived process cache for the three reference collections that are
+ *    global, admin-managed and read on nearly every screen. Writes to them
+ *    clear it immediately; on another instance the change lands within the TTL.
+ */
+const requestReads = cache((): Map<string, Promise<unknown>> => new Map());
+
+const SHARED_COLLECTIONS = new Set(["catalog_products", "suppliers", "tax_brackets"]);
+const SHARED_TTL_MS = 60_000;
+
+const sharedRows = new Map<string, { startedAt: number; rows: Promise<unknown[]> }>();
+
+function readKey(body: DbBody): string {
+  return JSON.stringify([body.collection, body.action, body.filter ?? null, body.options ?? null]);
+}
+
+function memoRead<T>(body: DbBody, run: () => Promise<T>): Promise<T> {
+  const reads = requestReads();
+  const key = readKey(body);
+  const hit = reads.get(key) as Promise<T> | undefined;
+  if (hit) return hit;
+  // A failed read must not be remembered, or a transient error would be
+  // replayed to every later caller in the same request.
+  const pending = run().catch((error: unknown) => {
+    reads.delete(key);
+    throw error;
+  });
+  reads.set(key, pending);
+  return pending;
+}
+
+/** Drops every memoised read. Called after any write so nothing serves stale data. */
+function invalidate(collection: string): void {
+  requestReads().clear();
+  sharedRows.delete(collection);
+}
+
+/**
+ * The whole of a reference collection, shared across requests for `SHARED_TTL_MS`.
+ * Callers get a structured copy so a document can never be mutated in the cache.
+ */
+async function sharedCollection<T>(collection: string): Promise<T[]> {
+  const entry = sharedRows.get(collection);
+  if (entry && Date.now() - entry.startedAt < SHARED_TTL_MS) {
+    return structuredClone(await entry.rows) as T[];
+  }
+  const rows = callDb<unknown[]>({ collection, action: "find", filter: {}, options: {} })
+    .then((result) => (Array.isArray(result) ? result : []))
+    .catch((error: unknown) => {
+      sharedRows.delete(collection);
+      throw error;
+    });
+  sharedRows.set(collection, { startedAt: Date.now(), rows });
+  return structuredClone(await rows) as T[];
+}
+
 /**
  * Thin typed wrapper over the ClawCorp project-scoped MongoDB.
  * Note: the platform API has no upsert and Mongo `_id` values never match the
@@ -99,32 +173,51 @@ function applyOptions<T>(rows: T[], options: Record<string, unknown>): T[] {
  */
 export const db = {
   async find<T>(collection: string, filter: Record<string, unknown> = {}, options: Record<string, unknown> = {}) {
-    const rows = await callDb<T[]>({ collection, action: "find", filter, options });
+    const body: DbBody = { collection, action: "find", filter, options };
+    const rows = await memoRead(body, () =>
+      SHARED_COLLECTIONS.has(collection) && Object.keys(filter).length === 0
+        ? sharedCollection<T>(collection)
+        : callDb<T[]>(body),
+    );
     return applyOptions(Array.isArray(rows) ? rows : [], options);
   },
   findOne<T>(collection: string, filter: Record<string, unknown>) {
-    return callDb<T | null>({ collection, action: "findOne", filter });
+    const body: DbBody = { collection, action: "findOne", filter };
+    return memoRead(body, () => callDb<T | null>(body));
   },
-  insertOne(collection: string, document: Record<string, unknown>) {
-    return callDb<unknown>({ collection, action: "insertOne", document });
+  async insertOne(collection: string, document: Record<string, unknown>) {
+    const result = await callDb<unknown>({ collection, action: "insertOne", document });
+    invalidate(collection);
+    return result;
   },
-  insertMany(collection: string, documents: Record<string, unknown>[]) {
-    return callDb<unknown>({ collection, action: "insertMany", documents });
+  async insertMany(collection: string, documents: Record<string, unknown>[]) {
+    const result = await callDb<unknown>({ collection, action: "insertMany", documents });
+    invalidate(collection);
+    return result;
   },
-  updateOne(collection: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
-    return callDb<unknown>({ collection, action: "updateOne", filter, update });
+  async updateOne(collection: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
+    const result = await callDb<unknown>({ collection, action: "updateOne", filter, update });
+    invalidate(collection);
+    return result;
   },
-  updateMany(collection: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
-    return callDb<unknown>({ collection, action: "updateMany", filter, update });
+  async updateMany(collection: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
+    const result = await callDb<unknown>({ collection, action: "updateMany", filter, update });
+    invalidate(collection);
+    return result;
   },
-  deleteOne(collection: string, filter: Record<string, unknown>) {
-    return callDb<unknown>({ collection, action: "deleteOne", filter });
+  async deleteOne(collection: string, filter: Record<string, unknown>) {
+    const result = await callDb<unknown>({ collection, action: "deleteOne", filter });
+    invalidate(collection);
+    return result;
   },
-  deleteMany(collection: string, filter: Record<string, unknown>) {
-    return callDb<unknown>({ collection, action: "deleteMany", filter });
+  async deleteMany(collection: string, filter: Record<string, unknown>) {
+    const result = await callDb<unknown>({ collection, action: "deleteMany", filter });
+    invalidate(collection);
+    return result;
   },
   count(collection: string, filter: Record<string, unknown> = {}) {
-    return callDb<number>({ collection, action: "countDocuments", filter });
+    const body: DbBody = { collection, action: "countDocuments", filter };
+    return memoRead(body, () => callDb<number>(body));
   },
 };
 

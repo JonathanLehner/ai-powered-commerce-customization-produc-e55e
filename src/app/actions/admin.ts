@@ -20,7 +20,7 @@ export async function setSupplierStatus(formData: FormData): Promise<void> {
   if (!supplier || supplier.status === status) return;
 
   await db.updateOne(COLLECTIONS.suppliers, { id: supplierId }, { $set: { status } });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "supplier.status_changed",
     summary: `${status === "approved" ? "Approved" : status === "disabled" ? "Disabled" : "Returned to review"} supplier ${supplier.name}`,
@@ -47,7 +47,7 @@ export async function saveSupplierRegions(_prev: ActionState, formData: FormData
   }
 
   await db.updateOne(COLLECTIONS.suppliers, { id: supplierId }, { $set: { regions, notes } });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "supplier.updated",
     summary: `Updated fulfilment regions for ${supplier.name} (${regions.length} regions)`,
@@ -105,7 +105,7 @@ export async function addSupplier(_prev: ActionState, formData: FormData): Promi
   };
 
   await db.insertOne(COLLECTIONS.suppliers, supplier as unknown as Record<string, unknown>);
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "supplier.added",
     summary: `Added supplier ${name} for review`,
@@ -192,7 +192,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
       },
     },
   );
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "catalog.product_updated",
     summary: `Updated shared catalog product “${name}”`,
@@ -238,7 +238,7 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
       { id: bracketId },
       { $set: { name, code, description, rate, regions } },
     );
-    await recordAudit({
+    recordAudit({
       category: "administration",
       action: "tax.bracket_updated",
       summary: `Updated tax bracket “${name}” to ${rate}%`,
@@ -262,7 +262,7 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
     createdAt: new Date().toISOString(),
   };
   await db.insertOne(COLLECTIONS.taxBrackets, bracket as unknown as Record<string, unknown>);
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "tax.bracket_created",
     summary: `Created global tax bracket “${name}” at ${rate}%`,
@@ -286,7 +286,7 @@ export async function deleteTaxBracket(formData: FormData): Promise<void> {
   if (inUse > 0) return;
 
   await db.deleteOne(COLLECTIONS.taxBrackets, { id: bracketId });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "tax.bracket_deleted",
     summary: `Deleted unused tax bracket “${bracket.name}”`,
@@ -311,7 +311,7 @@ export async function setAgencyStatus(formData: FormData): Promise<void> {
   if (!agency || agency.status === status) return;
 
   await db.updateOne(COLLECTIONS.agencies, { id: agencyId }, { $set: { status } });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "agency.status_changed",
     summary: `${status === "suspended" ? "Suspended" : "Reactivated"} agency ${agency.name}`,
@@ -335,7 +335,7 @@ export async function setAgencyPlan(formData: FormData): Promise<void> {
   if (!agency || agency.plan === plan) return;
 
   await db.updateOne(COLLECTIONS.agencies, { id: agencyId }, { $set: { plan } });
-  await recordAudit({
+  recordAudit({
     category: "administration",
     action: "agency.plan_changed",
     summary: `Moved ${agency.name} from the ${agency.plan} plan to ${plan}`,

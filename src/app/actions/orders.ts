@@ -9,8 +9,12 @@ import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId, parseMoney } from "@
 import type { ActionState } from "./stores";
 
 async function load(storeId: string, orderId: string) {
-  const access = await assertStoreAccess(storeId, "store.orders");
-  const order = await getOrder(orderId);
+  // The permission check and the order read are independent, so they go out
+  // together rather than costing two round trips in a row.
+  const [access, order] = await Promise.all([
+    assertStoreAccess(storeId, "store.orders"),
+    getOrder(orderId),
+  ]);
   if (!order || order.storeId !== storeId) throw new Error("Order not found in this store.");
   return { ...access, order };
 }
@@ -51,7 +55,7 @@ export async function routeToSupplier(formData: FormData): Promise<void> {
     },
     events,
   });
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: decision.routing === "submitted" ? "order.routed" : "order.manual_required",
     summary:
@@ -90,7 +94,7 @@ export async function recordManualSubmission(_prev: ActionState, formData: FormD
     },
     events: [...order.events, event("Sent to supplier", `Manual purchase order ${reference} recorded.`, user.name)],
   });
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: "order.manual_submitted",
     summary: `Recorded manual supplier submission ${reference} for ${order.code}`,
@@ -143,7 +147,7 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
       event("Shipped", `Handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`, user.name),
     ],
   });
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: "order.shipped",
     summary: `${order.code} shipped with ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
@@ -185,7 +189,7 @@ export async function advanceStatus(formData: FormData): Promise<void> {
   }
 
   await updateOrder(orderId, patch);
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: `order.${status}`,
     summary: `Set ${order.code} to ${status.replace("_", " ")}`,
@@ -214,7 +218,7 @@ export async function raiseException(_prev: ActionState, formData: FormData): Pr
     fulfillment: { ...order.fulfillment, exception: note },
     events: [...order.events, event("Exception raised", note, user.name)],
   });
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: "order.exception",
     summary: `Raised an exception on ${order.code}: ${note}`,
@@ -241,7 +245,7 @@ export async function resolveException(formData: FormData): Promise<void> {
     fulfillment: { ...order.fulfillment, exception: null },
     events: [...order.events, event("Exception resolved", "Marked resolved by the store team.", user.name)],
   });
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: "order.exception_resolved",
     summary: `Resolved the exception on ${order.code}`,
@@ -299,7 +303,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
       ),
     ],
   });
-  await recordAudit({
+  recordAudit({
     category: "order_routing",
     action: cancel ? "order.cancelled_refunded" : "order.refunded",
     summary: `${cancel ? "Cancelled and refunded" : "Refunded"} ${formatMoney(amount, order.currency)} on ${order.code} — ${reason}`,
