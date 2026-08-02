@@ -7,7 +7,6 @@ import {
   getCatalogProduct,
   getStoreProduct,
   getTaxBracket,
-  listStoreProducts,
   recordAudit,
   updateStoreProduct,
 } from "@/lib/data";
@@ -102,16 +101,20 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
   };
   next.costs = await recost(next, store, catalog);
 
-  await updateStoreProduct(productId, {
-    name,
-    description,
-    tags,
-    price,
-    taxBracketId,
-    visibility,
-    shopperCustomization: next.shopperCustomization,
-    costs: next.costs,
-  });
+  await updateStoreProduct(
+    productId,
+    {
+      name,
+      description,
+      tags,
+      price,
+      taxBracketId,
+      visibility,
+      shopperCustomization: next.shopperCustomization,
+      costs: next.costs,
+    },
+    product,
+  );
 
   if (priceChanged) {
     recordAudit({
@@ -171,7 +174,7 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
 
   const next = { ...product, variants };
   const costs = await recost(next, store, catalog);
-  await updateStoreProduct(productId, { variants, costs });
+  await updateStoreProduct(productId, { variants, costs }, product);
   recordAudit({
     category: "pricing",
     action: "product.variants_updated",
@@ -238,7 +241,7 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   const next = { ...product, artworks, mockups: [] as MockupImage[] };
   const costs = await recost(next, store, catalog);
 
-  await updateStoreProduct(productId, { artworks, mockups: [], costs });
+  await updateStoreProduct(productId, { artworks, mockups: [], costs }, product);
   recordAudit({
     category: "product_import",
     action: "product.artwork_uploaded",
@@ -302,7 +305,7 @@ export async function saveArtworkPlacement(_prev: ActionState, formData: FormDat
   });
   if (!moved) return { status: "success", message: "Placement saved." };
 
-  await updateStoreProduct(productId, { artworks, mockups: [] });
+  await updateStoreProduct(productId, { artworks, mockups: [] }, product);
   revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
   return { status: "success", message: "Placement saved. Generate mockups to preview the result." };
 }
@@ -318,7 +321,7 @@ export async function removeArtwork(formData: FormData): Promise<void> {
   const next = { ...product, artworks };
   const costs = await recost(next, store, catalog);
 
-  await updateStoreProduct(productId, { artworks, mockups: [], costs });
+  await updateStoreProduct(productId, { artworks, mockups: [], costs }, product);
   recordAudit({
     category: "product_import",
     action: "product.artwork_removed",
@@ -381,7 +384,7 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
     };
   }
 
-  await updateStoreProduct(productId, { mockups });
+  await updateStoreProduct(productId, { mockups }, product);
   recordAudit({
     category: "product_import",
     action: "product.mockups_generated",
@@ -401,11 +404,18 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   };
 }
 
+/**
+ * Approving is a single field flipped on each preview, so it reads only what it
+ * writes: the access check and the product in one wave, no catalog entry and no
+ * cost breakdown, because approval changes neither. With the updated record
+ * handed to the memo, the re-render that follows does not read anything at all.
+ */
 export async function approveMockups(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product } = await loadProduct(storeId, productId);
   if (product.mockups.length === 0) return;
+  if (product.mockups.every((m) => m.approved)) return;
 
   const now = new Date().toISOString();
   const mockups = product.mockups.map((m) => ({
@@ -414,7 +424,7 @@ export async function approveMockups(formData: FormData): Promise<void> {
     approvedBy: user.name,
     approvedAt: now,
   }));
-  await updateStoreProduct(productId, { mockups });
+  await updateStoreProduct(productId, { mockups }, product);
   recordAudit({
     category: "publishing",
     action: "product.mockups_approved",
@@ -433,9 +443,13 @@ export async function approveMockups(formData: FormData): Promise<void> {
 export async function rejectMockups(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product } = await loadProduct(storeId, productId);
 
-  await updateStoreProduct(productId, { mockups: [], status: product.status === "published" ? "in_review" : product.status });
+  const patch = {
+    mockups: [] as MockupImage[],
+    status: product.status === "published" ? ("in_review" as const) : product.status,
+  };
+  await updateStoreProduct(productId, patch, product);
   recordAudit({
     category: "publishing",
     action: "product.mockups_rejected",
@@ -518,17 +532,18 @@ export async function setProductStatus(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const status = String(formData.get("status") ?? "") as StoreProduct["status"];
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product } = await loadProduct(storeId, productId);
 
   if (status === "published") {
     const blockers = await publishBlockers(productId);
     if (blockers.length > 0) return;
   }
 
-  await updateStoreProduct(productId, {
-    status,
-    publishedAt: status === "published" ? new Date().toISOString() : product.publishedAt,
-  });
+  await updateStoreProduct(
+    productId,
+    { status, publishedAt: status === "published" ? new Date().toISOString() : product.publishedAt },
+    product,
+  );
   recordAudit({
     category: "publishing",
     action: `product.${status}`,
@@ -554,7 +569,7 @@ export async function setProductStatus(formData: FormData): Promise<void> {
 export async function deleteProduct(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product } = await loadEditable(storeId, productId);
+  const { user, store, product } = await loadProduct(storeId, productId);
 
   await db.deleteOne(COLLECTIONS.storeProducts, { id: productId });
   recordAudit({

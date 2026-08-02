@@ -8,6 +8,7 @@ import {
   rejectMockups,
   setProductStatus,
 } from "@/app/actions/products";
+import { SubmitButton } from "@/components/forms";
 import { Badge, Breadcrumbs, Callout, PageHeader } from "@/components/ui";
 import { getCatalogProduct, getStoreProduct, getSupplier, listTaxBrackets } from "@/lib/data";
 import { marginTone } from "@/lib/pricing";
@@ -26,10 +27,14 @@ export default async function ProductEditorPage({
 }) {
   const { storeId, productId } = await params;
   const { imported } = await searchParams;
-  const { store, role } = await requireStoreAccess(storeId);
-  const canEdit = roleCan(role, "store.catalog");
 
-  const product = await getStoreProduct(productId);
+  // The access check and the product are independent reads, and each one is a
+  // round trip to the platform, so they go out together.
+  const [{ store, role }, product] = await Promise.all([
+    requireStoreAccess(storeId),
+    getStoreProduct(productId),
+  ]);
+  const canEdit = roleCan(role, "store.catalog");
   if (!product || product.storeId !== storeId) notFound();
 
   const [catalog, supplier, brackets, blockers] = await Promise.all([
@@ -108,18 +113,18 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="published" />
-                  <button type="submit" className="btn-primary" disabled={blockers.length > 0}>
+                  <SubmitButton className="btn-primary" pendingLabel="Publishing…" disabled={blockers.length > 0}>
                     Publish to storefront
-                  </button>
+                  </SubmitButton>
                 </form>
               ) : (
                 <form action={setProductStatus}>
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="in_review" />
-                  <button type="submit" className="btn-secondary">
+                  <SubmitButton className="btn-secondary" pendingLabel="Unpublishing…">
                     Unpublish
-                  </button>
+                  </SubmitButton>
                 </form>
               )}
               {product.status !== "archived" ? (
@@ -127,18 +132,18 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="archived" />
-                  <button type="submit" className="btn-ghost">
+                  <SubmitButton className="btn-ghost" pendingLabel="Archiving…">
                     Archive
-                  </button>
+                  </SubmitButton>
                 </form>
               ) : (
                 <form action={setProductStatus}>
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="draft" />
-                  <button type="submit" className="btn-secondary">
+                  <SubmitButton className="btn-secondary" pendingLabel="Restoring…">
                     Restore to draft
-                  </button>
+                  </SubmitButton>
                 </form>
               )}
             </div>
@@ -195,17 +200,17 @@ export default async function ProductEditorPage({
                 <form action={approveMockups}>
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
-                  <button type="submit" className="btn-primary btn-sm">
+                  <SubmitButton className="btn-primary btn-sm" pendingLabel="Approving…">
                     Approve {product.mockups.length} preview{product.mockups.length === 1 ? "" : "s"}
-                  </button>
+                  </SubmitButton>
                 </form>
               ) : null}
               <form action={rejectMockups}>
                 <input type="hidden" name="storeId" value={storeId} />
                 <input type="hidden" name="productId" value={product.id} />
-                <button type="submit" className="btn-ghost btn-sm">
+                <SubmitButton className="btn-ghost btn-sm" pendingLabel="Clearing…">
                   Reject and start over
-                </button>
+                </SubmitButton>
               </form>
             </div>
           ) : null}

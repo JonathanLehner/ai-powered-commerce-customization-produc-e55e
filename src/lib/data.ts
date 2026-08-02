@@ -155,12 +155,23 @@ export function getStoreProductBySlug(storeId: string, slug: string) {
   return db.findOne<StoreProduct>(COLLECTIONS.storeProducts, { storeId, slug });
 }
 
-export async function updateStoreProduct(id: string, patch: Partial<StoreProduct>) {
+/**
+ * Applies a patch to a store product.
+ *
+ * Pass the record the patch was built from and the result is handed to the
+ * per-request memo, so the page that re-renders after the mutation does not
+ * spend another round trip re-reading a document this request just wrote.
+ */
+export async function updateStoreProduct(id: string, patch: Partial<StoreProduct>, current?: StoreProduct) {
+  const updatedAt = new Date().toISOString();
   await db.updateOne(
     COLLECTIONS.storeProducts,
     { id },
-    { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
+    { $set: { ...(patch as Record<string, unknown>), updatedAt } },
   );
+  if (current && current.id === id) {
+    db.primeOne<StoreProduct>(COLLECTIONS.storeProducts, { id }, { ...current, ...patch, updatedAt });
+  }
 }
 
 /* ------------------------------------------------------------ tax brackets */
