@@ -9,9 +9,9 @@ export function Logo({ size = 32, withWordmark = true }: { size?: number; withWo
       <img
         src="/logo.png"
         alt="Parcelith"
-        width={size}
-        height={Math.round((size * 172) / 184)}
-        style={{ width: size, height: "auto" }}
+        width={Math.round((size * 309) / 356)}
+        height={size}
+        style={{ width: "auto", height: size }}
         className="shrink-0"
       />
       {withWordmark ? (
