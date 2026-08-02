@@ -2,6 +2,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { classNames } from "@/lib/util";
 
+/**
+ * Intrinsic size of `public/logo.png` — kept in step with the trimmed mark that
+ * `scripts/install-logo.mjs` writes, so the header reserves the exact width and
+ * the logo cannot shift the nav as it loads.
+ */
+const LOGO_WIDTH = 309;
+const LOGO_HEIGHT = 356;
+
 export function Logo({ size = 32, withWordmark = true }: { size?: number; withWordmark?: boolean }) {
   return (
     <span className="inline-flex items-center gap-2.5">
@@ -9,9 +17,10 @@ export function Logo({ size = 32, withWordmark = true }: { size?: number; withWo
       <img
         src="/logo.png"
         alt="Parcelith"
-        width={Math.round((size * 309) / 356)}
+        width={Math.round((size * LOGO_WIDTH) / LOGO_HEIGHT)}
         height={size}
-        style={{ width: "auto", height: size }}
+        decoding="async"
+        style={{ width: "auto", height: size, aspectRatio: `${LOGO_WIDTH} / ${LOGO_HEIGHT}` }}
         className="shrink-0"
       />
       {withWordmark ? (
