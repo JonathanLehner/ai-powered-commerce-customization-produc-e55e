@@ -103,6 +103,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     name="logo"
                     type="file"
                     accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    // The logo goes up as soon as it is chosen, rather than
+                    // waiting for the save button further down the step.
+                    onChange={(event) => {
+                      if (event.currentTarget.files?.length) event.currentTarget.form?.requestSubmit();
+                    }}
                     aria-describedby="logo-hint"
                     className={
                       state.field === "logo"
@@ -111,7 +116,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     }
                   />
                   <p id="logo-hint" className="field-hint">
-                    PNG, JPG, WEBP or SVG up to 8 MB. A transparent PNG works best on light and dark headers.
+                    PNG, JPG, WEBP or SVG up to 8 MB. Uploads as soon as you choose a file.
                   </p>
                 </div>
               </div>

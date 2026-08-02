@@ -34,9 +34,8 @@ export default async function ActivityPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Activity"
         title="Audit history"
-        description={`Everything that changed in ${store.name}: setup, imports, pricing, AI approvals, publishing, order routing and administration.`}
+        description={`Every recorded change in ${store.name}.`}
       />
 
       <nav aria-label="Filter by category" className="flex flex-wrap gap-2">

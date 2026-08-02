@@ -159,6 +159,14 @@ export interface Supplier {
   createdAt: string;
 }
 
+/** A box on a mockup image expressed as 0–1 fractions of its width and height. */
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface PrintArea {
   id: string;
   /** Human label — Front, Back, Left wrap, … */
@@ -168,7 +176,7 @@ export interface PrintArea {
   heightMm: number;
   minDpi: number;
   /** Placement of the printable rectangle on the mockup image, 0–1 fractions. */
-  rect: { x: number; y: number; w: number; h: number };
+  rect: Rect;
 }
 
 export type MockupView = "front" | "back" | "left" | "right";

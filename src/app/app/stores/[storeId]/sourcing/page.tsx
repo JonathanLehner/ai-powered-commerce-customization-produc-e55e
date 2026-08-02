@@ -25,7 +25,7 @@ export default async function SourcingPage({
 }) {
   const { storeId } = await params;
   const filters = await searchParams;
-  const { store } = await requireStoreAccess(storeId, "store.catalog");
+  await requireStoreAccess(storeId, "store.catalog");
 
   const [catalog, suppliers, storeProducts] = await Promise.all([
     listCatalogProducts(),
@@ -74,9 +74,8 @@ export default async function SourcingPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Sourcing"
         title="Shared supplier catalog"
-        description="Products curated by the platform team. Copying one into this store creates an independent record — pricing, artwork and publishing stay inside this client."
+        description="Curated by the platform team. Copying one in creates an independent store product."
       />
 
       <form method="get" className="card flex flex-wrap items-end gap-3 p-4">
@@ -306,11 +305,9 @@ export default async function SourcingPage({
         </ul>
       )}
 
-      <Callout tone="neutral" title="Sourcing beyond print on demand">
-        Alibaba.com is available for bulk manufacturing enquiries and quote comparison. Because transaction
-        APIs differ supplier by supplier, orders sourced that way are flagged for manual handling rather than
-        submitted automatically — a buyer confirms specification, minimum order quantity and Trade Assurance
-        terms before production starts. Store: {store.name}.
+      <Callout tone="neutral" title="Bulk sourcing">
+        Alibaba.com quotes sit in the same comparison, but orders placed that way are flagged for manual
+        handling rather than submitted automatically.
       </Callout>
     </div>
   );

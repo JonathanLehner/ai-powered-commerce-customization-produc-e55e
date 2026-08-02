@@ -9,15 +9,14 @@ export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: s
     <ActionForm
       action={requestProductIdeas}
       submitLabel="Draft product ideas"
-      pendingLabel="Asking Gemini…"
+      pendingLabel="Drafting…"
       submitClassName="btn-iris"
       hidden={{ storeId }}
       className="card p-5"
     >
       <h2 className="text-base font-semibold text-ink">Product ideas</h2>
       <p className="mt-1 text-sm text-muted">
-        Gemini proposes three products for {storeName}, each mapped to a real product in the approved supplier
-        catalog. Nothing is created until you apply a suggestion.
+        Three products for {storeName}, each mapped to a real item in the approved supplier catalog.
       </p>
       <div className="mt-4">
         <label htmlFor="brief" className="field-label">

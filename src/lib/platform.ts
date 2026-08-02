@@ -2,6 +2,9 @@ import "server-only";
 
 const BASE = "https://www.clawcorp.ai/api/platform";
 
+/** Platform text model. An implementation detail — never surface it in the UI. */
+const TEXT_MODEL = "gemini-2.5-flash";
+
 function apiKey(): string {
   const key = process.env.CLAWCORP_API_KEY;
   if (!key) throw new Error("CLAWCORP_API_KEY is not configured");
@@ -125,8 +128,8 @@ export const db = {
   },
 };
 
-/** Gemini text generation. Returns plain text. */
-export async function geminiText(prompt: string, model = "gemini-2.5-flash"): Promise<string> {
+/** Platform text generation. Returns plain text. */
+export async function aiText(prompt: string, model = TEXT_MODEL): Promise<string> {
   const res = await fetch(`${BASE}/gemini`, {
     method: "POST",
     headers: {
@@ -136,14 +139,14 @@ export async function geminiText(prompt: string, model = "gemini-2.5-flash"): Pr
     body: JSON.stringify({ prompt, model }),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Gemini request failed: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`Text generation failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as { text?: string };
   return json.text ?? "";
 }
 
-/** Gemini text generation constrained to a JSON object/array response. */
-export async function geminiJson<T>(prompt: string): Promise<T> {
-  const text = await geminiText(
+/** Platform text generation constrained to a JSON object/array response. */
+export async function aiJson<T>(prompt: string): Promise<T> {
+  const text = await aiText(
     `${prompt}\n\nRespond with raw JSON only. No markdown fences, no commentary.`,
   );
   return parseJsonLoose<T>(text);
@@ -160,7 +163,7 @@ export function parseJsonLoose<T>(text: string): T {
     const start = cleaned.search(/[[{]/);
     const end = Math.max(cleaned.lastIndexOf("}"), cleaned.lastIndexOf("]"));
     if (start >= 0 && end > start) return JSON.parse(cleaned.slice(start, end + 1)) as T;
-    throw new Error("Gemini returned a response that was not valid JSON");
+    throw new Error("The assistant returned a response that was not valid JSON");
   }
 }
 

@@ -12,9 +12,8 @@ export default async function AdminAgenciesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Access"
         title="Agencies and store access"
-        description="Which agency operates which stores, and who inside each agency can reach them. Store commerce data stays with the store team."
+        description="Which agency operates which stores, and who inside each agency can reach them."
       />
 
       <ul className="space-y-5">

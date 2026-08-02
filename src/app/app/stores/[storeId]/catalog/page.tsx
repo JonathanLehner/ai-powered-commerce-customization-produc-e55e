@@ -52,9 +52,8 @@ export default async function StoreCatalogPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Catalog"
         title={`${store.name} products`}
-        description="Each product here belongs to this store alone — its price, artwork, tax bracket and publication state are independent of every other client."
+        description="Price, artwork, tax bracket and publication state are set per store."
         actions={
           canEdit ? (
             <Link href={`/app/stores/${storeId}/sourcing`} className="btn-primary">

@@ -19,9 +19,8 @@ export default async function AdminAuditPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Audit"
         title="Platform audit log"
-        description="Every store setup change, product import, price change, AI approval, publishing action, order routing decision and administrative action."
+        description="Every recorded change across the platform."
       />
 
       <nav aria-label="Filter by category" className="flex flex-wrap gap-2">

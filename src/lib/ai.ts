@@ -1,5 +1,5 @@
 import "server-only";
-import { geminiJson } from "./platform";
+import { aiJson } from "./platform";
 import type { CatalogProduct, Store, StoreProduct, Supplier, SuggestionKind } from "./types";
 import { formatMoney, toMajorString } from "./util";
 
@@ -44,7 +44,7 @@ Propose exactly 3 products this store should launch. Each must map to one catalo
 Return JSON: {"ideas":[{"catalogId":"...","name":"...","angle":"one sentence on who buys it and why","description":"2 sentences of storefront copy","tags":["..."],"suggestedPriceMajor":24.00}]}
 suggestedPriceMajor is in ${store.defaultCurrency} and must leave a healthy margin over base cost.`;
 
-  const result = await geminiJson<{
+  const result = await aiJson<{
     ideas: {
       catalogId: string;
       name: string;
@@ -89,7 +89,7 @@ ${list}
 
 Return JSON: {"supplierId":"...","supplierName":"...","reason":"2 sentences comparing it to the runner-up","risk":"one sentence on the main trade-off"}`;
 
-  const result = await geminiJson<{ supplierId: string; supplierName: string; reason: string; risk: string }>(prompt);
+  const result = await aiJson<{ supplierId: string; supplierName: string; reason: string; risk: string }>(prompt);
   return {
     kind: "supplier",
     title: `Produce with ${result.supplierName}`,
@@ -110,7 +110,7 @@ Available variants: ${product.variants.map((v) => `${v.colour} ${v.size}`).join(
 
 Return JSON: {"description":"90-130 words, two short paragraphs separated by a blank line","tags":["6 lowercase search tags"]}`;
 
-  const result = await geminiJson<{ description: string; tags: string[] }>(prompt);
+  const result = await aiJson<{ description: string; tags: string[] }>(prompt);
   return {
     description: {
       kind: "description",
@@ -140,7 +140,7 @@ Current price: ${formatMoney(product.price, product.currency)}. Store currency: 
 
 Return JSON: {"priceMajor": 29.00, "reason":"2 sentences referencing margin and comparable market pricing"}`;
 
-  const result = await geminiJson<{ priceMajor: number; reason: string }>(prompt);
+  const result = await aiJson<{ priceMajor: number; reason: string }>(prompt);
   return {
     kind: "price",
     title: `Set price to ${result.priceMajor} ${product.currency}`,

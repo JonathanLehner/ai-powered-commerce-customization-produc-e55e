@@ -20,7 +20,6 @@ export default async function StoreSetupPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Store settings"
         title="Guided setup"
         description="Six steps take a new store from empty to able to sell. Each one saves on its own, so you can leave and come back."
       />

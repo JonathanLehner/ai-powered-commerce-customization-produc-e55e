@@ -56,13 +56,12 @@ export default async function ProductEditorPage({
       />
 
       <PageHeader
-        eyebrow={supplier ? `Produced by ${supplier.name}` : "Product"}
         title={product.name}
         description={
           <>
             {product.category === "apparel" ? "Apparel" : "Drinkware"} ·{" "}
-            {product.variants.filter((v) => v.enabled).length} enabled variants · imported by{" "}
-            {product.importedBy}
+            {product.variants.filter((v) => v.enabled).length} enabled variants
+            {supplier ? ` · produced by ${supplier.name}` : ""} · imported by {product.importedBy}
           </>
         }
         actions={

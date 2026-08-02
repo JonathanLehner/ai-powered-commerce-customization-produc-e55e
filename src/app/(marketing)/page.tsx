@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui";
 import { IMAGES } from "@/lib/images";
 
 export const dynamic = "force-static";
@@ -22,7 +21,6 @@ const PILLARS = [
 
 const FEATURES = [
   {
-    eyebrow: "Sourcing",
     title: "Compare production partners before you commit",
     body: "Search the shared catalog by category, supplier, cost and fulfilment region, then put candidates side by side. Printful, Gelato and Printify expose production APIs, so orders route automatically. Alibaba.com sits in the same comparison for bulk sourcing and RFQs — flagged for manual handling, because transaction APIs vary supplier by supplier.",
     points: [
@@ -34,7 +32,6 @@ const FEATURES = [
     alt: "Blank merchandise samples and fabric swatches arranged on a pale surface",
   },
   {
-    eyebrow: "Configurator",
     title: "Artwork that is checked before it reaches production",
     body: "Upload a logo, drag it inside the print area, scale and rotate it, and watch the effective print resolution update as you go. Anything that breaks the supplier's rules blocks approval and tells you exactly how to fix it — the file format, the megapixel ceiling, the transparent background, the design hanging over the seam.",
     points: [
@@ -46,7 +43,6 @@ const FEATURES = [
     alt: "Hands positioning a transfer sheet over a folded blank t-shirt",
   },
   {
-    eyebrow: "Fulfilment",
     title: "Paid orders become production jobs",
     body: "When a shopper pays through the store's own Stripe account, the order is routed to the selected supplier and the submission result is recorded. Jobs that need a human — an unsupported destination, a multi-supplier basket, a sourcing marketplace — are flagged rather than silently dropped.",
     points: [
@@ -78,7 +74,7 @@ const FAQ = [
   },
   {
     q: "What can the AI assistant do on its own?",
-    a: "Nothing. Gemini drafts product ideas, supplier recommendations, descriptions, tags and prices. Each one is stored as a pending suggestion, shown next to the value it would replace, and applied only when a person confirms it.",
+    a: "Nothing. It drafts ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is a separate, audited step.",
   },
   {
     q: "Which products are supported at launch?",
@@ -92,8 +88,7 @@ export default function LandingPage() {
       <section className="border-b border-line bg-gradient-to-b from-brand-50/60 to-white">
         <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
           <div>
-            <Badge tone="brand">Multi-store commerce for agencies</Badge>
-            <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
+            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
               Launch a branded product store for every client — without a warehouse
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-inksoft sm:text-lg">
@@ -162,8 +157,7 @@ export default function LandingPage() {
         >
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-18 lg:grid-cols-2 lg:items-center">
             <div className={index % 2 === 1 ? "lg:order-2" : undefined}>
-              <p className="section-title">{feature.eyebrow}</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{feature.title}</h2>
+              <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{feature.title}</h2>
               <p className="mt-4 text-sm leading-relaxed text-inksoft sm:text-base">{feature.body}</p>
               <ul className="mt-5 space-y-2.5">
                 {feature.points.map((point) => (
@@ -213,7 +207,7 @@ export default function LandingPage() {
 
       <section className="border-t border-line bg-canvas">
         <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Questions worth asking</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Common questions</h2>
           <dl className="mt-8 grid gap-5 md:grid-cols-2">
             {FAQ.map((item) => (
               <div key={item.q} className="card-pad">

@@ -18,9 +18,8 @@ export default async function NewStorePage() {
       <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-7 sm:px-6">
         <Breadcrumbs items={[{ label: "Stores", href: "/app" }, { label: "New store" }]} />
         <PageHeader
-          eyebrow={agency?.name ?? "Agency"}
           title="Create a client store"
-          description="A store is an isolated commerce channel: its own catalog, customers, orders, currencies, tax settings, storefront and Stripe account."
+          description={`${agency ? `${agency.name} · ` : ""}A store is an isolated commerce channel: its own catalog, customers, orders, currencies, tax settings, storefront and Stripe account.`}
         />
 
         <div className="mt-6">

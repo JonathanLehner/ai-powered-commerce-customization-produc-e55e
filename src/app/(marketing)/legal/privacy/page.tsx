@@ -38,7 +38,7 @@ const SECTIONS = [
       "Stripe processes payments on behalf of each store under that store's own account.",
       "Production partners — Printful, Gelato and Printify — receive the delivery address, the item specification and the artwork file needed to make and ship the order. Sourcing enquiries raised through Alibaba.com are made by the seller directly.",
       "DHL, FedEx and UPS receive the delivery address to carry the parcel and return tracking events.",
-      "The commerce assistant sends product and catalog context to Google Gemini to draft suggestions. Shopper personal data is not included in those prompts.",
+      "The commerce assistant sends product and catalog context to a third-party AI provider to draft suggestions. Shopper personal data is not included in those prompts.",
     ],
   },
   {

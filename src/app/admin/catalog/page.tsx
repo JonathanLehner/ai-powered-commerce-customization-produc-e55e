@@ -11,7 +11,6 @@ export default async function AdminCatalogPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Shared catalog"
         title="Supplier-backed products"
         description="Apparel and drinkware every store can copy from. Base costs, print areas, availability and fulfilment regions are set here and inherited on import."
       />

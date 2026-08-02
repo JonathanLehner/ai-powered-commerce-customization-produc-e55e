@@ -47,15 +47,15 @@ orders, team, guided setup, activity.
   artwork inside the print area with a pointer or the keyboard. Every check —
   outside the print area, effective DPI, file format, file size, megapixel
   ceiling, transparency — blocks approval and states exactly how to correct it.
-- **Server-rendered mockups.** `sharp` composites the saved placement onto the
-  supplier photography for each decorated view, uploads the result, and requires
-  explicit approval before the product can be published.
+- **Mockups.** The saved placement is composited onto the supplier photography
+  for each decorated view in the browser, uploaded, and requires explicit
+  approval before the product can be published.
 - **Cost to margin.** Supplier cost, customisation per print area, estimated
   shipping, tax bracket and rate, selling price, margin amount and margin
   percentage, all shown before publication and recomputed on every change.
-- **Gemini assistant.** Product ideas, supplier recommendations, descriptions,
-  tags and prices are stored as pending suggestions with their reasoning. Nothing
-  is written until a person applies it, and the approval is audited.
+- **Commerce assistant.** Product ideas, supplier recommendations, descriptions,
+  tags and prices are stored as pending suggestions. Applying one is a separate,
+  audited step.
 - **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
   the store's own connected account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,
@@ -79,13 +79,12 @@ CLAWCORP_API_KEY=…
 ```
 
 It authenticates the ClawCorp platform services used from server code only:
-the project-scoped MongoDB, Gemini text generation, and the asset upload endpoint
-that stores logos, artwork and rendered mockups.
+the project-scoped MongoDB, text generation, and the asset upload endpoint that
+stores logos, artwork and rendered mockups.
 
 ### Demo accounts
 
-Sign in at `/login` — the password for every demo account is `parcelith`, or use
-the one-click persona cards.
+Pick an account at `/login` — the persona cards sign you straight in.
 
 | Account | Sees |
 | --- | --- |

@@ -36,7 +36,7 @@ const PLANS = [
       "15 live stores",
       "Store-scoped roles and invitations",
       "Custom domains per store",
-      "Gemini commerce assistant with confirmation flow",
+      "Commerce assistant with confirmation flow",
       "Cross-store agency dashboard",
       "Full audit history export",
     ],

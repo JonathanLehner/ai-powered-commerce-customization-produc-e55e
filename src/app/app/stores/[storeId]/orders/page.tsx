@@ -48,9 +48,8 @@ export default async function OrdersPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Orders"
         title={`${orders.length} orders`}
-        description="Every order belongs to this store. Shopper details are never shared with another client store, even inside the same agency."
+        description="Production and delivery status for every order placed on this store."
         actions={
           <Link
             href={`/app/stores/${storeId}/orders${view === "attention" ? "" : "?view=attention"}`}

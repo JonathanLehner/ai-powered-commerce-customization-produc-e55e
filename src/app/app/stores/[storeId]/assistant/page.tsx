@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { applySuggestion, dismissSuggestion } from "@/app/actions/ai";
-import { Badge, Callout, EmptyState, PageHeader } from "@/components/ui";
+import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { listCatalogProducts, listStoreProducts, listSuggestions, listSuppliers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
 import type { AiSuggestion } from "@/lib/types";
@@ -85,15 +85,9 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="AI assistant"
-        title="Gemini drafts, you decide"
-        description="Every suggestion is stored in a pending state with its reasoning. Nothing is written to a product, price or supplier order until you apply it — and the approval is recorded against your name."
+        title="Assistant"
+        description="Suggestions stay pending until you apply one. Applying is recorded in the audit history."
       />
-
-      <Callout tone="iris" title="How approvals work">
-        Drafting a suggestion changes nothing. Applying one writes the change and adds an entry to the store&rsquo;s
-        audit history. Dismissing keeps the record so you can see what was considered and rejected.
-      </Callout>
 
       <section>
         <h2 className="text-base font-semibold text-ink">

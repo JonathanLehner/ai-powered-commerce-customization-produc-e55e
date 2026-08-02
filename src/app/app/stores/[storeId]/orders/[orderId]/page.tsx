@@ -36,9 +36,8 @@ export default async function OrderDetailPage({
       />
 
       <PageHeader
-        eyebrow={`Placed ${formatDateTime(order.createdAt)}`}
         title={order.code}
-        description={`${order.customer.name} · ${order.customer.email}`}
+        description={`${order.customer.name} · ${order.customer.email} · placed ${formatDateTime(order.createdAt)}`}
         actions={
           <>
             <Badge

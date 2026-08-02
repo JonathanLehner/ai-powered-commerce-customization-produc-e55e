@@ -69,12 +69,10 @@ export function Dot({ tone = "neutral" }: { tone?: Tone }) {
 }
 
 export function PageHeader({
-  eyebrow,
   title,
   description,
   actions,
 }: {
-  eyebrow?: string;
   title: string;
   description?: ReactNode;
   actions?: ReactNode;
@@ -82,7 +80,6 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {eyebrow ? <p className="section-title mb-1.5">{eyebrow}</p> : null}
         <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">{title}</h1>
         {description ? <div className="mt-1.5 max-w-2xl text-sm text-muted">{description}</div> : null}
       </div>

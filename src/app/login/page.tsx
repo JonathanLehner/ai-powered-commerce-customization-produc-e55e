@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { signInAs } from "@/app/actions/auth";
 import { Badge, Logo } from "@/components/ui";
-import { LoginForm } from "./LoginForm";
 
 export const dynamic = "force-static";
 
@@ -63,22 +62,11 @@ export default function LoginPage() {
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
-        <section className="card h-fit p-6">
-          <h1 className="text-xl font-semibold tracking-tight text-ink">Sign in</h1>
-          <p className="mt-1.5 text-sm text-muted">
-            Use a demo account to open the agency workspace.
-          </p>
-          <div className="mt-6">
-            <LoginForm next="/app" />
-          </div>
-        </section>
-
+      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
         <section>
-          <h2 className="text-lg font-semibold tracking-tight text-ink">Or pick a role</h2>
+          <h1 className="text-xl font-semibold tracking-tight text-ink">Pick an account</h1>
           <p className="mt-1.5 text-sm text-muted">
-            Each account shows a different slice of the platform. Store access and permissions are enforced
-            per role, so what you can change depends on who you sign in as.
+            Permissions are enforced per role, so what you can change depends on who you continue as.
           </p>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {PERSONAS.map((persona) => (

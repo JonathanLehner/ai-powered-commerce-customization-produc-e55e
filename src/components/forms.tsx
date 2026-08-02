@@ -98,6 +98,7 @@ export function ActionForm({
   className,
   footer,
   hidden,
+  beforeSubmit,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   children: ReactNode | ((state: ActionState) => ReactNode);
@@ -107,6 +108,8 @@ export function ActionForm({
   className?: string;
   footer?: ReactNode;
   hidden?: Record<string, string>;
+  /** Last chance to add fields the browser has to produce, such as a rendered preview. */
+  beforeSubmit?: (formData: FormData) => Promise<void>;
 }) {
   const [state, formAction] = useActionState<ActionState, FormData>(action, { status: "idle" });
   const { formRef, capture } = useValueRestore(state.status);
@@ -114,8 +117,16 @@ export function ActionForm({
   return (
     <form
       ref={formRef}
-      action={(formData: FormData) => {
+      action={async (formData: FormData) => {
         capture(formData);
+        if (beforeSubmit) {
+          try {
+            await beforeSubmit(formData);
+          } catch {
+            // A preview that cannot be drawn must not block the submission —
+            // the action falls back to the stored imagery.
+          }
+        }
         formAction(formData);
       }}
       className={className}

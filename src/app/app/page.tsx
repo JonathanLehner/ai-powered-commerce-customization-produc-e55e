@@ -41,13 +41,12 @@ export default async function AgencyDashboard({
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
-          eyebrow={agency ? agency.name : "Platform"}
           title={`Good to see you, ${user.name.split(" ")[0]}`}
           description={
             <>
+              {agency ? `${agency.name} · ` : ""}
               {active.length} active {active.length === 1 ? "store" : "stores"}
-              {archived.length ? `, ${archived.length} archived` : ""}. Figures are shown per store —
-              shopper data is never combined between clients.
+              {archived.length ? `, ${archived.length} archived` : ""}. Figures are shown per store.
             </>
           }
           actions={

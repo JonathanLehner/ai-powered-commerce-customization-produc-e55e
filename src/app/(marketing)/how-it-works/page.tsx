@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Badge } from "@/components/ui";
 
 export const dynamic = "force-static";
 
@@ -98,8 +97,7 @@ export default function HowItWorksPage() {
     <>
       <section className="border-b border-line bg-gradient-to-b from-brand-50/60 to-white">
         <div className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
-          <Badge tone="brand">The lifecycle</Badge>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             From an empty store to a tracked parcel
           </h1>
           <p className="mt-5 text-base leading-relaxed text-inksoft">
@@ -157,13 +155,10 @@ export default function HowItWorksPage() {
 
       <section className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6">
         <div className="rounded-2xl border border-line bg-white p-8">
-          <h2 className="text-xl font-semibold tracking-tight text-ink">Where the AI stops</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-ink">The assistant</h2>
           <p className="mt-3 text-sm leading-relaxed text-inksoft">
-            Gemini drafts product ideas grounded in the shared catalog, recommends a production partner for a
-            destination, rewrites descriptions, proposes tags and suggests a price against the landed cost. Each
-            output is stored as a pending suggestion with its reasoning, shown beside the value it would replace.
-            Nothing is written to a product, a price or a supplier order until someone presses apply — and that
-            approval is recorded in the audit history with the person&rsquo;s name against it.
+            Drafts product ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is
+            a separate, audited step.
           </p>
           <Link href="/login" className="btn-primary mt-6">
             Try it in the workspace

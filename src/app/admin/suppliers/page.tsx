@@ -19,7 +19,6 @@ export default async function AdminSuppliersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Suppliers"
         title="Approved production partners"
         description="Only approved suppliers appear in store sourcing. Capabilities decide whether a paid order can be routed automatically or must be raised by hand."
       />

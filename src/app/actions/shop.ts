@@ -15,7 +15,7 @@ import {
   recordAudit,
 } from "@/lib/data";
 import { routeOrder } from "@/lib/fulfillment";
-import { inspectImage, renderAndUploadMockup } from "@/lib/mockup";
+import { inspectImage, readRenderedPreview } from "@/lib/mockup";
 import { db, uploadFile } from "@/lib/platform";
 import { convert } from "@/lib/pricing";
 import { SHOPPER_COOKIE } from "@/lib/session";
@@ -151,8 +151,8 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
       };
     }
 
-    const bytes = Buffer.from(await file.arrayBuffer());
-    const meta = await inspectImage(bytes);
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const meta = inspectImage(bytes);
     const area = catalog.printAreas[0];
     shopperArtwork = {
       id: newId("art"),
@@ -183,56 +183,12 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     shopperArtwork.url = artworkUrl;
   }
 
-  // Build a preview that shows exactly what will be printed.
+  // The browser composites the personalisation onto the product photography and
+  // posts the result with the form, so the basket shows what will be printed.
   let previewUrl = product.mockups[0]?.url ?? null;
-  if (catalog && (shopperArtwork || text)) {
-    const area = catalog.printAreas[0];
-    const base =
-      catalog.mockups.find((m) => m.view === area.view && m.colour === variant.colour) ??
-      catalog.mockups.find((m) => m.view === area.view);
-    if (base) {
-      const layers = shopperArtwork
-        ? [
-            {
-              artworkUrl: shopperArtwork.url,
-              pixelWidth: shopperArtwork.pixelWidth,
-              pixelHeight: shopperArtwork.pixelHeight,
-              x: 0.5,
-              y: 0.5,
-              scale: 0.6,
-              rotation: 0,
-            },
-          ]
-        : product.artworks
-            .filter((a) => a.printAreaId === area.id)
-            .map((a) => ({
-              artworkUrl: a.url,
-              pixelWidth: a.pixelWidth,
-              pixelHeight: a.pixelHeight,
-              x: a.x,
-              y: a.y,
-              scale: a.scale,
-              rotation: a.rotation,
-            }));
-      if (text) {
-        layers.push({
-          artworkUrl: null,
-          pixelWidth: 0,
-          pixelHeight: 0,
-          x: 0.5,
-          y: 0.86,
-          scale: 0.8,
-          rotation: 0,
-          text,
-          textColour: variant.colourHex === "#ffffff" ? "#111827" : "#f8fafc",
-        } as never);
-      }
-      try {
-        previewUrl = await renderAndUploadMockup(base.url, area, layers as never);
-      } catch {
-        previewUrl = product.mockups[0]?.url ?? null;
-      }
-    }
+  if (shopperArtwork || text) {
+    const rendered = await readRenderedPreview(formData.get("preview"));
+    if (rendered) previewUrl = await uploadFile(rendered.bytes, rendered.mimeType);
   }
 
   const cart = await loadCart(storeId, true);

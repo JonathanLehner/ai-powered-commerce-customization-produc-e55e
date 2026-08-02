@@ -17,7 +17,6 @@ export default async function AdminTaxPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Tax"
         title="Global tax brackets"
         description="Rates are defined once for the whole platform. A store picks a default bracket and each product can point at a different one."
       />

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { addToCart } from "@/app/actions/shop";
 import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { attachMockup, type MockupLayer } from "@/lib/mockup-render";
 import type { StoreProduct } from "@/lib/types";
 import { classNames, formatMoney } from "@/lib/util";
 
@@ -74,6 +75,30 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
   const area = product.printArea;
 
+  /**
+   * Composites the personalisation onto the product photography and attaches it
+   * to the submission, so the basket and the production job carry the same
+   * picture the shopper just approved.
+   */
+  async function renderPreview(formData: FormData) {
+    if (!area || !activeMockup || (!artworkPreview && !text)) return;
+    const layers: MockupLayer[] = [];
+    if (artworkPreview) {
+      layers.push({ artworkUrl: artworkPreview, x: 0.5, y: 0.5, scale: 0.6, rotation: 0 });
+    }
+    if (text) {
+      layers.push({
+        x: 0.5,
+        y: 0.86,
+        scale: 0.8,
+        rotation: 0,
+        text,
+        textColour: variant?.colourHex === "#ffffff" ? "#111827" : "#f8fafc",
+      });
+    }
+    await attachMockup(formData, "preview", activeMockup, area.rect, layers);
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       <div>
@@ -139,14 +164,14 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
         {artworkPreview || text ? (
           <p className="mt-3 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
-            This is a live preview of your personalisation. A production-accurate preview is generated and
-            attached to your order when you add it to the basket.
+            Live preview. A production-accurate version is attached when you add this to the basket.
           </p>
         ) : null}
       </div>
 
       <ActionForm
         action={addToCart}
+        beforeSubmit={renderPreview}
         submitLabel="Add to basket"
         pendingLabel="Adding…"
         hidden={{ storeId: product.storeId, productId: product.id }}

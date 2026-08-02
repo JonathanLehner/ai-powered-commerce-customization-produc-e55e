@@ -12,7 +12,7 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { blockingIssues, validateArtwork } from "@/lib/artwork";
-import { inspectImage, renderAndUploadMockup } from "@/lib/mockup";
+import { inspectImage, readRenderedPreview } from "@/lib/mockup";
 import { db, uploadFile } from "@/lib/platform";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
@@ -210,8 +210,8 @@ export async function uploadArtwork(_prev: ActionState, formData: FormData): Pro
     };
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const meta = await inspectImage(bytes);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const meta = inspectImage(bytes);
   if (!meta.width || !meta.height) {
     return { status: "error", message: "That file could not be read as an image.", field: "artwork" };
   }
@@ -338,17 +338,11 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
       catalog.mockups.find((m) => m.view === area.view);
     if (!base) continue;
 
-    const url = await renderAndUploadMockup(base.url, area, [
-      {
-        artworkUrl: artwork.url,
-        pixelWidth: artwork.pixelWidth,
-        pixelHeight: artwork.pixelHeight,
-        x: artwork.x,
-        y: artwork.y,
-        scale: artwork.scale,
-        rotation: artwork.rotation,
-      },
-    ]);
+    // The placement is composited in the browser and posted back with the form.
+    const rendered = await readRenderedPreview(formData.get(`mockup_${area.id}`));
+    if (!rendered) continue;
+    const url = await uploadFile(rendered.bytes, rendered.mimeType);
+
     mockups.push({
       id: newId("mck"),
       view: area.view,
@@ -362,7 +356,11 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   }
 
   if (mockups.length === 0) {
-    return { status: "error", message: "No supplier photography is available for the print areas in use." };
+    return {
+      status: "error",
+      message:
+        "No preview could be rendered. Check that each print area with artwork has supplier photography, then try again.",
+    };
   }
 
   await updateStoreProduct(productId, { mockups });

@@ -42,9 +42,8 @@ export default async function StorefrontEditorPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Storefront"
         title="Page editor"
-        description="Drag approved sections into place, edit their copy, check the layout at three widths, then publish. Shoppers keep seeing the published version until you do."
+        description="Arrange sections, edit their copy and preview at three widths. Shoppers keep seeing the published version until you publish."
         actions={
           storefront?.published ? (
             <form action={revertStorefront}>

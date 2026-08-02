@@ -24,9 +24,8 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Team"
         title="Who can work on this store"
-        description="Roles are per store. Agency administrators always have full access to their own stores; everyone else needs an explicit invitation."
+        description="Roles are per store. Everyone outside the agency needs an explicit invitation."
       />
 
       <section className="card p-5">

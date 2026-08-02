@@ -26,9 +26,8 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-7">
       <PageHeader
-        eyebrow="Platform"
         title="Operations overview"
-        description="Suppliers, the shared catalog, global tax rates and agency access. Client commerce data stays inside each store."
+        description="Suppliers, the shared catalog, global tax rates and agency access."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

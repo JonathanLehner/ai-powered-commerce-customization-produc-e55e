@@ -47,7 +47,7 @@ async function store(storeId: string, drafts: DraftSuggestion[], productId: stri
 function friendly(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   if (message.includes("not valid JSON")) {
-    return "Gemini replied in an unexpected format. Try again — the request was not applied to anything.";
+    return "The assistant replied in an unexpected format. Try again — nothing was applied.";
   }
   return `The assistant could not complete that request: ${message}`;
 }

@@ -24,9 +24,8 @@ export default async function AdminCatalogItemPage({
         ]}
       />
       <PageHeader
-        eyebrow={supplier ? supplier.name : "Supplier product"}
         title={item.name}
-        description={`${item.productType} · ${item.variants.length} variants · ${item.printAreas.length} print areas`}
+        description={`${supplier ? `${supplier.name} · ` : ""}${item.productType} · ${item.variants.length} variants · ${item.printAreas.length} print areas`}
         actions={<Badge tone={item.status === "active" ? "green" : "slate"}>{item.status}</Badge>}
       />
 

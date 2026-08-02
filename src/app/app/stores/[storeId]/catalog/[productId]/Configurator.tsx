@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { generateMockups, persistPlacement, removeArtwork, uploadArtwork } from "@/app/actions/products";
-import { ActionForm, SubmitButton } from "@/components/forms";
+import { ActionForm, FormStatus, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import type { ActionState } from "@/app/actions/stores";
 import { placementBox, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
-import type { Artwork, CatalogProduct, PrintArea, StoreProduct } from "@/lib/types";
+import { attachMockup, sameOriginAsset } from "@/lib/mockup-render";
+import type { Artwork, CatalogProduct, StoreProduct } from "@/lib/types";
 import { classNames } from "@/lib/util";
 
 interface Placement {
@@ -13,6 +15,79 @@ interface Placement {
   y: number;
   scale: number;
   rotation: number;
+}
+
+/**
+ * Artwork goes up the moment a file is chosen — there is no second "upload"
+ * click to forget. The input locks while the upload is in flight so a second
+ * pick cannot race the first.
+ */
+function UploadForm({
+  storeId,
+  productId,
+  areaId,
+  areaName,
+  maxFileMb,
+  needsTransparency,
+}: {
+  storeId: string;
+  productId: string;
+  areaId: string;
+  areaName: string;
+  maxFileMb: number;
+  needsTransparency: boolean;
+}) {
+  const [state, formAction, pending] = useActionState<ActionState, FormData>(uploadArtwork, {
+    status: "idle",
+  });
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Clearing the input once the upload settles means picking the same file
+  // again still fires a change event.
+  useEffect(() => {
+    if (state.status !== "idle" && inputRef.current) inputRef.current.value = "";
+  }, [state]);
+
+  return (
+    <form ref={formRef} action={formAction} className="card p-4">
+      <input type="hidden" name="storeId" value={storeId} />
+      <input type="hidden" name="productId" value={productId} />
+      <input type="hidden" name="printAreaId" value={areaId} />
+      <label htmlFor="artwork" className="field-label">
+        Artwork for {areaName}
+      </label>
+      <input
+        id="artwork"
+        name="artwork"
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        disabled={pending}
+        onChange={(event) => {
+          if (event.currentTarget.files?.length) formRef.current?.requestSubmit();
+        }}
+        aria-invalid={state.field === "artwork" ? true : undefined}
+        aria-describedby="artwork-hint"
+        className={classNames(
+          "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
+          state.field === "artwork" && "input-error",
+          pending && "opacity-60",
+        )}
+      />
+      <p id="artwork-hint" className="field-hint">
+        PNG, JPG or WEBP up to {maxFileMb} MB. Uploads as soon as you choose a file.
+        {needsTransparency ? " This product needs a transparent background." : ""}
+      </p>
+      {pending ? (
+        <p role="status" aria-live="polite" className="mt-4 text-sm text-muted">
+          Uploading…
+        </p>
+      ) : (
+        <FormStatus state={state} />
+      )}
+    </form>
+  );
 }
 
 export function Configurator({
@@ -106,6 +181,33 @@ export function Configurator({
     if (dragState.current?.pointerId === event.pointerId) dragState.current = null;
   }
 
+  /**
+   * Composites the saved placement onto the supplier photography for every
+   * decorated view and attaches each result to the form. Rendering happens here
+   * because the server has no image toolchain.
+   */
+  async function renderMockups(formData: FormData) {
+    for (const artwork of product.artworks) {
+      const target = catalog.printAreas.find((a) => a.id === artwork.printAreaId);
+      if (!target) continue;
+      const photo =
+        catalog.mockups.find((m) => m.view === target.view && m.colour === colour) ??
+        catalog.mockups.find((m) => m.view === target.view);
+      if (!photo) continue;
+      await attachMockup(formData, `mockup_${target.id}`, photo.url, target.rect, [
+        {
+          artworkUrl: artwork.url,
+          pixelWidth: artwork.pixelWidth,
+          pixelHeight: artwork.pixelHeight,
+          x: artwork.x,
+          y: artwork.y,
+          scale: artwork.scale,
+          rotation: artwork.rotation,
+        },
+      ]);
+    }
+  }
+
   function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (!artwork || !placement || readOnly) return;
     const step = event.shiftKey ? 0.05 : 0.01;
@@ -167,7 +269,7 @@ export function Configurator({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={base.url}
+            src={sameOriginAsset(base.url)}
             alt={`${catalog.name} — ${area.name} view in ${base.colour}`}
             className="h-full w-full select-none object-cover"
             draggable={false}
@@ -214,7 +316,7 @@ export function Configurator({
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={liveArtwork.url}
+                  src={sameOriginAsset(liveArtwork.url)}
                   alt=""
                   className="pointer-events-none block w-full select-none"
                   draggable={false}
@@ -423,46 +525,21 @@ export function Configurator({
         )}
 
         {!readOnly ? (
-          <ActionForm
-            action={uploadArtwork}
-            submitLabel={artwork ? "Replace artwork" : "Upload artwork"}
-            pendingLabel="Uploading…"
-            submitClassName="btn-secondary w-full"
-            hidden={{ storeId: product.storeId, productId: product.id, printAreaId: area.id }}
-            className="card p-4"
-          >
-            {(state) => (
-              <>
-                <label htmlFor="artwork" className="field-label">
-                  Artwork for {area.name}
-                </label>
-                <input
-                  id="artwork"
-                  name="artwork"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  required
-                  aria-invalid={state.field === "artwork" ? true : undefined}
-                  aria-describedby="artwork-hint"
-                  className={classNames(
-                    "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-                    state.field === "artwork" && "input-error",
-                  )}
-                />
-                <p id="artwork-hint" className="field-hint">
-                  PNG, JPG or WEBP up to {catalog.fileRequirements.maxFileMb} MB.
-                  {catalog.fileRequirements.transparentBackgroundRequired
-                    ? " This product needs a transparent background."
-                    : ""}
-                </p>
-              </>
-            )}
-          </ActionForm>
+          <UploadForm
+            key={area.id}
+            storeId={product.storeId}
+            productId={product.id}
+            areaId={area.id}
+            areaName={area.name}
+            maxFileMb={catalog.fileRequirements.maxFileMb}
+            needsTransparency={catalog.fileRequirements.transparentBackgroundRequired}
+          />
         ) : null}
 
         {!readOnly ? (
           <ActionForm
             action={generateMockups}
+            beforeSubmit={renderMockups}
             submitLabel="Generate mockups"
             pendingLabel="Rendering previews…"
             submitClassName="btn-iris w-full"
