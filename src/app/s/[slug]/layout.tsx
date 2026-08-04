@@ -113,6 +113,11 @@ export default async function StorefrontLayout({
                   Basket
                 </Link>
               </li>
+              <li>
+                <Link href={`/s/${store.slug}/orders`} className="hover:underline">
+                  Order status
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

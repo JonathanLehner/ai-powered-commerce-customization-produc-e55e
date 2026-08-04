@@ -8,11 +8,14 @@ import {
   COLLECTIONS,
   getCart,
   getCatalogProduct,
+  getOrderByCode,
   getOrderByIdempotencyKey,
   getStore,
+  getStoreBySlug,
   getStoreProduct,
   recordAudit,
 } from "@/lib/data";
+import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
 import { basketTotals } from "@/lib/basket";
 import { routeOrder } from "@/lib/fulfillment";
@@ -258,7 +261,9 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   if (!store || store.status !== "active") {
     return { status: "error", message: "This store is not currently taking orders." };
   }
-  if (replayed) redirect(`/s/${store.slug}/orders/${replayed.code}`);
+  if (replayed) {
+    redirect(orderStatusUrl(store.slug, replayed.code, await signOrderToken(store.id, replayed.code)));
+  }
   if (!cart || cart.items.length === 0) {
     return { status: "error", message: "Your basket is empty." };
   }
@@ -429,5 +434,33 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
 
   revalidatePath(`/s/${store.slug}/cart`);
   revalidatePath(`/app/stores/${storeId}/orders`);
-  redirect(`/s/${store.slug}/orders/${code}?new=1`);
+  redirect(orderStatusUrl(store.slug, code, await signOrderToken(storeId, code), "&new=1"));
+}
+
+/* -------------------------------------------------------------- order status */
+
+/**
+ * Opens the order status page for a shopper who can state the order code and
+ * the email address on the order. The failure message is deliberately identical
+ * for an unknown code and a mismatched email so the form cannot be used to
+ * discover which order codes exist.
+ */
+export async function lookupOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const slug = String(formData.get("slug") ?? "");
+  const code = String(formData.get("code") ?? "").trim().toUpperCase();
+  const email = String(formData.get("email") ?? "").trim();
+
+  if (!code) return { status: "error", message: "Enter your order code.", field: "code" };
+  if (!email) return { status: "error", message: "Enter the email address on the order.", field: "email" };
+
+  const store = await getStoreBySlug(slug);
+  const order = store ? await getOrderByCode(store.id, code) : null;
+  if (!store || !order || !emailMatchesOrder(order.customer.email, email)) {
+    return {
+      status: "error",
+      message: "We could not match that order code and email address. Check both and try again.",
+    };
+  }
+
+  redirect(orderStatusUrl(slug, order.code, await signOrderToken(store.id, order.code)));
 }

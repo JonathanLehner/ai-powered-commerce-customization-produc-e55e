@@ -3,12 +3,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Callout, DataList } from "@/components/ui";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
+import { verifyOrderToken } from "@/lib/order-access";
 import { orderTaxRows } from "@/lib/pricing";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
+import { OrderLookupForm } from "../OrderLookupForm";
 
 export const metadata: Metadata = {
   title: "Order status",
+  robots: { index: false, follow: false },
 };
 
 const SHOPPER_STATUS: Record<OrderStatus, { label: string; note: string; tone: "brand" | "green" | "amber" | "rose" | "slate" }> = {
@@ -26,12 +29,27 @@ export default async function OrderStatusPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; code: string }>;
-  searchParams: Promise<{ new?: string }>;
+  searchParams: Promise<{ new?: string; t?: string }>;
 }) {
   const { slug, code } = await params;
-  const { new: isNew } = await searchParams;
+  const { new: isNew, t } = await searchParams;
   const store = await getStoreBySlug(slug);
   if (!store) notFound();
+
+  // Nothing about the order — not even whether it exists — is readable without
+  // the signed link from checkout or the email address on the order.
+  if (!(await verifyOrderToken(store.id, code, t))) {
+    return (
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Order status</h1>
+        <p className="mt-2 text-sm text-muted">
+          To protect delivery and personalisation details, confirm the email address on order{" "}
+          <span className="font-medium text-ink">{code}</span> before we show it.
+        </p>
+        <OrderLookupForm slug={store.slug} code={code} />
+      </div>
+    );
+  }
 
   const order = await getOrderByCode(store.id, code);
   if (!order) notFound();

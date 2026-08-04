@@ -6,6 +6,7 @@
  *
  * Run: node --env-file=.env.local scripts/seed.mjs
  */
+import { randomInt } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -939,7 +940,6 @@ async function main() {
   };
 
   const orders = [];
-  let orderSeq = 4100;
   for (const plan of ORDER_PLAN) {
     const store = stores.find((s) => s.id === plan.store);
     const pool = productsByStore(plan.store);
@@ -947,7 +947,8 @@ async function main() {
     const supplier = suppliers.find((s) => s.id === product.supplierId);
     const bracket = taxBrackets.find((t) => t.id === product.taxBracketId);
     const variant = product.variants[Math.min(1, product.variants.length - 1)];
-    const code = `ORD-${(orderSeq += 7)}`;
+    // Random, not sequential: neighbouring order codes must not be guessable.
+    const code = `ORD-${randomInt(10_000_000, 99_999_999)}`;
     const unitPrice = variant.price;
     const subtotal = unitPrice * plan.qty;
     const shipping = product.category === "drinkware" ? 690 : 590;
