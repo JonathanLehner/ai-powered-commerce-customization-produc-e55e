@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/orders";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
+import { countryName } from "@/lib/countries";
 import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry } from "@/lib/fulfillment";
 import { orderTaxRows } from "@/lib/pricing";
@@ -258,7 +259,8 @@ export default async function OrderDetailPage({
               <br />
               {order.customer.city} {order.customer.postalCode}
               <br />
-              {order.customer.country} · {regionForCountry(order.customer.country)}
+              {countryName(order.customer.country)} ({order.customer.country}) ·{" "}
+              {regionForCountry(order.customer.country)}
             </address>
             {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
               <a

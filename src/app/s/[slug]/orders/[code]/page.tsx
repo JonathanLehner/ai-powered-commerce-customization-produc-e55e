@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Callout, DataList } from "@/components/ui";
+import { countryName } from "@/lib/countries";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
 import { verifyOrderToken } from "@/lib/order-access";
 import { orderTaxRows } from "@/lib/pricing";
@@ -149,7 +150,7 @@ export default async function OrderStatusPage({
             <br />
             {order.customer.city} {order.customer.postalCode}
             <br />
-            {order.customer.country}
+            {countryName(order.customer.country)}
           </address>
         </div>
         <div>

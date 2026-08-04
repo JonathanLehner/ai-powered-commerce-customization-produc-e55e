@@ -1,19 +1,12 @@
 import "server-only";
 import { getSupplier } from "./data";
+import { countryName, regionForCountry } from "./countries";
 import type { Order, Store, Supplier } from "./types";
 
-const COUNTRY_REGIONS: Record<string, string> = {
-  US: "North America", CA: "North America", MX: "LATAM", BR: "LATAM", AR: "LATAM",
-  GB: "United Kingdom", IE: "European Union", DE: "European Union", FR: "European Union",
-  NL: "European Union", ES: "European Union", IT: "European Union", SE: "European Union",
-  PL: "European Union", PT: "European Union", AT: "European Union", DK: "European Union",
-  JP: "APAC", SG: "APAC", AU: "Oceania", NZ: "Oceania", KR: "APAC", IN: "APAC",
-  AE: "Middle East", SA: "Middle East", ZA: "Africa", NG: "Africa", KE: "Africa",
-};
-
-export function regionForCountry(country: string): string {
-  return COUNTRY_REGIONS[country.toUpperCase()] ?? "Rest of world";
-}
+// The country → region table lives in ./countries so the checkout form can warn
+// a shopper about an out-of-region destination before they pay, using exactly
+// the test routing applies afterwards.
+export { regionForCountry };
 
 export interface RoutingDecision {
   routing: "submitted" | "manual_required" | "failed";
@@ -88,8 +81,8 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
       supplierId: supplier.id,
       supplierName: supplier.name,
       supplierOrderRef: null,
-      message: `${supplier.name} does not fulfil to ${region}. Route this job to an alternative production partner.`,
-      exception: `Destination ${order.customer.country} (${region}) is outside ${supplier.name}'s fulfilment regions.`,
+      message: `${supplier.name} does not fulfil to ${countryName(order.customer.country)} (${region}). Route this job to an alternative production partner.`,
+      exception: `Destination ${countryName(order.customer.country)} (${order.customer.country} · ${region}) is outside ${supplier.name}'s fulfilment regions.`,
     };
   }
 

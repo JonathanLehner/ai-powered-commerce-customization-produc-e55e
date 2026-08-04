@@ -130,6 +130,12 @@ that are already in good shape, so it is safe to re-run.
 - Mutations are server actions. Checkout is idempotent on a per-cart key so a
   double click or a retried request cannot create a second order; copying a
   supplier product into a store works the same way, on a per-form import key.
+- Checkout asks for the destination as a searchable list of country names and
+  submits the ISO code, defaulting to the store's Stripe account country.
+  `src/lib/countries.ts` holds the country → fulfilment region table used both by
+  the storefront, to warn before payment when the destination is outside the
+  regions of the supplier behind a basket item, and by the routing engine that
+  applies the same test afterwards (`npm run country-check`).
 - A store may hold several copies of one supplier product. Each copy gets its own
   name, slug and store SKU (`NORTHW-ORG-COT-TEE`, then `-2`), and copying in one
   the store already has asks first — see `src/lib/sku.ts`.

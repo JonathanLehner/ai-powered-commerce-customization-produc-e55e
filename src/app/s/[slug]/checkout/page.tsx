@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { readCurrency, readShopperSession } from "@/app/actions/shop";
 import { Callout } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
-import { getCart, getStoreBySlug } from "@/lib/data";
+import type { FulfillmentSource } from "@/lib/countries";
+import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
 import { formatMoney } from "@/lib/util";
 import { CheckoutForm } from "./CheckoutForm";
 
@@ -22,7 +23,28 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   if (!cart || cart.items.length === 0) redirect(`/s/${store.slug}/cart`);
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const { lines, shipping, taxRows, total } = await basketTotals(store, cart.items, currency);
+  const { products, lines, shipping, taxRows, total } = await basketTotals(store, cart.items, currency);
+
+  // Which supplier stands behind each basket line, so the form can tell the
+  // shopper their destination is out of region before the card is charged.
+  const sources = new Map<string, FulfillmentSource>();
+  for (const [index, item] of cart.items.entries()) {
+    const supplierId = products[index]?.supplierId;
+    if (!supplierId) continue;
+    const existing = sources.get(supplierId);
+    if (existing) {
+      if (!existing.productNames.includes(item.productName)) existing.productNames.push(item.productName);
+      continue;
+    }
+    const supplier = await getSupplier(supplierId);
+    if (!supplier) continue;
+    sources.set(supplierId, {
+      supplierId,
+      supplierName: supplier.name,
+      regions: supplier.regions,
+      productNames: [item.productName],
+    });
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -50,6 +72,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             currencies={store.currencies}
             currency={currency}
             stripeAccountId={store.stripe.accountId}
+            defaultCountry={store.stripe.country}
+            fulfillmentSources={[...sources.values()]}
           />
 
           <aside className="h-fit rounded-xl border border-line bg-canvas p-5">

@@ -286,8 +286,10 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   if (line1.length < 4) return { status: "error", message: "Enter the street address.", field: "line1" };
   if (city.length < 2) return { status: "error", message: "Enter the town or city.", field: "city" };
   if (postalCode.length < 3) return { status: "error", message: "Enter the postal code.", field: "postalCode" };
+  // The checkout picker always submits a valid code; this backstops a form
+  // posted without it.
   if (!/^[A-Z]{2}$/.test(country)) {
-    return { status: "error", message: "Enter a two-letter country code, such as US or DE.", field: "country" };
+    return { status: "error", message: "Choose your delivery country from the list.", field: "country" };
   }
   if (!store.currencies.includes(currency)) {
     return { status: "error", message: `${currency} is not one of this store's selling currencies.`, field: "currency" };

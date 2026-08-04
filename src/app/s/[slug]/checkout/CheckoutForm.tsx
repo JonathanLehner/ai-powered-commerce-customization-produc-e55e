@@ -1,8 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { placeOrder } from "@/app/actions/shop";
+import { CountrySelect } from "@/components/CountrySelect";
 import { ActionForm } from "@/components/forms";
+import { Callout } from "@/components/ui";
+import {
+  countryName,
+  isCountryCode,
+  regionForCountry,
+  suppliersOutsideRegion,
+  type FulfillmentSource,
+} from "@/lib/countries";
 import { TEST_CARDS } from "@/lib/stripe";
 
 export function CheckoutForm({
@@ -10,17 +19,26 @@ export function CheckoutForm({
   currencies,
   currency,
   stripeAccountId,
+  defaultCountry,
+  fulfillmentSources,
 }: {
   storeId: string;
   currencies: string[];
   currency: string;
   stripeAccountId: string | null;
+  /** The store's Stripe account country — where most of its shoppers are. */
+  defaultCountry: string;
+  fulfillmentSources: FulfillmentSource[];
 }) {
   // Generated once per page load so a double submit cannot create two orders.
   const idempotencyKey = useMemo(
     () => `idem_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`,
     [],
   );
+  const [country, setCountry] = useState(() =>
+    isCountryCode(defaultCountry) ? defaultCountry.toUpperCase() : "US",
+  );
+  const unfulfilled = suppliersOutsideRegion(country, fulfillmentSources);
 
   return (
     <ActionForm
@@ -106,21 +124,18 @@ export function CheckoutForm({
             </div>
             <div>
               <label htmlFor="country" className="field-label">
-                Country code
+                Country
               </label>
-              <input
+              <CountrySelect
                 id="country"
                 name="country"
-                autoComplete="country"
-                maxLength={2}
-                placeholder="US"
-                required
-                aria-invalid={state.field === "country" ? true : undefined}
-                aria-describedby="country-hint"
-                className={state.field === "country" ? "input input-error" : "input"}
+                value={country}
+                onChange={setCountry}
+                invalid={state.field === "country"}
+                describedBy="country-hint"
               />
               <p id="country-hint" className="field-hint">
-                Two letters, e.g. US, GB, DE. Production is routed by destination.
+                Start typing to find your country. Production is routed by destination.
               </p>
             </div>
             <div>
@@ -141,6 +156,26 @@ export function CheckoutForm({
                 ))}
               </select>
             </div>
+
+            {unfulfilled.length > 0 ? (
+              <div className="sm:col-span-2">
+                <Callout tone="amber" title={`Delivery to ${countryName(country)} needs manual routing`}>
+                  <ul className="space-y-1">
+                    {unfulfilled.map((source) => (
+                      <li key={source.supplierId}>
+                        {source.supplierName} makes {source.productNames.join(" and ")} and does not fulfil to{" "}
+                        {countryName(country)} ({regionForCountry(country)}).
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2">
+                    You can still pay, but the order will be held for a person to place with another production
+                    partner, so it will take longer than the usual lead time. Choosing a delivery country your
+                    supplier covers avoids the wait.
+                  </p>
+                </Callout>
+              </div>
+            ) : null}
           </div>
 
           <h2 className="mt-8 text-base font-semibold text-ink">Payment</h2>
