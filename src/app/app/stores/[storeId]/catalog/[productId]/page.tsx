@@ -10,7 +10,14 @@ import {
 } from "@/app/actions/products";
 import { SubmitButton } from "@/components/forms";
 import { Badge, Breadcrumbs, Callout, PageHeader } from "@/components/ui";
-import { getCatalogProduct, getStoreProduct, getSupplier, listTaxBrackets } from "@/lib/data";
+import { hasApprovedPreviews } from "@/lib/artwork";
+import {
+  getCatalogProduct,
+  getStoreProduct,
+  getSupplier,
+  listTaxBrackets,
+  updateStoreProduct,
+} from "@/lib/data";
 import { marginTone } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { VIEW_LABELS } from "@/lib/types";
@@ -30,12 +37,24 @@ export default async function ProductEditorPage({
 
   // The access check and the product are independent reads, and each one is a
   // round trip to the platform, so they go out together.
-  const [{ store, role }, product] = await Promise.all([
+  const [{ store, role }, stored] = await Promise.all([
     requireStoreAccess(storeId),
     getStoreProduct(productId),
   ]);
   const canEdit = roleCan(role, "store.catalog");
-  if (!product || product.storeId !== storeId) notFound();
+  if (!stored || stored.storeId !== storeId) notFound();
+
+  // Artwork and mockup writes demote a published product themselves, but a
+  // record saved before that guard existed can still be sitting on the
+  // storefront with nothing approved. Correct it on sight, so the page never
+  // shows "published" next to the reasons it cannot be published.
+  const stale = stored.status === "published" && !hasApprovedPreviews(stored);
+  const product = stale
+    ? { ...stored, status: "in_review" as const, unpublishedReason: "artwork_changed" as const }
+    : stored;
+  if (stale) {
+    await updateStoreProduct(stored.id, { status: "in_review", unpublishedReason: "artwork_changed" }, stored);
+  }
 
   const [catalog, supplier, brackets, blockers] = await Promise.all([
     getCatalogProduct(product.catalogProductId),
@@ -101,9 +120,11 @@ export default async function ProductEditorPage({
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-ink">Publication</h2>
             <p className="mt-1 text-sm text-muted">
-              {blockers.length === 0
-                ? "Every pre-flight check passes. This product is ready to sell."
-                : `${blockers.length} thing${blockers.length === 1 ? "" : "s"} must be resolved before this product can be published.`}
+              {product.status === "published"
+                ? "This product is live on the storefront."
+                : blockers.length === 0
+                  ? "Every pre-flight check passes. This product is ready to sell."
+                  : `${blockers.length} thing${blockers.length === 1 ? "" : "s"} must be resolved before this product can be published.`}
             </p>
           </div>
           {canEdit ? (
@@ -150,7 +171,16 @@ export default async function ProductEditorPage({
           ) : null}
         </div>
 
-        {blockers.length > 0 ? (
+        {product.unpublishedReason === "artwork_changed" && product.status !== "published" ? (
+          <div className="mt-4">
+            <Callout tone="amber" title="Taken off the storefront">
+              This product was taken off the storefront because the artwork changed. Regenerate the previews
+              and approve them to republish.
+            </Callout>
+          </div>
+        ) : null}
+
+        {blockers.length > 0 && product.status !== "published" ? (
           <ul className="mt-4 space-y-2.5" role="alert">
             {blockers.map((blocker, index) => (
               <li key={index} className="rounded-lg border border-amber-200 bg-amber-50 p-3">

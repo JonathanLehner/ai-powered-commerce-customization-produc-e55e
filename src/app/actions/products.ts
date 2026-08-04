@@ -201,6 +201,16 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
   return { status: "success", message: `${variants.filter((v) => v.enabled).length} variants enabled.` };
 }
 
+/**
+ * Artwork and mockup edits can take a published product off the storefront (see
+ * `updateStoreProduct`), so the shop pages are revalidated alongside the editor.
+ */
+function revalidateAfterArtworkChange(storeId: string, productId: string, storeSlug: string) {
+  revalidatePath(`/app/stores/${storeId}/catalog`);
+  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  revalidatePath(`/s/${storeSlug}`);
+}
+
 /* --------------------------------------------------------------- artwork */
 
 /**
@@ -265,7 +275,7 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
     meta: { printArea: area.name, pixels: `${stored.pixelWidth}x${stored.pixelHeight}` },
   });
 
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  revalidateAfterArtworkChange(storeId, productId, store.slug);
   const issues = validateArtwork(artwork, area, catalog.fileRequirements);
   const errors = blockingIssues(issues);
   return {
@@ -284,7 +294,7 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
 export async function saveArtworkPlacement(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { product } = await loadProduct(storeId, productId);
+  const { store, product } = await loadProduct(storeId, productId);
 
   const artworks = product.artworks.map((artwork) => {
     const read = (key: string, fallback: number) => {
@@ -316,7 +326,7 @@ export async function saveArtworkPlacement(_prev: ActionState, formData: FormDat
   if (!moved) return { status: "success", message: "Placement saved." };
 
   await updateStoreProduct(productId, { artworks, mockups: [] }, product);
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  revalidateAfterArtworkChange(storeId, productId, store.slug);
   return { status: "success", message: "Placement saved. Generate mockups to preview the result." };
 }
 
@@ -344,7 +354,7 @@ export async function removeArtwork(formData: FormData): Promise<void> {
     entityId: productId,
     meta: {},
   });
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  revalidateAfterArtworkChange(storeId, productId, store.slug);
 }
 
 /* --------------------------------------------------------------- mockups */
@@ -407,7 +417,7 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
     entityId: productId,
     meta: { views: mockups.map((m) => m.view).join(", ") },
   });
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  revalidateAfterArtworkChange(storeId, productId, store.slug);
   return {
     status: "success",
     message: `${mockups.length} preview${mockups.length === 1 ? "" : "s"} generated. Review them and approve before publishing.`,
@@ -455,11 +465,9 @@ export async function rejectMockups(formData: FormData): Promise<void> {
   const productId = String(formData.get("productId") ?? "");
   const { user, store, product } = await loadProduct(storeId, productId);
 
-  const patch = {
-    mockups: [] as MockupImage[],
-    status: product.status === "published" ? ("in_review" as const) : product.status,
-  };
-  await updateStoreProduct(productId, patch, product);
+  // Clearing the previews of a published product takes it off the storefront —
+  // `updateStoreProduct` applies that demotion for every artwork/mockup write.
+  await updateStoreProduct(productId, { mockups: [] as MockupImage[] }, product);
   recordAudit({
     category: "publishing",
     action: "product.mockups_rejected",
@@ -472,7 +480,7 @@ export async function rejectMockups(formData: FormData): Promise<void> {
     entityId: productId,
     meta: {},
   });
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  revalidateAfterArtworkChange(storeId, productId, store.slug);
 }
 
 /* -------------------------------------------------------------- publishing */
@@ -551,7 +559,11 @@ export async function setProductStatus(formData: FormData): Promise<void> {
 
   await updateStoreProduct(
     productId,
-    { status, publishedAt: status === "published" ? new Date().toISOString() : product.publishedAt },
+    {
+      status,
+      publishedAt: status === "published" ? new Date().toISOString() : product.publishedAt,
+      unpublishedReason: null,
+    },
     product,
   );
   recordAudit({

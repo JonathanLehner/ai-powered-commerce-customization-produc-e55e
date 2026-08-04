@@ -1,4 +1,23 @@
-import type { Artwork, FileRequirements, PrintArea } from "./types";
+import type { Artwork, FileRequirements, PrintArea, StoreProduct } from "./types";
+
+/**
+ * A product can only be sold while its previews show what will actually be
+ * printed. Uploading, moving or removing artwork clears the mockups, and
+ * regenerating them resets every preview to unapproved, so either state means
+ * the product must come off the storefront.
+ */
+export function hasApprovedPreviews(product: Pick<StoreProduct, "artworks" | "mockups">) {
+  return (
+    product.artworks.length > 0 &&
+    product.mockups.length > 0 &&
+    product.mockups.every((m) => m.approved)
+  );
+}
+
+export function isLive(product: StoreProduct) {
+  return product.status === "published" && hasApprovedPreviews(product);
+}
+
 
 export interface PlacementBox {
   /** All values are fractions of the print area box. */

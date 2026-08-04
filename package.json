@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "tax-check": "node --experimental-strip-types scripts/tax-check.mjs"
+    "tax-check": "node --experimental-strip-types scripts/tax-check.mjs",
+    "publish-guard-check": "node --experimental-strip-types scripts/publish-guard-check.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

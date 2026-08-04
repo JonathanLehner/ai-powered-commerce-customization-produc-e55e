@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { readCurrency } from "@/app/actions/shop";
 import { Badge, Breadcrumbs } from "@/components/ui";
+import { isLive } from "@/lib/artwork";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug, getSupplier } from "@/lib/data";
 import { convert } from "@/lib/pricing";
 import { ProductPurchase, type PurchaseProduct } from "./ProductPurchase";
@@ -33,7 +34,7 @@ export default async function StorefrontProductPage({
   if (!store) notFound();
 
   const product = await getStoreProductBySlug(store.id, productSlug);
-  if (!product || product.status !== "published") notFound();
+  if (!product || !isLive(product)) notFound();
 
   const [catalog, supplier] = await Promise.all([
     getCatalogProduct(product.catalogProductId),

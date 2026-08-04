@@ -13,6 +13,7 @@ import {
   getStoreProduct,
   recordAudit,
 } from "@/lib/data";
+import { isLive } from "@/lib/artwork";
 import { basketTotals } from "@/lib/basket";
 import { routeOrder } from "@/lib/fulfillment";
 import { readStoredImage } from "@/lib/uploads";
@@ -108,7 +109,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   if (!store || store.status !== "active") {
     return { status: "error", message: "This store is not currently taking orders." };
   }
-  if (!product || product.storeId !== storeId || product.status !== "published") {
+  if (!product || product.storeId !== storeId || !isLive(product)) {
     return { status: "error", message: "That product is no longer available." };
   }
   const variant = product.variants.find((v) => v.id === variantId && v.enabled);

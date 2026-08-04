@@ -313,6 +313,8 @@ export interface StoreProduct {
   tags: string[];
   category: "apparel" | "drinkware";
   status: "draft" | "in_review" | "published" | "archived";
+  /** Set when the platform itself took the product off the storefront. */
+  unpublishedReason?: "artwork_changed" | null;
   visibility: "public" | "hidden";
   price: number;
   currency: string;

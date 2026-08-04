@@ -1,5 +1,6 @@
 import "server-only";
 import { after } from "next/server";
+import { hasApprovedPreviews } from "./artwork";
 import { db } from "./platform";
 import { newId } from "./util";
 import type {
@@ -139,12 +140,13 @@ export function listStoreProducts(storeId: string) {
   return db.find<StoreProduct>(COLLECTIONS.storeProducts, { storeId }, { sort: { updatedAt: -1 } });
 }
 
-export function listPublishedProducts(storeId: string) {
-  return db.find<StoreProduct>(
+export async function listPublishedProducts(storeId: string) {
+  const products = await db.find<StoreProduct>(
     COLLECTIONS.storeProducts,
     { storeId, status: "published", visibility: "public" },
     { sort: { updatedAt: -1 } },
   );
+  return products.filter(hasApprovedPreviews);
 }
 
 export function getStoreProduct(id: string) {
@@ -161,8 +163,21 @@ export function getStoreProductBySlug(storeId: string, slug: string) {
  * Pass the record the patch was built from and the result is handed to the
  * per-request memo, so the page that re-renders after the mutation does not
  * spend another round trip re-reading a document this request just wrote.
+ *
+ * Uploading, moving or removing artwork clears the generated mockups, and
+ * regenerating them resets every preview to unapproved. A published product in
+ * that state is live but unsellable, so any write that puts it there also takes
+ * it back to review. The guard sits here because every artwork and mockup
+ * mutation routes through this one write.
  */
 export async function updateStoreProduct(id: string, patch: Partial<StoreProduct>, current?: StoreProduct) {
+  if (patch.artworks || patch.mockups) {
+    const before = current ?? (await getStoreProduct(id));
+    const merged = before ? { ...before, ...patch } : null;
+    if (merged && merged.status === "published" && !hasApprovedPreviews(merged)) {
+      patch = { ...patch, status: "in_review", unpublishedReason: "artwork_changed" };
+    }
+  }
   const updatedAt = new Date().toISOString();
   await db.updateOne(
     COLLECTIONS.storeProducts,
