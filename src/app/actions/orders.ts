@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getOrder, recordAudit, updateOrder } from "@/lib/data";
-import { routeOrder, trackingNumberFor } from "@/lib/fulfillment";
+import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
+import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
 import { assertStoreAccess } from "@/lib/session";
 import type { FulfillmentEvent, Order, OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId, parseMoney } from "@/lib/util";
@@ -71,6 +71,108 @@ export async function routeToSupplier(formData: FormData): Promise<void> {
     meta: { routing: decision.routing },
   });
   refresh(storeId, orderId);
+}
+
+/**
+ * Sends the job to a supplier the order manager picked, for the orders
+ * automatic routing cannot place — most often a destination the sourced
+ * supplier does not produce in. The choice is re-checked against the live
+ * supplier records before anything is written.
+ */
+export async function rerouteToSupplier(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const orderId = String(formData.get("orderId") ?? "");
+  const supplierId = String(formData.get("supplierId") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+
+  if (!supplierId) {
+    return { status: "error", message: "Choose the supplier that will produce this order.", field: "supplierId" };
+  }
+  if (reason.length < 4) {
+    return { status: "error", message: "Give a short reason — it appears in the audit history.", field: "reason" };
+  }
+
+  const { user, store, order } = await load(storeId, orderId);
+  const already = order.fulfillment.reroute;
+  // A double click, a slow response or a retried tab must not raise the same
+  // job twice: the identical reroute is reported as done rather than repeated.
+  if (
+    order.fulfillment.routing === "submitted" &&
+    order.fulfillment.supplierId === supplierId &&
+    already?.reason === reason
+  ) {
+    return {
+      status: "success",
+      message: `${order.code} is already with ${order.fulfillment.supplierName} (${order.fulfillment.supplierOrderRef}).`,
+    };
+  }
+
+  const supplier = await getSupplier(supplierId);
+  if (!supplier) {
+    return { status: "error", message: "That supplier is no longer on the platform.", field: "supplierId" };
+  }
+
+  const decision = await submitToSupplier(order, store, supplier);
+  if (decision.routing !== "submitted") {
+    return { status: "error", message: decision.message, field: "supplierId" };
+  }
+
+  const from = order.fulfillment.supplierName;
+  const at = new Date().toISOString();
+  const summary = from
+    ? `Rerouted from ${from} to ${supplier.name} — ${reason}.`
+    : `Routed to ${supplier.name} — ${reason}.`;
+
+  await updateOrder(orderId, {
+    status: "in_production",
+    fulfillment: {
+      ...order.fulfillment,
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      routing: "submitted",
+      supplierOrderRef: decision.supplierOrderRef,
+      submittedAt: at,
+      submissionMessage: `${summary} ${decision.message}`,
+      exception: null,
+      reroute: {
+        fromSupplierId: order.fulfillment.supplierId,
+        fromSupplierName: from,
+        reason,
+        actor: user.name,
+        at,
+      },
+    },
+    events: [
+      ...order.events,
+      event(
+        "Rerouted to supplier",
+        `${summary} Accepted as ${decision.supplierOrderRef}.`,
+        user.name,
+      ),
+    ],
+  });
+  recordAudit({
+    category: "order_routing",
+    action: "order.rerouted",
+    summary: `${order.code}: ${summary.replace(/\.$/, "")}`,
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "order",
+    entityId: order.code,
+    meta: {
+      from: order.fulfillment.supplierId,
+      to: supplier.id,
+      reason,
+      reference: decision.supplierOrderRef,
+    },
+  });
+  refresh(storeId, orderId);
+  return {
+    status: "success",
+    message: `${supplier.name} accepted ${order.code} as ${decision.supplierOrderRef}.`,
+  };
 }
 
 export async function recordManualSubmission(_prev: ActionState, formData: FormData): Promise<ActionState> {

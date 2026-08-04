@@ -162,6 +162,38 @@ export interface Supplier {
   createdAt: string;
 }
 
+/** One thing an order needs made, deduplicated across its items. */
+export interface ItemRequirement {
+  /** Human label for the routing panel, e.g. "Mug". */
+  label: string;
+  /** Product family the order needs: "t-shirt", "hoodie", "mug". */
+  family: string | null;
+  category: string | null;
+}
+
+/** A supplier offered as somewhere an order could be produced instead. */
+export interface SupplierChoice {
+  id: string;
+  name: string;
+  kind: Supplier["kind"];
+  leadTimeDays: [number, number];
+  /** True for the supplier the order is routed to right now. */
+  current: boolean;
+}
+
+/** Where a job that automatic routing could not place could go instead. */
+export interface RoutingOptions {
+  region: string;
+  destination: string;
+  requirements: ItemRequirement[];
+  /** Approved, in-region, makes every item, and takes jobs over its order API. */
+  available: SupplierChoice[];
+  /** Same, but with no order submission API — those are manual purchase orders. */
+  manualOnly: SupplierChoice[];
+  /** False when the store has no carrier switched on, so nothing can dispatch. */
+  carriersEnabled: boolean;
+}
+
 /** A box on a mockup image expressed as 0–1 fractions of its width and height. */
 export interface Rect {
   x: number;
@@ -446,6 +478,19 @@ export interface Order {
     trackingNumber: string | null;
     trackingUrl: string | null;
     exception: string | null;
+    /**
+     * Set when an order manager moved production off the supplier the items
+     * were sourced from — an out-of-region destination is the usual reason.
+     * Routing re-runs against this choice rather than the item mapping, so a
+     * later "re-run routing" cannot quietly undo the decision.
+     */
+    reroute?: {
+      fromSupplierId: string | null;
+      fromSupplierName: string | null;
+      reason: string;
+      actor: string;
+      at: string;
+    } | null;
   };
   refunds: { id: string; amount: number; reason: string; at: string; actor: string }[];
   events: FulfillmentEvent[];

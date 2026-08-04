@@ -1,7 +1,8 @@
 import "server-only";
-import { getSupplier } from "./data";
+import { getSupplier, listCatalogProducts, listStoreProducts, listSuppliers } from "./data";
 import { countryName, regionForCountry } from "./countries";
-import type { Order, Store, Supplier } from "./types";
+import { orderRequirements, routingChoices } from "./supplier-routing";
+import type { Order, RoutingOptions, Store, Supplier } from "./types";
 
 // The country → region table lives in ./countries so the checkout form can warn
 // a shopper about an out-of-region destination before they pay, using exactly
@@ -28,8 +29,13 @@ function supplierRef(supplier: Supplier, order: Order): string {
  * for a human because those platforms have no order submission API.
  */
 export async function routeOrder(order: Order, store: Store): Promise<RoutingDecision> {
+  // A reroute is a human decision about where production goes. Re-running
+  // routing re-checks that decision instead of falling back to the item
+  // mapping, which would send the job straight back to the supplier the order
+  // manager moved it off.
+  const overrideId = order.fulfillment.reroute ? order.fulfillment.supplierId : null;
   const supplierIds = Array.from(new Set(order.items.map((i) => i.supplierId).filter(Boolean)));
-  if (supplierIds.length === 0) {
+  if (!overrideId && supplierIds.length === 0) {
     return {
       routing: "manual_required",
       supplierId: null,
@@ -40,11 +46,11 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
     };
   }
 
-  const supplier = await getSupplier(supplierIds[0]);
+  const supplier = await getSupplier(overrideId ?? supplierIds[0]);
   if (!supplier) {
     return {
       routing: "failed",
-      supplierId: supplierIds[0],
+      supplierId: overrideId ?? supplierIds[0],
       supplierName: null,
       supplierOrderRef: null,
       message: "The supplier record for these items no longer exists.",
@@ -52,7 +58,7 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
     };
   }
 
-  if (supplierIds.length > 1) {
+  if (!overrideId && supplierIds.length > 1) {
     return {
       routing: "manual_required",
       supplierId: supplier.id,
@@ -99,6 +105,83 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
 
   const enabledCarriers = store.carriers.filter((c) => c.enabled);
   if (enabledCarriers.length === 0) {
+    return {
+      routing: "manual_required",
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      supplierOrderRef: null,
+      message: "No shipping carrier is enabled for this store, so the job cannot be dispatched.",
+      exception: "Enable DHL, FedEx or UPS in store settings before routing production.",
+    };
+  }
+
+  return {
+    routing: "submitted",
+    supplierId: supplier.id,
+    supplierName: supplier.name,
+    supplierOrderRef: supplierRef(supplier, order),
+    message: `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} day lead time).`,
+    exception: null,
+  };
+}
+
+/**
+ * Where else this order could be produced, resolved against the live supplier
+ * and catalog records: the partners that could take the job now, and the ones
+ * that cover the destination but have to be ordered from by hand.
+ */
+export async function routingOptionsFor(order: Order, store: Store): Promise<RoutingOptions> {
+  const [suppliers, catalog, storeProducts] = await Promise.all([
+    listSuppliers(),
+    listCatalogProducts(),
+    listStoreProducts(order.storeId),
+  ]);
+  const region = regionForCountry(order.customer.country);
+  const requirements = orderRequirements(order, storeProducts, catalog);
+
+  return {
+    region,
+    destination: countryName(order.customer.country),
+    requirements,
+    ...routingChoices({
+      suppliers,
+      catalog,
+      requirements,
+      region,
+      currentSupplierId: order.fulfillment.supplierId,
+    }),
+    carriersEnabled: store.carriers.some((c) => c.enabled),
+  };
+}
+
+/**
+ * Hands the job to a supplier an order manager picked. The eligibility rules
+ * are the automatic ones, re-checked here because the choice arrives from a
+ * browser and the supplier list may have moved on since the page was drawn.
+ */
+export async function submitToSupplier(
+  order: Order,
+  store: Store,
+  supplier: Supplier,
+): Promise<RoutingDecision> {
+  const options = await routingOptionsFor(order, store);
+  const eligible = options.available.some((choice) => choice.id === supplier.id);
+
+  if (!eligible) {
+    const manual = options.manualOnly.some((choice) => choice.id === supplier.id);
+    return {
+      routing: "manual_required",
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      supplierOrderRef: null,
+      message: manual
+        ? `${supplier.name} has no order submission API. Raise the purchase order manually and record the reference here.`
+        : `${supplier.name} cannot take this job — check it is approved, produces in ${options.region} and makes ${options.requirements.map((r) => r.label).join(", ")}.`,
+      exception: null,
+    };
+  }
+
+  if (!options.carriersEnabled) {
     return {
       routing: "manual_required",
       supplierId: supplier.id,

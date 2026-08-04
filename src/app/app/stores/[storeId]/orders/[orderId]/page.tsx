@@ -5,12 +5,18 @@ import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { countryName } from "@/lib/countries";
 import { getOrder, getSupplier } from "@/lib/data";
-import { regionForCountry } from "@/lib/fulfillment";
+import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
 import { orderTaxRows } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
-import { ExceptionForm, ManualSubmissionForm, RefundForm, TrackingForm } from "./OrderForms";
+import {
+  ExceptionForm,
+  ManualSubmissionForm,
+  RefundForm,
+  SupplierPickerForm,
+  TrackingForm,
+} from "./OrderForms";
 
 export default async function OrderDetailPage({
   params,
@@ -23,7 +29,11 @@ export default async function OrderDetailPage({
 
   const order = await getOrder(orderId);
   if (!order || order.storeId !== storeId) notFound();
-  const supplier = order.fulfillment.supplierId ? await getSupplier(order.fulfillment.supplierId) : null;
+  // Where else this job could go — only needed by the panel an order manager sees.
+  const [supplier, routingOptions] = await Promise.all([
+    order.fulfillment.supplierId ? getSupplier(order.fulfillment.supplierId) : null,
+    canManage ? routingOptionsFor(order, store) : null,
+  ]);
 
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
 
@@ -193,13 +203,30 @@ export default async function OrderDetailPage({
                       <input type="hidden" name="storeId" value={storeId} />
                       <input type="hidden" name="orderId" value={order.id} />
                       <button type="submit" className="btn-secondary btn-sm">
-                        {order.fulfillment.routing === "submitted" ? "Re-run routing" : "Route to supplier"}
+                        Re-run automatic routing
                       </button>
                     </form>
                   </div>
+                  {routingOptions ? (
+                    <div className="mt-5 border-t border-line pt-4">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
+                        {routingOptions.available.length === 0
+                          ? "Alternative production partners"
+                          : order.fulfillment.routing === "submitted"
+                            ? "Move production elsewhere"
+                            : "Choose a production partner"}
+                      </h4>
+                      <SupplierPickerForm order={order} options={routingOptions} />
+                    </div>
+                  ) : null}
                   {order.fulfillment.routing !== "submitted" ? (
-                    <div className="mt-4">
-                      <ManualSubmissionForm order={order} />
+                    <div className="mt-5 border-t border-line pt-4">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
+                        Purchase order raised by hand
+                      </h4>
+                      <div className="mt-3">
+                        <ManualSubmissionForm order={order} />
+                      </div>
                     </div>
                   ) : null}
                 </div>
@@ -331,6 +358,19 @@ export default async function OrderDetailPage({
                   label: "Lead time",
                   value: supplier ? `${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} days` : "—",
                 },
+                ...(order.fulfillment.reroute
+                  ? [
+                      {
+                        label: "Rerouted",
+                        value: `${order.fulfillment.reroute.actor} · ${formatDateTime(order.fulfillment.reroute.at)}`,
+                      },
+                      {
+                        label: "Moved from",
+                        value: order.fulfillment.reroute.fromSupplierName ?? "Unassigned",
+                      },
+                      { label: "Reason", value: order.fulfillment.reroute.reason },
+                    ]
+                  : []),
               ]}
             />
           </section>
