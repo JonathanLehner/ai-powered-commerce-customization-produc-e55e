@@ -10,6 +10,7 @@ import { randomInt } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { seedGifting } from "./seed-gifting.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
 if (!KEY) {
@@ -733,7 +734,7 @@ async function main() {
   for (const c of [
     "agencies", "users", "stores", "memberships", "suppliers", "catalog_products",
     "store_products", "tax_brackets", "orders", "storefronts", "audit_logs",
-    "ai_suggestions", "carts",
+    "ai_suggestions", "carts", "gift_catalogues", "gift_campaigns",
   ]) {
     await clear(c);
   }
@@ -1138,6 +1139,10 @@ async function main() {
   await insertMany("orders", orders);
   await insertMany("ai_suggestions", suggestions);
   await insertMany("audit_logs", auditLogs);
+
+  // The gifting demo reads the store and its published products back out of the
+  // database, so it runs once everything above has been written.
+  await seedGifting(KEY);
 
   console.log(
     `done — ${stores.length} stores, ${storeProducts.length} store products, ${orders.length} orders, ${auditLogs.length} audit entries`,

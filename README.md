@@ -18,9 +18,10 @@ FedEx or UPS tracking.
 | Agency workspace | `/app`, `/app/stores/new`, `/app/stores/[storeId]/…` |
 | Platform administration | `/admin/…` — suppliers, shared catalog, tax brackets, agencies, audit |
 | Client storefronts | `/s/[slug]/…` — catalog, product, basket, checkout, order status |
+| Corporate gift portals | `/g/[slug]/…` — private gift catalogue, bulk order, campaign |
 
 Store sections: overview, catalog, sourcing, AI assistant, storefront editor,
-orders, team, guided setup, activity.
+gifting, orders, team, guided setup, activity.
 
 ### Core capabilities
 
@@ -30,8 +31,8 @@ orders, team, guided setup, activity.
   another client's, including in the agency dashboard.
 - **Store-scoped roles.** Store administrator, catalog manager, order manager and
   viewer, enforced by capability (`store.settings`, `store.team`, `store.catalog`,
-  `store.orders`, `store.storefront`, `store.view`) in both pages and server
-  actions.
+  `store.orders`, `store.storefront`, `store.gifting`, `store.view`) in both pages
+  and server actions.
 - **Guided setup.** Logo upload, theme, default language, selling currencies,
   custom domain with a CNAME check, Stripe connection, DHL/FedEx/UPS accounts and
   the store's default tax bracket — each step saves on its own.
@@ -56,6 +57,16 @@ orders, team, guided setup, activity.
 - **Commerce assistant.** Product ideas, supplier recommendations, descriptions,
   tags and prices are stored as pending suggestions. Applying one is a separate,
   audited step.
+- **Corporate gifting.** A store runs a private gift catalogue per company:
+  link- or invite-gated, drawn from that store's own published products, with a
+  spend limit per recipient. A buyer pastes or uploads a recipient list — names,
+  addresses, sizes, quantities, an optional gift message — and every row is
+  checked against the catalogue before anything is created: bad addresses,
+  unknown countries, sizes that are not made, gifts over the limit. The list goes
+  to the company's approver on a link of their own, and only then can the buyer
+  pay. One payment raises one order per recipient, all grouped under the campaign
+  in the store's order queue so fulfilment and exceptions are worked per
+  programme (`npm run gifting-check`).
 - **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
   the store's own connected account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,
@@ -113,6 +124,13 @@ time.
 node scripts/seed.mjs         # requires CLAWCORP_API_KEY in the environment
 ```
 
+`scripts/seed-gifting.mjs` adds the corporate gifting demo — a private catalogue
+for Northwind, a paid campaign with one order per recipient (including an
+exception to work) and a second campaign sitting with its approver. It reads the
+store and its products back out of the database and does nothing if the
+catalogue is already there, so it is safe to run on its own; `seed.mjs` calls it
+at the end.
+
 `scripts/backfill-product-identity.mjs` is a one-off migration for databases
 seeded before store products carried a SKU: it assigns one per product and
 breaks any duplicate slugs left by a double-submitted import. It skips records
@@ -136,6 +154,12 @@ that are already in good shape, so it is safe to re-run.
   the storefront, to warn before payment when the destination is outside the
   regions of the supplier behind a basket item, and by the routing engine that
   applies the same test afterwards (`npm run country-check`).
+- A gifting buyer has no Parcelith account. `src/lib/gift-access.ts` issues HMAC
+  tokens over the catalogue's own rotating secret — the private link, the cookie
+  for an invited address, and one token each for the buyer and the approver of a
+  campaign, so the approval step cannot be taken by whoever placed the order.
+  Regenerating a catalogue's access rotates that secret and closes every link and
+  session handed out before it.
 - A store may hold several copies of one supplier product. Each copy gets its own
   name, slug and store SKU (`NORTHW-ORG-COT-TEE`, then `-2`), and copying in one
   the store already has asks first — see `src/lib/sku.ts`.

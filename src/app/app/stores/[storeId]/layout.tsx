@@ -22,6 +22,7 @@ export default async function StoreLayout({
     { href: `${base}/sourcing`, label: "Sourcing", capability: "store.catalog" },
     { href: `${base}/assistant`, label: "AI assistant", capability: "store.catalog" },
     { href: `${base}/storefront`, label: "Storefront", capability: "store.storefront" },
+    { href: `${base}/gifting`, label: "Gifting", capability: "store.gifting" },
     { href: `${base}/orders`, label: "Orders", capability: "store.view" },
     { href: `${base}/team`, label: "Team", capability: "store.team" },
     { href: `${base}/setup`, label: "Settings", capability: "store.settings" },

@@ -126,6 +126,18 @@ const FX_TO_USD: Record<string, number> = {
   CHF: 1.12, SEK: 0.095, AED: 0.27, BRL: 0.18, INR: 0.012, MXN: 0.055, ZAR: 0.054,
 };
 
+/**
+ * Flat shipping for one parcel, quoted in USD and converted like every other
+ * price. Mugs travel in a heavier, better-protected box than apparel. A basket
+ * ships as one parcel; a gift campaign ships one per recipient, so both charge
+ * it through here.
+ */
+export function parcelShipping(productNames: string[], currency: string): number {
+  if (productNames.length === 0) return 0;
+  const heavy = productNames.some((name) => name.toLowerCase().includes("mug"));
+  return convert(heavy ? 690 : 590, "USD", currency);
+}
+
 export function convert(minor: number, from: string, to: string): number {
   if (from === to) return minor;
   const fromRate = FX_TO_USD[from.toUpperCase()] ?? 1;

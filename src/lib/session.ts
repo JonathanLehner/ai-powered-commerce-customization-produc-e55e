@@ -13,11 +13,20 @@ export type Capability =
   | "store.catalog"
   | "store.orders"
   | "store.storefront"
+  | "store.gifting"
   | "store.view";
 
 const ROLE_CAPABILITIES: Record<StoreRole, Capability[]> = {
-  store_admin: ["store.settings", "store.team", "store.catalog", "store.orders", "store.storefront", "store.view"],
-  catalog_manager: ["store.catalog", "store.storefront", "store.view"],
+  store_admin: [
+    "store.settings",
+    "store.team",
+    "store.catalog",
+    "store.orders",
+    "store.storefront",
+    "store.gifting",
+    "store.view",
+  ],
+  catalog_manager: ["store.catalog", "store.storefront", "store.gifting", "store.view"],
   order_manager: ["store.orders", "store.view"],
   viewer: ["store.view"],
 };

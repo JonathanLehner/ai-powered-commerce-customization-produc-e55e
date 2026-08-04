@@ -10,6 +10,8 @@ import type {
   AuditLog,
   Cart,
   CatalogProduct,
+  GiftCampaign,
+  GiftCatalogue,
   Membership,
   Order,
   Store,
@@ -34,6 +36,8 @@ export const COLLECTIONS = {
   audit: "audit_logs",
   suggestions: "ai_suggestions",
   carts: "carts",
+  giftCatalogues: "gift_catalogues",
+  giftCampaigns: "gift_campaigns",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */
@@ -226,6 +230,57 @@ export async function updateOrder(id: string, patch: Partial<Order>) {
     COLLECTIONS.orders,
     { id },
     { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
+  );
+}
+
+/* ----------------------------------------------------------------- gifting */
+
+export function listGiftCatalogues(storeId: string) {
+  return db.find<GiftCatalogue>(COLLECTIONS.giftCatalogues, { storeId }, { sort: { createdAt: -1 } });
+}
+
+export function getGiftCatalogue(id: string) {
+  return db.findOne<GiftCatalogue>(COLLECTIONS.giftCatalogues, { id });
+}
+
+export function getGiftCatalogueBySlug(slug: string) {
+  return db.findOne<GiftCatalogue>(COLLECTIONS.giftCatalogues, { slug });
+}
+
+export async function updateGiftCatalogue(id: string, patch: Partial<GiftCatalogue>) {
+  await db.updateOne(
+    COLLECTIONS.giftCatalogues,
+    { id },
+    { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
+  );
+}
+
+export function listGiftCampaigns(storeId: string) {
+  return db.find<GiftCampaign>(COLLECTIONS.giftCampaigns, { storeId }, { sort: { createdAt: -1 } });
+}
+
+export function getGiftCampaign(id: string) {
+  return db.findOne<GiftCampaign>(COLLECTIONS.giftCampaigns, { id });
+}
+
+export function getGiftCampaignByCode(code: string) {
+  return db.findOne<GiftCampaign>(COLLECTIONS.giftCampaigns, { code });
+}
+
+export async function updateGiftCampaign(id: string, patch: Partial<GiftCampaign>) {
+  await db.updateOne(
+    COLLECTIONS.giftCampaigns,
+    { id },
+    { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
+  );
+}
+
+/** Every order a campaign produced, oldest first — one per recipient. */
+export function listOrdersForCampaign(campaignId: string) {
+  return db.find<Order>(
+    COLLECTIONS.orders,
+    { "campaign.campaignId": campaignId },
+    { sort: { createdAt: 1 } },
   );
 }
 

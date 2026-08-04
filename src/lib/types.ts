@@ -17,7 +17,8 @@ export const STORE_ROLE_LABELS: Record<StoreRole, string> = {
 
 export const STORE_ROLE_DESCRIPTIONS: Record<StoreRole, string> = {
   store_admin: "Full control of the store: settings, team, catalog, orders and publishing.",
-  catalog_manager: "Import, customise, price and publish products. No access to store settings.",
+  catalog_manager:
+    "Import, customise, price and publish products, and run gift catalogues. No access to store settings.",
   order_manager: "Work orders, fulfilment, refunds and supplier exceptions. Read-only catalog.",
   viewer: "Read-only access to catalog, orders and analytics.",
 };
@@ -448,6 +449,136 @@ export interface Order {
   };
   refunds: { id: string; amount: number; reason: string; at: string; actor: string }[];
   events: FulfillmentEvent[];
+  /** Set on the orders a gift campaign produced, absent on ordinary shopper orders. */
+  campaign?: {
+    campaignId: string;
+    campaignCode: string;
+    campaignName: string;
+    catalogueId: string;
+    recipientId: string;
+  } | null;
+  idempotencyKey: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ------------------------------------------------------------- gifting */
+
+/**
+ * A private gift catalogue a store runs for one company.
+ *
+ * It is a curated view of the store's own published products — never a separate
+ * catalog — plus the rules the company buys under: who may open it, how much may
+ * be spent on each recipient, and who signs a campaign off before it is paid for.
+ */
+export interface GiftCatalogue {
+  id: string;
+  storeId: string;
+  /** Company-facing name, e.g. "Northwind employee gifting". */
+  name: string;
+  /** Web address of the portal: /g/[slug]. Unique across the platform. */
+  slug: string;
+  companyName: string;
+  intro: string;
+  status: "active" | "paused";
+  /** `link` opens for anyone holding the private link; `invite` for listed addresses. */
+  access: "link" | "invite";
+  /**
+   * Rotated when the private link is regenerated. Every access token is derived
+   * from it, so regenerating closes every link handed out so far.
+   */
+  accessSecret: string;
+  invitedEmails: string[];
+  /** Store products offered in the catalogue. Unpublished ones simply drop out. */
+  productIds: string[];
+  /** Per recipient, in `currency`. Zero means no limit. */
+  spendLimitPerRecipient: number;
+  currency: string;
+  approvalRequired: boolean;
+  approverName: string;
+  approverEmail: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CampaignStatus =
+  | "awaiting_approval"
+  | "approved"
+  | "declined"
+  | "ordered"
+  | "cancelled";
+
+export const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
+  awaiting_approval: "Awaiting approval",
+  approved: "Approved, awaiting payment",
+  declined: "Declined",
+  ordered: "Ordered",
+  cancelled: "Cancelled",
+};
+
+/** One person on a campaign list: what they get and where it goes. */
+export interface CampaignRecipient {
+  id: string;
+  name: string;
+  email: string;
+  line1: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  size: string;
+  note: string;
+  storeProductId: string;
+  productName: string;
+  variantId: string;
+  variantName: string;
+  quantity: number;
+  /** Unit price in the campaign currency at the time the list was submitted. */
+  unitPrice: number;
+  /** Set once the campaign is paid for and the per-recipient order exists. */
+  orderId: string | null;
+  orderCode: string | null;
+}
+
+/**
+ * A bulk gift order. One campaign becomes one payment and one order per
+ * recipient, all carrying the campaign so the store can work fulfilment and
+ * exceptions for the whole programme at once.
+ */
+export interface GiftCampaign {
+  id: string;
+  storeId: string;
+  catalogueId: string;
+  code: string;
+  name: string;
+  status: CampaignStatus;
+  currency: string;
+  buyer: { name: string; email: string };
+  recipients: CampaignRecipient[];
+  spendLimitPerRecipient: number;
+  totals: {
+    subtotal: number;
+    shipping: number;
+    taxAmount: number;
+    taxLines: { rate: number; amount: number }[];
+    total: number;
+  };
+  approval: {
+    required: boolean;
+    approverName: string;
+    approverEmail: string;
+    decidedBy: string | null;
+    decidedAt: string | null;
+    note: string | null;
+  };
+  payment: {
+    status: "unpaid" | "succeeded";
+    paymentIntentId: string | null;
+    last4: string | null;
+    paidAt: string | null;
+  };
+  events: FulfillmentEvent[];
+  /** Idempotency key of the payment, shared by every order it created. */
   idempotencyKey: string | null;
   createdAt: string;
   updatedAt: string;
@@ -506,7 +637,8 @@ export type AuditCategory =
   | "publishing"
   | "order_routing"
   | "administration"
-  | "team";
+  | "team"
+  | "gifting";
 
 export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   store_setup: "Store setup",
@@ -517,6 +649,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   order_routing: "Order routing",
   administration: "Administration",
   team: "Team",
+  gifting: "Gifting",
 };
 
 export interface AuditLog {

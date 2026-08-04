@@ -1,5 +1,5 @@
 import { getStoreProduct, getTaxBracket } from "./data";
-import { convert, taxRowsFor, type TaxRow } from "./pricing";
+import { convert, parcelShipping, taxRowsFor, type TaxRow } from "./pricing";
 import type { CartItem, Store, StoreProduct } from "./types";
 
 export interface BasketTotals {
@@ -31,9 +31,10 @@ export async function basketTotals(store: Store, items: CartItem[], currency: st
     unit: convert(item.unitPrice, products[index]?.currency ?? store.defaultCurrency, currency),
   }));
   const subtotal = lines.reduce((sum, line) => sum + line.unit * line.item.quantity, 0);
-  const shipping = items.length
-    ? convert(items.some((i) => i.productName.toLowerCase().includes("mug")) ? 690 : 590, "USD", currency)
-    : 0;
+  const shipping = parcelShipping(
+    items.map((i) => i.productName),
+    currency,
+  );
 
   const taxRows = taxRowsFor(
     lines.map((line, index) => ({

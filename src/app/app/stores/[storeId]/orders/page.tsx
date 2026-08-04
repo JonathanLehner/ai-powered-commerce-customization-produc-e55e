@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
-import { listOrders, listStoreProducts } from "@/lib/data";
+import { listGiftCampaigns, listOrders, listStoreProducts } from "@/lib/data";
 import { storeMetrics } from "@/lib/metrics";
 import { requireStoreAccess } from "@/lib/session";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
@@ -21,16 +21,35 @@ export default async function OrdersPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ status?: string; q?: string; view?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; view?: string; campaign?: string }>;
 }) {
   const { storeId } = await params;
-  const { status, q, view } = await searchParams;
+  const { status, q, view, campaign } = await searchParams;
   const { store } = await requireStoreAccess(storeId);
 
-  const [orders, products] = await Promise.all([listOrders(storeId), listStoreProducts(storeId)]);
+  const [orders, products, campaigns] = await Promise.all([
+    listOrders(storeId),
+    listStoreProducts(storeId),
+    listGiftCampaigns(storeId),
+  ]);
   const metrics = storeMetrics(orders, products, store.defaultCurrency);
 
+  // Gift campaigns sit in the same queue as ordinary orders, grouped so
+  // fulfilment and exceptions can be worked one programme at a time.
+  const ordered = campaigns.filter((c) => c.status === "ordered");
+  const campaignRows = ordered.map((c) => {
+    const own = orders.filter((o) => o.campaign?.campaignId === c.id);
+    return {
+      campaign: c,
+      orders: own.length,
+      exceptions: own.filter((o) => o.status === "exception" || o.fulfillment.routing === "manual_required").length,
+      delivered: own.filter((o) => o.status === "delivered").length,
+    };
+  });
+  const activeCampaign = campaignRows.find((row) => row.campaign.code === campaign)?.campaign ?? null;
+
   const filtered = orders
+    .filter((o) => (campaign ? o.campaign?.campaignCode === campaign : true))
     .filter((o) => !status || o.status === status)
     .filter((o) =>
       view === "attention"
@@ -48,8 +67,12 @@ export default async function OrdersPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${orders.length} orders`}
-        description="Production and delivery status for every order placed on this store."
+        title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : `${orders.length} orders`}
+        description={
+          activeCampaign
+            ? `Every order in this gift campaign, ${activeCampaign.recipients.length} recipients from ${activeCampaign.buyer.name}.`
+            : "Production and delivery status for every order placed on this store."
+        }
         actions={
           <Link
             href={`/app/stores/${storeId}/orders${view === "attention" ? "" : "?view=attention"}`}
@@ -76,7 +99,60 @@ export default async function OrdersPage({
         />
       </div>
 
+      {campaignRows.length > 0 ? (
+        <section className="card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-ink">Gift campaigns</h2>
+            <Link href={`/app/stores/${storeId}/gifting`} className="text-sm font-medium text-brand-700 hover:underline">
+              Gifting
+            </Link>
+          </div>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {campaignRows.map((row) => (
+              <li key={row.campaign.id}>
+                <Link
+                  href={
+                    campaign === row.campaign.code
+                      ? `/app/stores/${storeId}/orders`
+                      : `/app/stores/${storeId}/orders?campaign=${encodeURIComponent(row.campaign.code)}`
+                  }
+                  aria-current={campaign === row.campaign.code ? "true" : undefined}
+                  className={
+                    campaign === row.campaign.code
+                      ? "flex flex-col rounded-lg border border-brand-400 bg-brand-50 px-3 py-2 text-left text-xs"
+                      : "flex flex-col rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-canvas"
+                  }
+                >
+                  <span className="font-semibold text-ink">
+                    {row.campaign.code} · {row.campaign.name}
+                  </span>
+                  <span className="text-muted">
+                    {row.orders} orders · {row.delivered} delivered
+                    {row.exceptions > 0 ? (
+                      <span className="text-rose-700"> · {row.exceptions} need attention</span>
+                    ) : null}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {activeCampaign ? (
+            <p className="mt-3 text-xs text-muted">
+              Showing {activeCampaign.code} only.{" "}
+              <Link
+                href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
+                className="font-medium text-brand-700 hover:underline"
+              >
+                Work the campaign recipient by recipient
+              </Link>
+              .
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       <form method="get" className="card flex flex-wrap items-end gap-3 p-4">
+        {campaign ? <input type="hidden" name="campaign" value={campaign} /> : null}
         <div className="min-w-[12rem] flex-1">
           <label htmlFor="q" className="field-label text-xs">
             Search
@@ -105,7 +181,7 @@ export default async function OrdersPage({
         <button type="submit" className="btn-secondary">
           Filter
         </button>
-        {q || status || view ? (
+        {q || status || view || campaign ? (
           <Link href={`/app/stores/${storeId}/orders`} className="btn-ghost">
             Clear
           </Link>
@@ -150,6 +226,14 @@ export default async function OrdersPage({
                     <p className="text-xs text-muted">
                       {order.customer.city}, {order.customer.country}
                     </p>
+                    {order.campaign ? (
+                      <Link
+                        href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
+                        className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
+                      >
+                        Gift · {order.campaign.campaignCode}
+                      </Link>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
