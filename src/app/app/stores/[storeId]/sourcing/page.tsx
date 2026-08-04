@@ -1,11 +1,95 @@
 import Image from "next/image";
 import Link from "next/link";
 import { importCatalogProduct } from "@/app/actions/products";
+import { SubmitButton } from "@/components/forms";
 import { Badge, Callout, EmptyState, PageHeader } from "@/components/ui";
 import { listCatalogProducts, listStoreProducts, listSuppliers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
-import type { CatalogProduct } from "@/lib/types";
-import { formatMoney } from "@/lib/util";
+import { storeSku } from "@/lib/sku";
+import type { CatalogProduct, StoreProduct } from "@/lib/types";
+import { formatDate, formatMoney, newId } from "@/lib/util";
+
+/** The fields every copy form posts, including the key that makes a retry safe. */
+function CopyFields({
+  storeId,
+  catalogId,
+  filters,
+  confirmed = false,
+}: {
+  storeId: string;
+  catalogId: string;
+  filters: string;
+  confirmed?: boolean;
+}) {
+  return (
+    <>
+      <input type="hidden" name="storeId" value={storeId} />
+      <input type="hidden" name="catalogId" value={catalogId} />
+      <input type="hidden" name="filters" value={filters} />
+      <input type="hidden" name="importKey" value={newId("imp")} />
+      {confirmed ? <input type="hidden" name="confirmed" value="1" /> : null}
+    </>
+  );
+}
+
+/**
+ * Shown once a store already holds a copy of the supplier product. Opening the
+ * copy that exists is the first thing offered, because it is usually what was
+ * wanted — a second copy is an independent product with its own artwork, price
+ * and SKU, and nothing merges the two back together later.
+ */
+function ConfirmCopyAgain({
+  storeId,
+  catalogId,
+  copies,
+  channelCode,
+  filters,
+  cancelHref,
+}: {
+  storeId: string;
+  catalogId: string;
+  copies: StoreProduct[];
+  channelCode: string;
+  filters: string;
+  cancelHref: string;
+}) {
+  return (
+    <div className="w-full rounded-lg border border-amber-200 bg-amber-50 p-3" role="group">
+      <p className="text-sm font-semibold text-amber-900">
+        Copy this in again? It is already in this store.
+      </p>
+      <ul className="mt-2 space-y-1.5">
+        {copies.map((copy) => (
+          <li key={copy.id} className="text-xs text-amber-900">
+            <Link
+              href={`/app/stores/${storeId}/catalog/${copy.id}`}
+              className="font-medium underline underline-offset-2"
+            >
+              Open {copy.name}
+            </Link>{" "}
+            · <span className="font-mono">{storeSku(copy, channelCode)}</span> · imported{" "}
+            {formatDate(copy.importedAt)}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-xs text-amber-800">
+        A second copy is a separate product with its own artwork, price and SKU. It is named for you so the
+        two never look alike, and you can rename it straight away.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <form action={importCatalogProduct}>
+          <CopyFields storeId={storeId} catalogId={catalogId} filters={filters} confirmed />
+          <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+            Copy again anyway
+          </SubmitButton>
+        </form>
+        <Link href={cancelHref} className="btn-ghost btn-sm" scroll={false}>
+          Cancel
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function matches(product: CatalogProduct, query: string) {
   if (!query) return true;
@@ -21,11 +105,18 @@ export default async function SourcingPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ q?: string; category?: string; supplier?: string; region?: string; compare?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    supplier?: string;
+    region?: string;
+    compare?: string;
+    confirm?: string;
+  }>;
 }) {
   const { storeId } = await params;
   const filters = await searchParams;
-  await requireStoreAccess(storeId, "store.catalog");
+  const { store } = await requireStoreAccess(storeId, "store.catalog");
 
   const [catalog, suppliers, storeProducts] = await Promise.all([
     listCatalogProducts(),
@@ -51,7 +142,18 @@ export default async function SourcingPage({
     .map((id) => catalog.find((c) => c.id === id))
     .filter((c): c is CatalogProduct => Boolean(c));
 
-  const importedCatalogIds = new Set(storeProducts.map((p) => p.catalogProductId));
+  // Every copy a store already holds of a supplier product, newest first, so a
+  // repeat copy can offer to open one of them instead.
+  const copiesOf = (catalogId: string) =>
+    storeProducts
+      .filter((p) => p.catalogProductId === catalogId)
+      .sort((a, b) => a.importedAt.localeCompare(b.importedAt));
+
+  const filterQuery = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value && key !== "confirm") filterQuery.set(key, value);
+  }
+  const filterString = filterQuery.toString();
 
   const buildHref = (patch: Record<string, string | undefined>) => {
     const next = new URLSearchParams();
@@ -195,17 +297,38 @@ export default async function SourcingPage({
                   <th scope="row" className="py-2.5 pr-3 font-medium text-muted">
                     Import
                   </th>
-                  {comparing.map((c) => (
-                    <td key={c.id} className="py-2.5 pr-3">
-                      <form action={importCatalogProduct}>
-                        <input type="hidden" name="storeId" value={storeId} />
-                        <input type="hidden" name="catalogId" value={c.id} />
-                        <button type="submit" className="btn-primary btn-sm">
-                          Copy to store
-                        </button>
-                      </form>
-                    </td>
-                  ))}
+                  {comparing.map((c) => {
+                    const copies = copiesOf(c.id);
+                    return (
+                      <td key={c.id} className="py-2.5 pr-3">
+                        {copies.length === 0 ? (
+                          <form action={importCatalogProduct}>
+                            <CopyFields storeId={storeId} catalogId={c.id} filters={filterString} />
+                            <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+                              Copy to store
+                            </SubmitButton>
+                          </form>
+                        ) : filters.confirm === c.id ? (
+                          <ConfirmCopyAgain
+                            storeId={storeId}
+                            catalogId={c.id}
+                            copies={copies}
+                            channelCode={store.channelCode}
+                            filters={filterString}
+                            cancelHref={buildHref({ confirm: undefined })}
+                          />
+                        ) : (
+                          <Link
+                            href={buildHref({ confirm: c.id })}
+                            className="btn-primary btn-sm"
+                            scroll={false}
+                          >
+                            Copy again
+                          </Link>
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
               </tbody>
             </table>
@@ -227,7 +350,7 @@ export default async function SourcingPage({
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {visible.map((product) => {
             const cover = product.mockups[0];
-            const alreadyImported = importedCatalogIds.has(product.id);
+            const copies = copiesOf(product.id);
             const selected = compareIds.includes(product.id);
             return (
               <li key={product.id} className="card flex flex-col overflow-hidden">
@@ -286,17 +409,44 @@ export default async function SourcingPage({
                   </p>
 
                   <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                    <form action={importCatalogProduct}>
-                      <input type="hidden" name="storeId" value={storeId} />
-                      <input type="hidden" name="catalogId" value={product.id} />
-                      <button type="submit" className="btn-primary btn-sm">
-                        {alreadyImported ? "Copy again" : "Copy to store"}
-                      </button>
-                    </form>
-                    <Link href={toggleCompare(product.id)} className="btn-secondary btn-sm" scroll={false}>
-                      {selected ? "Remove from compare" : "Compare"}
-                    </Link>
-                    {alreadyImported ? <Badge tone="neutral">Already in this store</Badge> : null}
+                    {filters.confirm === product.id && copies.length > 0 ? (
+                      <ConfirmCopyAgain
+                        storeId={storeId}
+                        catalogId={product.id}
+                        copies={copies}
+                        channelCode={store.channelCode}
+                        filters={filterString}
+                        cancelHref={buildHref({ confirm: undefined })}
+                      />
+                    ) : (
+                      <>
+                        {copies.length > 0 ? (
+                          <Link
+                            href={buildHref({ confirm: product.id })}
+                            className="btn-primary btn-sm"
+                            scroll={false}
+                          >
+                            Copy again
+                          </Link>
+                        ) : (
+                          <form action={importCatalogProduct}>
+                            <CopyFields storeId={storeId} catalogId={product.id} filters={filterString} />
+                            <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+                              Copy to store
+                            </SubmitButton>
+                          </form>
+                        )}
+                        <Link href={toggleCompare(product.id)} className="btn-secondary btn-sm" scroll={false}>
+                          {selected ? "Remove from compare" : "Compare"}
+                        </Link>
+                        {copies.length > 0 ? (
+                          <Badge tone="neutral">
+                            Already in this store
+                            {copies.length > 1 ? ` · ${copies.length} copies` : ""}
+                          </Badge>
+                        ) : null}
+                      </>
+                    )}
                   </div>
                 </div>
               </li>

@@ -311,6 +311,11 @@ export interface StoreProduct {
   supplierId: string;
   name: string;
   slug: string;
+  /**
+   * Store-level SKU, unique inside the store. Absent on records imported before
+   * SKUs existed — `storeSku()` derives a stable one for those.
+   */
+  sku?: string;
   description: string;
   tags: string[];
   category: "apparel" | "drinkware";
@@ -333,6 +338,12 @@ export interface StoreProduct {
   costs: CostBreakdown;
   importedBy: string;
   importedAt: string;
+  /**
+   * Idempotency key of the copy that created this record. A resubmitted import
+   * — double click, refresh, stale tab — finds the record it already made
+   * instead of copying the same supplier product twice.
+   */
+  importKey?: string | null;
   updatedAt: string;
   publishedAt: string | null;
 }

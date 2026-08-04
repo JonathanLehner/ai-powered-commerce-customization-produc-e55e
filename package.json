@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "tax-check": "node --experimental-strip-types scripts/tax-check.mjs",
+    "copy-identity-check": "node --experimental-strip-types scripts/copy-identity-check.mjs",
     "publish-guard-check": "node --experimental-strip-types scripts/publish-guard-check.mjs",
     "order-access-check": "node --conditions=react-server --experimental-strip-types scripts/order-access-check.mjs"
   },

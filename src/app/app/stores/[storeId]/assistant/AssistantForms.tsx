@@ -42,7 +42,8 @@ export function CopyForm({
   products,
 }: {
   storeId: string;
-  products: { id: string; name: string }[];
+  /** Labelled with SKU and import date, so two copies of one item are tellable apart. */
+  products: { id: string; label: string }[];
 }) {
   return (
     <ActionForm
@@ -73,7 +74,7 @@ export function CopyForm({
               <option value="">Choose a product…</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name}
+                  {p.label}
                 </option>
               ))}
             </select>
@@ -89,7 +90,8 @@ export function PriceForm({
   products,
 }: {
   storeId: string;
-  products: { id: string; name: string }[];
+  /** Labelled with SKU and import date, so two copies of one item are tellable apart. */
+  products: { id: string; label: string }[];
 }) {
   return (
     <ActionForm
@@ -120,7 +122,7 @@ export function PriceForm({
               <option value="">Choose a product…</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name}
+                  {p.label}
                 </option>
               ))}
             </select>

@@ -113,6 +113,11 @@ time.
 node scripts/seed.mjs         # requires CLAWCORP_API_KEY in the environment
 ```
 
+`scripts/backfill-product-identity.mjs` is a one-off migration for databases
+seeded before store products carried a SKU: it assigns one per product and
+breaks any duplicate slugs left by a double-submitted import. It skips records
+that are already in good shape, so it is safe to re-run.
+
 ## Architecture notes
 
 - Next.js App Router, React 19, Tailwind CSS v4, TypeScript. Marketing, login and
@@ -123,4 +128,8 @@ node scripts/seed.mjs         # requires CLAWCORP_API_KEY in the environment
 - Documents carry their own `id` field: Mongo `_id` values never match generated
   string ids, and the API has no upsert.
 - Mutations are server actions. Checkout is idempotent on a per-cart key so a
-  double click or a retried request cannot create a second order.
+  double click or a retried request cannot create a second order; copying a
+  supplier product into a store works the same way, on a per-form import key.
+- A store may hold several copies of one supplier product. Each copy gets its own
+  name, slug and store SKU (`NORTHW-ORG-COT-TEE`, then `-2`), and copying in one
+  the store already has asks first — see `src/lib/sku.ts`.

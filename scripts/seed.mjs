@@ -592,6 +592,27 @@ const CLIENT_ARTWORK = {
   lumen: { mark: "L", word: "LUMEN", tagline: "CREATIVE STUDIO", colour: "#be185d", accent: "#4c0519" },
 };
 
+/** Mirrors src/lib/sku.ts — "Organic Cotton Tee" in channel "lumen-studio" -> "LUMENS-ORG-COT-TEE". */
+function storeSku(store, name, taken) {
+  const prefix = store.channelCode.replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 6) || "STORE";
+  const stem =
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .split(" ")
+      .slice(0, 3)
+      .map((word) => word.slice(0, 3).toUpperCase())
+      .join("-") || "ITEM";
+  const base = `${prefix}-${stem}`;
+  let sku = base;
+  for (let n = 2; taken.has(sku); n++) sku = `${base}-${n}`;
+  taken.add(sku);
+  return sku;
+}
+
+const takenSkus = new Map();
+
 function storeVariants(catalogProduct, price, filterFn = () => true) {
   return catalogProduct.variants.filter(filterFn).map((v) => ({
     id: id("svar"),
@@ -809,6 +830,11 @@ async function main() {
       supplierId: cat.supplierId,
       name: plan.name,
       slug: plan.slug,
+      sku: storeSku(
+        store,
+        plan.name,
+        takenSkus.get(store.id) ?? takenSkus.set(store.id, new Set()).get(store.id),
+      ),
       description: plan.description,
       tags: plan.tags,
       category: cat.category,

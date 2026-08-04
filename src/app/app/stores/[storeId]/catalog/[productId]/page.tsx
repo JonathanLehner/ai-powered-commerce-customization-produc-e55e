@@ -20,8 +20,9 @@ import {
 } from "@/lib/data";
 import { marginTone } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
+import { storeSku } from "@/lib/sku";
 import { VIEW_LABELS } from "@/lib/types";
-import { formatDateTime, formatMoney, formatPercent } from "@/lib/util";
+import { formatDate, formatDateTime, formatMoney, formatPercent } from "@/lib/util";
 import { Configurator } from "./Configurator";
 import { ProductDetailsForm, VariantsForm } from "./ProductForms";
 
@@ -68,6 +69,7 @@ export default async function ProductEditorPage({
   const landed = costs.supplierCost + costs.customizationCost + costs.shippingEstimate;
   const tone = marginTone(costs.marginPct);
   const mockupsApproved = product.mockups.length > 0 && product.mockups.every((m) => m.approved);
+  const sku = storeSku(product, store.channelCode);
 
   return (
     <div className="space-y-6">
@@ -83,9 +85,11 @@ export default async function ProductEditorPage({
         title={product.name}
         description={
           <>
+            <span className="font-mono">{sku}</span> ·{" "}
             {product.category === "apparel" ? "Apparel" : "Drinkware"} ·{" "}
             {product.variants.filter((v) => v.enabled).length} enabled variants
-            {supplier ? ` · produced by ${supplier.name}` : ""} · imported by {product.importedBy}
+            {supplier ? ` · produced by ${supplier.name}` : ""} · imported by {product.importedBy} on{" "}
+            {formatDate(product.importedAt)}
           </>
         }
         actions={
@@ -107,10 +111,21 @@ export default async function ProductEditorPage({
         }
       />
 
-      {imported ? (
+      {imported === "copy" ? (
+        <Callout tone="amber" title="A second copy — give it a name of its own">
+          {store.name} already held this supplier product, so this copy was saved as “{product.name}” with SKU{" "}
+          <span className="font-mono">{sku}</span>. Rename it to something the team will recognise — the
+          earlier copy and the shared catalog record are both untouched.{" "}
+          {canEdit ? (
+            <a href="#name" className="font-medium underline underline-offset-2">
+              Rename it now
+            </a>
+          ) : null}
+        </Callout>
+      ) : imported ? (
         <Callout tone="green" title="Copied into this store">
-          A private copy now sits in {store.name}. Place artwork, generate mockups and check the margin — the
-          shared catalog record is untouched.
+          A private copy now sits in {store.name} as <span className="font-mono">{sku}</span>. Place artwork,
+          generate mockups and check the margin — the shared catalog record is untouched.
         </Callout>
       ) : null}
 

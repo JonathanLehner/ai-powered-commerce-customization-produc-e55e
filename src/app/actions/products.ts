@@ -7,6 +7,7 @@ import {
   getCatalogProduct,
   getStoreProduct,
   getTaxBracket,
+  listStoreProducts,
   recordAudit,
   updateStoreProduct,
 } from "@/lib/data";
@@ -22,14 +23,40 @@ import type { ActionState } from "./stores";
 
 /* ------------------------------------------------------------------ import */
 
+/** Back to the sourcing page, asking "you already have this — copy it again?". */
+function sourcingConfirmHref(storeId: string, catalogId: string, filters: string): string {
+  const params = new URLSearchParams(filters);
+  params.set("confirm", catalogId);
+  return `/app/stores/${storeId}/sourcing?${params.toString()}`;
+}
+
 export async function importCatalogProduct(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogId = String(formData.get("catalogId") ?? "");
+  const importKey = String(formData.get("importKey") ?? "") || null;
+  const confirmed = formData.get("confirmed") === "1";
+  const filters = String(formData.get("filters") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.catalog");
-  const product = await copyCatalogProductIntoStore(store, catalogId, user);
+  const existing = await listStoreProducts(storeId);
+
+  // A resubmitted copy — double click, refresh, a tab left open — lands on the
+  // record it already created instead of making a second one.
+  const already = importKey ? existing.find((p) => p.importKey === importKey) : undefined;
+  if (already) {
+    const copies = existing.filter((p) => p.catalogProductId === already.catalogProductId).length;
+    redirect(`/app/stores/${storeId}/catalog/${already.id}?imported=${copies > 1 ? "copy" : "1"}`);
+  }
+
+  // Copying in a supplier product the store already holds needs a decision
+  // first — the alternative is two rows nobody can tell apart.
+  if (!confirmed && existing.some((p) => p.catalogProductId === catalogId)) {
+    redirect(sourcingConfirmHref(storeId, catalogId, filters));
+  }
+
+  const { product, copyNumber } = await copyCatalogProductIntoStore(store, catalogId, user, importKey);
 
   revalidatePath(`/app/stores/${storeId}/catalog`);
-  redirect(`/app/stores/${storeId}/catalog/${product.id}?imported=1`);
+  redirect(`/app/stores/${storeId}/catalog/${product.id}?imported=${copyNumber > 1 ? "copy" : "1"}`);
 }
 
 /* --------------------------------------------------------------- details */

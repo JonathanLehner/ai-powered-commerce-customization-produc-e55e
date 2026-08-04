@@ -3,8 +3,9 @@ import { applySuggestion, dismissSuggestion } from "@/app/actions/ai";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { listCatalogProducts, listStoreProducts, listSuggestions, listSuppliers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
+import { storeSku } from "@/lib/sku";
 import type { AiSuggestion } from "@/lib/types";
-import { formatDateTime, relativeTime } from "@/lib/util";
+import { formatDate, formatDateTime, relativeTime } from "@/lib/util";
 import { CopyForm, IdeaForm, PriceForm, SupplierForm } from "./AssistantForms";
 
 const KIND_LABELS: Record<AiSuggestion["kind"], string> = {
@@ -80,7 +81,12 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
   const availableCatalog = catalog.filter((c) => c.status === "active" && approved.has(c.supplierId));
   const pending = suggestions.filter((s) => s.status === "pending");
   const decided = suggestions.filter((s) => s.status !== "pending");
-  const productOptions = products.map((p) => ({ id: p.id, name: p.name }));
+  // A store can hold two copies of the same supplier product, so a name on its
+  // own is not enough to choose between them — the SKU and import date are.
+  const productOptions = products.map((p) => ({
+    id: p.id,
+    label: `${p.name} — ${storeSku(p, store.channelCode)} · imported ${formatDate(p.importedAt)}`,
+  }));
 
   return (
     <div className="space-y-6">
@@ -118,7 +124,8 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                             className="hover:underline"
                           >
                             {product.name}
-                          </Link>
+                          </Link>{" "}
+                          · <span className="font-mono">{storeSku(product, store.channelCode)}</span>
                         </p>
                       ) : null}
                     </div>

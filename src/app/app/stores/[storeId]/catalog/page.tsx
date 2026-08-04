@@ -5,8 +5,9 @@ import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { listStoreProducts } from "@/lib/data";
 import { marginTone } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
+import { storeSku } from "@/lib/sku";
 import type { StoreProduct } from "@/lib/types";
-import { formatMoney, formatPercent, relativeTime } from "@/lib/util";
+import { formatDate, formatMoney, formatPercent, relativeTime } from "@/lib/util";
 
 const STATUS_TONES: Record<StoreProduct["status"], "green" | "amber" | "neutral" | "slate"> = {
   published: "green",
@@ -40,7 +41,9 @@ export default async function StoreCatalogPage({
     .filter((p) =>
       !q
         ? true
-        : `${p.name} ${p.tags.join(" ")} ${p.description}`.toLowerCase().includes(q.toLowerCase()),
+        : `${p.name} ${storeSku(p, store.channelCode)} ${p.tags.join(" ")} ${p.description}`
+            .toLowerCase()
+            .includes(q.toLowerCase()),
     );
 
   const published = products.filter((p) => p.status === "published");
@@ -167,9 +170,10 @@ export default async function StoreCatalogPage({
                       {product.name}
                     </Link>
                   </h3>
+                  <p className="mt-1 font-mono text-xs text-muted">{storeSku(product, store.channelCode)}</p>
                   <p className="mt-1 text-xs text-muted">
-                    {product.variants.filter((v) => v.enabled).length} variants · updated{" "}
-                    {relativeTime(product.updatedAt)}
+                    {product.variants.filter((v) => v.enabled).length} variants · imported{" "}
+                    {formatDate(product.importedAt)} · updated {relativeTime(product.updatedAt)}
                   </p>
 
                   <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-line py-3 text-xs">

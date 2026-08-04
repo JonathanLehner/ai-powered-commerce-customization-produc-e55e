@@ -2,22 +2,45 @@ import "server-only";
 import { COLLECTIONS, getCatalogProduct, getTaxBracket, listStoreProducts, recordAudit } from "./data";
 import { db } from "./platform";
 import { breakdownFor } from "./pricing";
+import { baseStoreSku, nextFreeName, nextFreeSku, storeSku } from "./sku";
 import type { Store, StoreProduct, StoreVariant, User } from "./types";
 import { newId, slugify } from "./util";
+
+export interface CopyResult {
+  product: StoreProduct;
+  /** 1 for the first copy of this supplier product, 2 for the next, and so on. */
+  copyNumber: number;
+}
 
 /**
  * Copies a shared-catalog product into a store as an independent draft.
  * The shared record is never mutated — this is a copy, not a reference.
+ *
+ * A store may hold several copies of the same supplier product, so the new
+ * record is given a name, slug and SKU that no other product in the store has:
+ * two rows called "Organic Cotton Tee" with identical prices are impossible to
+ * tell apart once the page is closed.
  */
 export async function copyCatalogProductIntoStore(
   store: Store,
   catalogId: string,
   actor: User,
-): Promise<StoreProduct> {
+  importKey: string | null = null,
+): Promise<CopyResult> {
   const [catalog, existing] = await Promise.all([getCatalogProduct(catalogId), listStoreProducts(store.id)]);
   if (!catalog) throw new Error("That catalog product no longer exists.");
 
-  let slug = slugify(catalog.name);
+  const copyNumber = existing.filter((p) => p.catalogProductId === catalog.id).length + 1;
+  const name = nextFreeName(
+    catalog.name,
+    existing.map((p) => p.name),
+  );
+  const sku = nextFreeSku(
+    baseStoreSku(store.channelCode, catalog.name),
+    existing.map((p) => storeSku(p, store.channelCode)),
+  );
+
+  let slug = slugify(name);
   if (existing.some((p) => p.slug === slug)) slug = `${slug}-${newId("x").slice(2, 5)}`;
 
   const variants: StoreVariant[] = catalog.variants.map((v) => ({
@@ -43,8 +66,9 @@ export async function copyCatalogProductIntoStore(
     storeId: store.id,
     catalogProductId: catalog.id,
     supplierId: catalog.supplierId,
-    name: catalog.name,
+    name,
     slug,
+    sku,
     description: catalog.description,
     tags: [catalog.category, catalog.productType.split(",")[0].toLowerCase()],
     category: catalog.category,
@@ -76,6 +100,7 @@ export async function copyCatalogProductIntoStore(
     },
     importedBy: actor.name,
     importedAt: now,
+    importKey,
     updatedAt: now,
     publishedAt: null,
   };
@@ -85,15 +110,18 @@ export async function copyCatalogProductIntoStore(
   recordAudit({
     category: "product_import",
     action: "product.imported",
-    summary: `Imported “${catalog.name}” from the shared catalog`,
+    summary:
+      copyNumber > 1
+        ? `Imported “${catalog.name}” from the shared catalog as “${name}” (copy ${copyNumber})`
+        : `Imported “${catalog.name}” from the shared catalog`,
     storeId: store.id,
     agencyId: store.agencyId,
     actorId: actor.id,
     actorName: actor.name,
     entity: "store_product",
     entityId: product.id,
-    meta: { catalogId: catalog.id, supplier: catalog.supplierId },
+    meta: { catalogId: catalog.id, supplier: catalog.supplierId, sku, copyNumber },
   });
 
-  return product;
+  return { product, copyNumber };
 }

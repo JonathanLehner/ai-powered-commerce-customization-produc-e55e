@@ -158,7 +158,7 @@ export async function applySuggestion(formData: FormData): Promise<void> {
     const catalogId = String(suggestion.payload.catalogId ?? "");
     const catalog = await getCatalogProduct(catalogId);
     if (catalog) {
-      const created = await copyCatalogProductIntoStore(storeDoc, catalogId, user);
+      const { product: created } = await copyCatalogProductIntoStore(storeDoc, catalogId, user);
       const price = Number(suggestion.payload.suggestedPriceMajor ?? 0);
       const patch: Record<string, unknown> = {
         name: String(suggestion.payload.name ?? created.name),
