@@ -2,9 +2,8 @@ import Link from "next/link";
 import { setAgencyPlan, setAgencyStatus } from "@/app/actions/admin";
 import { Badge, PageHeader } from "@/components/ui";
 import { listAgencies, listAllStores, listUsers } from "@/lib/data";
+import { PLAN_KEYS, storeAllowance, storeUsageLabel } from "@/lib/plans";
 import { formatDate } from "@/lib/util";
-
-const PLANS = ["starter", "studio", "scale"] as const;
 
 export default async function AdminAgenciesPage() {
   const [agencies, stores, users] = await Promise.all([listAgencies(), listAllStores(), listUsers()]);
@@ -20,6 +19,12 @@ export default async function AdminAgenciesPage() {
         {agencies.map((agency) => {
           const agencyStores = stores.filter((s) => s.agencyId === agency.id);
           const agencyUsers = users.filter((u) => u.agencyId === agency.id);
+          // The plan's ceiling applies to live stores only, so an operator can
+          // see before changing a plan what it would leave the agency running.
+          const allowance = storeAllowance(
+            agency.plan,
+            agencyStores.filter((s) => s.status === "active").length,
+          );
           return (
             <li key={agency.id} className="card p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -28,10 +33,11 @@ export default async function AdminAgenciesPage() {
                     <h2 className="text-base font-semibold text-ink">{agency.name}</h2>
                     <Badge tone={agency.status === "active" ? "green" : "rose"}>{agency.status}</Badge>
                     <Badge tone="brand">{agency.plan}</Badge>
+                    {allowance.atLimit ? <Badge tone="amber">at store limit</Badge> : null}
                   </div>
                   <p className="mt-1 text-sm text-muted">
-                    {agency.contactEmail} · joined {formatDate(agency.createdAt)} · {agencyStores.length} stores ·{" "}
-                    {agencyUsers.length} people
+                    {agency.contactEmail} · joined {formatDate(agency.createdAt)} · {storeUsageLabel(allowance)}{" "}
+                    ({agencyStores.length} in total) · {agencyUsers.length} people
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -46,7 +52,7 @@ export default async function AdminAgenciesPage() {
                       defaultValue={agency.plan}
                       className="input mt-0 w-32 py-1.5 text-sm"
                     >
-                      {PLANS.map((plan) => (
+                      {PLAN_KEYS.map((plan) => (
                         <option key={plan} value={plan}>
                           {plan}
                         </option>

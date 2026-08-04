@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
 import { getAgency, listAudit, listOrders, listStoreProducts } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
+import { storeAllowance, storeUsageLabel } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
 import { STORE_ROLE_LABELS, THEMES } from "@/lib/types";
 import { formatMoney, relativeTime } from "@/lib/util";
@@ -33,6 +34,14 @@ export default async function AgencyDashboard({
   const active = rows.filter((r) => r.store.status === "active");
   const archived = rows.filter((r) => r.store.status === "archived");
 
+  const planAllowance =
+    agency && user.platformRole === "agency_admin" ? storeAllowance(agency.plan, active.length) : null;
+  const planUsage = planAllowance
+    ? `${planAllowance.plan.name} plan · ${storeUsageLabel(planAllowance)}${
+        planAllowance.atLimit ? " · limit reached" : ""
+      }`
+    : null;
+
   const totalOrders = active.reduce((sum, r) => sum + r.metrics.orderCount, 0);
   const openIssues = active.reduce((sum, r) => sum + r.metrics.exceptions + r.metrics.manualRouting, 0);
   const publishedProducts = active.reduce((sum, r) => sum + r.metrics.publishedProducts, 0);
@@ -48,6 +57,9 @@ export default async function AgencyDashboard({
               {agency ? `${agency.name} · ` : ""}
               {active.length} active {active.length === 1 ? "store" : "stores"}
               {archived.length ? `, ${archived.length} archived` : ""}. Figures are shown per store.
+              {/* The agency's own admin sees every store it runs, so the count on
+                  this page is the one the plan limit is applied to. */}
+              {planUsage ? <span className="mt-0.5 block">{planUsage}</span> : null}
             </>
           }
           actions={

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui";
+import { PLANS, planStoreLabel } from "@/lib/plans";
 
 export const dynamic = "force-static";
 
@@ -10,14 +11,19 @@ export const metadata: Metadata = {
     "Parcelith plans for agencies: per-store pricing with no revenue share. Sellers keep their own Stripe account and remain the merchant of record.",
 };
 
-const PLANS = [
+/**
+ * What each plan costs and what comes with it. The live-store counts are read
+ * from `lib/plans`, which is also what the workspace enforces when a store is
+ * created, so this page cannot advertise a limit the platform does not apply.
+ */
+const PLAN_CARDS = [
   {
-    name: "Starter",
+    name: PLANS.starter.name,
     price: "$89",
     cadence: "per month",
     summary: "One agency workspace and up to three live client stores.",
     features: [
-      "3 live stores, unlimited drafts",
+      `${planStoreLabel(PLANS.starter)}, unlimited drafts`,
       "Shared supplier catalog access",
       "Artwork configurator and mockup generation",
       "Stripe checkout in every supported currency",
@@ -28,12 +34,12 @@ const PLANS = [
     highlighted: false,
   },
   {
-    name: "Studio",
+    name: PLANS.studio.name,
     price: "$249",
     cadence: "per month",
     summary: "The working plan for agencies running client programmes side by side.",
     features: [
-      "15 live stores",
+      planStoreLabel(PLANS.studio),
       "Store-scoped roles and invitations",
       "Custom domains per store",
       "Commerce assistant with confirmation flow",
@@ -44,12 +50,12 @@ const PLANS = [
     highlighted: true,
   },
   {
-    name: "Scale",
+    name: PLANS.scale.name,
     price: "Talk to us",
     cadence: "annual agreement",
     summary: "For networks running gifting programmes across many markets.",
     features: [
-      "Unlimited stores",
+      planStoreLabel(PLANS.scale),
       "Priority supplier onboarding and review",
       "Custom tax bracket sets per market",
       "Named production contact at each partner",
@@ -94,7 +100,7 @@ export default function PricingPage() {
 
       <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-5 lg:grid-cols-3">
-          {PLANS.map((plan) => (
+          {PLAN_CARDS.map((plan) => (
             <div
               key={plan.name}
               className={

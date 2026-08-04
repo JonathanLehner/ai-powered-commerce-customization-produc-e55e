@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
 import { StoreAdminPanel } from "./StoreAdminPanel";
-import { getStorefront, listAudit, listOrders, listStoreProducts } from "@/lib/data";
+import {
+  agencyStoreAllowance,
+  getAgency,
+  getStorefront,
+  listAudit,
+  listOrders,
+  listStoreProducts,
+} from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
+import { storeLimitMessage } from "@/lib/plans";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { ORDER_STATUS_LABELS, THEMES } from "@/lib/types";
 import { formatMoney, formatDate, relativeTime } from "@/lib/util";
@@ -21,10 +29,10 @@ export default async function StoreOverviewPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ denied?: string }>;
+  searchParams: Promise<{ denied?: string; limit?: string }>;
 }) {
   const { storeId } = await params;
-  const { denied } = await searchParams;
+  const { denied, limit } = await searchParams;
   const { store, role } = await requireStoreAccess(storeId);
 
   const [orders, products, storefront, audit] = await Promise.all([
@@ -33,6 +41,11 @@ export default async function StoreOverviewPage({
     getStorefront(store.id),
     listAudit({ storeId: store.id }, 8),
   ]);
+
+  // Only read after a restore was refused, so the usual visit stays two waves
+  // of reads rather than three.
+  const agency = limit ? await getAgency(store.agencyId) : null;
+  const allowance = agency ? await agencyStoreAllowance(agency) : null;
 
   const metrics = storeMetrics(orders, products, store.defaultCurrency);
   const progress = setupProgress(store.setup as unknown as Record<string, boolean>);
@@ -45,6 +58,16 @@ export default async function StoreOverviewPage({
         <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           Your role ({role.replace("_", " ")}) does not include that screen.
         </p>
+      ) : null}
+
+      {allowance && agency ? (
+        <Callout tone="amber" title={`${allowance.plan.name} plan limit reached`}>
+          This store was not restored. {storeLimitMessage(allowance, agency.name)}{" "}
+          <Link href="/pricing" className="font-medium underline">
+            Compare plans
+          </Link>
+          .
+        </Callout>
       ) : null}
 
       {store.status === "archived" ? (

@@ -29,6 +29,14 @@ gifting, orders, team, guided setup, activity.
   orders, storefront and settings. Access is resolved per request from agency
   ownership plus explicit memberships; a store's data is never merged with
   another client's, including in the agency dashboard.
+- **Plan limits that are actually applied.** Each agency's plan carries the
+  live-store ceiling the pricing page sells — Starter 3, Studio 15, Scale
+  unlimited — from one table (`src/lib/plans.ts`) that both the pricing page and
+  the workspace read. Creating a store counts the agency's active stores against
+  it, and at the limit the create screen names the plan, the ceiling and what is
+  in use, and offers the two ways on: archive a live store or move up a plan.
+  Archived stores are the plan's unlimited drafts and never count, so restoring
+  one is checked the same way (`npm run plan-limit-check`).
 - **Store-scoped roles.** Store administrator, catalog manager, order manager and
   viewer, enforced by capability (`store.settings`, `store.team`, `store.catalog`,
   `store.orders`, `store.storefront`, `store.gifting`, `store.view`) in both pages

@@ -5,7 +5,16 @@ import { ActionForm } from "@/components/forms";
 import { THEMES, type ThemeKey } from "@/lib/types";
 import { CURRENCY_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/util";
 
-export function NewStoreForm({ agencyId, agencyName }: { agencyId: string; agencyName: string }) {
+export function NewStoreForm({
+  agencyId,
+  agencyName,
+  allowanceNote,
+}: {
+  agencyId: string;
+  agencyName: string;
+  /** Where the agency stands against its plan's live-store limit. */
+  allowanceNote?: string;
+}) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
 
   return (
@@ -21,6 +30,7 @@ export function NewStoreForm({ agencyId, agencyName }: { agencyId: string; agenc
           <p className="text-sm text-muted">
             The store is created under <span className="font-medium text-ink">{agencyName}</span>. Everything
             below can be changed later in store settings.
+            {allowanceNote ? <span className="mt-1 block text-xs">{allowanceNote}</span> : null}
           </p>
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">

@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   COLLECTIONS,
+  countActiveStoresForAgency,
+  getAgency,
   getStore,
   getStoreBySlug,
   listStoresForAgency,
@@ -11,6 +13,7 @@ import {
   updateStore,
 } from "@/lib/data";
 import { db } from "@/lib/platform";
+import { storeAllowance, storeLimitMessage } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { readStoredImage } from "@/lib/uploads";
@@ -40,6 +43,17 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
   }
   const agencyId = user.agencyId ?? String(formData.get("agencyId") ?? "");
   if (!agencyId) return fail("Choose the agency this store belongs to.", "agencyId");
+
+  // The plan is checked before anything else: the create screen already refuses
+  // at the limit, so reaching here means a stale tab or a second submission that
+  // would have taken the agency past what it pays for.
+  const [agency, activeStores] = await Promise.all([
+    getAgency(agencyId),
+    countActiveStoresForAgency(agencyId),
+  ]);
+  if (!agency) return fail("That agency no longer exists. Ask the platform administrator.", "agencyId");
+  const allowance = storeAllowance(agency.plan, activeStores);
+  if (allowance.atLimit) return fail(storeLimitMessage(allowance, agency.name));
 
   const name = String(formData.get("name") ?? "").trim();
   const clientName = String(formData.get("clientName") ?? "").trim();
@@ -151,6 +165,18 @@ export async function setStoreStatus(formData: FormData): Promise<void> {
 
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
   if (store.status === status) return;
+
+  // Restoring puts a storefront back online, so it counts against the plan the
+  // same way creating one does. The store page explains the refusal.
+  if (status === "active") {
+    const [agency, activeStores] = await Promise.all([
+      getAgency(store.agencyId),
+      countActiveStoresForAgency(store.agencyId),
+    ]);
+    if (agency && storeAllowance(agency.plan, activeStores).atLimit) {
+      redirect(`/app/stores/${storeId}?limit=1`);
+    }
+  }
 
   await updateStore(storeId, {
     status,

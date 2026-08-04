@@ -2,6 +2,7 @@ import "server-only";
 import { after } from "next/server";
 import { hasApprovedPreviews } from "./artwork";
 import { db } from "./platform";
+import { storeAllowance, type StoreAllowance } from "./plans";
 import { newId } from "./util";
 import type {
   Agency,
@@ -84,6 +85,21 @@ export function getStoreBySlug(slug: string) {
 
 export async function updateStore(id: string, patch: Partial<Store>) {
   await db.updateOne(COLLECTIONS.stores, { id }, { $set: patch as Record<string, unknown> });
+}
+
+/**
+ * Live stores an agency runs. Counted in the database rather than from a listing
+ * because a list is capped at 100 documents, and an agency past that cap would
+ * otherwise look as though it had room to spare. Archived stores are excluded:
+ * they are the plan's unlimited drafts.
+ */
+export function countActiveStoresForAgency(agencyId: string) {
+  return db.count(COLLECTIONS.stores, { agencyId, status: "active" });
+}
+
+/** The agency's plan, its live-store ceiling and what is in use against it. */
+export async function agencyStoreAllowance(agency: Agency): Promise<StoreAllowance> {
+  return storeAllowance(agency.plan, await countActiveStoresForAgency(agency.id));
 }
 
 /* ------------------------------------------------------------- memberships */

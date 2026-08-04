@@ -11,6 +11,7 @@
     "country-check": "node --experimental-strip-types scripts/country-check.mjs",
     "copy-identity-check": "node --experimental-strip-types scripts/copy-identity-check.mjs",
     "publish-guard-check": "node --experimental-strip-types scripts/publish-guard-check.mjs",
+    "plan-limit-check": "node --experimental-strip-types scripts/plan-limit-check.mjs",
     "order-access-check": "node --conditions=react-server --experimental-strip-types scripts/order-access-check.mjs",
     "gifting-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/gifting-check.mjs"
   },
