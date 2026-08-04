@@ -3,44 +3,100 @@
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/app/actions/stores";
+import {
+  captureValues,
+  planRestore,
+  type ControlSnapshot,
+  type SubmittedValues,
+} from "@/lib/form-restore";
 import { classNames } from "@/lib/util";
+
+/** What the action returned, and which attempt returned it. */
+export interface Submission<S extends ActionState = ActionState> {
+  state: S;
+  /**
+   * Counts settled submissions. Two rejections in a row can carry the very same
+   * message and field, so the attempt number is what tells an effect that a new
+   * result has landed.
+   */
+  attempt: number;
+}
+
+/**
+ * `useActionState` with that attempt counter alongside the state, so a repeat of
+ * the previous result is still recognisably a new result.
+ */
+export function useSubmission<S extends ActionState>(
+  action: (state: S, formData: FormData) => Promise<S>,
+  initial: S,
+) {
+  return useActionState<Submission<S>, FormData>(
+    async (previous, formData) => ({
+      state: await action(previous.state, formData),
+      attempt: previous.attempt + 1,
+    }),
+    { state: initial, attempt: 0 },
+  );
+}
+
+function snapshot(element: Element): ControlSnapshot {
+  if (element instanceof HTMLInputElement) {
+    // A file input cannot be written to, and hidden fields are rendered from
+    // props React never lost.
+    if (element.type === "file" || element.type === "hidden") {
+      return { name: element.name, kind: "ignored", submits: "" };
+    }
+    if (element.type === "checkbox" || element.type === "radio") {
+      return { name: element.name, kind: "toggle", submits: element.value };
+    }
+    return { name: element.name, kind: "value", submits: "" };
+  }
+  if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+    return { name: element.name, kind: "value", submits: "" };
+  }
+  return { name: "", kind: "ignored", submits: "" };
+}
 
 /**
  * React resets uncontrolled inputs once a form action settles. That is right
  * after a success, but on a validation error it would throw away everything the
  * person typed, so the submitted values are captured and put back.
+ *
+ * This runs on every rejected attempt, not only the first: the status stays on
+ * "error" from one failure to the next, so it is the attempt number that says a
+ * fresh answer arrived and the form needs filling in again.
  */
-export function useValueRestore(status: ActionState["status"]) {
+export function useValueRestore(status: ActionState["status"], attempt: number) {
   const formRef = useRef<HTMLFormElement>(null);
-  const submitted = useRef<[string, string][] | null>(null);
+  const submitted = useRef<SubmittedValues | null>(null);
 
   function capture(formData: FormData) {
-    const entries: [string, string][] = [];
-    formData.forEach((value, key) => {
-      if (typeof value === "string") entries.push([key, value]);
-    });
-    submitted.current = entries;
+    submitted.current = captureValues(formData);
   }
 
   useEffect(() => {
-    if (status !== "error" || !submitted.current || !formRef.current) return;
     const entries = submitted.current;
-    const used = new Set<string>();
-    for (const element of Array.from(formRef.current.elements)) {
-      if (element instanceof HTMLInputElement) {
-        if (element.type === "file" || element.type === "hidden") continue;
-        if (element.type === "checkbox" || element.type === "radio") {
-          element.checked = entries.some(([k, v]) => k === element.name && v === element.value);
-          continue;
-        }
-        const match = entries.find(([k], i) => k === element.name && !used.has(`${k}:${i}`));
-        if (match && !element.value) element.value = match[1];
-      } else if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
-        const match = entries.find(([k]) => k === element.name);
-        if (match && !element.value) element.value = match[1];
-      }
+    if (status !== "error") {
+      // A success is meant to clear: the form has been accepted.
+      submitted.current = null;
+      return;
     }
-  }, [status]);
+    if (!entries || !formRef.current) return;
+
+    const elements = Array.from(formRef.current.elements);
+    const plan = planRestore(elements.map(snapshot), entries);
+    elements.forEach((element, index) => {
+      const restore = plan[index];
+      if (!restore) return;
+      if ("checked" in restore) {
+        (element as HTMLInputElement).checked = restore.checked;
+      } else {
+        // Written over whatever the reset left behind — blank on a checkout,
+        // the saved value on an editor — since both would lose the edit.
+        (element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value = restore.value;
+      }
+    });
+  }, [status, attempt]);
 
   return { formRef, capture };
 }
@@ -114,8 +170,8 @@ export function ActionForm({
   /** Last chance to add fields the browser has to produce, such as a rendered preview. */
   beforeSubmit?: (formData: FormData) => Promise<void>;
 }) {
-  const [state, formAction] = useActionState<ActionState, FormData>(action, { status: "idle" });
-  const { formRef, capture } = useValueRestore(state.status);
+  const [{ state, attempt }, formAction] = useSubmission<ActionState>(action, { status: "idle" });
+  const { formRef, capture } = useValueRestore(state.status, attempt);
 
   return (
     <form
