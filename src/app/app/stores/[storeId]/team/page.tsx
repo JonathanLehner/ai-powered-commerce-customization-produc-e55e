@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { changeMemberRole, removeMember, resendInvite } from "@/app/actions/team";
 import { Badge, Callout, PageHeader } from "@/components/ui";
 import { getAgency, listMemberships, listUsers } from "@/lib/data";
@@ -11,11 +12,18 @@ const ROLES: StoreRole[] = ["store_admin", "catalog_manager", "order_manager", "
 export default async function TeamPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
   const { store } = await requireStoreAccess(storeId, "store.team");
-  const [memberships, users, agency] = await Promise.all([
+  const [memberships, users, agency, headerList] = await Promise.all([
     listMemberships(storeId),
     listUsers(),
     getAgency(store.agencyId),
+    headers(),
   ]);
+
+  // The invitation link has to be pasted into a chat or an email by hand, so it
+  // needs the full origin the admin is looking at, not a relative path.
+  const host = headerList.get("host") ?? "";
+  const proto = headerList.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const origin = host ? `${proto}://${host}` : "";
 
   const agencyAdmins = users.filter(
     (u) => u.agencyId === store.agencyId && u.platformRole === "agency_admin",
@@ -83,6 +91,24 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                       <p className="mt-1 text-xs text-muted">
                         Invited {formatDate(member.invitedAt)} by {member.invitedBy}
                       </p>
+                      {member.status === "invited" ? (
+                        member.inviteToken ? (
+                          <div className="mt-2 max-w-sm">
+                            <p className="text-xs text-muted">
+                              No email is sent. Send them this link — it creates their account and activates
+                              access when they open it, then stops working.
+                            </p>
+                            <code className="mt-1 block break-all rounded-lg border border-line bg-canvas px-2 py-1.5 text-[11px] text-inksoft">
+                              {origin}/invite/{member.inviteToken}
+                            </code>
+                          </div>
+                        ) : (
+                          <p className="mt-2 max-w-sm text-xs text-amber-700">
+                            This invitation has no acceptance link yet. Choose “New link” to create one, then
+                            send it to them.
+                          </p>
+                        )
+                      ) : null}
                     </td>
                     <td className="py-3 pr-3">
                       <form action={changeMemberRole} className="flex items-center gap-2">
@@ -114,8 +140,12 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                           <form action={resendInvite}>
                             <input type="hidden" name="storeId" value={storeId} />
                             <input type="hidden" name="membershipId" value={member.id} />
-                            <button type="submit" className="btn-ghost btn-sm">
-                              Resend
+                            <button
+                              type="submit"
+                              className="btn-ghost btn-sm"
+                              title="Invalidates the old link and issues a fresh one"
+                            >
+                              New link
                             </button>
                           </form>
                         ) : null}

@@ -96,6 +96,10 @@ export function getMembership(id: string) {
   return db.findOne<Membership>(COLLECTIONS.memberships, { id });
 }
 
+export function getMembershipByToken(inviteToken: string) {
+  return db.findOne<Membership>(COLLECTIONS.memberships, { inviteToken });
+}
+
 /**
  * Suppliers, the shared catalog and tax brackets are small global lists that
  * almost every screen needs. Reading the whole collection is one round trip and

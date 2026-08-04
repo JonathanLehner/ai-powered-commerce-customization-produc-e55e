@@ -55,6 +55,8 @@ export interface Membership {
   invitedBy: string;
   invitedAt: string;
   acceptedAt: string | null;
+  /** Single-use acceptance token, cleared once the invitation is accepted. */
+  inviteToken?: string | null;
 }
 
 export interface CarrierAccount {

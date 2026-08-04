@@ -580,7 +580,7 @@ const memberships = [
   { id: id("mem"), storeId: "str_northwind", agencyId: "agc_northlight", userId: "usr_ines", email: "ines@northlight.studio", name: "Inés Duarte", role: "order_manager", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(97), acceptedAt: iso(97) },
   { id: id("mem"), storeId: "str_northwind", agencyId: "agc_northlight", userId: "usr_dana", email: "dana@northwind.example", name: "Dana Whitfield", role: "viewer", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(90), acceptedAt: iso(89) },
   { id: id("mem"), storeId: "str_lumen", agencyId: "agc_northlight", userId: "usr_sam", email: "sam@northlight.studio", name: "Sam Okafor", role: "catalog_manager", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(58), acceptedAt: iso(58) },
-  { id: id("mem"), storeId: "str_lumen", agencyId: "agc_northlight", userId: null, email: "theo@lumen.example", name: "Theo Vance", role: "viewer", status: "invited", invitedBy: "Alex Moreau", invitedAt: iso(4), acceptedAt: null },
+  { id: id("mem"), storeId: "str_lumen", agencyId: "agc_northlight", userId: null, email: "theo@lumen.example", name: "Theo Vance", role: "viewer", status: "invited", invitedBy: "Alex Moreau", invitedAt: iso(4), acceptedAt: null, inviteToken: id("inv") },
   { id: id("mem"), storeId: "str_ferro", agencyId: "agc_northlight", userId: "usr_sam", email: "sam@northlight.studio", name: "Sam Okafor", role: "store_admin", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(9), acceptedAt: iso(9) },
 ];
 

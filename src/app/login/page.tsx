@@ -88,6 +88,25 @@ export default function LoginPage() {
               </li>
             ))}
           </ul>
+          <form action={signInAs} className="card mt-6 p-4">
+            <label htmlFor="signin-email" className="field-label">
+              Accepted an invitation? Sign in with that email address
+            </label>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input
+                id="signin-email"
+                name="email"
+                type="email"
+                required
+                placeholder="name@company.com"
+                className="input mt-0 w-full sm:w-72"
+              />
+              <button type="submit" className="btn-secondary btn-sm">
+                Continue
+              </button>
+            </div>
+          </form>
+
           <p className="mt-5 text-xs text-muted">
             Shopper storefronts are public — no sign-in needed. Open a store from the agency dashboard to
             browse, customise and check out as a customer would.

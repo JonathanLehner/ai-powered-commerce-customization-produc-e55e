@@ -19,6 +19,12 @@ export async function signOut(): Promise<void> {
   redirect("/login");
 }
 
+/** Starts a session for a user id — used after an invitation is accepted. */
+export async function signInUser(userId: string): Promise<void> {
+  const jar = await cookies();
+  jar.set(SESSION_COOKIE, userId, COOKIE_OPTIONS);
+}
+
 /** One-click sign-in used by the demo persona list on the login screen. */
 export async function signInAs(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
