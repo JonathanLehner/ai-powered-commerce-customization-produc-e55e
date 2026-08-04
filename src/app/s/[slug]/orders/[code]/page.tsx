@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Callout, DataList } from "@/components/ui";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
+import { orderTaxRows } from "@/lib/pricing";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
 
@@ -107,7 +108,10 @@ export default async function OrderStatusPage({
             rows={[
               { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
               { label: "Shipping", value: formatMoney(order.shipping, order.currency) },
-              { label: `Tax (${order.taxRate}%)`, value: formatMoney(order.taxAmount, order.currency) },
+              ...orderTaxRows(order).map((row) => ({
+                label: `Tax ${row.rate}%`,
+                value: formatMoney(row.amount, order.currency),
+              })),
               { label: "Paid", value: formatMoney(order.total, order.currency) },
               ...(refunded > 0
                 ? [{ label: "Refunded", value: `− ${formatMoney(refunded, order.currency)}` }]

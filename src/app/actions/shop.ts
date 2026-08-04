@@ -11,13 +11,12 @@ import {
   getOrderByIdempotencyKey,
   getStore,
   getStoreProduct,
-  getTaxBracket,
   recordAudit,
 } from "@/lib/data";
+import { basketTotals } from "@/lib/basket";
 import { routeOrder } from "@/lib/fulfillment";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/platform";
-import { convert } from "@/lib/pricing";
 import { SHOPPER_COOKIE } from "@/lib/session";
 import { chargeCard } from "@/lib/stripe";
 import type { Artwork, Cart, CartItem, Order } from "@/lib/types";
@@ -288,21 +287,11 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     return { status: "error", message: `${currency} is not one of this store's selling currencies.`, field: "currency" };
   }
 
-  const products = await Promise.all(cart.items.map((i) => getStoreProduct(i.storeProductId)));
-  const bracketIds = [...new Set(products.map((p) => p?.taxBracketId).filter(Boolean))] as string[];
-  const bracket = bracketIds.length === 1 ? await getTaxBracket(bracketIds[0]) : null;
-  const rate = bracket?.rate ?? 0;
-
-  const subtotal = cart.items.reduce(
-    (sum, item, index) =>
-      sum + convert(item.unitPrice, products[index]?.currency ?? store.defaultCurrency, currency) * item.quantity,
-    0,
+  const { products, lines, subtotal, shipping, taxRows, taxAmount, total } = await basketTotals(
+    store,
+    cart.items,
+    currency,
   );
-  const shipping = convert(cart.items.some((i) => i.productName.toLowerCase().includes("mug")) ? 690 : 590, "USD", currency);
-  const taxAmount = store.pricesIncludeTax
-    ? Math.round(subtotal - subtotal / (1 + rate / 100))
-    : Math.round((subtotal + shipping) * (rate / 100));
-  const total = store.pricesIncludeTax ? subtotal + shipping : subtotal + shipping + taxAmount;
 
   const key = idempotencyKey || newId("idem");
   const charge = await chargeCard({
@@ -346,7 +335,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       productName: item.productName,
       variantName: item.variantName,
       quantity: item.quantity,
-      unitPrice: convert(item.unitPrice, products[index]?.currency ?? store.defaultCurrency, currency),
+      unitPrice: lines[index].unit,
       supplierCost:
         products[index]?.variants.find((v) => v.id === item.variantId)?.baseCost ?? 0,
       customization: {
@@ -360,7 +349,8 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     subtotal,
     shipping,
     taxAmount,
-    taxRate: rate,
+    taxRate: taxRows.length === 1 ? taxRows[0].rate : 0,
+    taxLines: taxRows,
     total,
     payment: {
       provider: "stripe",

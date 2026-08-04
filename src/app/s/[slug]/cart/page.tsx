@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from "@/app/actions/shop";
 import { EmptyState } from "@/components/ui";
-import { getCart, getStoreBySlug, getStoreProduct, getTaxBracket } from "@/lib/data";
-import { convert } from "@/lib/pricing";
+import { basketTotals } from "@/lib/basket";
+import { getCart, getStoreBySlug } from "@/lib/data";
 import { formatMoney } from "@/lib/util";
 
 export const metadata: Metadata = {
@@ -21,21 +21,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   const cart = session ? await getCart(store.id, session) : null;
   const items = cart?.items ?? [];
 
-  const products = await Promise.all(items.map((i) => getStoreProduct(i.storeProductId)));
-  const bracketIds = [...new Set(products.map((p) => p?.taxBracketId).filter(Boolean))] as string[];
-  const bracket = bracketIds.length === 1 ? await getTaxBracket(bracketIds[0]) : null;
-  const rate = bracket?.rate ?? 0;
-
-  const lines = items.map((item, index) => ({
-    item,
-    unit: convert(item.unitPrice, products[index]?.currency ?? store.defaultCurrency, currency),
-  }));
-  const subtotal = lines.reduce((sum, line) => sum + line.unit * line.item.quantity, 0);
-  const shipping = items.length ? convert(items.some((i) => i.productName.toLowerCase().includes("mug")) ? 690 : 590, "USD", currency) : 0;
-  const taxAmount = store.pricesIncludeTax
-    ? Math.round(subtotal - subtotal / (1 + rate / 100))
-    : Math.round((subtotal + shipping) * (rate / 100));
-  const total = store.pricesIncludeTax ? subtotal + shipping : subtotal + shipping + taxAmount;
+  const { lines, subtotal, shipping, taxRows, total } = await basketTotals(store, items, currency);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -128,12 +114,14 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                 <dt className="text-muted">Shipping</dt>
                 <dd className="font-medium tabular-nums text-ink">{formatMoney(shipping, currency)}</dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-muted">
-                  Tax {rate ? `(${rate}%)` : ""} {store.pricesIncludeTax ? "included" : ""}
-                </dt>
-                <dd className="font-medium tabular-nums text-ink">{formatMoney(taxAmount, currency)}</dd>
-              </div>
+              {taxRows.map((row) => (
+                <div key={row.rate} className="flex justify-between">
+                  <dt className="text-muted">
+                    Tax {row.rate}% {store.pricesIncludeTax ? "included" : ""}
+                  </dt>
+                  <dd className="font-medium tabular-nums text-ink">{formatMoney(row.amount, currency)}</dd>
+                </div>
+              ))}
               <div className="flex justify-between border-t border-line pt-2.5">
                 <dt className="font-semibold text-ink">Total</dt>
                 <dd className="text-base font-semibold tabular-nums text-ink">{formatMoney(total, currency)}</dd>

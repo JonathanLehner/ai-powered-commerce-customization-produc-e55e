@@ -5,6 +5,7 @@ import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry } from "@/lib/fulfillment";
+import { orderTaxRows } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
@@ -139,10 +140,10 @@ export default async function OrderDetailPage({
                 rows={[
                   { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
                   { label: "Shipping", value: formatMoney(order.shipping, order.currency) },
-                  {
-                    label: `Tax (${order.taxRate}%)`,
-                    value: formatMoney(order.taxAmount, order.currency),
-                  },
+                  ...orderTaxRows(order).map((row) => ({
+                    label: `Tax ${row.rate}%`,
+                    value: formatMoney(row.amount, order.currency),
+                  })),
                   {
                     label: "Total",
                     value: <span className="text-base">{formatMoney(order.total, order.currency)}</span>,

@@ -88,6 +88,16 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
     return { status: "error", message: "Enter a selling price greater than zero.", field: "price" };
   }
 
+  // Publishing already requires a bracket; clearing it afterwards would put a
+  // live product back on sale with no tax collected, so block that too.
+  if (!taxBracketId && (product.status === "published" || product.status === "in_review")) {
+    return {
+      status: "error",
+      message: "Pick the tax bracket this product falls into — a live product cannot sell untaxed.",
+      field: "taxBracketId",
+    };
+  }
+
   const priceChanged = price !== product.price;
   const next: StoreProduct = {
     ...product,

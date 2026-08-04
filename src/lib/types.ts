@@ -405,7 +405,10 @@ export interface Order {
   subtotal: number;
   shipping: number;
   taxAmount: number;
+  /** The single rate when the whole order sat in one bracket, otherwise 0. */
   taxRate: number;
+  /** One entry per rate charged. Absent on orders placed before per-line tax. */
+  taxLines?: { rate: number; amount: number }[];
   total: number;
   payment: {
     provider: "stripe";

@@ -1015,6 +1015,7 @@ async function main() {
       shipping,
       taxAmount,
       taxRate: rate,
+      taxLines: [{ rate, amount: taxAmount }],
       total,
       payment: {
         provider: "stripe",
