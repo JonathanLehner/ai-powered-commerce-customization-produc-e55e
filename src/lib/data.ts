@@ -1,6 +1,7 @@
 import "server-only";
 import { after } from "next/server";
 import { hasApprovedPreviews } from "./artwork";
+import { auditMonthBuckets, sortAuditEntries, type AuditReadWindow } from "./audit-log";
 import { db } from "./platform";
 import { storeAllowance, type StoreAllowance } from "./plans";
 import { newId } from "./util";
@@ -384,4 +385,94 @@ async function writeAudit(input: AuditInput): Promise<void> {
 
 export function listAudit(filter: Record<string, unknown>, limit = 60) {
   return db.find<AuditLog>(COLLECTIONS.audit, filter, { sort: { at: -1 }, limit });
+}
+
+/**
+ * The platform API answers a `find` with at most this many documents, and it
+ * applies neither `sort` nor `skip`. A collection with more history than this
+ * therefore cannot be read newest-first in one call, and asking for it plainly
+ * returned an arbitrary slice of it — which is what made the audit list show
+ * whatever it happened to get rather than the latest changes.
+ */
+const AUDIT_FIND_CAP = 50;
+/** Reads of one slice of time, so a dense month cannot loop. */
+const AUDIT_SLICE_READS = 16;
+/** Buckets read together. Enough to overlap the latency, few enough to stop early. */
+const AUDIT_BUCKET_BATCH = 8;
+/** Older than any record the platform holds. */
+const AUDIT_BEGINNING = "1970-01-01T00:00:00.000Z";
+
+export interface AuditWindow {
+  entries: AuditLog[];
+  /**
+   * The oldest instant this result is complete from. Equal to the window's own
+   * start unless reading stopped early, in which case older entries exist and
+   * the view says so.
+   */
+  coveredFrom: string;
+  truncated: boolean;
+}
+
+/**
+ * Every audit entry in an instant window, newest first.
+ *
+ * The window is walked one month at a time from the newest end, so stopping
+ * early drops the oldest history rather than an arbitrary scattering of it, and
+ * what is returned is complete from `coveredFrom` onwards. Months are read
+ * several at a time, and a month holding more entries than the API returns at
+ * once is read again with what is already in hand excluded.
+ */
+export async function loadAuditWindow(
+  scope: Record<string, unknown>,
+  window: AuditReadWindow,
+  cap: number,
+): Promise<AuditWindow> {
+  const buckets = auditMonthBuckets(window.from, window.to);
+  // With no start date asked for, the months only say where reading begins:
+  // anything older is swept up last, so an entry written before the scope's
+  // oldest store — a platform-wide change, say — is still in the history.
+  if (window.openStart) buckets.push({ from: AUDIT_BEGINNING, to: window.from });
+  const entries: AuditLog[] = [];
+  let coveredFrom = window.from;
+  let truncated = false;
+
+  for (let index = 0; index < buckets.length; index += AUDIT_BUCKET_BATCH) {
+    const batch = buckets.slice(index, index + AUDIT_BUCKET_BATCH);
+    const reads = await Promise.all(batch.map((bucket) => readAuditSlice(scope, bucket)));
+    for (const rows of reads) entries.push(...rows);
+    const remaining = index + AUDIT_BUCKET_BATCH < buckets.length;
+    if (entries.length >= cap && remaining) {
+      coveredFrom = batch[batch.length - 1].from;
+      truncated = true;
+      break;
+    }
+  }
+
+  return { entries: sortAuditEntries(entries), coveredFrom, truncated };
+}
+
+/**
+ * Every entry in one slice of time.
+ *
+ * A read that comes back full means the cap was hit and there is more behind it,
+ * so the documents already in hand are excluded and the slice is read again.
+ * Halving the slice and reading both halves at once was tried instead and was
+ * three times slower: it spends a whole round trip per level to discover a
+ * boundary the exclusion already knows.
+ */
+async function readAuditSlice(
+  scope: Record<string, unknown>,
+  slice: { from: string; to: string },
+): Promise<AuditLog[]> {
+  const rows: AuditLog[] = [];
+  const seen: string[] = [];
+  for (let read = 0; read < AUDIT_SLICE_READS; read++) {
+    const filter: Record<string, unknown> = { ...scope, at: { $gte: slice.from, $lt: slice.to } };
+    if (seen.length > 0) filter.id = { $nin: seen };
+    const page = await db.find<AuditLog>(COLLECTIONS.audit, filter);
+    rows.push(...page);
+    if (page.length < AUDIT_FIND_CAP) break;
+    for (const row of page) seen.push(row.id);
+  }
+  return rows;
 }

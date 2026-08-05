@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui";
-import { PLANS, planStoreLabel } from "@/lib/plans";
+import { PLANS, planAuditLabel, planStoreLabel } from "@/lib/plans";
 
 export const dynamic = "force-static";
 
@@ -12,9 +12,10 @@ export const metadata: Metadata = {
 };
 
 /**
- * What each plan costs and what comes with it. The live-store counts are read
- * from `lib/plans`, which is also what the workspace enforces when a store is
- * created, so this page cannot advertise a limit the platform does not apply.
+ * What each plan costs and what comes with it. The live-store counts and the
+ * audit entitlement are read from `lib/plans`, which is also what the workspace
+ * enforces when a store is created and when the audit history is downloaded, so
+ * this page cannot advertise something the platform does not apply.
  */
 const PLAN_CARDS = [
   {
@@ -44,7 +45,7 @@ const PLAN_CARDS = [
       "Custom domains per store",
       "Commerce assistant with confirmation flow",
       "Cross-store agency dashboard",
-      "Full audit history export",
+      planAuditLabel(PLANS.studio),
     ],
     cta: "Choose Studio",
     highlighted: true,

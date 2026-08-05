@@ -17,12 +17,14 @@ export interface Plan {
   name: string;
   /** Active stores an agency may run at once. `null` is no ceiling. */
   storeLimit: number | null;
+  /** Downloading the audit history as a spreadsheet. Reading it is on every plan. */
+  auditExport: boolean;
 }
 
 export const PLANS: Record<PlanKey, Plan> = {
-  starter: { key: "starter", name: "Starter", storeLimit: 3 },
-  studio: { key: "studio", name: "Studio", storeLimit: 15 },
-  scale: { key: "scale", name: "Scale", storeLimit: null },
+  starter: { key: "starter", name: "Starter", storeLimit: 3, auditExport: false },
+  studio: { key: "studio", name: "Studio", storeLimit: 15, auditExport: true },
+  scale: { key: "scale", name: "Scale", storeLimit: null, auditExport: true },
 };
 
 /** Resolves a stored plan value, falling back to the smallest plan. */
@@ -38,6 +40,22 @@ export function nextPlanUp(plan: Plan): Plan | null {
 
 export function planStoreLabel(plan: Plan): string {
   return plan.storeLimit === null ? "Unlimited live stores" : `${plan.storeLimit} live stores`;
+}
+
+/** How a plan's audit entitlement is sold, and what the workspace then allows. */
+export function planAuditLabel(plan: Plan): string {
+  return plan.auditExport ? "Full audit history export" : "Audit history on screen";
+}
+
+/** The cheapest plan the download comes with. */
+export function firstPlanWithAuditExport(): Plan {
+  return PLANS[PLAN_KEYS.find((key) => PLANS[key].auditExport) ?? "scale"];
+}
+
+/** Shown where the download would be, on a plan that does not include it. */
+export function auditExportMessage(plan: Plan, agencyName: string): string {
+  const upgrade = firstPlanWithAuditExport();
+  return `${agencyName} is on the ${plan.name} plan, which shows the full audit history on screen. Downloading it as a spreadsheet comes with ${upgrade.name}.`;
 }
 
 export interface StoreAllowance {
