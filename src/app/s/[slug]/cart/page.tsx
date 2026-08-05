@@ -5,11 +5,18 @@ import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from
 import { EmptyState } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
 import { getCart, getStoreBySlug } from "@/lib/data";
-import { formatMoney } from "@/lib/util";
+import { fmt, storefrontLocale } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Your basket",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await getStoreBySlug(slug);
+  if (!store) return { title: "Basket" };
+  return { title: storefrontLocale(store).t.basket.title };
+}
 
 export default async function CartPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -17,6 +24,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   if (!store) notFound();
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  const { t, money } = storefrontLocale(store);
   const session = await readShopperSession();
   const cart = session ? await getCart(store.id, session) : null;
   const items = cart?.items ?? [];
@@ -25,16 +33,16 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink">Your basket</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.basket.title}</h1>
 
       {items.length === 0 ? (
         <div className="mt-8">
           <EmptyState
-            title="Nothing in the basket yet"
-            description="Add a product and any personalisation, and it will appear here with the preview attached to your order."
+            title={t.basket.emptyTitle}
+            description={t.basket.emptyBody}
             action={
               <Link href={`/s/${store.slug}/products`} className="btn-primary">
-                Browse the shop
+                {t.basket.browseShop}
               </Link>
             }
           />
@@ -48,7 +56,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={item.previewUrl}
-                    alt={`${item.productName} preview`}
+                    alt={fmt(t.basket.previewAlt, { name: item.productName })}
                     width={112}
                     height={112}
                     loading="lazy"
@@ -60,11 +68,14 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                   <p className="text-xs text-muted">{item.variantName}</p>
                   {item.text ? (
                     <p className="mt-1 text-xs text-inksoft">
-                      Personalisation: <span className="font-medium text-ink">{item.text}</span>
+                      {t.basket.personalisation}{" "}
+                      <span className="font-medium text-ink">{item.text}</span>
                     </p>
                   ) : null}
                   {item.artworkFileName ? (
-                    <p className="mt-1 text-xs text-inksoft">Artwork: {item.artworkFileName}</p>
+                    <p className="mt-1 text-xs text-inksoft">
+                      {fmt(t.basket.artwork, { file: item.artworkFileName })}
+                    </p>
                   ) : null}
 
                   <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -72,7 +83,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="itemId" value={item.id} />
                       <label htmlFor={`qty-${item.id}`} className="text-xs text-muted">
-                        Quantity
+                        {t.basket.quantity}
                       </label>
                       <input
                         id={`qty-${item.id}`}
@@ -84,54 +95,55 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                         className="input mt-0 w-20 py-1 text-sm"
                       />
                       <button type="submit" className="btn-secondary btn-sm">
-                        Update
+                        {t.basket.update}
                       </button>
                     </form>
                     <form action={removeCartItem}>
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="itemId" value={item.id} />
                       <button type="submit" className="btn-ghost btn-sm text-rose-700">
-                        Remove
+                        {t.basket.remove}
                       </button>
                     </form>
                   </div>
                 </div>
                 <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-                  {formatMoney(unit * item.quantity, currency)}
+                  {money(unit * item.quantity, currency)}
                 </p>
               </li>
             ))}
           </ul>
 
           <aside className="h-fit rounded-xl border border-line bg-canvas p-5">
-            <h2 className="text-base font-semibold text-ink">Summary</h2>
+            <h2 className="text-base font-semibold text-ink">{t.basket.summary}</h2>
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">Subtotal</dt>
-                <dd className="font-medium tabular-nums text-ink">{formatMoney(subtotal, currency)}</dd>
+                <dt className="text-muted">{t.basket.subtotal}</dt>
+                <dd className="font-medium tabular-nums text-ink">{money(subtotal, currency)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted">Shipping</dt>
-                <dd className="font-medium tabular-nums text-ink">{formatMoney(shipping, currency)}</dd>
+                <dt className="text-muted">{t.basket.shipping}</dt>
+                <dd className="font-medium tabular-nums text-ink">{money(shipping, currency)}</dd>
               </div>
               {taxRows.map((row) => (
                 <div key={row.rate} className="flex justify-between">
                   <dt className="text-muted">
-                    Tax {row.rate}% {store.pricesIncludeTax ? "included" : ""}
+                    {fmt(t.basket.taxRow, { rate: row.rate })}{" "}
+                    {store.pricesIncludeTax ? t.basket.taxIncludedSuffix : ""}
                   </dt>
-                  <dd className="font-medium tabular-nums text-ink">{formatMoney(row.amount, currency)}</dd>
+                  <dd className="font-medium tabular-nums text-ink">{money(row.amount, currency)}</dd>
                 </div>
               ))}
               <div className="flex justify-between border-t border-line pt-2.5">
-                <dt className="font-semibold text-ink">Total</dt>
-                <dd className="text-base font-semibold tabular-nums text-ink">{formatMoney(total, currency)}</dd>
+                <dt className="font-semibold text-ink">{t.basket.total}</dt>
+                <dd className="text-base font-semibold tabular-nums text-ink">{money(total, currency)}</dd>
               </div>
             </dl>
             <Link href={`/s/${store.slug}/checkout`} className="btn-primary mt-5 w-full">
-              Checkout
+              {t.basket.checkout}
             </Link>
             <Link href={`/s/${store.slug}/products`} className="btn-ghost mt-2 w-full">
-              Keep shopping
+              {t.basket.keepShopping}
             </Link>
           </aside>
         </div>

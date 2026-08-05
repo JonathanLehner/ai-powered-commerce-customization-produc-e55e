@@ -5,8 +5,8 @@ import { notFound } from "next/navigation";
 import { readCurrency } from "@/app/actions/shop";
 import { Badge, EmptyState } from "@/components/ui";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
+import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
-import { formatMoney } from "@/lib/util";
 
 export async function generateMetadata({
   params,
@@ -15,9 +15,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
+  if (!store) return { title: "Shop" };
+  const { t } = storefrontLocale(store);
   return {
-    title: store ? `Shop — ${store.name}` : "Shop",
-    description: store ? `Every product available from ${store.name}.` : undefined,
+    title: fmt(t.meta.shopTitle, { store: store.name }),
+    description: fmt(t.meta.shopDescription, { store: store.name }),
   };
 }
 
@@ -35,7 +37,8 @@ export default async function StorefrontProductsPage({
 
   const products = await listPublishedProducts(store.id);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const tags = [...new Set(products.flatMap((p) => p.tags))].sort();
+  const { t, tag: localeTag, money } = storefrontLocale(store);
+  const tags = [...new Set(products.flatMap((p) => p.tags))].sort((a, b) => a.localeCompare(b, localeTag));
 
   const visible = products
     .filter((p) => (tag ? p.tags.includes(tag) : true))
@@ -45,32 +48,40 @@ export default async function StorefrontProductsPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Everything in the shop</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{t.shop.title}</h1>
       <p className="mt-2 max-w-2xl text-sm text-inksoft">
-        Made to order and shipped worldwide. Prices in {currency}
-        {store.pricesIncludeTax ? ", tax included" : "; tax is added at checkout"}.
+        {fmt(t.shop.intro, {
+          currency,
+          tax: store.pricesIncludeTax ? t.shop.taxIncluded : t.shop.taxAtCheckout,
+        })}
       </p>
 
       <form method="get" className="mt-6 flex flex-wrap items-end gap-3">
         <div className="min-w-[12rem] flex-1">
           <label htmlFor="q" className="field-label text-xs">
-            Search
+            {t.shop.searchLabel}
           </label>
-          <input id="q" name="q" defaultValue={q ?? ""} placeholder="Tee, hoodie, mug…" className="input py-1.5" />
+          <input
+            id="q"
+            name="q"
+            defaultValue={q ?? ""}
+            placeholder={t.shop.searchPlaceholder}
+            className="input py-1.5"
+          />
         </div>
         {tag ? <input type="hidden" name="tag" value={tag} /> : null}
         <button type="submit" className="btn-secondary">
-          Search
+          {t.shop.searchSubmit}
         </button>
         {q || tag ? (
           <Link href={`/s/${store.slug}/products`} className="btn-ghost">
-            Clear
+            {t.shop.clear}
           </Link>
         ) : null}
       </form>
 
       {tags.length > 0 ? (
-        <nav aria-label="Filter by tag" className="mt-4 flex flex-wrap gap-2">
+        <nav aria-label={t.shop.filterByTag} className="mt-4 flex flex-wrap gap-2">
           {tags.slice(0, 12).map((item) => (
             <Link
               key={item}
@@ -86,16 +97,12 @@ export default async function StorefrontProductsPage({
       {visible.length === 0 ? (
         <div className="mt-8">
           <EmptyState
-            title={products.length === 0 ? "Nothing published yet" : "No products match that search"}
-            description={
-              products.length === 0
-                ? "This store has not published any products yet. Check back soon."
-                : "Try a different search term or clear the filters."
-            }
+            title={products.length === 0 ? t.shop.emptyTitle : t.shop.noMatchTitle}
+            description={products.length === 0 ? t.shop.emptyBody : t.shop.noMatchBody}
             action={
               products.length > 0 ? (
                 <Link href={`/s/${store.slug}/products`} className="btn-secondary">
-                  Clear filters
+                  {t.shop.clearFilters}
                 </Link>
               ) : null
             }
@@ -121,7 +128,7 @@ export default async function StorefrontProductsPage({
                     />
                   ) : (
                     <div className="flex items-center justify-center text-sm text-muted" style={{ aspectRatio: "1 / 1" }}>
-                      Preview coming soon
+                      {t.shop.previewSoon}
                     </div>
                   )}
                 </div>
@@ -129,12 +136,12 @@ export default async function StorefrontProductsPage({
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="text-sm font-semibold text-ink">{product.name}</h2>
                     {product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
-                      <Badge tone="brand">Personalise</Badge>
+                      <Badge tone="brand">{t.shop.personalise}</Badge>
                     ) : null}
                   </div>
                   <p className="mt-1 line-clamp-2 text-xs text-muted">{product.description.split("\n")[0]}</p>
                   <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                    {formatMoney(convert(product.price, product.currency, currency), currency)}
+                    {money(convert(product.price, product.currency, currency), currency)}
                   </p>
                 </div>
               </Link>

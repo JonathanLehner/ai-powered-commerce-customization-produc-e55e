@@ -1,3 +1,4 @@
+import { copyFor, fmt } from "./i18n";
 import type { Store } from "./types";
 
 /**
@@ -7,6 +8,9 @@ import type { Store } from "./types";
  * With no live secret key configured the gateway runs in test mode and settles
  * Stripe's published test card numbers locally, which keeps the full checkout →
  * payment → fulfilment path exercisable end to end.
+ *
+ * Every refusal a shopper can see is written in the store's own storefront
+ * language; `message` on a success is an internal note for the order timeline.
  */
 
 export interface ChargeInput {
@@ -28,10 +32,10 @@ export interface ChargeResult {
   code?: string;
 }
 
-const DECLINE_CARDS: Record<string, string> = {
-  "4000000000000002": "Your card was declined by the issuing bank.",
-  "4000000000009995": "Your card has insufficient funds.",
-  "4000000000000069": "Your card has expired.",
+const DECLINE_CARDS: Record<string, "declined" | "insufficientFunds" | "expiredCard"> = {
+  "4000000000000002": "declined",
+  "4000000000009995": "insufficientFunds",
+  "4000000000000069": "expiredCard",
 };
 
 export function luhnValid(digits: string): boolean {
@@ -69,12 +73,13 @@ function intentId(seed: string): string {
 
 export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
   const { store } = input;
+  const t = copyFor(store.defaultLanguage).payment;
   if (!store.stripe.connected || !store.stripe.chargesEnabled) {
     return {
       ok: false,
       paymentIntentId: null,
       last4: null,
-      message: "This store has not finished connecting its Stripe account, so payments are unavailable.",
+      message: t.accountNotReady,
       code: "account_not_ready",
     };
   }
@@ -83,7 +88,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: null,
-      message: `${input.currency} is not one of this store's selling currencies.`,
+      message: fmt(t.currencyUnsupported, { currency: input.currency }),
       code: "currency_unsupported",
     };
   }
@@ -94,7 +99,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: null,
-      message: "That card number is not valid. Check the digits and try again.",
+      message: t.invalidNumber,
       code: "invalid_number",
     };
   }
@@ -103,7 +108,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: digits.slice(-4),
-      message: "The expiry date is in the past or badly formatted. Use MM/YY.",
+      message: t.invalidExpiry,
       code: "invalid_expiry",
     };
   }
@@ -112,14 +117,20 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: digits.slice(-4),
-      message: "The security code must be 3 or 4 digits.",
+      message: t.invalidCvc,
       code: "invalid_cvc",
     };
   }
 
   const decline = DECLINE_CARDS[digits];
   if (decline) {
-    return { ok: false, paymentIntentId: null, last4: digits.slice(-4), message: decline, code: "card_declined" };
+    return {
+      ok: false,
+      paymentIntentId: null,
+      last4: digits.slice(-4),
+      message: t[decline],
+      code: "card_declined",
+    };
   }
 
   return {

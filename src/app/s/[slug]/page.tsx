@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { readCurrency } from "@/app/actions/shop";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { getStoreBySlug, getStorefront, listPublishedProducts } from "@/lib/data";
+import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { sectionsFromTree } from "@/lib/storefront-schema";
 
@@ -15,9 +16,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Store not found" };
+  const { t } = storefrontLocale(store);
   return {
-    title: `${store.name} — made-to-order merchandise`,
-    description: `Shop ${store.name}, the official store for ${store.clientName}. Printed on demand and shipped worldwide.`,
+    title: fmt(t.meta.homeTitle, { store: store.name }),
+    description: fmt(t.meta.homeDescription, { store: store.name, client: store.clientName }),
   };
 }
 
@@ -32,6 +34,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
   ]);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const sections = sectionsFromTree(storefront?.published);
+  const { t, tag } = storefrontLocale(store);
 
   const ctx: StorefrontContext = {
     storeName: store.name,
@@ -40,6 +43,8 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
     logoUrl: store.logoUrl,
     theme: store.theme,
     preview: false,
+    t: t.sections,
+    localeTag: tag,
     products: products.map((p) => ({
       id: p.id,
       name: p.name,
@@ -54,10 +59,9 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
   if (store.status === "archived") {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">This store is closed</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.home.closedTitle}</h1>
         <p className="mt-3 text-sm text-muted">
-          {store.clientName} has archived {store.name}. Existing orders are still being fulfilled and their
-          status pages remain available.
+          {fmt(t.home.closedBody, { client: store.clientName, store: store.name })}
         </p>
       </div>
     );
@@ -66,13 +70,16 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
   if (sections.length === 0) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">{store.name} is nearly ready</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          {fmt(t.home.comingSoonTitle, { store: store.name })}
+        </h1>
         <p className="mt-3 text-sm text-muted">
-          The storefront layout has not been published yet. {products.length > 0 ? "Products are live and can be browsed in the meantime." : "Check back shortly."}
+          {t.home.comingSoonBody}{" "}
+          {products.length > 0 ? t.home.comingSoonWithProducts : t.home.comingSoonNoProducts}
         </p>
         {products.length > 0 ? (
           <Link href={`/s/${store.slug}/products`} className="btn-primary mt-6">
-            Browse {products.length} products
+            {fmt(t.home.browseProducts, { count: products.length })}
           </Link>
         ) : null}
       </div>

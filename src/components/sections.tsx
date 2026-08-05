@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { StorefrontCopy } from "@/lib/i18n";
 import type { SectionType } from "@/lib/storefront-schema";
 import type { ThemeKey } from "@/lib/types";
 import { THEMES } from "@/lib/types";
@@ -24,6 +25,10 @@ export interface StorefrontContext {
   products: StorefrontProductCard[];
   /** When true the section renders inside the editor and links are inert. */
   preview: boolean;
+  /** The store language's built-in section copy. */
+  t: StorefrontCopy["sections"];
+  /** BCP-47 tag prices in these sections are formatted for. */
+  localeTag: string;
 }
 
 function href(ctx: StorefrontContext, target: string): string {
@@ -74,7 +79,7 @@ export function HeroSection({ props, ctx }: { props: Record<string, unknown>; ct
             </p>
           ) : null}
           <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            {str(props, "headline", "Welcome")}
+            {str(props, "headline", ctx.t.welcome)}
           </h1>
           <p className={`mt-4 text-base leading-relaxed ${tone === "light" ? "text-inksoft" : "text-white/85"}`}>
             {str(props, "body")}
@@ -176,13 +181,13 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
           ) : null}
         </div>
         <Link href={href(ctx, "products")} className="text-sm font-medium text-brand-700 hover:underline">
-          View all
+          {ctx.t.viewAll}
         </Link>
       </div>
 
       {products.length === 0 ? (
         <p className="mt-6 rounded-xl border border-dashed border-line bg-canvas px-5 py-10 text-center text-sm text-muted">
-          No products are published in this store yet. Published products appear here automatically.
+          {ctx.t.noProducts}
         </p>
       ) : (
         <ul className={`mt-6 grid gap-5 ${colClass}`}>
@@ -203,7 +208,7 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
                     />
                   ) : (
                     <div className="flex items-center justify-center text-sm text-muted" style={{ aspectRatio: "1 / 1" }}>
-                      Preview coming soon
+                      {ctx.t.previewSoon}
                     </div>
                   )}
                 </div>
@@ -212,7 +217,7 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
                   <p className="mt-1 line-clamp-2 text-xs text-muted">{product.tagline}</p>
                   {showPrice ? (
                     <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                      {formatMoney(product.price, product.currency)}
+                      {formatMoney(product.price, product.currency, ctx.localeTag)}
                     </p>
                   ) : null}
                 </div>
@@ -250,7 +255,7 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
               className="flex items-center justify-center rounded-2xl border border-dashed border-line bg-white text-sm text-muted"
               style={{ aspectRatio: "4 / 3" }}
             >
-              Add an image URL in the section settings
+              {ctx.t.imagePlaceholder}
             </div>
           )}
         </div>
@@ -304,7 +309,7 @@ export function NewsletterSignup({ props, ctx }: { props: Record<string, unknown
           action={ctx.preview ? undefined : `/s/${ctx.slug}/products`}
         >
           <label htmlFor="newsletter-email" className="sr-only">
-            Email address
+            {ctx.t.newsletterEmail}
           </label>
           <input
             id="newsletter-email"
@@ -318,7 +323,7 @@ export function NewsletterSignup({ props, ctx }: { props: Record<string, unknown
             className="rounded-lg px-4 py-2 text-sm font-semibold text-white"
             style={{ background: accent }}
           >
-            {str(props, "buttonLabel", "Notify me")}
+            {str(props, "buttonLabel", ctx.t.notifyMe)}
           </button>
         </form>
       </div>

@@ -12,6 +12,7 @@ import {
   recordAudit,
   updateStore,
 } from "@/lib/data";
+import { languageLabel, resolveLanguage } from "@/lib/i18n";
 import { db } from "@/lib/platform";
 import { storeAllowance, storeLimitMessage } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
@@ -58,7 +59,8 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
   const name = String(formData.get("name") ?? "").trim();
   const clientName = String(formData.get("clientName") ?? "").trim();
   const defaultCurrency = String(formData.get("defaultCurrency") ?? "USD");
-  const defaultLanguage = String(formData.get("defaultLanguage") ?? "en");
+  // Only a language the storefront can actually be rendered in is stored.
+  const defaultLanguage = resolveLanguage(String(formData.get("defaultLanguage") ?? ""));
   const theme = String(formData.get("theme") ?? "atelier") as ThemeKey;
 
   if (name.length < 3) return fail("Give the store a name of at least 3 characters.", "name");
@@ -239,7 +241,9 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
 
-  const defaultLanguage = String(formData.get("defaultLanguage") ?? store.defaultLanguage);
+  const defaultLanguage = resolveLanguage(
+    String(formData.get("defaultLanguage") ?? store.defaultLanguage),
+  );
   const currencies = formData.getAll("currencies").map(String);
   const defaultCurrency = String(formData.get("defaultCurrency") ?? "");
 
@@ -257,7 +261,7 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
   recordAudit({
     category: "store_setup",
     action: "store.localisation_updated",
-    summary: `Set selling currencies to ${currencies.join(", ")} (default ${defaultCurrency})`,
+    summary: `Set the storefront language to ${languageLabel(defaultLanguage)} and selling currencies to ${currencies.join(", ")} (default ${defaultCurrency})`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
@@ -267,6 +271,9 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
     meta: { defaultCurrency, defaultLanguage },
   });
   revalidatePath(`/app/stores/${storeId}/setup`);
+  // The language decides the storefront's own copy and formatting, so every
+  // page of it is stale once this saves.
+  revalidatePath(`/s/${store.slug}`, "layout");
   return ok("Language and currencies saved.");
 }
 

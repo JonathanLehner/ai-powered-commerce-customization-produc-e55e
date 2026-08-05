@@ -5,6 +5,7 @@ import Link from "next/link";
 import { addToCart } from "@/app/actions/shop";
 import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { fmt, type StorefrontCopy } from "@/lib/i18n";
 import { renderMockup, type MockupLayer } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
 import type { StoredImage, StoreProduct } from "@/lib/types";
@@ -30,9 +31,14 @@ export interface PurchaseProduct {
   printArea: { name: string; widthMm: number; heightMm: number; minDpi: number; rect: { x: number; y: number; w: number; h: number } } | null;
   fileRules: { formats: string[]; maxFileMb: number; minDpi: number } | null;
   storeSlug: string;
+  /** BCP-47 tag the price is formatted for. */
+  localeTag: string;
+  /** The store language's copy for this form. */
+  t: StorefrontCopy["purchase"];
 }
 
 export function ProductPurchase({ product }: { product: PurchaseProduct }) {
+  const t = product.t;
   const colours = [...new Set(product.variants.map((v) => v.colour))];
   const [colour, setColour] = useState(colours[0] ?? "");
   const sizes = product.variants.filter((v) => v.colour === colour);
@@ -86,7 +92,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
     const limitMb = product.fileRules?.maxFileMb;
     if (limitMb && file.size > limitMb * 1024 * 1024) {
       setArtworkStatus("error");
-      setArtworkError(`That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is ${limitMb} MB.`);
+      setArtworkError(
+        fmt(t.fileTooLarge, { size: (file.size / 1024 / 1024).toFixed(1), limit: limitMb }),
+      );
       return;
     }
 
@@ -100,7 +108,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
       setArtworkStatus("idle");
     } catch (error) {
       setArtworkStatus("error");
-      setArtworkError(error instanceof Error ? error.message : "That file could not be uploaded.");
+      setArtworkError(error instanceof Error ? error.message : t.uploadFailed);
     }
   }
 
@@ -144,9 +152,13 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
           <div className="relative" style={{ aspectRatio: "1 / 1" }}>
             {activeMockup ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={activeMockup} alt={`${product.name} preview`} className="h-full w-full object-cover" />
+              <img
+                src={activeMockup}
+                alt={fmt(t.previewAlt, { name: product.name })}
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted">No preview available</div>
+              <div className="flex h-full items-center justify-center text-sm text-muted">{t.noPreview}</div>
             )}
             {area && (artworkPreview || text) ? (
               <div
@@ -193,7 +205,11 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mockup.url} alt={`${mockup.view} view`} className="h-16 w-16 object-cover" />
+                  <img
+                    src={mockup.url}
+                    alt={fmt(t.viewAlt, { view: mockup.view })}
+                    className="h-16 w-16 object-cover"
+                  />
                 </button>
               </li>
             ))}
@@ -202,7 +218,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
         {artworkPreview || text ? (
           <p className="mt-3 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
-            Live preview. A production-accurate version is attached when you add this to the basket.
+            {t.livePreview}
           </p>
         ) : null}
       </div>
@@ -210,13 +226,13 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
       <ActionForm
         action={addToCart}
         beforeSubmit={renderPreview}
-        submitLabel="Add to basket"
-        pendingLabel="Adding…"
+        submitLabel={t.addToBasket}
+        pendingLabel={t.adding}
         submitDisabled={artworkStatus !== "idle"}
         hidden={{ storeId: product.storeId, productId: product.id }}
         footer={
           <Link href={`/s/${product.storeSlug}/cart`} className="btn-secondary">
-            View basket
+            {t.viewBasket}
           </Link>
         }
       >
@@ -225,12 +241,12 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
             <input type="hidden" name="variantId" value={variantId} />
 
             <p className="text-2xl font-semibold tabular-nums text-ink">
-              {variant ? formatMoney(variant.price, product.displayCurrency) : ""}
+              {variant ? formatMoney(variant.price, product.displayCurrency, product.localeTag) : ""}
             </p>
 
             {colours.length > 1 ? (
               <fieldset className="mt-5">
-                <legend className="field-label">Colour</legend>
+                <legend className="field-label">{t.colour}</legend>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {colours.map((option) => (
                     <button
@@ -259,8 +275,10 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
             <fieldset className="mt-5">
               <legend className="field-label">
-                {sizes.length > 1 ? "Size" : "Option"}
-                {state.field === "variantId" ? <span className="ml-2 text-xs text-rose-600">Required</span> : null}
+                {sizes.length > 1 ? t.size : t.option}
+                {state.field === "variantId" ? (
+                  <span className="ml-2 text-xs text-rose-600">{t.required}</span>
+                ) : null}
               </legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {sizes.map((option) => (
@@ -278,7 +296,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   >
                     {option.size || option.name}
                     {option.availability === "low_stock" ? (
-                      <span className="ml-1.5 text-xs text-amber-700">low</span>
+                      <span className="ml-1.5 text-xs text-amber-700">{t.lowStock}</span>
                     ) : null}
                   </button>
                 ))}
@@ -287,7 +305,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
             <div className="mt-5 max-w-[8rem]">
               <label htmlFor="quantity" className="field-label">
-                Quantity
+                {t.quantity}
               </label>
               <input
                 id="quantity"
@@ -311,13 +329,16 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   value={text}
                   maxLength={product.shopperCustomization.maxTextLength}
                   onChange={(e) => setText(e.currentTarget.value)}
-                  placeholder="Optional"
+                  placeholder={t.textPlaceholder}
                   aria-invalid={state.field === "text" ? true : undefined}
                   aria-describedby="text-hint"
                   className={state.field === "text" ? "input input-error" : "input"}
                 />
                 <p id="text-hint" className="field-hint">
-                  {text.length}/{product.shopperCustomization.maxTextLength} characters. Printed with the design.
+                  {fmt(t.textCounter, {
+                    count: text.length,
+                    max: product.shopperCustomization.maxTextLength,
+                  })}
                 </p>
               </div>
             ) : null}
@@ -325,7 +346,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
             {product.shopperCustomization.artworkUpload ? (
               <div className="mt-5">
                 <label htmlFor="artwork" className="field-label">
-                  Your own artwork
+                  {t.artworkLabel}
                 </label>
                 <input
                   id="artwork"
@@ -342,12 +363,18 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 />
                 <p id="artwork-hint" className="field-hint">
                   {area && product.fileRules
-                    ? `Printed at ${area.widthMm} × ${area.heightMm} mm, so we need at least ${Math.max(area.minDpi, product.fileRules.minDpi)} DPI. ${product.fileRules.formats.join(", ")} up to ${product.fileRules.maxFileMb} MB.`
-                    : "PNG, JPG or WEBP."}
+                    ? fmt(t.artworkHint, {
+                        width: area.widthMm,
+                        height: area.heightMm,
+                        dpi: Math.max(area.minDpi, product.fileRules.minDpi),
+                        formats: product.fileRules.formats.join(", "),
+                        max: product.fileRules.maxFileMb,
+                      })
+                    : t.artworkHintSimple}
                 </p>
                 <p role="status" aria-live="polite" className="mt-2">
                   {artworkStatus === "uploading" ? (
-                    <span className="text-sm text-muted">Uploading your artwork…</span>
+                    <span className="text-sm text-muted">{t.uploading}</span>
                   ) : artworkError ? (
                     <span className="text-sm text-rose-700">{artworkError}</span>
                   ) : artwork ? (

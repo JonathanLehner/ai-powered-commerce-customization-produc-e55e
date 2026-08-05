@@ -146,17 +146,9 @@ export const CURRENCY_OPTIONS = [
   { code: "ZAR", label: "South African Rand" },
 ];
 
-export const LANGUAGE_OPTIONS = [
-  { code: "en", label: "English" },
-  { code: "de", label: "German" },
-  { code: "fr", label: "French" },
-  { code: "es", label: "Spanish" },
-  { code: "it", label: "Italian" },
-  { code: "nl", label: "Dutch" },
-  { code: "pt", label: "Portuguese" },
-  { code: "ja", label: "Japanese" },
-  { code: "sv", label: "Swedish" },
-];
+// The storefront languages live in src/lib/i18n.ts, next to the dictionaries and
+// locale tags that make each one real: LANGUAGE_OPTIONS is derived from there so
+// the dropdowns cannot drift from what is actually supported.
 
 export const REGION_OPTIONS = [
   "North America",

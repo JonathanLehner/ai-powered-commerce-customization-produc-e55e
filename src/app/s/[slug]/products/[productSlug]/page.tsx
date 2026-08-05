@@ -5,6 +5,7 @@ import { readCurrency } from "@/app/actions/shop";
 import { Badge, Breadcrumbs } from "@/components/ui";
 import { isLive } from "@/lib/artwork";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug, getSupplier } from "@/lib/data";
+import { fmt, joinList, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { ProductPurchase, type PurchaseProduct } from "./ProductPurchase";
 
@@ -41,7 +42,9 @@ export default async function StorefrontProductPage({
     getSupplier(product.supplierId),
   ]);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  const { t, tag: localeTag } = storefrontLocale(store);
   const area = catalog?.printAreas[0] ?? null;
+  const carriers = store.carriers.filter((c) => c.enabled).map((c) => c.carrier.toUpperCase());
 
   const purchase: PurchaseProduct = {
     id: product.id,
@@ -50,6 +53,8 @@ export default async function StorefrontProductPage({
     currency: product.currency,
     displayCurrency: currency,
     storeSlug: store.slug,
+    localeTag,
+    t: t.purchase,
     variants: product.variants
       .filter((v) => v.enabled)
       .map((v) => ({
@@ -84,9 +89,10 @@ export default async function StorefrontProductPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
       <Breadcrumbs
+        label={t.product.breadcrumb}
         items={[
           { label: store.name, href: `/s/${store.slug}` },
-          { label: "Shop", href: `/s/${store.slug}/products` },
+          { label: t.product.breadcrumbShop, href: `/s/${store.slug}/products` },
           { label: product.name },
         ]}
       />
@@ -106,7 +112,7 @@ export default async function StorefrontProductPage({
 
       <div className="mt-12 grid gap-8 border-t border-line pt-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h2 className="text-lg font-semibold text-ink">About this product</h2>
+          <h2 className="text-lg font-semibold text-ink">{t.product.about}</h2>
           <div className="mt-3 space-y-3 text-sm leading-relaxed text-inksoft">
             {product.description.split("\n\n").map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
@@ -115,32 +121,44 @@ export default async function StorefrontProductPage({
         </div>
         <aside className="space-y-4 text-sm">
           <div className="rounded-xl border border-line p-4">
-            <h2 className="text-sm font-semibold text-ink">Made to order</h2>
+            <h2 className="text-sm font-semibold text-ink">{t.product.madeToOrder}</h2>
             <p className="mt-1.5 text-muted">
-              Produced by {supplier?.name ?? "our production partner"} in{" "}
-              {catalog ? `${catalog.leadTimeDays[0]}–${catalog.leadTimeDays[1]} days` : "a few days"}, then
-              shipped with{" "}
-              {store.carriers
-                .filter((c) => c.enabled)
-                .map((c) => c.carrier.toUpperCase())
-                .join(" or ") || "our carrier"}
-              .
+              {fmt(t.product.producedBy, {
+                supplier: supplier?.name ?? t.product.defaultSupplier,
+                lead: catalog
+                  ? fmt(t.product.leadDays, {
+                      from: catalog.leadTimeDays[0],
+                      to: catalog.leadTimeDays[1],
+                    })
+                  : t.product.leadUnknown,
+                carriers:
+                  carriers.length > 0
+                    ? joinList(carriers, t.product.carrierJoin)
+                    : t.product.defaultCarrier,
+              })}
             </p>
           </div>
           {area ? (
             <div className="rounded-xl border border-line p-4">
-              <h2 className="text-sm font-semibold text-ink">Print detail</h2>
+              <h2 className="text-sm font-semibold text-ink">{t.product.printDetail}</h2>
               <p className="mt-1.5 text-muted">
-                {area.name}, {area.widthMm} × {area.heightMm} mm, printed at a minimum of {area.minDpi} DPI.
+                {fmt(t.product.printDetailBody, {
+                  area: area.name,
+                  width: area.widthMm,
+                  height: area.heightMm,
+                  dpi: area.minDpi,
+                })}
               </p>
             </div>
           ) : null}
           <div className="rounded-xl border border-line p-4">
-            <h2 className="text-sm font-semibold text-ink">Tax and delivery</h2>
+            <h2 className="text-sm font-semibold text-ink">{t.product.taxAndDelivery}</h2>
             <p className="mt-1.5 text-muted">
-              Prices shown in {currency}
-              {store.pricesIncludeTax ? " with tax included" : "; tax is calculated at checkout"}.{" "}
-              {store.clientName} is the merchant of record for this order.
+              {fmt(t.product.pricesShownIn, {
+                currency,
+                tax: store.pricesIncludeTax ? t.product.taxIncluded : t.product.taxAtCheckout,
+              })}{" "}
+              {fmt(t.product.merchantOfRecord, { client: store.clientName })}
             </p>
           </div>
         </aside>

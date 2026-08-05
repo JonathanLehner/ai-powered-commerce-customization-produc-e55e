@@ -2,27 +2,44 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Callout, DataList } from "@/components/ui";
-import { countryName } from "@/lib/countries";
+import { localCountryName } from "@/lib/countries";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
+import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
 import { verifyOrderToken } from "@/lib/order-access";
 import { orderTaxRows } from "@/lib/pricing";
-import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
-import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
+import type { OrderStatus } from "@/lib/types";
+import { CARRIER_LABELS } from "@/lib/util";
 import { OrderLookupForm } from "../OrderLookupForm";
 
-export const metadata: Metadata = {
-  title: "Order status",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await getStoreBySlug(slug);
+  return {
+    title: store ? storefrontLocale(store).t.order.title : "Order status",
+    robots: { index: false, follow: false },
+  };
+}
 
-const SHOPPER_STATUS: Record<OrderStatus, { label: string; note: string; tone: "brand" | "green" | "amber" | "rose" | "slate" }> = {
-  awaiting_payment: { label: "Awaiting payment", note: "We have not received payment for this order yet.", tone: "slate" },
-  paid: { label: "Payment received", note: "Your order is queued for production.", tone: "brand" },
-  in_production: { label: "In production", note: "Your item is being printed and finished.", tone: "amber" },
-  shipped: { label: "Shipped", note: "Your parcel is on its way. Track it with the link below.", tone: "brand" },
-  delivered: { label: "Delivered", note: "Your parcel has been delivered. Enjoy it.", tone: "green" },
-  cancelled: { label: "Cancelled", note: "This order was cancelled. Any payment has been refunded.", tone: "slate" },
-  exception: { label: "Needs attention", note: "There is a hold on this order. The store team is on it and will be in touch.", tone: "rose" },
+/** What each order state means for the shopper, in the storefront's language. */
+const SHOPPER_STATUS: Record<
+  OrderStatus,
+  {
+    label: keyof StorefrontCopy["status"];
+    note: keyof StorefrontCopy["status"];
+    tone: "brand" | "green" | "amber" | "rose" | "slate";
+  }
+> = {
+  awaiting_payment: { label: "awaitingPayment", note: "awaitingPaymentNote", tone: "slate" },
+  paid: { label: "paid", note: "paidNote", tone: "brand" },
+  in_production: { label: "inProduction", note: "inProductionNote", tone: "amber" },
+  shipped: { label: "shipped", note: "shippedNote", tone: "brand" },
+  delivered: { label: "delivered", note: "deliveredNote", tone: "green" },
+  cancelled: { label: "cancelled", note: "cancelledNote", tone: "slate" },
+  exception: { label: "exception", note: "exceptionNote", tone: "rose" },
 };
 
 export default async function OrderStatusPage({
@@ -33,21 +50,19 @@ export default async function OrderStatusPage({
   searchParams: Promise<{ new?: string; t?: string }>;
 }) {
   const { slug, code } = await params;
-  const { new: isNew, t } = await searchParams;
+  const { new: isNew, t: token } = await searchParams;
   const store = await getStoreBySlug(slug);
   if (!store) notFound();
+  const { t, tag: localeTag, money, dateTime } = storefrontLocale(store);
 
   // Nothing about the order — not even whether it exists — is readable without
   // the signed link from checkout or the email address on the order.
-  if (!(await verifyOrderToken(store.id, code, t))) {
+  if (!(await verifyOrderToken(store.id, code, token))) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Order status</h1>
-        <p className="mt-2 text-sm text-muted">
-          To protect delivery and personalisation details, confirm the email address on order{" "}
-          <span className="font-medium text-ink">{code}</span> before we show it.
-        </p>
-        <OrderLookupForm slug={store.slug} code={code} />
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.order.title}</h1>
+        <p className="mt-2 text-sm text-muted">{fmt(t.order.gateBody, { code })}</p>
+        <OrderLookupForm slug={store.slug} code={code} t={t.order} />
       </div>
     );
   }
@@ -61,21 +76,26 @@ export default async function OrderStatusPage({
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
       {isNew ? (
-        <Callout tone="green" title="Thank you — your order is confirmed">
-          We have emailed a confirmation to {order.customer.email}. Keep this page bookmarked to follow
-          production and delivery.
+        <Callout tone="green" title={t.order.confirmedTitle}>
+          {fmt(t.order.confirmedBody, { email: order.customer.email })}
         </Callout>
       ) : null}
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Order {order.code}</h1>
-          <p className="mt-1 text-sm text-muted">Placed {formatDateTime(order.createdAt)}</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">
+            {fmt(t.order.heading, { code: order.code })}
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            {fmt(t.order.placed, { when: dateTime(order.createdAt) })}
+          </p>
         </div>
-        <Badge tone={status.tone}>{status.label}</Badge>
+        <Badge tone={status.tone}>{t.status[status.label]}</Badge>
       </div>
 
-      <p className="mt-3 rounded-lg border border-line bg-canvas px-4 py-3 text-sm text-inksoft">{status.note}</p>
+      <p className="mt-3 rounded-lg border border-line bg-canvas px-4 py-3 text-sm text-inksoft">
+        {t.status[status.note]}
+      </p>
 
       {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
         <a
@@ -84,12 +104,12 @@ export default async function OrderStatusPage({
           rel="noreferrer"
           className="btn-primary mt-4"
         >
-          Track with {CARRIER_LABELS[order.fulfillment.carrier]} ↗
+          {fmt(t.order.trackWith, { carrier: CARRIER_LABELS[order.fulfillment.carrier] })}
         </a>
       ) : null}
 
       <section className="mt-8">
-        <h2 className="text-base font-semibold text-ink">What you ordered</h2>
+        <h2 className="text-base font-semibold text-ink">{t.order.whatYouOrdered}</h2>
         <ul className="mt-3 divide-y divide-line">
           {order.items.map((item) => (
             <li key={item.id} className="flex flex-wrap gap-4 py-4">
@@ -97,7 +117,7 @@ export default async function OrderStatusPage({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={item.customization.previewUrl}
-                  alt={`${item.productName} preview`}
+                  alt={fmt(t.order.previewAlt, { name: item.productName })}
                   width={96}
                   height={96}
                   loading="lazy"
@@ -107,16 +127,20 @@ export default async function OrderStatusPage({
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-ink">{item.productName}</p>
                 <p className="text-xs text-muted">
-                  {item.variantName} · quantity {item.quantity}
+                  {fmt(t.order.variantQuantity, {
+                    variant: item.variantName,
+                    count: item.quantity,
+                  })}
                 </p>
                 {item.customization.text ? (
                   <p className="mt-1 text-xs text-inksoft">
-                    Personalisation: <span className="font-medium text-ink">{item.customization.text}</span>
+                    {t.order.personalisation}{" "}
+                    <span className="font-medium text-ink">{item.customization.text}</span>
                   </p>
                 ) : null}
               </div>
               <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-                {formatMoney(item.unitPrice * item.quantity, order.currency)}
+                {money(item.unitPrice * item.quantity, order.currency)}
               </p>
             </li>
           ))}
@@ -125,15 +149,15 @@ export default async function OrderStatusPage({
         <div className="mt-4 border-t border-line pt-4">
           <DataList
             rows={[
-              { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
-              { label: "Shipping", value: formatMoney(order.shipping, order.currency) },
+              { label: t.order.subtotal, value: money(order.subtotal, order.currency) },
+              { label: t.order.shipping, value: money(order.shipping, order.currency) },
               ...orderTaxRows(order).map((row) => ({
-                label: `Tax ${row.rate}%`,
-                value: formatMoney(row.amount, order.currency),
+                label: fmt(t.order.taxRow, { rate: row.rate }),
+                value: money(row.amount, order.currency),
               })),
-              { label: "Paid", value: formatMoney(order.total, order.currency) },
+              { label: t.order.paid, value: money(order.total, order.currency) },
               ...(refunded > 0
-                ? [{ label: "Refunded", value: `− ${formatMoney(refunded, order.currency)}` }]
+                ? [{ label: t.order.refunded, value: `− ${money(refunded, order.currency)}` }]
                 : []),
             ]}
           />
@@ -142,7 +166,7 @@ export default async function OrderStatusPage({
 
       <section className="mt-8 grid gap-6 sm:grid-cols-2">
         <div>
-          <h2 className="text-base font-semibold text-ink">Delivering to</h2>
+          <h2 className="text-base font-semibold text-ink">{t.order.deliveringTo}</h2>
           <address className="mt-2 not-italic text-sm text-inksoft">
             {order.customer.name}
             <br />
@@ -150,22 +174,26 @@ export default async function OrderStatusPage({
             <br />
             {order.customer.city} {order.customer.postalCode}
             <br />
-            {countryName(order.customer.country)}
+            {localCountryName(order.customer.country, localeTag)}
           </address>
         </div>
         <div>
-          <h2 className="text-base font-semibold text-ink">Payment</h2>
+          <h2 className="text-base font-semibold text-ink">{t.order.payment}</h2>
           <p className="mt-2 text-sm text-inksoft">
-            {order.payment.last4 ? `Card ending ${order.payment.last4}` : "Card"} ·{" "}
-            {order.payment.status === "refunded" ? "refunded" : "paid"} ·{" "}
-            {order.payment.paidAt ? formatDateTime(order.payment.paidAt) : ""}
+            {order.payment.last4
+              ? fmt(t.order.cardEnding, { last4: order.payment.last4 })
+              : t.order.card}{" "}
+            · {order.payment.status === "refunded" ? t.order.refundedWord : t.order.paidWord} ·{" "}
+            {order.payment.paidAt ? dateTime(order.payment.paidAt) : ""}
           </p>
-          <p className="mt-1 text-xs text-muted">{store.clientName} is the merchant of record.</p>
+          <p className="mt-1 text-xs text-muted">
+            {fmt(t.order.merchantOfRecord, { client: store.clientName })}
+          </p>
         </div>
       </section>
 
       <section className="mt-8">
-        <h2 className="text-base font-semibold text-ink">Progress</h2>
+        <h2 className="text-base font-semibold text-ink">{t.order.progress}</h2>
         <ol className="mt-3 space-y-4">
           {order.events.map((entry, index) => (
             <li key={index} className="flex gap-3">
@@ -173,7 +201,7 @@ export default async function OrderStatusPage({
               <div>
                 <p className="text-sm font-medium text-ink">{entry.status}</p>
                 <p className="text-sm text-inksoft">{entry.note}</p>
-                <p className="text-xs text-muted">{formatDateTime(entry.at)}</p>
+                <p className="text-xs text-muted">{dateTime(entry.at)}</p>
               </div>
             </li>
           ))}
@@ -182,10 +210,10 @@ export default async function OrderStatusPage({
 
       <div className="mt-10 flex flex-wrap gap-3">
         <Link href={`/s/${store.slug}/products`} className="btn-secondary">
-          Continue shopping
+          {t.order.continueShopping}
         </Link>
         <a href={`mailto:${store.clientName.toLowerCase().replace(/\s+/g, "")}@example.com`} className="btn-ghost">
-          Contact the store
+          {t.order.contactStore}
         </a>
       </div>
     </div>

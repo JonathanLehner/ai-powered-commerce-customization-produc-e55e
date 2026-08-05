@@ -15,9 +15,10 @@ import {
 } from "@/app/actions/stores";
 import { ActionForm, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { LANGUAGE_OPTIONS } from "@/lib/i18n";
 import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
-import { CARRIER_LABELS, CURRENCY_OPTIONS, LANGUAGE_OPTIONS, STRIPE_COUNTRIES } from "@/lib/util";
+import { CARRIER_LABELS, CURRENCY_OPTIONS, STRIPE_COUNTRIES } from "@/lib/util";
 
 function Step({
   index,
@@ -226,7 +227,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={2}
         title="Language and selling currencies"
-        description="Shoppers see prices in the currency they choose from this list. Amounts are formatted for each currency, so zero-decimal currencies such as JPY are handled correctly."
+        description="The storefront is written in the default language and its amounts and dates follow that language's conventions. Shoppers see prices in the currency they choose from this list, so zero-decimal currencies such as JPY are handled correctly."
         done={store.setup.localisation}
       >
         <ActionForm action={saveLocalisation} submitLabel="Save localisation" hidden={hidden}>
@@ -245,10 +246,14 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   >
                     {LANGUAGE_OPTIONS.map((l) => (
                       <option key={l.code} value={l.code}>
-                        {l.label}
+                        {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
                       </option>
                     ))}
                   </select>
+                  <p className="field-hint">
+                    Used for the storefront&rsquo;s own copy, its number and date formatting, and the language its
+                    pages are marked with.
+                  </p>
                 </div>
                 <div>
                   <label htmlFor="defaultCurrency" className="field-label">

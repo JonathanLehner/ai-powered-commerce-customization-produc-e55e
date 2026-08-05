@@ -310,6 +310,47 @@ export function countryName(code: string): string {
   return BY_CODE.get(code.toUpperCase())?.name ?? code.toUpperCase();
 }
 
+/**
+ * The country name in a storefront's own language. `Intl` carries the
+ * translations, so no country list has to be maintained per language; anything
+ * it cannot name — an unknown code, or a runtime built without the region data —
+ * falls back to the English table above.
+ */
+const displayNames = new Map<string, Intl.DisplayNames | null>();
+
+function regionNames(localeTag: string): Intl.DisplayNames | null {
+  if (!displayNames.has(localeTag)) {
+    let names: Intl.DisplayNames | null = null;
+    try {
+      names = new Intl.DisplayNames([localeTag], { type: "region" });
+    } catch {
+      names = null;
+    }
+    displayNames.set(localeTag, names);
+  }
+  return displayNames.get(localeTag) ?? null;
+}
+
+export function localCountryName(code: string, localeTag?: string): string {
+  const upper = code.toUpperCase();
+  const english = countryName(upper);
+  if (!localeTag || !BY_CODE.has(upper)) return english;
+  try {
+    const translated = regionNames(localeTag)?.of(upper);
+    return translated && translated !== upper ? translated : english;
+  } catch {
+    return english;
+  }
+}
+
+/** The country list named and ordered for one language. */
+export function localCountries(localeTag?: string): Country[] {
+  if (!localeTag) return COUNTRIES;
+  return COUNTRIES.map((c) => ({ ...c, name: localCountryName(c.code, localeTag) })).sort((a, b) =>
+    a.name.localeCompare(b.name, localeTag),
+  );
+}
+
 export function regionForCountry(code: string): string {
   return BY_CODE.get(code.toUpperCase())?.region ?? "Rest of world";
 }
@@ -329,26 +370,33 @@ function normalize(value: string): string {
  * names starting with the query, then names containing it — so "za" offers
  * South Africa before Zambia and "guinea" still finds Papua New Guinea.
  */
-export function searchCountries(query: string): Country[] {
+export function searchCountries(query: string, localeTag?: string): Country[] {
+  const list = localCountries(localeTag);
   const q = normalize(query);
-  if (!q) return COUNTRIES;
+  if (!q) return list;
   const code: Country[] = [];
   const starts: Country[] = [];
   const contains: Country[] = [];
-  for (const country of COUNTRIES) {
-    const name = normalize(country.name);
+  for (const country of list) {
+    // The English name still matches, so a shopper on a German storefront finds
+    // the row by typing either "Deutschland" or "Germany".
+    const names = [normalize(country.name), normalize(countryName(country.code))];
     if (normalize(country.code) === q) code.push(country);
-    else if (name.startsWith(q)) starts.push(country);
-    else if (name.includes(q)) contains.push(country);
+    else if (names.some((n) => n.startsWith(q))) starts.push(country);
+    else if (names.some((n) => n.includes(q))) contains.push(country);
   }
   return [...code, ...starts, ...contains];
 }
 
 /** The country whose name or code is exactly what was typed, e.g. from autofill. */
-export function matchCountry(query: string): Country | null {
+export function matchCountry(query: string, localeTag?: string): Country | null {
   const q = normalize(query);
   if (!q) return null;
-  return COUNTRIES.find((c) => normalize(c.name) === q || normalize(c.code) === q) ?? null;
+  return (
+    localCountries(localeTag).find(
+      (c) => normalize(c.name) === q || normalize(countryName(c.code)) === q || normalize(c.code) === q,
+    ) ?? null
+  );
 }
 
 export interface FulfillmentSource {

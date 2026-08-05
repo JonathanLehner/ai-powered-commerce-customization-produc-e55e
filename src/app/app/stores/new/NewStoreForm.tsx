@@ -2,8 +2,9 @@
 
 import { createStore } from "@/app/actions/stores";
 import { ActionForm } from "@/components/forms";
+import { LANGUAGE_OPTIONS } from "@/lib/i18n";
 import { THEMES, type ThemeKey } from "@/lib/types";
-import { CURRENCY_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/util";
+import { CURRENCY_OPTIONS } from "@/lib/util";
 
 export function NewStoreForm({
   agencyId,
@@ -92,11 +93,13 @@ export function NewStoreForm({
               <select id="defaultLanguage" name="defaultLanguage" defaultValue="en" className="input">
                 {LANGUAGE_OPTIONS.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.label}
+                    {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
                   </option>
                 ))}
               </select>
-              <p className="field-hint">Used for storefront copy and number formatting.</p>
+              <p className="field-hint">
+                The storefront is written and formatted in this language, and its pages are marked with it.
+              </p>
             </div>
           </div>
 

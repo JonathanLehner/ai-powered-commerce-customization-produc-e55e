@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { blockingIssues, validateArtwork } from "@/lib/artwork";
+import { blockingIssues, formatOf, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
 import {
   COLLECTIONS,
   getCart,
@@ -15,6 +15,7 @@ import {
   getStoreProduct,
   recordAudit,
 } from "@/lib/data";
+import { copyFor, fmt, type StorefrontCopy } from "@/lib/i18n";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
 import { basketTotals } from "@/lib/basket";
@@ -23,9 +24,43 @@ import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/platform";
 import { SHOPPER_COOKIE } from "@/lib/session";
 import { chargeCard } from "@/lib/stripe";
-import type { Artwork, Cart, CartItem, Order } from "@/lib/types";
+import type { Artwork, Cart, CartItem, FileRequirements, Order, PrintArea } from "@/lib/types";
 import { formatMoney, newId, orderCode } from "@/lib/util";
 import type { ActionState } from "./stores";
+
+/**
+ * Supplier pre-flight speaks to the person placing the artwork — a store manager
+ * working in the workspace, in English. A shopper gets the same refusal in their
+ * storefront's language, keyed off the issue code so the wording stays ours.
+ */
+function artworkMessage(
+  issue: ArtworkIssue,
+  t: StorefrontCopy["artwork"],
+  context: { area: PrintArea; rules: FileRequirements; mimeType: string; sizeBytes: number },
+): string {
+  switch (issue.code) {
+    case "low_dpi":
+      return fmt(t.lowDpi, { dpi: Math.max(context.area.minDpi, context.rules.minDpi) });
+    case "bad_format":
+      return fmt(t.badFormat, {
+        format: formatOf(context.mimeType),
+        formats: context.rules.formats.join(", "),
+      });
+    case "file_too_large":
+      return fmt(t.fileTooLarge, {
+        size: (context.sizeBytes / (1024 * 1024)).toFixed(1),
+        limit: context.rules.maxFileMb,
+      });
+    case "too_many_pixels":
+      return fmt(t.tooManyPixels, {
+        megapixels: (context.rules.maxPixels / 1_000_000).toFixed(0),
+      });
+    case "no_transparency":
+      return t.noTransparency;
+    default:
+      return t.generic;
+  }
+}
 
 const CURRENCY_COOKIE = "cc_currency";
 
@@ -109,24 +144,29 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const text = String(formData.get("text") ?? "").trim();
 
   const [store, product] = await Promise.all([getStore(storeId), getStoreProduct(productId)]);
+  const t = copyFor(store?.defaultLanguage);
   if (!store || store.status !== "active") {
-    return { status: "error", message: "This store is not currently taking orders." };
+    return { status: "error", message: t.actions.storeClosed };
   }
   if (!product || product.storeId !== storeId || !isLive(product)) {
-    return { status: "error", message: "That product is no longer available." };
+    return { status: "error", message: t.actions.productGone };
   }
   const variant = product.variants.find((v) => v.id === variantId && v.enabled);
-  if (!variant) return { status: "error", message: "Choose a size and colour.", field: "variantId" };
+  if (!variant) return { status: "error", message: t.actions.chooseVariant, field: "variantId" };
   if (variant.availability === "out_of_stock") {
-    return { status: "error", message: `${variant.name} is out of stock. Pick another option.`, field: "variantId" };
+    return {
+      status: "error",
+      message: fmt(t.actions.outOfStock, { variant: variant.name }),
+      field: "variantId",
+    };
   }
   if (text && !product.shopperCustomization.textLine) {
-    return { status: "error", message: "This product cannot be personalised with text." };
+    return { status: "error", message: t.actions.noTextPersonalisation };
   }
   if (text.length > product.shopperCustomization.maxTextLength) {
     return {
       status: "error",
-      message: `Keep the personalisation to ${product.shopperCustomization.maxTextLength} characters or fewer.`,
+      message: fmt(t.actions.textTooLong, { max: product.shopperCustomization.maxTextLength }),
       field: "text",
     };
   }
@@ -141,13 +181,16 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   if (stored) {
     if (!product.shopperCustomization.artworkUpload) {
-      return { status: "error", message: "This product does not accept uploaded artwork." };
+      return { status: "error", message: t.actions.noArtworkUpload };
     }
-    if (!catalog) return { status: "error", message: "This product is temporarily unavailable." };
+    if (!catalog) return { status: "error", message: t.actions.productUnavailable };
     if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
       return {
         status: "error",
-        message: `That file is ${(stored.sizeBytes / 1024 / 1024).toFixed(1)} MB. The limit is ${catalog.fileRequirements.maxFileMb} MB.`,
+        message: fmt(t.actions.fileTooLarge, {
+          size: (stored.sizeBytes / 1024 / 1024).toFixed(1),
+          limit: catalog.fileRequirements.maxFileMb,
+        }),
         field: "artwork",
       };
     }
@@ -173,7 +216,12 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     if (issues.length > 0) {
       return {
         status: "error",
-        message: `${issues[0].message} ${issues[0].fix}`,
+        message: artworkMessage(issues[0], t.artwork, {
+          area,
+          rules: catalog.fileRequirements,
+          mimeType: stored.mimeType,
+          sizeBytes: stored.sizeBytes,
+        }),
         field: "artwork",
       };
     }
@@ -191,7 +239,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   }
 
   const cart = await loadCart(storeId, true);
-  if (!cart) return { status: "error", message: "Your basket could not be opened. Enable cookies and retry." };
+  if (!cart) return { status: "error", message: t.actions.basketUnavailable };
 
   const item: CartItem = {
     id: newId("cit"),
@@ -217,7 +265,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   await saveCart(cart, items);
   revalidatePath(`/s/${store.slug}/cart`);
-  return { status: "success", message: `${product.name} added to your basket.` };
+  return { status: "success", message: fmt(t.actions.addedToBasket, { product: product.name }) };
 }
 
 export async function updateCartItem(formData: FormData): Promise<void> {
@@ -258,14 +306,15 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     idempotencyKey ? getOrderByIdempotencyKey(idempotencyKey) : Promise.resolve(null),
     loadCart(storeId, false),
   ]);
+  const t = copyFor(store?.defaultLanguage);
   if (!store || store.status !== "active") {
-    return { status: "error", message: "This store is not currently taking orders." };
+    return { status: "error", message: t.actions.storeClosed };
   }
   if (replayed) {
     redirect(orderStatusUrl(store.slug, replayed.code, await signOrderToken(store.id, replayed.code)));
   }
   if (!cart || cart.items.length === 0) {
-    return { status: "error", message: "Your basket is empty." };
+    return { status: "error", message: t.actions.basketEmpty };
   }
 
   const name = String(formData.get("name") ?? "").trim();
@@ -279,20 +328,26 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const expiry = String(formData.get("expiry") ?? "");
   const cvc = String(formData.get("cvc") ?? "");
 
-  if (name.length < 2) return { status: "error", message: "Enter the name for the delivery.", field: "name" };
+  if (name.length < 2) return { status: "error", message: t.actions.enterName, field: "name" };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { status: "error", message: "Enter an email address so we can send order updates.", field: "email" };
+    return { status: "error", message: t.actions.enterEmail, field: "email" };
   }
-  if (line1.length < 4) return { status: "error", message: "Enter the street address.", field: "line1" };
-  if (city.length < 2) return { status: "error", message: "Enter the town or city.", field: "city" };
-  if (postalCode.length < 3) return { status: "error", message: "Enter the postal code.", field: "postalCode" };
+  if (line1.length < 4) return { status: "error", message: t.actions.enterStreet, field: "line1" };
+  if (city.length < 2) return { status: "error", message: t.actions.enterCity, field: "city" };
+  if (postalCode.length < 3) {
+    return { status: "error", message: t.actions.enterPostalCode, field: "postalCode" };
+  }
   // The checkout picker always submits a valid code; this backstops a form
   // posted without it.
   if (!/^[A-Z]{2}$/.test(country)) {
-    return { status: "error", message: "Choose your delivery country from the list.", field: "country" };
+    return { status: "error", message: t.actions.chooseCountry, field: "country" };
   }
   if (!store.currencies.includes(currency)) {
-    return { status: "error", message: `${currency} is not one of this store's selling currencies.`, field: "currency" };
+    return {
+      status: "error",
+      message: fmt(t.actions.currencyNotSold, { currency }),
+      field: "currency",
+    };
   }
 
   const { products, lines, subtotal, shipping, taxRows, taxAmount, total } = await basketTotals(
@@ -452,16 +507,15 @@ export async function lookupOrder(_prev: ActionState, formData: FormData): Promi
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
   const email = String(formData.get("email") ?? "").trim();
 
-  if (!code) return { status: "error", message: "Enter your order code.", field: "code" };
-  if (!email) return { status: "error", message: "Enter the email address on the order.", field: "email" };
-
   const store = await getStoreBySlug(slug);
+  const t = copyFor(store?.defaultLanguage);
+
+  if (!code) return { status: "error", message: t.actions.enterOrderCode, field: "code" };
+  if (!email) return { status: "error", message: t.actions.enterOrderEmail, field: "email" };
+
   const order = store ? await getOrderByCode(store.id, code) : null;
   if (!store || !order || !emailMatchesOrder(order.customer.email, email)) {
-    return {
-      status: "error",
-      message: "We could not match that order code and email address. Check both and try again.",
-    };
+    return { status: "error", message: t.actions.lookupFailed };
   }
 
   redirect(orderStatusUrl(slug, order.code, await signOrderToken(store.id, order.code)));

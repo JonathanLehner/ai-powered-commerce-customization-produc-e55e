@@ -6,13 +6,21 @@ import { CountrySelect } from "@/components/CountrySelect";
 import { ActionForm } from "@/components/forms";
 import { Callout } from "@/components/ui";
 import {
-  countryName,
   isCountryCode,
+  localCountryName,
   regionForCountry,
   suppliersOutsideRegion,
   type FulfillmentSource,
 } from "@/lib/countries";
+import { fmt, fmtAround, joinList, type StorefrontCopy } from "@/lib/i18n";
 import { TEST_CARDS } from "@/lib/stripe";
+
+/** Stripe's published test numbers, labelled in the storefront's language. */
+const TEST_CARD_LABELS: Record<string, keyof StorefrontCopy["checkout"]> = {
+  "4242 4242 4242 4242": "cardSucceeds",
+  "4000 0000 0000 0002": "cardDeclined",
+  "4000 0000 0000 9995": "cardInsufficient",
+};
 
 export function CheckoutForm({
   storeId,
@@ -21,6 +29,8 @@ export function CheckoutForm({
   stripeAccountId,
   defaultCountry,
   fulfillmentSources,
+  localeTag,
+  t,
 }: {
   storeId: string;
   currencies: string[];
@@ -29,6 +39,9 @@ export function CheckoutForm({
   /** The store's Stripe account country — where most of its shoppers are. */
   defaultCountry: string;
   fulfillmentSources: FulfillmentSource[];
+  /** BCP-47 tag country names are shown in. */
+  localeTag: string;
+  t: StorefrontCopy["checkout"];
 }) {
   // Generated once per page load so a double submit cannot create two orders.
   const idempotencyKey = useMemo(
@@ -39,22 +52,24 @@ export function CheckoutForm({
     isCountryCode(defaultCountry) ? defaultCountry.toUpperCase() : "US",
   );
   const unfulfilled = suppliersOutsideRegion(country, fulfillmentSources);
+  const destination = localCountryName(country, localeTag);
+  const [payBefore, payAfter] = fmtAround(t.paymentNote, "account");
 
   return (
     <ActionForm
       action={placeOrder}
-      submitLabel="Pay and place order"
-      pendingLabel="Taking payment…"
+      submitLabel={t.submit}
+      pendingLabel={t.pending}
       hidden={{ storeId, idempotencyKey }}
       className="card p-5"
     >
       {(state) => (
         <>
-          <h2 className="text-base font-semibold text-ink">Delivery details</h2>
+          <h2 className="text-base font-semibold text-ink">{t.deliveryDetails}</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="name" className="field-label">
-                Full name
+                {t.fullName}
               </label>
               <input
                 id="name"
@@ -67,7 +82,7 @@ export function CheckoutForm({
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="email" className="field-label">
-                Email
+                {t.email}
               </label>
               <input
                 id="email"
@@ -80,12 +95,12 @@ export function CheckoutForm({
                 className={state.field === "email" ? "input input-error" : "input"}
               />
               <p id="email-hint" className="field-hint">
-                Order confirmation and delivery updates are sent here.
+                {t.emailHint}
               </p>
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="line1" className="field-label">
-                Street address
+                {t.street}
               </label>
               <input
                 id="line1"
@@ -98,7 +113,7 @@ export function CheckoutForm({
             </div>
             <div>
               <label htmlFor="city" className="field-label">
-                Town or city
+                {t.city}
               </label>
               <input
                 id="city"
@@ -111,7 +126,7 @@ export function CheckoutForm({
             </div>
             <div>
               <label htmlFor="postalCode" className="field-label">
-                Postal code
+                {t.postalCode}
               </label>
               <input
                 id="postalCode"
@@ -124,7 +139,7 @@ export function CheckoutForm({
             </div>
             <div>
               <label htmlFor="country" className="field-label">
-                Country
+                {t.country}
               </label>
               <CountrySelect
                 id="country"
@@ -133,14 +148,18 @@ export function CheckoutForm({
                 onChange={setCountry}
                 invalid={state.field === "country"}
                 describedBy="country-hint"
+                localeTag={localeTag}
+                label={t.country}
+                searchPlaceholder={t.countrySearchPlaceholder}
+                noMatch={t.countryNoMatch}
               />
               <p id="country-hint" className="field-hint">
-                Start typing to find your country. Production is routed by destination.
+                {t.countryHint}
               </p>
             </div>
             <div>
               <label htmlFor="currency" className="field-label">
-                Pay in
+                {t.payIn}
               </label>
               <select
                 id="currency"
@@ -159,35 +178,35 @@ export function CheckoutForm({
 
             {unfulfilled.length > 0 ? (
               <div className="sm:col-span-2">
-                <Callout tone="amber" title={`Delivery to ${countryName(country)} needs manual routing`}>
+                <Callout tone="amber" title={fmt(t.manualRoutingTitle, { country: destination })}>
                   <ul className="space-y-1">
                     {unfulfilled.map((source) => (
                       <li key={source.supplierId}>
-                        {source.supplierName} makes {source.productNames.join(" and ")} and does not fulfil to{" "}
-                        {countryName(country)} ({regionForCountry(country)}).
+                        {fmt(t.manualRoutingLine, {
+                          supplier: source.supplierName,
+                          products: joinList(source.productNames, t.productJoin),
+                          country: destination,
+                          region: regionForCountry(country),
+                        })}
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-2">
-                    You can still pay, but the order will be held for a person to place with another production
-                    partner, so it will take longer than the usual lead time. Choosing a delivery country your
-                    supplier covers avoids the wait.
-                  </p>
+                  <p className="mt-2">{t.manualRoutingBody}</p>
                 </Callout>
               </div>
             ) : null}
           </div>
 
-          <h2 className="mt-8 text-base font-semibold text-ink">Payment</h2>
+          <h2 className="mt-8 text-base font-semibold text-ink">{t.paymentTitle}</h2>
           <p className="mt-1 text-sm text-muted">
-            Charged through this store&rsquo;s own Stripe account{" "}
-            {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}. Card details
-            are never stored by the store.
+            {payBefore}
+            {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
+            {payAfter}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="cardNumber" className="field-label">
-                Card number
+                {t.cardNumber}
               </label>
               <input
                 id="cardNumber"
@@ -202,7 +221,7 @@ export function CheckoutForm({
             </div>
             <div>
               <label htmlFor="expiry" className="field-label">
-                Expiry (MM/YY)
+                {t.expiry}
               </label>
               <input
                 id="expiry"
@@ -216,7 +235,7 @@ export function CheckoutForm({
             </div>
             <div>
               <label htmlFor="cvc" className="field-label">
-                Security code
+                {t.securityCode}
               </label>
               <input
                 id="cvc"
@@ -232,11 +251,12 @@ export function CheckoutForm({
           </div>
 
           <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted">
-            <p className="font-medium text-ink">Stripe test mode</p>
+            <p className="font-medium text-ink">{t.testMode}</p>
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((card) => (
                 <li key={card.number}>
-                  <span className="font-mono">{card.number}</span> — {card.label}
+                  <span className="font-mono">{card.number}</span> —{" "}
+                  {t[TEST_CARD_LABELS[card.number]] ?? card.label}
                 </li>
               ))}
             </ul>

@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { countryName, matchCountry, searchCountries } from "@/lib/countries";
+import { localCountryName, matchCountry, searchCountries } from "@/lib/countries";
+import { fmt } from "@/lib/i18n";
 import { classNames } from "@/lib/util";
 
 /**
  * Type-ahead country picker. The shopper searches full country names; the form
  * submits the ISO alpha-2 code the rest of the platform routes on, so nobody
  * has to know that South Africa is ZA.
+ *
+ * `localeTag` names the countries in the storefront's own language; the English
+ * name keeps matching, so autofill and a shopper who types "Germany" both land
+ * on the same row.
  */
 export function CountrySelect({
   id,
@@ -16,6 +21,10 @@ export function CountrySelect({
   onChange,
   invalid,
   describedBy,
+  localeTag,
+  label,
+  searchPlaceholder,
+  noMatch,
 }: {
   id: string;
   name: string;
@@ -23,6 +32,13 @@ export function CountrySelect({
   onChange: (code: string) => void;
   invalid?: boolean;
   describedBy?: string;
+  /** BCP-47 tag the country names are shown in. */
+  localeTag?: string;
+  /** Accessible name of the list, and the picker's own copy. */
+  label?: string;
+  searchPlaceholder?: string;
+  /** Template with a `{query}` placeholder. */
+  noMatch?: string;
 }) {
   const listId = useId();
   const [query, setQuery] = useState<string | null>(null);
@@ -30,8 +46,8 @@ export function CountrySelect({
   const [moved, setMoved] = useState<number | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const matches = useMemo(() => searchCountries(query ?? ""), [query]);
-  const display = query ?? countryName(value);
+  const matches = useMemo(() => searchCountries(query ?? "", localeTag), [query, localeTag]);
+  const display = query ?? localCountryName(value, localeTag);
 
   // Until the shopper arrows or types, the highlighted row is the country they
   // already have, so opening the list and pressing Enter keeps their choice
@@ -59,7 +75,7 @@ export function CountrySelect({
   /** Leaving the field commits an exact name or code — the shape autofill leaves behind. */
   function commit() {
     if (query !== null) {
-      const exact = matchCountry(query) ?? (matches.length === 1 ? matches[0] : null);
+      const exact = matchCountry(query, localeTag) ?? (matches.length === 1 ? matches[0] : null);
       if (exact) onChange(exact.code);
     }
     reset();
@@ -106,7 +122,7 @@ export function CountrySelect({
         aria-describedby={describedBy}
         autoComplete="country-name"
         spellCheck={false}
-        placeholder="Search countries"
+        placeholder={searchPlaceholder ?? "Search countries"}
         value={display}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -128,11 +144,13 @@ export function CountrySelect({
           id={listId}
           ref={listRef}
           role="listbox"
-          aria-label="Country"
+          aria-label={label ?? "Country"}
           className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-line bg-white py-1 shadow-lg"
         >
           {matches.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-muted">No country matches “{query}”.</li>
+            <li className="px-3 py-2 text-sm text-muted">
+              {noMatch ? fmt(noMatch, { query: query ?? "" }) : `No country matches “${query}”.`}
+            </li>
           ) : (
             matches.map((country, index) => (
               <li

@@ -2,13 +2,22 @@
 
 import { lookupOrder } from "@/app/actions/shop";
 import { ActionForm } from "@/components/forms";
+import type { StorefrontCopy } from "@/lib/i18n";
 
-export function OrderLookupForm({ slug, code = "" }: { slug: string; code?: string }) {
+export function OrderLookupForm({
+  slug,
+  code = "",
+  t,
+}: {
+  slug: string;
+  code?: string;
+  t: StorefrontCopy["order"];
+}) {
   return (
     <ActionForm
       action={lookupOrder}
-      submitLabel="Show my order"
-      pendingLabel="Checking…"
+      submitLabel={t.lookupSubmit}
+      pendingLabel={t.lookupPending}
       hidden={{ slug }}
       className="card mt-6 p-5"
     >
@@ -17,7 +26,7 @@ export function OrderLookupForm({ slug, code = "" }: { slug: string; code?: stri
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="code" className="field-label">
-                Order code
+                {t.orderCode}
               </label>
               <input
                 id="code"
@@ -30,12 +39,12 @@ export function OrderLookupForm({ slug, code = "" }: { slug: string; code?: stri
                 className={state.field === "code" ? "input input-error" : "input"}
               />
               <p id="code-hint" className="field-hint">
-                On your order confirmation, starting with ORD-.
+                {t.orderCodeHint}
               </p>
             </div>
             <div>
               <label htmlFor="email" className="field-label">
-                Email on the order
+                {t.emailOnOrder}
               </label>
               <input
                 id="email"
@@ -46,7 +55,7 @@ export function OrderLookupForm({ slug, code = "" }: { slug: string; code?: stri
                 aria-invalid={state.field === "email" ? true : undefined}
                 className={state.field === "email" ? "input input-error" : "input"}
               />
-              <p className="field-hint">The address the confirmation was sent to.</p>
+              <p className="field-hint">{t.emailHint}</p>
             </div>
           </div>
         </>

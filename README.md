@@ -44,6 +44,18 @@ gifting, orders, team, guided setup, activity.
 - **Guided setup.** Logo upload, theme, default language, selling currencies,
   custom domain with a CNAME check, Stripe connection, DHL/FedEx/UPS accounts and
   the store's default tax bracket — each step saves on its own.
+- **Storefronts in nine languages.** A store's default language is what its
+  storefront is actually served in: the pages are marked with it so browsers and
+  screen readers announce them correctly, prices and dates are formatted to that
+  language's conventions, country names come from it, and every piece of built-in
+  shopper-facing copy — shop, product, basket, checkout, order status, and the
+  messages the server actions and the payment gateway return — is translated.
+  English, German, French, Spanish, Italian, Dutch, Portuguese, Japanese and
+  Swedish, one dictionary each in `src/lib/copy/`. The dropdown is generated from
+  that table, so it can only ever offer a language that is fully supported
+  (`npm run locale-check`). What a store's own people wrote — product names and
+  descriptions, storefront section copy, order timeline notes — is shown as they
+  wrote it.
 - **Craft.js storefront editor.** Eight approved section types with generated
   settings panels, page reordering, desktop/tablet/phone preview, version history,
   publish, and revert-draft-to-published. The published tree is rendered
@@ -148,6 +160,23 @@ that are already in good shape, so it is safe to re-run.
 
 - Next.js App Router, React 19, Tailwind CSS v4, TypeScript. Marketing, login and
   legal pages are pinned static; everything behind a session is dynamic.
+- The app has several root layouts rather than one, because `<html lang>` is what
+  a browser and a screen reader announce and only a root layout can set it: a
+  client storefront has to be marked with its own store's language, not the
+  workspace's English. Each of `(marketing)`, `login`, `invite`, `app`, `admin`,
+  `g/[slug]` and `s/[slug]` owns one, and they all render the shared
+  `<Document>` in `src/components/Document.tsx` so the fonts, the global
+  stylesheet and the base metadata stay in one place. Navigating between two of
+  them is a full page load, which the app never does inside a single surface.
+- `src/lib/i18n.ts` is the one table of supported storefront languages: the code,
+  the BCP-47 tag used for `lang` and every `Intl` call, and the dictionary. The
+  workspace dropdowns, the storefront renderer and the `resolveLanguage` guard on
+  the save actions all read it, so a store can never be saved with a language the
+  storefront cannot render, and a store saved with one that is later retired
+  falls back to English rather than breaking. Dictionary values are plain strings
+  with `{placeholders}` so a group can be handed to a client component as a prop;
+  `npm run locale-check` fails the build if a language drifts from English on
+  keys or placeholders.
 - All platform calls live in `src/lib/platform.ts` and are server-only. The
   platform DB accepts `sort`/`limit` but does not apply them, so ordering and
   truncation happen in that wrapper.

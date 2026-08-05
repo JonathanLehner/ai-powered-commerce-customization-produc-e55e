@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
+
+/**
+ * The shared `<html>`/`<body>` shell.
+ *
+ * The app has several root layouts rather than one, because the page language is
+ * an attribute of `<html>` and only a root layout can render it: a client
+ * storefront has to be marked with its own store's language, not the workspace's
+ * English. Every root layout renders this component so the fonts, the global
+ * stylesheet and the body classes stay in one place.
+ */
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,7 +22,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+/** Shared by every root layout, so the title template is identical across them. */
+export const siteMetadata: Metadata = {
   title: {
     default: "Parcelith — the operating system for product commerce",
     template: "%s · Parcelith",
@@ -27,14 +38,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export function Document({
+  lang = "en",
   children,
-}: Readonly<{
+}: {
+  /** BCP-47 tag announced to browsers and screen readers. */
+  lang?: string;
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-ink">{children}</body>

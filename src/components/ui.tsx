@@ -166,9 +166,16 @@ export function Callout({
   );
 }
 
-export function Breadcrumbs({ items }: { items: { label: string; href?: string }[] }) {
+export function Breadcrumbs({
+  items,
+  label = "Breadcrumb",
+}: {
+  items: { label: string; href?: string }[];
+  /** The landmark's own name, translated on a storefront. */
+  label?: string;
+}) {
   return (
-    <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1.5 text-xs text-muted">
+    <nav aria-label={label} className="mb-4 flex flex-wrap items-center gap-1.5 text-xs text-muted">
       {items.map((item, i) => (
         <span key={`${item.label}-${i}`} className="flex items-center gap-1.5">
           {item.href ? (

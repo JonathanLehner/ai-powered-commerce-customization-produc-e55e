@@ -2,6 +2,7 @@ import { revertStorefront } from "@/app/actions/storefront";
 import { Callout, PageHeader } from "@/components/ui";
 import type { StorefrontContext } from "@/components/sections";
 import { getStorefront, listStoreProducts } from "@/lib/data";
+import { storefrontLocale } from "@/lib/i18n";
 import { requireStoreAccess } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { StorefrontEditor } from "./StorefrontEditor";
@@ -16,6 +17,9 @@ export default async function StorefrontEditorPage({
   const [storefront, products] = await Promise.all([getStorefront(storeId), listStoreProducts(storeId)]);
 
   const published = products.filter((p) => p.status === "published");
+  // The preview reads the same dictionary and locale the live storefront does,
+  // so a store selling in German is edited against German section copy.
+  const locale = storefrontLocale(store);
   const context: StorefrontContext = {
     storeName: store.name,
     clientName: store.clientName,
@@ -23,6 +27,8 @@ export default async function StorefrontEditorPage({
     logoUrl: store.logoUrl,
     theme: store.theme,
     preview: true,
+    t: locale.t.sections,
+    localeTag: locale.tag,
     products: published.map((p) => ({
       id: p.id,
       name: p.name,
