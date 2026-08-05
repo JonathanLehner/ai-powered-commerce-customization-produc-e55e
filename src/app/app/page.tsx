@@ -112,7 +112,7 @@ export default async function AgencyDashboard({
           ) : (
             <ul className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {active.map(({ store, role, metrics }) => {
-                const progress = setupProgress(store.setup as unknown as Record<string, boolean>);
+                const progress = setupProgress(store.setup);
                 const theme = THEMES[store.theme];
                 return (
                   <li key={store.id} className="card flex flex-col p-5">

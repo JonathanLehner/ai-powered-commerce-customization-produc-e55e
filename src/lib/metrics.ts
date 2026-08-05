@@ -1,4 +1,4 @@
-import type { Order, StoreProduct } from "./types";
+import { SETUP_STEPS, type Order, type StoreProduct, type StoreSetupState } from "./types";
 
 export interface StoreMetrics {
   orderCount: number;
@@ -80,8 +80,12 @@ export function storeMetrics(orders: Order[], products: StoreProduct[], currency
   };
 }
 
-export function setupProgress(setup: Record<string, boolean>): { done: number; total: number; pct: number } {
-  const values = Object.values(setup);
-  const done = values.filter(Boolean).length;
-  return { done, total: values.length, pct: values.length ? (done / values.length) * 100 : 0 };
+/**
+ * Counted against `SETUP_STEPS`, not the keys the record carries: a store saved
+ * before a step existed is missing that key, and counting only what is stored
+ * would report it as fully set up.
+ */
+export function setupProgress(setup: Partial<StoreSetupState>): { done: number; total: number; pct: number } {
+  const done = SETUP_STEPS.filter((step) => setup[step]).length;
+  return { done, total: SETUP_STEPS.length, pct: (done / SETUP_STEPS.length) * 100 };
 }

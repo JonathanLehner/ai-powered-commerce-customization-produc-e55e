@@ -7,6 +7,7 @@ import { PlainDocument } from "@/components/SiteChrome";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
+import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { THEMES } from "@/lib/types";
 
 export const metadata: Metadata = siteMetadata;
@@ -42,6 +43,7 @@ export default async function StorefrontLayout({
 
   const theme = THEMES[store.theme];
   const { tag, t } = storefrontLocale(store);
+  const support = storeSupport(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const session = await readShopperSession();
   const cart = session ? await getCart(store.id, session) : null;
@@ -136,7 +138,7 @@ export default async function StorefrontLayout({
         </main>
 
         <footer className="border-t border-line bg-canvas">
-          <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:px-6 md:grid-cols-3">
+          <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
             <div>
               <p className="text-sm font-semibold text-ink">{store.name}</p>
               <p className="mt-1.5 text-sm text-muted">
@@ -162,6 +164,31 @@ export default async function StorefrontLayout({
                   </Link>
                 </li>
               </ul>
+            </div>
+            <div>
+              <p className="section-title">{t.chrome.help}</p>
+              {support.email || support.phone ? (
+                <ul className="mt-2 space-y-1.5 text-sm text-inksoft">
+                  {support.email ? (
+                    <li>
+                      <span className="text-muted">{t.chrome.supportEmailLabel}:</span>{" "}
+                      <a href={supportMailto(support.email)} className="hover:underline">
+                        {support.email}
+                      </a>
+                    </li>
+                  ) : null}
+                  {support.phone ? (
+                    <li>
+                      <span className="text-muted">{t.chrome.supportPhoneLabel}:</span>{" "}
+                      <a href={supportTel(support.phone)} className="hover:underline">
+                        {support.phone}
+                      </a>
+                    </li>
+                  ) : null}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-muted">{t.chrome.supportPending}</p>
+              )}
             </div>
             <div>
               <p className="section-title">{t.chrome.delivery}</p>

@@ -70,11 +70,27 @@ export interface CarrierAccount {
 export interface StoreSetupState {
   branding: boolean;
   localisation: boolean;
+  support: boolean;
   domain: boolean;
   payments: boolean;
   shipping: boolean;
   tax: boolean;
 }
+
+/**
+ * The guided setup steps, in the order they are worked through. Progress is
+ * counted against this list rather than the keys a stored record happens to
+ * carry, so a store saved before a step existed reads as not having done it.
+ */
+export const SETUP_STEPS = [
+  "branding",
+  "localisation",
+  "support",
+  "domain",
+  "payments",
+  "shipping",
+  "tax",
+] as const satisfies readonly (keyof StoreSetupState)[];
 
 export interface Store {
   id: string;
@@ -91,6 +107,13 @@ export interface Store {
   defaultCurrency: string;
   customDomain: string | null;
   domainStatus: "unset" | "pending" | "verified";
+  /**
+   * Where a shopper with a problem reaches the seller. Both are absent on
+   * stores saved before support contacts were part of setup, so read them
+   * through `storeSupport()` rather than off the record.
+   */
+  supportEmail?: string | null;
+  supportPhone?: string | null;
   stripe: {
     connected: boolean;
     accountId: string | null;

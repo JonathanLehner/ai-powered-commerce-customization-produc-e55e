@@ -12,12 +12,13 @@ import {
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeLimitMessage } from "@/lib/plans";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { ORDER_STATUS_LABELS, THEMES } from "@/lib/types";
+import { ORDER_STATUS_LABELS, SETUP_STEPS, THEMES } from "@/lib/types";
 import { formatMoney, formatDate, relativeTime } from "@/lib/util";
 
-const SETUP_LABELS: Record<string, string> = {
+const SETUP_LABELS: Record<(typeof SETUP_STEPS)[number], string> = {
   branding: "Logo and theme",
   localisation: "Language and currencies",
+  support: "Support contacts",
   domain: "Custom domain",
   payments: "Stripe account",
   shipping: "Shipping carriers",
@@ -48,7 +49,7 @@ export default async function StoreOverviewPage({
   const allowance = agency ? await agencyStoreAllowance(agency) : null;
 
   const metrics = storeMetrics(orders, products, store.defaultCurrency);
-  const progress = setupProgress(store.setup as unknown as Record<string, boolean>);
+  const progress = setupProgress(store.setup);
   const recentOrders = orders.slice(0, 6);
   const theme = THEMES[store.theme];
 
@@ -97,10 +98,10 @@ export default async function StoreOverviewPage({
             <ProgressBar value={progress.pct} />
           </div>
           <ul className="mt-4 flex flex-wrap gap-2">
-            {Object.entries(store.setup).map(([key, done]) => (
+            {SETUP_STEPS.map((key) => (
               <li key={key}>
-                <Badge tone={done ? "green" : "amber"}>
-                  {done ? "✓" : "•"} {SETUP_LABELS[key] ?? key}
+                <Badge tone={store.setup[key] ? "green" : "amber"}>
+                  {store.setup[key] ? "✓" : "•"} {SETUP_LABELS[key]}
                 </Badge>
               </li>
             ))}

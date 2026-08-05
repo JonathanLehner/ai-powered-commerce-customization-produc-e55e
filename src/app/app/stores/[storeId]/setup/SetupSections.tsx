@@ -9,6 +9,7 @@ import {
   saveDomain,
   saveLocalisation,
   saveStripe,
+  saveSupport,
   saveTaxSettings,
   verifyDomain,
   disconnectStripe,
@@ -308,6 +309,56 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={3}
+        title="Shopper support contacts"
+        description="Where a shopper with a problem reaches the client. The address is shown on the order status page and in the storefront footer, and is what the “Contact the store” button writes to — so it has to be one somebody reads."
+        done={store.setup.support}
+      >
+        <ActionForm action={saveSupport} submitLabel="Save support contacts" hidden={hidden}>
+          {(state) => (
+            <div className="grid max-w-2xl gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="supportEmail" className="field-label">
+                  Support email address
+                </label>
+                <input
+                  id="supportEmail"
+                  name="supportEmail"
+                  type="email"
+                  defaultValue={store.supportEmail ?? ""}
+                  placeholder="support@yourclient.com"
+                  aria-invalid={state.field === "supportEmail" ? true : undefined}
+                  aria-describedby="supportEmail-hint"
+                  className={state.field === "supportEmail" ? "input input-error" : "input"}
+                />
+                <p id="supportEmail-hint" className="field-hint">
+                  Required. Shoppers write here about deliveries, personalisation and refunds.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="supportPhone" className="field-label">
+                  Support phone number <span className="font-normal text-muted">(optional)</span>
+                </label>
+                <input
+                  id="supportPhone"
+                  name="supportPhone"
+                  type="tel"
+                  defaultValue={store.supportPhone ?? ""}
+                  placeholder="+1 503 555 0142"
+                  aria-invalid={state.field === "supportPhone" ? true : undefined}
+                  aria-describedby="supportPhone-hint"
+                  className={state.field === "supportPhone" ? "input input-error" : "input"}
+                />
+                <p id="supportPhone-hint" className="field-hint">
+                  Leave empty if the client does not answer a phone. Shown exactly as you type it.
+                </p>
+              </div>
+            </div>
+          )}
+        </ActionForm>
+      </Step>
+
+      <Step
+        index={4}
         title="Custom domain"
         description="Point the client's own subdomain at this storefront. Until it is verified, the store is served from its Parcelith address."
         done={store.setup.domain}
@@ -363,7 +414,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={4}
+        index={5}
         title="Stripe account"
         description="Payments settle directly into the client's own Stripe account — they are the merchant of record. Parcelith never holds the funds."
         done={store.setup.payments}
@@ -427,7 +478,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={5}
+        index={6}
         title="Shipping carriers"
         description="Enable the carriers the client has accounts with. Tracking links shown to shoppers use the carrier chosen for each shipment."
         done={store.setup.shipping}
@@ -479,7 +530,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={6}
+        index={7}
         title="Tax configuration"
         description="Tax rates are set globally by the platform administrator. The store picks a default bracket, and each product can point at a different one."
         done={store.setup.tax}

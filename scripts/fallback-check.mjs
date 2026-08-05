@@ -8,9 +8,12 @@
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { storeBasePath } from "../src/lib/util.ts";
 
-const APP = new URL("../src/app/", import.meta.url).pathname;
+// fileURLToPath, not URL.pathname: on Windows the latter yields "/C:/…", which
+// no fs call can resolve, and every check below then reads as a missing file.
+const APP = fileURLToPath(new URL("../src/app/", import.meta.url));
 const exists = (path) => {
   try {
     return statSync(join(APP, path)).isFile();

@@ -17,6 +17,7 @@ import { db } from "@/lib/platform";
 import { storeAllowance, storeLimitMessage } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";
+import { isSupportEmail, isSupportPhone } from "@/lib/support";
 import { readStoredImage } from "@/lib/uploads";
 import type { Store, ThemeKey } from "@/lib/types";
 import { newId, slugify } from "@/lib/util";
@@ -86,6 +87,8 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
     defaultCurrency,
     customDomain: null,
     domainStatus: "unset",
+    supportEmail: null,
+    supportPhone: null,
     stripe: { connected: false, accountId: null, country: "US", chargesEnabled: false, connectedAt: null },
     carriers: [
       { carrier: "dhl", enabled: false, accountNumber: "", services: ["Express Worldwide", "Economy Select"] },
@@ -94,7 +97,15 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
     ],
     defaultTaxBracketId: null,
     pricesIncludeTax: false,
-    setup: { branding: false, localisation: true, domain: false, payments: false, shipping: false, tax: false },
+    setup: {
+      branding: false,
+      localisation: true,
+      support: false,
+      domain: false,
+      payments: false,
+      shipping: false,
+      tax: false,
+    },
     createdAt: now,
     archivedAt: null,
   };
@@ -275,6 +286,56 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
   // page of it is stale once this saves.
   revalidatePath(`/s/${store.slug}`, "layout");
   return ok("Language and currencies saved.");
+}
+
+/**
+ * The support contacts a shopper is given on the order status page and in the
+ * storefront footer. The address is required — it is the only working route
+ * from a shopper with a problem back to the seller — and the phone number is
+ * offered as well for stores that answer one.
+ */
+export async function saveSupport(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+
+  const supportEmail = String(formData.get("supportEmail") ?? "").trim().toLowerCase();
+  const supportPhone = String(formData.get("supportPhone") ?? "").trim();
+
+  if (!supportEmail) {
+    return fail("Enter the address shoppers should write to about their orders.", "supportEmail");
+  }
+  if (!isSupportEmail(supportEmail)) {
+    return fail("Enter a valid email address, such as support@yourclient.com.", "supportEmail");
+  }
+  if (supportPhone && !isSupportPhone(supportPhone)) {
+    return fail("Enter a phone number as it should be dialled, or leave it empty.", "supportPhone");
+  }
+
+  await updateStore(storeId, {
+    supportEmail,
+    supportPhone: supportPhone || null,
+    setup: { ...store.setup, support: true },
+  });
+  recordAudit({
+    category: "store_setup",
+    action: "store.support_updated",
+    summary: `Shopper support set to ${supportEmail}${supportPhone ? ` and ${supportPhone}` : ""}`,
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "store",
+    entityId: storeId,
+    meta: { supportEmail, supportPhone: supportPhone || null },
+  });
+  revalidatePath(`/app/stores/${storeId}/setup`);
+  // The footer carries the contacts, so every storefront page is stale.
+  revalidatePath(`/s/${store.slug}`, "layout");
+  return ok(
+    supportPhone
+      ? "Support contacts saved. Shoppers can now email or call the store."
+      : "Support address saved. Shoppers can now email the store about their orders.",
+  );
 }
 
 export async function saveDomain(_prev: ActionState, formData: FormData): Promise<ActionState> {

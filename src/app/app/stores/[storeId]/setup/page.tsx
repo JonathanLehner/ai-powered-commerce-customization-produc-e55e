@@ -15,13 +15,13 @@ export default async function StoreSetupPage({
   const { created } = await searchParams;
   const { store } = await requireStoreAccess(storeId, "store.settings");
   const brackets = await listTaxBrackets();
-  const progress = setupProgress(store.setup as unknown as Record<string, boolean>);
+  const progress = setupProgress(store.setup);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Guided setup"
-        description="Six steps take a new store from empty to able to sell. Each one saves on its own, so you can leave and come back."
+        description="Seven steps take a new store from empty to able to sell. Each one saves on its own, so you can leave and come back."
       />
 
       {created ? (

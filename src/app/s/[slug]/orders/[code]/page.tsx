@@ -7,6 +7,7 @@ import { getOrderByCode, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
 import { verifyOrderToken } from "@/lib/order-access";
 import { orderTaxRows } from "@/lib/pricing";
+import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import type { OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS } from "@/lib/util";
 import { OrderLookupForm } from "../OrderLookupForm";
@@ -72,12 +73,22 @@ export default async function OrderStatusPage({
 
   const status = SHOPPER_STATUS[order.status];
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
+  const support = storeSupport(store);
+  const contactSubject = fmt(t.order.contactSubject, { code: order.code });
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
       {isNew ? (
+        // No order email is sent, so this page — and the lookup below it — is
+        // the shopper's only way back to the order. The banner says so.
         <Callout tone="green" title={t.order.confirmedTitle}>
-          {fmt(t.order.confirmedBody, { email: order.customer.email })}
+          <p>{t.order.confirmedBody}</p>
+          <p className="mt-1">
+            {fmt(t.order.confirmedFindAgain, {
+              code: order.code,
+              email: order.customer.email,
+            })}
+          </p>
         </Callout>
       ) : null}
 
@@ -208,13 +219,47 @@ export default async function OrderStatusPage({
         </ol>
       </section>
 
-      <div className="mt-10 flex flex-wrap gap-3">
+      <section className="mt-8 rounded-xl border border-line bg-canvas px-4 py-4">
+        <h2 className="text-base font-semibold text-ink">{t.order.supportTitle}</h2>
+        {support.email || support.phone ? (
+          <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
+            {support.email ? (
+              <>
+                <dt className="text-muted">{t.chrome.supportEmailLabel}</dt>
+                <dd>
+                  <a href={supportMailto(support.email, contactSubject)} className="text-ink hover:underline">
+                    {support.email}
+                  </a>
+                </dd>
+              </>
+            ) : null}
+            {support.phone ? (
+              <>
+                <dt className="text-muted">{t.chrome.supportPhoneLabel}</dt>
+                <dd>
+                  <a href={supportTel(support.phone)} className="text-ink hover:underline">
+                    {support.phone}
+                  </a>
+                </dd>
+              </>
+            ) : null}
+          </dl>
+        ) : (
+          // Better an honest gap than a button that writes to an address
+          // nobody reads: the store has not published one yet.
+          <p className="mt-2 text-sm text-muted">{t.chrome.supportPending}</p>
+        )}
+      </section>
+
+      <div className="mt-8 flex flex-wrap gap-3">
         <Link href={`/s/${store.slug}/products`} className="btn-secondary">
           {t.order.continueShopping}
         </Link>
-        <a href={`mailto:${store.clientName.toLowerCase().replace(/\s+/g, "")}@example.com`} className="btn-ghost">
-          {t.order.contactStore}
-        </a>
+        {support.email ? (
+          <a href={supportMailto(support.email, contactSubject)} className="btn-ghost">
+            {t.order.contactStore}
+          </a>
+        ) : null}
       </div>
     </div>
   );
