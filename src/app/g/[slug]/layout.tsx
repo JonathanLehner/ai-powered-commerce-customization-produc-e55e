@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Document, siteMetadata } from "@/components/Document";
 import { PlainDocument } from "@/components/SiteChrome";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
+import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { THEMES } from "@/lib/types";
 
 export const metadata: Metadata = siteMetadata;
@@ -36,6 +37,10 @@ export default async function GiftPortalLayout({
   }
 
   const theme = THEMES[store.theme];
+  // The same contacts the storefront publishes: a gifting buyer with a problem
+  // has no other route to the seller either, and nothing here is invented from
+  // the client's name.
+  const support = storeSupport(store);
 
   return (
     <Document>
@@ -83,6 +88,24 @@ export default async function GiftPortalLayout({
               Operated by {store.clientName}, who is the merchant of record. Gifts are made to order and shipped to
               each recipient individually.
             </p>
+            {support.email || support.phone ? (
+              <p className="mt-3">
+                Questions about a campaign:{" "}
+                {support.email ? (
+                  <a href={supportMailto(support.email)} className="text-ink hover:underline">
+                    {support.email}
+                  </a>
+                ) : null}
+                {support.email && support.phone ? " · " : null}
+                {support.phone ? (
+                  <a href={supportTel(support.phone)} className="text-ink hover:underline">
+                    {support.phone}
+                  </a>
+                ) : null}
+              </p>
+            ) : (
+              <p className="mt-3">{store.clientName} has not published support contact details yet.</p>
+            )}
             <p className="mt-3 text-xs">
               © {new Date().getFullYear()} {store.clientName}. Corporate gifting powered by Parcelith.
             </p>

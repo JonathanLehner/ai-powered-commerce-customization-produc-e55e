@@ -128,8 +128,8 @@ export function BulkOrderForm({
           {buyerEmail ? (
             <div className="sm:col-span-2">
               <p className="text-sm text-muted">
-                Ordering as <span className="font-medium text-ink">{buyerEmail}</span>. Updates on the campaign go
-                there.
+                Ordering as <span className="font-medium text-ink">{buyerEmail}</span>. Save the campaign link you
+                land on next — no email is sent, and that page is where the approval and the receipt appear.
               </p>
             </div>
           ) : (
@@ -150,7 +150,8 @@ export function BulkOrderForm({
                 className={state.field === "buyerEmail" ? "input input-error" : "input"}
               />
               <p id="buyerEmail-hint" className="field-hint">
-                The approval decision and the receipt are sent here.
+                Recorded on the campaign as the buyer. Save the campaign link you land on next — no email is sent,
+                and that page is where the approval and the receipt appear.
               </p>
             </div>
           )}
