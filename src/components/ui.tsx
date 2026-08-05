@@ -221,3 +221,32 @@ export function ProgressBar({ value, label }: { value: number; label?: string })
     </div>
   );
 }
+
+/**
+ * The body of a not-found or error page: an eyebrow, a heading, an explanation
+ * and a row of ways out. Every fallback in the app is built from it, so a 404 in
+ * the workspace and a 404 in a storefront read as the same product.
+ */
+export function FallbackPanel({
+  eyebrow,
+  title,
+  description,
+  actions,
+  note,
+}: {
+  eyebrow: string;
+  title: string;
+  description: ReactNode;
+  actions?: ReactNode;
+  note?: ReactNode;
+}) {
+  return (
+    <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
+      <p className="section-title">{eyebrow}</p>
+      <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{title}</h1>
+      <div className="mt-3 text-sm leading-6 text-inksoft">{description}</div>
+      {actions ? <div className="mt-7 flex flex-wrap items-center gap-2.5">{actions}</div> : null}
+      {note ? <p className="mt-8 text-xs text-muted">{note}</p> : null}
+    </div>
+  );
+}

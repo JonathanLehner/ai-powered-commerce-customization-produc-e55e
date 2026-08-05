@@ -283,4 +283,17 @@ export const ja: StorefrontCopy = {
     notifyMe: "お知らせを受け取る",
     welcome: "ようこそ",
   },
+
+  fallback: {
+    notFoundTitle: "ページが見つかりません",
+    notFoundBody:
+      "リンクが古いか、商品の販売が終了した可能性があります。{store} で現在お取り扱いしている商品はこちらからご覧いただけます。",
+    browseProducts: "すべての商品を見る",
+    errorTitle: "問題が発生しました",
+    errorBody:
+      "このページを読み込めませんでした。カートの中身はそのまま残っています。もう一度お試しいただき、解決しない場合は数分後にアクセスしてください。",
+    errorRetry: "再試行",
+    errorHome: "{store} に戻る",
+    errorReference: "参照番号 {digest}",
+  },
 };

@@ -289,6 +289,20 @@ export const en = {
     notifyMe: "Notify me",
     welcome: "Welcome",
   },
+
+  /** Shown by the storefront's not-found and error boundaries. */
+  fallback: {
+    notFoundTitle: "We cannot find that page",
+    notFoundBody:
+      "The link may be out of date, or the product may have been taken off sale. Everything {store} sells today is still a click away.",
+    browseProducts: "Browse all products",
+    errorTitle: "Something went wrong at our end",
+    errorBody:
+      "This page could not be loaded. Nothing in your basket has been lost — try again, and if it keeps happening come back in a few minutes.",
+    errorRetry: "Try again",
+    errorHome: "Back to {store}",
+    errorReference: "Reference {digest}",
+  },
 };
 
 export type StorefrontCopy = typeof en;

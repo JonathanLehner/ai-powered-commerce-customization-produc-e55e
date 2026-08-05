@@ -16,7 +16,8 @@
     "plan-limit-check": "node --experimental-strip-types scripts/plan-limit-check.mjs",
     "routing-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/routing-check.mjs",
     "order-access-check": "node --conditions=react-server --experimental-strip-types scripts/order-access-check.mjs",
-    "gifting-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/gifting-check.mjs"
+    "gifting-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/gifting-check.mjs",
+    "fallback-check": "node --experimental-strip-types scripts/fallback-check.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

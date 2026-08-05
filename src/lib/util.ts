@@ -177,3 +177,13 @@ export const STRIPE_COUNTRIES = [
   { code: "BR", label: "Brazil" },
   { code: "SE", label: "Sweden" },
 ];
+
+/**
+ * The `/app/stores/<id>` prefix of a workspace path, or the dashboard when the
+ * path is not inside a store. Not-found and error boundaries are given no
+ * params, so this is how they find the store the visitor was already in.
+ */
+export function storeBasePath(pathname: string): string {
+  const match = /^\/app\/stores\/([^/]+)/.exec(pathname);
+  return match && match[1] !== "new" ? `/app/stores/${match[1]}` : "/app";
+}

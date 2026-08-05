@@ -288,4 +288,17 @@ export const de: StorefrontCopy = {
     notifyMe: "Benachrichtigen",
     welcome: "Willkommen",
   },
+
+  fallback: {
+    notFoundTitle: "Diese Seite gibt es nicht mehr",
+    notFoundBody:
+      "Der Link ist womöglich veraltet oder das Produkt wird nicht mehr verkauft. Alles, was {store} heute anbietet, ist nur einen Klick entfernt.",
+    browseProducts: "Alle Produkte ansehen",
+    errorTitle: "Da ist bei uns etwas schiefgelaufen",
+    errorBody:
+      "Diese Seite konnte nicht geladen werden. Ihr Warenkorb ist unverändert — versuchen Sie es erneut und schauen Sie in ein paar Minuten wieder vorbei, falls es weiterhin nicht klappt.",
+    errorRetry: "Erneut versuchen",
+    errorHome: "Zurück zu {store}",
+    errorReference: "Referenz {digest}",
+  },
 };

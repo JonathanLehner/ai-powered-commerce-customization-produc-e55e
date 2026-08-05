@@ -285,4 +285,17 @@ export const sv: StorefrontCopy = {
     notifyMe: "Meddela mig",
     welcome: "Välkommen",
   },
+
+  fallback: {
+    notFoundTitle: "Vi hittar inte den sidan",
+    notFoundBody:
+      "Länken kan vara inaktuell eller så säljs produkten inte längre. Allt som {store} säljer i dag finns kvar ett klick bort.",
+    browseProducts: "Se alla produkter",
+    errorTitle: "Något gick fel hos oss",
+    errorBody:
+      "Sidan kunde inte laddas. Din varukorg är orörd – försök igen och kom tillbaka om några minuter om det fortsätter.",
+    errorRetry: "Försök igen",
+    errorHome: "Tillbaka till {store}",
+    errorReference: "Referens {digest}",
+  },
 };

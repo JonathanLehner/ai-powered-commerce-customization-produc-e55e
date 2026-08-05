@@ -94,6 +94,14 @@ gifting, orders, team, guided setup, activity.
 - **Audit history.** Store setup, imports, price changes, AI approvals,
   publishing, order routing and administration are all recorded per store and
   platform-wide.
+- **Addresses that no longer work.** An old product link, a renamed shop, a
+  mistyped path: each lands on a page belonging to the surface it was aimed at.
+  Inside a shop the store's header, logo and footer stay, the copy is in the
+  store's own language, and the way on is Browse all products, Your basket or
+  Order status; an address that is not a shop says so and points at Parcelith;
+  the workspace and platform administration keep the app header and offer the
+  store or the dashboard. Every surface has a matching error page with a retry,
+  so a failure mid-flow is explained rather than blank (`npm run fallback-check`).
 
 ## Running it
 
@@ -168,6 +176,17 @@ that are already in good shape, so it is safe to re-run.
   `<Document>` in `src/components/Document.tsx` so the fonts, the global
   stylesheet and the base metadata stay in one place. Navigating between two of
   them is a full page load, which the app never does inside a single surface.
+- Each surface owns its `not-found.tsx` and `error.tsx`, plus a `[...rest]`
+  catch-all page whose only job is to raise `notFound()` — without it an address
+  matching no page never reaches a boundary and falls out of the surface
+  entirely. No layout raises `notFound()`: a layout's own 404 escapes its own
+  boundary, taking the chrome it was meant to keep with it, so a storefront or
+  gift portal whose slug resolves to nothing renders a Parcelith shell around
+  `children` and lets the page below raise the 404. Boundaries are handed no
+  params, so the storefront ones read the store — slug, theme, language — from
+  context provided by the layout, and the workspace ones read the store from the
+  path. `src/app/not-found.tsx` is the site-wide 404: a prerendered page, not a
+  boundary, so an unmatched address arrives as finished HTML.
 - `src/lib/i18n.ts` is the one table of supported storefront languages: the code,
   the BCP-47 tag used for `lang` and every `Intl` call, and the dictionary. The
   workspace dropdowns, the storefront renderer and the `resolveLanguage` guard on

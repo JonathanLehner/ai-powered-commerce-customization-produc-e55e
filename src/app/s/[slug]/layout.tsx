@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { readCurrency, readShopperSession, setCurrency } from "@/app/actions/shop";
 import { Document, siteMetadata } from "@/components/Document";
+import { PlainDocument } from "@/components/SiteChrome";
+import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { THEMES } from "@/lib/types";
@@ -25,7 +26,19 @@ export default async function StorefrontLayout({
 }) {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) notFound();
+
+  // An address that belongs to no store still has to render as a page rather
+  // than a blank document. The layout carries Parcelith's own chrome instead of
+  // a shop's, and keeps rendering `children`: every page below calls
+  // `notFound()` when the store is missing, which is what makes the response a
+  // 404 and puts `not-found.tsx` in the main area.
+  if (!store) {
+    return (
+      <PlainDocument note="Parcelith hosts branded shops for agencies and their clients. Each shop has its own web address.">
+        {children}
+      </PlainDocument>
+    );
+  }
 
   const theme = THEMES[store.theme];
   const { tag, t } = storefrontLocale(store);
@@ -105,7 +118,22 @@ export default async function StorefrontLayout({
           </div>
         </header>
 
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          {/* The not-found and error boundaries live inside this main area and
+              are given no params, so they read the store from here. */}
+          <StorefrontFallbackProvider
+            value={{
+              slug: store.slug,
+              storeName: store.name,
+              accent: theme.accent,
+              basketLabel: t.basket.title,
+              orderStatusLabel: t.chrome.orderStatus,
+              t: t.fallback,
+            }}
+          >
+            {children}
+          </StorefrontFallbackProvider>
+        </main>
 
         <footer className="border-t border-line bg-canvas">
           <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:px-6 md:grid-cols-3">

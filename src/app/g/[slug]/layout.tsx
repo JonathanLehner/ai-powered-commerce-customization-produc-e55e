@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Document, siteMetadata } from "@/components/Document";
+import { PlainDocument } from "@/components/SiteChrome";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { THEMES } from "@/lib/types";
 
@@ -26,9 +26,14 @@ export default async function GiftPortalLayout({
 }) {
   const { slug } = await params;
   const catalogue = await getGiftCatalogueBySlug(slug);
-  if (!catalogue) notFound();
-  const store = await getStore(catalogue.storeId);
-  if (!store) notFound();
+  const store = catalogue ? await getStore(catalogue.storeId) : null;
+
+  // A portal link that no longer resolves still gets a page with a way out.
+  // `children` keeps rendering: the pages below call `notFound()`, which is what
+  // makes this a 404 and shows `not-found.tsx` in the main area.
+  if (!catalogue || !store) {
+    return <PlainDocument note="Corporate gifting powered by Parcelith.">{children}</PlainDocument>;
+  }
 
   const theme = THEMES[store.theme];
 

@@ -287,4 +287,17 @@ export const nl: StorefrontCopy = {
     notifyMe: "Houd me op de hoogte",
     welcome: "Welkom",
   },
+
+  fallback: {
+    notFoundTitle: "Deze pagina kunnen we niet vinden",
+    notFoundBody:
+      "De link is mogelijk verouderd of het product wordt niet meer verkocht. Alles wat {store} vandaag verkoopt, is één klik verderop.",
+    browseProducts: "Bekijk alle producten",
+    errorTitle: "Er ging iets mis aan onze kant",
+    errorBody:
+      "Deze pagina kon niet worden geladen. Je winkelmand is ongewijzigd — probeer het opnieuw en kom over een paar minuten terug als het blijft misgaan.",
+    errorRetry: "Opnieuw proberen",
+    errorHome: "Terug naar {store}",
+    errorReference: "Referentie {digest}",
+  },
 };

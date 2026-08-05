@@ -287,4 +287,17 @@ export const pt: StorefrontCopy = {
     notifyMe: "Avisem-me",
     welcome: "Bem-vindo",
   },
+
+  fallback: {
+    notFoundTitle: "Não encontrámos esta página",
+    notFoundBody:
+      "A ligação pode estar desatualizada ou o produto já não está à venda. Tudo o que a {store} vende hoje continua à distância de um clique.",
+    browseProducts: "Ver todos os produtos",
+    errorTitle: "Algo correu mal do nosso lado",
+    errorBody:
+      "Não foi possível carregar esta página. O seu cesto está intacto — tente novamente e, se continuar, volte dentro de alguns minutos.",
+    errorRetry: "Tentar novamente",
+    errorHome: "Voltar à {store}",
+    errorReference: "Referência {digest}",
+  },
 };
