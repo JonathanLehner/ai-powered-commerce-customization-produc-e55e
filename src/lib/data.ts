@@ -16,6 +16,7 @@ import type {
   GiftCatalogue,
   Membership,
   Order,
+  PlanEnquiry,
   Store,
   Storefront,
   StoreProduct,
@@ -40,6 +41,7 @@ export const COLLECTIONS = {
   carts: "carts",
   giftCatalogues: "gift_catalogues",
   giftCampaigns: "gift_campaigns",
+  planEnquiries: "plan_enquiries",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */
@@ -248,6 +250,31 @@ export async function updateOrder(id: string, patch: Partial<Order>) {
     { id },
     { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
   );
+}
+
+/* --------------------------------------------------------- plan enquiries */
+
+/** Newest first: the sales queue is worked from the top. */
+export function listPlanEnquiries(limit = 20) {
+  return db.find<PlanEnquiry>(COLLECTIONS.planEnquiries, {}, { sort: { createdAt: -1 }, limit });
+}
+
+/** How a resubmitted form finds the enquiry it already created. */
+export function getPlanEnquiryByKey(submissionKey: string) {
+  return db.findOne<PlanEnquiry>(COLLECTIONS.planEnquiries, { submissionKey });
+}
+
+export async function createPlanEnquiry(
+  enquiry: Omit<PlanEnquiry, "id" | "status" | "createdAt">,
+): Promise<PlanEnquiry> {
+  const record: PlanEnquiry = {
+    ...enquiry,
+    id: newId("enq"),
+    status: "new",
+    createdAt: new Date().toISOString(),
+  };
+  await db.insertOne(COLLECTIONS.planEnquiries, record as unknown as Record<string, unknown>);
+  return record;
 }
 
 /* ----------------------------------------------------------------- gifting */

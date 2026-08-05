@@ -19,6 +19,7 @@
     "support-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/support-check.mjs",
     "gifting-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/gifting-check.mjs",
     "audit-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/audit-check.mjs",
+    "enquiry-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/enquiry-check.mjs",
     "fallback-check": "node --experimental-strip-types scripts/fallback-check.mjs"
   },
   "dependencies": {

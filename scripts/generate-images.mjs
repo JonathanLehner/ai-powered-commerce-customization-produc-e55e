@@ -89,6 +89,11 @@ const IMAGES = [
       "Photograph of a small fulfilment bench: plain kraft parcel boxes stacked neatly, a roll of packing tape and a handheld barcode scanner on a pale wooden surface. Bright even light, calm neutral palette with teal accents. No readable text, no logos.",
   },
   {
+    key: "marketing-gifting",
+    prompt:
+      "Photograph of a bright office table set up for a company gifting programme: a neat row of identical kraft gift boxes tied with plain ribbon, a folded navy hoodie and a plain white ceramic mug beside them, and a printed address list face down. Soft daylight, calm palette of kraft, teal and deep indigo, no people. No readable text, no logos.",
+  },
+  {
     key: "storefront-northwind",
     prompt:
       "Lifestyle photograph of a person wearing a plain navy hoodie holding a plain white ceramic mug in a bright modern office lounge, shot from the chest down so the face is not visible. Natural light, muted palette. No readable text, no logos.",

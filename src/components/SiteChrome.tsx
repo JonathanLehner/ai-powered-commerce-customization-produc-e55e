@@ -60,6 +60,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
             <li><Link href="/how-it-works" className="hover:text-ink hover:underline">How it works</Link></li>
             <li><Link href="/pricing" className="hover:text-ink hover:underline">Pricing</Link></li>
+            <li><Link href="/contact" className="hover:text-ink hover:underline">Talk to us</Link></li>
             <li><Link href="/login" className="hover:text-ink hover:underline">Sign in</Link></li>
           </ul>
         </div>

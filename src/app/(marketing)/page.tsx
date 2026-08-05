@@ -55,6 +55,34 @@ const FEATURES = [
   },
 ];
 
+/**
+ * The gifting portal, told in the order the two people outside the workspace
+ * meet it: the buyer builds the list, the approver signs it off on a link of
+ * their own, and only then does a payment become one order per recipient.
+ */
+const GIFT_FLOW = [
+  {
+    step: "01",
+    title: "The store publishes a catalogue",
+    body: "A private gift range per company, drawn from that store's own published products, open to anyone with the link or only to invited addresses.",
+  },
+  {
+    step: "02",
+    title: "The buyer brings the recipient list",
+    body: "Paste it or upload the spreadsheet HR already has. Every row is checked — address, country, a size that is actually made, the spend limit per person — before anything is created.",
+  },
+  {
+    step: "03",
+    title: "The approver signs it off",
+    body: "The list goes to the company's approver on a link of their own, showing every recipient and the total. They approve or decline with a note; the buyer cannot pay until they do.",
+  },
+  {
+    step: "04",
+    title: "One campaign, one order each",
+    body: "A single payment raises an order per recipient, grouped under the campaign in the store's order queue, so production and exceptions are worked per programme.",
+  },
+];
+
 const LIFECYCLE = [
   { step: "01", title: "Create the store", body: "Name it, upload the client's logo, pick a theme, choose selling currencies and map a custom domain." },
   { step: "02", title: "Connect money and shipping", body: "The client's own Stripe account, their carrier accounts, and the tax bracket each product falls into." },
@@ -75,6 +103,14 @@ const FAQ = [
   {
     q: "What can the AI assistant do on its own?",
     a: "Nothing. It drafts ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is a separate, audited step.",
+  },
+  {
+    q: "Who can open a company's gift catalogue?",
+    a: "Whoever the store decides. A catalogue is either open to anyone holding its private link or restricted to a list of invited email addresses, and regenerating the link closes every link handed out so far. It is never indexed and never appears in the client's public storefront.",
+  },
+  {
+    q: "How do gift orders reach fulfilment?",
+    a: "The same way every other order does. One approved, paid campaign becomes one order per recipient in the store's queue, each with its own address, shipping and tax, all grouped under the campaign so a programme is worked as a whole.",
   },
   {
     q: "Which products are supported at launch?",
@@ -185,6 +221,73 @@ export default function LandingPage() {
           </div>
         </section>
       ))}
+
+      <section id="gifting" className="border-y border-line bg-canvas scroll-mt-20">
+        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+                Corporate gifting
+              </span>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+                A gifting portal each company can run on its own
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-inksoft sm:text-base">
+                Every store can open a private gift catalogue for the companies it supplies: its own web
+                address, its own branded product range, a spend limit per recipient and an approver who has to
+                sign the list off before a card is charged. The buyer never sees the workspace, and the store
+                never re-keys a spreadsheet.
+              </p>
+              <ul className="mt-5 space-y-2.5">
+                <li className="flex gap-2.5 text-sm text-inksoft">
+                  <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                  Gated by private link or by invited email address, revocable at any time
+                </li>
+                <li className="flex gap-2.5 text-sm text-inksoft">
+                  <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                  Up to 100 recipients a campaign, validated row by row before submission
+                </li>
+                <li className="flex gap-2.5 text-sm text-inksoft">
+                  <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                  Approval, payment and every per-recipient order kept under one campaign
+                </li>
+              </ul>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Link href="/how-it-works#gifting" className="btn-secondary">
+                  See the gifting walkthrough
+                </Link>
+                <Link href="/pricing" className="text-sm font-medium text-brand-700 hover:underline">
+                  On every plan →
+                </Link>
+              </div>
+            </div>
+            <div>
+              <div className="overflow-hidden rounded-2xl border border-line bg-white">
+                <Image
+                  src={IMAGES["marketing-gifting"]}
+                  alt="Kraft gift boxes tied with ribbon beside a folded navy hoodie and a white ceramic mug"
+                  width={1024}
+                  height={1024}
+                  loading="lazy"
+                  sizes="(min-width: 1024px) 512px, 100vw"
+                  className="h-auto w-full object-cover"
+                  style={{ aspectRatio: "1 / 1" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {GIFT_FLOW.map((item) => (
+              <li key={item.step} className="card p-5">
+                <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
+                <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
         <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">

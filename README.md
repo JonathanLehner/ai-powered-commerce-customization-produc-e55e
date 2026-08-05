@@ -14,7 +14,7 @@ FedEx or UPS tracking.
 
 | Area | Routes |
 | --- | --- |
-| Marketing | `/`, `/how-it-works`, `/pricing`, `/legal/terms`, `/legal/privacy` |
+| Marketing | `/`, `/how-it-works`, `/pricing`, `/contact`, `/legal/terms`, `/legal/privacy` |
 | Agency workspace | `/app`, `/app/stores/new`, `/app/stores/[storeId]/…` |
 | Platform administration | `/admin/…` — suppliers, shared catalog, tax brackets, agencies, audit |
 | Client storefronts | `/s/[slug]/…` — catalog, product, basket, checkout, order status |
@@ -86,7 +86,9 @@ gifting, orders, team, guided setup, activity.
   to the company's approver on a link of their own, and only then can the buyer
   pay. One payment raises one order per recipient, all grouped under the campaign
   in the store's order queue so fulfilment and exceptions are worked per
-  programme (`npm run gifting-check`).
+  programme (`npm run gifting-check`). The public site sells it: a section on
+  the landing page, a stage in the walkthrough, and a line in every plan's
+  feature list — gifting is not tiered, so all three plans carry the same one.
 - **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
   the store's own connected account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,
@@ -203,7 +205,15 @@ that are already in good shape, so it is safe to re-run.
   string ids, and the API has no upsert.
 - Mutations are server actions. Checkout is idempotent on a per-cart key so a
   double click or a retried request cannot create a second order; copying a
-  supplier product into a store works the same way, on a per-form import key.
+  supplier product into a store works the same way, on a per-form import key, and
+  so does the public plan enquiry, on a key the form mints per visitor.
+- The pricing page's three buttons go to `/contact`, carrying the plan in
+  `?plan=`. That page is prerendered like the rest of the marketing site, so the
+  plan is read from the address in the browser rather than at request time. An
+  enquiry is a sales record and nothing more — it creates no agency and no login
+  — and it surfaces in platform administration for someone to answer. The rules
+  that clamp and check the fields are in `src/lib/enquiry.ts`
+  (`npm run enquiry-check`).
 - Checkout asks for the destination as a searchable list of country names and
   submits the ISO code, defaulting to the store's Stripe account country.
   `src/lib/countries.ts` holds the country → fulfilment region table used both by

@@ -8,14 +8,25 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Parcelith plans for agencies: per-store pricing with no revenue share. Sellers keep their own Stripe account and remain the merchant of record.",
+    "Parcelith plans for agencies: per-store pricing with no revenue share, corporate gifting on every plan. Sellers keep their own Stripe account and remain the merchant of record.",
 };
+
+/**
+ * Corporate gifting is not tiered: every store on every plan can run gift
+ * catalogues and campaigns, so the same line appears on all three cards rather
+ * than an escalating version that would imply a gate the platform does not
+ * apply. What scales with the plan is how many client stores can run one.
+ */
+const GIFTING_FEATURE = "Corporate gifting portals, campaigns and approvals";
 
 /**
  * What each plan costs and what comes with it. The live-store counts and the
  * audit entitlement are read from `lib/plans`, which is also what the workspace
  * enforces when a store is created and when the audit history is downloaded, so
  * this page cannot advertise something the platform does not apply.
+ *
+ * `href` is where the button goes: there is one sales route for every plan, with
+ * the plan carried in the query so the form opens on the right one.
  */
 const PLAN_CARDS = [
   {
@@ -28,10 +39,12 @@ const PLAN_CARDS = [
       "Shared supplier catalog access",
       "Artwork configurator and mockup generation",
       "Stripe checkout in every supported currency",
+      GIFTING_FEATURE,
       "DHL, FedEx and UPS tracking",
       "Email support",
     ],
     cta: "Start with Starter",
+    href: "/contact?plan=starter",
     highlighted: false,
   },
   {
@@ -44,10 +57,12 @@ const PLAN_CARDS = [
       "Store-scoped roles and invitations",
       "Custom domains per store",
       "Commerce assistant with confirmation flow",
+      GIFTING_FEATURE,
       "Cross-store agency dashboard",
       planAuditLabel(PLANS.studio),
     ],
     cta: "Choose Studio",
+    href: "/contact?plan=studio",
     highlighted: true,
   },
   {
@@ -59,11 +74,13 @@ const PLAN_CARDS = [
       planStoreLabel(PLANS.scale),
       "Priority supplier onboarding and review",
       "Custom tax bracket sets per market",
+      GIFTING_FEATURE,
       "Named production contact at each partner",
       "Single sign-on and provisioning",
       "Quarterly commercial review",
     ],
     cta: "Arrange a call",
+    href: "/contact?plan=scale",
     highlighted: false,
   },
 ];
@@ -93,8 +110,9 @@ export default function PricingPage() {
             Priced per workspace, not per sale
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-inksoft">
-            Every plan includes the shared supplier catalog, the artwork configurator, mockup generation and
-            order routing. What changes is how many client stores you can run at once.
+            Every plan includes the shared supplier catalog, the artwork configurator, mockup generation, the
+            corporate gifting portal and order routing. What changes is how many client stores you can run at
+            once.
           </p>
         </div>
       </section>
@@ -130,13 +148,36 @@ export default function PricingPage() {
                 ))}
               </ul>
               <Link
-                href="/login"
+                href={plan.href}
                 className={plan.highlighted ? "btn-primary mt-7 w-full" : "btn-secondary mt-7 w-full"}
               >
                 {plan.cta}
               </Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-4 pb-14 sm:px-6">
+        <div className="rounded-2xl border border-brand-200 bg-brand-50 p-6 sm:p-8">
+          <h2 className="text-lg font-semibold tracking-tight text-ink">
+            Corporate gifting is on Starter, Studio and Scale
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-inksoft">
+            Any store, on any plan, can open a private gift catalogue for a company it supplies: gated by
+            private link or invited email addresses, drawn from that store&rsquo;s published products, with a
+            spend limit per recipient. Buyers upload a recipient list of up to 100 people, an approver signs it
+            off on a link of their own, and the payment raises one order per recipient under the campaign. What
+            the plan decides is how many client stores can be running one at a time.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <Link href="/how-it-works#gifting" className="btn-secondary btn-sm">
+              How gifting works
+            </Link>
+            <Link href="/contact?plan=scale" className="text-sm font-medium text-brand-700 hover:underline">
+              Talk to us about a gifting programme →
+            </Link>
+          </div>
         </div>
       </section>
 

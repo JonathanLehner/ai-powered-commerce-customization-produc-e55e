@@ -5,19 +5,22 @@ import {
   listAllStores,
   listAudit,
   listCatalogProducts,
+  listPlanEnquiries,
   listSuppliers,
   listTaxBrackets,
 } from "@/lib/data";
+import { planEnquiryLabel, UNDECIDED } from "@/lib/enquiry";
 import { formatDateTime } from "@/lib/util";
 
 export default async function AdminOverviewPage() {
-  const [agencies, stores, suppliers, catalog, brackets, audit] = await Promise.all([
+  const [agencies, stores, suppliers, catalog, brackets, audit, enquiries] = await Promise.all([
     listAgencies(),
     listAllStores(),
     listSuppliers(),
     listCatalogProducts(),
     listTaxBrackets(),
     listAudit({}, 12),
+    listPlanEnquiries(8),
   ]);
 
   const pendingSuppliers = suppliers.filter((s) => s.status === "pending_review");
@@ -105,6 +108,42 @@ export default async function AdminOverviewPage() {
           </table>
         </div>
       </section>
+
+      {enquiries.length > 0 ? (
+        <section className="card p-5">
+          <h2 className="text-base font-semibold text-ink">Plan enquiries</h2>
+          <p className="mt-1 text-sm text-muted">
+            Left on the public pricing page. Nothing here creates an agency or a login — someone has to reply
+            and open the workspace.
+          </p>
+          <ul className="mt-3 divide-y divide-line">
+            {enquiries.map((enquiry) => (
+              <li key={enquiry.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink">
+                    {enquiry.company} · {enquiry.name}
+                  </p>
+                  <p className="text-xs text-muted">
+                    <a href={`mailto:${enquiry.email}`} className="hover:underline">
+                      {enquiry.email}
+                    </a>
+                    {enquiry.wantsCall ? " · asked for a call" : null}
+                  </p>
+                  {enquiry.message ? (
+                    <p className="mt-1 max-w-2xl text-sm text-inksoft">{enquiry.message}</p>
+                  ) : null}
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Badge tone={enquiry.plan === UNDECIDED ? "slate" : "brand"}>
+                    {planEnquiryLabel(enquiry.plan)}
+                  </Badge>
+                  <span className="text-xs text-muted">{formatDateTime(enquiry.createdAt)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="card p-5">
         <div className="flex items-center justify-between">

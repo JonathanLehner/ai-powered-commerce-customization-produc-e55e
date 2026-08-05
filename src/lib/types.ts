@@ -751,3 +751,28 @@ export interface AiSuggestion {
   decidedBy: string | null;
   decidedAt: string | null;
 }
+
+/**
+ * A plan enquiry left on the public pricing page: someone who wants a workspace
+ * opened on a plan, or a conversation about the enterprise agreement. It is a
+ * sales record, not an account — nothing here creates an agency or a login.
+ */
+export interface PlanEnquiry {
+  id: string;
+  /** Which plan card the visitor arrived from, or "unsure". */
+  plan: string;
+  name: string;
+  email: string;
+  company: string;
+  /** What they wrote, including whether they need a gifting programme. */
+  message: string;
+  /** Set when the visitor asked to be called rather than emailed back. */
+  wantsCall: boolean;
+  /**
+   * The form's own key, unique per filled-in form. A retried or double
+   * submission carries the same one, so the enquiry is recorded once.
+   */
+  submissionKey: string;
+  status: "new";
+  createdAt: string;
+}

@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "How it works",
   description:
-    "How Parcelith runs the product lifecycle: isolated client stores, a curated supplier catalog, artwork pre-flight, mockup approval, margin review, Stripe checkout and supplier routing.",
+    "How Parcelith runs the product lifecycle: isolated client stores, a curated supplier catalog, artwork pre-flight, mockup approval, margin review, Stripe checkout, supplier routing and corporate gifting campaigns.",
 };
 
 const ROLES = [
@@ -30,9 +30,20 @@ const ROLES = [
     owns: "Browsing, customising eligible products, paying and tracking their own order.",
     cannot: "Only ever sees one store. Carts and orders are scoped to that store.",
   },
+  {
+    role: "Gift buyer",
+    owns: "Building a recipient list in their company's gift portal, sending it for approval and paying for the campaign.",
+    cannot: "Sees one gift catalogue only, priced to its spend limit. Cannot pay before the approver has signed off.",
+  },
+  {
+    role: "Gift approver",
+    owns: "Approving or declining a campaign on a link of their own, with a note back to the buyer.",
+    cannot: "Cannot edit the list or pay for it — a change means a new list from the buyer.",
+  },
 ];
 
-const STAGES = [
+/** `id` is set where another page links straight at a stage. */
+const STAGES: { id?: string; title: string; body: string; detail: string[] }[] = [
   {
     title: "1 · Store setup",
     body: "A guided six-step wizard covers branding, localisation, domain, Stripe, carriers and tax. Each step records what is still missing, so a half-configured store cannot quietly go live and take payments it cannot settle.",
@@ -90,6 +101,18 @@ const STAGES = [
       "Carrier tracking links for teams and shoppers",
     ],
   },
+  {
+    id: "gifting",
+    title: "7 · Corporate gifting",
+    body: "A store can open a private gift catalogue for a company it supplies, and run a campaign from it. The store sets the catalogue up in the workspace — which published products are in it, who may open it, the spend limit per recipient and who signs a list off. The company's buyer then works entirely in that portal: they build the recipient list, send it to their approver, and pay once it is approved. One payment raises one order per recipient in the store's queue, grouped under the campaign.",
+    detail: [
+      "Setting the catalogue up: name and intro, the products it offers, gating by private link or invited email addresses, spend limit per recipient, and the approver",
+      "Running a campaign: paste the recipient list or upload the spreadsheet, and every row is checked against the catalogue — unreadable address, unknown country, a size that is not made, a gift over the limit — with the problem named per row",
+      "Approval: the buyer sends the list to the approver on a link of their own, who sees every recipient and the total and approves or declines with a note",
+      "Payment and fulfilment: prices are re-read and the limit re-checked at payment, then one order per recipient joins the store's order queue under the campaign",
+      "Regenerating a catalogue's link closes every link already handed out; a paused catalogue stops taking new campaigns",
+    ],
+  },
 ];
 
 export default function HowItWorksPage() {
@@ -111,7 +134,7 @@ export default function HowItWorksPage() {
       <section className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6">
         <ol className="space-y-10">
           {STAGES.map((stage) => (
-            <li key={stage.title}>
+            <li key={stage.title} id={stage.id} className={stage.id ? "scroll-mt-20" : undefined}>
               <h2 className="text-xl font-semibold tracking-tight text-ink">{stage.title}</h2>
               <p className="mt-2.5 text-sm leading-relaxed text-inksoft sm:text-base">{stage.body}</p>
               <ul className="mt-4 space-y-2 rounded-xl border border-line bg-canvas p-5">

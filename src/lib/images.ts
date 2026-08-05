@@ -16,6 +16,7 @@ export const IMAGES = {
   "marketing-sourcing": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a6e67643bea4dc06459ffc1b81831be4-0.jpg",
   "marketing-mockup": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/545d3bd3be3bb819c405e8e2da8596d2-0.jpg",
   "marketing-fulfilment": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/745ba19c39ae447959eb755539ad0d8d-0.jpg",
+  "marketing-gifting": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/e4c3a20c8950552cace2b7d7fcb40b61-0.jpg",
   "storefront-northwind": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/dbda3b8e29c56842ee410d3c2dbc5e35-0.jpg",
   "storefront-lumen": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/5acfc8e70d71ad759b2c2cdb02771b96-0.jpg",
 } as const;
