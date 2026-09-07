@@ -1,11 +1,21 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { COLLECTIONS, getAgency, getCatalogProduct, getSupplier, getTaxBracket, recordAudit } from "@/lib/data";
+import { redirect } from "next/navigation";
+import {
+  COLLECTIONS,
+  getAgency,
+  getCatalogProduct,
+  getSupplier,
+  getTaxBracket,
+  listCatalogProducts,
+  recordAudit,
+} from "@/lib/data";
+import { FILE_REQUIREMENTS, parsePrintAreas, parseVariants } from "@/lib/catalog-rows";
 import { db } from "@/lib/platform";
 import { assertPlatformAdmin } from "@/lib/session";
-import type { Supplier, TaxBracket } from "@/lib/types";
-import { newId, parseMoney } from "@/lib/util";
+import type { CatalogProduct, Supplier, TaxBracket } from "@/lib/types";
+import { CURRENCY_OPTIONS, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
 /* -------------------------------------------------------------- suppliers */
@@ -124,21 +134,46 @@ export async function addSupplier(_prev: ActionState, formData: FormData): Promi
 
 /* --------------------------------------------------------- shared catalog */
 
-export async function saveCatalogItem(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const catalogId = String(formData.get("catalogId") ?? "");
-  const user = await assertPlatformAdmin();
-  const item = await getCatalogProduct(catalogId);
-  if (!item) return { status: "error", message: "Catalog product not found." };
+/** "added 2, removed 1" — what an audit entry says about a changed table. */
+function changeSummary(added: number, removed: number): string {
+  return [added ? `added ${added}` : "", removed ? `removed ${removed}` : ""].filter(Boolean).join(", ");
+}
 
+/**
+ * Creates a shared catalog product, or saves an existing one. Both run through
+ * here so the create form and the editor cannot drift apart: the only difference
+ * is whether a `catalogId` comes with the submission.
+ */
+export async function saveCatalogItem(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const catalogId = String(formData.get("catalogId") ?? "").trim();
+  const user = await assertPlatformAdmin();
+  const item = catalogId ? await getCatalogProduct(catalogId) : null;
+  if (catalogId && !item) return { status: "error", message: "Catalog product not found." };
+
+  // The currency is fixed once a product exists: every stored amount is in its
+  // minor units, and changing it would silently reinterpret all of them.
+  const currency = item?.currency ?? String(formData.get("currency") ?? "USD").trim().toUpperCase();
+  const supplierId = String(formData.get("supplierId") ?? "").trim();
+  const productType = String(formData.get("productType") ?? "").trim();
+  const category = String(formData.get("category") ?? "apparel") as CatalogProduct["category"];
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  const baseCost = parseMoney(String(formData.get("baseCost") ?? ""), item.currency);
-  const customizationCostPerArea = parseMoney(String(formData.get("customizationCost") ?? ""), item.currency);
-  const shippingEstimate = parseMoney(String(formData.get("shippingEstimate") ?? ""), item.currency);
-  const availability = String(formData.get("availability") ?? item.availability) as typeof item.availability;
-  const status = String(formData.get("status") ?? item.status) as typeof item.status;
+  const baseCost = parseMoney(String(formData.get("baseCost") ?? ""), currency);
+  const customizationCostPerArea = parseMoney(String(formData.get("customizationCost") ?? ""), currency);
+  const shippingEstimate = parseMoney(String(formData.get("shippingEstimate") ?? ""), currency);
+  const availability = String(
+    formData.get("availability") ?? item?.availability ?? "available",
+  ) as CatalogProduct["availability"];
+  const status = String(formData.get("status") ?? item?.status ?? "active") as CatalogProduct["status"];
   const fulfillmentRegions = formData.getAll("regions").map(String);
 
+  const supplier = await getSupplier(supplierId);
+  if (!supplier) {
+    return { status: "error", message: "Choose the supplier that makes this product.", field: "supplierId" };
+  }
+  if (productType.length < 3) {
+    return { status: "error", message: "Describe the product type, such as “T-shirt, 180 gsm”.", field: "productType" };
+  }
   if (name.length < 3) return { status: "error", message: "Enter a product name.", field: "name" };
   if (description.length < 20) {
     return { status: "error", message: "Describe the product — store managers rely on this when comparing.", field: "description" };
@@ -152,34 +187,94 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
   if (shippingEstimate === null) {
     return { status: "error", message: "Enter an estimated shipping cost.", field: "shippingEstimate" };
   }
+  if (category !== "apparel" && category !== "drinkware") {
+    return { status: "error", message: "Choose a product category.", field: "category" };
+  }
+  if (!CURRENCY_OPTIONS.some((option) => option.code === currency)) {
+    return { status: "error", message: "Choose the currency this supplier invoices in.", field: "currency" };
+  }
   if (fulfillmentRegions.length === 0) {
     return { status: "error", message: "Choose at least one fulfilment region.", field: "regions" };
   }
 
-  const printAreas = item.printAreas.map((area) => {
-    const widthMm = Number(formData.get(`width_${area.id}`) ?? area.widthMm);
-    const heightMm = Number(formData.get(`height_${area.id}`) ?? area.heightMm);
-    const minDpi = Number(formData.get(`dpi_${area.id}`) ?? area.minDpi);
-    return {
-      ...area,
-      widthMm: Number.isFinite(widthMm) && widthMm > 0 ? widthMm : area.widthMm,
-      heightMm: Number.isFinite(heightMm) && heightMm > 0 ? heightMm : area.heightMm,
-      minDpi: Number.isFinite(minDpi) && minDpi > 0 ? minDpi : area.minDpi,
-    };
-  });
+  const parsedAreas = parsePrintAreas(formData.get("printAreas"), item?.printAreas ?? []);
+  if ("error" in parsedAreas) return { status: "error", message: parsedAreas.error, field: "printAreas" };
+  const parsedVariants = parseVariants(formData.get("variants"), item?.variants ?? [], currency);
+  if ("error" in parsedVariants) return { status: "error", message: parsedVariants.error, field: "variants" };
+  const printAreas = parsedAreas.areas;
+  const variants = parsedVariants.variants;
 
-  const variants = item.variants.map((variant) => {
-    const cost = parseMoney(String(formData.get(`cost_${variant.id}`) ?? ""), item.currency);
-    const stock = String(formData.get(`stock_${variant.id}`) ?? variant.availability) as typeof variant.availability;
-    return { ...variant, baseCost: cost ?? variant.baseCost, availability: stock };
-  });
+  if (!item) {
+    // A second submission of the same form — a double click on a slow
+    // connection, or a retried tab — must not leave two identical products in a
+    // catalog every store copies from.
+    const existing = await listCatalogProducts();
+    const clash = existing.find(
+      (product) => product.supplierId === supplierId && product.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (clash) {
+      return {
+        status: "error",
+        message: `${supplier.name} already has a catalog product called “${clash.name}”. Give this one a different name.`,
+        field: "name",
+      };
+    }
+
+    const created: CatalogProduct = {
+      id: newId("cat"),
+      supplierId,
+      name,
+      category,
+      productType,
+      description,
+      currency,
+      baseCost,
+      customizationCostPerArea,
+      shippingEstimate,
+      variants,
+      printAreas,
+      // Supplier photography arrives with the supplier's own imagery; the
+      // product is costed, importable and configurable without it.
+      mockups: [],
+      fileRequirements: FILE_REQUIREMENTS[category],
+      fulfillmentRegions,
+      leadTimeDays: supplier.leadTimeDays,
+      availability,
+      status,
+      createdAt: new Date().toISOString(),
+    };
+
+    await db.insertOne(COLLECTIONS.catalog, created as unknown as Record<string, unknown>);
+    recordAudit({
+      category: "administration",
+      action: "catalog.product_added",
+      summary: `Added “${name}” to the shared supplier catalog`,
+      actorId: user.id,
+      actorName: user.name,
+      entity: "catalog_product",
+      entityId: created.id,
+      meta: {
+        supplier: supplier.name,
+        printAreas: printAreas.length,
+        variants: variants.length,
+        status,
+      },
+    });
+    revalidatePath("/admin/catalog");
+    revalidatePath("/admin/suppliers");
+    revalidatePath("/admin");
+    redirect(`/admin/catalog/${created.id}?created=1`);
+  }
 
   await db.updateOne(
     COLLECTIONS.catalog,
-    { id: catalogId },
+    { id: item.id },
     {
       $set: {
+        supplierId,
         name,
+        category,
+        productType,
         description,
         baseCost,
         customizationCostPerArea,
@@ -199,11 +294,44 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
     actorId: user.id,
     actorName: user.name,
     entity: "catalog_product",
-    entityId: catalogId,
+    entityId: item.id,
     meta: { availability, status, regions: fulfillmentRegions.length },
   });
+
+  // Adding or dropping a print area or a variant changes what every store can
+  // sell from this product, so it is recorded in its own right rather than left
+  // inside the general update.
+  const areasAdded = printAreas.filter((area) => !item.printAreas.some((old) => old.id === area.id)).length;
+  const areasRemoved = item.printAreas.filter((old) => !printAreas.some((area) => area.id === old.id)).length;
+  if (areasAdded || areasRemoved) {
+    recordAudit({
+      category: "administration",
+      action: "catalog.print_areas_changed",
+      summary: `Print areas on “${name}”: ${changeSummary(areasAdded, areasRemoved)} (${printAreas.length} in total)`,
+      actorId: user.id,
+      actorName: user.name,
+      entity: "catalog_product",
+      entityId: item.id,
+      meta: { added: areasAdded, removed: areasRemoved, total: printAreas.length },
+    });
+  }
+  const variantsAdded = variants.filter((variant) => !item.variants.some((old) => old.id === variant.id)).length;
+  const variantsRemoved = item.variants.filter((old) => !variants.some((variant) => variant.id === old.id)).length;
+  if (variantsAdded || variantsRemoved) {
+    recordAudit({
+      category: "administration",
+      action: "catalog.variants_changed",
+      summary: `Variants on “${name}”: ${changeSummary(variantsAdded, variantsRemoved)} (${variants.length} in total)`,
+      actorId: user.id,
+      actorName: user.name,
+      entity: "catalog_product",
+      entityId: item.id,
+      meta: { added: variantsAdded, removed: variantsRemoved, total: variants.length },
+    });
+  }
+
   revalidatePath("/admin/catalog");
-  revalidatePath(`/admin/catalog/${catalogId}`);
+  revalidatePath(`/admin/catalog/${item.id}`);
   return { status: "success", message: "Shared catalog product updated. Stores see the change on their next import." };
 }
 

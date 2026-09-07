@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Badge, PageHeader, StatCard } from "@/components/ui";
+import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
 import { formatMoney } from "@/lib/util";
 
@@ -13,6 +13,11 @@ export default async function AdminCatalogPage() {
       <PageHeader
         title="Supplier-backed products"
         description="Apparel and drinkware every store can copy from. Base costs, print areas, availability and fulfilment regions are set here and inherited on import."
+        actions={
+          <Link href="/admin/catalog/new" className="btn-primary btn-sm">
+            Add product
+          </Link>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -25,6 +30,18 @@ export default async function AdminCatalogPage() {
           sub="Defined in millimetres"
         />
       </div>
+
+      {catalog.length === 0 ? (
+        <EmptyState
+          title="No products in the shared catalog"
+          description="Add the first supplier-backed product so stores have something to import."
+          action={
+            <Link href="/admin/catalog/new" className="btn-primary">
+              Add product
+            </Link>
+          }
+        />
+      ) : null}
 
       <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {catalog.map((product) => (

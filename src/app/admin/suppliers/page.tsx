@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { setSupplierStatus } from "@/app/actions/admin";
 import { Badge, Callout, PageHeader } from "@/components/ui";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
@@ -59,6 +60,9 @@ export default async function AdminSuppliersPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
+                  <Link href={`/admin/catalog/new?supplierId=${supplier.id}`} className="btn-secondary btn-sm">
+                    Add catalog product
+                  </Link>
                   {supplier.status !== "approved" ? (
                     <form action={setSupplierStatus}>
                       <input type="hidden" name="supplierId" value={supplier.id} />
