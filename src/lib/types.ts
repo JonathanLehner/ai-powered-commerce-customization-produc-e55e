@@ -304,6 +304,19 @@ export interface StoredImage {
 /** Upload kinds, each with its own permission check and size/format rules. */
 export type UploadScope = "artwork" | "mockup" | "logo" | "shopperArtwork" | "shopperPreview";
 
+/** Where artwork sits inside a print area, as fractions of the print area box. */
+export interface ArtworkPlacement {
+  /** Centre of the artwork. */
+  x: number;
+  y: number;
+  /** Artwork width as a fraction of the print area width. */
+  scale: number;
+  /** Degrees, clockwise. */
+  rotation: number;
+}
+
+export const DEFAULT_PLACEMENT: ArtworkPlacement = { x: 0.5, y: 0.5, scale: 0.6, rotation: 0 };
+
 export interface Artwork {
   id: string;
   printAreaId: string;
@@ -445,6 +458,8 @@ export interface OrderItem {
   customization: {
     artworkUrl: string | null;
     artworkFileName: string | null;
+    /** How the shopper placed the artwork, for the production job. */
+    artworkPlacement?: ArtworkPlacement | null;
     text: string | null;
     previewUrl: string | null;
   };
@@ -662,6 +677,8 @@ export interface CartItem {
   unitPrice: number;
   artworkUrl: string | null;
   artworkFileName: string | null;
+  /** The placement the shopper approved, carried through to the order. */
+  artworkPlacement?: ArtworkPlacement | null;
   text: string | null;
   previewUrl: string | null;
 }

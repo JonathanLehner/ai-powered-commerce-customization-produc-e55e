@@ -106,6 +106,21 @@ export const fr: StorefrontCopy = {
     uploading: "Envoi de votre visuel…",
     uploadFailed: "Ce fichier n’a pas pu être envoyé.",
     fileTooLarge: "Ce fichier fait {size} Mo. La limite est de {limit} Mo.",
+    artworkPlacementTitle: "Positionnez votre visuel",
+    artworkPlacementHelp:
+      "Faites glisser le visuel sur l’aperçu ou utilisez les réglages ci-dessous. L’aperçu et la résolution d’impression suivent chaque changement.",
+    artworkGrabLabel:
+      "Position de {file}. Faites glisser pour déplacer ou utilisez les flèches ; + et − redimensionnent.",
+    artworkSize: "Taille",
+    artworkRotation: "Rotation",
+    artworkResolution: "Résolution d’impression",
+    artworkRecentre: "Recentrer",
+    artworkRemove: "Retirer le visuel",
+    artworkChecksPass: "Ce visuel est prêt à être imprimé à cette taille.",
+    artworkChecksFail: "À corriger avant l’ajout au panier",
+    artworkWhatToDo: "À faire : {fix}",
+    artworkBlocked:
+      "Corrigez le visuel ci-dessus, ou retirez-le, pour ajouter cet article au panier.",
   },
 
   basket: {
@@ -262,15 +277,31 @@ export const fr: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi:
-      "Ce visuel s’imprime à une résolution trop faible. Envoyez un fichier d’au moins {dpi} DPI.",
-    badFormat: "Les fichiers {format} ne sont pas acceptés pour ce produit. Envoyez plutôt {formats}.",
+    lowDpi: "Ce visuel s’imprimera à {dpi} DPI, en dessous des {required} DPI exigés par ce produit.",
+    lowDpiFix:
+      "Envoyez un fichier d’au moins {pixels} pixels de large, ou réduisez le visuel — ce fichier reste net jusqu’à {width} mm de large.",
+    badFormat: "Les fichiers {format} ne sont pas acceptés pour ce produit.",
+    badFormatFix: "Enregistrez le visuel en {formats} et sélectionnez-le à nouveau.",
+    unreadableFormat: "Les fichiers {format} ne peuvent être ni mesurés ni prévisualisés ici.",
+    unreadableFormatFix: "Enregistrez le visuel en {formats} et sélectionnez-le à nouveau.",
     fileTooLarge: "Ce fichier fait {size} Mo. La limite est de {limit} Mo.",
-    tooManyPixels:
-      "Cette image est trop grande. Réduisez-la sous {megapixels} mégapixels et réessayez.",
+    fileTooLargeFix:
+      "Enregistrez-le dans une taille ou une qualité inférieure, puis sélectionnez-le à nouveau.",
+    tooManyPixels: "Cette image est trop grande. La limite est de {megapixels} mégapixels.",
+    tooManyPixelsFix: "Redimensionnez-la dans votre éditeur photo et sélectionnez-la à nouveau.",
     noTransparency:
-      "Ce produit demande un visuel sur fond transparent. Exportez-le en PNG avec transparence.",
-    generic: "Ce visuel ne peut pas être imprimé sur ce produit. Essayez un autre fichier.",
+      "Ce produit est imprimé directement sur le tissu : le visuel doit avoir un fond transparent.",
+    noTransparencyFix: "Supprimez le fond et enregistrez-le en PNG avec transparence.",
+    outsideArea: "Une partie du visuel dépasse de la zone imprimable et serait coupée.",
+    outsideAreaFix:
+      "Ramenez-le à l’intérieur du cadre en pointillés, ou réduisez-le pour tenir dans {width} × {height} mm.",
+    dpiTight: "Ce visuel s’imprimera à {dpi} DPI, tout juste au-dessus du minimum de {required} DPI.",
+    dpiTightFix:
+      "Les traits fins risquent d’être flous. Un fichier plus grand, ou un visuel un peu plus petit, sera plus net.",
+    verySmall: "Le visuel couvre moins de 15 % de la largeur imprimable.",
+    verySmallFix: "Augmentez la taille s’il doit être le graphisme principal.",
+    generic: "Ce visuel ne peut pas être imprimé sur ce produit.",
+    genericFix: "Essayez un autre fichier.",
   },
 
   payment: {

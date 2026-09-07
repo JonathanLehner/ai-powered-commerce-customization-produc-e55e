@@ -138,6 +138,16 @@ export default async function OrderDetailPage({
                         )}
                       </p>
                     ) : null}
+                    {item.customization.artworkPlacement ? (
+                      <p className="mt-1 text-xs text-muted">
+                        Placement: {Math.round(item.customization.artworkPlacement.x * 100)}% across,{" "}
+                        {Math.round(item.customization.artworkPlacement.y * 100)}% down, at{" "}
+                        {Math.round(item.customization.artworkPlacement.scale * 100)}% of the print area
+                        {item.customization.artworkPlacement.rotation
+                          ? `, rotated ${Math.round(item.customization.artworkPlacement.rotation)}°`
+                          : ""}
+                      </p>
+                    ) : null}
                   </div>
                   <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
                     {formatMoney(item.unitPrice * item.quantity, order.currency)}

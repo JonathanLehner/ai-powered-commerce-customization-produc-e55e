@@ -106,6 +106,21 @@ export const it: StorefrontCopy = {
     uploading: "Caricamento della grafica…",
     uploadFailed: "Non è stato possibile caricare il file.",
     fileTooLarge: "Il file pesa {size} MB. Il limite è di {limit} MB.",
+    artworkPlacementTitle: "Posiziona la grafica",
+    artworkPlacementHelp:
+      "Trascina la grafica sull’anteprima oppure usa i comandi qui sotto. Anteprima e risoluzione di stampa si aggiornano a ogni modifica.",
+    artworkGrabLabel:
+      "Posizione di {file}. Trascina per spostarla o usa le frecce; + e − la ridimensionano.",
+    artworkSize: "Dimensione",
+    artworkRotation: "Rotazione",
+    artworkResolution: "Risoluzione di stampa",
+    artworkRecentre: "Rimetti al centro",
+    artworkRemove: "Rimuovi la grafica",
+    artworkChecksPass: "Questa grafica è pronta per la stampa a questa dimensione.",
+    artworkChecksFail: "Da sistemare prima di aggiungere al carrello",
+    artworkWhatToDo: "Cosa fare: {fix}",
+    artworkBlocked:
+      "Sistema la grafica qui sopra, oppure rimuovila, per aggiungere l’articolo al carrello.",
   },
 
   basket: {
@@ -262,15 +277,30 @@ export const it: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi:
-      "Questa grafica viene stampata a una risoluzione troppo bassa. Carica un file di almeno {dpi} DPI.",
-    badFormat: "I file {format} non sono accettati per questo prodotto. Carica {formats}.",
+    lowDpi: "Questa immagine verrà stampata a {dpi} DPI, sotto i {required} DPI richiesti da questo prodotto.",
+    lowDpiFix:
+      "Carica un file largo almeno {pixels} pixel, oppure riduci la grafica: questo file resta nitido fino a {width} mm di larghezza.",
+    badFormat: "I file {format} non sono accettati per questo prodotto.",
+    badFormatFix: "Salva la grafica come {formats} e selezionala di nuovo.",
+    unreadableFormat: "I file {format} non possono essere misurati né visualizzati qui.",
+    unreadableFormatFix: "Salva la grafica come {formats} e selezionala di nuovo.",
     fileTooLarge: "Il file pesa {size} MB. Il limite è di {limit} MB.",
-    tooManyPixels:
-      "Questa immagine è troppo grande. Riducila sotto {megapixels} megapixel e riprova.",
+    fileTooLargeFix: "Salvalo con dimensioni o qualità inferiori e selezionalo di nuovo.",
+    tooManyPixels: "Questa immagine è troppo grande. Il limite è di {megapixels} megapixel.",
+    tooManyPixelsFix: "Ridimensionala nel tuo editor di foto e selezionala di nuovo.",
     noTransparency:
-      "Questo prodotto richiede una grafica con sfondo trasparente. Esportala come PNG con trasparenza.",
-    generic: "Questa grafica non può essere stampata su questo prodotto. Prova con un altro file.",
+      "Questo prodotto viene stampato direttamente sul tessuto, quindi la grafica deve avere lo sfondo trasparente.",
+    noTransparencyFix: "Rimuovi lo sfondo e salvala come PNG con trasparenza.",
+    outsideArea: "Una parte della grafica esce dall’area di stampa e verrebbe tagliata.",
+    outsideAreaFix:
+      "Trascinala dentro il riquadro tratteggiato, oppure riducila fino a {width} × {height} mm.",
+    dpiTight: "Questa immagine verrà stampata a {dpi} DPI, appena sopra il minimo di {required} DPI.",
+    dpiTightFix:
+      "Le linee sottili possono risultare morbide. Un file più grande, o una grafica un po’ più piccola, stampa meglio.",
+    verySmall: "La grafica copre meno del 15% della larghezza stampabile.",
+    verySmallFix: "Aumenta la dimensione se deve essere la grafica principale.",
+    generic: "Questa grafica non può essere stampata su questo prodotto.",
+    genericFix: "Prova con un altro file.",
   },
 
   payment: {

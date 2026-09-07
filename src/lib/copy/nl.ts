@@ -106,6 +106,21 @@ export const nl: StorefrontCopy = {
     uploading: "Je ontwerp wordt geüpload…",
     uploadFailed: "Dit bestand kon niet worden geüpload.",
     fileTooLarge: "Dit bestand is {size} MB. De limiet is {limit} MB.",
+    artworkPlacementTitle: "Plaats je ontwerp",
+    artworkPlacementHelp:
+      "Sleep het ontwerp op de voorvertoning of gebruik de schuifregelaars hieronder. De voorvertoning en de drukresolutie volgen elke wijziging.",
+    artworkGrabLabel:
+      "Positie van {file}. Sleep om te verplaatsen of gebruik de pijltoetsen; + en − passen de grootte aan.",
+    artworkSize: "Grootte",
+    artworkRotation: "Rotatie",
+    artworkResolution: "Drukresolutie",
+    artworkRecentre: "Opnieuw centreren",
+    artworkRemove: "Ontwerp verwijderen",
+    artworkChecksPass: "Dit ontwerp kan op deze grootte worden gedrukt.",
+    artworkChecksFail: "Los dit op voordat je het in je mandje legt",
+    artworkWhatToDo: "Wat te doen: {fix}",
+    artworkBlocked:
+      "Los het ontwerp hierboven op, of verwijder het, om dit artikel in je mandje te leggen.",
   },
 
   basket: {
@@ -262,15 +277,30 @@ export const nl: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi:
-      "Dit ontwerp drukt af op een te lage resolutie. Upload een bestand van minstens {dpi} DPI.",
-    badFormat: "{format}-bestanden worden voor dit product niet geaccepteerd. Upload {formats}.",
+    lowDpi: "Deze afbeelding wordt gedrukt op {dpi} DPI, onder de {required} DPI die dit product nodig heeft.",
+    lowDpiFix:
+      "Upload er een van minstens {pixels} pixels breed, of maak het ontwerp kleiner — dit bestand blijft scherp tot {width} mm breed.",
+    badFormat: "{format}-bestanden worden voor dit product niet geaccepteerd.",
+    badFormatFix: "Sla het ontwerp op als {formats} en kies het opnieuw.",
+    unreadableFormat: "{format}-bestanden kunnen hier niet worden gemeten of getoond.",
+    unreadableFormatFix: "Sla het ontwerp op als {formats} en kies het opnieuw.",
     fileTooLarge: "Dit bestand is {size} MB. De limiet is {limit} MB.",
-    tooManyPixels:
-      "Deze afbeelding is te groot. Verklein hem tot onder {megapixels} megapixel en probeer het opnieuw.",
+    fileTooLargeFix: "Sla het kleiner of met lagere kwaliteit op en kies het opnieuw.",
+    tooManyPixels: "Deze afbeelding is te groot. De limiet is {megapixels} megapixel.",
+    tooManyPixelsFix: "Verklein hem in je fotobewerker en kies hem opnieuw.",
     noTransparency:
-      "Dit product heeft een ontwerp met transparante achtergrond nodig. Exporteer het als PNG met transparantie.",
-    generic: "Dit ontwerp kan niet op dit product worden gedrukt. Probeer een ander bestand.",
+      "Dit product wordt rechtstreeks op de stof gedrukt, dus het ontwerp heeft een transparante achtergrond nodig.",
+    noTransparencyFix: "Verwijder de achtergrond en sla het op als PNG met transparantie.",
+    outsideArea: "Een deel van het ontwerp valt buiten het drukvlak en zou worden afgesneden.",
+    outsideAreaFix:
+      "Sleep het terug binnen de stippellijn, of maak het kleiner zodat het in {width} × {height} mm past.",
+    dpiTight: "Deze afbeelding wordt gedrukt op {dpi} DPI, net boven het minimum van {required} DPI.",
+    dpiTightFix:
+      "Dunne lijnen kunnen zacht ogen. Een groter bestand, of een iets kleiner ontwerp, drukt scherper.",
+    verySmall: "Het ontwerp beslaat minder dan 15% van de drukbreedte.",
+    verySmallFix: "Schuif de grootte omhoog als dit de hoofdafbeelding moet zijn.",
+    generic: "Dit ontwerp kan niet op dit product worden gedrukt.",
+    genericFix: "Probeer een ander bestand.",
   },
 
   payment: {

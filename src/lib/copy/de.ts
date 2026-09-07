@@ -106,6 +106,21 @@ export const de: StorefrontCopy = {
     uploading: "Ihr Motiv wird hochgeladen …",
     uploadFailed: "Diese Datei konnte nicht hochgeladen werden.",
     fileTooLarge: "Diese Datei ist {size} MB groß. Das Limit liegt bei {limit} MB.",
+    artworkPlacementTitle: "Motiv positionieren",
+    artworkPlacementHelp:
+      "Ziehen Sie das Motiv in der Vorschau oder nutzen Sie die Regler darunter. Vorschau und Druckauflösung folgen jeder Änderung.",
+    artworkGrabLabel:
+      "Position von {file}. Zum Verschieben ziehen oder die Pfeiltasten nutzen; + und − ändern die Größe.",
+    artworkSize: "Größe",
+    artworkRotation: "Drehung",
+    artworkResolution: "Druckauflösung",
+    artworkRecentre: "Wieder zentrieren",
+    artworkRemove: "Motiv entfernen",
+    artworkChecksPass: "Dieses Motiv ist in dieser Größe druckfertig.",
+    artworkChecksFail: "Bitte vor dem Hinzufügen zum Warenkorb beheben",
+    artworkWhatToDo: "So geht es: {fix}",
+    artworkBlocked:
+      "Beheben Sie das Motiv oben oder entfernen Sie es, um den Artikel in den Warenkorb zu legen.",
   },
 
   basket: {
@@ -263,15 +278,31 @@ export const de: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi:
-      "Dieses Motiv hat eine zu geringe Druckauflösung. Laden Sie eine Datei mit mindestens {dpi} DPI hoch.",
-    badFormat: "{format}-Dateien sind für dieses Produkt nicht zulässig. Laden Sie {formats} hoch.",
+    lowDpi: "Dieses Bild druckt mit {dpi} DPI und liegt damit unter den {required} DPI, die dieses Produkt braucht.",
+    lowDpiFix:
+      "Laden Sie eine Datei mit mindestens {pixels} Pixeln Breite hoch oder verkleinern Sie das Motiv — diese Datei bleibt bis {width} mm Breite scharf.",
+    badFormat: "{format}-Dateien sind für dieses Produkt nicht zulässig.",
+    badFormatFix: "Speichern Sie das Motiv als {formats} und wählen Sie es erneut aus.",
+    unreadableFormat: "{format}-Dateien lassen sich hier nicht messen oder anzeigen.",
+    unreadableFormatFix: "Speichern Sie das Motiv als {formats} und wählen Sie es erneut aus.",
     fileTooLarge: "Diese Datei ist {size} MB groß. Das Limit liegt bei {limit} MB.",
-    tooManyPixels:
-      "Dieses Bild ist zu groß. Verkleinern Sie es auf unter {megapixels} Megapixel und versuchen Sie es erneut.",
+    fileTooLargeFix:
+      "Speichern Sie sie kleiner oder mit geringerer Qualität und wählen Sie sie erneut aus.",
+    tooManyPixels: "Dieses Bild ist zu groß. Das Limit liegt bei {megapixels} Megapixel.",
+    tooManyPixelsFix: "Verkleinern Sie es im Bildbearbeitungsprogramm und wählen Sie es erneut aus.",
     noTransparency:
-      "Dieses Produkt braucht ein Motiv mit transparentem Hintergrund. Exportieren Sie es als PNG mit Transparenz.",
-    generic: "Dieses Motiv lässt sich auf diesem Produkt nicht drucken. Versuchen Sie eine andere Datei.",
+      "Dieses Produkt wird direkt auf den Stoff gedruckt, das Motiv braucht daher einen transparenten Hintergrund.",
+    noTransparencyFix: "Entfernen Sie den Hintergrund und speichern Sie es als PNG mit Transparenz.",
+    outsideArea: "Ein Teil des Motivs liegt außerhalb der Druckfläche und würde abgeschnitten.",
+    outsideAreaFix:
+      "Ziehen Sie es zurück in den gestrichelten Rahmen oder verkleinern Sie es auf {width} × {height} mm.",
+    dpiTight: "Dieses Bild druckt mit {dpi} DPI — nur knapp über dem Minimum von {required} DPI.",
+    dpiTightFix:
+      "Feine Linien können weich wirken. Eine größere Datei oder ein etwas kleineres Motiv druckt schärfer.",
+    verySmall: "Das Motiv bedeckt weniger als 15 % der Druckbreite.",
+    verySmallFix: "Ziehen Sie den Größenregler höher, wenn es die Hauptgrafik sein soll.",
+    generic: "Dieses Motiv lässt sich auf diesem Produkt nicht drucken.",
+    genericFix: "Versuchen Sie es mit einer anderen Datei.",
   },
 
   payment: {

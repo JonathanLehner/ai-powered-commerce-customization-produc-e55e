@@ -111,6 +111,19 @@ export const en = {
     uploading: "Uploading your artwork…",
     uploadFailed: "That file could not be uploaded.",
     fileTooLarge: "That file is {size} MB. The limit is {limit} MB.",
+    artworkPlacementTitle: "Position your artwork",
+    artworkPlacementHelp:
+      "Drag the artwork on the preview, or use the controls below. The preview and the print resolution follow every change.",
+    artworkGrabLabel: "{file} placement. Drag to move it, or use the arrow keys; + and − resize it.",
+    artworkSize: "Size",
+    artworkRotation: "Rotation",
+    artworkResolution: "Print resolution",
+    artworkRecentre: "Centre it again",
+    artworkRemove: "Remove artwork",
+    artworkChecksPass: "This artwork is ready to print at this size.",
+    artworkChecksFail: "Sort this out before adding to your basket",
+    artworkWhatToDo: "What to do: {fix}",
+    artworkBlocked: "Fix the artwork above, or remove it, to add this to your basket.",
   },
 
   basket: {
@@ -266,13 +279,30 @@ export const en = {
   },
 
   artwork: {
-    lowDpi: "That artwork prints at too low a resolution. Upload a file of at least {dpi} DPI.",
-    badFormat: "{format} files are not accepted for this product. Upload {formats} instead.",
+    lowDpi: "This image will print at {dpi} DPI, below the {required} DPI this product needs.",
+    lowDpiFix:
+      "Upload one at least {pixels} pixels wide, or make the design smaller — this file is sharp up to {width} mm wide.",
+    badFormat: "{format} files are not accepted for this product.",
+    badFormatFix: "Save the artwork as {formats} and choose it again.",
+    unreadableFormat: "{format} files cannot be measured or previewed here.",
+    unreadableFormatFix: "Save the artwork as {formats} and choose it again.",
     fileTooLarge: "That file is {size} MB. The limit is {limit} MB.",
-    tooManyPixels: "That image is too large. Resize it below {megapixels} megapixels and try again.",
+    fileTooLargeFix: "Save it at a smaller size or lower quality, then choose it again.",
+    tooManyPixels: "That image is too large. The limit is {megapixels} megapixels.",
+    tooManyPixelsFix: "Resize it in your photo editor and choose it again.",
     noTransparency:
-      "This product needs artwork with a transparent background. Export it as a PNG with transparency.",
-    generic: "That artwork cannot be printed on this product. Try a different file.",
+      "This product is printed straight onto the fabric, so the artwork needs a transparent background.",
+    noTransparencyFix: "Remove the background and save it as a PNG with transparency.",
+    outsideArea: "Part of the artwork sits outside the printable area and would be cut off.",
+    outsideAreaFix:
+      "Drag it back inside the dashed outline, or make it smaller so it fits {width} × {height} mm.",
+    dpiTight:
+      "This image will print at {dpi} DPI, only just above the {required} DPI minimum.",
+    dpiTightFix: "Thin lines may look soft. A larger file, or a slightly smaller design, prints crisper.",
+    verySmall: "The design covers less than 15% of the printable width.",
+    verySmallFix: "Drag the size slider up if it is meant to be the main graphic.",
+    generic: "That artwork cannot be printed on this product.",
+    genericFix: "Try a different file.",
   },
 
   payment: {

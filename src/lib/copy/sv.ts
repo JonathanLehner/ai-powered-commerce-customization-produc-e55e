@@ -106,6 +106,20 @@ export const sv: StorefrontCopy = {
     uploading: "Laddar upp din design…",
     uploadFailed: "Filen kunde inte laddas upp.",
     fileTooLarge: "Filen är {size} MB. Gränsen är {limit} MB.",
+    artworkPlacementTitle: "Placera din design",
+    artworkPlacementHelp:
+      "Dra designen i förhandsvisningen eller använd reglagen nedan. Förhandsvisningen och tryckupplösningen uppdateras direkt.",
+    artworkGrabLabel:
+      "Placering av {file}. Dra för att flytta eller använd piltangenterna; + och − ändrar storleken.",
+    artworkSize: "Storlek",
+    artworkRotation: "Rotation",
+    artworkResolution: "Tryckupplösning",
+    artworkRecentre: "Centrera igen",
+    artworkRemove: "Ta bort designen",
+    artworkChecksPass: "Designen är redo att tryckas i den här storleken.",
+    artworkChecksFail: "Åtgärda det här innan du lägger den i varukorgen",
+    artworkWhatToDo: "Gör så här: {fix}",
+    artworkBlocked: "Åtgärda designen ovan, eller ta bort den, för att lägga varan i varukorgen.",
   },
 
   basket: {
@@ -261,14 +275,30 @@ export const sv: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi: "Designen trycks i för låg upplösning. Ladda upp en fil med minst {dpi} DPI.",
-    badFormat: "{format}-filer accepteras inte för den här produkten. Ladda upp {formats}.",
+    lowDpi: "Bilden trycks i {dpi} DPI, under de {required} DPI som produkten kräver.",
+    lowDpiFix:
+      "Ladda upp en som är minst {pixels} pixlar bred, eller gör designen mindre — filen är skarp upp till {width} mm bred.",
+    badFormat: "{format}-filer accepteras inte för den här produkten.",
+    badFormatFix: "Spara designen som {formats} och välj den igen.",
+    unreadableFormat: "{format}-filer går inte att mäta eller förhandsvisa här.",
+    unreadableFormatFix: "Spara designen som {formats} och välj den igen.",
     fileTooLarge: "Filen är {size} MB. Gränsen är {limit} MB.",
-    tooManyPixels:
-      "Bilden är för stor. Minska den till under {megapixels} megapixlar och försök igen.",
+    fileTooLargeFix: "Spara den i mindre storlek eller lägre kvalitet och välj den igen.",
+    tooManyPixels: "Bilden är för stor. Gränsen är {megapixels} megapixlar.",
+    tooManyPixelsFix: "Ändra storlek i ditt bildprogram och välj den igen.",
     noTransparency:
-      "Den här produkten kräver en design med transparent bakgrund. Exportera den som PNG med transparens.",
-    generic: "Designen går inte att trycka på den här produkten. Prova en annan fil.",
+      "Den här produkten trycks direkt på tyget, så designen behöver en transparent bakgrund.",
+    noTransparencyFix: "Ta bort bakgrunden och spara den som PNG med transparens.",
+    outsideArea: "En del av designen hamnar utanför tryckytan och skulle skäras bort.",
+    outsideAreaFix:
+      "Dra tillbaka den innanför den streckade ramen, eller gör den mindre så att den ryms på {width} × {height} mm.",
+    dpiTight: "Bilden trycks i {dpi} DPI, precis över minimigränsen på {required} DPI.",
+    dpiTightFix:
+      "Tunna linjer kan se mjuka ut. En större fil, eller en något mindre design, trycks skarpare.",
+    verySmall: "Designen täcker mindre än 15 % av tryckbredden.",
+    verySmallFix: "Dra upp storleken om den ska vara huvudmotivet.",
+    generic: "Designen går inte att trycka på den här produkten.",
+    genericFix: "Prova en annan fil.",
   },
 
   payment: {

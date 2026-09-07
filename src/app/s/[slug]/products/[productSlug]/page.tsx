@@ -68,22 +68,11 @@ export default async function StorefrontProductPage({
       })),
     mockups: product.mockups.map((m) => ({ id: m.id, url: m.url, view: m.view })),
     shopperCustomization: product.shopperCustomization,
-    printArea: area
-      ? {
-          name: area.name,
-          widthMm: area.widthMm,
-          heightMm: area.heightMm,
-          minDpi: area.minDpi,
-          rect: area.rect,
-        }
-      : null,
-    fileRules: catalog
-      ? {
-          formats: catalog.fileRequirements.formats,
-          maxFileMb: catalog.fileRequirements.maxFileMb,
-          minDpi: catalog.fileRequirements.minDpi,
-        }
-      : null,
+    printArea: area,
+    // The whole requirements record, not a summary: the storefront runs the
+    // same pre-flight the workspace configurator does.
+    fileRules: catalog?.fileRequirements ?? null,
+    artworkCopy: t.artwork,
   };
 
   return (

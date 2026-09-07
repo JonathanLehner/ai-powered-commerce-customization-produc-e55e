@@ -106,6 +106,20 @@ export const pt: StorefrontCopy = {
     uploading: "A carregar o seu design…",
     uploadFailed: "Não foi possível carregar esse ficheiro.",
     fileTooLarge: "Esse ficheiro tem {size} MB. O limite é de {limit} MB.",
+    artworkPlacementTitle: "Posicione o seu design",
+    artworkPlacementHelp:
+      "Arraste o design sobre a pré-visualização ou use os controlos abaixo. A pré-visualização e a resolução de impressão acompanham cada alteração.",
+    artworkGrabLabel:
+      "Posição de {file}. Arraste para mover ou use as setas; + e − alteram o tamanho.",
+    artworkSize: "Tamanho",
+    artworkRotation: "Rotação",
+    artworkResolution: "Resolução de impressão",
+    artworkRecentre: "Voltar a centrar",
+    artworkRemove: "Remover o design",
+    artworkChecksPass: "Este design está pronto a imprimir neste tamanho.",
+    artworkChecksFail: "Resolva isto antes de adicionar ao cesto",
+    artworkWhatToDo: "O que fazer: {fix}",
+    artworkBlocked: "Corrija o design acima, ou remova-o, para adicionar este artigo ao cesto.",
   },
 
   basket: {
@@ -262,15 +276,30 @@ export const pt: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi:
-      "Esse design é impresso com resolução demasiado baixa. Carregue um ficheiro com pelo menos {dpi} DPI.",
-    badFormat: "Os ficheiros {format} não são aceites neste produto. Carregue {formats}.",
+    lowDpi: "Esta imagem vai ser impressa a {dpi} DPI, abaixo dos {required} DPI que este produto exige.",
+    lowDpiFix:
+      "Carregue uma com pelo menos {pixels} píxeis de largura, ou reduza o design — este ficheiro fica nítido até {width} mm de largura.",
+    badFormat: "Os ficheiros {format} não são aceites neste produto.",
+    badFormatFix: "Guarde o design como {formats} e escolha-o novamente.",
+    unreadableFormat: "Os ficheiros {format} não podem ser medidos nem pré-visualizados aqui.",
+    unreadableFormatFix: "Guarde o design como {formats} e escolha-o novamente.",
     fileTooLarge: "Esse ficheiro tem {size} MB. O limite é de {limit} MB.",
-    tooManyPixels:
-      "Essa imagem é demasiado grande. Reduza-a para menos de {megapixels} megapíxeis e tente novamente.",
+    fileTooLargeFix: "Guarde-o com menos tamanho ou qualidade e escolha-o novamente.",
+    tooManyPixels: "Essa imagem é demasiado grande. O limite é de {megapixels} megapíxeis.",
+    tooManyPixelsFix: "Redimensione-a no seu editor de fotografias e escolha-a novamente.",
     noTransparency:
-      "Este produto precisa de um design com fundo transparente. Exporte-o como PNG com transparência.",
-    generic: "Esse design não pode ser impresso neste produto. Experimente outro ficheiro.",
+      "Este produto é impresso diretamente no tecido, por isso o design precisa de fundo transparente.",
+    noTransparencyFix: "Remova o fundo e guarde-o como PNG com transparência.",
+    outsideArea: "Parte do design fica fora da área de impressão e seria cortada.",
+    outsideAreaFix:
+      "Arraste-o para dentro do contorno tracejado, ou reduza-o para caber em {width} × {height} mm.",
+    dpiTight: "Esta imagem vai ser impressa a {dpi} DPI, apenas acima do mínimo de {required} DPI.",
+    dpiTightFix:
+      "As linhas finas podem ficar suaves. Um ficheiro maior, ou um design um pouco menor, imprime com mais nitidez.",
+    verySmall: "O design ocupa menos de 15% da largura imprimível.",
+    verySmallFix: "Aumente o tamanho se este for o grafismo principal.",
+    generic: "Esse design não pode ser impresso neste produto.",
+    genericFix: "Experimente outro ficheiro.",
   },
 
   payment: {

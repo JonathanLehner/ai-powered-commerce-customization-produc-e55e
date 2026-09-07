@@ -3,7 +3,11 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { blockingIssues, formatOf, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
+import {
+  issueSentence,
+  shopperArtworkIssues,
+  shopperBlockingIssues,
+} from "@/lib/artwork-shopper";
 import {
   COLLECTIONS,
   getCart,
@@ -15,7 +19,7 @@ import {
   getStoreProduct,
   recordAudit,
 } from "@/lib/data";
-import { copyFor, fmt, type StorefrontCopy } from "@/lib/i18n";
+import { copyFor, fmt } from "@/lib/i18n";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
 import { basketTotals } from "@/lib/basket";
@@ -24,42 +28,37 @@ import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/platform";
 import { SHOPPER_COOKIE } from "@/lib/session";
 import { chargeCard } from "@/lib/stripe";
-import type { Artwork, Cart, CartItem, FileRequirements, Order, PrintArea } from "@/lib/types";
+import {
+  DEFAULT_PLACEMENT,
+  type Artwork,
+  type ArtworkPlacement,
+  type Cart,
+  type CartItem,
+  type Order,
+} from "@/lib/types";
 import { formatMoney, newId, orderCode } from "@/lib/util";
 import type { ActionState } from "./stores";
 
 /**
- * Supplier pre-flight speaks to the person placing the artwork — a store manager
- * working in the workspace, in English. A shopper gets the same refusal in their
- * storefront's language, keyed off the issue code so the wording stays ours.
+ * Placement the shopper set on the product page. Clamped to the same range the
+ * configurator allows, because the values arrive on a form and nothing stops a
+ * browser sending a scale of 900.
  */
-function artworkMessage(
-  issue: ArtworkIssue,
-  t: StorefrontCopy["artwork"],
-  context: { area: PrintArea; rules: FileRequirements; mimeType: string; sizeBytes: number },
-): string {
-  switch (issue.code) {
-    case "low_dpi":
-      return fmt(t.lowDpi, { dpi: Math.max(context.area.minDpi, context.rules.minDpi) });
-    case "bad_format":
-      return fmt(t.badFormat, {
-        format: formatOf(context.mimeType),
-        formats: context.rules.formats.join(", "),
-      });
-    case "file_too_large":
-      return fmt(t.fileTooLarge, {
-        size: (context.sizeBytes / (1024 * 1024)).toFixed(1),
-        limit: context.rules.maxFileMb,
-      });
-    case "too_many_pixels":
-      return fmt(t.tooManyPixels, {
-        megapixels: (context.rules.maxPixels / 1_000_000).toFixed(0),
-      });
-    case "no_transparency":
-      return t.noTransparency;
-    default:
-      return t.generic;
-  }
+function readPlacement(formData: FormData): ArtworkPlacement {
+  const read = (key: string, fallback: number, min: number, max: number) => {
+    const raw = formData.get(key);
+    // A missing field is a submission from before placement existed, not a
+    // zero: those keep the centred default rather than jumping to a corner.
+    if (typeof raw !== "string" || raw.trim() === "") return fallback;
+    const value = Number(raw);
+    return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
+  };
+  return {
+    x: read("artworkX", DEFAULT_PLACEMENT.x, -0.5, 1.5),
+    y: read("artworkY", DEFAULT_PLACEMENT.y, -0.5, 1.5),
+    scale: read("artworkScale", DEFAULT_PLACEMENT.scale, 0.05, 2),
+    rotation: read("artworkRotation", DEFAULT_PLACEMENT.rotation, -180, 180),
+  };
 }
 
 const CURRENCY_COOKIE = "cc_currency";
@@ -178,6 +177,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   let artworkUrl: string | null = null;
   let artworkFileName: string | null = null;
   let shopperArtwork: Artwork | null = null;
+  let placement: ArtworkPlacement | null = null;
 
   if (stored) {
     if (!product.shopperCustomization.artworkUpload) {
@@ -196,6 +196,10 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     }
 
     const area = catalog.printAreas[0];
+    // The product page ran these very checks as the file was chosen and would
+    // not have let the shopper submit; running them again on the placement that
+    // actually arrived is what stops a hand-built request reaching production.
+    placement = readPlacement(formData);
     shopperArtwork = {
       id: newId("art"),
       printAreaId: area.id,
@@ -207,23 +211,13 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
       pixelWidth: stored.pixelWidth,
       pixelHeight: stored.pixelHeight,
       hasAlpha: stored.hasAlpha,
-      x: 0.5,
-      y: 0.5,
-      scale: 0.6,
-      rotation: 0,
+      ...placement,
     };
-    const issues = blockingIssues(validateArtwork(shopperArtwork, area, catalog.fileRequirements));
+    const issues = shopperBlockingIssues(
+      shopperArtworkIssues(shopperArtwork, area, catalog.fileRequirements, t.artwork),
+    );
     if (issues.length > 0) {
-      return {
-        status: "error",
-        message: artworkMessage(issues[0], t.artwork, {
-          area,
-          rules: catalog.fileRequirements,
-          mimeType: stored.mimeType,
-          sizeBytes: stored.sizeBytes,
-        }),
-        field: "artwork",
-      };
+      return { status: "error", message: issueSentence(issues[0]), field: "artwork" };
     }
     artworkUrl = stored.url;
     artworkFileName = stored.fileName;
@@ -251,6 +245,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     unitPrice: variant.price,
     artworkUrl,
     artworkFileName,
+    artworkPlacement: placement,
     text: text || null,
     previewUrl,
   };
@@ -404,6 +399,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       customization: {
         artworkUrl: item.artworkUrl,
         artworkFileName: item.artworkFileName,
+        artworkPlacement: item.artworkPlacement ?? null,
         text: item.text,
         previewUrl: item.previewUrl,
       },

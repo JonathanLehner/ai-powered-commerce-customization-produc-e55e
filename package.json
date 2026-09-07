@@ -21,7 +21,8 @@
     "audit-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/audit-check.mjs",
     "enquiry-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/enquiry-check.mjs",
     "fallback-check": "node --experimental-strip-types scripts/fallback-check.mjs",
-    "catalog-rows-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/catalog-rows-check.mjs"
+    "catalog-rows-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/catalog-rows-check.mjs",
+    "artwork-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/artwork-check.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

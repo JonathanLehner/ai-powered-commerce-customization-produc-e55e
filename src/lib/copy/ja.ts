@@ -106,6 +106,20 @@ export const ja: StorefrontCopy = {
     uploading: "デザインをアップロードしています…",
     uploadFailed: "このファイルはアップロードできませんでした。",
     fileTooLarge: "このファイルは {size} MB です。上限は {limit} MB です。",
+    artworkPlacementTitle: "デザインの配置",
+    artworkPlacementHelp:
+      "プレビュー上でデザインをドラッグするか、下のコントロールで調整してください。プレビューとプリント解像度はその都度更新されます。",
+    artworkGrabLabel:
+      "{file} の配置です。ドラッグまたは矢印キーで移動、+ と − で拡大縮小できます。",
+    artworkSize: "サイズ",
+    artworkRotation: "回転",
+    artworkResolution: "プリント解像度",
+    artworkRecentre: "中央に戻す",
+    artworkRemove: "デザインを削除",
+    artworkChecksPass: "このサイズでプリントできるデザインです。",
+    artworkChecksFail: "カートに入れる前にご対応ください",
+    artworkWhatToDo: "対処方法: {fix}",
+    artworkBlocked: "上のデザインを修正するか削除すると、カートに追加できます。",
   },
 
   basket: {
@@ -260,14 +274,30 @@ export const ja: StorefrontCopy = {
   },
 
   artwork: {
-    lowDpi: "このデザインはプリント解像度が不足しています。{dpi} DPI 以上のファイルをアップロードしてください。",
-    badFormat: "{format} ファイルはこの商品では使用できません。{formats} をアップロードしてください。",
+    lowDpi: "この画像は {dpi} DPI でプリントされ、この商品に必要な {required} DPI を下回ります。",
+    lowDpiFix:
+      "幅 {pixels} ピクセル以上のファイルをアップロードするか、デザインを小さくしてください。このファイルは幅 {width} mm まで鮮明です。",
+    badFormat: "{format} ファイルはこの商品では使用できません。",
+    badFormatFix: "{formats} で保存して、もう一度選択してください。",
+    unreadableFormat: "{format} ファイルはここでは計測もプレビューもできません。",
+    unreadableFormatFix: "{formats} で保存して、もう一度選択してください。",
     fileTooLarge: "このファイルは {size} MB です。上限は {limit} MB です。",
-    tooManyPixels:
-      "この画像は大きすぎます。{megapixels} メガピクセル未満に縮小して、もう一度お試しください。",
+    fileTooLargeFix: "サイズや画質を下げて保存し、もう一度選択してください。",
+    tooManyPixels: "この画像は大きすぎます。上限は {megapixels} メガピクセルです。",
+    tooManyPixelsFix: "画像編集アプリで縮小して、もう一度選択してください。",
     noTransparency:
-      "この商品には背景が透明なデザインが必要です。透過 PNG として書き出してください。",
-    generic: "このデザインはこの商品にプリントできません。別のファイルをお試しください。",
+      "この商品は生地に直接プリントするため、デザインには透明な背景が必要です。",
+    noTransparencyFix: "背景を削除し、透過 PNG として保存してください。",
+    outsideArea: "デザインの一部がプリント範囲からはみ出しており、切れてしまいます。",
+    outsideAreaFix:
+      "破線の枠内へ戻すか、{width} × {height} mm に収まるよう小さくしてください。",
+    dpiTight: "この画像は {dpi} DPI でプリントされ、最低の {required} DPI をわずかに上回るだけです。",
+    dpiTightFix:
+      "細い線がぼやけることがあります。より大きなファイル、または少し小さめのデザインのほうが鮮明です。",
+    verySmall: "デザインがプリント幅の 15% 未満しか占めていません。",
+    verySmallFix: "メインのグラフィックにする場合は、サイズを大きくしてください。",
+    generic: "このデザインはこの商品にプリントできません。",
+    genericFix: "別のファイルをお試しください。",
   },
 
   payment: {
