@@ -1,38 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FallbackPanel } from "@/components/ui";
+import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { storeBasePath } from "@/lib/util";
 
 /**
- * A product, order or campaign that no longer exists inside a store. The store
- * layout above keeps the app header and the store's own navigation, so this is
- * only the body — plus the way back into the store the visitor was already in.
+ * The store workspace's not-found boundary. The routes render the same body
+ * themselves so it is in the server's HTML; this remains as the backstop, and
+ * reads the store it is standing in from the path because a boundary is handed
+ * no params.
  */
 export default function StoreWorkspaceNotFound() {
-  const base = storeBasePath(usePathname());
-
-  return (
-    <FallbackPanel
-      eyebrow="404"
-      title="We cannot find that page"
-      description={
-        <p>
-          The record may have been deleted, or the address may be mistyped. The store overview lists
-          everything that is still there.
-        </p>
-      }
-      actions={
-        <>
-          <Link href={base} className="btn-primary">
-            Back to the store
-          </Link>
-          <Link href="/app" className="btn-secondary">
-            Go to the dashboard
-          </Link>
-        </>
-      }
-    />
-  );
+  return <StoreWorkspaceNotFoundView base={storeBasePath(usePathname())} />;
 }

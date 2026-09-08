@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from "@/app/actions/shop";
+import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { EmptyState } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
 import { getCart, getStoreBySlug } from "@/lib/data";
@@ -14,14 +14,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) return { title: "Basket" };
+  if (!store) return { title: "Basket", ...notFoundRobots };
   return { title: storefrontLocale(store).t.basket.title };
 }
 
 export default async function CartPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) notFound();
+  // A slug that belongs to no store renders the "not this address" page in
+  // Parcelith's own chrome, server-side, rather than raising notFound().
+  if (!store) return <UnknownStoreView slug={slug} />;
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { t, money } = storefrontLocale(store);

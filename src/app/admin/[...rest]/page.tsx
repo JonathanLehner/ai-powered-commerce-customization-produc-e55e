@@ -1,6 +1,8 @@
-import { notFound } from "next/navigation";
+import { AdminNotFoundView, notFoundRobots } from "@/components/NotFoundViews";
 
-/** Any platform administration address that matches no page is a 404 inside the admin chrome. */
-export default function AdminCatchAll(): never {
-  notFound();
+/** A platform administration address that does not exist. The admin layout keeps its header and nav. */
+export const metadata = notFoundRobots;
+
+export default function AdminCatchAll() {
+  return <AdminNotFoundView />;
 }

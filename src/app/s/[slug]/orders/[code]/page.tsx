@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { StorefrontNotFoundView, UnknownStoreView } from "@/components/NotFoundViews";
 import { Badge, Callout, DataList } from "@/components/ui";
 import { localCountryName } from "@/lib/countries";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
@@ -53,7 +53,9 @@ export default async function OrderStatusPage({
   const { slug, code } = await params;
   const { new: isNew, t: token } = await searchParams;
   const store = await getStoreBySlug(slug);
-  if (!store) notFound();
+  // A slug that belongs to no store renders the "not this address" page in
+  // Parcelith's own chrome, server-side, rather than raising notFound().
+  if (!store) return <UnknownStoreView slug={slug} />;
   const { t, tag: localeTag, money, dateTime } = storefrontLocale(store);
 
   // Nothing about the order — not even whether it exists — is readable without
@@ -69,7 +71,8 @@ export default async function OrderStatusPage({
   }
 
   const order = await getOrderByCode(store.id, code);
-  if (!order) notFound();
+  // The token verified but the order is gone: the store's own not-found page.
+  if (!order) return <StorefrontNotFoundView store={store} />;
 
   const status = SHOPPER_STATUS[order.status];
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);

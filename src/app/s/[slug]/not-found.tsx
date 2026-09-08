@@ -3,9 +3,13 @@
 import { StorefrontNotFound } from "@/components/StorefrontFallback";
 
 /**
- * Every `notFound()` raised inside a storefront — a product that has been taken
- * off sale, an order code that no longer exists, a mistyped path — lands here,
- * inside the store's own header and footer.
+ * The storefront's not-found boundary.
+ *
+ * Storefront routes render their own not-found body instead of raising
+ * `notFound()`, because a boundary is a React error boundary and error
+ * boundaries do not recover during server rendering: the response would be a
+ * document with an empty `<body>`. This stays as the backstop for anything that
+ * still raises one, and reads the store from the layout's context.
  */
 export default function StorefrontNotFoundPage() {
   return <StorefrontNotFound />;

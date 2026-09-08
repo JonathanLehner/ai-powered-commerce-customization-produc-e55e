@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { UnknownGiftPortalView } from "@/components/NotFoundViews";
 import { Badge, Callout, EmptyState } from "@/components/ui";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess } from "@/lib/gift-access";
@@ -31,9 +31,11 @@ const STEPS = [
 export default async function GiftCataloguePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const catalogue = await getGiftCatalogueBySlug(slug);
-  if (!catalogue) notFound();
+  // A slug that is no catalogue renders the portal's "not this address" page in
+  // Parcelith chrome, server-side, rather than raising notFound().
+  if (!catalogue) return <UnknownGiftPortalView slug={slug} />;
   const store = await getStore(catalogue.storeId);
-  if (!store) notFound();
+  if (!store) return <UnknownGiftPortalView slug={slug} />;
 
   const access = await readGiftAccess(catalogue);
 

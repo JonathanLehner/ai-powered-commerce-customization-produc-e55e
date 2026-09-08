@@ -1,12 +1,12 @@
-import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
-import { FallbackPanel } from "@/components/ui";
+import { WorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { accessibleStores, requireUser } from "@/lib/session";
 
 /**
- * A workspace address that does not exist. The header is rendered here because
- * the workspace root layout leaves it to each route, so a 404 still carries the
- * store switcher and the account menu.
+ * The workspace's not-found boundary. Routes render their own not-found body
+ * instead of raising `notFound()` — a boundary only ever renders in the
+ * browser, never in the server's HTML — so this is the backstop for anything
+ * that still raises one, and shows the same page the catch-all route does.
  */
 export default async function WorkspaceNotFound() {
   const user = await requireUser();
@@ -15,26 +15,7 @@ export default async function WorkspaceNotFound() {
   return (
     <>
       <AppHeader user={user} stores={stores} />
-      <FallbackPanel
-        eyebrow="404"
-        title="We cannot find that page"
-        description={
-          <p>
-            The address may be mistyped, or the store, product or order it pointed at may have been
-            removed. Everything you have access to is on the dashboard.
-          </p>
-        }
-        actions={
-          <>
-            <Link href="/app" className="btn-primary">
-              Go to the dashboard
-            </Link>
-            <Link href="/app/stores/new" className="btn-secondary">
-              Create a client store
-            </Link>
-          </>
-        }
-      />
+      <WorkspaceNotFoundView />
     </>
   );
 }

@@ -44,8 +44,8 @@ for (const surface of SURFACES) {
   assert.ok(exists(catchAll), `${surface} has no catch-all page`);
   assert.match(
     readFileSync(join(APP, catchAll), "utf8"),
-    /notFound\(\)/,
-    `${catchAll} must raise notFound() so the surface's own boundary renders it`,
+    /from "@\/components\/NotFoundViews"/,
+    `${catchAll} must render a NotFoundViews body so the page is server-rendered`,
   );
 }
 
@@ -55,31 +55,43 @@ assert.ok(exists("not-found.tsx"), "there is no site-wide not-found page");
 assert.ok(exists("global-error.tsx"), "there is no global-error page");
 assert.ok(exists("(marketing)/error.tsx"), "the public site has no error page");
 
-/* --------------------------------------- a layout must not raise notFound() */
+/* ------------------------------------------ nothing may raise notFound() */
 
-// `notFound()` from a layout escapes that layout's own boundary, so the
-// storefront's header and footer would be gone from the very page meant to
-// carry them. Layouts render a fallback shell around `children` instead, and
-// the pages below raise the 404.
-const layouts = [];
+// `notFound()` is delivered to React as a thrown error and caught by the
+// not-found *error boundary*. An error boundary does not recover during server
+// rendering: React abandons the surrounding Suspense boundary and hands it to
+// the client, so the response is a document with an empty `<body>` — no store
+// header, no footer, nothing until the JavaScript loads and nothing at all if
+// it fails. A layout raising it is worse still, because its own chrome goes
+// with it.
+//
+// Every route therefore returns a not-found body from `@/components/
+// NotFoundViews` instead, which puts the whole page in the HTML. This walks the
+// whole app rather than the layouts alone, because the empty document comes
+// back the moment any one route reaches for `notFound()` again.
+const routeFiles = [];
 (function walk(dir) {
   for (const entry of readdirSync(join(APP, dir), { withFileTypes: true })) {
     const path = dir ? `${dir}/${entry.name}` : entry.name;
     if (entry.isDirectory()) walk(path);
-    else if (entry.name === "layout.tsx") layouts.push(path);
+    else if (/\.tsx?$/.test(entry.name)) routeFiles.push(path);
   }
 })("");
 
-assert.ok(layouts.length >= 6, "the layout scan found almost nothing — has src/app moved?");
-/** Drops comments, so a layout explaining the rule is not read as breaking it. */
+assert.ok(routeFiles.length >= 40, "the route scan found almost nothing — has src/app moved?");
+assert.ok(
+  routeFiles.filter((path) => path.endsWith("layout.tsx")).length >= 6,
+  "the route scan found almost no layouts — has src/app moved?",
+);
+/** Drops comments, so a file explaining the rule is not read as breaking it. */
 const code = (source) => source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
-for (const layout of layouts) {
-  const source = code(readFileSync(join(APP, layout), "utf8"));
+for (const path of routeFiles) {
+  const source = code(readFileSync(join(APP, path), "utf8"));
   assert.doesNotMatch(
     source,
     /\bnotFound\(\)/,
-    `${layout} raises notFound(); a layout's own 404 escapes its boundary and loses the chrome`,
+    `${path} raises notFound(); its not-found page would then reach the browser as an empty document`,
   );
 }
 

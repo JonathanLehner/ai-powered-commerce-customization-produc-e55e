@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import {
   approveMockups,
   deleteProduct,
@@ -43,7 +43,10 @@ export default async function ProductEditorPage({
     getStoreProduct(productId),
   ]);
   const canEdit = roleCan(role, "store.catalog");
-  if (!stored || stored.storeId !== storeId) notFound();
+  // A record that is gone (or belongs to another store) shows the store's own
+  // not-found page, rendered here so it arrives as HTML with the store nav.
+  if (!stored || stored.storeId !== storeId)
+    return <StoreWorkspaceNotFoundView base={`/app/stores/${storeId}`} />;
 
   // Artwork and mockup writes demote a published product themselves, but a
   // record saved before that guard existed can still be sitting on the

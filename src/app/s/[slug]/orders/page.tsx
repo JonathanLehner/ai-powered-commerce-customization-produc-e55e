@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { UnknownStoreView } from "@/components/NotFoundViews";
 import { getStoreBySlug } from "@/lib/data";
 import { storefrontLocale } from "@/lib/i18n";
 import { OrderLookupForm } from "./OrderLookupForm";
@@ -20,7 +20,9 @@ export async function generateMetadata({
 export default async function OrderLookupPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) notFound();
+  // A slug that belongs to no store renders the "not this address" page in
+  // Parcelith's own chrome, server-side, rather than raising notFound().
+  if (!store) return <UnknownStoreView slug={slug} />;
   const { t } = storefrontLocale(store);
 
   return (

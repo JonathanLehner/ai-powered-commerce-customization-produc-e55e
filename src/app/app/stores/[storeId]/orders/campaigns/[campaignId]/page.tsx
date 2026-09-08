@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs, Callout, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { getGiftCampaign, getGiftCatalogue, listOrdersForCampaign } from "@/lib/data";
 import { countryName } from "@/lib/countries";
@@ -39,7 +39,8 @@ export default async function CampaignFulfilmentPage({
   await requireStoreAccess(storeId);
 
   const campaign = await getGiftCampaign(campaignId);
-  if (!campaign || campaign.storeId !== storeId) notFound();
+  if (!campaign || campaign.storeId !== storeId)
+    return <StoreWorkspaceNotFoundView base={`/app/stores/${storeId}`} />;
 
   const [catalogue, orders] = await Promise.all([
     getGiftCatalogue(campaign.catalogueId),

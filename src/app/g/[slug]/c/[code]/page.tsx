@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { GiftPortalNotFoundView, UnknownGiftPortalView } from "@/components/NotFoundViews";
 import { Badge, Callout } from "@/components/ui";
 import { countryName } from "@/lib/countries";
 import { getGiftCampaignByCode, getGiftCatalogueBySlug, getStore } from "@/lib/data";
@@ -34,12 +34,15 @@ export default async function CampaignPage({
   const { t, a } = await searchParams;
 
   const catalogue = await getGiftCatalogueBySlug(slug);
-  if (!catalogue) notFound();
+  if (!catalogue) return <UnknownGiftPortalView slug={slug} />;
   const [store, campaign] = await Promise.all([
     getStore(catalogue.storeId),
     getGiftCampaignByCode(decodeURIComponent(code).toUpperCase()),
   ]);
-  if (!store || !campaign || campaign.catalogueId !== catalogue.id) notFound();
+  // The catalogue is real but this campaign code is not: stay inside the
+  // portal's own chrome and point back at the catalogue.
+  if (!store || !campaign || campaign.catalogueId !== catalogue.id)
+    return <GiftPortalNotFoundView catalogue={catalogue} />;
 
   const [isBuyer, isApprover] = await Promise.all([
     verifyCampaignToken(campaign.id, "buyer", t),

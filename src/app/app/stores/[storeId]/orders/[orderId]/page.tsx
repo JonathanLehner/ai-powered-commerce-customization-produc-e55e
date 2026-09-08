@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/orders";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { countryName } from "@/lib/countries";
@@ -28,7 +28,8 @@ export default async function OrderDetailPage({
   const canManage = roleCan(role, "store.orders");
 
   const order = await getOrder(orderId);
-  if (!order || order.storeId !== storeId) notFound();
+  if (!order || order.storeId !== storeId)
+    return <StoreWorkspaceNotFoundView base={`/app/stores/${storeId}`} />;
   // Where else this job could go — only needed by the panel an order manager sees.
   const [supplier, routingOptions] = await Promise.all([
     order.fulfillment.supplierId ? getSupplier(order.fulfillment.supplierId) : null,

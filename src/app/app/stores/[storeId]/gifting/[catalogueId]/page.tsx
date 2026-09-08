@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { regenerateGiftLink, setGiftCatalogueStatus } from "@/app/actions/gifting";
 import { ConfirmSubmit, SubmitButton } from "@/components/forms";
 import { Badge, Breadcrumbs, Callout, EmptyState, PageHeader } from "@/components/ui";
@@ -32,7 +32,8 @@ export default async function GiftCataloguePage({
   await requireStoreAccess(storeId, "store.gifting");
 
   const catalogue = await getGiftCatalogue(catalogueId);
-  if (!catalogue || catalogue.storeId !== storeId) notFound();
+  if (!catalogue || catalogue.storeId !== storeId)
+    return <StoreWorkspaceNotFoundView base={`/app/stores/${storeId}`} />;
 
   const [published, campaigns, headerList] = await Promise.all([
     listPublishedProducts(storeId),

@@ -47,8 +47,8 @@ export default async function GiftPortalLayout({
   const store = catalogue ? await getStore(catalogue.storeId) : null;
 
   // A portal link that no longer resolves still gets a page with a way out.
-  // `children` keeps rendering: the pages below call `notFound()`, which is what
-  // makes this a 404 and shows `not-found.tsx` in the main area.
+  // `children` keeps rendering: the pages below return the "not this address"
+  // body themselves, so it is server-rendered into this chrome.
   if (!catalogue || !store) {
     return <PlainDocument note="Corporate gifting powered by Parcelith.">{children}</PlainDocument>;
   }

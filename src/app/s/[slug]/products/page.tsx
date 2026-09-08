@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { readCurrency } from "@/app/actions/shop";
+import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { Badge, EmptyState } from "@/components/ui";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
@@ -15,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) return { title: "Shop" };
+  if (!store) return { title: "Shop", ...notFoundRobots };
   const { t } = storefrontLocale(store);
   // The store name is the title suffix the layout adds, so the tab reads
   // "Shop · Northwind Supply Co" rather than naming the store twice.
@@ -35,7 +35,9 @@ export default async function StorefrontProductsPage({
   const { slug } = await params;
   const { q, tag } = await searchParams;
   const store = await getStoreBySlug(slug);
-  if (!store) notFound();
+  // A slug that belongs to no store renders the "not this address" page in
+  // Parcelith's own chrome, server-side, rather than raising notFound().
+  if (!store) return <UnknownStoreView slug={slug} />;
 
   const products = await listPublishedProducts(store.id);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);

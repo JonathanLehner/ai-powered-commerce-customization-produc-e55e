@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
+import { UnknownGiftPortalView } from "@/components/NotFoundViews";
 import { Callout } from "@/components/ui";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess, GIFT_LINK_HOLDER } from "@/lib/gift-access";
@@ -17,9 +18,11 @@ export const metadata: Metadata = {
 export default async function BulkOrderPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const catalogue = await getGiftCatalogueBySlug(slug);
-  if (!catalogue) notFound();
+  // A slug that is no catalogue renders the portal's "not this address" page in
+  // Parcelith chrome, server-side, rather than raising notFound().
+  if (!catalogue) return <UnknownGiftPortalView slug={slug} />;
   const store = await getStore(catalogue.storeId);
-  if (!store) notFound();
+  if (!store) return <UnknownGiftPortalView slug={slug} />;
 
   const access = await readGiftAccess(catalogue);
   if (!access || catalogue.status !== "active" || store.status !== "active") redirect(`/g/${slug}`);

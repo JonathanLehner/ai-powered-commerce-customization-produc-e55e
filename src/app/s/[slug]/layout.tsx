@@ -48,9 +48,9 @@ export default async function StorefrontLayout({
 
   // An address that belongs to no store still has to render as a page rather
   // than a blank document. The layout carries Parcelith's own chrome instead of
-  // a shop's, and keeps rendering `children`: every page below calls
-  // `notFound()` when the store is missing, which is what makes the response a
-  // 404 and puts `not-found.tsx` in the main area.
+  // a shop's, and keeps rendering `children`: every page below returns the
+  // "not this address" body when the store is missing, so the whole page is in
+  // the server's HTML.
   if (!store) {
     return (
       <PlainDocument note="Parcelith hosts branded shops for agencies and their clients. Each shop has its own web address.">

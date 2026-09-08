@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { AdminNotFoundView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { getCatalogProduct, listSuppliers } from "@/lib/data";
 import { VIEW_LABELS } from "@/lib/types";
@@ -14,7 +14,7 @@ export default async function AdminCatalogItemPage({
 }) {
   const [{ itemId }, { created }] = await Promise.all([params, searchParams]);
   const item = await getCatalogProduct(itemId);
-  if (!item) notFound();
+  if (!item) return <AdminNotFoundView />;
   const suppliers = await listSuppliers();
   const supplier = suppliers.find((s) => s.id === item.supplierId) ?? null;
 

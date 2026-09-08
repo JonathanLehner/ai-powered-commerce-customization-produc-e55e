@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
 
-/** A gift portal link that has expired, or a mistyped path inside one. */
+/**
+ * The gift portal's not-found boundary. Portal routes render their own
+ * not-found body so it reaches the browser as HTML; a boundary is handed no
+ * params, so this backstop cannot name the catalogue and stays generic.
+ */
 export default function GiftPortalNotFound() {
   return (
     <FallbackPanel

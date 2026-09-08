@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { readCurrency } from "@/app/actions/shop";
+import { notFoundRobots, StorefrontNotFoundView, UnknownStoreView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs } from "@/components/ui";
 import { isLive } from "@/lib/artwork";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug, getSupplier } from "@/lib/data";
@@ -16,9 +16,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug, productSlug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) return { title: "Not found" };
+  if (!store) return { title: "Not found", ...notFoundRobots };
   const product = await getStoreProductBySlug(store.id, productSlug);
-  if (!product) return { title: "Not found" };
+  if (!product) return { title: "Not found", ...notFoundRobots };
   return {
     title: product.name,
     description: product.description.split("\n")[0].slice(0, 155),
@@ -32,10 +32,14 @@ export default async function StorefrontProductPage({
 }) {
   const { slug, productSlug } = await params;
   const store = await getStoreBySlug(slug);
-  if (!store) notFound();
+  // A slug that belongs to no store renders the "not this address" page in
+  // Parcelith's own chrome, server-side, rather than raising notFound().
+  if (!store) return <UnknownStoreView slug={slug} />;
 
   const product = await getStoreProductBySlug(store.id, productSlug);
-  if (!product || !isLive(product)) notFound();
+  // Taken off sale, or never existed: the store's own not-found page, in the
+  // store's language and inside its header and footer.
+  if (!product || !isLive(product)) return <StorefrontNotFoundView store={store} />;
 
   const [catalog, supplier] = await Promise.all([
     getCatalogProduct(product.catalogProductId),
