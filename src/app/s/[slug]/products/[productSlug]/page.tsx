@@ -20,7 +20,7 @@ export async function generateMetadata({
   const product = await getStoreProductBySlug(store.id, productSlug);
   if (!product) return { title: "Not found" };
   return {
-    title: `${product.name} — ${store.name}`,
+    title: product.name,
     description: product.description.split("\n")[0].slice(0, 155),
   };
 }

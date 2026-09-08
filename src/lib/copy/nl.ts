@@ -28,7 +28,9 @@ export const nl: StorefrontCopy = {
     homeTitle: "{store} — merch op bestelling",
     homeDescription:
       "Shop bij {store}, de officiële winkel van {client}. Op bestelling gedrukt en wereldwijd verzonden.",
-    shopTitle: "Shop — {store}",
+    taglineDescription:
+      "{tagline} Shop bij {store}, de officiële winkel van {client}.",
+    shopTitle: "Shop",
     shopDescription: "Alle producten die {store} aanbiedt.",
   },
 

@@ -28,7 +28,9 @@ export const it: StorefrontCopy = {
     homeTitle: "{store} — articoli prodotti su ordinazione",
     homeDescription:
       "Acquista da {store}, il negozio ufficiale di {client}. Stampato su richiesta e spedito in tutto il mondo.",
-    shopTitle: "Negozio — {store}",
+    taglineDescription:
+      "{tagline} Acquista da {store}, il negozio ufficiale di {client}.",
+    shopTitle: "Negozio",
     shopDescription: "Tutti i prodotti disponibili da {store}.",
   },
 

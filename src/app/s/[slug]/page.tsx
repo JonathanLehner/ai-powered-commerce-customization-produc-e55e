@@ -16,11 +16,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Store not found" };
-  const { t } = storefrontLocale(store);
-  return {
-    title: fmt(t.meta.homeTitle, { store: store.name }),
-    description: fmt(t.meta.homeDescription, { store: store.name, client: store.clientName }),
-  };
+  // The storefront layout titles and describes the store itself; the home page
+  // is that store, so it adds nothing of its own rather than saying the name
+  // twice in one tab.
+  return {};
 }
 
 export default async function StorefrontHome({ params }: { params: Promise<{ slug: string }> }) {

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,20 +8,6 @@ import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
 import { convert } from "@/lib/pricing";
 import { formatMoney } from "@/lib/util";
 import { GateForm } from "./GateForm";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const catalogue = await getGiftCatalogueBySlug(slug);
-  return {
-    title: catalogue ? `${catalogue.name} — gift catalogue` : "Gift catalogue",
-    // A private catalogue has no business in a search index.
-    robots: { index: false, follow: false },
-  };
-}
 
 const STEPS = [
   {

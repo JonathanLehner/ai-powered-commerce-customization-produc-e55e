@@ -28,7 +28,9 @@ export const sv: StorefrontCopy = {
     homeTitle: "{store} — merch tillverkad på beställning",
     homeDescription:
       "Handla hos {store}, den officiella butiken för {client}. Tryckt på beställning och skickad över hela världen.",
-    shopTitle: "Butik — {store}",
+    taglineDescription:
+      "{tagline} Handla hos {store}, den officiella butiken för {client}.",
+    shopTitle: "Butik",
     shopDescription: "Alla produkter som finns hos {store}.",
   },
 

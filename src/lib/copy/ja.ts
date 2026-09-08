@@ -28,7 +28,9 @@ export const ja: StorefrontCopy = {
     homeTitle: "{store} — 受注生産のオリジナルグッズ",
     homeDescription:
       "{client} の公式ストア {store}。受注生産で世界中へお届けします。",
-    shopTitle: "ショップ — {store}",
+    taglineDescription:
+      "{tagline} {client} の公式ストア {store}。",
+    shopTitle: "ショップ",
     shopDescription: "{store} で取り扱っているすべての商品。",
   },
 

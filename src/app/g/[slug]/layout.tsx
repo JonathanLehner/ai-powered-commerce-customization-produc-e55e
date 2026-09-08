@@ -4,10 +4,27 @@ import Link from "next/link";
 import { Document, siteMetadata } from "@/components/Document";
 import { PlainDocument } from "@/components/SiteChrome";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
+import { giftPortalMetadata } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { THEMES } from "@/lib/types";
 
-export const metadata: Metadata = siteMetadata;
+/**
+ * The portal is the client's, not Parcelith's: pages below it are suffixed with
+ * the catalogue name and share as the catalogue, with the store logo. A link
+ * that no longer resolves falls back to the platform's own metadata, matching
+ * the chrome the 404 below renders.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const catalogue = await getGiftCatalogueBySlug(slug);
+  const store = catalogue ? await getStore(catalogue.storeId) : null;
+  if (!catalogue || !store) return { ...siteMetadata, robots: { index: false, follow: false } };
+  return giftPortalMetadata(catalogue, store);
+}
 
 /**
  * Root layout for a company's private gift portal. Unlike the client storefront

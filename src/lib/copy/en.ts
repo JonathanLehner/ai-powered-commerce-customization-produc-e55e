@@ -33,7 +33,9 @@ export const en = {
     homeTitle: "{store} — made-to-order merchandise",
     homeDescription:
       "Shop {store}, the official store for {client}. Printed on demand and shipped worldwide.",
-    shopTitle: "Shop — {store}",
+    taglineDescription:
+      "{tagline} Shop {store}, the official store for {client}.",
+    shopTitle: "Shop",
     shopDescription: "Every product available from {store}.",
   },
 

@@ -17,8 +17,10 @@ export async function generateMetadata({
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Shop" };
   const { t } = storefrontLocale(store);
+  // The store name is the title suffix the layout adds, so the tab reads
+  // "Shop · Northwind Supply Co" rather than naming the store twice.
   return {
-    title: fmt(t.meta.shopTitle, { store: store.name }),
+    title: t.meta.shopTitle,
     description: fmt(t.meta.shopDescription, { store: store.name }),
   };
 }

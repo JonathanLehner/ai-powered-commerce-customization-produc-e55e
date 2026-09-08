@@ -5,12 +5,30 @@ import { readCurrency, readShopperSession, setCurrency } from "@/app/actions/sho
 import { Document, siteMetadata } from "@/components/Document";
 import { PlainDocument } from "@/components/SiteChrome";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
-import { getCart, getStoreBySlug } from "@/lib/data";
+import { getCart, getStorefront, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
+import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { THEMES } from "@/lib/types";
 
-export const metadata: Metadata = siteMetadata;
+/**
+ * A client storefront is white-labelled, so its tab titles, description and
+ * share preview belong to the shop rather than to Parcelith: the title suffix
+ * is the store name, and the preview carries the store logo. An address that
+ * belongs to no store falls back to the platform's own metadata, because that
+ * is the chrome the 404 below renders.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await getStoreBySlug(slug);
+  if (!store) return siteMetadata;
+  const storefront = await getStorefront(store.id);
+  return storefrontMetadata(store, storeTagline(storefront?.published));
+}
 
 /**
  * Root layout for a client storefront. It is a root layout rather than a nested
