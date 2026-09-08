@@ -5,7 +5,6 @@ import {
   auditActors,
   auditQuery,
   auditWindow,
-  collapseAuditRuns,
   hasAuditFilters,
   matchesAuditFilters,
   pageAuditEntries,
@@ -62,7 +61,10 @@ export default async function ActivityPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Audit history" description={`Every recorded change in ${store.name}.`} />
+      <PageHeader
+        title="Audit history"
+        description={`Every recorded change in ${store.name}, one row per record — repeats are only collapsed in the overview summary.`}
+      />
 
       <AuditFilterBar
         basePath={base}
@@ -85,8 +87,7 @@ export default async function ActivityPage({
         <div className="space-y-3">
           <AuditPager basePath={base} filters={filters} page={page} />
           <ol className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
-            {collapseAuditRuns(page.entries).map((run) => {
-              const entry = run.entry;
+            {page.entries.map((entry) => {
               const detail = auditDetail(entry);
               return (
                 <li key={entry.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5">
@@ -94,16 +95,9 @@ export default async function ActivityPage({
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={TONES[entry.category]}>{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
                       <span className="font-mono text-xs text-muted">{entry.action}</span>
-                      {run.count > 1 ? <Badge tone="slate">×{run.count}</Badge> : null}
                     </div>
                     <p className="mt-1.5 text-sm text-ink">{entry.summary}</p>
                     {detail ? <p className="mt-1 text-xs text-muted">{detail}</p> : null}
-                    {run.count > 1 ? (
-                      <p className="mt-1 text-xs text-muted">
-                        {run.count} identical entries between {formatDateTime(run.earliest)} and{" "}
-                        {formatDateTime(run.latest)}. Every one of them is in the download.
-                      </p>
-                    ) : null}
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm text-inksoft">{entry.actorName}</p>

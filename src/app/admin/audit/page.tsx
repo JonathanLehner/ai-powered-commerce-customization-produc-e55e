@@ -5,7 +5,6 @@ import {
   auditDetail,
   auditQuery,
   auditWindow,
-  collapseAuditRuns,
   hasAuditFilters,
   matchesAuditFilters,
   pageAuditEntries,
@@ -75,30 +74,19 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {collapseAuditRuns(page.entries).map((run) => {
-                  const entry = run.entry;
+                {page.entries.map((entry) => {
                   const detail = auditDetail(entry);
                   return (
                     <tr key={entry.id} className="align-top">
                       <td className="whitespace-nowrap px-4 py-3 text-muted">
                         {formatDateTime(entry.at)}
-                        {run.count > 1 ? (
-                          <p className="text-xs text-muted">back to {formatDateTime(run.earliest)}</p>
-                        ) : null}
                       </td>
                       <td className="px-4 py-3">
                         <Badge tone="neutral">{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
                         <p className="mt-1 text-xs text-muted">{storeName(entry.storeId)}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-ink">
-                          {entry.summary}
-                          {run.count > 1 ? (
-                            <span className="ml-2 align-middle">
-                              <Badge tone="slate">×{run.count}</Badge>
-                            </span>
-                          ) : null}
-                        </p>
+                        <p className="text-ink">{entry.summary}</p>
                         <p className="font-mono text-xs text-muted">{entry.action}</p>
                         {detail ? <p className="text-xs text-muted">{detail}</p> : null}
                       </td>

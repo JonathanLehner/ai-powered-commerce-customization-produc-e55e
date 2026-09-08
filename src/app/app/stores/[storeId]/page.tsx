@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
+import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import {
   agencyStoreAllowance,
   getAgency,
@@ -24,6 +25,9 @@ const SETUP_LABELS: Record<(typeof SETUP_STEPS)[number], string> = {
   tax: "Tax configuration",
 };
 
+/** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
+const ACTIVITY_ROWS = 8;
+
 export default async function StoreOverviewPage({
   params,
   searchParams,
@@ -39,8 +43,11 @@ export default async function StoreOverviewPage({
     listOrders(store.id),
     listStoreProducts(store.id),
     getStorefront(store.id),
-    listAudit({ storeId: store.id }, 8),
+    listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
   ]);
+
+  // Repeats are one row here; "Full history" lists every record.
+  const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
 
   // Only read after a restore was refused, so the usual visit stays two waves
   // of reads rather than three.
@@ -287,15 +294,15 @@ export default async function StoreOverviewPage({
               Full history
             </Link>
           </div>
-          {audit.length === 0 ? (
+          {activity.length === 0 ? (
             <p className="mt-2 text-sm text-muted">Nothing recorded for this store yet.</p>
           ) : (
             <ol className="mt-3 divide-y divide-line text-sm">
-              {audit.map((entry) => (
-                <li key={entry.id} className="py-2.5">
-                  <p className="text-ink">{entry.summary}</p>
+              {activity.map((run) => (
+                <li key={run.entry.id} className="py-2.5">
+                  <p className="text-ink">{auditRunSummary(run)}</p>
                   <p className="text-xs text-muted">
-                    {entry.actorName} · {relativeTime(entry.at)}
+                    {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </p>
                 </li>
               ))}

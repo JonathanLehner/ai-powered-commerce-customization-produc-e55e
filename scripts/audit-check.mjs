@@ -12,12 +12,15 @@ import {
   auditMonthBuckets,
   auditQuery,
   auditRange,
+  auditRunSummary,
   auditWindow,
   collapseAuditRuns,
   hasAuditFilters,
   matchesAuditFilters,
   pageAuditEntries,
   parseAuditFilters,
+  recentAuditReadSize,
+  recentAuditRuns,
   sortAuditEntries,
   AUDIT_PAGE_SIZE,
 } from "../src/lib/audit-log.ts";
@@ -155,22 +158,29 @@ assert.equal(new Set(walked).size, many.length);
 
 /* --------------------------------------------------- the repeated approvals */
 
-// The complaint this was built for: seventeen identical approvals in a row at
-// the top of Northwind's history, hiding everything else on the first screen.
+// The complaint this was built for: eight identical approvals in a row at the
+// top of Northwind's "Recent activity", hiding everything else in the panel.
 const run = [
-  ...Array.from({ length: 17 }, (_, i) => entry({ at: new Date(Date.UTC(2026, 7, 2, 17, 25 + i)).toISOString() })),
+  ...Array.from({ length: 8 }, (_, i) => entry({ at: new Date(Date.UTC(2026, 7, 2, 17, 25 + i)).toISOString() })),
   entry({ action: "product.updated", summary: "Updated product details for “Northwind Organic Tee”", at: "2026-08-02T17:15:34.470Z" }),
 ];
 const collapsed = collapseAuditRuns(sortAuditEntries(run));
 assert.equal(collapsed.length, 2, "the run is one row, the other change is its own");
-assert.equal(collapsed[0].count, 17);
+assert.equal(collapsed[0].count, 8);
 assert.equal(collapsed[0].earliest, "2026-08-02T17:25:00.000Z");
-assert.equal(collapsed[0].latest, "2026-08-02T17:41:00.000Z");
+assert.equal(collapsed[0].latest, "2026-08-02T17:32:00.000Z");
 assert.equal(collapsed[1].count, 1);
 
-// Collapsing is what the list draws, never what it counts: the paging and the
-// download still see all eighteen records.
-assert.equal(pageAuditEntries(run, 1).total, 18);
+// The row the summary panels draw carries the count in its own wording.
+assert.equal(
+  auditRunSummary(collapsed[0]),
+  "Approved 2 mockups for “Northwind Field Tee” — 8 times",
+);
+assert.equal(auditRunSummary(collapsed[1]), "Updated product details for “Northwind Organic Tee”");
+
+// Collapsing is what a summary draws, never what the history counts: the
+// Activity page's paging and the download still see all nine records.
+assert.equal(pageAuditEntries(run, 1).total, 9);
 
 // Only neighbours with the same wording, action, category and person collapse.
 const mixed = sortAuditEntries([
@@ -179,6 +189,39 @@ const mixed = sortAuditEntries([
   entry({ at: "2026-08-02T08:00:00.000Z" }),
 ]);
 assert.deepEqual(collapseAuditRuns(mixed).map((r) => r.count), [1, 1, 1]);
+
+// A run that spans midnight is two rows, so a row's count never covers a day
+// other than the one it is dated.
+const overnight = sortAuditEntries([
+  entry({ at: "2026-08-03T00:12:00.000Z" }),
+  entry({ at: "2026-08-02T23:47:00.000Z" }),
+  entry({ at: "2026-08-02T23:41:00.000Z" }),
+]);
+assert.deepEqual(collapseAuditRuns(overnight).map((r) => r.count), [1, 2]);
+
+/* -------------------------------------------- what a "Recent activity" panel shows */
+
+// Eight repeats plus twelve distinct changes fill a panel with twelve rows,
+// rather than leaving one collapsed line and eleven repeats of it.
+const feed = [
+  ...Array.from({ length: 8 }, (_, i) => entry({ at: new Date(Date.UTC(2026, 7, 2, 17, 25 + i)).toISOString() })),
+  ...Array.from({ length: 12 }, (_, i) =>
+    entry({ action: `store.step_${i}`, summary: `Change number ${i}`, at: new Date(Date.UTC(2026, 7, 1, 9, i)).toISOString() }),
+  ),
+];
+assert.ok(recentAuditReadSize(12) >= feed.length, "the panel reads more history than it draws");
+const panel = recentAuditRuns(feed, 12);
+assert.equal(panel.length, 12);
+assert.equal(panel[0].count, 8, "the repeats are the single newest row");
+assert.ok(panel.slice(1).every((r) => r.count === 1));
+
+// Asking for fewer rows than there are runs cuts the list, keeping the newest.
+assert.deepEqual(recentAuditRuns(feed, 3).map((r) => r.entry.summary), [
+  "Approved 2 mockups for “Northwind Field Tee”",
+  "Change number 11",
+  "Change number 10",
+]);
+assert.deepEqual(recentAuditRuns([], 8), []);
 
 /* ------------------------------------------------------- the people to offer */
 

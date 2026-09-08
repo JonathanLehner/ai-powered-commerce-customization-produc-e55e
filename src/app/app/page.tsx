@@ -2,12 +2,16 @@ import Link from "next/link";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
+import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrders, listStoreProducts } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeAllowance, storeUsageLabel } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
 import { STORE_ROLE_LABELS, THEMES } from "@/lib/types";
 import { formatMoney, relativeTime } from "@/lib/util";
+
+/** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
+const ACTIVITY_ROWS = 12;
 
 export default async function AgencyDashboard({
   searchParams,
@@ -21,8 +25,15 @@ export default async function AgencyDashboard({
   const [stores, agency, audit] = await Promise.all([
     accessibleStores(user),
     user.agencyId ? getAgency(user.agencyId) : Promise.resolve(null),
-    listAudit(user.platformRole === "platform_admin" ? {} : { agencyId: user.agencyId ?? "__none__" }, 12),
+    listAudit(
+      user.platformRole === "platform_admin" ? {} : { agencyId: user.agencyId ?? "__none__" },
+      recentAuditReadSize(ACTIVITY_ROWS),
+    ),
   ]);
+
+  // Repeats are one row here; the platform log and each store's Activity page
+  // still list every record.
+  const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
 
   const rows = await Promise.all(
     stores.map(async ({ store, role }) => {
@@ -241,15 +252,15 @@ export default async function AgencyDashboard({
 
         <section className="mt-9 pb-4">
           <h2 className="text-base font-semibold text-ink">Recent activity</h2>
-          {audit.length === 0 ? (
+          {activity.length === 0 ? (
             <p className="mt-2 text-sm text-muted">Nothing recorded yet.</p>
           ) : (
             <ol className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
-              {audit.map((entry) => (
-                <li key={entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
-                  <span className="text-sm text-ink">{entry.summary}</span>
+              {activity.map((run) => (
+                <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
+                  <span className="text-sm text-ink">{auditRunSummary(run)}</span>
                   <span className="text-xs text-muted">
-                    {entry.actorName} · {relativeTime(entry.at)}
+                    {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </span>
                 </li>
               ))}

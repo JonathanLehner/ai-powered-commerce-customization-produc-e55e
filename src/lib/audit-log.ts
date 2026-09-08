@@ -225,12 +225,20 @@ export interface AuditRun {
   latest: string;
 }
 
+/** The UTC calendar day an instant falls on, as `YYYY-MM-DD`. */
+function auditDay(iso: string): string {
+  return iso.slice(0, 10);
+}
+
 /**
- * Collapses a run of neighbouring entries that say exactly the same thing.
+ * Collapses a run of neighbouring entries that say exactly the same thing, were
+ * written by the same person, and fall on the same calendar day.
  *
- * Approving the same two mockups seventeen times in a row is seventeen real
- * records and they all belong in the export, but on screen they were seventeen
- * identical rows that pushed the rest of the history off the first page.
+ * Approving the same two mockups eight times in a row is eight real records and
+ * they all belong in the full history and in the export, but in a short "Recent
+ * activity" summary they were eight identical rows that pushed everything else
+ * out of view. A day boundary keeps the row honest: the count is always
+ * something that happened on the date the row shows.
  */
 export function collapseAuditRuns(entries: AuditLog[]): AuditRun[] {
   const runs: AuditRun[] = [];
@@ -241,7 +249,8 @@ export function collapseAuditRuns(entries: AuditLog[]): AuditRun[] {
       last.entry.action === entry.action &&
       last.entry.summary === entry.summary &&
       last.entry.actorId === entry.actorId &&
-      last.entry.category === entry.category;
+      last.entry.category === entry.category &&
+      auditDay(last.entry.at) === auditDay(entry.at);
     if (same) {
       last.count += 1;
       last.earliest = entry.at < last.earliest ? entry.at : last.earliest;
@@ -251,6 +260,32 @@ export function collapseAuditRuns(entries: AuditLog[]): AuditRun[] {
     runs.push({ entry, count: 1, earliest: entry.at, latest: entry.at });
   }
   return runs;
+}
+
+/**
+ * The rows a "Recent activity" panel draws: newest first, repeats collapsed,
+ * cut to the number of rows the panel has room for.
+ *
+ * The caller reads more history than it shows, because a collapsed run is one
+ * row made of many records and a feed that read exactly `rows` entries would
+ * shrink to a single line on the day someone approved the same thing eight
+ * times.
+ */
+export function recentAuditRuns(entries: AuditLog[], rows: number): AuditRun[] {
+  return collapseAuditRuns(sortAuditEntries(entries)).slice(0, Math.max(0, rows));
+}
+
+/**
+ * How many entries a panel reads to fill `rows` collapsed rows. Generous rather
+ * than exact: reading is one round trip either way.
+ */
+export function recentAuditReadSize(rows: number): number {
+  return rows * 5;
+}
+
+/** e.g. `Approved 2 mockups for “Northwind Field Tee” — 8 times`. */
+export function auditRunSummary(run: AuditRun): string {
+  return run.count > 1 ? `${run.entry.summary} — ${run.count} times` : run.entry.summary;
 }
 
 export interface AuditActor {
