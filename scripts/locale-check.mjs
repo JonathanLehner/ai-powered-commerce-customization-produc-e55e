@@ -4,6 +4,7 @@
 // for every entry in it: a full dictionary, matching placeholders, a locale tag
 // that actually changes how money and dates read, and no English left behind.
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -166,5 +167,63 @@ assert.equal(searchCountries("Germany", "de-DE")[0].code, "DE");
 assert.equal(matchCountry("Deutschland", "de-DE")?.code, "DE");
 assert.equal(matchCountry("Germany", "de-DE")?.code, "DE");
 assert.equal(matchCountry("DE", "de-DE")?.code, "DE");
+
+/* --------------------------------- the demo tenancy shows more than one language */
+
+// Nine dictionaries are worth nothing on a tour if every seeded store is set to
+// English, which is exactly how this shipped: the feature existed and nothing a
+// visitor could click showed it. The seed is read as text — it talks to the
+// platform database when it runs, so it cannot be imported — and checked for a
+// store that is actually set to a non-English language, with its own copy.
+const seed = await readFile(new URL("./seed.mjs", import.meta.url), "utf8");
+
+const declared = seed.match(/const FERRO_LANGUAGE = "([a-z]{2})";/);
+assert.ok(declared, "the seed no longer declares the language of the non-English demo store");
+const demoLanguage = declared[1];
+assert.ok(isLanguageCode(demoLanguage), `the demo store is set to ${demoLanguage}, which has no dictionary`);
+assert.notEqual(demoLanguage, "en", "at least one demo store has to run in a language other than English");
+
+/** The literal between `id: "str_x",` and the end of that store record. */
+function storeBlock(id) {
+  const start = seed.indexOf(`    id: "${id}",`);
+  assert.notEqual(start, -1, `${id} is not in the seed any more`);
+  const end = seed.indexOf("\n  },", start);
+  return seed.slice(start, end);
+}
+
+assert.match(
+  storeBlock("str_ferro"),
+  /defaultLanguage: FERRO_LANGUAGE,/,
+  "the German demo store must read its language from the shared constant",
+);
+// Its checkout only renders at all with a payment account behind it, so the
+// language is only visible end to end if the store is actually able to sell.
+assert.match(storeBlock("str_ferro"), /stripe: \{ connected: true[^}]*chargesEnabled: true/);
+
+// The contrast is the point: the other stores stay English.
+for (const id of ["str_northwind", "str_lumen", "str_halcyon", "str_rivet"]) {
+  assert.match(storeBlock(id), /defaultLanguage: "en",/, `${id} should stay English for contrast`);
+}
+
+// Seeded copy, not just a seeded setting: the shopper-facing strings the store
+// owns — product names, descriptions and the personalisation label — have to be
+// written in that language rather than left in English.
+const ferroPlans = seed
+  .split(/\n  \{\n/)
+  .filter((block) => block.startsWith('    storeId: "str_ferro", catalogId:'));
+assert.ok(
+  ferroPlans.filter((block) => block.includes('status: "published"')).length >= 3,
+  "the German demo store needs published products, or its storefront is empty",
+);
+for (const block of ferroPlans) {
+  const description = block.match(/description:\s*\n?\s*"([\s\S]*?)",\n/);
+  assert.ok(description, "a Ferro product has no description");
+  assert.match(
+    description[1],
+    /[äöüßÄÖÜ]/,
+    "Ferro product descriptions must be written in German, not English",
+  );
+  assert.match(block, /textLabel: "[^"]*[äöüÄÖÜ]?[^"]*"/, "a Ferro product has no personalisation label");
+}
 
 console.log("locale-check: OK");

@@ -99,6 +99,11 @@ const IMAGES = [
       "Lifestyle photograph of a person wearing a plain navy hoodie holding a plain white ceramic mug in a bright modern office lounge, shot from the chest down so the face is not visible. Natural light, muted palette. No readable text, no logos.",
   },
   {
+    key: "storefront-ferro",
+    prompt:
+      "Lifestyle photograph inside a European speciality coffee roastery: a plain white ceramic mug and a folded blank black t-shirt on a dark walnut counter beside an espresso machine and a hessian sack of green coffee beans. Warm afternoon light, rich brown and cream palette. No readable text, no logos.",
+  },
+  {
     key: "storefront-lumen",
     prompt:
       "Lifestyle photograph of folded blank pastel apparel and a plain white mug arranged on a linen surface beside dried flowers, warm morning light, soft shadows, creator-brand aesthetic. No readable text, no logos.",

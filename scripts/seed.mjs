@@ -259,6 +259,7 @@ const suppliers = [
 const taxBrackets = [
   { id: "tax_std20", name: "Standard rate (UK/EU)", code: "STD-20", rate: 20, description: "Default VAT rate for apparel and homeware sold into the UK and most EU member states.", regions: ["United Kingdom", "European Union"], createdAt: iso(200) },
   { id: "tax_red07", name: "Reduced rate", code: "RED-07", rate: 7, description: "Reduced VAT band used by member states that treat printed goods as reduced-rate supplies.", regions: ["European Union"], createdAt: iso(200) },
+  { id: "tax_de19", name: "German VAT", code: "DE-VAT-19", rate: 19, description: "Standard German VAT rate for merchandise delivered inside Germany.", regions: ["European Union"], createdAt: iso(200) },
   { id: "tax_us825", name: "US destination sales tax", code: "US-8.25", rate: 8.25, description: "Blended destination sales tax applied to US shoppers where the seller has nexus.", regions: ["North America"], createdAt: iso(200) },
   { id: "tax_ca05", name: "Canada GST", code: "CA-GST-5", rate: 5, description: "Federal goods and services tax for Canadian destinations. Provincial tax is handled separately.", regions: ["North America"], createdAt: iso(200) },
   { id: "tax_au10", name: "Australia GST", code: "AU-GST-10", rate: 10, description: "Goods and services tax on merchandise delivered inside Australia.", regions: ["Oceania"], createdAt: iso(198) },
@@ -453,6 +454,13 @@ const users = [
   { id: "usr_mira", email: "mira@cobaltco.agency", name: "Mira Sokolov", password: "parcelith", platformRole: "agency_admin", agencyId: "agc_cobalt", title: "Founder", createdAt: iso(90) },
 ];
 
+/**
+ * Ferro Coffee Club runs the storefront in German. It is declared once here so
+ * the store record, its product copy, its layout and its order history cannot
+ * drift apart.
+ */
+const FERRO_LANGUAGE = "de";
+
 const carriers = (dhl, fedex, ups) => [
   { carrier: "dhl", enabled: dhl, accountNumber: dhl ? "DHL-4471902" : "", services: ["Express Worldwide", "Economy Select"] },
   { carrier: "fedex", enabled: fedex, accountNumber: fedex ? "FDX-88213004" : "", services: ["International Priority", "International Economy"] },
@@ -516,22 +524,27 @@ const stores = [
     name: "Ferro Coffee Club",
     slug: "ferro-coffee",
     channelCode: "ferro-coffee",
-    clientName: "Ferro Coffee Roasters",
+    clientName: "Ferro Kaffeerösterei",
     status: "active",
     logoUrl: null,
     theme: "atelier",
-    defaultLanguage: "en",
+    // The German demo store. Everything a shopper sees here — the storefront
+    // copy, the product descriptions, the basket, the checkout and the order
+    // status page — is rendered from the `de` dictionary and formatted for
+    // de-DE, so the contrast with the English stores under the same agency is
+    // visible without changing a single setting.
+    defaultLanguage: FERRO_LANGUAGE,
     currencies: ["EUR"],
     defaultCurrency: "EUR",
     customDomain: null,
     domainStatus: "unset",
-    supportEmail: null,
-    supportPhone: null,
-    stripe: { connected: false, accountId: null, country: "IT", chargesEnabled: false, connectedAt: null },
-    carriers: carriers(false, false, false),
-    defaultTaxBracketId: null,
+    supportEmail: "hallo@ferro-kaffee.example",
+    supportPhone: "+49 30 5550 1834",
+    stripe: { connected: true, accountId: "acct_1FerroKaffee", country: "DE", chargesEnabled: true, connectedAt: iso(8) },
+    carriers: carriers(true, false, false),
+    defaultTaxBracketId: "tax_de19",
     pricesIncludeTax: true,
-    setup: { branding: true, localisation: true, support: false, domain: false, payments: false, shipping: false, tax: false },
+    setup: { branding: true, localisation: true, support: true, domain: false, payments: true, shipping: true, tax: true },
     createdAt: iso(9),
     archivedAt: null,
   },
@@ -594,6 +607,7 @@ const memberships = [
   { id: id("mem"), storeId: "str_lumen", agencyId: "agc_northlight", userId: "usr_sam", email: "sam@northlight.studio", name: "Sam Okafor", role: "catalog_manager", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(58), acceptedAt: iso(58) },
   { id: id("mem"), storeId: "str_lumen", agencyId: "agc_northlight", userId: null, email: "theo@lumen.example", name: "Theo Vance", role: "viewer", status: "invited", invitedBy: "Alex Moreau", invitedAt: iso(4), acceptedAt: null, inviteToken: id("inv") },
   { id: id("mem"), storeId: "str_ferro", agencyId: "agc_northlight", userId: "usr_sam", email: "sam@northlight.studio", name: "Sam Okafor", role: "store_admin", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(9), acceptedAt: iso(9) },
+  { id: id("mem"), storeId: "str_ferro", agencyId: "agc_northlight", userId: "usr_ines", email: "ines@northlight.studio", name: "Inés Duarte", role: "order_manager", status: "active", invitedBy: "Alex Moreau", invitedAt: iso(8), acceptedAt: iso(8) },
 ];
 
 /* ------------------------------------------------------------ store products */
@@ -601,6 +615,7 @@ const memberships = [
 const CLIENT_ARTWORK = {
   northwind: { mark: "N", word: "NORTHWIND", tagline: "SUPPLY CO", colour: "#0b807c", accent: "#123f3f" },
   lumen: { mark: "L", word: "LUMEN", tagline: "CREATIVE STUDIO", colour: "#be185d", accent: "#4c0519" },
+  ferro: { mark: "F", word: "FERRO", tagline: "KAFFEEROESTEREI", colour: "#7c2d12", accent: "#2a1206" },
 };
 
 /** Mirrors src/lib/sku.ts — "Organic Cotton Tee" in channel "lumen-studio" -> "LUMENS-ORG-COT-TEE". */
@@ -608,6 +623,8 @@ function storeSku(store, name, taken) {
   const prefix = store.channelCode.replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 6) || "STORE";
   const stem =
     name
+      .normalize("NFKD")
+      .replace(/[̀-ͯ]/g, "")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, " ")
       .trim()
@@ -726,6 +743,52 @@ const PRODUCT_PLAN = [
     areas: [{ areaId: "pa_hood_front", scale: 0.58, x: 0.5, y: 0.45, rotation: 0 }],
     colourForMockup: "Heather grey", importedBy: "Sam Okafor", importedDaysAgo: 6, publishedDaysAgo: null,
   },
+  // Ferro sells in German: the names, descriptions, tags and the personalisation
+  // label a shopper types into are all written in the store's own language, so
+  // nothing on the storefront falls back to English.
+  {
+    storeId: "str_ferro", catalogId: "cat_mug_classic", artwork: "ferro",
+    name: "Ferro Rösterei-Tasse", slug: "ferro-roesterei-tasse", price: 1900, currency: "EUR", taxBracketId: "tax_de19", status: "published",
+    tags: ["tasse", "keramik", "frühstück", "geschenk"],
+    description:
+      "Die Tasse aus unserem Röstraum: 330 ml weiße Keramik, rundum bedruckt, damit das Logo von beiden Seiten zu sehen ist.\n\nSpülmaschinen- und mikrowellengeeignet. Alle Preise verstehen sich inklusive 19 % Mehrwertsteuer.",
+    areas: [
+      { areaId: "pa_mug_left", scale: 0.76, x: 0.5, y: 0.5, rotation: 0 },
+      { areaId: "pa_mug_right", scale: 0.76, x: 0.5, y: 0.5, rotation: 0 },
+    ],
+    textLabel: "Name auf der Tasse",
+    colourForMockup: "White", importedBy: "Sam Okafor", importedDaysAgo: 8, publishedDaysAgo: 7,
+  },
+  {
+    storeId: "str_ferro", catalogId: "cat_tee_heavy", artwork: "ferro",
+    name: "Ferro Clubshirt", slug: "ferro-clubshirt", price: 3200, currency: "EUR", taxBracketId: "tax_de19", status: "published",
+    tags: ["shirt", "baumwolle", "unisex", "alltag"],
+    description:
+      "Schweres Ringgarn aus Baumwolle, vorn mit dem Ferro-Schriftzug bedruckt. Unisex geschnitten und von S bis 2XL größengetreu.\n\nWird erst nach der Bestellung innerhalb der EU produziert — kein Lager, keine Zollgebühren bei der Lieferung.",
+    areas: [{ areaId: "pa_tee_front", scale: 0.5, x: 0.5, y: 0.34, rotation: 0 }],
+    textLabel: "Name auf dem Ärmel",
+    colourForMockup: "Black", importedBy: "Sam Okafor", importedDaysAgo: 8, publishedDaysAgo: 7,
+  },
+  {
+    storeId: "str_ferro", catalogId: "cat_hoodie_premium", artwork: "ferro",
+    name: "Ferro Röstwerk-Hoodie", slug: "ferro-roestwerk-hoodie", price: 6400, currency: "EUR", taxBracketId: "tax_de19", status: "published",
+    tags: ["hoodie", "fleece", "winter", "röstwerk"],
+    description:
+      "Angerauter Fleece-Hoodie mit 320 g/m² für die kalten Schichten in der Rösterei. Der Brustdruck sitzt über der Tasche und bleibt auch dann flach, wenn die Tasche benutzt wird.\n\nDoppellagige Kapuze, gerippte Bündchen, gerader Schnitt.",
+    areas: [{ areaId: "pa_hood_front", scale: 0.6, x: 0.5, y: 0.45, rotation: 0 }],
+    textLabel: "Name auf dem Ärmel",
+    colourForMockup: "Navy", importedBy: "Sam Okafor", importedDaysAgo: 8, publishedDaysAgo: 6,
+  },
+  {
+    storeId: "str_ferro", catalogId: "cat_mug_matte", artwork: "ferro",
+    name: "Ferro Filterbecher matt", slug: "ferro-filterbecher-matt", price: 2400, currency: "EUR", taxBracketId: "tax_de19", status: "in_review",
+    tags: ["becher", "matt", "filterkaffee"],
+    description:
+      "Mattschwarzer Becher mit 440 ml für die Filterkaffee-Reihe. Wartet noch auf das Andruckmuster der Druckerei, bevor er in den Shop geht.",
+    areas: [{ areaId: "pa_mug_left", scale: 0.7, x: 0.5, y: 0.5, rotation: 0 }],
+    textLabel: "Name auf dem Becher",
+    colourForMockup: "Black", importedBy: "Sam Okafor", importedDaysAgo: 3, publishedDaysAgo: null,
+  },
   {
     storeId: "str_rivet", catalogId: "cat_tee_heavy", artwork: "northwind",
     name: "Rivet Crew Tee", slug: "rivet-crew-tee", price: 3000, currency: "USD", taxBracketId: "tax_us825", status: "published",
@@ -759,6 +822,7 @@ async function main() {
   const storeLogos = {
     str_northwind: artworkAssets.northwind.url,
     str_lumen: artworkAssets.lumen.url,
+    str_ferro: artworkAssets.ferro.url,
   };
   for (const store of stores) {
     if (storeLogos[store.id]) store.logoUrl = storeLogos[store.id];
@@ -860,7 +924,10 @@ async function main() {
       shopperCustomization: {
         artworkUpload: cat.category === "drinkware",
         textLine: true,
-        textLabel: cat.category === "drinkware" ? "Name on the mug" : "Name on the sleeve",
+        // The shopper types into this field, so it is written in the store's
+        // language rather than derived from the English category name.
+        textLabel:
+          plan.textLabel ?? (cat.category === "drinkware" ? "Name on the mug" : "Name on the sleeve"),
         maxTextLength: 18,
       },
       costs,
@@ -929,14 +996,23 @@ async function main() {
     { type: "ProductGrid", props: { title: "Available now", subtitle: "Printed on demand and shipped with FedEx.", columns: "3", limit: 6, showPrice: true } },
   ]);
 
+  // Ferro's layout is authored in German, like the rest of its shopper-facing
+  // content. The built-in chrome around it (basket, checkout, order status)
+  // comes from the `de` dictionary because the store's language says so.
   const ferroTree = tree([
-    { type: "HeroSection", props: { eyebrow: "Ferro Coffee Club", headline: "Roastery merch, coming soon", body: "The shop opens once payments and shipping are connected.", ctaLabel: "Shop the collection", ctaHref: "products", imageUrl: "", align: "center", tone: "light" } },
+    { type: "PromoBanner", props: { text: "Versandkostenfrei innerhalb Deutschlands ab 60 €", ctaLabel: "Zum Shop", ctaHref: "products", tone: "accent" } },
+    { type: "HeroSection", props: { eyebrow: "Ferro Kaffeerösterei", headline: "Ausstattung aus dem Röstraum", body: "Tassen, Shirts und Hoodies für den Ferro Coffee Club. Auf Bestellung in der EU produziert — alle Preise inklusive Mehrwertsteuer.", ctaLabel: "Kollektion ansehen", ctaHref: "products", imageUrl: IMAGES["storefront-ferro"], align: "left", tone: "light" } },
+    { type: "ValueProps", props: { title: "Warum bei uns bestellen", itemOneTitle: "Erst bestellt, dann gedruckt", itemOneBody: "Jedes Stück entsteht nach Ihrer Bestellung. Nichts liegt im Lager und nichts wird weggeworfen.", itemTwoTitle: "Versand mit DHL", itemTwoBody: "Sendungsverfolgung für jedes Paket, innerhalb Deutschlands meist in zwei Werktagen.", itemThreeTitle: "Preise inklusive MwSt.", itemThreeBody: "Der angezeigte Preis ist der Preis an der Kasse — 19 % Mehrwertsteuer sind bereits enthalten." } },
+    { type: "ProductGrid", props: { title: "Aktuelle Kollektion", subtitle: "Drei Stücke aus der Rösterei, jedes auf Bestellung gefertigt.", columns: "3", limit: 6, showPrice: true } },
+    { type: "ImageWithText", props: { heading: "Ihr Name auf der Tasse", body: "Tassen und Shirts lassen sich vor dem Kauf mit einem Namen versehen. Die Vorschau zeigt genau das, was gedruckt wird.", imageUrl: IMAGES["marketing-mockup"], imageSide: "right" } },
+    { type: "Testimonial", props: { quote: "Die Tassen lagen pünktlich zur Eröffnung unserer zweiten Filiale auf dem Tresen.", author: "Marit Ferro", role: "Inhaberin, Ferro Kaffeerösterei" } },
+    { type: "RichText", props: { heading: "Größen und Pflege", body: "Alle Textilien sind unisex geschnitten und fallen größengetreu aus. Bei 30 °C auf links waschen und an der Luft trocknen, damit der Druck scharf bleibt. Tassen sind spülmaschinenfest.", align: "left" } },
   ]);
 
   const storefronts = [
     { id: id("sfr"), storeId: "str_northwind", draft: northwindTree, published: northwindTree, publishedAt: iso(12), publishedBy: "Alex Moreau", draftUpdatedAt: iso(12), history: [{ id: id("ver"), label: "Autumn range", data: northwindTree, savedAt: iso(12), savedBy: "Alex Moreau" }] },
     { id: id("sfr"), storeId: "str_lumen", draft: lumenTree, published: lumenTree, publishedAt: iso(20), publishedBy: "Sam Okafor", draftUpdatedAt: iso(3), history: [{ id: id("ver"), label: "Launch layout", data: lumenTree, savedAt: iso(20), savedBy: "Sam Okafor" }] },
-    { id: id("sfr"), storeId: "str_ferro", draft: ferroTree, published: null, publishedAt: null, publishedBy: null, draftUpdatedAt: iso(9), history: [] },
+    { id: id("sfr"), storeId: "str_ferro", draft: ferroTree, published: ferroTree, publishedAt: iso(7), publishedBy: "Sam Okafor", draftUpdatedAt: iso(7), history: [{ id: id("ver"), label: "Eröffnung", data: ferroTree, savedAt: iso(7), savedBy: "Sam Okafor" }] },
     { id: id("sfr"), storeId: "str_halcyon", draft: tree([]), published: null, publishedAt: null, publishedBy: null, draftUpdatedAt: iso(150), history: [] },
     { id: id("sfr"), storeId: "str_rivet", draft: rivetTree, published: rivetTree, publishedAt: iso(28), publishedBy: "Mira Sokolov", draftUpdatedAt: iso(28), history: [] },
   ];
@@ -960,9 +1036,59 @@ async function main() {
     { store: "str_lumen", daysAgo: 5, status: "in_production", carrier: null, country: "IT", name: "Giulia Ferri", email: "giulia.ferri@example.com", city: "Bologna", line1: "Via Zamboni 16", postal: "40126", qty: 2, text: "GIULIA" },
     { store: "str_lumen", daysAgo: 2, status: "paid", carrier: null, country: "GB", name: "Owen Pritchard", email: "owen.pritchard@example.com", city: "Cardiff", line1: "5 Womanby Street", postal: "CF10 1BR", qty: 1, text: null },
     { store: "str_rivet", daysAgo: 14, status: "delivered", carrier: "fedex", country: "US", name: "Hank Lowell", email: "hank.lowell@example.com", city: "Cleveland", line1: "1240 Superior Avenue", postal: "44114", qty: 5, text: null },
+    { store: "str_ferro", daysAgo: 6, status: "delivered", carrier: "dhl", country: "DE", name: "Katharina Brandt", email: "katharina.brandt@example.com", city: "Hamburg", line1: "Susannenstraße 14", postal: "20357", qty: 2, text: "KATHARINA" },
+    { store: "str_ferro", daysAgo: 4, status: "shipped", carrier: "dhl", country: "AT", name: "Lukas Gruber", email: "lukas.gruber@example.com", city: "Wien", line1: "Neubaugasse 27", postal: "1070", qty: 1, text: null },
+    { store: "str_ferro", daysAgo: 2, status: "in_production", carrier: null, country: "DE", name: "Jonas Ritter", email: "jonas.ritter@example.com", city: "Leipzig", line1: "Karl-Liebknecht-Straße 62", postal: "04275", qty: 3, text: null },
+    { store: "str_ferro", daysAgo: 1, status: "paid", carrier: null, country: "DE", name: "Sophie Neumann", email: "sophie.neumann@example.com", city: "Köln", line1: "Ehrenstraße 91", postal: "50672", qty: 1, text: "SOPHIE" },
   ];
 
-  const REGION_OF = { US: "North America", CA: "North America", DE: "European Union", NL: "European Union", FR: "European Union", ES: "European Union", IT: "European Union", GB: "United Kingdom", ZA: "Africa" };
+  const REGION_OF = { US: "North America", CA: "North America", AT: "European Union", DE: "European Union", NL: "European Union", FR: "European Union", ES: "European Union", IT: "European Union", GB: "United Kingdom", ZA: "Africa" };
+
+  /**
+   * The progress timeline is stored prose, and the shopper reads it on the order
+   * status page — so it is written in the store's own language rather than
+   * always in English. Amounts in it are formatted for that language too.
+   */
+  const EVENT_COPY = {
+    en: {
+      paid: "Payment captured",
+      paidNote: (amount, account) => `Charged ${amount} via Stripe (${account}).`,
+      routed: "Sent to supplier",
+      routedNote: (supplier) => `Production job accepted by ${supplier}.`,
+      manual: "Manual handling required",
+      manualNote: (supplier, region) =>
+        `${supplier} does not fulfil to ${region}. Route this job to an alternative production partner.`,
+      shipped: "Shipped",
+      shippedNote: (carrier) => `Handed to ${carrier} for delivery.`,
+      delivered: "Delivered",
+      deliveredNote: "Signed for at the delivery address.",
+      cancelled: "Cancelled",
+      cancelledNote: "Shopper cancelled before production started. Full refund issued.",
+      exception: "Exception raised",
+      exceptionNote: "Awaiting an alternative production partner for this destination.",
+    },
+    de: {
+      paid: "Zahlung eingegangen",
+      paidNote: (amount, account) => `${amount} über Stripe abgebucht (${account}).`,
+      routed: "An die Produktion übergeben",
+      routedNote: (supplier) => `Produktionsauftrag von ${supplier} angenommen.`,
+      manual: "Manuelle Bearbeitung nötig",
+      manualNote: (supplier, region) =>
+        `${supplier} liefert nicht nach ${region}. Dieser Auftrag braucht einen anderen Produktionspartner.`,
+      shipped: "Versandt",
+      shippedNote: (carrier) => `An ${carrier} für die Zustellung übergeben.`,
+      delivered: "Zugestellt",
+      deliveredNote: "An der Lieferadresse entgegengenommen.",
+      cancelled: "Storniert",
+      cancelledNote: "Vor Produktionsbeginn storniert. Der Betrag wurde vollständig erstattet.",
+      exception: "Ausnahme gemeldet",
+      exceptionNote: "Wir suchen einen alternativen Produktionspartner für dieses Zielland.",
+    },
+  };
+
+  const LOCALE_TAG = { en: "en-GB", de: "de-DE" };
+  const localeAmount = (minor, currency, language) =>
+    new Intl.NumberFormat(LOCALE_TAG[language] ?? "en-GB", { style: "currency", currency }).format(minor / 100);
 
   function trackingNumber(carrier, code) {
     const digits = code.replace(/\D/g, "").padEnd(9, "0").slice(0, 9);
@@ -999,25 +1125,26 @@ async function main() {
     const outOfRegion = !supplier.regions.includes(region);
     const routing = plan.status === "exception" || outOfRegion ? "manual_required" : plan.status === "awaiting_payment" ? "pending" : "submitted";
 
+    const e = EVENT_COPY[store.defaultLanguage] ?? EVENT_COPY.en;
     const events = [
-      { at: iso(plan.daysAgo, 9), status: "Payment captured", note: `Charged ${(total / 100).toFixed(2)} ${product.currency} via Stripe (${store.stripe.accountId}).`, actor: "Stripe" },
+      { at: iso(plan.daysAgo, 9), status: e.paid, note: e.paidNote(localeAmount(total, product.currency, store.defaultLanguage), store.stripe.accountId), actor: "Stripe" },
     ];
     if (routing === "submitted") {
-      events.push({ at: iso(plan.daysAgo, 10), status: "Sent to supplier", note: `Production job accepted by ${supplier.name}.`, actor: "Parcelith routing" });
+      events.push({ at: iso(plan.daysAgo, 10), status: e.routed, note: e.routedNote(supplier.name), actor: "Parcelith routing" });
     } else if (routing === "manual_required") {
-      events.push({ at: iso(plan.daysAgo, 10), status: "Manual handling required", note: `${supplier.name} does not fulfil to ${region}. Route this job to an alternative production partner.`, actor: "Parcelith routing" });
+      events.push({ at: iso(plan.daysAgo, 10), status: e.manual, note: e.manualNote(supplier.name, region), actor: "Parcelith routing" });
     }
     if (["shipped", "delivered"].includes(plan.status)) {
-      events.push({ at: iso(plan.daysAgo - 2, 14), status: "Shipped", note: `Handed to ${plan.carrier?.toUpperCase()} for delivery.`, actor: supplier.name });
+      events.push({ at: iso(plan.daysAgo - 2, 14), status: e.shipped, note: e.shippedNote(plan.carrier?.toUpperCase()), actor: supplier.name });
     }
     if (plan.status === "delivered") {
-      events.push({ at: iso(plan.daysAgo - 5, 11), status: "Delivered", note: "Signed for at the delivery address.", actor: plan.carrier?.toUpperCase() ?? "Carrier" });
+      events.push({ at: iso(plan.daysAgo - 5, 11), status: e.delivered, note: e.deliveredNote, actor: plan.carrier?.toUpperCase() ?? "Carrier" });
     }
     if (plan.status === "cancelled") {
-      events.push({ at: iso(plan.daysAgo, 15), status: "Cancelled", note: "Shopper cancelled before production started. Full refund issued.", actor: "Inés Duarte" });
+      events.push({ at: iso(plan.daysAgo, 15), status: e.cancelled, note: e.cancelledNote, actor: "Inés Duarte" });
     }
     if (plan.status === "exception") {
-      events.push({ at: iso(plan.daysAgo, 12), status: "Exception raised", note: "Awaiting an alternative production partner for this destination.", actor: "Inés Duarte" });
+      events.push({ at: iso(plan.daysAgo, 12), status: e.exception, note: e.exceptionNote, actor: "Inés Duarte" });
     }
 
     const carrier = plan.carrier;
@@ -1129,7 +1256,10 @@ async function main() {
     { id: id("aud"), category: "pricing", action: "product.price_changed", summary: "Raised “Northwind Ridge Hoodie” from $59.00 to $64.00", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "store_product", entityId: "northwind-ridge-hoodie", meta: { from: 5900, to: 6400 }, at: iso(30) },
     { id: id("aud"), category: "publishing", action: "storefront.published", summary: "Published storefront layout “Autumn range”", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "storefront", entityId: "str_northwind", meta: { sections: 7 }, at: iso(12) },
     { id: id("aud"), category: "store_setup", action: "store.created", summary: "Created store “Lumen Studio Shop” for Lumen Creative", storeId: "str_lumen", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_lumen", meta: {}, at: iso(60) },
-    { id: id("aud"), category: "store_setup", action: "store.created", summary: "Created store “Ferro Coffee Club” for Ferro Coffee Roasters", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_ferro", meta: {}, at: iso(9) },
+    { id: id("aud"), category: "store_setup", action: "store.created", summary: "Created store “Ferro Coffee Club” for Ferro Kaffeerösterei", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_ferro", meta: {}, at: iso(9) },
+    { id: id("aud"), category: "store_setup", action: "store.language_changed", summary: "Set the storefront language of “Ferro Coffee Club” to German", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_ferro", meta: { language: "de" }, at: iso(9) },
+    { id: id("aud"), category: "store_setup", action: "store.stripe_connected", summary: "Connected Stripe account acct_1FerroKaffee (DE)", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_ferro", meta: { country: "DE" }, at: iso(8) },
+    { id: id("aud"), category: "publishing", action: "storefront.published", summary: "Published storefront layout “Eröffnung”", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "storefront", entityId: "str_ferro", meta: { sections: 7 }, at: iso(7) },
     { id: id("aud"), category: "administration", action: "store.archived", summary: "Archived store “Halcyon Events Store” after the event series closed", storeId: "str_halcyon", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_halcyon", meta: {}, at: iso(21) },
     { id: id("aud"), category: "administration", action: "tax.bracket_created", summary: "Created global tax bracket “Australia GST” at 10%", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "tax_bracket", entityId: "tax_au10", meta: { rate: 10 }, at: iso(198) },
     { id: id("aud"), category: "administration", action: "supplier.pending", summary: "Added Gooten for commercial review before release to stores", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "supplier", entityId: "sup_gooten", meta: {}, at: iso(35) },
