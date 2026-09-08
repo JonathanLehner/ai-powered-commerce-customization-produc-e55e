@@ -128,8 +128,9 @@ export default async function NewStorePage() {
         {allowance?.atLimit ? null : (
           <div className="mt-6">
             <Callout tone="brand" title="What happens next">
-              You will land on the six-step setup checklist: branding, language and currencies, custom domain,
-              Stripe, carriers and tax. The storefront stays offline until payments and shipping are connected.
+              You will land on the seven-step setup checklist: branding, language and currencies, shopper
+              support contacts, custom domain, Stripe, carriers and tax. The storefront stays offline until
+              payments and shipping are connected.
             </Callout>
           </div>
         )}

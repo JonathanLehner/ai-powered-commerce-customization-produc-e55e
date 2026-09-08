@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
-import { StoreAdminPanel } from "./StoreAdminPanel";
 import {
   agencyStoreAllowance,
   getAgency,
@@ -74,7 +73,15 @@ export default async function StoreOverviewPage({
       {store.status === "archived" ? (
         <Callout tone="slate" title="This store is archived">
           Its storefront is offline and no new orders can be taken. Records stay readable for reporting and
-          audit. Restore it from the store settings below.
+          audit.{" "}
+          {roleCan(role, "store.settings") ? (
+            <Link href={`/app/stores/${store.id}/setup`} className="font-medium underline">
+              Restore it from Settings
+            </Link>
+          ) : (
+            <span>A store administrator can restore it from the store&rsquo;s Settings tab</span>
+          )}
+          .
         </Callout>
       ) : null}
 
@@ -296,8 +303,6 @@ export default async function StoreOverviewPage({
           )}
         </section>
       </div>
-
-      {roleCan(role, "store.settings") ? <StoreAdminPanel store={store} /> : null}
     </div>
   );
 }
