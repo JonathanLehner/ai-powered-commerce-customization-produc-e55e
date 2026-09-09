@@ -37,7 +37,7 @@ export default async function StoreOverviewPage({
 }) {
   const { storeId } = await params;
   const { denied, limit } = await searchParams;
-  const { store, role } = await requireStoreAccess(storeId);
+  const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
   const [orders, products, storefront, audit] = await Promise.all([
     listOrders(store.id),
@@ -63,7 +63,9 @@ export default async function StoreOverviewPage({
     <div className="space-y-7">
       {denied ? (
         <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Your role ({role.replace("_", " ")}) does not include that screen.
+          {viaPlatform
+            ? "Platform access does not include that screen. It stays with the store team."
+            : `Your role (${role.replace("_", " ")}) does not include that screen.`}
         </p>
       ) : null}
 
@@ -124,16 +126,26 @@ export default async function StoreOverviewPage({
       ) : null}
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Sales, last 30 days"
-          value={formatMoney(metrics.last30Sales, store.defaultCurrency)}
-          sub={`${metrics.last30Orders} orders`}
-        />
-        <StatCard
-          label="Lifetime sales"
-          value={formatMoney(metrics.grossSales, store.defaultCurrency)}
-          sub={`${metrics.paidOrders} paid orders`}
-        />
+        {/* Money is the store's own; platform access counts orders instead. */}
+        {viaPlatform ? (
+          <>
+            <StatCard label="Orders, last 30 days" value={String(metrics.last30Orders)} sub="Placed on this store" />
+            <StatCard label="Orders, lifetime" value={String(metrics.orderCount)} sub={`${metrics.paidOrders} paid`} />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Sales, last 30 days"
+              value={formatMoney(metrics.last30Sales, store.defaultCurrency)}
+              sub={`${metrics.last30Orders} orders`}
+            />
+            <StatCard
+              label="Lifetime sales"
+              value={formatMoney(metrics.grossSales, store.defaultCurrency)}
+              sub={`${metrics.paidOrders} paid orders`}
+            />
+          </>
+        )}
         <StatCard
           label="Published products"
           value={String(metrics.publishedProducts)}
@@ -170,7 +182,7 @@ export default async function StoreOverviewPage({
                     <th scope="col" className="py-2 pr-3">Order</th>
                     <th scope="col" className="py-2 pr-3">Placed</th>
                     <th scope="col" className="py-2 pr-3">Status</th>
-                    <th scope="col" className="py-2 pr-3 text-right">Total</th>
+                    {viaPlatform ? null : <th scope="col" className="py-2 pr-3 text-right">Total</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
@@ -183,7 +195,9 @@ export default async function StoreOverviewPage({
                         >
                           {order.code}
                         </Link>
-                        <span className="block text-xs text-muted">{order.customer.name}</span>
+                        {viaPlatform ? null : (
+                          <span className="block text-xs text-muted">{order.customer.name}</span>
+                        )}
                       </td>
                       <td className="py-2.5 pr-3 text-muted">{formatDate(order.createdAt)}</td>
                       <td className="py-2.5 pr-3">
@@ -201,9 +215,11 @@ export default async function StoreOverviewPage({
                           {ORDER_STATUS_LABELS[order.status]}
                         </Badge>
                       </td>
-                      <td className="py-2.5 pr-3 text-right font-medium tabular-nums text-ink">
-                        {formatMoney(order.total, order.currency)}
-                      </td>
+                      {viaPlatform ? null : (
+                        <td className="py-2.5 pr-3 text-right font-medium tabular-nums text-ink">
+                          {formatMoney(order.total, order.currency)}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -230,7 +246,9 @@ export default async function StoreOverviewPage({
                       0
                     ),
                 },
-                { label: "Refunded", value: formatMoney(metrics.refunded, store.defaultCurrency) },
+                ...(viaPlatform
+                  ? []
+                  : [{ label: "Refunded", value: formatMoney(metrics.refunded, store.defaultCurrency) }]),
               ]}
             />
           </div>
@@ -276,10 +294,15 @@ export default async function StoreOverviewPage({
                 <li key={product.name} className="flex items-center justify-between gap-3 py-2.5">
                   <span className="min-w-0 truncate text-ink">{product.name}</span>
                   <span className="shrink-0 text-muted">
-                    {product.units} units ·{" "}
-                    <span className="font-medium text-ink tabular-nums">
-                      {formatMoney(product.revenue, store.defaultCurrency)}
-                    </span>
+                    {product.units} units
+                    {viaPlatform ? null : (
+                      <>
+                        {" · "}
+                        <span className="font-medium text-ink tabular-nums">
+                          {formatMoney(product.revenue, store.defaultCurrency)}
+                        </span>
+                      </>
+                    )}
                   </span>
                 </li>
               ))}

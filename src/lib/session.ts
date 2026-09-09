@@ -2,38 +2,14 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStore, getUserById, listMembershipsForUser } from "./data";
-import type { Membership, Store, StoreRole, User } from "./types";
+import { resolveStoreRole, roleCan, type Capability } from "./store-access";
+import type { Store, StoreRole, User } from "./types";
 
 export const SESSION_COOKIE = "cc_session";
 export const SHOPPER_COOKIE = "cc_shopper";
 
-export type Capability =
-  | "store.settings"
-  | "store.team"
-  | "store.catalog"
-  | "store.orders"
-  | "store.storefront"
-  | "store.gifting"
-  | "store.view";
-
-const ROLE_CAPABILITIES: Record<StoreRole, Capability[]> = {
-  store_admin: [
-    "store.settings",
-    "store.team",
-    "store.catalog",
-    "store.orders",
-    "store.storefront",
-    "store.gifting",
-    "store.view",
-  ],
-  catalog_manager: ["store.catalog", "store.storefront", "store.gifting", "store.view"],
-  order_manager: ["store.orders", "store.view"],
-  viewer: ["store.view"],
-};
-
-export function roleCan(role: StoreRole, capability: Capability): boolean {
-  return ROLE_CAPABILITIES[role].includes(capability);
-}
+export { resolveStoreRole, roleCan };
+export type { Capability, StoreGrant } from "./store-access";
 
 async function sessionUserId(): Promise<string | null> {
   const jar = await cookies();
@@ -64,21 +40,12 @@ export interface StoreAccess {
   role: StoreRole;
   /** True when the user reaches the store through agency ownership rather than an explicit invite. */
   viaAgency: boolean;
-}
-
-/** Resolves the effective store role for a user, or null when they have no access. */
-export function resolveStoreRole(
-  user: User,
-  store: Store,
-  memberships: Membership[],
-): { role: StoreRole; viaAgency: boolean } | null {
-  if (user.platformRole === "platform_admin") return { role: "store_admin", viaAgency: true };
-  if (user.platformRole === "agency_admin" && user.agencyId === store.agencyId) {
-    return { role: "store_admin", viaAgency: true };
-  }
-  const match = memberships.find((m) => m.storeId === store.id && m.status === "active");
-  if (!match) return null;
-  return { role: match.role, viaAgency: false };
+  /**
+   * True when the only reason the store opens is platform oversight. The user
+   * holds no membership and the store belongs to someone else's agency, so the
+   * screens read as status without shopper records.
+   */
+  viaPlatform: boolean;
 }
 
 type AccessDenial = "signed_out" | "no_store" | "not_a_member" | "capability";
@@ -113,7 +80,13 @@ async function loadStoreAccess(
   const resolved = resolveStoreRole(user, store, memberships);
   if (!resolved) return { access: null, denied: "not_a_member" };
 
-  const access: StoreAccess = { user, store, role: resolved.role, viaAgency: resolved.viaAgency };
+  const access: StoreAccess = {
+    user,
+    store,
+    role: resolved.role,
+    viaAgency: resolved.viaAgency,
+    viaPlatform: resolved.viaPlatform,
+  };
   if (!roleCan(resolved.role, capability)) return { access, denied: "capability" };
   return { access, denied: null };
 }
@@ -144,16 +117,23 @@ export async function assertPlatformAdmin(): Promise<User> {
   return user;
 }
 
+export interface AccessibleStore {
+  store: Store;
+  role: StoreRole;
+  /** See `StoreAccess.viaPlatform` — oversight rather than membership. */
+  viaPlatform: boolean;
+}
+
 /** Stores accessible to a user, used by the dashboard and the store switcher. */
-export async function accessibleStores(user: User): Promise<{ store: Store; role: StoreRole }[]> {
+export async function accessibleStores(user: User): Promise<AccessibleStore[]> {
   const { listAllStores, listStoresForAgency } = await import("./data");
   if (user.platformRole === "platform_admin") {
     const stores = await listAllStores();
-    return stores.map((store) => ({ store, role: "store_admin" as StoreRole }));
+    return stores.map((store) => ({ store, role: "viewer" as StoreRole, viaPlatform: true }));
   }
   if (user.platformRole === "agency_admin" && user.agencyId) {
     const stores = await listStoresForAgency(user.agencyId);
-    return stores.map((store) => ({ store, role: "store_admin" as StoreRole }));
+    return stores.map((store) => ({ store, role: "store_admin" as StoreRole, viaPlatform: false }));
   }
   const memberships = (await listMembershipsForUser(user.id)).filter((m) => m.status === "active");
   // One read per membership, all in flight together — fetched in sequence this
@@ -161,6 +141,6 @@ export async function accessibleStores(user: User): Promise<{ store: Store; role
   const stores = await Promise.all(memberships.map((m) => getStore(m.storeId)));
   return memberships.flatMap((m, index) => {
     const store = stores[index];
-    return store ? [{ store, role: m.role }] : [];
+    return store ? [{ store, role: m.role, viaPlatform: false }] : [];
   });
 }

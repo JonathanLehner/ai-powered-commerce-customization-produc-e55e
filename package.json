@@ -23,6 +23,7 @@
     "fallback-check": "node --experimental-strip-types scripts/fallback-check.mjs",
     "catalog-rows-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/catalog-rows-check.mjs",
     "artwork-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/artwork-check.mjs",
+    "platform-access-check": "node --experimental-strip-types scripts/platform-access-check.mjs",
     "whitelabel-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/whitelabel-check.mjs"
   },
   "dependencies": {

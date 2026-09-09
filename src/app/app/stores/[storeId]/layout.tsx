@@ -2,7 +2,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { StoreNav } from "@/components/StoreNav";
 import { Badge } from "@/components/ui";
 import { accessibleStores, requireStoreAccess, roleCan, type Capability } from "@/lib/session";
-import { STORE_ROLE_LABELS } from "@/lib/types";
+import { PLATFORM_ACCESS_NOTE, storeAccessLabel } from "@/lib/types";
 
 export default async function StoreLayout({
   children,
@@ -12,7 +12,7 @@ export default async function StoreLayout({
   params: Promise<{ storeId: string }>;
 }) {
   const { storeId } = await params;
-  const { user, store, role } = await requireStoreAccess(storeId);
+  const { user, store, role, viaPlatform } = await requireStoreAccess(storeId);
   const stores = await accessibleStores(user);
 
   const base = `/app/stores/${store.id}`;
@@ -39,8 +39,13 @@ export default async function StoreLayout({
           <Badge tone={store.status === "active" ? "green" : "slate"}>
             {store.status === "active" ? "Active" : "Archived"}
           </Badge>
-          <Badge tone="neutral">{STORE_ROLE_LABELS[role]}</Badge>
+          <Badge tone={viaPlatform ? "iris" : "neutral"}>{storeAccessLabel(role, viaPlatform)}</Badge>
         </div>
+        {viaPlatform ? (
+          <p className="mx-auto w-full max-w-[92rem] px-4 pt-2 text-xs text-muted sm:px-6">
+            {PLATFORM_ACCESS_NOTE}
+          </p>
+        ) : null}
       </div>
       <StoreNav items={items.filter((i) => roleCan(role, i.capability)).map(({ href, label }) => ({ href, label }))} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">{children}</div>

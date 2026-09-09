@@ -15,6 +15,21 @@ export const STORE_ROLE_LABELS: Record<StoreRole, string> = {
   viewer: "Viewer",
 };
 
+/**
+ * A platform administrator reaches a store through oversight, not membership.
+ * Their badge says so, and their pages withhold shopper records — see
+ * `PLATFORM_ACCESS_NOTE`.
+ */
+export const PLATFORM_ACCESS_LABEL = "Platform access";
+
+export const PLATFORM_ACCESS_NOTE =
+  "Platform access shows operational status only. Shopper names, email addresses, delivery addresses and order values stay with the store team.";
+
+/** What to call the access a person holds over a store, on badges and lists. */
+export function storeAccessLabel(role: StoreRole, viaPlatform: boolean): string {
+  return viaPlatform ? PLATFORM_ACCESS_LABEL : STORE_ROLE_LABELS[role];
+}
+
 export const STORE_ROLE_DESCRIPTIONS: Record<StoreRole, string> = {
   store_admin: "Full control of the store: settings, team, catalog, orders and publishing.",
   catalog_manager:

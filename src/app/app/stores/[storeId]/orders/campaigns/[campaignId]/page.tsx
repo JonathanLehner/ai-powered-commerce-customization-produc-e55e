@@ -36,7 +36,7 @@ export default async function CampaignFulfilmentPage({
   params: Promise<{ storeId: string; campaignId: string }>;
 }) {
   const { storeId, campaignId } = await params;
-  await requireStoreAccess(storeId);
+  const { viaPlatform } = await requireStoreAccess(storeId);
 
   const campaign = await getGiftCampaign(campaignId);
   if (!campaign || campaign.storeId !== storeId)
@@ -65,7 +65,11 @@ export default async function CampaignFulfilmentPage({
         />
         <PageHeader
           title={`${campaign.code} · ${campaign.name}`}
-          description={`${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}, ordered by ${campaign.buyer.name} (${campaign.buyer.email}).`}
+          description={
+            viaPlatform
+              ? `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}. Recipient records stay with the store team.`
+              : `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}, ordered by ${campaign.buyer.name} (${campaign.buyer.email}).`
+          }
           actions={
             <>
               <Badge tone={CAMPAIGN_TONES[campaign.status]}>{CAMPAIGN_STATUS_LABELS[campaign.status]}</Badge>
@@ -77,7 +81,7 @@ export default async function CampaignFulfilmentPage({
                   Filter the order queue
                 </Link>
               ) : null}
-              {catalogue ? (
+              {catalogue && !viaPlatform ? (
                 <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`} className="btn-ghost btn-sm">
                   Gift catalogue
                 </Link>
@@ -95,15 +99,23 @@ export default async function CampaignFulfilmentPage({
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Campaign value"
-          value={formatMoney(campaign.totals.total, campaign.currency)}
-          sub={
-            campaign.payment.status === "succeeded"
-              ? `Paid on card ending ${campaign.payment.last4 ?? "••••"}`
-              : "Not paid yet"
-          }
-        />
+        {viaPlatform ? (
+          <StatCard
+            label="Payment"
+            value={campaign.payment.status === "succeeded" ? "Paid" : "Not paid"}
+            sub="Values stay with the store team"
+          />
+        ) : (
+          <StatCard
+            label="Campaign value"
+            value={formatMoney(campaign.totals.total, campaign.currency)}
+            sub={
+              campaign.payment.status === "succeeded"
+                ? `Paid on card ending ${campaign.payment.last4 ?? "••••"}`
+                : "Not paid yet"
+            }
+          />
+        )}
         <StatCard label="Orders raised" value={String(orders.length)} sub={`${campaign.recipients.length} recipients`} />
         <StatCard label="Shipped" value={String(shipped)} sub={`${delivered} delivered`} />
         <StatCard
@@ -116,8 +128,42 @@ export default async function CampaignFulfilmentPage({
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <section className="card min-w-0 p-5">
-          <h2 className="text-base font-semibold text-ink">Recipients</h2>
-          {campaign.recipients.length === 0 ? (
+          <h2 className="text-base font-semibold text-ink">{viaPlatform ? "Gift orders" : "Recipients"}</h2>
+          {viaPlatform ? (
+            // Recipients are named employees of the client. Platform access sees
+            // the jobs the campaign raised, not who each one is going to.
+            orders.length === 0 ? (
+              <div className="mt-4">
+                <EmptyState
+                  title="No orders raised"
+                  description="Orders appear once the campaign is approved and paid."
+                />
+              </div>
+            ) : (
+              <ul className="mt-4 divide-y divide-line text-sm">
+                {orders.map((order) => (
+                  <li key={order.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
+                    <span className="min-w-0">
+                      <Link
+                        href={`/app/stores/${storeId}/orders/${order.id}`}
+                        className="font-medium text-ink hover:underline"
+                      >
+                        {order.code}
+                      </Link>
+                      <span className="ml-2 text-xs text-muted">
+                        {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
+                        {order.fulfillment.routing === "manual_required" ? "manual required" : order.fulfillment.routing}
+                      </span>
+                      {order.fulfillment.exception ? (
+                        <span className="block text-xs text-rose-700">Fulfilment exception raised</span>
+                      ) : null}
+                    </span>
+                    <Badge tone={ORDER_TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : campaign.recipients.length === 0 ? (
             <div className="mt-4">
               <EmptyState title="No recipients" description="This campaign carries no recipient list." />
             </div>
@@ -212,29 +258,43 @@ export default async function CampaignFulfilmentPage({
             <DataList
               rows={[
                 { label: "Company", value: catalogue?.companyName ?? "—" },
-                { label: "Buyer", value: campaign.buyer.name },
-                {
-                  label: "Spend limit",
-                  value:
-                    campaign.spendLimitPerRecipient > 0
-                      ? `${formatMoney(campaign.spendLimitPerRecipient, campaign.currency)} each`
-                      : "No limit",
-                },
+                ...(viaPlatform
+                  ? []
+                  : [
+                      { label: "Buyer", value: campaign.buyer.name },
+                      {
+                        label: "Spend limit",
+                        value:
+                          campaign.spendLimitPerRecipient > 0
+                            ? `${formatMoney(campaign.spendLimitPerRecipient, campaign.currency)} each`
+                            : "No limit",
+                      },
+                    ]),
                 {
                   label: "Approval",
-                  value: campaign.approval.required
+                  value: viaPlatform
+                    ? campaign.approval.required
+                      ? campaign.approval.decidedBy
+                        ? "Decided"
+                        : "Awaiting approval"
+                      : "Not required"
+                    : campaign.approval.required
                     ? campaign.approval.decidedBy
                       ? `${campaign.approval.decidedBy}, ${formatDateTime(campaign.approval.decidedAt ?? campaign.updatedAt)}`
                       : `Awaiting ${campaign.approval.approverName || campaign.approval.approverEmail}`
                     : "Not required",
                 },
-                { label: "Goods", value: formatMoney(campaign.totals.subtotal, campaign.currency) },
-                { label: "Delivery", value: formatMoney(campaign.totals.shipping, campaign.currency) },
-                { label: "Tax", value: formatMoney(campaign.totals.taxAmount, campaign.currency) },
-                { label: "Total", value: formatMoney(campaign.totals.total, campaign.currency) },
+                ...(viaPlatform
+                  ? []
+                  : [
+                      { label: "Goods", value: formatMoney(campaign.totals.subtotal, campaign.currency) },
+                      { label: "Delivery", value: formatMoney(campaign.totals.shipping, campaign.currency) },
+                      { label: "Tax", value: formatMoney(campaign.totals.taxAmount, campaign.currency) },
+                      { label: "Total", value: formatMoney(campaign.totals.total, campaign.currency) },
+                    ]),
               ]}
             />
-            {campaign.approval.note ? (
+            {campaign.approval.note && !viaPlatform ? (
               <p className="mt-3 rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-inksoft">
                 “{campaign.approval.note}”
               </p>
@@ -247,7 +307,7 @@ export default async function CampaignFulfilmentPage({
               {campaign.events.map((entry, index) => (
                 <li key={`${entry.at}-${index}`} className="py-2.5">
                   <p className="font-medium text-ink">{entry.status}</p>
-                  <p className="text-sm text-inksoft">{entry.note}</p>
+                  {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
                   <p className="text-xs text-muted">
                     {entry.actor} · {formatDateTime(entry.at)}
                   </p>

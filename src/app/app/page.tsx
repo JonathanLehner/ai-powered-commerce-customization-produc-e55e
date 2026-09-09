@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
@@ -7,7 +8,7 @@ import { getAgency, listAudit, listOrders, listStoreProducts } from "@/lib/data"
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeAllowance, storeUsageLabel } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
-import { STORE_ROLE_LABELS, THEMES } from "@/lib/types";
+import { storeAccessLabel, THEMES } from "@/lib/types";
 import { formatMoney, relativeTime } from "@/lib/util";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
@@ -20,15 +21,16 @@ export default async function AgencyDashboard({
 }) {
   const { denied } = await searchParams;
   const user = await requireUser();
+  // A platform administrator runs no store, so they get the oversight view:
+  // grouped by agency, nothing added up across them.
+  if (user.platformRole === "platform_admin") return <PlatformWorkspace user={user} denied={denied} />;
+
   // The store list, the agency and the activity feed only depend on the user,
   // so they are read together instead of one round trip after another.
   const [stores, agency, audit] = await Promise.all([
     accessibleStores(user),
     user.agencyId ? getAgency(user.agencyId) : Promise.resolve(null),
-    listAudit(
-      user.platformRole === "platform_admin" ? {} : { agencyId: user.agencyId ?? "__none__" },
-      recentAuditReadSize(ACTIVITY_ROWS),
-    ),
+    listAudit({ agencyId: user.agencyId ?? "__none__" }, recentAuditReadSize(ACTIVITY_ROWS)),
   ]);
 
   // Repeats are one row here; the platform log and each store's Activity page
@@ -36,17 +38,16 @@ export default async function AgencyDashboard({
   const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
 
   const rows = await Promise.all(
-    stores.map(async ({ store, role }) => {
+    stores.map(async ({ store, role, viaPlatform }) => {
       const [orders, products] = await Promise.all([listOrders(store.id), listStoreProducts(store.id)]);
-      return { store, role, metrics: storeMetrics(orders, products, store.defaultCurrency) };
+      return { store, role, viaPlatform, metrics: storeMetrics(orders, products, store.defaultCurrency) };
     }),
   );
 
   const active = rows.filter((r) => r.store.status === "active");
   const archived = rows.filter((r) => r.store.status === "archived");
 
-  const planAllowance =
-    agency && user.platformRole === "agency_admin" ? storeAllowance(agency.plan, active.length) : null;
+  const planAllowance = agency && user.platformRole === "agency_admin" ? storeAllowance(agency.plan, active.length) : null;
   const planUsage = planAllowance
     ? `${planAllowance.plan.name} plan · ${storeUsageLabel(planAllowance)}${
         planAllowance.atLimit ? " · limit reached" : ""
@@ -74,7 +75,7 @@ export default async function AgencyDashboard({
             </>
           }
           actions={
-            user.platformRole === "agency_admin" || user.platformRole === "platform_admin" ? (
+            user.platformRole === "agency_admin" ? (
               <Link href="/app/stores/new" className="btn-primary">
                 Create a client store
               </Link>
@@ -122,7 +123,7 @@ export default async function AgencyDashboard({
             </div>
           ) : (
             <ul className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-              {active.map(({ store, role, metrics }) => {
+              {active.map(({ store, role, viaPlatform, metrics }) => {
                 const progress = setupProgress(store.setup);
                 const theme = THEMES[store.theme];
                 return (
@@ -145,7 +146,7 @@ export default async function AgencyDashboard({
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      <Badge tone="neutral">{STORE_ROLE_LABELS[role]}</Badge>
+                      <Badge tone="neutral">{storeAccessLabel(role, viaPlatform)}</Badge>
                       <Badge tone={store.stripe.connected ? "green" : "amber"}>
                         {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
                       </Badge>

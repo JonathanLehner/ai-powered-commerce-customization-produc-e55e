@@ -24,7 +24,7 @@ export default async function OrderDetailPage({
   params: Promise<{ storeId: string; orderId: string }>;
 }) {
   const { storeId, orderId } = await params;
-  const { store, role } = await requireStoreAccess(storeId);
+  const { store, role, viaPlatform } = await requireStoreAccess(storeId);
   const canManage = roleCan(role, "store.orders");
 
   const order = await getOrder(orderId);
@@ -50,7 +50,11 @@ export default async function OrderDetailPage({
 
       <PageHeader
         title={order.code}
-        description={`${order.customer.name} · ${order.customer.email} · placed ${formatDateTime(order.createdAt)}`}
+        description={
+          viaPlatform
+            ? `Placed ${formatDateTime(order.createdAt)}`
+            : `${order.customer.name} · ${order.customer.email} · placed ${formatDateTime(order.createdAt)}`
+        }
         actions={
           <>
             <Badge
@@ -66,21 +70,25 @@ export default async function OrderDetailPage({
             >
               {ORDER_STATUS_LABELS[order.status]}
             </Badge>
-            <Link
-              href={`/s/${store.slug}/orders/${order.code}`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-secondary btn-sm"
-            >
-              Shopper status page ↗
-            </Link>
+            {viaPlatform ? null : (
+              <Link
+                href={`/s/${store.slug}/orders/${order.code}`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-secondary btn-sm"
+              >
+                Shopper status page ↗
+              </Link>
+            )}
           </>
         }
       />
 
       {order.fulfillment.exception ? (
         <Callout tone="rose" title="Supplier exception">
-          {order.fulfillment.exception}
+          {viaPlatform
+            ? "The store team has the detail of this exception."
+            : order.fulfillment.exception}
           {canManage ? (
             <form action={resolveException} className="mt-3">
               <input type="hidden" name="storeId" value={storeId} />
@@ -100,7 +108,7 @@ export default async function OrderDetailPage({
             <ul className="mt-4 divide-y divide-line">
               {order.items.map((item) => (
                 <li key={item.id} className="flex flex-wrap gap-4 py-4">
-                  {item.customization.previewUrl ? (
+                  {item.customization.previewUrl && !viaPlatform ? (
                     <Image
                       src={item.customization.previewUrl}
                       alt={`${item.productName} preview`}
@@ -114,15 +122,16 @@ export default async function OrderDetailPage({
                     <p className="text-sm font-semibold text-ink">{item.productName}</p>
                     <p className="text-xs text-muted">{item.variantName}</p>
                     <p className="mt-1 text-xs text-muted">
-                      Quantity {item.quantity} · {formatMoney(item.unitPrice, order.currency)} each · supplier
-                      cost {formatMoney(item.supplierCost, order.currency)}
+                      {viaPlatform
+                        ? `Quantity ${item.quantity}`
+                        : `Quantity ${item.quantity} · ${formatMoney(item.unitPrice, order.currency)} each · supplier cost ${formatMoney(item.supplierCost, order.currency)}`}
                     </p>
-                    {item.customization.text ? (
+                    {item.customization.text && !viaPlatform ? (
                       <p className="mt-1.5 text-xs text-inksoft">
                         Personalisation: <span className="font-medium text-ink">{item.customization.text}</span>
                       </p>
                     ) : null}
-                    {item.customization.artworkFileName ? (
+                    {item.customization.artworkFileName && !viaPlatform ? (
                       <p className="mt-1 text-xs text-muted">
                         Artwork:{" "}
                         {item.customization.artworkUrl ? (
@@ -150,14 +159,22 @@ export default async function OrderDetailPage({
                       </p>
                     ) : null}
                   </div>
-                  <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-                    {formatMoney(item.unitPrice * item.quantity, order.currency)}
-                  </p>
+                  {viaPlatform ? null : (
+                    <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
+                      {formatMoney(item.unitPrice * item.quantity, order.currency)}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
 
             <div className="mt-4 border-t border-line pt-4">
+              {viaPlatform ? (
+                <p className="text-sm text-muted">
+                  Order values stay with the store team. {order.items.length}{" "}
+                  {order.items.length === 1 ? "line" : "lines"} on this order.
+                </p>
+              ) : (
               <DataList
                 rows={[
                   { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
@@ -175,6 +192,7 @@ export default async function OrderDetailPage({
                     : []),
                 ]}
               />
+              )}
             </div>
           </section>
 
@@ -186,7 +204,9 @@ export default async function OrderDetailPage({
                   <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink">{entry.status}</p>
-                    <p className="text-sm text-inksoft">{entry.note}</p>
+                    {/* Notes quote amounts and, on a refund, the reason the team
+                        wrote. Platform access sees the step, not the wording. */}
+                    {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
                     <p className="text-xs text-muted">
                       {formatDateTime(entry.at)} · {entry.actor}
                     </p>
@@ -290,16 +310,25 @@ export default async function OrderDetailPage({
         <div className="space-y-6">
           <section className="card p-5">
             <h2 className="text-base font-semibold text-ink">Delivery</h2>
-            <address className="mt-3 not-italic text-sm text-inksoft">
-              {order.customer.name}
-              <br />
-              {order.customer.line1}
-              <br />
-              {order.customer.city} {order.customer.postalCode}
-              <br />
-              {countryName(order.customer.country)} ({order.customer.country}) ·{" "}
-              {regionForCountry(order.customer.country)}
-            </address>
+            {viaPlatform ? (
+              // The fulfilment region is what routes the job; the address itself
+              // is a shopper record and stays with the store team.
+              <p className="mt-3 text-sm text-inksoft">
+                Delivery address withheld. Fulfilment region:{" "}
+                <span className="font-medium text-ink">{regionForCountry(order.customer.country)}</span>.
+              </p>
+            ) : (
+              <address className="mt-3 not-italic text-sm text-inksoft">
+                {order.customer.name}
+                <br />
+                {order.customer.line1}
+                <br />
+                {order.customer.city} {order.customer.postalCode}
+                <br />
+                {countryName(order.customer.country)} ({order.customer.country}) ·{" "}
+                {regionForCountry(order.customer.country)}
+              </address>
+            )}
             {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
               <a
                 href={order.fulfillment.trackingUrl ?? "#"}
@@ -327,9 +356,19 @@ export default async function OrderDetailPage({
                     </Badge>
                   ),
                 },
-                { label: "Account", value: <span className="font-mono text-xs">{order.payment.stripeAccountId}</span> },
-                { label: "Intent", value: <span className="font-mono text-xs">{order.payment.paymentIntentId}</span> },
-                { label: "Card", value: order.payment.last4 ? `•••• ${order.payment.last4}` : "—" },
+                ...(viaPlatform
+                  ? []
+                  : [
+                      {
+                        label: "Account",
+                        value: <span className="font-mono text-xs">{order.payment.stripeAccountId}</span>,
+                      },
+                      {
+                        label: "Intent",
+                        value: <span className="font-mono text-xs">{order.payment.paymentIntentId}</span>,
+                      },
+                      { label: "Card", value: order.payment.last4 ? `•••• ${order.payment.last4}` : "—" },
+                    ]),
                 { label: "Paid", value: order.payment.paidAt ? formatDateTime(order.payment.paidAt) : "—" },
               ]}
             />
@@ -393,7 +432,7 @@ export default async function OrderDetailPage({
                 {order.refunds.map((refund) => (
                   <li key={refund.id} className="py-2.5">
                     <p className="font-medium tabular-nums text-ink">
-                      {formatMoney(refund.amount, order.currency)}
+                      {viaPlatform ? "Refund issued" : formatMoney(refund.amount, order.currency)}
                     </p>
                     <p className="text-xs text-muted">
                       {refund.reason} · {refund.actor} · {formatDateTime(refund.at)}

@@ -25,7 +25,7 @@ export default async function OrdersPage({
 }) {
   const { storeId } = await params;
   const { status, q, view, campaign } = await searchParams;
-  const { store } = await requireStoreAccess(storeId);
+  const { store, viaPlatform } = await requireStoreAccess(storeId);
 
   const [orders, products, campaigns] = await Promise.all([
     listOrders(storeId),
@@ -59,7 +59,12 @@ export default async function OrdersPage({
     .filter((o) =>
       !q
         ? true
-        : `${o.code} ${o.customer.name} ${o.customer.email} ${o.fulfillment.trackingNumber ?? ""}`
+        : // Under platform access the shopper fields are not searchable either — a
+          // hit would name the shopper just as plainly as printing the column.
+          (viaPlatform
+            ? `${o.code} ${o.fulfillment.trackingNumber ?? ""}`
+            : `${o.code} ${o.customer.name} ${o.customer.email} ${o.fulfillment.trackingNumber ?? ""}`
+          )
             .toLowerCase()
             .includes(q.toLowerCase()),
     );
@@ -70,8 +75,12 @@ export default async function OrdersPage({
         title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : `${orders.length} orders`}
         description={
           activeCampaign
-            ? `Every order in this gift campaign, ${activeCampaign.recipients.length} recipients from ${activeCampaign.buyer.name}.`
-            : "Production and delivery status for every order placed on this store."
+            ? viaPlatform
+              ? `Every order in this gift campaign, ${activeCampaign.recipients.length} recipients.`
+              : `Every order in this gift campaign, ${activeCampaign.recipients.length} recipients from ${activeCampaign.buyer.name}.`
+            : viaPlatform
+              ? "Production and delivery status for every order placed on this store. Shopper records stay with the store team."
+              : "Production and delivery status for every order placed on this store."
         }
         actions={
           <Link
@@ -84,11 +93,15 @@ export default async function OrdersPage({
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Lifetime sales"
-          value={formatMoney(metrics.grossSales, store.defaultCurrency)}
-          sub={`${metrics.paidOrders} paid orders`}
-        />
+        {viaPlatform ? (
+          <StatCard label="Orders" value={String(metrics.orderCount)} sub={`${metrics.paidOrders} paid`} />
+        ) : (
+          <StatCard
+            label="Lifetime sales"
+            value={formatMoney(metrics.grossSales, store.defaultCurrency)}
+            sub={`${metrics.paidOrders} paid orders`}
+          />
+        )}
         <StatCard label="In production" value={String(metrics.inProduction)} sub="Paid or being made" />
         <StatCard label="Shipped" value={String(metrics.shipped)} sub={`${metrics.delivered} delivered`} />
         <StatCard
@@ -103,9 +116,11 @@ export default async function OrdersPage({
         <section className="card p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-ink">Gift campaigns</h2>
-            <Link href={`/app/stores/${storeId}/gifting`} className="text-sm font-medium text-brand-700 hover:underline">
-              Gifting
-            </Link>
+            {viaPlatform ? null : (
+              <Link href={`/app/stores/${storeId}/gifting`} className="text-sm font-medium text-brand-700 hover:underline">
+                Gifting
+              </Link>
+            )}
           </div>
           <ul className="mt-3 flex flex-wrap gap-2">
             {campaignRows.map((row) => (
@@ -161,7 +176,7 @@ export default async function OrdersPage({
             id="q"
             name="q"
             defaultValue={q ?? ""}
-            placeholder="Order code, customer or tracking number"
+            placeholder={viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"}
             className="input py-1.5"
           />
         </div>
@@ -203,10 +218,10 @@ export default async function OrdersPage({
             <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
                 <th scope="col" className="px-4 py-3">Order</th>
-                <th scope="col" className="px-4 py-3">Customer</th>
+                {viaPlatform ? null : <th scope="col" className="px-4 py-3">Customer</th>}
                 <th scope="col" className="px-4 py-3">Status</th>
                 <th scope="col" className="px-4 py-3">Fulfilment</th>
-                <th scope="col" className="px-4 py-3 text-right">Total</th>
+                {viaPlatform ? null : <th scope="col" className="px-4 py-3 text-right">Total</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -221,29 +236,32 @@ export default async function OrdersPage({
                     </Link>
                     <p className="text-xs text-muted">{formatDate(order.createdAt)}</p>
                   </td>
-                  <td className="px-4 py-3">
-                    <p className="text-ink">{order.customer.name}</p>
-                    <p className="text-xs text-muted">
-                      {order.customer.city}, {order.customer.country}
-                    </p>
-                    {order.campaign ? (
-                      <Link
-                        href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
-                        className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
-                      >
-                        Gift · {order.campaign.campaignCode}
-                      </Link>
-                    ) : null}
-                  </td>
+                  {viaPlatform ? null : (
+                    <td className="px-4 py-3">
+                      <p className="text-ink">{order.customer.name}</p>
+                      <p className="text-xs text-muted">
+                        {order.customer.city}, {order.customer.country}
+                      </p>
+                      {order.campaign ? (
+                        <Link
+                          href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
+                          className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
+                        >
+                          Gift · {order.campaign.campaignCode}
+                        </Link>
+                      ) : null}
+                    </td>
+                  )}
                   <td className="px-4 py-3">
                     <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
                     {order.refunds.length > 0 ? (
                       <p className="mt-1 text-xs text-muted">
-                        {formatMoney(
-                          order.refunds.reduce((s, r) => s + r.amount, 0),
-                          order.currency,
-                        )}{" "}
-                        refunded
+                        {viaPlatform
+                          ? "Refunded"
+                          : `${formatMoney(
+                              order.refunds.reduce((s, r) => s + r.amount, 0),
+                              order.currency,
+                            )} refunded`}
                       </p>
                     ) : null}
                   </td>
@@ -267,12 +285,16 @@ export default async function OrdersPage({
                       </a>
                     ) : null}
                     {order.fulfillment.exception ? (
-                      <p className="mt-1 text-xs text-rose-700">{order.fulfillment.exception}</p>
+                      <p className="mt-1 text-xs text-rose-700">
+                        {viaPlatform ? "Fulfilment exception raised" : order.fulfillment.exception}
+                      </p>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
-                    {formatMoney(order.total, order.currency)}
-                  </td>
+                  {viaPlatform ? null : (
+                    <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
+                      {formatMoney(order.total, order.currency)}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

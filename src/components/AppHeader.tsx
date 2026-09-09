@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import { Badge, Logo } from "@/components/ui";
-import { STORE_ROLE_LABELS, type Store, type StoreRole, type User } from "@/lib/types";
+import type { AccessibleStore } from "@/lib/session";
+import { storeAccessLabel, type User } from "@/lib/types";
 
 export function AppHeader({
   user,
@@ -9,7 +10,7 @@ export function AppHeader({
   currentStoreId,
 }: {
   user: User;
-  stores: { store: Store; role: StoreRole }[];
+  stores: AccessibleStore[];
   currentStoreId?: string;
 }) {
   const active = stores.filter((s) => s.store.status === "active");
@@ -41,7 +42,7 @@ export function AppHeader({
               {active.length === 0 ? (
                 <li className="px-2 py-2 text-sm text-muted">No active stores yet.</li>
               ) : null}
-              {active.map(({ store, role }) => (
+              {active.map(({ store, role, viaPlatform }) => (
                 <li key={store.id}>
                   <Link
                     href={`/app/stores/${store.id}`}
@@ -55,7 +56,9 @@ export function AppHeader({
                       <span className="block truncate">{store.name}</span>
                       <span className="block truncate text-xs text-muted">{store.clientName}</span>
                     </span>
-                    <span className="shrink-0 text-[11px] text-muted">{STORE_ROLE_LABELS[role].split(" ")[0]}</span>
+                    <span className="shrink-0 text-[11px] text-muted">
+                      {storeAccessLabel(role, viaPlatform).split(" ")[0]}
+                    </span>
                   </Link>
                 </li>
               ))}
