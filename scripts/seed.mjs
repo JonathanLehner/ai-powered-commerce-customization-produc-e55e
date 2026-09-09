@@ -1122,7 +1122,12 @@ async function main() {
     const total = store.pricesIncludeTax ? subtotal + shipping : subtotal + shipping + taxAmount;
 
     const region = REGION_OF[plan.country] ?? "Rest of world";
-    const outOfRegion = !supplier.regions.includes(region);
+    // Coverage follows the catalog product the line was imported from, not the
+    // supplier record: a partner can trade in a region without producing this
+    // product line there, and the product record is what routing trusts.
+    const sourceProduct = catalog.find((c) => c.id === product.catalogProductId);
+    const outOfRegion =
+      !supplier.regions.includes(region) || !(sourceProduct?.fulfillmentRegions ?? []).includes(region);
     const routing = plan.status === "exception" || outOfRegion ? "manual_required" : plan.status === "awaiting_payment" ? "pending" : "submitted";
 
     const e = EVENT_COPY[store.defaultLanguage] ?? EVENT_COPY.en;
@@ -1206,7 +1211,7 @@ async function main() {
         trackingUrl: carrier && tracking ? TRACK_URL[carrier](tracking) : null,
         exception:
           plan.status === "exception"
-            ? `Destination ${plan.country} (${region}) is outside ${supplier.name}'s fulfilment regions.`
+            ? `Destination ${plan.country} (${region}) is outside ${supplier.name}'s fulfilment regions for ${sourceProduct ? sourceProduct.productType.split(",")[0].trim() : product.name}.`
             : null,
       },
       refunds:

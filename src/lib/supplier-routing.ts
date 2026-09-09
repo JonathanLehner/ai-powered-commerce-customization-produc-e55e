@@ -42,11 +42,23 @@ export function orderRequirements(
   return Array.from(byKey.values());
 }
 
-/** The requirements a supplier's catalog cannot cover. Empty means it can make the order. */
-export function unmetBy(catalog: CatalogProduct[], requirements: ItemRequirement[]): ItemRequirement[] {
+/**
+ * The requirements a supplier's catalog cannot cover. Empty means it can make
+ * the order. A region narrows the test to the catalog products that are
+ * actually fulfilled there: a supplier record lists every region the partner
+ * trades in, while each catalog product carries the regions that product line
+ * is produced for, and it is the product record that decides whether a
+ * particular garment can reach a particular destination.
+ */
+export function unmetBy(
+  catalog: CatalogProduct[],
+  requirements: ItemRequirement[],
+  region: string | null = null,
+): ItemRequirement[] {
+  const usable = region === null ? catalog : catalog.filter((p) => p.fulfillmentRegions.includes(region));
   return requirements.filter(
     (req) =>
-      !catalog.some(
+      !usable.some(
         (product) =>
           (req.family === null || productFamily(product.productType) === req.family) &&
           (req.category === null || product.category === req.category),
@@ -54,39 +66,47 @@ export function unmetBy(catalog: CatalogProduct[], requirements: ItemRequirement
   );
 }
 
-function toChoice(supplier: Supplier, currentSupplierId: string | null): SupplierChoice {
+function toChoice(supplier: Supplier): SupplierChoice {
   return {
     id: supplier.id,
     name: supplier.name,
     kind: supplier.kind,
     leadTimeDays: supplier.leadTimeDays,
-    current: supplier.id === currentSupplierId,
   };
 }
 
 /**
  * Splits the supplier list into the partners that could take this job and the
  * ones that cover the destination but have to be ordered from by hand. A
- * supplier qualifies only if the platform has approved it, it produces in the
- * destination's region, and its catalog covers everything on the order.
+ * supplier qualifies only if the platform has approved it and its own catalog
+ * covers everything on the order *for the destination region* — the same
+ * product-level fulfilment regions that raise an out-of-region exception in the
+ * first place, so the picker can never offer a partner the routing engine has
+ * just refused. The supplier record's own region list is checked too, so a
+ * partner is offered only where both records agree it produces.
+ *
+ * `excludeSupplierId` is the supplier the order sits with now. It is left out
+ * of both lists: this picker exists to move a job somewhere else, and offering
+ * the partner the job already failed on is never an answer.
  */
 export function routingChoices(input: {
   suppliers: Supplier[];
   catalog: CatalogProduct[];
   requirements: ItemRequirement[];
   region: string;
-  currentSupplierId: string | null;
+  excludeSupplierId: string | null;
 }): { available: SupplierChoice[]; manualOnly: SupplierChoice[] } {
   const available: SupplierChoice[] = [];
   const manualOnly: SupplierChoice[] = [];
 
   for (const supplier of input.suppliers) {
+    if (supplier.id === input.excludeSupplierId) continue;
     if (supplier.status !== "approved") continue;
     if (!supplier.regions.includes(input.region)) continue;
     const theirs = input.catalog.filter((product) => product.supplierId === supplier.id);
-    if (unmetBy(theirs, input.requirements).length > 0) continue;
+    if (unmetBy(theirs, input.requirements, input.region).length > 0) continue;
 
-    const choice = toChoice(supplier, input.currentSupplierId);
+    const choice = toChoice(supplier);
     if (supplier.integration === "api" && supplier.capabilities.orderSubmission) available.push(choice);
     else manualOnly.push(choice);
   }

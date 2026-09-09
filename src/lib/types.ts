@@ -209,14 +209,16 @@ export interface ItemRequirement {
   category: string | null;
 }
 
-/** A supplier offered as somewhere an order could be produced instead. */
+/**
+ * A supplier offered as somewhere an order could be produced instead. The
+ * supplier the order sits with now is never one of these — a reroute has to
+ * move the job somewhere it has not already failed.
+ */
 export interface SupplierChoice {
   id: string;
   name: string;
   kind: Supplier["kind"];
   leadTimeDays: [number, number];
-  /** True for the supplier the order is routed to right now. */
-  current: boolean;
 }
 
 /** Where a job that automatic routing could not place could go instead. */
@@ -224,7 +226,7 @@ export interface RoutingOptions {
   region: string;
   destination: string;
   requirements: ItemRequirement[];
-  /** Approved, in-region, makes every item, and takes jobs over its order API. */
+  /** Approved, produces every item for this region, and takes jobs over its order API. */
   available: SupplierChoice[];
   /** Same, but with no order submission API — those are manual purchase orders. */
   manualOnly: SupplierChoice[];

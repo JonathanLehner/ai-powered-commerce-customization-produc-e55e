@@ -4,12 +4,15 @@ import { orderRequirements, productFamily, routingChoices, unmetBy } from "../sr
 
 /* ------------------------------------------------------------- the catalog */
 
+// Each catalog product carries the regions that product line is produced for.
+// They are narrower than the supplier record on purpose: Gelato trades in
+// Africa, but its tee is not made for it.
 const catalog = [
-  { id: "cat_tee_heavy", supplierId: "sup_printful", category: "apparel", productType: "T-shirt, 180 gsm" },
-  { id: "cat_hoodie_premium", supplierId: "sup_printful", category: "apparel", productType: "Hoodie, 320 gsm brushed fleece" },
-  { id: "cat_tee_organic", supplierId: "sup_gelato", category: "apparel", productType: "T-shirt, GOTS certified 180 gsm" },
-  { id: "cat_mug_classic", supplierId: "sup_gelato", category: "drinkware", productType: "Mug, 11oz white ceramic" },
-  { id: "cat_mug_matte", supplierId: "sup_printify", category: "drinkware", productType: "Mug, 15oz matte black ceramic" },
+  { id: "cat_tee_heavy", supplierId: "sup_printful", category: "apparel", productType: "T-shirt, 180 gsm", fulfillmentRegions: ["North America", "European Union"] },
+  { id: "cat_hoodie_premium", supplierId: "sup_printful", category: "apparel", productType: "Hoodie, 320 gsm brushed fleece", fulfillmentRegions: ["North America", "European Union"] },
+  { id: "cat_tee_organic", supplierId: "sup_gelato", category: "apparel", productType: "T-shirt, GOTS certified 180 gsm", fulfillmentRegions: ["North America", "European Union"] },
+  { id: "cat_mug_classic", supplierId: "sup_gelato", category: "drinkware", productType: "Mug, 11oz white ceramic", fulfillmentRegions: ["North America", "European Union", "Africa"] },
+  { id: "cat_mug_matte", supplierId: "sup_printify", category: "drinkware", productType: "Mug, 15oz matte black ceramic", fulfillmentRegions: ["North America", "Africa"] },
 ];
 
 const api = { catalog: true, quotes: true, inventory: true, mockups: true, orderSubmission: true, tracking: true, cancellation: true };
@@ -22,9 +25,9 @@ const suppliers = [
   { id: "sup_gooten", name: "Gooten", kind: "print_on_demand", status: "pending_review", integration: "api", capabilities: api, leadTimeDays: [4, 9], regions: ["Africa"] },
 ];
 // The sourcing marketplace lists the same tee, but orders are raised by hand.
-catalog.push({ id: "cat_tee_bulk", supplierId: "sup_alibaba", category: "apparel", productType: "T-shirt, bulk 200 gsm" });
+catalog.push({ id: "cat_tee_bulk", supplierId: "sup_alibaba", category: "apparel", productType: "T-shirt, bulk 200 gsm", fulfillmentRegions: ["Africa", "APAC"] });
 // Pending approval, and it makes the tee — approval is what keeps it out.
-catalog.push({ id: "cat_tee_gooten", supplierId: "sup_gooten", category: "apparel", productType: "T-shirt, 190 gsm" });
+catalog.push({ id: "cat_tee_gooten", supplierId: "sup_gooten", category: "apparel", productType: "T-shirt, 190 gsm", fulfillmentRegions: ["Africa"] });
 
 /* ------------------------------------------------ what the order needs made */
 
@@ -68,39 +71,49 @@ assert.deepEqual(orphanNeeds, [{ label: "Retired Tumbler", family: null, categor
 assert.equal(unmetBy(catalog.filter((c) => c.supplierId === "sup_gelato"), orphanNeeds).length, 0);
 assert.equal(unmetBy(catalog.filter((c) => c.supplierId === "sup_printful"), orphanNeeds).length, 1);
 
+// With a region, only the products made for that region count. Gelato's tee is
+// produced for the EU and not for Africa, which is what raises the exception on
+// a Cape Town order in the first place.
+const gelato = catalog.filter((c) => c.supplierId === "sup_gelato");
+assert.equal(unmetBy(gelato, teeNeeds, "European Union").length, 0);
+assert.equal(unmetBy(gelato, teeNeeds, "Africa").length, 1);
+assert.equal(unmetBy(gelato, teeNeeds).length, 0);
+
 /* ------------------------------------------------------- who can take the job */
 
-const forRegion = (region, requirements, currentSupplierId = "sup_printful") =>
-  routingChoices({ suppliers, catalog, requirements, region, currentSupplierId });
+const forRegion = (region, requirements, excludeSupplierId = "sup_printful") =>
+  routingChoices({ suppliers, catalog, requirements, region, excludeSupplierId });
 
 const africa = forRegion("Africa", teeNeeds);
-// Gelato produces in Africa and makes a tee. Printful is out of region, Printify
-// makes no apparel, Gooten is not approved yet.
-assert.deepEqual(africa.available.map((s) => s.id), ["sup_gelato"]);
-// Alibaba covers the region and the garment but cannot be sent a job.
+// The supplier record says Gelato produces in Africa, but the tee it would make
+// is not fulfilled there — the product record decides, so nothing is offered.
+assert.deepEqual(africa.available.map((s) => s.id), []);
+// Alibaba's bulk tee is made for Africa, but it cannot be sent a job.
 assert.deepEqual(africa.manualOnly.map((s) => s.id), ["sup_alibaba"]);
 
-// A mug into Africa: Printify makes one and produces there, and the supplier the
-// order already sits with stays on the list, flagged as the current one.
-const mugAfrica = forRegion(
-  "Africa",
-  orderRequirements(
-    order([{ storeProductId: "prd_mug", productName: "Desk Mug", supplierId: "sup_gelato" }]),
-    storeProducts,
-    catalog,
-  ),
-  "sup_gelato",
-);
-assert.deepEqual(mugAfrica.available.map((s) => [s.id, s.current]), [
-  ["sup_gelato", true],
-  ["sup_printify", false],
-]);
-// Alibaba sells no drinkware, so it is not offered as a manual fallback either.
-assert.deepEqual(mugAfrica.manualOnly.map((s) => s.id), []);
+// The supplier the job already failed on is never offered back, on either list.
+const teeFailedOnAlibaba = forRegion("Africa", teeNeeds, "sup_alibaba");
+assert.deepEqual(teeFailedOnAlibaba.available.map((s) => s.id), []);
+assert.deepEqual(teeFailedOnAlibaba.manualOnly.map((s) => s.id), []);
 
-// A tee and a mug together: only a supplier making both qualifies.
+// A mug into Africa: Gelato's mug is fulfilled there, so it qualifies — except
+// for the order that is already sitting with Gelato and could not be produced.
+const mugNeeds = orderRequirements(
+  order([{ storeProductId: "prd_mug", productName: "Desk Mug", supplierId: "sup_gelato" }]),
+  storeProducts,
+  catalog,
+);
+assert.deepEqual(forRegion("Africa", mugNeeds, null).available.map((s) => s.id), ["sup_gelato", "sup_printify"]);
+assert.deepEqual(forRegion("Africa", mugNeeds, "sup_gelato").available.map((s) => s.id), ["sup_printify"]);
+// Alibaba sells no drinkware, so it is not offered as a manual fallback either.
+assert.deepEqual(forRegion("Africa", mugNeeds, "sup_gelato").manualOnly.map((s) => s.id), []);
+
+// A tee and a mug together: only a supplier making both, for that region, qualifies.
 const bothEU = forRegion("European Union", mixedNeeds);
 assert.deepEqual(bothEU.available.map((s) => s.id), ["sup_gelato"]);
+// Gelato makes both, but only its mug reaches Africa, so a tee-and-mug order to
+// Cape Town has nowhere to go: covering part of an order is not covering it.
+assert.deepEqual(forRegion("Africa", mixedNeeds).available.map((s) => s.id), []);
 
 // A region no approved supplier produces in leaves nothing to pick at all.
 const middleEast = forRegion("Middle East", teeNeeds);

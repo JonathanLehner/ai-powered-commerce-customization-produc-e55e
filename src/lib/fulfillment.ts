@@ -1,7 +1,7 @@
 import "server-only";
 import { getSupplier, listCatalogProducts, listStoreProducts, listSuppliers } from "./data";
 import { countryName, regionForCountry } from "./countries";
-import { orderRequirements, routingChoices } from "./supplier-routing";
+import { orderRequirements, routingChoices, unmetBy } from "./supplier-routing";
 import type { Order, RoutingOptions, Store, Supplier } from "./types";
 
 // The country → region table lives in ./countries so the checkout form can warn
@@ -81,6 +81,34 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
   }
 
   const region = regionForCountry(order.customer.country);
+  // Coverage is judged on the catalog products this supplier would actually
+  // make, not only on the regions its supplier record claims: a partner can
+  // trade in a region and still not produce this particular product line
+  // there. The supplier picker applies the same test, so an order held here
+  // is never offered back to the partner that could not take it.
+  const [catalog, storeProducts] = await Promise.all([
+    listCatalogProducts(),
+    listStoreProducts(order.storeId),
+  ]);
+  const requirements = orderRequirements(order, storeProducts, catalog);
+  const theirs = catalog.filter((product) => product.supplierId === supplier.id);
+  const unmetHere = unmetBy(theirs, requirements, region);
+  if (unmetHere.length > 0) {
+    const madeSomewhere = unmetBy(theirs, requirements).length === 0;
+    const needs = unmetHere.map((r) => r.label).join(", ");
+    return {
+      routing: "manual_required",
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      supplierOrderRef: null,
+      message: madeSomewhere
+        ? `${supplier.name} does not fulfil to ${countryName(order.customer.country)} (${region}). Route this job to an alternative production partner.`
+        : `${supplier.name} no longer lists ${needs} in its catalog. Route this job to an alternative production partner.`,
+      exception: madeSomewhere
+        ? `Destination ${countryName(order.customer.country)} (${order.customer.country} · ${region}) is outside ${supplier.name}'s fulfilment regions for ${needs}.`
+        : `${supplier.name} does not make ${needs}. Re-link the product to an approved supplier.`,
+    };
+  }
   if (!supplier.regions.includes(region)) {
     return {
       routing: "manual_required",
@@ -148,7 +176,7 @@ export async function routingOptionsFor(order: Order, store: Store): Promise<Rou
       catalog,
       requirements,
       region,
-      currentSupplierId: order.fulfillment.supplierId,
+      excludeSupplierId: order.fulfillment.supplierId,
     }),
     carriersEnabled: store.carriers.some((c) => c.enabled),
   };
@@ -169,6 +197,7 @@ export async function submitToSupplier(
 
   if (!eligible) {
     const manual = options.manualOnly.some((choice) => choice.id === supplier.id);
+    const same = supplier.id === order.fulfillment.supplierId;
     return {
       routing: "manual_required",
       supplierId: supplier.id,
@@ -176,7 +205,9 @@ export async function submitToSupplier(
       supplierOrderRef: null,
       message: manual
         ? `${supplier.name} has no order submission API. Raise the purchase order manually and record the reference here.`
-        : `${supplier.name} cannot take this job — check it is approved, produces in ${options.region} and makes ${options.requirements.map((r) => r.label).join(", ")}.`,
+        : same
+          ? `${supplier.name} already holds this job and could not produce it. Pick a different production partner.`
+          : `${supplier.name} cannot take this job — check it is approved, produces ${options.requirements.map((r) => r.label).join(", ")} for ${options.region}, and is not the partner this job already failed on.`,
       exception: null,
     };
   }

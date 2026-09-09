@@ -19,36 +19,64 @@ const SUPPLIER_KINDS: Record<SupplierChoice["kind"], string> = {
 
 function choiceLabel(choice: SupplierChoice): string {
   const lead = `${choice.leadTimeDays[0]}–${choice.leadTimeDays[1]} day lead time`;
-  return `${choice.name} — ${SUPPLIER_KINDS[choice.kind]}, ${lead}${choice.current ? " (current supplier)" : ""}`;
+  return `${choice.name} — ${SUPPLIER_KINDS[choice.kind]}, ${lead}`;
 }
 
 /**
  * Picks the production partner for a job automatic routing could not place.
- * Only suppliers that are approved, produce in the destination's region and
- * make everything on the order are offered; when that list is empty the panel
- * says so plainly and sends the order manager to the manual purchase order
- * field instead of showing a control that cannot work.
+ * Only suppliers that are approved, produce everything on the order for the
+ * destination region, and are not the partner the job has already failed on
+ * are offered — the same product-level test that raised the exception, so the
+ * picker can never suggest the supplier the page has just said cannot do it.
+ * When that leaves nobody, the panel drops the dropdown and the submit button
+ * and names the routes forward that do exist instead.
  */
 export function SupplierPickerForm({ order, options }: { order: Order; options: RoutingOptions }) {
   const needs = options.requirements.map((r) => r.label).join(", ");
 
+  // "Failed on" only reads true for a job routing could not place; the same
+  // panel doubles as "move production elsewhere" for one already accepted.
+  const held = order.fulfillment.routing !== "submitted";
+
   if (options.available.length === 0) {
+    const current = order.fulfillment.supplierName;
     return (
       <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-        <p className="font-semibold">No approved supplier can produce this order for {options.destination}.</p>
+        <p className="font-semibold">
+          No approved partner produces this product family{needs ? ` (${needs})` : ""} for{" "}
+          {options.destination}.
+        </p>
         <p className="mt-1">
-          Nothing on the approved list covers {options.region} and makes {needs || "these items"}.
+          Every approved supplier was checked against the product records this order was sourced from, and
+          none of them fulfils {needs || "these items"} to {options.region}
+          {current
+            ? `, including ${current}, which ${held ? "the job has already failed on" : "it is with now"}`
+            : ""}
+          .
           {options.manualOnly.length > 0 ? (
             <>
               {" "}
-              {options.manualOnly.map((s) => s.name).join(", ")} produce
-              {options.manualOnly.length === 1 ? "s" : ""} in {options.region} but{" "}
-              {options.manualOnly.length === 1 ? "has" : "have"} no order submission API.
+              {options.manualOnly.map((s) => s.name).join(", ")} cover
+              {options.manualOnly.length === 1 ? "s" : ""} this order but{" "}
+              {options.manualOnly.length === 1 ? "has" : "have"} no order submission API, so{" "}
+              {options.manualOnly.length === 1 ? "it takes" : "they take"} a purchase order raised by hand.
             </>
-          ) : null}{" "}
-          Raise the purchase order with a partner yourself and record its reference below, or refund the
-          shopper.
+          ) : null}
         </p>
+        <p className="mt-2 font-semibold">The routes forward are:</p>
+        <ul className="mt-1 list-disc space-y-1 pl-4">
+          {held ? (
+            <li>
+              Raise the purchase order with a partner yourself and record its reference under
+              “Purchase order raised by hand” below.
+            </li>
+          ) : null}
+          <li>Cancel the order and refund the shopper from “Refund or cancel” further down this page.</li>
+          <li>
+            Ask a platform administrator to widen an approved supplier’s coverage so it produces{" "}
+            {needs || "these items"} for {options.region}, then re-run routing.
+          </li>
+        </ul>
       </div>
     );
   }
@@ -72,7 +100,7 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
             <select
               id="supplierId"
               name="supplierId"
-              defaultValue={options.available.find((s) => !s.current)?.id ?? options.available[0].id}
+              defaultValue={options.available[0].id}
               aria-invalid={state.field === "supplierId" ? true : undefined}
               aria-describedby="supplierId-hint"
               className={state.field === "supplierId" ? "input input-error py-1.5" : "input py-1.5"}
@@ -84,7 +112,9 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
               ))}
             </select>
             <p id="supplierId-hint" className="field-hint">
-              Approved partners that produce in {options.region} and make {needs || "these items"}.
+              Approved partners whose own product records fulfil {needs || "these items"} to{" "}
+              {options.region}. {held ? "The supplier this job failed on" : "The supplier it is with now"} is
+              not offered.
             </p>
           </div>
           <div>
