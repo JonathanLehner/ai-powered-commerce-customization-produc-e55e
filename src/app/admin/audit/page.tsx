@@ -9,11 +9,12 @@ import {
   matchesAuditFilters,
   pageAuditEntries,
   parseAuditFilters,
+  platformAuditEntries,
   AUDIT_VIEW_CAP,
   type AuditParams,
 } from "@/lib/audit-log";
 import { listAllStores, loadAuditWindow } from "@/lib/data";
-import { AUDIT_CATEGORY_LABELS } from "@/lib/types";
+import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 export default async function AdminAuditPage({ searchParams }: { searchParams: Promise<AuditParams> }) {
@@ -29,11 +30,17 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
   );
   const scope: Record<string, unknown> = {};
   if (filters.category) scope.category = filters.category;
-  const { entries, coveredFrom, truncated } = await loadAuditWindow(
+  const loaded = await loadAuditWindow(
     scope,
     auditWindow(filters, earliest, new Date().toISOString()),
     AUDIT_VIEW_CAP,
   );
+  const { coveredFrom, truncated } = loaded;
+  // The log covers every agency, and nobody reading it runs a store, so it is
+  // read as platform access: no shopper names, no order values. Redacted before
+  // the filters run, so neither the search nor the "made by" list can confirm a
+  // name the table does not show.
+  const entries = platformAuditEntries(loaded.entries);
 
   const actors = auditActors(entries, filters.actorId);
   const matched = entries.filter((entry) => matchesAuditFilters(entry, filters));
@@ -42,7 +49,10 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Platform audit log" description="Every recorded change across the platform." />
+      <PageHeader
+        title="Platform audit log"
+        description={`Every recorded change across the platform. ${PLATFORM_ACCESS_NOTE}`}
+      />
 
       <AuditFilterBar
         basePath={base}

@@ -6,6 +6,7 @@ import {
   auditWindow,
   matchesAuditFilters,
   parseAuditFilters,
+  platformAuditEntries,
   AUDIT_EXPORT_CAP,
 } from "@/lib/audit-log";
 import { listAllStores, loadAuditWindow } from "@/lib/data";
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
   );
 
   const csv = auditCsv(
-    entries.filter((entry) => matchesAuditFilters(entry, filters)),
+    platformAuditEntries(entries).filter((entry) => matchesAuditFilters(entry, filters)),
     { storeName: (id) => (id ? (stores.find((store) => store.id === id)?.name ?? id) : "Platform") },
   );
   return auditCsvResponse(csv, auditFileName("Parcelith audit log", filters, now.toISOString().slice(0, 10)));

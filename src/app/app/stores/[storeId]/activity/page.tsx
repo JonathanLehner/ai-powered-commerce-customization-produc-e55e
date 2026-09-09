@@ -9,13 +9,14 @@ import {
   matchesAuditFilters,
   pageAuditEntries,
   parseAuditFilters,
+  platformAuditEntries,
   AUDIT_VIEW_CAP,
   type AuditParams,
 } from "@/lib/audit-log";
 import { getAgency, loadAuditWindow } from "@/lib/data";
 import { auditExportMessage, planFor } from "@/lib/plans";
 import { requireStoreAccess } from "@/lib/session";
-import { AUDIT_CATEGORY_LABELS, type AuditCategory } from "@/lib/types";
+import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE, type AuditCategory } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 const TONES: Record<AuditCategory, "brand" | "iris" | "green" | "amber" | "slate" | "neutral"> = {
@@ -39,7 +40,7 @@ export default async function ActivityPage({
 }) {
   const { storeId } = await params;
   const filters = parseAuditFilters(await searchParams);
-  const { store } = await requireStoreAccess(storeId);
+  const { store, viaPlatform } = await requireStoreAccess(storeId);
   const agency = await getAgency(store.agencyId);
   const plan = planFor(agency?.plan);
 
@@ -48,11 +49,16 @@ export default async function ActivityPage({
   // appears in the range rather than only the one already chosen.
   const scope: Record<string, unknown> = { storeId };
   if (filters.category) scope.category = filters.category;
-  const { entries, coveredFrom, truncated } = await loadAuditWindow(
+  const loaded = await loadAuditWindow(
     scope,
     auditWindow(filters, store.createdAt, new Date().toISOString()),
     AUDIT_VIEW_CAP,
   );
+  const { coveredFrom, truncated } = loaded;
+  // Platform access reads the history without the shopper names and the order
+  // values in it. Redacted before the filters run, so the search box and the
+  // "made by" list cannot confirm a name the page does not show.
+  const entries = viaPlatform ? platformAuditEntries(loaded.entries) : loaded.entries;
 
   const actors = auditActors(entries, filters.actorId);
   const matched = entries.filter((entry) => matchesAuditFilters(entry, filters));
@@ -63,7 +69,11 @@ export default async function ActivityPage({
     <div className="space-y-6">
       <PageHeader
         title="Audit history"
-        description={`Every recorded change in ${store.name}, one row per record — repeats are only collapsed in the overview summary.`}
+        description={
+          viaPlatform
+            ? `Every recorded change in ${store.name}, one row per record. ${PLATFORM_ACCESS_NOTE}`
+            : `Every recorded change in ${store.name}, one row per record — repeats are only collapsed in the overview summary.`
+        }
       />
 
       <AuditFilterBar

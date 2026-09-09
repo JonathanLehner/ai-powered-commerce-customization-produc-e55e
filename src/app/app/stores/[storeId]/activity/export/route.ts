@@ -6,6 +6,7 @@ import {
   auditWindow,
   matchesAuditFilters,
   parseAuditFilters,
+  platformAuditEntries,
   AUDIT_EXPORT_CAP,
 } from "@/lib/audit-log";
 import { getAgency, loadAuditWindow } from "@/lib/data";
@@ -21,8 +22,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { storeId } = await params;
 
   let store;
+  let viaPlatform = false;
   try {
-    ({ store } = await assertStoreAccess(storeId, "store.view"));
+    ({ store, viaPlatform } = await assertStoreAccess(storeId, "store.view"));
   } catch (error) {
     return new Response(error instanceof Error ? error.message : "Access denied.", { status: 403 });
   }
@@ -43,6 +45,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     AUDIT_EXPORT_CAP,
   );
 
-  const csv = auditCsv(entries.filter((entry) => matchesAuditFilters(entry, filters)));
+  // The download carries exactly what the page shows, so platform access gets
+  // the same history without the shopper names and order values in it.
+  const readable = viaPlatform ? platformAuditEntries(entries) : entries;
+  const csv = auditCsv(readable.filter((entry) => matchesAuditFilters(entry, filters)));
   return auditCsvResponse(csv, auditFileName(`${store.name} activity`, filters, now.toISOString().slice(0, 10)));
 }

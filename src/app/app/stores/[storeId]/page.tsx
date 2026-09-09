@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
-import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
+import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import {
   agencyStoreAllowance,
   getAgency,
@@ -46,8 +46,9 @@ export default async function StoreOverviewPage({
     listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
   ]);
 
-  // Repeats are one row here; "Full history" lists every record.
-  const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
+  // Repeats are one row here; "Full history" lists every record. Platform
+  // access reads it without the shopper names and order values in it.
+  const activity = recentAuditRuns(viaPlatform ? platformAuditEntries(audit) : audit, ACTIVITY_ROWS);
 
   // Only read after a restore was refused, so the usual visit stays two waves
   // of reads rather than three.

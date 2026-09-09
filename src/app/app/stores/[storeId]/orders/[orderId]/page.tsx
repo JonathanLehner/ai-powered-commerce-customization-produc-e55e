@@ -207,8 +207,11 @@ export default async function OrderDetailPage({
                     {/* Notes quote amounts and, on a refund, the reason the team
                         wrote. Platform access sees the step, not the wording. */}
                     {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
+                    {/* A step a shopper took is recorded under their own name,
+                        so platform access reads the step and when, not who. */}
                     <p className="text-xs text-muted">
-                      {formatDateTime(entry.at)} · {entry.actor}
+                      {formatDateTime(entry.at)}
+                      {viaPlatform ? null : ` · ${entry.actor}`}
                     </p>
                   </div>
                 </li>

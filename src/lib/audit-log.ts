@@ -159,6 +159,63 @@ export function auditCategoryLabel(entry: AuditLog): string {
   return AUDIT_CATEGORY_LABELS[entry.category] ?? entry.category;
 }
 
+/* ------------------------------------------------- reading it with platform access */
+
+/** Stands in for a shopper's name in an entry a platform administrator reads. */
+export const PLATFORM_AUDIT_ACTOR = "Shopper (name withheld)";
+
+/**
+ * Audit actors that are a shopper rather than someone on a store or agency
+ * team: a gift buyer submits, approves and pays for a campaign under their own
+ * name, and the log records that name.
+ */
+const SHOPPER_ACTOR_IDS = new Set(["gifting", "shopper"]);
+
+/** Meta keys holding an order value, which platform access does not carry. */
+const ORDER_VALUE_META = new Set(["total", "amount", "currency"]);
+
+/**
+ * Summaries that name a shopper or an amount, rewritten to the fact alone.
+ * Anything not listed here is written from the store team's own actions and is
+ * kept as recorded — that is the operational history platform access is for.
+ */
+const PLATFORM_SUMMARIES: Record<string, (entry: AuditLog) => string> = {
+  "gifting.campaign_created": (entry) => `Gift campaign ${entry.entityId} submitted`,
+  "gifting.campaign_approved": (entry) => `Gift campaign ${entry.entityId} approved for payment`,
+  "gifting.campaign_declined": (entry) => `Gift campaign ${entry.entityId} declined`,
+  "gifting.campaign_cancelled": (entry) => `Gift campaign ${entry.entityId} withdrawn before payment`,
+  "order.refunded": (entry) => `Refund recorded on ${entry.entityId}`,
+  "order.cancelled_refunded": (entry) => `${entry.entityId} cancelled and refunded`,
+};
+
+/**
+ * One entry as platform access may read it.
+ *
+ * A platform administrator holds no membership in a store, so the log tells
+ * them what happened without telling them who the shopper was or what they
+ * paid. Entries are rewritten rather than dropped: the platform still has to
+ * see that a campaign was submitted or a refund was made.
+ *
+ * Redact before filtering, so a search or a "made by" filter cannot be used to
+ * confirm a name that is not shown.
+ */
+export function platformAuditEntry(entry: AuditLog): AuditLog {
+  const rewrite = PLATFORM_SUMMARIES[entry.action];
+  const shopper = SHOPPER_ACTOR_IDS.has(entry.actorId);
+  const meta = Object.entries(entry.meta ?? {}).filter(([key]) => !ORDER_VALUE_META.has(key));
+  if (!rewrite && !shopper && meta.length === Object.keys(entry.meta ?? {}).length) return entry;
+  return {
+    ...entry,
+    summary: rewrite ? rewrite(entry) : entry.summary,
+    actorName: shopper ? PLATFORM_AUDIT_ACTOR : entry.actorName,
+    meta: Object.fromEntries(meta),
+  };
+}
+
+export function platformAuditEntries(entries: AuditLog[]): AuditLog[] {
+  return entries.map(platformAuditEntry);
+}
+
 function searchText(entry: AuditLog): string {
   return [entry.summary, entry.action, entry.actorName, auditCategoryLabel(entry), auditDetail(entry)]
     .join(" ")

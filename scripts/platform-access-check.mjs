@@ -1,5 +1,6 @@
 // Self-check for what a platform administrator holds over a store: npm run platform-access-check
 import assert from "node:assert/strict";
+import { platformAuditEntry, PLATFORM_AUDIT_ACTOR } from "../src/lib/audit-log.ts";
 import { resolveStoreRole, roleCan } from "../src/lib/store-access.ts";
 import { storeAccessLabel } from "../src/lib/types.ts";
 
@@ -41,5 +42,66 @@ assert.equal(roleCan(invited.role, "store.orders"), true);
 // An invitation that was never accepted is not access.
 assert.equal(resolveStoreRole(invitedManager, otherStore, [{ ...membership, status: "invited" }]), null);
 assert.equal(resolveStoreRole(invitedManager, store, [membership]), null);
+
+/* ----------------------------------- what the audit trail says under platform access */
+
+const campaign = {
+  id: "aud_1",
+  category: "gifting",
+  action: "gifting.campaign_created",
+  summary: "Rowan Ellis submitted gift campaign CMP-51740 “December client thank-yous” — 4 recipients",
+  storeId: "str_northwind",
+  agencyId: "agc_northlight",
+  actorId: "gifting",
+  actorName: "Rowan Ellis",
+  entity: "gift_campaign",
+  entityId: "CMP-51740",
+  meta: { recipients: 4, total: 13596, currency: "USD" },
+  at: "2026-09-06T10:05:00.000Z",
+};
+
+const readable = platformAuditEntry(campaign);
+// The shopper's name is in the summary, in the actor column and nowhere else
+// platform access may read it. The count of recipients is operational and stays.
+assert.equal(readable.summary, "Gift campaign CMP-51740 submitted");
+assert.equal(readable.actorName, PLATFORM_AUDIT_ACTOR);
+assert.deepEqual(readable.meta, { recipients: 4 });
+assert.ok(!JSON.stringify(readable).includes("Rowan Ellis"));
+assert.ok(!JSON.stringify(readable).includes("13596"));
+// The original is untouched, so the store team still reads its own history.
+assert.equal(campaign.actorName, "Rowan Ellis");
+
+const refund = {
+  ...campaign,
+  id: "aud_2",
+  category: "order_routing",
+  action: "order.refunded",
+  summary: "Refunded $32.00 on ORD-52662567 — damaged in transit",
+  actorId: "usr_ines",
+  actorName: "Inés Duarte",
+  entity: "order",
+  entityId: "ORD-52662567",
+  meta: { amount: 3200, reason: "damaged in transit" },
+};
+const readableRefund = platformAuditEntry(refund);
+assert.equal(readableRefund.summary, "Refund recorded on ORD-52662567");
+// Who did it is exactly what platform access is for: they operate the store.
+assert.equal(readableRefund.actorName, "Inés Duarte");
+assert.deepEqual(readableRefund.meta, { reason: "damaged in transit" });
+
+// A store team's own configuration history reads as recorded.
+const published = {
+  ...campaign,
+  id: "aud_3",
+  category: "publishing",
+  action: "storefront.published",
+  summary: "Published storefront layout “Autumn range”",
+  actorId: "usr_alex",
+  actorName: "Alex Moreau",
+  entity: "storefront",
+  entityId: "str_northwind",
+  meta: { sections: 7 },
+};
+assert.equal(platformAuditEntry(published), published);
 
 console.log("platform-access-check: ok");

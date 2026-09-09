@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar } from "@/components/ui";
-import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
+import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { listAgencies, listAudit, listOrders, listStoreProducts } from "@/lib/data";
 import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
 import { planFor } from "@/lib/plans";
@@ -40,7 +40,8 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
     listAudit({}, recentAuditReadSize(ACTIVITY_ROWS)),
   ]);
 
-  const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
+  // Read as platform access: no shopper names, no order values.
+  const activity = recentAuditRuns(platformAuditEntries(audit), ACTIVITY_ROWS);
 
   const rows: Row[] = await Promise.all(
     stores.map(async ({ store }) => {

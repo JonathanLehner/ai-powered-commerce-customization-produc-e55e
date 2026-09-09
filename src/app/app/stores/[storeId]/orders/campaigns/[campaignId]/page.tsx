@@ -308,8 +308,11 @@ export default async function CampaignFulfilmentPage({
                 <li key={`${entry.at}-${index}`} className="py-2.5">
                   <p className="font-medium text-ink">{entry.status}</p>
                   {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
+                  {/* The buyer and the approver act under their own names, so
+                      platform access reads the step and when, not who. */}
                   <p className="text-xs text-muted">
-                    {entry.actor} · {formatDateTime(entry.at)}
+                    {viaPlatform ? "" : `${entry.actor} · `}
+                    {formatDateTime(entry.at)}
                   </p>
                 </li>
               ))}
