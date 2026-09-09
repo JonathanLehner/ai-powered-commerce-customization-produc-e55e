@@ -4,6 +4,7 @@ import { hasApprovedPreviews } from "./artwork";
 import { auditMonthBuckets, sortAuditEntries, type AuditReadWindow } from "./audit-log";
 import { db } from "./platform";
 import { storeAllowance, type StoreAllowance } from "./plans";
+import { quoteCode } from "./sourcing";
 import { newId } from "./util";
 import type {
   Agency,
@@ -17,6 +18,7 @@ import type {
   Membership,
   Order,
   PlanEnquiry,
+  QuoteRequest,
   Store,
   Storefront,
   StoreProduct,
@@ -42,6 +44,7 @@ export const COLLECTIONS = {
   giftCatalogues: "gift_catalogues",
   giftCampaigns: "gift_campaigns",
   planEnquiries: "plan_enquiries",
+  quoteRequests: "quote_requests",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */
@@ -275,6 +278,50 @@ export async function createPlanEnquiry(
   };
   await db.insertOne(COLLECTIONS.planEnquiries, record as unknown as Record<string, unknown>);
   return record;
+}
+
+/* ---------------------------------------------------------- quote requests */
+
+/** Every request this store has raised, newest first. */
+export function listQuoteRequests(storeId: string) {
+  return db.find<QuoteRequest>(COLLECTIONS.quoteRequests, { storeId }, { sort: { createdAt: -1 } });
+}
+
+/** The platform sourcing desk's queue, across every store. */
+export function listAllQuoteRequests(limit = 100) {
+  return db.find<QuoteRequest>(COLLECTIONS.quoteRequests, {}, { sort: { createdAt: -1 }, limit });
+}
+
+export function getQuoteRequest(id: string) {
+  return db.findOne<QuoteRequest>(COLLECTIONS.quoteRequests, { id });
+}
+
+/** How a resubmitted form finds the request it already created. */
+export function getQuoteRequestByKey(submissionKey: string) {
+  return db.findOne<QuoteRequest>(COLLECTIONS.quoteRequests, { submissionKey });
+}
+
+export async function createQuoteRequest(
+  request: Omit<QuoteRequest, "id" | "code" | "status" | "response" | "createdAt" | "updatedAt">,
+): Promise<QuoteRequest> {
+  const now = new Date().toISOString();
+  const id = newId("rfq");
+  const record: QuoteRequest = {
+    ...request,
+    id,
+    code: quoteCode(id),
+    status: "submitted",
+    response: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await db.insertOne(COLLECTIONS.quoteRequests, record as unknown as Record<string, unknown>);
+  return record;
+}
+
+export async function updateQuoteRequest(id: string, patch: Partial<QuoteRequest>): Promise<void> {
+  const updatedAt = new Date().toISOString();
+  await db.updateOne(COLLECTIONS.quoteRequests, { id }, { $set: { ...patch, updatedAt } });
 }
 
 /* ----------------------------------------------------------------- gifting */

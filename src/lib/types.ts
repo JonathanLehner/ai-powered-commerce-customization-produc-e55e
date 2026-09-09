@@ -282,6 +282,25 @@ export interface CatalogVariant {
   availability: "in_stock" | "low_stock" | "out_of_stock";
 }
 
+/**
+ * What a bulk-sourcing entry carries instead of a unit price.
+ *
+ * Sourcing marketplaces quote per enquiry: the price depends on the run size,
+ * the decoration and the factory that takes the job, so there is no fixed cost
+ * to publish. An entry carrying this is priced by quote — its `baseCost` and
+ * its variant costs are zero until a supplier answers a request.
+ */
+export interface BulkSourcing {
+  /** Fewest units a factory on this listing will quote for. */
+  minimumOrderQuantity: number;
+  /** What comparable runs have cost per unit at the minimum, low to high, in minor units. */
+  indicativeUnitCost: [number, number];
+  /** Working days a supplier usually takes to answer a request. */
+  responseDays: [number, number];
+  /** What the buyer still has to settle before production, shown beside the form. */
+  quoteNotes: string;
+}
+
 /** A supplier-backed product in the shared catalog managed by platform admins. */
 export interface CatalogProduct {
   id: string;
@@ -303,6 +322,8 @@ export interface CatalogProduct {
   leadTimeDays: [number, number];
   availability: "available" | "limited" | "discontinued";
   status: "active" | "retired";
+  /** Present on bulk-sourcing entries only: this listing is priced by quote. */
+  bulkSourcing?: BulkSourcing;
   createdAt: string;
 }
 
@@ -740,7 +761,8 @@ export type AuditCategory =
   | "order_routing"
   | "administration"
   | "team"
-  | "gifting";
+  | "gifting"
+  | "sourcing";
 
 export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   store_setup: "Store setup",
@@ -752,6 +774,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   administration: "Administration",
   team: "Team",
   gifting: "Gifting",
+  sourcing: "Sourcing",
 };
 
 export interface AuditLog {
@@ -809,4 +832,65 @@ export interface PlanEnquiry {
   submissionKey: string;
   status: "new";
   createdAt: string;
+}
+
+/**
+ * A request for quote raised against a bulk-sourcing listing.
+ *
+ * It belongs to the store that asked, not to the person: whoever picks the
+ * enquiry up next needs the run size, the destination and what was answered.
+ * Nothing here places an order — a quote that is accepted is copied into the
+ * store as a draft product, and any order made from it still routes to manual
+ * handling because the marketplace has no order submission API.
+ */
+export type QuoteRequestStatus = "submitted" | "quoted" | "declined" | "withdrawn";
+
+/** What the sourcing desk wrote back, once it has answered. */
+export interface QuoteResponse {
+  /** Quoted cost per unit at the requested quantity, in minor units. */
+  unitCost: number;
+  /** Days from a confirmed purchase order to goods leaving the factory. */
+  leadTimeDays: number;
+  /** ISO date the quote lapses, or "" when the supplier gave no expiry. */
+  validUntil: string;
+  notes: string;
+  answeredBy: string;
+  answeredAt: string;
+}
+
+export interface QuoteRequest {
+  id: string;
+  /** Human reference used in the queue and in supplier correspondence. */
+  code: string;
+  storeId: string;
+  storeName: string;
+  agencyId: string | null;
+  catalogProductId: string;
+  /** Named as it stood when the request was raised. */
+  productName: string;
+  supplierId: string;
+  supplierName: string;
+  currency: string;
+  quantity: number;
+  /** One of the listing's fulfilment regions, where the run is delivered. */
+  destination: string;
+  /** What the buyer hopes to pay per unit, in minor units, or null. */
+  targetUnitCost: number | null;
+  /** ISO date the goods are needed by, or "". */
+  neededBy: string;
+  /** Decoration, packaging and material notes for the factory. */
+  customisation: string;
+  contactName: string;
+  contactEmail: string;
+  requestedById: string;
+  requestedBy: string;
+  /**
+   * The form's own key, unique per filled-in form. A double click or a retried
+   * submission carries the same one, so the request is recorded once.
+   */
+  submissionKey: string;
+  status: QuoteRequestStatus;
+  response: QuoteResponse | null;
+  createdAt: string;
+  updatedAt: string;
 }

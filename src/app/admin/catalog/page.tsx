@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
+import { formatQuantity, isQuoteOnly, QUOTE_PRICE_LABEL } from "@/lib/sourcing";
 import { formatMoney } from "@/lib/util";
 
 export default async function AdminCatalogPage() {
@@ -12,7 +13,7 @@ export default async function AdminCatalogPage() {
     <div className="space-y-6">
       <PageHeader
         title="Supplier-backed products"
-        description="Apparel and drinkware every store can copy from. Base costs, print areas, availability and fulfilment regions are set here and inherited on import."
+        description="Apparel and drinkware every store can copy from. Base costs, print areas, availability and fulfilment regions are set here and inherited on import. Bulk-sourcing listings carry a minimum order quantity and are priced by quote instead."
         actions={
           <Link href="/admin/catalog/new" className="btn-primary btn-sm">
             Add product
@@ -25,9 +26,9 @@ export default async function AdminCatalogPage() {
         <StatCard label="Apparel" value={String(catalog.filter((c) => c.category === "apparel").length)} />
         <StatCard label="Drinkware" value={String(catalog.filter((c) => c.category === "drinkware").length)} />
         <StatCard
-          label="Print areas"
-          value={String(catalog.reduce((sum, c) => sum + c.printAreas.length, 0))}
-          sub="Defined in millimetres"
+          label="Bulk sourcing"
+          value={String(catalog.filter((c) => isQuoteOnly(c)).length)}
+          sub="Priced by quote"
         />
       </div>
 
@@ -72,13 +73,15 @@ export default async function AdminCatalogPage() {
                 <div>
                   <dt className="text-muted">Base cost</dt>
                   <dd className="font-semibold tabular-nums text-ink">
-                    {formatMoney(product.baseCost, product.currency)}
+                    {isQuoteOnly(product) ? QUOTE_PRICE_LABEL : formatMoney(product.baseCost, product.currency)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted">Per print area</dt>
+                  <dt className="text-muted">{isQuoteOnly(product) ? "Minimum order" : "Per print area"}</dt>
                   <dd className="font-semibold tabular-nums text-ink">
-                    {formatMoney(product.customizationCostPerArea, product.currency)}
+                    {isQuoteOnly(product)
+                      ? formatQuantity(product.bulkSourcing.minimumOrderQuantity)
+                      : formatMoney(product.customizationCostPerArea, product.currency)}
                   </dd>
                 </div>
                 <div>

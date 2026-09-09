@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import {
   COLLECTIONS,
   getCatalogProduct,
+  listQuoteRequests,
   getStoreProduct,
   getTaxBracket,
   listStoreProducts,
@@ -16,6 +17,7 @@ import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/platform";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
+import { isQuoteOnly, quoteIsUsable } from "@/lib/sourcing";
 import { assertStoreAccess } from "@/lib/session";
 import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct } from "@/lib/types";
 import { formatMoney, newId, parseMoney } from "@/lib/util";
@@ -30,6 +32,14 @@ function sourcingConfirmHref(storeId: string, catalogId: string, filters: string
   return `/app/stores/${storeId}/sourcing?${params.toString()}`;
 }
 
+/** Back to the sourcing page with the request-for-quote form open on a listing. */
+function sourcingQuoteHref(storeId: string, catalogId: string, filters: string): string {
+  const params = new URLSearchParams(filters);
+  params.delete("confirm");
+  params.set("rfq", catalogId);
+  return `/app/stores/${storeId}/sourcing?${params.toString()}#rfq`;
+}
+
 export async function importCatalogProduct(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogId = String(formData.get("catalogId") ?? "");
@@ -37,7 +47,7 @@ export async function importCatalogProduct(formData: FormData): Promise<void> {
   const confirmed = formData.get("confirmed") === "1";
   const filters = String(formData.get("filters") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.catalog");
-  const existing = await listStoreProducts(storeId);
+  const [existing, catalogProduct] = await Promise.all([listStoreProducts(storeId), getCatalogProduct(catalogId)]);
 
   // A resubmitted copy — double click, refresh, a tab left open — lands on the
   // record it already created instead of making a second one.
@@ -47,13 +57,31 @@ export async function importCatalogProduct(formData: FormData): Promise<void> {
     redirect(`/app/stores/${storeId}/catalog/${already.id}?imported=${copies > 1 ? "copy" : "1"}`);
   }
 
+  // A bulk-sourcing listing has no unit cost to copy: the price is whatever a
+  // supplier quoted this store for this run. Without a live quote there is
+  // nothing to price the copy from, so the request form opens instead.
+  let quotedUnitCost: number | null = null;
+  if (catalogProduct && isQuoteOnly(catalogProduct)) {
+    const quoted = (await listQuoteRequests(storeId)).find(
+      (request) => request.catalogProductId === catalogId && quoteIsUsable(request),
+    );
+    if (!quoted?.response) redirect(sourcingQuoteHref(storeId, catalogId, filters));
+    quotedUnitCost = quoted.response.unitCost;
+  }
+
   // Copying in a supplier product the store already holds needs a decision
   // first — the alternative is two rows nobody can tell apart.
   if (!confirmed && existing.some((p) => p.catalogProductId === catalogId)) {
     redirect(sourcingConfirmHref(storeId, catalogId, filters));
   }
 
-  const { product, copyNumber } = await copyCatalogProductIntoStore(store, catalogId, user, importKey);
+  const { product, copyNumber } = await copyCatalogProductIntoStore(
+    store,
+    catalogId,
+    user,
+    importKey,
+    quotedUnitCost,
+  );
 
   revalidatePath(`/app/stores/${storeId}/catalog`);
   redirect(`/app/stores/${storeId}/catalog/${product.id}?imported=${copyNumber > 1 ? "copy" : "1"}`);

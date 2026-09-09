@@ -89,6 +89,15 @@ gifting, orders, team, guided setup, activity.
   programme (`npm run gifting-check`). The public site sells it: a section on
   the landing page, a stage in the walkthrough, and a line in every plan's
   feature list — gifting is not tiered, so all three plans carry the same one.
+- **Bulk sourcing and quotes.** Alibaba.com listings sit in the same shared
+  catalog and the same side-by-side comparison as the print-on-demand partners,
+  but carry a minimum order quantity and no unit cost: a factory prices each run.
+  A store asks with a request for quote against the listing, the request is
+  recorded against that store with its status, and the platform sourcing desk
+  records what came back. Only a live quote lets the listing be copied in, and
+  it is copied at the quoted cost — anything sold from it is still flagged for
+  manual handling, because the marketplace has no order submission API
+  (`npm run sourcing-check`).
 - **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
   the store's own connected account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,
@@ -160,6 +169,13 @@ exception to work) and a second campaign sitting with its approver. It reads the
 store and its products back out of the database and does nothing if the
 catalogue is already there, so it is safe to run on its own; `seed.mjs` calls it
 at the end.
+
+`scripts/seed-bulk-sourcing.mjs` writes the three Alibaba.com bulk-sourcing
+listings into the shared catalog of a database that is already live, leaving
+every store, order and quote request alone. It replaces a listing that is
+already there rather than adding a second, so it is safe to re-run;
+`scripts/bulk-sourcing-catalog.mjs` holds the listings themselves and `seed.mjs`
+reads the same file, so a full rebuild and an upsert can never drift apart.
 
 `scripts/backfill-product-identity.mjs` is a one-off migration for databases
 seeded before store products carried a SKU: it assigns one per product and

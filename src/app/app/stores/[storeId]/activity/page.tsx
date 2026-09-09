@@ -29,6 +29,7 @@ const TONES: Record<AuditCategory, "brand" | "iris" | "green" | "amber" | "slate
   administration: "slate",
   team: "neutral",
   gifting: "iris",
+  sourcing: "amber",
 };
 
 export default async function ActivityPage({

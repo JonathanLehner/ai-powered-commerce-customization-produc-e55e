@@ -26,8 +26,13 @@ export default async function AdminSuppliersPage() {
 
       <Callout tone="neutral" title="Why some partners are manual">
         Print-on-demand networks expose documented order and tracking APIs. Sourcing marketplaces such as
-        Alibaba.com do not offer a single transactional API across their suppliers, so those orders are flagged
-        for a buyer to confirm specification, minimum order quantity and Trade Assurance terms.
+        Alibaba.com do not offer a single transactional API across their suppliers, so their listings are
+        priced by quote and those orders are flagged for a buyer to confirm specification, minimum order
+        quantity and Trade Assurance terms. Requests stores raise sit in the{" "}
+        <Link href="/admin/quotes" className="font-medium underline underline-offset-2">
+          quote queue
+        </Link>
+        .
       </Callout>
 
       <ul className="space-y-4">
@@ -60,6 +65,11 @@ export default async function AdminSuppliersPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
+                  {supplier.kind === "sourcing_marketplace" ? (
+                    <Link href="/admin/quotes" className="btn-secondary btn-sm">
+                      Quote requests
+                    </Link>
+                  ) : null}
                   <Link href={`/admin/catalog/new?supplierId=${supplier.id}`} className="btn-secondary btn-sm">
                     Add catalog product
                   </Link>

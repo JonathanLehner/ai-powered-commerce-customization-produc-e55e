@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/suppliers", label: "Suppliers" },
   { href: "/admin/catalog", label: "Shared catalog" },
+  { href: "/admin/quotes", label: "Quote requests" },
   { href: "/admin/tax", label: "Tax brackets" },
   { href: "/admin/agencies", label: "Agencies and access" },
   { href: "/admin/audit", label: "Audit log" },

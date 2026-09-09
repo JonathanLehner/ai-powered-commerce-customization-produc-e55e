@@ -1,7 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { AdminNotFoundView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { getCatalogProduct, listSuppliers } from "@/lib/data";
+import { formatQuantity, indicativeRange, isQuoteOnly, QUOTE_PRICE_LABEL } from "@/lib/sourcing";
 import { VIEW_LABELS } from "@/lib/types";
 import { CatalogProductForm } from "../CatalogProductForm";
 
@@ -29,7 +31,12 @@ export default async function AdminCatalogItemPage({
       <PageHeader
         title={item.name}
         description={`${supplier ? `${supplier.name} · ` : ""}${item.productType} · ${item.variants.length} variants · ${item.printAreas.length} print areas`}
-        actions={<Badge tone={item.status === "active" ? "green" : "slate"}>{item.status}</Badge>}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {isQuoteOnly(item) ? <Badge tone="iris">{QUOTE_PRICE_LABEL}</Badge> : null}
+            <Badge tone={item.status === "active" ? "green" : "slate"}>{item.status}</Badge>
+          </div>
+        }
       />
 
       {created ? (
@@ -41,7 +48,42 @@ export default async function AdminCatalogItemPage({
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="order-2 lg:order-1">
-          <CatalogProductForm item={item} suppliers={suppliers} />
+          {isQuoteOnly(item) ? (
+            <section className="card p-5">
+              <h2 className="text-sm font-semibold text-ink">Priced by quote</h2>
+              <p className="mt-2 max-w-2xl text-sm text-inksoft">
+                This is a bulk-sourcing listing, so it carries no unit cost, no per-area customisation charge
+                and no shipping estimate: a factory prices each run against the specification the store sends.
+                The cost editor does not apply to it, and a price entered here would be one no supplier has
+                given.
+              </p>
+              <div className="mt-4">
+                <DataList
+                  rows={[
+                    {
+                      label: "Minimum order",
+                      value: formatQuantity(item.bulkSourcing.minimumOrderQuantity),
+                    },
+                    { label: "Indicative", value: indicativeRange(item) },
+                    {
+                      label: "Supplier response",
+                      value: `${item.bulkSourcing.responseDays[0]}–${item.bulkSourcing.responseDays[1]} working days`,
+                    },
+                    { label: "Terms shown to buyers", value: item.bulkSourcing.quoteNotes },
+                  ]}
+                />
+              </div>
+              <p className="mt-4 text-sm text-inksoft">
+                Requests raised against it, and the prices recorded back, sit in the{" "}
+                <Link href="/admin/quotes" className="font-medium underline underline-offset-2">
+                  quote queue
+                </Link>
+                .
+              </p>
+            </section>
+          ) : (
+            <CatalogProductForm item={item} suppliers={suppliers} />
+          )}
         </div>
 
         <aside className="order-1 space-y-5 lg:order-2">

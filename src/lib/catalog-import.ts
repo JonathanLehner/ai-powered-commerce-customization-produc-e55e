@@ -26,6 +26,12 @@ export async function copyCatalogProductIntoStore(
   catalogId: string,
   actor: User,
   importKey: string | null = null,
+  /**
+   * The cost per unit a bulk-sourcing quote came back with. Those listings
+   * carry no unit cost of their own, so without it the copy would be priced
+   * off zero — the quote is the only price there has ever been.
+   */
+  quotedUnitCost: number | null = null,
 ): Promise<CopyResult> {
   const [catalog, existing] = await Promise.all([getCatalogProduct(catalogId), listStoreProducts(store.id)]);
   if (!catalog) throw new Error("That catalog product no longer exists.");
@@ -51,8 +57,8 @@ export async function copyCatalogProductIntoStore(
     colourHex: v.colourHex,
     size: v.size,
     sku: `${store.channelCode.slice(0, 6).toUpperCase()}-${v.sku}`,
-    baseCost: v.baseCost,
-    price: Math.round(v.baseCost * 2.6),
+    baseCost: quotedUnitCost ?? v.baseCost,
+    price: Math.round((quotedUnitCost ?? v.baseCost) * 2.6),
     enabled: true,
     availability: v.availability,
   }));
@@ -120,7 +126,13 @@ export async function copyCatalogProductIntoStore(
     actorName: actor.name,
     entity: "store_product",
     entityId: product.id,
-    meta: { catalogId: catalog.id, supplier: catalog.supplierId, sku, copyNumber },
+    meta: {
+      catalogId: catalog.id,
+      supplier: catalog.supplierId,
+      sku,
+      copyNumber,
+      ...(quotedUnitCost === null ? {} : { quotedUnitCost }),
+    },
   });
 
   return { product, copyNumber };

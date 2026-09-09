@@ -14,6 +14,7 @@ import {
 import { FILE_REQUIREMENTS, parsePrintAreas, parseVariants } from "@/lib/catalog-rows";
 import { db } from "@/lib/platform";
 import { assertPlatformAdmin } from "@/lib/session";
+import { isQuoteOnly } from "@/lib/sourcing";
 import type { CatalogProduct, Supplier, TaxBracket } from "@/lib/types";
 import { CURRENCY_OPTIONS, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -149,6 +150,16 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
   const user = await assertPlatformAdmin();
   const item = catalogId ? await getCatalogProduct(catalogId) : null;
   if (catalogId && !item) return { status: "error", message: "Catalog product not found." };
+
+  // A bulk-sourcing listing is priced by quote, so there are no costs for this
+  // editor to save. Writing one would publish a unit price no supplier has
+  // given, and stores would compare against it.
+  if (item && isQuoteOnly(item)) {
+    return {
+      status: "error",
+      message: `“${item.name}” is priced by quote. Its run price is recorded against each request in the quote queue, not here.`,
+    };
+  }
 
   // The currency is fixed once a product exists: every stored amount is in its
   // minor units, and changing it would silently reinterpret all of them.

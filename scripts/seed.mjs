@@ -10,6 +10,7 @@ import { randomInt } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
@@ -807,7 +808,7 @@ async function main() {
   for (const c of [
     "agencies", "users", "stores", "memberships", "suppliers", "catalog_products",
     "store_products", "tax_brackets", "orders", "storefronts", "audit_logs",
-    "ai_suggestions", "carts", "gift_catalogues", "gift_campaigns",
+    "ai_suggestions", "carts", "gift_catalogues", "gift_campaigns", "quote_requests",
   ]) {
     await clear(c);
   }
@@ -1276,7 +1277,10 @@ async function main() {
   await insertMany("users", users);
   await insertMany("suppliers", suppliers);
   await insertMany("tax_brackets", taxBrackets);
-  await insertMany("catalog_products", catalog);
+  // The bulk-sourcing listings sit in the same collection as the
+  // print-on-demand ones: they are compared side by side, and only the missing
+  // unit price tells them apart.
+  await insertMany("catalog_products", [...catalog, ...BULK_SOURCING_PRODUCTS]);
   await insertMany("stores", stores);
   await insertMany("memberships", memberships);
   await insertMany("store_products", storeProducts);
