@@ -302,12 +302,98 @@ assert.deepEqual(auditMonthBuckets("2026-08-01T00:00:00.000Z", "2026-08-01T00:00
 assert.equal(auditMonthBuckets("2025-11-15T00:00:00.000Z", "2026-01-10T00:00:00.000Z").length, 3);
 assert.ok(auditMonthBuckets("1990-01-01T00:00:00.000Z", "2026-08-05T00:00:00.000Z").length <= 120);
 
+/* ------------------------------------------------------- the detail line */
+
+// The complaint this was built for: the detail under an entry printed the row
+// the code stored — minor units, supplier ids, machine keys.
+const suppliers = { sup_gelato: "Gelato", sup_printful: "Printful" };
+const readable = { currency: "USD", supplierName: (id) => suppliers[id] };
+
+assert.equal(
+  auditDetail(entry({ action: "order.routed", category: "order_routing", meta: { total: 2695, currency: "USD", routing: "submitted" } }), readable),
+  "Total: $26.95 · Routing: Submitted",
+);
+assert.equal(
+  auditDetail(entry({ action: "gifting.campaign_ordered", category: "gifting", meta: { orders: 4, total: 13596, currency: "USD", held: 0 } }), readable),
+  "Orders: 4 · Total: $135.96 · Held for manual routing: 0",
+);
+assert.equal(
+  auditDetail(entry({ action: "product.imported", category: "product_import", meta: { catalogId: "cat_tee", supplier: "sup_gelato", sku: "NW-TEE-01", copyNumber: 1 } }), readable),
+  "Catalog product: cat_tee · Supplier: Gelato · SKU: NW-TEE-01 · Copy: 1",
+);
+assert.equal(
+  auditDetail(entry({ action: "ai.suggestion_applied", category: "ai", meta: { kind: "product_idea" } }), readable),
+  "Type: Product idea",
+);
+
+// The amount is read in the currency the entry carries, whatever was passed in.
+assert.equal(
+  auditDetail(entry({ action: "gifting.campaign_created", meta: { recipients: 4, total: 13596, currency: "EUR" } }), readable),
+  "Recipients: 4 · Total: €135.96",
+);
+// A currency recorded as the subject of a change is still shown as itself.
+assert.equal(
+  auditDetail(entry({ action: "store.created", meta: { currency: "USD", theme: "harbor" } }), readable),
+  "Currency: USD · Theme: harbor",
+);
+
+// The same key reads differently per action: an order value, and a count.
+assert.equal(auditDetail(entry({ action: "order.routed", meta: { total: 2695 } }), readable), "Total: $26.95");
+assert.equal(
+  auditDetail(entry({ action: "catalog.print_areas_changed", meta: { added: 1, removed: 0, total: 4 } }), readable),
+  "Added: 1 · Removed: 0 · Total: 4",
+);
+// `from`/`to` likewise: a price, a supplier, a role, a rate, a name.
+assert.equal(auditDetail(sam, readable), "From: $59.00 · To: $64.00");
+assert.equal(
+  auditDetail(entry({ action: "order.rerouted", meta: { from: "sup_gelato", to: "sup_printful", reason: "Out of stock", reference: "PF-4821" } }), readable),
+  "From: Gelato · To: Printful · Reason: Out of stock · Reference: PF-4821",
+);
+assert.equal(
+  auditDetail(entry({ action: "team.role_changed", meta: { from: "viewer", to: "order_manager" } }), readable),
+  "From: Viewer · To: Order manager",
+);
+assert.equal(
+  auditDetail(entry({ action: "tax.bracket_updated", meta: { from: 19, to: 20 } }), readable),
+  "From: 19.0% · To: 20.0%",
+);
+assert.equal(
+  auditDetail(entry({ action: "store.renamed", meta: { from: "Northwind", to: "Northwind Supply Co" } }), readable),
+  "From: Northwind · To: Northwind Supply Co",
+);
+
+// A supplier the lookup does not know stays as recorded rather than disappearing.
+assert.equal(
+  auditDetail(entry({ action: "product.imported", meta: { supplier: "sup_missing" } }), readable),
+  "Supplier: sup_missing",
+);
+// A supplier already recorded by name is left alone.
+assert.equal(
+  auditDetail(entry({ action: "catalog.product_added", meta: { supplier: "Gelato", status: "active" } }), readable),
+  "Supplier: Gelato · Status: Active",
+);
+// Nothing to say stays nothing, and true/false and empties read as words.
+assert.equal(auditDetail(entry()), "");
+assert.equal(
+  auditDetail(entry({ action: "gifting.catalogue_updated", meta: { spendLimit: 5000, approvalRequired: true } }), readable),
+  "Spend limit: $50.00 · Approval required: Yes",
+);
+assert.equal(
+  auditDetail(entry({ action: "store.support_updated", meta: { supportEmail: "help@northwind.test", supportPhone: null } }), readable),
+  "Support email: help@northwind.test · Support phone: None",
+);
+// Without a currency to read them in, amounts are left as recorded rather than
+// guessed at in the wrong money.
+assert.equal(auditDetail(entry({ action: "order.routed", meta: { total: 2695 } })), "Total: 2695");
+
+// The search still reaches what was recorded, under either wording.
+const priced = entry({ action: "product.price_changed", meta: { from: 5900, to: 6400 } });
+assert.equal(matchesAuditFilters(priced, parseAuditFilters({ q: "5900" })), true);
+assert.equal(matchesAuditFilters(priced, parseAuditFilters({ q: "from" })), true);
+
 /* ------------------------------------------------------------ the download */
 
-assert.equal(auditDetail(sam), "from: 5900 · to: 6400");
-assert.equal(auditDetail(entry()), "");
-
-const csv = auditCsv([sam]);
+const csv = auditCsv([sam], { detail: readable });
 assert.ok(csv.startsWith("﻿"), "Excel needs the byte-order mark to read UTF-8");
 const lines = csv.trimEnd().split("\r\n");
 assert.equal(lines[0], "﻿Timestamp (UTC),Person,Category,Action,Summary,Detail");
@@ -318,7 +404,7 @@ assert.deepEqual(lines[1].split(",").slice(0, 4), [
   "product.price_changed",
 ]);
 assert.ok(lines[1].includes("Raised “Northwind Ridge Hoodie” from $59.00 to $64.00"));
-assert.ok(lines[1].endsWith("from: 5900 · to: 6400"));
+assert.ok(lines[1].endsWith("From: $59.00 · To: $64.00"), lines[1]);
 
 // Commas, quotes and newlines in a summary stay inside one cell.
 const awkward = auditCsv([entry({ summary: 'Renamed to "Field Tee, v2"\nafter review', meta: {} })]);

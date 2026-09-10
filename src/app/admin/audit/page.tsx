@@ -13,14 +13,21 @@ import {
   AUDIT_VIEW_CAP,
   type AuditParams,
 } from "@/lib/audit-log";
-import { listAllStores, loadAuditWindow } from "@/lib/data";
-import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE } from "@/lib/types";
+import { listAllStores, listSuppliers, loadAuditWindow } from "@/lib/data";
+import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE, type AuditLog } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 export default async function AdminAuditPage({ searchParams }: { searchParams: Promise<AuditParams> }) {
   const filters = parseAuditFilters(await searchParams);
   const stores = await listAllStores();
   const storeName = (id: string | null) => (id ? (stores.find((s) => s.id === id)?.name ?? id) : "Platform");
+  // The log spans every store, so an amount is read in the currency of the store
+  // whose entry it is.
+  const suppliers = await listSuppliers();
+  const detail = {
+    currency: (entry: AuditLog) => stores.find((s) => s.id === entry.storeId)?.defaultCurrency,
+    supplierName: (id: string) => suppliers.find((supplier) => supplier.id === id)?.name,
+  };
 
   // Nothing on the platform predates the oldest store by more than the margin
   // `auditWindow` adds, so that is where an unbounded read starts from.
@@ -85,7 +92,7 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
               </thead>
               <tbody className="divide-y divide-line">
                 {page.entries.map((entry) => {
-                  const detail = auditDetail(entry);
+                  const line = auditDetail(entry, detail);
                   return (
                     <tr key={entry.id} className="align-top">
                       <td className="whitespace-nowrap px-4 py-3 text-muted">
@@ -98,7 +105,7 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
                       <td className="px-4 py-3">
                         <p className="text-ink">{entry.summary}</p>
                         <p className="font-mono text-xs text-muted">{entry.action}</p>
-                        {detail ? <p className="text-xs text-muted">{detail}</p> : null}
+                        {line ? <p className="text-xs text-muted">{line}</p> : null}
                       </td>
                       <td className="px-4 py-3 text-inksoft">{entry.actorName}</td>
                     </tr>

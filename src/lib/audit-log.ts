@@ -8,8 +8,14 @@
  * lives in `lib/data.ts`, which is where the platform API's document cap has to
  * be worked around.
  */
-import { AUDIT_CATEGORY_LABELS, type AuditCategory, type AuditLog } from "./types";
-import { slugify } from "./util";
+import {
+  AUDIT_CATEGORY_LABELS,
+  STORE_ROLE_LABELS,
+  type AuditCategory,
+  type AuditLog,
+  type StoreRole,
+} from "./types";
+import { formatMoney, formatPercent, slugify } from "./util";
 
 /** Entries per page. The list is read top to bottom, so a screenful at a time. */
 export const AUDIT_PAGE_SIZE = 25;
@@ -148,10 +154,195 @@ export function auditMonthBuckets(from: string, to: string): { from: string; to:
   return buckets;
 }
 
+/* --------------------------------------------- the detail line, in plain words */
+
+/**
+ * An entry's `meta` is written for the code that records it: amounts in minor
+ * units, suppliers as ids, fields as machine keys. Read back it said things like
+ * `total: 2695 · currency: USD`, which is a database row rather than a sentence.
+ *
+ * The tables below say how to read each recorded field. They are keyed by action
+ * rather than by key alone, because the same key means different things in
+ * different entries: `total` is an order value on a routed order and a count of
+ * print areas on a catalog change, and `from`/`to` is a price, a supplier, a
+ * role, a status or a name depending on what was changed.
+ */
+
+/** Amounts held in the currency's minor unit. */
+const MONEY_META: Record<string, readonly string[]> = {
+  "order.routed": ["total"],
+  "order.manual_required": ["total"],
+  "order.refunded": ["amount"],
+  "order.cancelled_refunded": ["amount"],
+  "product.price_changed": ["from", "to"],
+  "product.imported": ["quotedUnitCost"],
+  "gifting.catalogue_created": ["spendLimit"],
+  "gifting.catalogue_updated": ["spendLimit"],
+  "gifting.campaign_created": ["total"],
+  "gifting.campaign_ordered": ["total"],
+  "sourcing.quote_answered": ["unitCost"],
+};
+
+/** Percentages held as a plain number, e.g. `20` for twenty percent. */
+const PERCENT_META: Record<string, readonly string[]> = {
+  "tax.bracket_created": ["rate"],
+  "tax.bracket_updated": ["from", "to"],
+  "product.price_changed": ["marginPct"],
+};
+
+/** Supplier ids, which are read as the supplier's name. */
+const SUPPLIER_META: Record<string, readonly string[]> = {
+  "product.imported": ["supplier"],
+  "order.rerouted": ["from", "to"],
+};
+
+/** Store roles, which have their own wording on every other screen. */
+const ROLE_META: Record<string, readonly string[]> = {
+  "team.invited": ["role"],
+  "team.removed": ["role"],
+  "team.role_changed": ["from", "to"],
+};
+
+/** `from`/`to` pairs holding a machine enum rather than free text. */
+const ENUM_META: Record<string, readonly string[]> = {
+  "supplier.status_changed": ["from", "to"],
+  "agency.plan_changed": ["from", "to"],
+};
+
+/** Keys that hold a machine enum whichever entry they appear in. */
+const ENUM_KEYS = new Set([
+  "kind",
+  "status",
+  "access",
+  "decision",
+  "routing",
+  "visibility",
+  "availability",
+  "integration",
+  "plan",
+]);
+
+/** Labels the generic wording below would get wrong or say too tersely. */
+const META_LABELS: Record<string, string> = {
+  accountId: "Stripe account",
+  approvalRequired: "Approval required",
+  catalogId: "Catalog product",
+  code: "Reference",
+  copyNumber: "Copy",
+  defaultCurrency: "Currency",
+  defaultLanguage: "Language",
+  defaultTaxBracketId: "Tax bracket",
+  enabled: "Variants enabled",
+  held: "Held for manual routing",
+  kind: "Type",
+  leadTimeDays: "Lead time (days)",
+  marginPct: "Margin",
+  pixels: "Artwork size",
+  pricesIncludeTax: "Prices include tax",
+  quotedUnitCost: "Quoted unit cost",
+  rate: "Tax rate",
+  sku: "SKU",
+  trackingNumber: "Tracking number",
+};
+
+/** `supportEmail` -> `Support email`, `print_areas` -> `Print areas`. */
+function humanizeKey(key: string): string {
+  const words = key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .toLowerCase();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : key;
+}
+
+/** `product_idea` -> `Product idea`. */
+function humanizeValue(value: string): string {
+  const words = value.replace(/[_-]+/g, " ").trim();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : value;
+}
+
+/** What a recorded field is called on screen and in the spreadsheet column. */
+export function auditMetaLabel(key: string): string {
+  return META_LABELS[key] ?? humanizeKey(key);
+}
+
+export interface AuditDetailOptions {
+  /**
+   * The currency to read minor-unit amounts in when the entry does not carry one
+   * of its own: the store's, or a lookup for a log that spans stores.
+   */
+  currency?: string | null | ((entry: AuditLog) => string | null | undefined);
+  /** Supplier names by id, so `sup_gelato` reads as `Gelato`. */
+  supplierName?: (id: string) => string | undefined;
+}
+
+export interface AuditDetailPart {
+  key: string;
+  label: string;
+  value: string;
+}
+
+/** How one entry's fields are to be read, resolved once for the whole entry. */
+interface DetailRules {
+  money: Set<string>;
+  percent: Set<string>;
+  suppliers: Set<string>;
+  roles: Set<string>;
+  enums: Set<string>;
+  currency: string | null;
+  supplierName: (id: string) => string | undefined;
+}
+
+function metaValue(key: string, raw: string | number | boolean | null, rules: DetailRules): string {
+  if (rules.money.has(key) && typeof raw === "number") {
+    return rules.currency ? formatMoney(raw, rules.currency) : String(raw);
+  }
+  if (rules.percent.has(key) && typeof raw === "number") return formatPercent(raw);
+  if (rules.suppliers.has(key) && typeof raw === "string" && raw) {
+    return rules.supplierName(raw) ?? raw;
+  }
+  if (rules.roles.has(key) && typeof raw === "string" && raw in STORE_ROLE_LABELS) {
+    return STORE_ROLE_LABELS[raw as StoreRole];
+  }
+  if ((rules.enums.has(key) || ENUM_KEYS.has(key)) && typeof raw === "string" && raw) {
+    return humanizeValue(raw);
+  }
+  if (typeof raw === "boolean") return raw ? "Yes" : "No";
+  if (raw === null || raw === "") return "None";
+  return String(raw);
+}
+
+/** Each recorded field of an entry, labelled and written out. */
+export function auditDetailParts(entry: AuditLog, options: AuditDetailOptions = {}): AuditDetailPart[] {
+  const meta = entry.meta ?? {};
+  const money = new Set(MONEY_META[entry.action] ?? []);
+  const fields = Object.entries(meta);
+  const hasAmount = fields.some(([key, value]) => money.has(key) && typeof value === "number");
+  const fallback = typeof options.currency === "function" ? options.currency(entry) : options.currency;
+  const rules: DetailRules = {
+    money,
+    percent: new Set(PERCENT_META[entry.action] ?? []),
+    suppliers: new Set(SUPPLIER_META[entry.action] ?? []),
+    roles: new Set(ROLE_META[entry.action] ?? []),
+    enums: new Set(ENUM_META[entry.action] ?? []),
+    currency: (typeof meta.currency === "string" && meta.currency) || fallback || null,
+    supplierName: options.supplierName ?? (() => undefined),
+  };
+
+  const parts: AuditDetailPart[] = [];
+  for (const [key, value] of fields) {
+    // Next to amounts the currency is how they are written rather than a fact of
+    // its own; on a settings change it is the whole point of the entry.
+    if (key === "currency" && hasAmount) continue;
+    parts.push({ key, label: auditMetaLabel(key), value: metaValue(key, value, rules) });
+  }
+  return parts;
+}
+
 /** The meta line shown under an entry, and the detail column in the export. */
-export function auditDetail(entry: AuditLog): string {
-  return Object.entries(entry.meta ?? {})
-    .map(([key, value]) => `${key}: ${value}`)
+export function auditDetail(entry: AuditLog, options: AuditDetailOptions = {}): string {
+  return auditDetailParts(entry, options)
+    .map((part) => `${part.label}: ${part.value}`)
     .join(" · ");
 }
 
@@ -216,8 +407,21 @@ export function platformAuditEntries(entries: AuditLog[]): AuditLog[] {
   return entries.map(platformAuditEntry);
 }
 
+/**
+ * What a free-text search reads. Both wordings of the detail line are in it: the
+ * labelled one a person sees, and the raw keys and values underneath, so a
+ * search for `5900` still finds the price change now shown as `$59.00`.
+ */
 function searchText(entry: AuditLog): string {
-  return [entry.summary, entry.action, entry.actorName, auditCategoryLabel(entry), auditDetail(entry)]
+  const raw = Object.entries(entry.meta ?? {}).map(([key, value]) => `${key} ${value}`);
+  return [
+    entry.summary,
+    entry.action,
+    entry.actorName,
+    auditCategoryLabel(entry),
+    auditDetail(entry),
+    ...raw,
+  ]
     .join(" ")
     .toLowerCase();
 }
@@ -396,7 +600,11 @@ export const AUDIT_CSV_COLUMNS = ["Timestamp (UTC)", "Person", "Category", "Acti
  */
 export function auditCsv(
   entries: AuditLog[],
-  options: { storeName?: (storeId: string | null) => string } = {},
+  options: {
+    storeName?: (storeId: string | null) => string;
+    /** How the detail column is written — the same rules the pages read by. */
+    detail?: AuditDetailOptions;
+  } = {},
 ): string {
   const withStore = typeof options.storeName === "function";
   const header = withStore
@@ -409,7 +617,7 @@ export function auditCsv(
       auditCategoryLabel(entry),
       entry.action,
       entry.summary,
-      auditDetail(entry),
+      auditDetail(entry, options.detail),
     ];
     return withStore
       ? [cells[0], options.storeName!(entry.storeId), ...cells.slice(1)]

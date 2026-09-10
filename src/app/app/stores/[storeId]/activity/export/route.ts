@@ -9,7 +9,7 @@ import {
   platformAuditEntries,
   AUDIT_EXPORT_CAP,
 } from "@/lib/audit-log";
-import { getAgency, loadAuditWindow } from "@/lib/data";
+import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
 import { auditExportMessage, planFor } from "@/lib/plans";
 import { assertStoreAccess } from "@/lib/session";
 
@@ -48,6 +48,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // The download carries exactly what the page shows, so platform access gets
   // the same history without the shopper names and order values in it.
   const readable = viaPlatform ? platformAuditEntries(entries) : entries;
-  const csv = auditCsv(readable.filter((entry) => matchesAuditFilters(entry, filters)));
+  const suppliers = await listSuppliers();
+  const csv = auditCsv(readable.filter((entry) => matchesAuditFilters(entry, filters)), {
+    detail: {
+      currency: store.defaultCurrency,
+      supplierName: (id) => suppliers.find((supplier) => supplier.id === id)?.name,
+    },
+  });
   return auditCsvResponse(csv, auditFileName(`${store.name} activity`, filters, now.toISOString().slice(0, 10)));
 }

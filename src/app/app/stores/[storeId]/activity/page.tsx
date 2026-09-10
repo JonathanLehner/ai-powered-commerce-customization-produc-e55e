@@ -13,7 +13,7 @@ import {
   AUDIT_VIEW_CAP,
   type AuditParams,
 } from "@/lib/audit-log";
-import { getAgency, loadAuditWindow } from "@/lib/data";
+import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
 import { auditExportMessage, planFor } from "@/lib/plans";
 import { requireStoreAccess } from "@/lib/session";
 import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE, type AuditCategory } from "@/lib/types";
@@ -44,6 +44,13 @@ export default async function ActivityPage({
   const { store, viaPlatform } = await requireStoreAccess(storeId);
   const agency = await getAgency(store.agencyId);
   const plan = planFor(agency?.plan);
+  // Recorded fields are stored as the code wrote them, so the supplier names and
+  // the store's currency are what turns them back into a readable line.
+  const suppliers = await listSuppliers();
+  const detail = {
+    currency: store.defaultCurrency,
+    supplierName: (id: string) => suppliers.find((supplier) => supplier.id === id)?.name,
+  };
 
   // The category and the dates narrow the read itself; the person and the search
   // are applied to what comes back, so the "made by" list can offer everyone who
@@ -99,7 +106,7 @@ export default async function ActivityPage({
           <AuditPager basePath={base} filters={filters} page={page} />
           <ol className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
             {page.entries.map((entry) => {
-              const detail = auditDetail(entry);
+              const line = auditDetail(entry, detail);
               return (
                 <li key={entry.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5">
                   <div className="min-w-0">
@@ -108,7 +115,7 @@ export default async function ActivityPage({
                       <span className="font-mono text-xs text-muted">{entry.action}</span>
                     </div>
                     <p className="mt-1.5 text-sm text-ink">{entry.summary}</p>
-                    {detail ? <p className="mt-1 text-xs text-muted">{detail}</p> : null}
+                    {line ? <p className="mt-1 text-xs text-muted">{line}</p> : null}
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm text-inksoft">{entry.actorName}</p>

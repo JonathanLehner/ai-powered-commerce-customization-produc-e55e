@@ -9,7 +9,7 @@ import {
   platformAuditEntries,
   AUDIT_EXPORT_CAP,
 } from "@/lib/audit-log";
-import { listAllStores, loadAuditWindow } from "@/lib/data";
+import { listAllStores, listSuppliers, loadAuditWindow } from "@/lib/data";
 import { assertPlatformAdmin } from "@/lib/session";
 
 /**
@@ -40,9 +40,16 @@ export async function GET(request: NextRequest) {
     AUDIT_EXPORT_CAP,
   );
 
+  const suppliers = await listSuppliers();
   const csv = auditCsv(
     platformAuditEntries(entries).filter((entry) => matchesAuditFilters(entry, filters)),
-    { storeName: (id) => (id ? (stores.find((store) => store.id === id)?.name ?? id) : "Platform") },
+    {
+      storeName: (id) => (id ? (stores.find((store) => store.id === id)?.name ?? id) : "Platform"),
+      detail: {
+        currency: (entry) => stores.find((store) => store.id === entry.storeId)?.defaultCurrency,
+        supplierName: (id) => suppliers.find((supplier) => supplier.id === id)?.name,
+      },
+    },
   );
   return auditCsvResponse(csv, auditFileName("Parcelith audit log", filters, now.toISOString().slice(0, 10)));
 }
