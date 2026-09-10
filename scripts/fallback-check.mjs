@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ROUTES, matchesRoute } from "../src/lib/routes.ts";
 import { storeBasePath } from "../src/lib/util.ts";
 
 // fileURLToPath, not URL.pathname: on Windows the latter yields "/C:/…", which
@@ -94,6 +95,59 @@ for (const path of routeFiles) {
     `${path} raises notFound(); its not-found page would then reach the browser as an empty document`,
   );
 }
+
+/* ------------------------------------------ a not-found page answers with 404 */
+
+// The pages render their own not-found body, so as far as the router is
+// concerned they succeeded and the response is a 200. Search engines and uptime
+// monitors read the status, so `src/proxy.ts` recognises the missing shop,
+// product or address before the render begins — the last moment a status can
+// still be set — and marks the response 404.
+const PROXY = fileURLToPath(new URL("../src/proxy.ts", import.meta.url));
+const proxySource = readFileSync(PROXY, "utf8");
+assert.match(proxySource, /status:\s*404/, "src/proxy.ts no longer marks anything 404");
+// The shop and the product are looked up, because "no store with that slug" and
+// "that product is not on sale" are not visible in the address itself.
+for (const lookup of ["getStoreBySlug", "getStoreProductBySlug", "getGiftCatalogueBySlug"]) {
+  assert.ok(proxySource.includes(lookup), `src/proxy.ts no longer checks ${lookup}`);
+}
+
+// Proxy cannot ask the router which page an address belongs to, so it carries
+// the route table itself. This rebuilds that table from the route files: a page
+// added without a line in `src/lib/routes.ts` would otherwise be served as a
+// 404 while rendering perfectly well.
+const routeFromFile = (path) =>
+  "/" +
+  path
+    .split("/")
+    .slice(0, -1)
+    .filter((segment) => !segment.startsWith("("))
+    .join("/");
+const expected = routeFiles
+  .filter((path) => /\/(page|route)\.tsx?$/.test(path))
+  .filter((path) => !path.includes("[..."))
+  .map(routeFromFile)
+  .map((route) => (route === "/" ? "/" : route.replace(/\/$/, "")))
+  .sort();
+assert.deepEqual(
+  [...ROUTES].sort(),
+  expected,
+  "src/lib/routes.ts and the route files disagree about which addresses exist",
+);
+
+// An address under a surface that matches no page: the catch-all answers it,
+// and the status is a 404 rather than the render's 200.
+assert.equal(matchesRoute("/s/northwind-supply/nope"), false);
+assert.equal(matchesRoute("/app/stores/str_1/nope"), false);
+assert.equal(matchesRoute("/app/stores"), false, "no page lists every store");
+assert.equal(matchesRoute("/g/gifts/nope"), false);
+assert.equal(matchesRoute("/admin/nope"), false);
+// And the real pages stay pages, whatever their dynamic segments hold.
+assert.equal(matchesRoute("/s/northwind-supply"), true);
+assert.equal(matchesRoute("/s/northwind-supply/products/a-tee"), true);
+assert.equal(matchesRoute("/app/stores/str_1/orders/campaigns/cmp_1"), true);
+assert.equal(matchesRoute("/admin/catalog/new"), true);
+assert.equal(matchesRoute("/"), true);
 
 /* ------------------------------------- the way back into a store's workspace */
 
