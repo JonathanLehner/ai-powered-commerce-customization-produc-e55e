@@ -2,10 +2,11 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { regenerateGiftLink, setGiftCatalogueStatus } from "@/app/actions/gifting";
-import { ConfirmSubmit, SubmitButton } from "@/components/forms";
+import { ConfirmSubmit, CopyField, SubmitButton } from "@/components/forms";
 import { Badge, Breadcrumbs, Callout, EmptyState, PageHeader } from "@/components/ui";
 import { getGiftCatalogue, listGiftCampaigns, listPublishedProducts } from "@/lib/data";
 import { campaignPath, campaignToken, portalUrl } from "@/lib/gift-access";
+import { approvalWaitLabel, daysAwaitingApproval } from "@/lib/gift-approval";
 import { requireStoreAccess } from "@/lib/session";
 import { CAMPAIGN_STATUS_LABELS, type CampaignStatus } from "@/lib/types";
 import { formatDate, formatMoney } from "@/lib/util";
@@ -204,10 +205,24 @@ export default async function GiftCataloguePage({
                   </div>
                 </div>
                 {approverLinks.get(campaign.id) ? (
-                  <p className="mt-3 break-all rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-xs text-inksoft">
-                    Approval link for {campaign.approval.approverName || campaign.approval.approverEmail}:{" "}
-                    {approverLinks.get(campaign.id)}
-                  </p>
+                  <div className="mt-3">
+                    <p className="text-xs text-muted">
+                      Approval link for{" "}
+                      {campaign.approval.approverName || campaign.approval.approverEmail} ·{" "}
+                      {approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()}. Chasing it, and moving it
+                      to somebody else, are on{" "}
+                      <Link
+                        href={`/app/stores/${storeId}/orders/campaigns/${campaign.id}`}
+                        className="font-medium text-brand-700 hover:underline"
+                      >
+                        the campaign page
+                      </Link>
+                      .
+                    </p>
+                    <div className="mt-2">
+                      <CopyField value={approverLinks.get(campaign.id) as string} label="Copy approval link" />
+                    </div>
+                  </div>
                 ) : null}
               </li>
             ))}

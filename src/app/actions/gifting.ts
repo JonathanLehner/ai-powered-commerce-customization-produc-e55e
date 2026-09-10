@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   COLLECTIONS,
+  getGiftCampaign,
   getGiftCampaignByCode,
   getGiftCatalogue,
   getGiftCatalogueBySlug,
@@ -23,6 +24,13 @@ import {
   readGiftAccess,
   verifyCampaignToken,
 } from "@/lib/gift-access";
+import {
+  approvalResendCheck,
+  approverChangeCheck,
+  approverLabel,
+  approvalRemindersSent,
+  daysAwaitingApproval,
+} from "@/lib/gift-approval";
 import { parseRecipients, type ParsedRecipient } from "@/lib/gift-recipients";
 import {
   MAX_PER_RECIPIENT,
@@ -294,6 +302,135 @@ export async function setGiftCatalogueStatus(formData: FormData): Promise<void> 
   refreshCatalogue(storeId, catalogueId);
 }
 
+/* ------------------------------------------------- a campaign stuck at approval */
+
+async function campaignForStore(campaignId: string, storeId: string): Promise<GiftCampaign> {
+  const campaign = await getGiftCampaign(campaignId);
+  if (!campaign || campaign.storeId !== storeId) throw new Error("That gift campaign no longer exists.");
+  return campaign;
+}
+
+function refreshCampaign(storeId: string, campaign: GiftCampaign) {
+  revalidatePath(`/app/stores/${storeId}/orders/campaigns/${campaign.id}`);
+  refreshCatalogue(storeId, campaign.catalogueId);
+}
+
+/**
+ * Chases the approver on a campaign that is still waiting.
+ *
+ * Nothing is emailed from here — the approval link is personal and the store
+ * team sends it themselves from the panel — so what this records is the chase:
+ * a line in the campaign's own history and one in the store's audit log, plus
+ * the moment it happened, which is what the panel counts the wait from.
+ */
+export async function resendApprovalRequest(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const campaignId = String(formData.get("campaignId") ?? "");
+  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const campaign = await campaignForStore(campaignId, storeId);
+
+  const now = new Date();
+  const check = approvalResendCheck(campaign, now);
+  // A retried submission finds the chase it already recorded rather than
+  // writing a second one, so a double click reads as the one request it was.
+  if (!check.ok) return check.duplicate ? ok(check.message) : fail(check.message);
+
+  const at = now.toISOString();
+  const waited = daysAwaitingApproval(campaign, now);
+  const reminders = approvalRemindersSent(campaign) + 1;
+  const approver = approverLabel(campaign);
+  await updateGiftCampaign(campaign.id, {
+    approval: { ...campaign.approval, lastRequestedAt: at, remindersSent: reminders },
+    events: [
+      ...campaign.events,
+      {
+        at,
+        status: "Approval request sent again",
+        note: `${user.name} asked ${approver} to review the list again after ${waited} ${waited === 1 ? "day" : "days"}.`,
+        actor: user.name,
+      },
+    ],
+  });
+  recordAudit({
+    category: "gifting",
+    action: "gifting.approval_resent",
+    summary: `Sent the approval request for gift campaign ${campaign.code} to ${approver} again`,
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "gift_campaign",
+    entityId: campaign.code,
+    meta: { approver, waitingDays: waited, reminders },
+  });
+  refreshCampaign(storeId, campaign);
+  return ok(`Recorded. Send ${approver} the approval link below.`);
+}
+
+/**
+ * Hands the campaign to a different approver.
+ *
+ * The named person has left, is on leave or never answers, and the buyer cannot
+ * pay until somebody signs the list off. The approval link itself is derived
+ * from the campaign and its role, so it keeps working — what changes is who the
+ * store, the portal and the decision are recorded against.
+ */
+export async function changeCampaignApprover(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const campaignId = String(formData.get("campaignId") ?? "");
+  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const campaign = await campaignForStore(campaignId, storeId);
+
+  const name = String(formData.get("approverName") ?? "").trim();
+  const email = String(formData.get("approverEmail") ?? "").trim().toLowerCase();
+  const reason = String(formData.get("reason") ?? "").trim().slice(0, 200);
+
+  const check = approverChangeCheck(campaign, { name, email });
+  if (!check.ok) {
+    return check.duplicate
+      ? ok(check.message)
+      : fail(check.message, check.message.includes("email") ? "approverEmail" : "approverName");
+  }
+
+  const previous = approverLabel(campaign);
+  const now = new Date().toISOString();
+  await updateGiftCampaign(campaign.id, {
+    approval: {
+      ...campaign.approval,
+      approverName: name,
+      approverEmail: email,
+      // The clock restarts with the new person: the wait shown from here is
+      // theirs, not the wait the campaign spent with somebody unreachable.
+      requestedAt: now,
+      lastRequestedAt: now,
+      remindersSent: 0,
+    },
+    events: [
+      ...campaign.events,
+      {
+        at: now,
+        status: "Approver changed",
+        note: `${user.name} moved the approval from ${previous} to ${name} (${email})${reason ? `: ${reason}` : "."}`,
+        actor: user.name,
+      },
+    ],
+  });
+  recordAudit({
+    category: "gifting",
+    action: "gifting.approver_changed",
+    summary: `Moved approval of gift campaign ${campaign.code} from ${previous} to ${name}`,
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "gift_campaign",
+    entityId: campaign.code,
+    meta: { from: previous, to: `${name} (${email})`, reason: reason || null },
+  });
+  refreshCampaign(storeId, campaign);
+  return ok(`${name} is now the approver. Send them the approval link below.`);
+}
+
 /* -------------------------------------------------------------- gift portal */
 
 /** Rows and money the bulk order screen shows back before anything is created. */
@@ -489,6 +626,9 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
       required: catalogue.approvalRequired,
       approverName: catalogue.approverName,
       approverEmail: catalogue.approverEmail,
+      requestedAt: catalogue.approvalRequired ? now : null,
+      lastRequestedAt: catalogue.approvalRequired ? now : null,
+      remindersSent: 0,
       decidedBy: null,
       decidedAt: null,
       note: null,
@@ -566,7 +706,14 @@ export async function decideCampaign(_prev: ActionState, formData: FormData): Pr
   }
 
   const now = new Date().toISOString();
-  const approver = catalogue.approverName || catalogue.approverEmail || "The approver";
+  // The store team may have handed the campaign to somebody else since it was
+  // submitted, so the campaign's own approver wins over the catalogue default.
+  const approver =
+    campaign.approval.approverName ||
+    campaign.approval.approverEmail ||
+    catalogue.approverName ||
+    catalogue.approverEmail ||
+    "The approver";
   await updateGiftCampaign(campaign.id, {
     status: decision === "approve" ? "approved" : "declined",
     approval: { ...campaign.approval, decidedBy: approver, decidedAt: now, note: note || null },
@@ -661,7 +808,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   if (campaign.status !== "approved") {
     return fail(
       campaign.status === "awaiting_approval"
-        ? `${campaign.code} still needs ${catalogue.approverName || "an approver"} to sign it off.`
+        ? `${campaign.code} still needs ${campaign.approval.approverName || catalogue.approverName || "an approver"} to sign it off.`
         : `${campaign.code} is ${campaign.status.replace(/_/g, " ")} and cannot be paid for.`,
     );
   }

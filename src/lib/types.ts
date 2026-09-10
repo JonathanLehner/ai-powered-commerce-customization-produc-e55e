@@ -688,6 +688,16 @@ export interface GiftCampaign {
     required: boolean;
     approverName: string;
     approverEmail: string;
+    /**
+     * When the list was first put in front of an approver. Campaigns written
+     * before this was recorded fall back to `createdAt`, which is the same
+     * instant for every one of them.
+     */
+    requestedAt?: string | null;
+    /** When the request last went out, first send or chase. */
+    lastRequestedAt?: string | null;
+    /** How many times the store team has sent the request again. */
+    remindersSent?: number;
     decidedBy: string | null;
     decidedAt: string | null;
     note: string | null;

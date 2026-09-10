@@ -89,6 +89,36 @@ assert.equal(readableRefund.summary, "Refund recorded on ORD-52662567");
 assert.equal(readableRefund.actorName, "Inés Duarte");
 assert.deepEqual(readableRefund.meta, { reason: "damaged in transit" });
 
+// Chasing an approver and handing the campaign to somebody else are the store
+// team's own actions, so who did them stays — but the approver is a named
+// person at the client company, and platform access is not owed their name.
+const chased = {
+  ...campaign,
+  id: "aud_chase",
+  action: "gifting.approval_resent",
+  summary: "Sent the approval request for gift campaign CMP-51740 to Dana Whitfield (dana@northwind.example) again",
+  actorId: "usr_ines",
+  actorName: "Inés Duarte",
+  meta: { approver: "Dana Whitfield (dana@northwind.example)", waitingDays: 4, reminders: 1 },
+};
+const readableChase = platformAuditEntry(chased);
+assert.equal(readableChase.summary, "Approval request for gift campaign CMP-51740 sent again");
+assert.equal(readableChase.actorName, "Inés Duarte");
+assert.deepEqual(readableChase.meta, { waitingDays: 4, reminders: 1 });
+assert.ok(!JSON.stringify(readableChase).includes("Dana"));
+
+const moved = {
+  ...chased,
+  id: "aud_moved",
+  action: "gifting.approver_changed",
+  summary: "Moved approval of gift campaign CMP-51740 from Dana Whitfield to Sam Okafor",
+  meta: { from: "Dana Whitfield", to: "Sam Okafor (sam@northwind.example)", reason: "Dana has left" },
+};
+const readableMove = platformAuditEntry(moved);
+assert.equal(readableMove.summary, "Approver changed on gift campaign CMP-51740");
+assert.deepEqual(readableMove.meta, {});
+assert.ok(!JSON.stringify(readableMove).includes("Okafor"));
+
 // A store team's own configuration history reads as recorded.
 const published = {
   ...campaign,

@@ -8,6 +8,17 @@ import {
   verifyCampaignToken,
   verifyCatalogueToken,
 } from "../src/lib/gift-access.ts";
+import {
+  APPROVAL_RESEND_GAP_MS,
+  approvalLastSentAt,
+  approvalRequestedAt,
+  approvalResendCheck,
+  approvalWaitLabel,
+  approverChangeCheck,
+  approverLabel,
+  daysAwaitingApproval,
+  isApprovalStale,
+} from "../src/lib/gift-approval.ts";
 
 /* ------------------------------------------------------------ the products */
 
@@ -212,5 +223,74 @@ assert.equal(await verifyCampaignToken("cmp_1", "buyer", buyer), true);
 assert.equal(await verifyCampaignToken("cmp_1", "approver", buyer), false);
 assert.equal(await verifyCampaignToken("cmp_2", "buyer", buyer), false);
 assert.equal(await verifyCampaignToken("cmp_1", "buyer", undefined), false);
+
+/* ------------------------------------------- a campaign stuck at approval */
+
+const NOW = new Date("2026-09-10T09:00:00.000Z");
+const waiting = {
+  code: "CMP-51740",
+  status: "awaiting_approval",
+  createdAt: "2026-09-06T08:00:00.000Z",
+  approval: {
+    required: true,
+    approverName: "Dana Whitfield",
+    approverEmail: "dana@northwind.example",
+    requestedAt: null,
+    lastRequestedAt: null,
+    remindersSent: 0,
+    decidedBy: null,
+    decidedAt: null,
+    note: null,
+  },
+};
+
+// A campaign written before the panel existed has been waiting since the buyer
+// submitted it, which is the only instant recorded for it.
+assert.equal(approvalRequestedAt(waiting), waiting.createdAt);
+assert.equal(approvalLastSentAt(waiting), waiting.createdAt);
+assert.equal(daysAwaitingApproval(waiting, NOW), 4);
+assert.equal(approvalWaitLabel(4), "Waiting 4 days");
+assert.equal(approvalWaitLabel(1), "Waiting 1 day");
+assert.equal(approvalWaitLabel(0), "Sent today");
+assert.equal(isApprovalStale(waiting, NOW), false);
+assert.equal(isApprovalStale(waiting, new Date("2026-09-13T09:00:00.000Z")), true);
+assert.equal(approverLabel(waiting), "Dana Whitfield (dana@northwind.example)");
+
+assert.equal(approvalResendCheck(waiting, NOW).ok, true);
+
+// A double click, or a retried submission, must not record the chase twice.
+const justChased = {
+  ...waiting,
+  approval: { ...waiting.approval, lastRequestedAt: new Date(NOW.getTime() - 5000).toISOString() },
+};
+const repeat = approvalResendCheck(justChased, NOW);
+assert.equal(repeat.ok, false);
+assert.equal(repeat.duplicate, true);
+// Once the gap has passed it is a fresh chase rather than the same one.
+assert.equal(
+  approvalResendCheck(justChased, new Date(NOW.getTime() + APPROVAL_RESEND_GAP_MS)).ok,
+  true,
+);
+
+// Nothing to chase on a campaign that has been decided, or never needed one.
+assert.equal(approvalResendCheck({ ...waiting, status: "approved" }, NOW).ok, false);
+assert.equal(
+  approvalResendCheck({ ...waiting, approval: { ...waiting.approval, required: false } }, NOW).ok,
+  false,
+);
+
+// Handing the campaign to somebody reachable.
+assert.equal(approverChangeCheck(waiting, { name: "Sam Okafor", email: "sam@northwind.example" }).ok, true);
+assert.equal(approverChangeCheck(waiting, { name: "S", email: "sam@northwind.example" }).ok, false);
+assert.equal(approverChangeCheck(waiting, { name: "Sam Okafor", email: "sam@northwind" }).ok, false);
+const noop = approverChangeCheck(waiting, { name: "Dana Whitfield", email: "DANA@northwind.example" });
+assert.equal(noop.ok, false);
+assert.equal(noop.duplicate, true, "naming the same person again changes nothing");
+// An approved campaign is not stuck, so its approver is history rather than a
+// setting.
+assert.equal(
+  approverChangeCheck({ ...waiting, status: "approved" }, { name: "Sam Okafor", email: "sam@northwind.example" }).ok,
+  false,
+);
 
 console.log("gifting-check ok");

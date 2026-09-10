@@ -241,7 +241,9 @@ const META_LABELS: Record<string, string> = {
   pricesIncludeTax: "Prices include tax",
   quotedUnitCost: "Quoted unit cost",
   rate: "Tax rate",
+  reminders: "Requests sent",
   sku: "SKU",
+  waitingDays: "Days waiting",
   trackingNumber: "Tracking number",
 };
 
@@ -366,12 +368,23 @@ const SHOPPER_ACTOR_IDS = new Set(["gifting", "shopper"]);
 const ORDER_VALUE_META = new Set(["total", "amount", "currency"]);
 
 /**
+ * Fields naming somebody at the client company rather than on a team, listed
+ * per action because the same key is a price, a role or a supplier elsewhere.
+ */
+const PLATFORM_HIDDEN_META: Record<string, readonly string[]> = {
+  "gifting.approval_resent": ["approver"],
+  "gifting.approver_changed": ["from", "to", "reason"],
+};
+
+/**
  * Summaries that name a shopper or an amount, rewritten to the fact alone.
  * Anything not listed here is written from the store team's own actions and is
  * kept as recorded — that is the operational history platform access is for.
  */
 const PLATFORM_SUMMARIES: Record<string, (entry: AuditLog) => string> = {
   "gifting.campaign_created": (entry) => `Gift campaign ${entry.entityId} submitted`,
+  "gifting.approval_resent": (entry) => `Approval request for gift campaign ${entry.entityId} sent again`,
+  "gifting.approver_changed": (entry) => `Approver changed on gift campaign ${entry.entityId}`,
   "gifting.campaign_approved": (entry) => `Gift campaign ${entry.entityId} approved for payment`,
   "gifting.campaign_declined": (entry) => `Gift campaign ${entry.entityId} declined`,
   "gifting.campaign_cancelled": (entry) => `Gift campaign ${entry.entityId} withdrawn before payment`,
@@ -393,7 +406,10 @@ const PLATFORM_SUMMARIES: Record<string, (entry: AuditLog) => string> = {
 export function platformAuditEntry(entry: AuditLog): AuditLog {
   const rewrite = PLATFORM_SUMMARIES[entry.action];
   const shopper = SHOPPER_ACTOR_IDS.has(entry.actorId);
-  const meta = Object.entries(entry.meta ?? {}).filter(([key]) => !ORDER_VALUE_META.has(key));
+  const hidden = new Set(PLATFORM_HIDDEN_META[entry.action] ?? []);
+  const meta = Object.entries(entry.meta ?? {}).filter(
+    ([key]) => !ORDER_VALUE_META.has(key) && !hidden.has(key),
+  );
   if (!rewrite && !shopper && meta.length === Object.keys(entry.meta ?? {}).length) return entry;
   return {
     ...entry,

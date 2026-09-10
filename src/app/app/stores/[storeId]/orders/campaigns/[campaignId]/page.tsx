@@ -1,16 +1,27 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs, Callout, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { getGiftCampaign, getGiftCatalogue, listOrdersForCampaign } from "@/lib/data";
 import { countryName } from "@/lib/countries";
-import { requireStoreAccess } from "@/lib/session";
+import {
+  approvalLastSentAt,
+  approvalRemindersSent,
+  approvalRequestedAt,
+  approvalWaitLabel,
+  daysAwaitingApproval,
+  isApprovalStale,
+} from "@/lib/gift-approval";
+import { campaignPath, campaignToken } from "@/lib/gift-access";
+import { requireStoreAccess, roleCan } from "@/lib/session";
+import { ApprovalPanel } from "./ApprovalPanel";
 import {
   CAMPAIGN_STATUS_LABELS,
   ORDER_STATUS_LABELS,
   type CampaignStatus,
   type OrderStatus,
 } from "@/lib/types";
-import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
+import { CARRIER_LABELS, formatDate, formatDateTime, formatMoney } from "@/lib/util";
 
 const CAMPAIGN_TONES: Record<CampaignStatus, "amber" | "brand" | "green" | "rose" | "slate"> = {
   awaiting_approval: "amber",
@@ -36,7 +47,7 @@ export default async function CampaignFulfilmentPage({
   params: Promise<{ storeId: string; campaignId: string }>;
 }) {
   const { storeId, campaignId } = await params;
-  const { viaPlatform } = await requireStoreAccess(storeId);
+  const { role, viaPlatform } = await requireStoreAccess(storeId);
 
   const campaign = await getGiftCampaign(campaignId);
   if (!campaign || campaign.storeId !== storeId)
@@ -46,6 +57,28 @@ export default async function CampaignFulfilmentPage({
     getGiftCatalogue(campaign.catalogueId),
     campaign.status === "ordered" ? listOrdersForCampaign(campaign.id) : Promise.resolve([]),
   ]);
+
+  /*
+   * The approval panel: who the campaign is with, how long it has been there,
+   * their own link and the two ways out of a stuck campaign. Recipient records
+   * and the people around them stay with the store team, so platform access
+   * reads the approval as a state and nothing more.
+   */
+  const awaiting = campaign.approval.required && campaign.status === "awaiting_approval";
+  const approval =
+    awaiting && catalogue && !viaPlatform
+      ? await (async () => {
+          const headerList = await headers();
+          const host = headerList.get("host") ?? "";
+          const proto =
+            headerList.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+          const token = await campaignToken(campaign.id, "approver");
+          return {
+            link: `${host ? `${proto}://${host}` : ""}${campaignPath(catalogue.slug, campaign.code, token, "approver")}`,
+            days: daysAwaitingApproval(campaign),
+          };
+        })()
+      : null;
   const byRecipient = new Map(orders.map((order) => [order.campaign?.recipientId ?? "", order]));
 
   const exceptions = orders.filter(
@@ -253,6 +286,23 @@ export default async function CampaignFulfilmentPage({
         </section>
 
         <section className="space-y-6">
+          {approval ? (
+            <ApprovalPanel
+              storeId={storeId}
+              campaignId={campaign.id}
+              campaignCode={campaign.code}
+              approverName={campaign.approval.approverName}
+              approverEmail={campaign.approval.approverEmail}
+              approvalLink={approval.link}
+              waitLabel={approvalWaitLabel(approval.days)}
+              requestedAt={formatDate(approvalRequestedAt(campaign))}
+              lastSentAt={formatDateTime(approvalLastSentAt(campaign))}
+              reminders={approvalRemindersSent(campaign)}
+              stale={isApprovalStale(campaign)}
+              canManage={roleCan(role, "store.gifting")}
+            />
+          ) : null}
+
           <div className="card p-5">
             <h2 className="text-base font-semibold text-ink">Campaign</h2>
             <DataList
@@ -281,7 +331,7 @@ export default async function CampaignFulfilmentPage({
                     : campaign.approval.required
                     ? campaign.approval.decidedBy
                       ? `${campaign.approval.decidedBy}, ${formatDateTime(campaign.approval.decidedAt ?? campaign.updatedAt)}`
-                      : `Awaiting ${campaign.approval.approverName || campaign.approval.approverEmail}`
+                      : `Awaiting ${campaign.approval.approverName || campaign.approval.approverEmail} · ${approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()}`
                     : "Not required",
                 },
                 ...(viaPlatform

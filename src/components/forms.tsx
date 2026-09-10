@@ -243,6 +243,59 @@ export function ConfirmSubmit({
   );
 }
 
+/**
+ * A link somebody has to send on, with a one-click copy.
+ *
+ * The address stays visible and selectable, because the clipboard is not
+ * available on an insecure origin or when the browser refuses permission — in
+ * that case the button says so instead of pretending it worked, and the text is
+ * selected ready to be copied by hand.
+ */
+export function CopyField({ value, label = "Copy link" }: { value: string; label?: string }) {
+  const [result, setResult] = useState<"idle" | "copied" | "failed">("idle");
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setResult("copied");
+    } catch {
+      const node = textRef.current;
+      if (node) {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+      setResult("failed");
+    }
+  }
+
+  return (
+    <div>
+      <p
+        ref={textRef}
+        className="break-all rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-xs text-inksoft"
+      >
+        {value}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <button type="button" className="btn-secondary btn-sm" onClick={copy}>
+          {label}
+        </button>
+        <span role="status" aria-live="polite" className="text-xs text-muted">
+          {result === "copied"
+            ? "Copied to the clipboard."
+            : result === "failed"
+              ? "This browser would not let the page copy it — the address is selected, copy it by hand."
+              : ""}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function Field({
   label,
   htmlFor,
