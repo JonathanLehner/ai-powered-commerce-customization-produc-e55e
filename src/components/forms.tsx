@@ -9,7 +9,24 @@ import {
   type ControlSnapshot,
   type SubmittedValues,
 } from "@/lib/form-restore";
-import { classNames } from "@/lib/util";
+import { classNames, newId } from "@/lib/util";
+
+/**
+ * One key per filled-in form, posted as `submissionKey`. A double click, a slow
+ * reply or a retried submission carries the same key, so the server records it
+ * once; a success rotates it, so the next entry is a new record.
+ */
+export function SubmissionKey({ status, prefix }: { status: ActionState["status"]; prefix: string }) {
+  const [key, setKey] = useState("");
+  const previous = useRef<ActionState["status"]>("idle");
+
+  useEffect(() => {
+    if (!key || (status === "success" && previous.current !== "success")) setKey(newId(prefix));
+    previous.current = status;
+  }, [status, key, prefix]);
+
+  return <input type="hidden" name="submissionKey" value={key} />;
+}
 
 /** What the action returned, and which attempt returned it. */
 export interface Submission<S extends ActionState = ActionState> {

@@ -171,6 +171,11 @@ export default async function StoreCatalogPage({
                     </Link>
                   </h3>
                   <p className="mt-1 font-mono text-xs text-muted">{storeSku(product, store.channelCode)}</p>
+                  {product.manualFulfilment ? (
+                    <p className="mt-1.5">
+                      <Badge tone="iris">Manual fulfilment · {product.manualFulfilment.quoteCode}</Badge>
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-xs text-muted">
                     {product.variants.filter((v) => v.enabled).length} variants · imported{" "}
                     {formatDate(product.importedAt)} · updated {relativeTime(product.updatedAt)}

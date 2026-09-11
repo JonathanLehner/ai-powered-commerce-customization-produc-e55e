@@ -100,12 +100,17 @@ export function breakdownFor(
   const supplierCost = enabled.length
     ? Math.min(...enabled.map((v) => v.baseCost))
     : product.variants[0]?.baseCost ?? 0;
-  const perArea = catalog?.customizationCostPerArea ?? 0;
+  // A product sourced under a bulk quote was quoted decorated and with freight,
+  // so the base listing's per-area and per-parcel costs do not apply to it.
+  const quoted = Boolean(product.manualFulfilment);
+  const perArea = quoted ? 0 : (catalog?.customizationCostPerArea ?? 0);
   const customizationCost = perArea * decoratedAreaCount(product);
   return computeBreakdown({
     supplierCost,
     customizationCost,
-    shippingEstimate: catalog?.shippingEstimate ?? product.costs.shippingEstimate,
+    shippingEstimate: quoted
+      ? product.costs.shippingEstimate
+      : (catalog?.shippingEstimate ?? product.costs.shippingEstimate),
     sellingPrice: product.price,
     taxRate: bracket?.rate ?? 0,
     pricesIncludeTax,

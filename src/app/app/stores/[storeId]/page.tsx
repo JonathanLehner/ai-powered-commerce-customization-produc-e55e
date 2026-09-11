@@ -7,11 +7,13 @@ import {
   getStorefront,
   listAudit,
   listOrders,
+  listQuoteRequests,
   listStoreProducts,
 } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeLimitMessage } from "@/lib/plans";
 import { requireStoreAccess, roleCan } from "@/lib/session";
+import { isOpenEnquiry, QUOTE_STATUS_LABELS, QUOTE_STATUS_TONES } from "@/lib/sourcing";
 import { ORDER_STATUS_LABELS, SETUP_STEPS, THEMES } from "@/lib/types";
 import { formatMoney, formatDate, relativeTime } from "@/lib/util";
 
@@ -39,12 +41,15 @@ export default async function StoreOverviewPage({
   const { denied, limit } = await searchParams;
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
-  const [orders, products, storefront, audit] = await Promise.all([
+  const canSource = roleCan(role, "store.catalog");
+  const [orders, products, storefront, audit, enquiries] = await Promise.all([
     listOrders(store.id),
     listStoreProducts(store.id),
     getStorefront(store.id),
     listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
+    canSource ? listQuoteRequests(store.id) : Promise.resolve([]),
   ]);
+  const openEnquiries = enquiries.filter(isOpenEnquiry);
 
   // Repeats are one row here; "Full history" lists every record. Platform
   // access reads it without the shopper names and order values in it.
@@ -253,6 +258,42 @@ export default async function StoreOverviewPage({
               ]}
             />
           </div>
+
+          {canSource ? (
+            <div className="card p-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-ink">Bulk sourcing enquiries</h2>
+                <Link
+                  href={`/app/stores/${store.id}/sourcing${enquiries.length > 0 ? "#enquiries" : "?rfq=new#rfq"}`}
+                  className="text-sm font-medium text-brand-700 hover:underline"
+                >
+                  {enquiries.length > 0 ? "All enquiries" : "Start one"}
+                </Link>
+              </div>
+              {openEnquiries.length === 0 ? (
+                <p className="mt-2 text-sm text-muted">
+                  {enquiries.length > 0
+                    ? "Nothing open. Past enquiries stay on the Sourcing page."
+                    : "No enquiries yet. Ask Alibaba.com suppliers to quote on a bulk run from the Sourcing page."}
+                </p>
+              ) : (
+                <ul className="mt-3 divide-y divide-line text-sm">
+                  {openEnquiries.slice(0, 5).map((request) => (
+                    <li key={request.id} className="flex items-center justify-between gap-3 py-2">
+                      <span className="min-w-0 truncate text-ink">
+                        <span className="font-mono text-xs text-muted">{request.code}</span> {request.productName}
+                      </span>
+                      <Badge tone={QUOTE_STATUS_TONES[request.status]}>
+                        {request.status === "quoted"
+                          ? `${(request.quotes ?? []).length} to review`
+                          : QUOTE_STATUS_LABELS[request.status]}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
 
           <div className="card p-5">
             <h2 className="text-base font-semibold text-ink">Storefront</h2>

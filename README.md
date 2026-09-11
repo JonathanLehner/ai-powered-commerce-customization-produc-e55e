@@ -92,12 +92,16 @@ gifting, orders, team, guided setup, activity.
 - **Bulk sourcing and quotes.** Alibaba.com listings sit in the same shared
   catalog and the same side-by-side comparison as the print-on-demand partners,
   but carry a minimum order quantity and no unit cost: a factory prices each run.
-  A store asks with a request for quote against the listing, the request is
-  recorded against that store with its status, and the platform sourcing desk
-  records what came back. Only a live quote lets the listing be copied in, and
-  it is copied at the quoted cost — anything sold from it is still flagged for
-  manual handling, because the marketplace has no order submission API
-  (`npm run sourcing-check`).
+  A store manager starts a bulk sourcing enquiry from the Sourcing page —
+  against a listing, any other catalog item, or a product described in their
+  own words — with quantity, target unit cost, destination market and the
+  decoration needed. Open enquiries and their status are listed on the Sourcing
+  page and the store overview. The platform sourcing desk (`/admin/quotes`)
+  records each supplier quote that comes back; quotes appear as columns in the
+  side-by-side comparison next to print-on-demand listings. The store accepts
+  one and copies it into the catalog at the quoted cost as a product flagged
+  for manual fulfilment, whose orders are always held for a hand-raised
+  purchase order. Every step is in the audit history (`npm run sourcing-check`).
 - **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
   the store's own connected account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,

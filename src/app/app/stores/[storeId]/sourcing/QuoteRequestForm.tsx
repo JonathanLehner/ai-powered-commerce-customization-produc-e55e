@@ -1,31 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { requestQuote } from "@/app/actions/sourcing";
-import type { ActionState } from "@/app/actions/stores";
-import { ActionForm, Field } from "@/components/forms";
-import { newId } from "@/lib/util";
+import { ActionForm, Field, SubmissionKey } from "@/components/forms";
 
 /**
- * One key per filled-in form. A double click, a slow reply or a retried
- * submission carries the same key, so the supplier is asked once; an accepted
- * request rotates it, so the next run this buyer asks about is a new request.
+ * A bulk sourcing enquiry. Opened from a quote-priced listing it is about that
+ * listing; opened on its own the buyer either refers to any catalog item or
+ * describes the product in their own words.
  */
-function SubmissionKey({ status }: { status: ActionState["status"] }) {
-  const [key, setKey] = useState("");
-  const previous = useRef<ActionState["status"]>("idle");
-
-  useEffect(() => {
-    if (!key || (status === "success" && previous.current !== "success")) setKey(newId("rfqfrm"));
-    previous.current = status;
-  }, [status, key]);
-
-  return <input type="hidden" name="submissionKey" value={key} />;
-}
-
 export function QuoteRequestForm({
   storeId,
-  catalogId,
+  listing,
+  catalogOptions,
+  defaultReference = "",
   regions,
   minimumOrderQuantity,
   currency,
@@ -34,7 +21,10 @@ export function QuoteRequestForm({
   contactEmail,
 }: {
   storeId: string;
-  catalogId: string;
+  /** Set when the form is about one listing; the reference picker is hidden. */
+  listing?: { id: string };
+  catalogOptions?: { id: string; label: string }[];
+  defaultReference?: string;
   regions: string[];
   minimumOrderQuantity: number;
   currency: string;
@@ -42,41 +32,82 @@ export function QuoteRequestForm({
   contactName: string;
   contactEmail: string;
 }) {
+  const input = (field: string, error: string | undefined) => (error === field ? "input input-error" : "input");
   return (
     <ActionForm
       action={requestQuote}
-      hidden={{ storeId, catalogId }}
-      submitLabel="Send request"
+      hidden={listing ? { storeId, catalogId: listing.id } : { storeId }}
+      submitLabel="Send enquiry"
       pendingLabel="Sending…"
       footer={
         <span className="text-xs text-muted">
-          Nothing is ordered or paid today. A quote that comes back is what prices the listing.
+          Nothing is ordered or paid today. The quotes that come back appear beside the print-on-demand options.
         </span>
       }
     >
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
-          <SubmissionKey status={state.status} />
+          <SubmissionKey status={state.status} prefix="rfqfrm" />
+          {listing ? null : (
+            <>
+              <Field
+                label="Refer to a catalog item"
+                htmlFor="catalogId"
+                className="sm:col-span-2"
+                hint="Optional. Pick one to have it made in bulk, or leave this and describe the product below."
+              >
+                <select id="catalogId" name="catalogId" defaultValue={defaultReference} className="input">
+                  <option value="">None — I will describe it</option>
+                  {catalogOptions?.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field
+                label="Product"
+                htmlFor="productName"
+                error={state.field === "productName"}
+                hint="Needed when no catalog item is picked, e.g. “Recycled canvas tote”."
+              >
+                <input id="productName" name="productName" className={input("productName", state.field)} />
+              </Field>
+            </>
+          )}
           <Field
-            label="How many units"
+            label="Product description"
+            htmlFor="description"
+            className={listing ? "sm:col-span-2" : undefined}
+            error={state.field === "description"}
+            hint={listing ? "Optional. Anything that differs from the listing." : "Material, weight, sizes or capacity."}
+          >
+            <textarea id="description" name="description" rows={3} className={input("description", state.field)} />
+          </Field>
+          <Field
+            label="Quantity"
             htmlFor="quantity"
             error={state.field === "quantity"}
-            hint={`Quoted from ${minimumOrderQuantity.toLocaleString("en-US")} units.`}
+            hint={
+              minimumOrderQuantity > 0
+                ? `Quoted from ${minimumOrderQuantity.toLocaleString("en-US")} units.`
+                : "Units in the run."
+            }
           >
             <input
               id="quantity"
               name="quantity"
               inputMode="numeric"
-              defaultValue={String(minimumOrderQuantity)}
-              className={state.field === "quantity" ? "input input-error" : "input"}
+              defaultValue={minimumOrderQuantity > 0 ? String(minimumOrderQuantity) : ""}
+              className={input("quantity", state.field)}
             />
           </Field>
-          <Field label="Delivered to" htmlFor="destination" error={state.field === "destination"}>
+          <Field label="Destination market" htmlFor="destination" error={state.field === "destination"}>
             <select
               id="destination"
               name="destination"
               defaultValue={defaultDestination}
-              className={state.field === "destination" ? "input input-error" : "input"}
+              className={input("destination", state.field)}
             >
               {regions.map((region) => (
                 <option key={region} value={region}>
@@ -86,7 +117,7 @@ export function QuoteRequestForm({
             </select>
           </Field>
           <Field
-            label={`Target unit price (${currency})`}
+            label={`Target unit cost (${currency})`}
             htmlFor="targetUnitCost"
             error={state.field === "targetUnitCost"}
             hint="Optional. Suppliers quote closer to a number they can work against."
@@ -96,7 +127,7 @@ export function QuoteRequestForm({
               name="targetUnitCost"
               inputMode="decimal"
               placeholder="e.g. 3.80"
-              className={state.field === "targetUnitCost" ? "input input-error" : "input"}
+              className={input("targetUnitCost", state.field)}
             />
           </Field>
           <Field
@@ -105,25 +136,20 @@ export function QuoteRequestForm({
             error={state.field === "neededBy"}
             hint="Optional. Sea freight adds four to six weeks on top of production."
           >
-            <input
-              id="neededBy"
-              name="neededBy"
-              type="date"
-              className={state.field === "neededBy" ? "input input-error" : "input"}
-            />
+            <input id="neededBy" name="neededBy" type="date" className={input("neededBy", state.field)} />
           </Field>
           <Field
-            label="Specification for the factory"
+            label="Decoration needed"
             htmlFor="customisation"
             className="sm:col-span-2"
             error={state.field === "customisation"}
-            hint="Decoration and placement, materials and weight, colours, sizes, labelling and packaging."
+            hint="Print or embroidery, placement and colours, labels and packaging — or “none, blank stock”."
           >
             <textarea
               id="customisation"
               name="customisation"
-              rows={5}
-              className={state.field === "customisation" ? "input input-error" : "input"}
+              rows={3}
+              className={input("customisation", state.field)}
             />
           </Field>
           <Field label="Reply to" htmlFor="contactName" error={state.field === "contactName"}>
@@ -132,7 +158,7 @@ export function QuoteRequestForm({
               name="contactName"
               autoComplete="name"
               defaultValue={contactName}
-              className={state.field === "contactName" ? "input input-error" : "input"}
+              className={input("contactName", state.field)}
             />
           </Field>
           <Field label="Reply email" htmlFor="contactEmail" error={state.field === "contactEmail"}>
@@ -142,7 +168,7 @@ export function QuoteRequestForm({
               type="email"
               autoComplete="email"
               defaultValue={contactEmail}
-              className={state.field === "contactEmail" ? "input input-error" : "input"}
+              className={input("contactEmail", state.field)}
             />
           </Field>
         </div>

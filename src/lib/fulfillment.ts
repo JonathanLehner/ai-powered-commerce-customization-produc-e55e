@@ -80,16 +80,34 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
     };
   }
 
+  const [catalog, storeProducts] = await Promise.all([
+    listCatalogProducts(),
+    listStoreProducts(order.storeId),
+  ]);
+
+  // A product copied in from an accepted bulk quote is made to that quote, by
+  // that factory. There is no job to send anywhere: a buyer raises the
+  // purchase order against the quote.
+  const sourced = storeProducts.find(
+    (p) => p.manualFulfilment && order.items.some((item) => item.storeProductId === p.id),
+  );
+  if (sourced?.manualFulfilment && !overrideId) {
+    return {
+      routing: "manual_required",
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      supplierOrderRef: null,
+      message: `“${sourced.name}” is made under accepted quote ${sourced.manualFulfilment.quoteCode} from ${sourced.manualFulfilment.supplierLabel}. Raise the purchase order against that quote and record the reference here.`,
+      exception: null,
+    };
+  }
+
   const region = regionForCountry(order.customer.country);
   // Coverage is judged on the catalog products this supplier would actually
   // make, not only on the regions its supplier record claims: a partner can
   // trade in a region and still not produce this particular product line
   // there. The supplier picker applies the same test, so an order held here
   // is never offered back to the partner that could not take it.
-  const [catalog, storeProducts] = await Promise.all([
-    listCatalogProducts(),
-    listStoreProducts(order.storeId),
-  ]);
   const requirements = orderRequirements(order, storeProducts, catalog);
   const theirs = catalog.filter((product) => product.supplierId === supplier.id);
   const unmetHere = unmetBy(theirs, requirements, region);

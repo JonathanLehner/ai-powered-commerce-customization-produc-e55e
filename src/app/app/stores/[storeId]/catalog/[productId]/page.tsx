@@ -132,6 +132,16 @@ export default async function ProductEditorPage({
         </Callout>
       ) : null}
 
+      {product.manualFulfilment ? (
+        <Callout tone="neutral" title="Flagged for manual fulfilment">
+          Sourced under accepted quote {product.manualFulfilment.quoteCode} from{" "}
+          {product.manualFulfilment.supplierLabel} at{" "}
+          {formatMoney(product.manualFulfilment.unitCost, product.currency)} a unit, minimum{" "}
+          {product.manualFulfilment.minimumOrderQuantity.toLocaleString("en-US")} units. Orders for it are not
+          sent to a supplier API: each one is held for a buyer to raise the purchase order against that quote.
+        </Callout>
+      ) : null}
+
       {/* ------------------------------------------------------ publishing */}
       <section className="card p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">

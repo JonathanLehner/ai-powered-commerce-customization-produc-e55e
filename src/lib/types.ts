@@ -451,6 +451,17 @@ export interface StoreProduct {
    * instead of copying the same supplier product twice.
    */
   importKey?: string | null;
+  /**
+   * Set on products copied in from an accepted bulk quote. Orders for them are
+   * never sent to a supplier API: a buyer raises the purchase order by hand.
+   */
+  manualFulfilment?: {
+    quoteRequestId: string;
+    quoteCode: string;
+    supplierLabel: string;
+    unitCost: number;
+    minimumOrderQuantity: number;
+  } | null;
   updatedAt: string;
   publishedAt: string | null;
 }
@@ -845,27 +856,34 @@ export interface PlanEnquiry {
 }
 
 /**
- * A request for quote raised against a bulk-sourcing listing.
+ * A bulk sourcing enquiry (request for quote), raised against a catalog item or
+ * described in the store's own words.
  *
  * It belongs to the store that asked, not to the person: whoever picks the
  * enquiry up next needs the run size, the destination and what was answered.
- * Nothing here places an order — a quote that is accepted is copied into the
- * store as a draft product, and any order made from it still routes to manual
- * handling because the marketplace has no order submission API.
+ * Nothing here places an order — a quote the store accepts is copied into the
+ * store as a draft product flagged for manual fulfilment, because the
+ * marketplace has no order submission API.
  */
-export type QuoteRequestStatus = "submitted" | "quoted" | "declined" | "withdrawn";
+export type QuoteRequestStatus = "submitted" | "quoted" | "accepted" | "declined" | "withdrawn";
 
-/** What the sourcing desk wrote back, once it has answered. */
-export interface QuoteResponse {
+/** One price a supplier sent back. An enquiry can collect several. */
+export interface SupplierQuote {
+  id: string;
+  /** The factory or seller that quoted, as named on the marketplace. */
+  supplierLabel: string;
+  /** Shared-catalog item the store copy is built on: variants, print areas, mockups. */
+  baseCatalogProductId: string;
   /** Quoted cost per unit at the requested quantity, in minor units. */
   unitCost: number;
+  minimumOrderQuantity: number;
   /** Days from a confirmed purchase order to goods leaving the factory. */
   leadTimeDays: number;
   /** ISO date the quote lapses, or "" when the supplier gave no expiry. */
   validUntil: string;
   notes: string;
-  answeredBy: string;
-  answeredAt: string;
+  recordedBy: string;
+  recordedAt: string;
 }
 
 export interface QuoteRequest {
@@ -875,20 +893,23 @@ export interface QuoteRequest {
   storeId: string;
   storeName: string;
   agencyId: string | null;
-  catalogProductId: string;
+  /** The catalog item the enquiry refers to, or null when it was described in free text. */
+  catalogProductId: string | null;
   /** Named as it stood when the request was raised. */
   productName: string;
+  /** The buyer's own description of the product, "" when the reference says it all. */
+  description: string;
   supplierId: string;
   supplierName: string;
   currency: string;
   quantity: number;
-  /** One of the listing's fulfilment regions, where the run is delivered. */
+  /** The destination market the run is delivered to. */
   destination: string;
   /** What the buyer hopes to pay per unit, in minor units, or null. */
   targetUnitCost: number | null;
   /** ISO date the goods are needed by, or "". */
   neededBy: string;
-  /** Decoration, packaging and material notes for the factory. */
+  /** Decoration needed, plus packaging and material notes for the factory. */
   customisation: string;
   contactName: string;
   contactEmail: string;
@@ -900,7 +921,12 @@ export interface QuoteRequest {
    */
   submissionKey: string;
   status: QuoteRequestStatus;
-  response: QuoteResponse | null;
+  quotes: SupplierQuote[];
+  /** Set once the store accepts one of `quotes`. */
+  acceptedQuoteId: string | null;
+  declineReason: string | null;
+  /** The store product the accepted quote was copied into. */
+  storeProductId: string | null;
   createdAt: string;
   updatedAt: string;
 }

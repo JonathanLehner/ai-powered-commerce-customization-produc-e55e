@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { importCatalogProduct } from "@/app/actions/products";
-import { withdrawQuoteRequest } from "@/app/actions/sourcing";
-import { ConfirmSubmit, SubmitButton } from "@/components/forms";
+import { SubmitButton } from "@/components/forms";
 import { Badge, Callout, EmptyState, PageHeader } from "@/components/ui";
 import { listCatalogProducts, listQuoteRequests, listStoreProducts, listSuppliers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
@@ -13,13 +13,16 @@ import {
   isQuoteOnly,
   QUOTE_PRICE_LABEL,
   QUOTE_STATUS_LABELS,
-  QUOTE_STATUS_NOTES,
   QUOTE_STATUS_TONES,
-  quoteIsUsable,
+  quoteIsLive,
 } from "@/lib/sourcing";
-import type { CatalogProduct, QuoteRequest, StoreProduct } from "@/lib/types";
+import type { CatalogProduct, QuoteRequest, StoreProduct, SupplierQuote } from "@/lib/types";
 import { formatDate, formatMoney, newId } from "@/lib/util";
+import { AcceptedQuoteAction, AcceptQuoteButton, Enquiries } from "./Enquiries";
 import { QuoteRequestForm } from "./QuoteRequestForm";
+
+/** Up to this many listings and quotes sit side by side. */
+const COMPARE_LIMIT = 4;
 
 /** The fields every copy form posts, including the key that makes a retry safe. */
 function CopyFields({
@@ -103,77 +106,46 @@ function ConfirmCopyAgain({
   );
 }
 
-/**
- * One request for quote in the store's own queue: what was asked for, where it
- * has got to, and what came back. A quote that is still live is also the only
- * way the listing behind it can be copied in, because the quoted cost is the
- * only unit price a bulk-sourcing listing has ever had.
- */
-function QuoteRequestRow({
-  request,
-  storeId,
-  filters,
-}: {
-  request: QuoteRequest;
-  storeId: string;
-  filters: string;
-}) {
-  const usable = quoteIsUsable(request);
-  return (
-    <li className="py-4 first:pt-0 last:pb-0">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-xs text-muted">{request.code}</span>
-            <h3 className="text-sm font-semibold text-ink">{request.productName}</h3>
-            <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
-          </div>
-          <p className="mt-1 text-xs text-muted">
-            {request.supplierName} · {formatQuantity(request.quantity)} to {request.destination} · asked by{" "}
-            {request.requestedBy} on {formatDate(request.createdAt)}
-            {request.neededBy ? ` · needed by ${formatDate(request.neededBy)}` : ""}
-          </p>
-          <p className="mt-2 text-sm text-inksoft">{QUOTE_STATUS_NOTES[request.status]}</p>
-          {request.status === "quoted" && request.response ? (
-            <p className="mt-1 text-sm text-ink">
-              <span className="font-semibold tabular-nums">
-                {formatMoney(request.response.unitCost, request.currency)}
-              </span>{" "}
-              a unit · {request.response.leadTimeDays} days production
-              {request.response.validUntil ? ` · valid until ${formatDate(request.response.validUntil)}` : ""}
-              {usable ? "" : " · expired"}
-            </p>
-          ) : null}
-          {request.response?.notes ? (
-            <p className="mt-1 text-xs text-muted">{request.response.notes}</p>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {usable ? (
-            <form action={importCatalogProduct}>
-              <CopyFields storeId={storeId} catalogId={request.catalogProductId} filters={filters} />
-              <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
-                Copy in at the quoted price
-              </SubmitButton>
-            </form>
-          ) : null}
-          {request.status === "submitted" ? (
-            <form action={withdrawQuoteRequest}>
-              <input type="hidden" name="storeId" value={storeId} />
-              <input type="hidden" name="requestId" value={request.id} />
-              <ConfirmSubmit
-                className="btn-secondary btn-sm"
-                confirmLabel="Withdraw"
-                question="Withdraw this request?"
-              >
-                Withdraw
-              </ConfirmSubmit>
-            </form>
-          ) : null}
-        </div>
-      </div>
-    </li>
-  );
+/** One column of the side-by-side comparison: a catalog listing or a supplier quote. */
+interface CompareColumn {
+  key: string;
+  name: ReactNode;
+  supplier: string;
+  unitCost: string;
+  minimumOrder: string;
+  customisation: string;
+  shipping: string;
+  ordering: string;
+  leadTime: string;
+  variants: string;
+  printAreas: string;
+  minDpi: string;
+  fulfils: string;
+  availability: string;
+  action: ReactNode;
+}
+
+const COMPARE_ROWS: { label: string; value: (c: CompareColumn) => ReactNode }[] = [
+  { label: "Supplier", value: (c) => c.supplier },
+  { label: "Unit cost", value: (c) => c.unitCost },
+  { label: "Minimum order", value: (c) => c.minimumOrder },
+  { label: "Customisation per area", value: (c) => c.customisation },
+  { label: "Shipping estimate", value: (c) => c.shipping },
+  { label: "Ordering", value: (c) => c.ordering },
+  { label: "Lead time", value: (c) => c.leadTime },
+  { label: "Variants", value: (c) => c.variants },
+  { label: "Print areas", value: (c) => c.printAreas },
+  { label: "Minimum DPI", value: (c) => c.minDpi },
+  { label: "Fulfils to", value: (c) => c.fulfils },
+  { label: "Availability", value: (c) => c.availability },
+];
+
+function listingTerms(c: CatalogProduct | undefined) {
+  return {
+    variants: c ? `${c.variants.length}` : "—",
+    printAreas: c ? c.printAreas.map((a) => `${a.name} (${a.widthMm}×${a.heightMm} mm)`).join(", ") : "—",
+    minDpi: c ? `${c.fileRequirements.minDpi}` : "—",
+  };
 }
 
 function matches(product: CatalogProduct, query: string) {
@@ -198,6 +170,7 @@ export default async function SourcingPage({
     compare?: string;
     confirm?: string;
     rfq?: string;
+    ref?: string;
   }>;
 }) {
   const { storeId } = await params;
@@ -214,68 +187,194 @@ export default async function SourcingPage({
   const approved = suppliers.filter((s) => s.status === "approved");
   const approvedIds = new Set(approved.map((s) => s.id));
   const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name ?? "Unknown supplier";
+  const catalogName = (id: string) => catalog.find((c) => c.id === id)?.name ?? "a retired listing";
+  // The marketplace that takes enquiries for anything not already listed with it.
+  const marketplace = approved.find((s) => s.kind === "sourcing_marketplace" && s.capabilities.quotes);
 
   const regions = [...new Set(catalog.flatMap((c) => c.fulfillmentRegions))].sort();
+  const offered = catalog.filter((c) => c.status === "active" && approvedIds.has(c.supplierId));
 
-  const visible = catalog
-    .filter((c) => c.status === "active" && approvedIds.has(c.supplierId))
+  const visible = offered
     .filter((c) => matches(c, filters.q ?? ""))
     .filter((c) => !filters.category || c.category === filters.category)
     .filter((c) => !filters.supplier || c.supplierId === filters.supplier)
     .filter((c) => !filters.region || c.fulfillmentRegions.includes(filters.region));
 
+  // Every quote the store has had back, by id, with the enquiry it answers.
+  const quotesById = new Map<string, { request: QuoteRequest; quote: SupplierQuote }>();
+  for (const request of quoteRequests) {
+    for (const quote of request.quotes ?? []) quotesById.set(quote.id, { request, quote });
+  }
+
   const compareIds = (filters.compare ?? "").split(",").filter(Boolean);
-  const comparing = compareIds
-    .map((id) => catalog.find((c) => c.id === id))
-    .filter((c): c is CatalogProduct => Boolean(c));
 
   // Every copy a store already holds of a supplier product, newest first, so a
   // repeat copy can offer to open one of them instead.
   const copiesOf = (catalogId: string) =>
     storeProducts
-      .filter((p) => p.catalogProductId === catalogId)
+      .filter((p) => p.catalogProductId === catalogId && !p.manualFulfilment)
       .sort((a, b) => a.importedAt.localeCompare(b.importedAt));
 
-  // What this store has already asked about a listing, newest first, so a
-  // card can say "awaiting quote" instead of offering the same request again.
+  // What this store has already asked about a listing, so a card can say
+  // "awaiting quotes" or "3 quotes" instead of offering the same request again.
   const requestsFor = (catalogId: string) => quoteRequests.filter((r) => r.catalogProductId === catalogId);
-  const liveQuote = (catalogId: string) => requestsFor(catalogId).find((r) => quoteIsUsable(r));
-  const openRequest = (catalogId: string) => requestsFor(catalogId).find((r) => r.status === "submitted");
+  const openRequest = (catalogId: string) =>
+    requestsFor(catalogId).find((r) => r.status === "submitted" || r.status === "quoted");
 
-  // The listing whose request form is open, if the address names one that is
-  // still quote-priced and still in the catalog.
-  const askingAbout = filters.rfq ? catalog.find((c) => c.id === filters.rfq) : undefined;
+  // The enquiry form: about one quote-priced listing, or a general one that
+  // refers to any catalog item or describes the product from scratch.
+  const askingAbout = filters.rfq && filters.rfq !== "new" ? offered.find((c) => c.id === filters.rfq) : undefined;
   const asking = askingAbout && isQuoteOnly(askingAbout) ? askingAbout : undefined;
+  const askingGeneral = filters.rfq === "new" && marketplace ? marketplace : undefined;
 
   const filterQuery = new URLSearchParams();
   for (const [key, value] of Object.entries(filters)) {
-    if (value && key !== "confirm" && key !== "rfq") filterQuery.set(key, value);
+    if (value && key !== "confirm" && key !== "rfq" && key !== "ref") filterQuery.set(key, value);
   }
   const filterString = filterQuery.toString();
 
-  const buildHref = (patch: Record<string, string | undefined>) => {
+  const buildHref = (patch: Record<string, string | undefined>, hash = "") => {
     const next = new URLSearchParams();
     const merged = { ...filters, ...patch };
     for (const [key, value] of Object.entries(merged)) {
       if (value) next.set(key, value);
     }
     const qs = next.toString();
-    return `/app/stores/${storeId}/sourcing${qs ? `?${qs}` : ""}`;
+    return `/app/stores/${storeId}/sourcing${qs ? `?${qs}` : ""}${hash}`;
   };
+  const startEnquiryHref = (ref?: string) => buildHref({ rfq: "new", ref, confirm: undefined }, "#rfq");
 
   const toggleCompare = (id: string) => {
     const set = new Set(compareIds);
     if (set.has(id)) set.delete(id);
-    else if (set.size < 3) set.add(id);
+    else if (set.size < COMPARE_LIMIT) set.add(id);
     const value = [...set].join(",");
     return buildHref({ compare: value || undefined });
   };
+
+  const catalogAction = (c: CatalogProduct): ReactNode => {
+    const copies = copiesOf(c.id);
+    if (isQuoteOnly(c)) {
+      return (
+        <Link href={buildHref({ rfq: c.id, confirm: undefined }, "#rfq")} className="btn-primary btn-sm" scroll={false}>
+          Request a quote
+        </Link>
+      );
+    }
+    if (copies.length === 0) {
+      return (
+        <form action={importCatalogProduct}>
+          <CopyFields storeId={storeId} catalogId={c.id} filters={filterString} />
+          <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+            Copy to store
+          </SubmitButton>
+        </form>
+      );
+    }
+    if (filters.confirm === c.id) {
+      return (
+        <ConfirmCopyAgain
+          storeId={storeId}
+          catalogId={c.id}
+          copies={copies}
+          channelCode={store.channelCode}
+          filters={filterString}
+          cancelHref={buildHref({ confirm: undefined })}
+        />
+      );
+    }
+    return (
+      <Link href={buildHref({ confirm: c.id })} className="btn-primary btn-sm" scroll={false}>
+        Copy again
+      </Link>
+    );
+  };
+
+  const catalogColumn = (c: CatalogProduct): CompareColumn => {
+    const quoteOnly = isQuoteOnly(c);
+    return {
+      key: c.id,
+      name: c.name,
+      supplier: supplierName(c.supplierId),
+      // A bulk-sourcing listing has no unit cost to compare, so the column
+      // says what it is instead of showing a zero.
+      unitCost: quoteOnly ? `${QUOTE_PRICE_LABEL} · ${indicativeRange(c)}` : formatMoney(c.baseCost, c.currency),
+      minimumOrder: quoteOnly ? formatQuantity(c.bulkSourcing.minimumOrderQuantity) : "1 unit",
+      customisation: quoteOnly ? "Quoted with the run" : formatMoney(c.customizationCostPerArea, c.currency),
+      shipping: quoteOnly ? "Freight quoted with the run" : formatMoney(c.shippingEstimate, c.currency),
+      ordering: quoteOnly ? "Manual purchase order" : "Routed to the supplier automatically",
+      leadTime: `${c.leadTimeDays[0]}–${c.leadTimeDays[1]} days`,
+      ...listingTerms(c),
+      fulfils: c.fulfillmentRegions.join(", "),
+      availability: c.availability,
+      action: catalogAction(c),
+    };
+  };
+
+  const quoteColumn = ({ request, quote }: { request: QuoteRequest; quote: SupplierQuote }): CompareColumn => {
+    const live = quoteIsLive(quote);
+    return {
+      key: quote.id,
+      name: (
+        <>
+          {request.productName}
+          <span className="block text-xs font-normal text-muted">
+            Quote on {request.code} · {quote.supplierLabel}
+          </span>
+        </>
+      ),
+      supplier: `${quote.supplierLabel} via ${request.supplierName}`,
+      unitCost: `${formatMoney(quote.unitCost, request.currency)} quoted${
+        request.targetUnitCost === null ? "" : ` · target ${formatMoney(request.targetUnitCost, request.currency)}`
+      }`,
+      minimumOrder: formatQuantity(quote.minimumOrderQuantity),
+      customisation: "Included in the quote",
+      shipping: "Freight quoted with the run",
+      ordering: "Manual purchase order",
+      leadTime: `${quote.leadTimeDays} days production`,
+      ...listingTerms(catalog.find((c) => c.id === quote.baseCatalogProductId)),
+      fulfils: request.destination,
+      availability: quote.validUntil
+        ? `${live ? "Quote valid until" : "Quote expired"} ${formatDate(quote.validUntil)}`
+        : "No expiry given",
+      action:
+        request.status === "accepted" && request.acceptedQuoteId === quote.id ? (
+          <AcceptedQuoteAction storeId={storeId} request={request} />
+        ) : request.status === "quoted" ? (
+          <AcceptQuoteButton storeId={storeId} request={request} quote={quote} />
+        ) : (
+          <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
+        ),
+    };
+  };
+
+  const columns = compareIds
+    .map((id) => {
+      const listing = catalog.find((c) => c.id === id);
+      if (listing) return catalogColumn(listing);
+      const quoted = quotesById.get(id);
+      return quoted ? quoteColumn(quoted) : null;
+    })
+    .filter((c): c is CompareColumn => c !== null);
+
+  const supplierFilter = filters.supplier ? suppliers.find((s) => s.id === filters.supplier) : undefined;
+  const bulkHint =
+    supplierFilter?.kind === "sourcing_marketplace"
+      ? `${supplierFilter.name} prices bulk runs per enquiry. Start an enquiry for the product you need — describe it or refer to any catalog item — and the quotes that come back appear here beside the print-on-demand options.`
+      : "Try a different category, supplier or fulfilment region. The platform team curates which suppliers are available to stores.";
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Shared supplier catalog"
         description="Curated by the platform team. Copying one in creates an independent store product."
+        actions={
+          marketplace ? (
+            <Link href={startEnquiryHref()} className="btn-secondary" scroll={false}>
+              Start a bulk enquiry
+            </Link>
+          ) : null
+        }
       />
 
       <form method="get" className="card flex flex-wrap items-end gap-3 p-4">
@@ -338,46 +437,80 @@ export default async function SourcingPage({
         ) : null}
       </form>
 
-      {asking ? (
-        <section id="rfq" className="card p-5">
+      {asking || askingGeneral ? (
+        <section id="rfq" className="card scroll-mt-6 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-base font-semibold text-ink">Request a quote — {asking.name}</h2>
-              <p className="mt-1 max-w-2xl text-sm text-inksoft">
-                {supplierName(asking.supplierId)} prices bulk runs per enquiry, so there is no unit cost to
-                copy. Comparable runs have come in at {indicativeRange(asking)}, and suppliers answer in{" "}
-                {asking.bulkSourcing.responseDays[0]}–{asking.bulkSourcing.responseDays[1]} working days.
-              </p>
-              <p className="mt-1 max-w-2xl text-xs text-muted">{asking.bulkSourcing.quoteNotes}</p>
+              {asking ? (
+                <>
+                  <h2 className="text-base font-semibold text-ink">Request a quote — {asking.name}</h2>
+                  <p className="mt-1 max-w-2xl text-sm text-inksoft">
+                    {supplierName(asking.supplierId)} prices bulk runs per enquiry, so there is no unit cost to
+                    copy. Comparable runs have come in at {indicativeRange(asking)}, and suppliers answer in{" "}
+                    {asking.bulkSourcing.responseDays[0]}–{asking.bulkSourcing.responseDays[1]} working days.
+                  </p>
+                  <p className="mt-1 max-w-2xl text-xs text-muted">{asking.bulkSourcing.quoteNotes}</p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-base font-semibold text-ink">Start a bulk sourcing enquiry</h2>
+                  <p className="mt-1 max-w-2xl text-sm text-inksoft">
+                    Refer to any catalog item to have it made in bulk, or describe the product yourself.{" "}
+                    {marketplace?.name} suppliers quote on it, and every quote appears under Bulk sourcing
+                    enquiries and in the side-by-side comparison.
+                  </p>
+                </>
+              )}
             </div>
-            <Link href={buildHref({ rfq: undefined })} className="btn-ghost btn-sm" scroll={false}>
+            <Link href={buildHref({ rfq: undefined, ref: undefined })} className="btn-ghost btn-sm" scroll={false}>
               Close
             </Link>
           </div>
           <div className="mt-4">
-            <QuoteRequestForm
-              storeId={storeId}
-              catalogId={asking.id}
-              regions={asking.fulfillmentRegions}
-              minimumOrderQuantity={asking.bulkSourcing.minimumOrderQuantity}
-              currency={asking.currency}
-              defaultDestination={
-                filters.region && asking.fulfillmentRegions.includes(filters.region)
-                  ? filters.region
-                  : asking.fulfillmentRegions[0]
-              }
-              contactName={user.name}
-              contactEmail={user.email}
-            />
+            {asking ? (
+              <QuoteRequestForm
+                storeId={storeId}
+                listing={{ id: asking.id }}
+                regions={asking.fulfillmentRegions}
+                minimumOrderQuantity={asking.bulkSourcing.minimumOrderQuantity}
+                currency={asking.currency}
+                defaultDestination={
+                  filters.region && asking.fulfillmentRegions.includes(filters.region)
+                    ? filters.region
+                    : asking.fulfillmentRegions[0]
+                }
+                contactName={user.name}
+                contactEmail={user.email}
+              />
+            ) : askingGeneral ? (
+              <QuoteRequestForm
+                storeId={storeId}
+                catalogOptions={offered.map((c) => ({
+                  id: c.id,
+                  label: `${c.name} · ${supplierName(c.supplierId)}`,
+                }))}
+                defaultReference={filters.ref && offered.some((c) => c.id === filters.ref) ? filters.ref : ""}
+                regions={askingGeneral.regions}
+                minimumOrderQuantity={0}
+                currency="USD"
+                defaultDestination={
+                  filters.region && askingGeneral.regions.includes(filters.region)
+                    ? filters.region
+                    : askingGeneral.regions[0]
+                }
+                contactName={user.name}
+                contactEmail={user.email}
+              />
+            ) : null}
           </div>
         </section>
       ) : null}
 
-      {comparing.length > 0 ? (
+      {columns.length > 0 ? (
         <section className="card p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-base font-semibold text-ink">
-              Comparing {comparing.length} product{comparing.length === 1 ? "" : "s"}
+              Comparing {columns.length} option{columns.length === 1 ? "" : "s"}
             </h2>
             <Link href={buildHref({ compare: undefined })} className="btn-ghost btn-sm">
               Clear comparison
@@ -388,60 +521,21 @@ export default async function SourcingPage({
               <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
                   <th scope="col" className="py-2 pr-3">Attribute</th>
-                  {comparing.map((c) => (
-                    <th key={c.id} scope="col" className="py-2 pr-3 text-ink">
+                  {columns.map((c) => (
+                    <th key={c.key} scope="col" className="py-2 pr-3 normal-case tracking-normal text-sm text-ink">
                       {c.name}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {[
-                  { label: "Supplier", value: (c: CatalogProduct) => supplierName(c.supplierId) },
-                  {
-                    label: "Unit cost",
-                    // A bulk-sourcing listing has no unit cost to compare, so
-                    // the column says what it is instead of showing a zero.
-                    value: (c: CatalogProduct) =>
-                      isQuoteOnly(c) ? `${QUOTE_PRICE_LABEL} · ${indicativeRange(c)}` : formatMoney(c.baseCost, c.currency),
-                  },
-                  {
-                    label: "Minimum order",
-                    value: (c: CatalogProduct) =>
-                      isQuoteOnly(c) ? formatQuantity(c.bulkSourcing.minimumOrderQuantity) : "1 unit",
-                  },
-                  {
-                    label: "Customisation per area",
-                    value: (c: CatalogProduct) =>
-                      isQuoteOnly(c) ? "Quoted with the run" : formatMoney(c.customizationCostPerArea, c.currency),
-                  },
-                  {
-                    label: "Shipping estimate",
-                    value: (c: CatalogProduct) =>
-                      isQuoteOnly(c) ? "Freight quoted with the run" : formatMoney(c.shippingEstimate, c.currency),
-                  },
-                  {
-                    label: "Ordering",
-                    value: (c: CatalogProduct) =>
-                      isQuoteOnly(c) ? "Manual purchase order" : "Routed to the supplier automatically",
-                  },
-                  { label: "Lead time", value: (c: CatalogProduct) => `${c.leadTimeDays[0]}–${c.leadTimeDays[1]} days` },
-                  { label: "Variants", value: (c: CatalogProduct) => `${c.variants.length}` },
-                  {
-                    label: "Print areas",
-                    value: (c: CatalogProduct) =>
-                      c.printAreas.map((a) => `${a.name} (${a.widthMm}×${a.heightMm} mm)`).join(", "),
-                  },
-                  { label: "Minimum DPI", value: (c: CatalogProduct) => `${c.fileRequirements.minDpi}` },
-                  { label: "Fulfils to", value: (c: CatalogProduct) => c.fulfillmentRegions.join(", ") },
-                  { label: "Availability", value: (c: CatalogProduct) => c.availability },
-                ].map((row) => (
+                {COMPARE_ROWS.map((row) => (
                   <tr key={row.label}>
                     <th scope="row" className="py-2.5 pr-3 font-medium text-muted">
                       {row.label}
                     </th>
-                    {comparing.map((c) => (
-                      <td key={c.id} className="py-2.5 pr-3 text-inksoft">
+                    {columns.map((c) => (
+                      <td key={c.key} className="py-2.5 pr-3 text-inksoft">
                         {row.value(c)}
                       </td>
                     ))}
@@ -449,49 +543,13 @@ export default async function SourcingPage({
                 ))}
                 <tr>
                   <th scope="row" className="py-2.5 pr-3 font-medium text-muted">
-                    Import
+                    Next step
                   </th>
-                  {comparing.map((c) => {
-                    const copies = copiesOf(c.id);
-                    const quoted = isQuoteOnly(c) ? liveQuote(c.id) : undefined;
-                    return (
-                      <td key={c.id} className="py-2.5 pr-3">
-                        {isQuoteOnly(c) && !quoted ? (
-                          <Link
-                            href={buildHref({ rfq: c.id, confirm: undefined })}
-                            className="btn-primary btn-sm"
-                            scroll={false}
-                          >
-                            Request a quote
-                          </Link>
-                        ) : copies.length === 0 ? (
-                          <form action={importCatalogProduct}>
-                            <CopyFields storeId={storeId} catalogId={c.id} filters={filterString} />
-                            <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
-                              Copy to store
-                            </SubmitButton>
-                          </form>
-                        ) : filters.confirm === c.id ? (
-                          <ConfirmCopyAgain
-                            storeId={storeId}
-                            catalogId={c.id}
-                            copies={copies}
-                            channelCode={store.channelCode}
-                            filters={filterString}
-                            cancelHref={buildHref({ confirm: undefined })}
-                          />
-                        ) : (
-                          <Link
-                            href={buildHref({ confirm: c.id })}
-                            className="btn-primary btn-sm"
-                            scroll={false}
-                          >
-                            Copy again
-                          </Link>
-                        )}
-                      </td>
-                    );
-                  })}
+                  {columns.map((c) => (
+                    <td key={c.key} className="py-2.5 pr-3">
+                      {c.action}
+                    </td>
+                  ))}
                 </tr>
               </tbody>
             </table>
@@ -499,14 +557,35 @@ export default async function SourcingPage({
         </section>
       ) : null}
 
+      {quoteRequests.length > 0 ? (
+        <Enquiries
+          storeId={storeId}
+          requests={quoteRequests}
+          catalogName={catalogName}
+          compareHref={toggleCompare}
+          compareIds={compareIds}
+          startHref={startEnquiryHref()}
+        />
+      ) : null}
+
       {visible.length === 0 ? (
         <EmptyState
           title="Nothing matches those filters"
-          description="Try a different category, supplier or fulfilment region. The platform team curates which suppliers are available to stores."
+          description={bulkHint}
           action={
-            <Link href={buildHref({ q: undefined, category: undefined, supplier: undefined, region: undefined })} className="btn-secondary">
-              Clear filters
-            </Link>
+            <div className="flex flex-wrap justify-center gap-2">
+              {supplierFilter?.kind === "sourcing_marketplace" && marketplace ? (
+                <Link href={startEnquiryHref()} className="btn-primary" scroll={false}>
+                  Start a bulk enquiry
+                </Link>
+              ) : null}
+              <Link
+                href={buildHref({ q: undefined, category: undefined, supplier: undefined, region: undefined })}
+                className="btn-secondary"
+              >
+                Clear filters
+              </Link>
+            </div>
           }
         />
       ) : (
@@ -516,8 +595,8 @@ export default async function SourcingPage({
             const copies = copiesOf(product.id);
             const selected = compareIds.includes(product.id);
             const quoteOnly = isQuoteOnly(product);
-            const quoted = quoteOnly ? liveQuote(product.id) : undefined;
             const awaiting = quoteOnly ? openRequest(product.id) : undefined;
+            const quoteCount = awaiting ? (awaiting.quotes ?? []).length : 0;
             return (
               <li key={product.id} className="card flex flex-col overflow-hidden">
                 {cover ? (
@@ -585,10 +664,10 @@ export default async function SourcingPage({
                   ) : null}
 
                   <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                    {quoteOnly && !quoted ? (
+                    {quoteOnly ? (
                       <>
                         <Link
-                          href={buildHref({ rfq: product.id, confirm: undefined })}
+                          href={buildHref({ rfq: product.id, confirm: undefined }, "#rfq")}
                           className="btn-primary btn-sm"
                           scroll={false}
                         >
@@ -598,9 +677,14 @@ export default async function SourcingPage({
                           {selected ? "Remove from compare" : "Compare"}
                         </Link>
                         {awaiting ? (
-                          <Badge tone={QUOTE_STATUS_TONES.submitted}>
-                            {QUOTE_STATUS_LABELS.submitted} · {awaiting.code}
-                          </Badge>
+                          <a href="#enquiries" className="rounded-full">
+                            <Badge tone={QUOTE_STATUS_TONES[awaiting.status]}>
+                              {quoteCount > 0
+                                ? `${quoteCount} quote${quoteCount === 1 ? "" : "s"} to review`
+                                : QUOTE_STATUS_LABELS.submitted}{" "}
+                              · {awaiting.code}
+                            </Badge>
+                          </a>
                         ) : null}
                       </>
                     ) : filters.confirm === product.id && copies.length > 0 ? (
@@ -614,34 +698,19 @@ export default async function SourcingPage({
                       />
                     ) : (
                       <>
-                        {copies.length > 0 ? (
-                          <Link
-                            href={buildHref({ confirm: product.id })}
-                            className="btn-primary btn-sm"
-                            scroll={false}
-                          >
-                            Copy again
-                          </Link>
-                        ) : (
-                          <form action={importCatalogProduct}>
-                            <CopyFields storeId={storeId} catalogId={product.id} filters={filterString} />
-                            <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
-                              {quoted ? "Copy in at the quoted price" : "Copy to store"}
-                            </SubmitButton>
-                          </form>
-                        )}
+                        {catalogAction(product)}
                         <Link href={toggleCompare(product.id)} className="btn-secondary btn-sm" scroll={false}>
                           {selected ? "Remove from compare" : "Compare"}
                         </Link>
+                        {marketplace ? (
+                          <Link href={startEnquiryHref(product.id)} className="btn-ghost btn-sm" scroll={false}>
+                            Bulk quote
+                          </Link>
+                        ) : null}
                         {copies.length > 0 ? (
                           <Badge tone="neutral">
                             Already in this store
                             {copies.length > 1 ? ` · ${copies.length} copies` : ""}
-                          </Badge>
-                        ) : null}
-                        {quoted?.response ? (
-                          <Badge tone={QUOTE_STATUS_TONES.quoted}>
-                            Quoted {formatMoney(quoted.response.unitCost, quoted.currency)} a unit · {quoted.code}
                           </Badge>
                         ) : null}
                       </>
@@ -654,31 +723,20 @@ export default async function SourcingPage({
         </ul>
       )}
 
-      {quoteRequests.length > 0 ? (
-        <section className="card p-5">
-          <h2 className="text-base font-semibold text-ink">Quote requests</h2>
-          <p className="mt-1 max-w-3xl text-sm text-inksoft">
-            Bulk enquiries this store has raised, newest first. A quote that comes back prices the listing;
-            any order made from it is flagged for manual handling, because the marketplace takes purchase
-            orders rather than API jobs.
-          </p>
-          <ul className="mt-4 divide-y divide-line">
-            {quoteRequests.map((request) => (
-              <QuoteRequestRow
-                key={request.id}
-                request={request}
-                storeId={storeId}
-                filters={filterString}
-              />
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
       <Callout tone="neutral" title="Bulk sourcing">
-        Alibaba.com listings are quoted per enquiry rather than priced per unit: ask for a run, and the quote
-        that comes back is what the listing is copied in at. Orders placed that way are flagged for manual
-        handling rather than submitted automatically.
+        Alibaba.com listings are quoted per enquiry rather than priced per unit. Start an enquiry against a
+        listing, any other catalog item or a product you describe; the sourcing desk records each supplier
+        quote, you compare them here with the print-on-demand options and accept one, and it is copied into
+        the catalog flagged for manual fulfilment — a buyer raises the purchase order by hand.
+        {marketplace ? (
+          <>
+            {" "}
+            <Link href={startEnquiryHref()} className="font-medium underline underline-offset-2" scroll={false}>
+              Start a bulk enquiry
+            </Link>
+            .
+          </>
+        ) : null}
       </Callout>
     </div>
   );

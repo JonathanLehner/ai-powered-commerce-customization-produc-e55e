@@ -6,6 +6,15 @@ import { baseStoreSku, nextFreeName, nextFreeSku, storeSku } from "./sku";
 import type { Store, StoreProduct, StoreVariant, User } from "./types";
 import { newId, slugify } from "./util";
 
+/** What an accepted bulk quote puts on the copy in place of the listing's own terms. */
+export interface QuotedCopy {
+  unitCost: number;
+  name: string;
+  description: string;
+  supplierId: string;
+  manualFulfilment: NonNullable<StoreProduct["manualFulfilment"]>;
+}
+
 export interface CopyResult {
   product: StoreProduct;
   /** 1 for the first copy of this supplier product, 2 for the next, and so on. */
@@ -27,22 +36,24 @@ export async function copyCatalogProductIntoStore(
   actor: User,
   importKey: string | null = null,
   /**
-   * The cost per unit a bulk-sourcing quote came back with. Those listings
-   * carry no unit cost of their own, so without it the copy would be priced
-   * off zero — the quote is the only price there has ever been.
+   * An accepted bulk quote. Quote-priced listings carry no unit cost of their
+   * own, so without it the copy would be priced off zero — the quote is the
+   * only price there has ever been. It also names the copy and flags it for
+   * manual fulfilment.
    */
-  quotedUnitCost: number | null = null,
+  quote: QuotedCopy | null = null,
 ): Promise<CopyResult> {
   const [catalog, existing] = await Promise.all([getCatalogProduct(catalogId), listStoreProducts(store.id)]);
   if (!catalog) throw new Error("That catalog product no longer exists.");
+  const quotedUnitCost = quote?.unitCost ?? null;
 
   const copyNumber = existing.filter((p) => p.catalogProductId === catalog.id).length + 1;
   const name = nextFreeName(
-    catalog.name,
+    quote?.name ?? catalog.name,
     existing.map((p) => p.name),
   );
   const sku = nextFreeSku(
-    baseStoreSku(store.channelCode, catalog.name),
+    baseStoreSku(store.channelCode, quote?.name ?? catalog.name),
     existing.map((p) => storeSku(p, store.channelCode)),
   );
 
@@ -71,11 +82,11 @@ export async function copyCatalogProductIntoStore(
     id: newId("prd"),
     storeId: store.id,
     catalogProductId: catalog.id,
-    supplierId: catalog.supplierId,
+    supplierId: quote?.supplierId ?? catalog.supplierId,
     name,
     slug,
     sku,
-    description: catalog.description,
+    description: quote?.description || catalog.description,
     tags: [catalog.category, catalog.productType.split(",")[0].toLowerCase()],
     category: catalog.category,
     status: "draft",
@@ -95,7 +106,8 @@ export async function copyCatalogProductIntoStore(
     costs: {
       supplierCost: Math.min(...variants.map((v) => v.baseCost)),
       customizationCost: 0,
-      shippingEstimate: catalog.shippingEstimate,
+      // Freight on a bulk run is quoted with it, not per parcel.
+      shippingEstimate: quote ? 0 : catalog.shippingEstimate,
       taxBracketId: store.defaultTaxBracketId,
       taxRate: bracket?.rate ?? 0,
       taxAmount: 0,
@@ -107,6 +119,7 @@ export async function copyCatalogProductIntoStore(
     importedBy: actor.name,
     importedAt: now,
     importKey,
+    manualFulfilment: quote?.manualFulfilment ?? null,
     updatedAt: now,
     publishedAt: null,
   };
@@ -116,8 +129,9 @@ export async function copyCatalogProductIntoStore(
   recordAudit({
     category: "product_import",
     action: "product.imported",
-    summary:
-      copyNumber > 1
+    summary: quote
+      ? `Copied accepted quote ${quote.manualFulfilment.quoteCode} into the catalog as “${name}”, flagged for manual fulfilment`
+      : copyNumber > 1
         ? `Imported “${catalog.name}” from the shared catalog as “${name}” (copy ${copyNumber})`
         : `Imported “${catalog.name}” from the shared catalog`,
     storeId: store.id,
@@ -128,7 +142,7 @@ export async function copyCatalogProductIntoStore(
     entityId: product.id,
     meta: {
       catalogId: catalog.id,
-      supplier: catalog.supplierId,
+      supplier: product.supplierId,
       sku,
       copyNumber,
       ...(quotedUnitCost === null ? {} : { quotedUnitCost }),

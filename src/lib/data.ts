@@ -302,7 +302,10 @@ export function getQuoteRequestByKey(submissionKey: string) {
 }
 
 export async function createQuoteRequest(
-  request: Omit<QuoteRequest, "id" | "code" | "status" | "response" | "createdAt" | "updatedAt">,
+  request: Omit<
+    QuoteRequest,
+    "id" | "code" | "status" | "quotes" | "acceptedQuoteId" | "declineReason" | "storeProductId" | "createdAt" | "updatedAt"
+  >,
 ): Promise<QuoteRequest> {
   const now = new Date().toISOString();
   const id = newId("rfq");
@@ -311,7 +314,10 @@ export async function createQuoteRequest(
     id,
     code: quoteCode(id),
     status: "submitted",
-    response: null,
+    quotes: [],
+    acceptedQuoteId: null,
+    declineReason: null,
+    storeProductId: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -319,9 +325,22 @@ export async function createQuoteRequest(
   return record;
 }
 
-export async function updateQuoteRequest(id: string, patch: Partial<QuoteRequest>): Promise<void> {
+/**
+ * A guarded write: applies only while the enquiry still matches `where`, and
+ * says whether it did. A double click or two people acting at once lands once.
+ */
+export async function updateQuoteRequest(
+  id: string,
+  where: Record<string, unknown>,
+  update: { $set?: Partial<QuoteRequest>; $push?: Record<string, unknown> },
+): Promise<boolean> {
   const updatedAt = new Date().toISOString();
-  await db.updateOne(COLLECTIONS.quoteRequests, { id }, { $set: { ...patch, updatedAt } });
+  const result = (await db.updateOne(
+    COLLECTIONS.quoteRequests,
+    { ...where, id },
+    { ...update, $set: { ...update.$set, updatedAt } },
+  )) as { matchedCount?: number } | null;
+  return (result?.matchedCount ?? 0) > 0;
 }
 
 /* ----------------------------------------------------------------- gifting */

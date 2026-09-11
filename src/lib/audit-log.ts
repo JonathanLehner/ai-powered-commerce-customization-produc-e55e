@@ -181,6 +181,10 @@ const MONEY_META: Record<string, readonly string[]> = {
   "gifting.campaign_created": ["total"],
   "gifting.campaign_ordered": ["total"],
   "sourcing.quote_answered": ["unitCost"],
+  "sourcing.quote_requested": ["targetUnitCost"],
+  "sourcing.quote_recorded": ["unitCost"],
+  "sourcing.quote_accepted": ["unitCost"],
+  "sourcing.quote_copied": ["unitCost"],
 };
 
 /** Percentages held as a plain number, e.g. `20` for twenty percent. */
@@ -237,6 +241,9 @@ const META_LABELS: Record<string, string> = {
   kind: "Type",
   leadTimeDays: "Lead time (days)",
   marginPct: "Margin",
+  minimumOrderQuantity: "Minimum order",
+  supplierLabel: "Quoted by",
+  targetUnitCost: "Target unit cost",
   pixels: "Artwork size",
   pricesIncludeTax: "Prices include tax",
   quotedUnitCost: "Quoted unit cost",

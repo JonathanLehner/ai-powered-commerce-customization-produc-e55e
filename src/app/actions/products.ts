@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import {
   COLLECTIONS,
   getCatalogProduct,
-  listQuoteRequests,
   getStoreProduct,
   getTaxBracket,
   listStoreProducts,
@@ -17,7 +16,7 @@ import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/platform";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
-import { isQuoteOnly, quoteIsUsable } from "@/lib/sourcing";
+import { isQuoteOnly } from "@/lib/sourcing";
 import { assertStoreAccess } from "@/lib/session";
 import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct } from "@/lib/types";
 import { formatMoney, newId, parseMoney } from "@/lib/util";
@@ -58,16 +57,9 @@ export async function importCatalogProduct(formData: FormData): Promise<void> {
   }
 
   // A bulk-sourcing listing has no unit cost to copy: the price is whatever a
-  // supplier quoted this store for this run. Without a live quote there is
-  // nothing to price the copy from, so the request form opens instead.
-  let quotedUnitCost: number | null = null;
-  if (catalogProduct && isQuoteOnly(catalogProduct)) {
-    const quoted = (await listQuoteRequests(storeId)).find(
-      (request) => request.catalogProductId === catalogId && quoteIsUsable(request),
-    );
-    if (!quoted?.response) redirect(sourcingQuoteHref(storeId, catalogId, filters));
-    quotedUnitCost = quoted.response.unitCost;
-  }
+  // supplier quoted this store for this run, and it comes in through the
+  // accepted quote on the enquiry. From here the enquiry form opens instead.
+  if (catalogProduct && isQuoteOnly(catalogProduct)) redirect(sourcingQuoteHref(storeId, catalogId, filters));
 
   // Copying in a supplier product the store already holds needs a decision
   // first — the alternative is two rows nobody can tell apart.
@@ -75,13 +67,7 @@ export async function importCatalogProduct(formData: FormData): Promise<void> {
     redirect(sourcingConfirmHref(storeId, catalogId, filters));
   }
 
-  const { product, copyNumber } = await copyCatalogProductIntoStore(
-    store,
-    catalogId,
-    user,
-    importKey,
-    quotedUnitCost,
-  );
+  const { product, copyNumber } = await copyCatalogProductIntoStore(store, catalogId, user, importKey);
 
   revalidatePath(`/app/stores/${storeId}/catalog`);
   redirect(`/app/stores/${storeId}/catalog/${product.id}?imported=${copyNumber > 1 ? "copy" : "1"}`);
