@@ -686,6 +686,10 @@ const PRODUCT_PLAN = [
       { areaId: "pa_tee_back", scale: 0.82, x: 0.5, y: 0.42, rotation: 0 },
     ],
     colourForMockup: "White", importedBy: "Sam Okafor", importedDaysAgo: 88, publishedDaysAgo: 86,
+    // The demo's showcase for shopper customisation: both catalog colours with
+    // their own mockups, so the storefront shows colour swatches, and artwork
+    // upload switched on alongside the personalisation line.
+    colours: ["White", "Black"], shopperArtwork: true,
   },
   {
     storeId: "str_northwind", catalogId: "cat_hoodie_premium", artwork: "northwind",
@@ -839,8 +843,9 @@ async function main() {
     const bracket = taxBrackets.find((t) => t.id === plan.taxBracketId);
     const art = artworkAssets[plan.artwork];
 
+    const colours = plan.colours ?? [plan.colourForMockup];
     const variants = storeVariants(cat, plan.price, (v) =>
-      cat.category === "drinkware" ? true : v.colour === plan.colourForMockup,
+      cat.category === "drinkware" ? true : colours.includes(v.colour),
     );
 
     const artworks = [];
@@ -863,28 +868,30 @@ async function main() {
         scale: spec.scale,
         rotation: spec.rotation,
       });
-      const base = cat.mockups.find((m) => m.view === area.view && m.colour === plan.colourForMockup)
-        ?? cat.mockups.find((m) => m.view === area.view);
-      const url = await composeMockup(base.url, area, {
-        artworkUrl: art.url,
-        pixelWidth: art.pixelWidth,
-        pixelHeight: art.pixelHeight,
-        x: spec.x,
-        y: spec.y,
-        scale: spec.scale,
-        rotation: spec.rotation,
-      });
-      mockups.push({
-        id: id("mck"),
-        view: area.view,
-        url,
-        colour: plan.colourForMockup,
-        generatedAt: iso(plan.importedDaysAgo),
-        approved: plan.status !== "draft",
-        approvedBy: plan.status !== "draft" ? plan.importedBy : null,
-        approvedAt: plan.status !== "draft" ? iso(plan.importedDaysAgo) : null,
-      });
-      console.log(`  ${plan.name} · ${area.name}`);
+      for (const colour of colours) {
+        const base = cat.mockups.find((m) => m.view === area.view && m.colour === colour)
+          ?? cat.mockups.find((m) => m.view === area.view);
+        const url = await composeMockup(base.url, area, {
+          artworkUrl: art.url,
+          pixelWidth: art.pixelWidth,
+          pixelHeight: art.pixelHeight,
+          x: spec.x,
+          y: spec.y,
+          scale: spec.scale,
+          rotation: spec.rotation,
+        });
+        mockups.push({
+          id: id("mck"),
+          view: area.view,
+          url,
+          colour,
+          generatedAt: iso(plan.importedDaysAgo),
+          approved: plan.status !== "draft",
+          approvedBy: plan.status !== "draft" ? plan.importedBy : null,
+          approvedAt: plan.status !== "draft" ? iso(plan.importedDaysAgo) : null,
+        });
+        console.log(`  ${plan.name} · ${area.name} · ${colour}`);
+      }
     }
 
     const decorated = new Set(artworks.map((a) => a.printAreaId)).size;
@@ -923,7 +930,7 @@ async function main() {
       artworks,
       mockups,
       shopperCustomization: {
-        artworkUpload: cat.category === "drinkware",
+        artworkUpload: plan.shopperArtwork ?? cat.category === "drinkware",
         textLine: true,
         // The shopper types into this field, so it is written in the store's
         // language rather than derived from the English category name.

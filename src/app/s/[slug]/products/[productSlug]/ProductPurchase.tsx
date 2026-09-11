@@ -44,7 +44,7 @@ export interface PurchaseProduct {
     price: number;
     availability: string;
   }[];
-  mockups: { id: string; url: string; view: string }[];
+  mockups: { id: string; url: string; view: string; colour: string }[];
   shopperCustomization: StoreProduct["shopperCustomization"];
   printArea: PrintArea | null;
   fileRules: FileRequirements | null;
@@ -71,7 +71,12 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
   /** Refusals decided before the bytes were sent — format, size, unreadable file. */
   const [fileIssues, setFileIssues] = useState<ShopperArtworkIssue[]>([]);
   const [placement, setPlacement] = useState<ArtworkPlacement>(DEFAULT_PLACEMENT);
-  const [activeMockup, setActiveMockup] = useState(product.mockups[0]?.url ?? null);
+  const [activeView, setActiveView] = useState(product.mockups[0]?.view ?? null);
+  // The photography for the chosen colour, keeping the view the shopper was on.
+  // Mockups shot in a colour the product does not sell fall back to the lot.
+  const colourMockups = product.mockups.filter((m) => m.colour === colour);
+  const gallery = colourMockups.length > 0 ? colourMockups : product.mockups;
+  const activeMockup = (gallery.find((m) => m.view === activeView) ?? gallery[0])?.url ?? null;
   const objectUrl = useRef<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -83,12 +88,15 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
     originY: number;
   } | null>(null);
 
-  useEffect(() => {
-    const next = product.variants.find((v) => v.colour === colour);
-    if (next && !product.variants.some((v) => v.id === variantId && v.colour === colour)) {
-      setVariantId(next.id);
-    }
-  }, [colour, product.variants, variantId]);
+  /** Switches colour, keeping the shopper's size where the new colour has it. */
+  function selectColour(option: string) {
+    setColour(option);
+    const size = product.variants.find((v) => v.id === variantId)?.size;
+    const next =
+      product.variants.find((v) => v.colour === option && v.size === size) ??
+      product.variants.find((v) => v.colour === option);
+    if (next) setVariantId(next.id);
+  }
 
   useEffect(
     () => () => {
@@ -381,13 +389,13 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
           </div>
         </div>
 
-        {product.mockups.length > 1 ? (
+        {gallery.length > 1 ? (
           <ul className="mt-3 flex gap-2">
-            {product.mockups.map((mockup) => (
+            {gallery.map((mockup) => (
               <li key={mockup.id}>
                 <button
                   type="button"
-                  onClick={() => setActiveMockup(mockup.url)}
+                  onClick={() => setActiveView(mockup.view)}
                   aria-pressed={activeMockup === mockup.url}
                   className={classNames(
                     "overflow-hidden rounded-lg border-2",
@@ -450,7 +458,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     <button
                       key={option}
                       type="button"
-                      onClick={() => setColour(option)}
+                      onClick={() => selectColour(option)}
                       aria-pressed={colour === option}
                       className={classNames(
                         "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm",

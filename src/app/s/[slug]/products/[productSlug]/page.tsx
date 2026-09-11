@@ -70,7 +70,7 @@ export default async function StorefrontProductPage({
         price: convert(v.price, product.currency, currency),
         availability: v.availability,
       })),
-    mockups: product.mockups.map((m) => ({ id: m.id, url: m.url, view: m.view })),
+    mockups: product.mockups.map((m) => ({ id: m.id, url: m.url, view: m.view, colour: m.colour })),
     shopperCustomization: product.shopperCustomization,
     printArea: area,
     // The whole requirements record, not a summary: the storefront runs the
