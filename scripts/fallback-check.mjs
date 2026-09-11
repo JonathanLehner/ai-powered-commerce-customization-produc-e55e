@@ -100,16 +100,16 @@ for (const path of routeFiles) {
 
 // The pages render their own not-found body, so as far as the router is
 // concerned they succeeded and the response is a 200. Search engines and uptime
-// monitors read the status, so `src/proxy.ts` recognises the missing shop,
+// monitors read the status, so `src/middleware.ts` recognises the missing shop,
 // product or address before the render begins — the last moment a status can
 // still be set — and marks the response 404.
-const PROXY = fileURLToPath(new URL("../src/proxy.ts", import.meta.url));
+const PROXY = fileURLToPath(new URL("../src/middleware.ts", import.meta.url));
 const proxySource = readFileSync(PROXY, "utf8");
-assert.match(proxySource, /status:\s*404/, "src/proxy.ts no longer marks anything 404");
+assert.match(proxySource, /status:\s*404/, "src/middleware.ts no longer marks anything 404");
 // The shop and the product are looked up, because "no store with that slug" and
 // "that product is not on sale" are not visible in the address itself.
 for (const lookup of ["getStoreBySlug", "getStoreProductBySlug", "getGiftCatalogueBySlug"]) {
-  assert.ok(proxySource.includes(lookup), `src/proxy.ts no longer checks ${lookup}`);
+  assert.ok(proxySource.includes(lookup), `src/middleware.ts no longer checks ${lookup}`);
 }
 
 // Proxy cannot ask the router which page an address belongs to, so it carries

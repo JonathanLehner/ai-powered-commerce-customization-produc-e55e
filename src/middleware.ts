@@ -14,9 +14,14 @@ import { matchesRoute, segmentsOf } from "@/lib/routes";
  * workspace address all looked like working pages.
  *
  * A status can only be set before the response starts streaming, so the check
- * has to run before the render — which is what proxy is. It decides the status
- * only; the body is still the page's own render of live data, so a stale answer
- * here can never show the wrong page, only briefly label the right one wrongly.
+ * has to run before the render — which is what middleware is. It decides the
+ * status only; the body is still the page's own render of live data, so a stale
+ * answer here can never show the wrong page, only briefly label the right one
+ * wrongly.
+ *
+ * This is `middleware.ts` on the edge runtime rather than Next 16's `proxy.ts`
+ * on purpose: proxy is always Node.js, which the OpenNext Cloudflare adapter
+ * the app deploys through does not support.
  */
 export const config = {
   // Everything but the framework's own assets and the files in `public/`, which
@@ -24,7 +29,7 @@ export const config = {
   matcher: ["/((?!_next/static|_next/image|.*\\.[a-zA-Z0-9]+$).*)"],
 };
 
-export async function proxy(request: NextRequest): Promise<NextResponse | undefined> {
+export async function middleware(request: NextRequest): Promise<NextResponse | undefined> {
   // Reads only. A server action posts to the address the page is on, and its
   // response is a payload the browser is waiting on rather than a page anyone
   // navigated to; a status of 404 there would say something about the action,

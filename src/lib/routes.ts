@@ -2,7 +2,7 @@
  * The app's route table, written out as patterns.
  *
  * Everything inside the app asks the router which page an address belongs to.
- * `src/proxy.ts` runs *before* the router and cannot: it has to know whether an
+ * `src/middleware.ts` runs *before* the router and cannot: it has to know whether an
  * address matches a real page in order to give a mistyped one a 404 status,
  * because a status can only be set before the response starts streaming.
  *
