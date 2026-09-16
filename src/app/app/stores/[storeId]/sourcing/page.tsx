@@ -157,24 +157,33 @@ function matches(product: CatalogProduct, query: string) {
     .every((term) => haystack.includes(term));
 }
 
+type Filters = Partial<Record<"q" | "category" | "supplier" | "region" | "compare" | "confirm" | "rfq" | "ref", string>>;
+
+/**
+ * Query values arrive as a list when a key repeats (a hand-edited address or a
+ * stale bookmark). Repeated `compare` values are merged; any other key keeps
+ * its first value; anything unreadable is dropped.
+ */
+function readFilters(raw: Record<string, string | string[] | undefined>): Filters {
+  const filters: Filters = {};
+  for (const key of ["q", "category", "supplier", "region", "compare", "confirm", "rfq", "ref"] as const) {
+    const value = raw[key];
+    const list = (Array.isArray(value) ? value : [value]).filter((v): v is string => typeof v === "string" && v !== "");
+    if (list.length === 0) continue;
+    filters[key] = key === "compare" ? list.join(",") : list[0];
+  }
+  return filters;
+}
+
 export default async function SourcingPage({
   params,
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{
-    q?: string;
-    category?: string;
-    supplier?: string;
-    region?: string;
-    compare?: string;
-    confirm?: string;
-    rfq?: string;
-    ref?: string;
-  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { storeId } = await params;
-  const filters = await searchParams;
+  const filters = readFilters(await searchParams);
   const { store, user } = await requireStoreAccess(storeId, "store.catalog");
 
   const [catalog, suppliers, storeProducts, quoteRequests] = await Promise.all([
@@ -206,7 +215,7 @@ export default async function SourcingPage({
     for (const quote of request.quotes ?? []) quotesById.set(quote.id, { request, quote });
   }
 
-  const compareIds = (filters.compare ?? "").split(",").filter(Boolean);
+  const compareIds = [...new Set((filters.compare ?? "").split(",").filter(Boolean))].slice(0, COMPARE_LIMIT);
 
   // Every copy a store already holds of a supplier product, newest first, so a
   // repeat copy can offer to open one of them instead.
@@ -523,7 +532,14 @@ export default async function SourcingPage({
                   <th scope="col" className="py-2 pr-3">Attribute</th>
                   {columns.map((c) => (
                     <th key={c.key} scope="col" className="py-2 pr-3 normal-case tracking-normal text-sm text-ink">
-                      {c.name}
+                      <div>{c.name}</div>
+                      <Link
+                        href={toggleCompare(c.key)}
+                        className="mt-1 inline-block text-xs font-medium text-muted underline underline-offset-2 hover:text-ink"
+                        scroll={false}
+                      >
+                        Remove from comparison
+                      </Link>
                     </th>
                   ))}
                 </tr>
