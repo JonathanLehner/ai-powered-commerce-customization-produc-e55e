@@ -570,7 +570,11 @@ export default async function SourcingPage({
 
       {visible.length === 0 ? (
         <EmptyState
-          title="Nothing matches those filters"
+          title={
+            supplierFilter?.kind === "sourcing_marketplace"
+              ? `${supplierFilter.name} quotes per enquiry — no listings match these filters`
+              : "Nothing matches those filters"
+          }
           description={bulkHint}
           action={
             <div className="flex flex-wrap justify-center gap-2">
