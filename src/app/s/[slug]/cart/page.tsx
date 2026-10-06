@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from "@/app/actions/shop";
+import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { EmptyState } from "@/components/ui";
-import { basketTotals } from "@/lib/basket";
+import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 
@@ -31,7 +32,9 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   const cart = session ? await getCart(store.id, session) : null;
   const items = cart?.items ?? [];
 
-  const { lines, subtotal, shipping, taxRows, total } = await basketTotals(store, items, currency);
+  const discountCode = await cartDiscountCode(store.id, cart);
+  const { lines, subtotal, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
+    await basketTotals(store, items, currency, discountCode);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -127,6 +130,14 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                 <dt className="text-muted">{t.basket.shipping}</dt>
                 <dd className="font-medium tabular-nums text-ink">{money(shipping, currency)}</dd>
               </div>
+              {discount ? (
+                <div className="flex justify-between">
+                  <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
+                  <dd className="font-medium tabular-nums text-emerald-700">
+                    − {money(discount.amount, currency)}
+                  </dd>
+                </div>
+              ) : null}
               {taxRows.map((row) => (
                 <div key={row.rate} className="flex justify-between">
                   <dt className="text-muted">
@@ -141,6 +152,16 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                 <dd className="text-base font-semibold tabular-nums text-ink">{money(total, currency)}</dd>
               </div>
             </dl>
+            <DiscountEntry
+              storeId={store.id}
+              code={cart?.discountCode ?? null}
+              note={
+                discountRefusal
+                  ? fmt(t.discount[discountRefusal], { amount: money(discountMinimum, currency) })
+                  : null
+              }
+              t={t.discount}
+            />
             <Link href={`/s/${store.slug}/checkout`} className="btn-primary mt-5 w-full">
               {t.basket.checkout}
             </Link>

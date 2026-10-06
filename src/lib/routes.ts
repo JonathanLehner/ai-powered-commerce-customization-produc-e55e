@@ -43,6 +43,7 @@ export const ROUTES = [
   "/app/stores/[storeId]/assistant",
   "/app/stores/[storeId]/catalog",
   "/app/stores/[storeId]/catalog/[productId]",
+  "/app/stores/[storeId]/discounts",
   "/app/stores/[storeId]/gifting",
   "/app/stores/[storeId]/gifting/[catalogueId]",
   "/app/stores/[storeId]/orders",

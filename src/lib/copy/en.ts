@@ -150,6 +150,30 @@ export const en = {
     keepShopping: "Keep shopping",
   },
 
+  /**
+   * Discount codes, shared by the basket, the checkout and the order page: a
+   * code is entered in one place and shown in the other two.
+   */
+  discount: {
+    title: "Discount code",
+    label: "Code",
+    placeholder: "SPRING10",
+    apply: "Apply",
+    applying: "Applying…",
+    remove: "Remove",
+    row: "Discount ({code})",
+    applied: "Code {code} applied — {amount} off.",
+    removed: "The discount code was removed.",
+    enterCode: "Enter a discount code.",
+    unknown: "We do not recognise that code.",
+    inactive: "That code is no longer active.",
+    expired: "That code has expired.",
+    limitReached: "That code has been used the maximum number of times.",
+    belowMinimum: "That code needs a basket of at least {amount}.",
+    dropped:
+      "The code {code} no longer applies to this basket, so it has been removed. Check your total before paying.",
+  },
+
   checkout: {
     title: "Checkout",
     merchantNote:

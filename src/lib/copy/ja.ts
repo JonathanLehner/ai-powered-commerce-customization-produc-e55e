@@ -146,6 +146,26 @@ export const ja: StorefrontCopy = {
     keepShopping: "買い物を続ける",
   },
 
+  discount: {
+    title: "割引コード",
+    label: "コード",
+    placeholder: "SPRING10",
+    apply: "適用",
+    applying: "適用中…",
+    remove: "削除",
+    row: "割引（{code}）",
+    applied: "コード {code} を適用しました（{amount} 引き）。",
+    removed: "割引コードを削除しました。",
+    enterCode: "割引コードをご入力ください。",
+    unknown: "そのコードは確認できません。",
+    inactive: "そのコードは現在ご利用いただけません。",
+    expired: "そのコードは有効期限が切れています。",
+    limitReached: "そのコードは利用上限に達しています。",
+    belowMinimum: "そのコードは {amount} 以上のご購入で利用できます。",
+    dropped:
+      "コード {code} はこのカートには適用できなくなったため、削除しました。お支払いの前に合計をご確認ください。",
+  },
+
   checkout: {
     title: "購入手続き",
     merchantNote: "販売者は {client} です。お支払いは {client} 自身の Stripe アカウントに入金されます。",

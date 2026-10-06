@@ -147,6 +147,26 @@ export const nl: StorefrontCopy = {
     keepShopping: "Verder winkelen",
   },
 
+  discount: {
+    title: "Kortingscode",
+    label: "Code",
+    placeholder: "SPRING10",
+    apply: "Toepassen",
+    applying: "Toepassen…",
+    remove: "Verwijderen",
+    row: "Korting ({code})",
+    applied: "Code {code} toegepast — {amount} korting.",
+    removed: "De kortingscode is verwijderd.",
+    enterCode: "Vul een kortingscode in.",
+    unknown: "We kennen deze code niet.",
+    inactive: "Deze code is niet meer actief.",
+    expired: "Deze code is verlopen.",
+    limitReached: "Deze code is al het maximale aantal keren gebruikt.",
+    belowMinimum: "Deze code vraagt een winkelmand van minstens {amount}.",
+    dropped:
+      "De code {code} geldt niet meer voor deze winkelmand en is verwijderd. Controleer je totaal voordat je betaalt.",
+  },
+
   checkout: {
     title: "Afrekenen",
     merchantNote:

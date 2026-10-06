@@ -805,6 +805,21 @@ const PRODUCT_PLAN = [
   },
 ];
 
+/* ----------------------------------------------------------- discount codes */
+
+// Codes a shopper can actually type into the demo storefronts: one plain
+// percentage, one that only applies to a larger basket, one that has run out and
+// one on the German store, which is where the translated basket copy is seen.
+const ymd = (daysFromNow) => new Date(NOW + daysFromNow * DAY).toISOString().slice(0, 10);
+
+const discountCodes = [
+  { id: "dsc_nw_welcome", storeId: "str_northwind", code: "WELCOME10", kind: "percentage", value: 10, currency: "USD", minimumSubtotal: 0, expiresAt: null, usageLimit: null, timesUsed: 23, active: true, createdBy: "Alex Moreau", createdAt: iso(40), updatedAt: iso(40) },
+  { id: "dsc_nw_bulk", storeId: "str_northwind", code: "TEAM25", kind: "fixed", value: 2500, currency: "USD", minimumSubtotal: 15000, expiresAt: ymd(45), usageLimit: 100, timesUsed: 8, active: true, createdBy: "Alex Moreau", createdAt: iso(21), updatedAt: iso(14) },
+  { id: "dsc_nw_launch", storeId: "str_northwind", code: "LAUNCH50", kind: "percentage", value: 50, currency: "USD", minimumSubtotal: 0, expiresAt: ymd(-3), usageLimit: 50, timesUsed: 50, active: false, createdBy: "Sam Okafor", createdAt: iso(70), updatedAt: iso(3) },
+  { id: "dsc_lu_studio", storeId: "str_lumen", code: "STUDIO15", kind: "percentage", value: 15, currency: "EUR", minimumSubtotal: 5000, expiresAt: null, usageLimit: null, timesUsed: 4, active: true, createdBy: "Alex Moreau", createdAt: iso(18), updatedAt: iso(18) },
+  { id: "dsc_fe_start", storeId: "str_ferro", code: "ROESTFRISCH", kind: "fixed", value: 500, currency: "EUR", minimumSubtotal: 3000, expiresAt: ymd(60), usageLimit: 200, timesUsed: 11, active: true, createdBy: "Sam Okafor", createdAt: iso(6), updatedAt: iso(6) },
+];
+
 /* --------------------------------------------------------------------- main */
 
 async function main() {
@@ -813,6 +828,7 @@ async function main() {
     "agencies", "users", "stores", "memberships", "suppliers", "catalog_products",
     "store_products", "tax_brackets", "orders", "storefronts", "audit_logs",
     "ai_suggestions", "carts", "gift_catalogues", "gift_campaigns", "quote_requests",
+    "discount_codes",
   ]) {
     await clear(c);
   }
@@ -1276,6 +1292,11 @@ async function main() {
     { id: id("aud"), category: "administration", action: "store.archived", summary: "Archived store “Halcyon Events Store” after the event series closed", storeId: "str_halcyon", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_halcyon", meta: {}, at: iso(21) },
     { id: id("aud"), category: "administration", action: "tax.bracket_created", summary: "Created global tax bracket “Australia GST” at 10%", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "tax_bracket", entityId: "tax_au10", meta: { rate: 10 }, at: iso(198) },
     { id: id("aud"), category: "administration", action: "supplier.pending", summary: "Added Gooten for commercial review before release to stores", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "supplier", entityId: "sup_gooten", meta: {}, at: iso(35) },
+    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code WELCOME10 — 10% off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_welcome", meta: { code: "WELCOME10", kind: "percentage", value: 10 }, at: iso(40) },
+    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code TEAM25 — $25.00 off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_bulk", meta: { code: "TEAM25", kind: "fixed", value: 2500, minimumSubtotal: 15000 }, at: iso(21) },
+    { id: id("aud"), category: "discounts", action: "discount.updated", summary: "Changed discount code TEAM25: usage limit 50 → 100", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_bulk", meta: { code: "TEAM25", usageLimit: 100 }, at: iso(14) },
+    { id: id("aud"), category: "discounts", action: "discount.updated", summary: "Changed discount code LAUNCH50: switched off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "discount_code", entityId: "dsc_nw_launch", meta: { code: "LAUNCH50", active: false }, at: iso(3) },
+    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code ROESTFRISCH — €5.00 off", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "discount_code", entityId: "dsc_fe_start", meta: { code: "ROESTFRISCH", kind: "fixed", value: 500 }, at: iso(6) },
     { id: id("aud"), category: "administration", action: "catalog.product_added", summary: "Added “Matte Black 15oz Mug” to the shared supplier catalog", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "catalog_product", entityId: "cat_mug_matte", meta: { supplier: "Printify" }, at: iso(120) },
   );
 
@@ -1294,6 +1315,7 @@ async function main() {
   await insertMany("storefronts", storefronts);
   await insertMany("orders", orders);
   await insertMany("ai_suggestions", suggestions);
+  await insertMany("discount_codes", discountCodes);
   await insertMany("audit_logs", auditLogs);
 
   // The gifting demo reads the store and its published products back out of the

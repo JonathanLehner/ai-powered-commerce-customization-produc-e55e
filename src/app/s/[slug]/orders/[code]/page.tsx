@@ -165,6 +165,14 @@ export default async function OrderStatusPage({
             rows={[
               { label: t.order.subtotal, value: money(order.subtotal, order.currency) },
               { label: t.order.shipping, value: money(order.shipping, order.currency) },
+              ...(order.discount
+                ? [
+                    {
+                      label: fmt(t.discount.row, { code: order.discount.code }),
+                      value: `− ${money(order.discount.amount, order.currency)}`,
+                    },
+                  ]
+                : []),
               ...orderTaxRows(order).map((row) => ({
                 label: fmt(t.order.taxRow, { rate: row.rate }),
                 value: money(row.amount, order.currency),

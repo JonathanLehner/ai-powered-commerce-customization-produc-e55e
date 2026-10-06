@@ -147,6 +147,26 @@ export const fr: StorefrontCopy = {
     keepShopping: "Continuer mes achats",
   },
 
+  discount: {
+    title: "Code de réduction",
+    label: "Code",
+    placeholder: "SPRING10",
+    apply: "Appliquer",
+    applying: "Application…",
+    remove: "Retirer",
+    row: "Réduction ({code})",
+    applied: "Code {code} appliqué — {amount} de remise.",
+    removed: "Le code de réduction a été retiré.",
+    enterCode: "Saisissez un code de réduction.",
+    unknown: "Nous ne reconnaissons pas ce code.",
+    inactive: "Ce code n’est plus actif.",
+    expired: "Ce code a expiré.",
+    limitReached: "Ce code a déjà été utilisé le nombre maximal de fois.",
+    belowMinimum: "Ce code exige un panier d’au moins {amount}.",
+    dropped:
+      "Le code {code} ne s’applique plus à ce panier et a été retiré. Vérifiez votre total avant de payer.",
+  },
+
   checkout: {
     title: "Paiement",
     merchantNote:

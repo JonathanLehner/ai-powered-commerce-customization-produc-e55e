@@ -13,6 +13,7 @@ import type {
   AuditLog,
   Cart,
   CatalogProduct,
+  DiscountCode,
   GiftCampaign,
   GiftCatalogue,
   Membership,
@@ -45,6 +46,7 @@ export const COLLECTIONS = {
   giftCampaigns: "gift_campaigns",
   planEnquiries: "plan_enquiries",
   quoteRequests: "quote_requests",
+  discounts: "discount_codes",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */
@@ -352,6 +354,76 @@ export async function updateQuoteRequest(
     { ...update, $set: { ...update.$set, updatedAt } },
   )) as { matchedCount?: number } | null;
   return (result?.matchedCount ?? 0) > 0;
+}
+
+/* --------------------------------------------------------- discount codes */
+
+export function listDiscountCodes(storeId: string) {
+  return db.find<DiscountCode>(COLLECTIONS.discounts, { storeId }, { sort: { createdAt: -1 } });
+}
+
+export function getDiscountCode(id: string) {
+  return db.findOne<DiscountCode>(COLLECTIONS.discounts, { id });
+}
+
+/** The code a shopper typed, which is unique within the store. */
+export function getDiscountCodeByCode(storeId: string, code: string) {
+  return db.findOne<DiscountCode>(COLLECTIONS.discounts, { storeId, code });
+}
+
+export async function createDiscountCode(code: DiscountCode): Promise<void> {
+  await db.insertOne(COLLECTIONS.discounts, code as unknown as Record<string, unknown>);
+}
+
+/**
+ * A guarded write, in the shape of `updateQuoteRequest`: it applies only while
+ * the code still matches `where`, and says whether it did.
+ */
+export async function updateDiscountCode(
+  id: string,
+  where: Record<string, unknown>,
+  patch: Partial<DiscountCode>,
+): Promise<boolean> {
+  const result = (await db.updateOne(
+    COLLECTIONS.discounts,
+    { ...where, id },
+    { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
+  )) as { matchedCount?: number } | null;
+  return (result?.matchedCount ?? 0) > 0;
+}
+
+/**
+ * Takes one use of a code, or says there was none left.
+ *
+ * The count is advanced with a write guarded on the count that was read, so two
+ * shoppers paying at the same instant cannot both take the last use: the second
+ * write matches nothing, re-reads and tries again, and stops once the limit is
+ * reached. An unlimited code still counts, because the store wants to know how
+ * often it was used.
+ */
+export async function claimDiscountUse(id: string): Promise<boolean> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = await getDiscountCode(id);
+    if (!code) return false;
+    const used = code.timesUsed ?? 0;
+    if (code.usageLimit !== null && used >= code.usageLimit) return false;
+    if (await updateDiscountCode(id, { timesUsed: used }, { timesUsed: used + 1 })) return true;
+  }
+  return false;
+}
+
+/**
+ * Hands a claimed use back when the payment it was taken for never happened.
+ * Best effort: a use left standing is the safe direction to fail in, because it
+ * can only hold a code back, never let it past its limit.
+ */
+export async function releaseDiscountUse(id: string): Promise<void> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = await getDiscountCode(id);
+    if (!code || (code.timesUsed ?? 0) <= 0) return;
+    const used = code.timesUsed;
+    if (await updateDiscountCode(id, { timesUsed: used }, { timesUsed: used - 1 })) return;
+  }
 }
 
 /* ----------------------------------------------------------------- gifting */

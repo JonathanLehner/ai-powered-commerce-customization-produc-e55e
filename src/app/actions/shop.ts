@@ -10,14 +10,17 @@ import {
 } from "@/lib/artwork-shopper";
 import {
   COLLECTIONS,
+  claimDiscountUse,
   getCart,
   getCatalogProduct,
+  getDiscountCodeByCode,
   getOrderByCode,
   getOrderByIdempotencyKey,
   getStore,
   getStoreBySlug,
   getStoreProduct,
   recordAudit,
+  releaseDiscountUse,
 } from "@/lib/data";
 import { brandFor, orderConfirmationEmail } from "@/lib/email-templates";
 import { sendEmail, siteOrigin } from "@/lib/email";
@@ -25,7 +28,8 @@ import { localCountryName } from "@/lib/countries";
 import { copyFor, fmt, localeTag } from "@/lib/i18n";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
-import { basketTotals } from "@/lib/basket";
+import { basketTotals, cartDiscountCode } from "@/lib/basket";
+import { checkDiscount, normalizeDiscountCode } from "@/lib/discounts";
 import { routeOrder } from "@/lib/fulfillment";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/platform";
@@ -134,6 +138,20 @@ async function saveCart(cart: Cart, items: CartItem[]) {
     { id: cart.id },
     { $set: { items, updatedAt: new Date().toISOString() } },
   );
+}
+
+/** Puts a code on the basket, or takes it off again with null. */
+async function saveCartDiscount(cart: Cart, code: string | null) {
+  await db.updateOne(
+    COLLECTIONS.carts,
+    { id: cart.id },
+    { $set: { discountCode: code, updatedAt: new Date().toISOString() } },
+  );
+}
+
+function refreshBasket(slug: string) {
+  revalidatePath(`/s/${slug}/cart`);
+  revalidatePath(`/s/${slug}/checkout`);
 }
 
 /* -------------------------------------------------------------- add to cart */
@@ -293,6 +311,60 @@ export async function removeCartItem(formData: FormData): Promise<void> {
   revalidatePath(`/s/${store.slug}/cart`);
 }
 
+/* ------------------------------------------------------- discount codes */
+
+/**
+ * Puts a code on the basket. Only the code itself is stored: what it is worth is
+ * worked out from the stored record on every render and again in `placeOrder`,
+ * so nothing the browser sends decides the price.
+ */
+export async function applyDiscount(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const store = await getStore(storeId);
+  const t = copyFor(store?.defaultLanguage);
+  if (!store || store.status !== "active") {
+    return { status: "error", message: t.actions.storeClosed };
+  }
+
+  const entered = normalizeDiscountCode(String(formData.get("code") ?? ""));
+  if (!entered) return { status: "error", message: t.discount.enterCode, field: "code" };
+
+  const cart = await loadCart(storeId, false);
+  if (!cart || cart.items.length === 0) {
+    return { status: "error", message: t.actions.basketEmpty };
+  }
+
+  const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  const record = await getDiscountCodeByCode(storeId, entered);
+  if (!record) return { status: "error", message: t.discount.unknown, field: "code" };
+
+  const money = (minor: number) => formatMoney(minor, currency, localeTag(store.defaultLanguage));
+  const { subtotal } = await basketTotals(store, cart.items, currency);
+  const verdict = checkDiscount(record, subtotal, currency);
+  if (verdict.refusal) {
+    return {
+      status: "error",
+      message: fmt(t.discount[verdict.refusal], { amount: money(verdict.minimum) }),
+      field: "code",
+    };
+  }
+
+  await saveCartDiscount(cart, record.code);
+  refreshBasket(store.slug);
+  return {
+    status: "success",
+    message: fmt(t.discount.applied, { code: record.code, amount: money(verdict.amount) }),
+  };
+}
+
+export async function removeDiscount(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const [store, cart] = await Promise.all([getStore(storeId), loadCart(storeId, false)]);
+  if (!store || !cart) return;
+  await saveCartDiscount(cart, null);
+  refreshBasket(store.slug);
+}
+
 /* ------------------------------------------------------------------ checkout */
 
 export async function placeOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -348,11 +420,30 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     };
   }
 
-  const { products, lines, subtotal, shipping, taxRows, taxAmount, total } = await basketTotals(
-    store,
-    cart.items,
-    currency,
-  );
+  // The code is re-read and re-judged here, whatever the basket page showed: a
+  // code that expired, was switched off or ran out while the shopper was filling
+  // the form in must not reach the charge.
+  const discountCode = await cartDiscountCode(storeId, cart);
+  const { products, lines, subtotal, discount, discountRefusal, shipping, taxRows, taxAmount, total } =
+    await basketTotals(store, cart.items, currency, discountCode);
+  if (discountCode && discountRefusal) {
+    await saveCartDiscount(cart, null);
+    refreshBasket(store.slug);
+    return { status: "error", message: fmt(t.discount.dropped, { code: discountCode.code }) };
+  }
+
+  // One use is taken before the card is charged, with a write guarded on the
+  // count that was read, so two shoppers paying at the same instant cannot both
+  // take the last one. A charge that then fails hands it back.
+  let claimed = false;
+  if (discount) {
+    claimed = await claimDiscountUse(discount.codeId);
+    if (!claimed) {
+      await saveCartDiscount(cart, null);
+      refreshBasket(store.slug);
+      return { status: "error", message: fmt(t.discount.dropped, { code: discount.code }) };
+    }
+  }
 
   const key = idempotencyKey || newId("idem");
   const charge = await chargeCard({
@@ -366,6 +457,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     idempotencyKey: key,
   });
   if (!charge.ok) {
+    if (claimed && discount) await releaseDiscountUse(discount.codeId);
     return {
       status: "error",
       message: charge.message,
@@ -410,6 +502,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     })),
     subtotal,
     shipping,
+    discount,
     taxAmount,
     taxRate: taxRows.length === 1 ? taxRows[0].rate : 0,
     taxLines: taxRows,
@@ -472,6 +565,21 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
 
   await db.insertOne(COLLECTIONS.orders, order as unknown as Record<string, unknown>);
   await saveCart(cart, []);
+  if (discount) {
+    await saveCartDiscount(cart, null);
+    recordAudit({
+      category: "discounts",
+      action: "discount.redeemed",
+      summary: `${discount.code} redeemed on ${code} — ${formatMoney(discount.amount, currency)} off`,
+      storeId,
+      agencyId: store.agencyId,
+      actorId: "system",
+      actorName: "Shopper",
+      entity: "discount_code",
+      entityId: discount.codeId,
+      meta: { order: code, amount: discount.amount, currency },
+    });
+  }
   recordAudit({
     category: "order_routing",
     action: decision.routing === "submitted" ? "order.routed" : "order.manual_required",
@@ -488,7 +596,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     meta: { total, currency, routing: decision.routing },
   });
 
-  revalidatePath(`/s/${store.slug}/cart`);
+  refreshBasket(store.slug);
   revalidatePath(`/app/stores/${storeId}/orders`);
 
   const token = await signOrderToken(storeId, code);

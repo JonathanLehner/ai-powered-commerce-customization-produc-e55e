@@ -147,6 +147,26 @@ export const de: StorefrontCopy = {
     keepShopping: "Weiter einkaufen",
   },
 
+  discount: {
+    title: "Rabattcode",
+    label: "Code",
+    placeholder: "SPRING10",
+    apply: "Einlösen",
+    applying: "Wird eingelöst …",
+    remove: "Entfernen",
+    row: "Rabatt ({code})",
+    applied: "Code {code} eingelöst — {amount} Rabatt.",
+    removed: "Der Rabattcode wurde entfernt.",
+    enterCode: "Geben Sie einen Rabattcode ein.",
+    unknown: "Diesen Code kennen wir nicht.",
+    inactive: "Dieser Code ist nicht mehr aktiv.",
+    expired: "Dieser Code ist abgelaufen.",
+    limitReached: "Dieser Code wurde bereits so oft wie möglich eingelöst.",
+    belowMinimum: "Für diesen Code ist ein Warenkorb von mindestens {amount} nötig.",
+    dropped:
+      "Der Code {code} gilt für diesen Warenkorb nicht mehr und wurde entfernt. Prüfen Sie Ihre Summe, bevor Sie bezahlen.",
+  },
+
   checkout: {
     title: "Kasse",
     merchantNote:

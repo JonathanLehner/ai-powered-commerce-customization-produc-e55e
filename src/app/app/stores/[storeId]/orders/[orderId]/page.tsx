@@ -179,6 +179,14 @@ export default async function OrderDetailPage({
                 rows={[
                   { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
                   { label: "Shipping", value: formatMoney(order.shipping, order.currency) },
+                  ...(order.discount
+                    ? [
+                        {
+                          label: `Discount ${order.discount.code}`,
+                          value: `− ${formatMoney(order.discount.amount, order.currency)}`,
+                        },
+                      ]
+                    : []),
                   ...orderTaxRows(order).map((row) => ({
                     label: `Tax ${row.rate}%`,
                     value: formatMoney(row.amount, order.currency),

@@ -495,6 +495,17 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   exception: "Exception",
 };
 
+/** What a redeemed discount code took off one order. */
+export interface OrderDiscount {
+  codeId: string;
+  code: string;
+  kind: DiscountKind;
+  /** Whole percent, or minor units of the order currency for a fixed amount. */
+  value: number;
+  /** Amount taken off the goods subtotal, in the order currency. */
+  amount: number;
+}
+
 export interface OrderItem {
   id: string;
   storeProductId: string;
@@ -539,6 +550,12 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   shipping: number;
+  /**
+   * The code the shopper redeemed and what it took off, absent on orders placed
+   * without one. `amount` is already out of `total`, so a refund capped at the
+   * total can never give back more than was charged.
+   */
+  discount?: OrderDiscount | null;
   taxAmount: number;
   /** The single rate when the whole order sat in one bracket, otherwise 0. */
   taxRate: number;
@@ -756,6 +773,40 @@ export interface Cart {
   sessionId: string;
   items: CartItem[];
   currency: string;
+  /** The code the shopper entered, re-checked on every render and at payment. */
+  discountCode?: string | null;
+  updatedAt: string;
+}
+
+export type DiscountKind = "percentage" | "fixed";
+
+/**
+ * A code a store's administrators hand out, redeemed in the basket or at
+ * checkout.
+ *
+ * `value` is a whole percentage for a `percentage` code and minor units of
+ * `currency` for a `fixed` one; `minimumSubtotal` is in `currency` too, and both
+ * are converted into whatever the shopper is buying in. A `usageLimit` of null
+ * means unlimited — `timesUsed` is only ever advanced by a guarded write, so two
+ * shoppers checking out at once cannot push it past the limit.
+ */
+export interface DiscountCode {
+  id: string;
+  storeId: string;
+  /** Upper-case and unique within the store; what the shopper types. */
+  code: string;
+  kind: DiscountKind;
+  value: number;
+  currency: string;
+  /** 0 for no minimum. */
+  minimumSubtotal: number;
+  /** End of the last day the code works, or null for no expiry. */
+  expiresAt: string | null;
+  usageLimit: number | null;
+  timesUsed: number;
+  active: boolean;
+  createdBy: string;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -792,7 +843,8 @@ export type AuditCategory =
   | "team"
   | "gifting"
   | "sourcing"
-  | "email";
+  | "email"
+  | "discounts";
 
 export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   store_setup: "Store setup",
@@ -806,6 +858,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   gifting: "Gifting",
   sourcing: "Sourcing",
   email: "Email",
+  discounts: "Discount codes",
 };
 
 export interface AuditLog {

@@ -146,6 +146,26 @@ export const sv: StorefrontCopy = {
     keepShopping: "Fortsätt handla",
   },
 
+  discount: {
+    title: "Rabattkod",
+    label: "Kod",
+    placeholder: "SPRING10",
+    apply: "Använd",
+    applying: "Använder…",
+    remove: "Ta bort",
+    row: "Rabatt ({code})",
+    applied: "Koden {code} är använd — {amount} rabatt.",
+    removed: "Rabattkoden togs bort.",
+    enterCode: "Ange en rabattkod.",
+    unknown: "Vi känner inte igen den koden.",
+    inactive: "Koden är inte längre aktiv.",
+    expired: "Koden har gått ut.",
+    limitReached: "Koden har redan använts det högsta antalet gånger.",
+    belowMinimum: "Koden kräver en varukorg på minst {amount}.",
+    dropped:
+      "Koden {code} gäller inte längre för den här varukorgen och togs bort. Kontrollera summan innan du betalar.",
+  },
+
   checkout: {
     title: "Kassa",
     merchantNote: "{client} är säljare. Betalningen går in på deras eget Stripe-konto.",

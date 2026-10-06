@@ -146,6 +146,26 @@ export const es: StorefrontCopy = {
     keepShopping: "Seguir comprando",
   },
 
+  discount: {
+    title: "Código de descuento",
+    label: "Código",
+    placeholder: "SPRING10",
+    apply: "Aplicar",
+    applying: "Aplicando…",
+    remove: "Quitar",
+    row: "Descuento ({code})",
+    applied: "Código {code} aplicado: {amount} de descuento.",
+    removed: "Se ha quitado el código de descuento.",
+    enterCode: "Introduce un código de descuento.",
+    unknown: "No reconocemos ese código.",
+    inactive: "Ese código ya no está activo.",
+    expired: "Ese código ha caducado.",
+    limitReached: "Ese código ya se ha usado el máximo de veces.",
+    belowMinimum: "Ese código necesita una cesta de al menos {amount}.",
+    dropped:
+      "El código {code} ya no se aplica a esta cesta, así que se ha quitado. Revisa tu total antes de pagar.",
+  },
+
   checkout: {
     title: "Pago",
     merchantNote:

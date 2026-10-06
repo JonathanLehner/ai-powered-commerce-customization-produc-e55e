@@ -15,6 +15,7 @@
     "publish-guard-check": "node --experimental-strip-types scripts/publish-guard-check.mjs",
     "plan-limit-check": "node --experimental-strip-types scripts/plan-limit-check.mjs",
     "routing-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/routing-check.mjs",
+    "discount-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/discount-check.mjs",
     "refund-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/refund-check.mjs",
     "order-access-check": "node --conditions=react-server --experimental-strip-types scripts/order-access-check.mjs",
     "support-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/support-check.mjs",

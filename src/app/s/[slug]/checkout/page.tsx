@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { readCurrency, readShopperSession } from "@/app/actions/shop";
+import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { Callout } from "@/components/ui";
-import { basketTotals } from "@/lib/basket";
+import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import type { FulfillmentSource } from "@/lib/countries";
 import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
@@ -34,7 +35,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { t, tag: localeTag, money } = storefrontLocale(store);
-  const { products, lines, shipping, taxRows, total } = await basketTotals(store, cart.items, currency);
+  const discountCode = await cartDiscountCode(store.id, cart);
+  const { products, lines, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
+    await basketTotals(store, cart.items, currency, discountCode);
 
   // Which supplier stands behind each basket line, so the form can tell the
   // shopper their destination is out of region before the card is charged.
@@ -111,6 +114,12 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                 <dt className="text-muted">{t.checkout.shipping}</dt>
                 <dd className="tabular-nums text-ink">{money(shipping, currency)}</dd>
               </div>
+              {discount ? (
+                <div className="flex justify-between">
+                  <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
+                  <dd className="tabular-nums text-emerald-700">− {money(discount.amount, currency)}</dd>
+                </div>
+              ) : null}
               {taxRows.map((row) => (
                 <div key={row.rate} className="flex justify-between">
                   <dt className="text-muted">
@@ -125,6 +134,16 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                 <dd className="text-base font-semibold tabular-nums text-ink">{money(total, currency)}</dd>
               </div>
             </dl>
+            <DiscountEntry
+              storeId={store.id}
+              code={cart.discountCode ?? null}
+              note={
+                discountRefusal
+                  ? fmt(t.discount[discountRefusal], { amount: money(discountMinimum, currency) })
+                  : null
+              }
+              t={t.discount}
+            />
           </aside>
         </div>
       )}
