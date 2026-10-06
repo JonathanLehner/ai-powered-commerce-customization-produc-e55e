@@ -136,15 +136,21 @@ npm run dev        # http://localhost:3000
 npm run build && npm run start
 ```
 
-`.env.local` needs a single value:
+`.env.local` needs two values:
 
 ```
 CLAWCORP_API_KEY=…
+AUTH_SECRET=…
 ```
 
-It authenticates the ClawCorp platform services used from server code only:
-the project-scoped MongoDB, text generation, and the asset upload endpoint that
-stores logos, artwork and rendered mockups.
+`CLAWCORP_API_KEY` authenticates the ClawCorp platform services used from server
+code only: the project-scoped MongoDB, text generation, and the asset upload
+endpoint that stores logos, artwork and rendered mockups.
+
+`AUTH_SECRET` is the key Auth.js signs and encrypts the staff session cookie
+with (`npx auth secret` generates one; it is a Worker secret in the deployment).
+There is no fallback: without it, anything behind a sign-in raises rather than
+quietly accepting unsigned sessions.
 
 Transactional email is optional. With these set, messages are sent through the
 provider; with any of them missing, every message is logged and recorded in the
@@ -160,7 +166,11 @@ APP_ORIGIN=https://…        # optional; otherwise the request's own origin is 
 
 ### Demo accounts
 
-Pick an account at `/login` — the persona cards sign you straight in.
+Pick an account at `/login` — the persona cards sign you straight in, through
+Auth.js's `persona` credentials provider, so a one-click demo login gets the
+same signed session as a real one. The form below them signs in with an email
+address and password; every seeded account uses `parcelith`, stored as a bcrypt
+hash (`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that).
 
 | Account | Sees |
 | --- | --- |
@@ -208,6 +218,11 @@ seeded before store products carried a SKU: it assigns one per product and
 breaks any duplicate slugs left by a double-submitted import. It skips records
 that are already in good shape, so it is safe to re-run.
 
+`scripts/backfill-password-hashes.mjs` is a one-off migration for databases
+seeded before the password was checked at all: it replaces each user's
+plain-text password with a bcrypt hash and leaves rows that already hold one
+alone, so it is safe to re-run.
+
 ## Architecture notes
 
 - Next.js App Router, React 19, Tailwind CSS v4, TypeScript. Marketing, login and
@@ -240,6 +255,19 @@ that are already in good shape, so it is safe to re-run.
   with `{placeholders}` so a group can be handed to a client component as a prop;
   `npm run locale-check` fails the build if a language drifts from English on
   keys or placeholders.
+- Staff sessions are Auth.js (`src/auth.ts`). Nothing in the app writes a session
+  cookie: Auth.js issues a signed, encrypted JWT and `src/lib/session.ts` reads
+  the user id out of it, then loads the user from the database on every request —
+  so a role change lands on the next page view instead of at the next sign-in,
+  and the id in the cookie is worth nothing without `AUTH_SECRET`. There is no
+  adapter, because the users collection lives behind the platform DB API, hence
+  the `jwt` strategy. Two credentials providers: `password` checks email and
+  password with bcrypt, and `persona` takes an email alone to back the demo
+  buttons on `/login` and the "accepted an invitation" box — email-only on
+  purpose for this demo workspace, and still a signed session rather than a
+  cookie anyone can type. `/api/auth/*` is the one path `src/middleware.ts`
+  skips, since Auth.js owns it through a catch-all and it is deliberately absent
+  from the route table.
 - All platform calls live in `src/lib/platform.ts` and are server-only. The
   platform DB accepts `sort`/`limit` but does not apply them, so ordering and
   truncation happen in that wrapper.

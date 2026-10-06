@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { signInAs } from "@/app/actions/auth";
+import { Suspense } from "react";
+import { signInAs, signInWithPassword } from "@/app/actions/auth";
 import { Badge, Logo } from "@/components/ui";
+import { SignInError } from "./SignInError";
 
 export const dynamic = "force-static";
 
@@ -68,6 +70,9 @@ export default function LoginPage() {
           <p className="mt-1.5 text-sm text-muted">
             Permissions are enforced per role, so what you can change depends on who you continue as.
           </p>
+          <Suspense fallback={null}>
+            <SignInError />
+          </Suspense>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {PERSONAS.map((persona) => (
               <li key={persona.email}>
@@ -88,7 +93,46 @@ export default function LoginPage() {
               </li>
             ))}
           </ul>
-          <form action={signInAs} className="card mt-6 p-4">
+          <form action={signInWithPassword} className="card mt-6 p-4">
+            <p className="text-sm font-semibold text-ink">Sign in with a password</p>
+            <p className="mt-1 text-xs text-muted">
+              Every demo account uses the password <code className="font-mono">parcelith</code>.
+            </p>
+            <div className="mt-3 flex flex-wrap items-end gap-2">
+              <div>
+                <label htmlFor="password-email" className="field-label">
+                  Email address
+                </label>
+                <input
+                  id="password-email"
+                  name="email"
+                  type="email"
+                  autoComplete="username"
+                  required
+                  placeholder="name@company.com"
+                  className="input mt-1 w-full sm:w-64"
+                />
+              </div>
+              <div>
+                <label htmlFor="password-password" className="field-label">
+                  Password
+                </label>
+                <input
+                  id="password-password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="input mt-1 w-full sm:w-48"
+                />
+              </div>
+              <button type="submit" className="btn-secondary btn-sm">
+                Sign in
+              </button>
+            </div>
+          </form>
+
+          <form action={signInAs} className="card mt-4 p-4">
             <label htmlFor="signin-email" className="field-label">
               Accepted an invitation? Sign in with that email address
             </label>

@@ -48,6 +48,7 @@ export const ROUTES = [
   "/app/stores/[storeId]/gifting/[catalogueId]",
   "/app/stores/[storeId]/orders",
   "/app/stores/[storeId]/orders/campaigns/[campaignId]",
+  "/app/stores/[storeId]/orders/export",
   "/app/stores/[storeId]/orders/[orderId]",
   "/app/stores/[storeId]/setup",
   "/app/stores/[storeId]/sourcing",

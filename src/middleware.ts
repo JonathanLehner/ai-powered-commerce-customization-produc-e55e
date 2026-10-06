@@ -26,7 +26,12 @@ import { matchesRoute, segmentsOf } from "@/lib/routes";
 export const config = {
   // Everything but the framework's own assets and the files in `public/`, which
   // are served by the filesystem and are not addresses anyone can mistype.
-  matcher: ["/((?!_next/static|_next/image|.*\\.[a-zA-Z0-9]+$).*)"],
+  //
+  // `/api/auth/*` is exempt as well: Auth.js owns those endpoints through a
+  // catch-all, so they are deliberately absent from `@/lib/routes` — which here
+  // would read as "no such address" and label a working session or csrf
+  // response 404.
+  matcher: ["/((?!_next/static|_next/image|api/auth/|.*\\.[a-zA-Z0-9]+$).*)"],
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse | undefined> {

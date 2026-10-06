@@ -9,6 +9,7 @@
 import { randomInt } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { hashSync } from "bcryptjs";
 import sharp from "sharp";
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
@@ -446,13 +447,21 @@ const agencies = [
   { id: "agc_cobalt", name: "Cobalt & Co", slug: "cobalt", plan: "starter", contactEmail: "studio@cobaltco.agency", status: "active", createdAt: iso(90) },
 ];
 
+/**
+ * Demo sign-in password, shared by every seeded account. Auth.js checks it with
+ * bcrypt, so the users collection only ever holds the hash — never the password
+ * itself. One hash is computed per account so each row carries its own salt.
+ */
+const DEMO_PASSWORD = "parcelith";
+const pw = () => hashSync(DEMO_PASSWORD, 10);
+
 const users = [
-  { id: "usr_priya", email: "ops@parcelith.com", name: "Priya Raman", password: "parcelith", platformRole: "platform_admin", agencyId: null, title: "Platform operations", createdAt: iso(230) },
-  { id: "usr_alex", email: "alex@northlight.studio", name: "Alex Moreau", password: "parcelith", platformRole: "agency_admin", agencyId: "agc_northlight", title: "Agency director", createdAt: iso(220) },
-  { id: "usr_sam", email: "sam@northlight.studio", name: "Sam Okafor", password: "parcelith", platformRole: "agency_member", agencyId: "agc_northlight", title: "Catalog producer", createdAt: iso(150) },
-  { id: "usr_ines", email: "ines@northlight.studio", name: "Inés Duarte", password: "parcelith", platformRole: "agency_member", agencyId: "agc_northlight", title: "Fulfilment lead", createdAt: iso(140) },
-  { id: "usr_dana", email: "dana@northwind.example", name: "Dana Whitfield", password: "parcelith", platformRole: "agency_member", agencyId: "agc_northlight", title: "Client stakeholder, Northwind", createdAt: iso(120) },
-  { id: "usr_mira", email: "mira@cobaltco.agency", name: "Mira Sokolov", password: "parcelith", platformRole: "agency_admin", agencyId: "agc_cobalt", title: "Founder", createdAt: iso(90) },
+  { id: "usr_priya", email: "ops@parcelith.com", name: "Priya Raman", password: pw(), platformRole: "platform_admin", agencyId: null, title: "Platform operations", createdAt: iso(230) },
+  { id: "usr_alex", email: "alex@northlight.studio", name: "Alex Moreau", password: pw(), platformRole: "agency_admin", agencyId: "agc_northlight", title: "Agency director", createdAt: iso(220) },
+  { id: "usr_sam", email: "sam@northlight.studio", name: "Sam Okafor", password: pw(), platformRole: "agency_member", agencyId: "agc_northlight", title: "Catalog producer", createdAt: iso(150) },
+  { id: "usr_ines", email: "ines@northlight.studio", name: "Inés Duarte", password: pw(), platformRole: "agency_member", agencyId: "agc_northlight", title: "Fulfilment lead", createdAt: iso(140) },
+  { id: "usr_dana", email: "dana@northwind.example", name: "Dana Whitfield", password: pw(), platformRole: "agency_member", agencyId: "agc_northlight", title: "Client stakeholder, Northwind", createdAt: iso(120) },
+  { id: "usr_mira", email: "mira@cobaltco.agency", name: "Mira Sokolov", password: pw(), platformRole: "agency_admin", agencyId: "agc_cobalt", title: "Founder", createdAt: iso(90) },
 ];
 
 /**

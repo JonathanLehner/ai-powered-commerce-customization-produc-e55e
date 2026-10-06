@@ -13,7 +13,7 @@ import "server-only";
  */
 const SECRET = process.env.CLAWCORP_API_KEY ?? "parcelith-dev-order-token";
 
-/** HMAC of any value, url-safe; also signs the staff session cookie. */
+/** HMAC of any value, url-safe. */
 export async function hmac(message: string): Promise<string> {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(

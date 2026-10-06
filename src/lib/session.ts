@@ -1,30 +1,27 @@
 import "server-only";
-import { cookies } from "next/headers";
+import { cache } from "react";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { getStore, getUserById, listMembershipsForUser } from "./data";
-import { hmac, safeEqual } from "./order-access";
 import { resolveStoreRole, roleCan, type Capability } from "./store-access";
 import type { Store, StoreRole, User } from "./types";
 
-export const SESSION_COOKIE = "cc_session";
 export const SHOPPER_COOKIE = "cc_shopper";
 
 export { resolveStoreRole, roleCan };
 export type { Capability, StoreGrant } from "./store-access";
 
-/** Cookie value is `userId.signature`, so a user id alone cannot be replayed as a session. */
-export async function sessionCookieValue(userId: string): Promise<string> {
-  return `${userId}.${await hmac(`session:${userId}`)}`;
-}
-
-async function sessionUserId(): Promise<string | null> {
-  const jar = await cookies();
-  const value = jar.get(SESSION_COOKIE)?.value ?? "";
-  const dot = value.lastIndexOf(".");
-  if (dot <= 0) return null;
-  const id = value.slice(0, dot);
-  return safeEqual(value, await sessionCookieValue(id)) ? id : null;
-}
+/**
+ * The signed-in user's id, taken from the Auth.js session token.
+ *
+ * Memoised per render: a store page checks access in its layout and again in
+ * the page itself, and verifying the token's signature twice for the same
+ * request is pure waste.
+ */
+const sessionUserId = cache(async (): Promise<string | null> => {
+  const session = await auth();
+  return session?.user?.id ?? null;
+});
 
 export async function getSessionUser(): Promise<User | null> {
   const id = await sessionUserId();
