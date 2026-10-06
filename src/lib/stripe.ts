@@ -65,10 +65,10 @@ export function expiryValid(expiry: string): boolean {
   return end > now;
 }
 
-function intentId(seed: string): string {
+function gatewayId(prefix: string, seed: string): string {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  return `pi_3${hash.toString(36).padStart(8, "0")}${seed.slice(-6).replace(/[^a-z0-9]/gi, "") || "aa"}`;
+  return `${prefix}_3${hash.toString(36).padStart(8, "0")}${seed.slice(-6).replace(/[^a-z0-9]/gi, "") || "aa"}`;
 }
 
 export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
@@ -135,9 +135,68 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
 
   return {
     ok: true,
-    paymentIntentId: intentId(input.idempotencyKey),
+    paymentIntentId: gatewayId("pi", input.idempotencyKey),
     last4: digits.slice(-4),
     message: `Payment captured on ${store.stripe.accountId} in ${input.currency}.`,
+  };
+}
+
+export interface RefundInput {
+  store: Store;
+  /** The intent the money was captured on; null on an order that never paid. */
+  paymentIntentId: string | null;
+  amount: number;
+  currency: string;
+  /** Same amount twice in a row returns the same refund id rather than two. */
+  idempotencyKey: string;
+}
+
+export interface RefundResult {
+  ok: boolean;
+  refundId: string | null;
+  message: string;
+  code?: string;
+}
+
+/**
+ * Returns money on the store's own connected account, against the intent the
+ * charge was captured on. Refusals here are read by the store team in the
+ * dashboard, not by shoppers, so they stay in English like the timeline notes.
+ */
+export async function refundCharge(input: RefundInput): Promise<RefundResult> {
+  const { store, paymentIntentId } = input;
+  if (!store.stripe.connected || !store.stripe.chargesEnabled) {
+    return {
+      ok: false,
+      refundId: null,
+      message: "The store's Stripe account cannot process refunds yet. Finish connecting it and try again.",
+      code: "account_not_ready",
+    };
+  }
+  if (!paymentIntentId) {
+    return {
+      ok: false,
+      refundId: null,
+      message: "This order has no captured Stripe payment to refund against.",
+      code: "no_payment_intent",
+    };
+  }
+  if (!Number.isInteger(input.amount) || input.amount <= 0) {
+    return { ok: false, refundId: null, message: "Enter a refund amount above zero.", code: "invalid_amount" };
+  }
+  if (!store.currencies.includes(input.currency)) {
+    return {
+      ok: false,
+      refundId: null,
+      message: fmt(copyFor(store.defaultLanguage).payment.currencyUnsupported, { currency: input.currency }),
+      code: "currency_unsupported",
+    };
+  }
+
+  return {
+    ok: true,
+    refundId: gatewayId("re", input.idempotencyKey),
+    message: `Refund of ${input.amount} ${input.currency} issued on ${store.stripe.accountId} against ${paymentIntentId}.`,
   };
 }
 

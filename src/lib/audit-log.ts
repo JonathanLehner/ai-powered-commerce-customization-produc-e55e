@@ -237,6 +237,7 @@ const META_LABELS: Record<string, string> = {
   defaultLanguage: "Language",
   defaultTaxBracketId: "Tax bracket",
   enabled: "Variants enabled",
+  gatewayRefundId: "Stripe refund",
   held: "Held for manual routing",
   kind: "Type",
   leadTimeDays: "Lead time (days)",

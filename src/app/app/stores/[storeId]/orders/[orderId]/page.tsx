@@ -440,6 +440,9 @@ export default async function OrderDetailPage({
                     <p className="text-xs text-muted">
                       {refund.reason} · {refund.actor} · {formatDateTime(refund.at)}
                     </p>
+                    {refund.gatewayRefundId ? (
+                      <p className="mt-0.5 font-mono text-[11px] text-muted">{refund.gatewayRefundId}</p>
+                    ) : null}
                   </li>
                 ))}
               </ul>

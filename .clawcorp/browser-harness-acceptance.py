@@ -753,10 +753,12 @@ try:
             fill("input[name=amount]", "1.00")
             fill("input[name=reason]", "QA harness partial refund")
             click_text("button", "Record refund"); time.sleep(5); wait_for_load()
-            refunded = "refunded" in text().lower()
+            t = text()
+            # the money actually went back: the gateway's refund id is on the row
+            refunded = "refunded" in t.lower() and bool(re.search(r"\bre_3\w+", t))
     shot(17)
     record(17, "pass" if (has_exception and ref_saved and resolved and refunded) else "fail",
-           "order detail allows reviewing the order, recording a manual purchase-order reference (%s), marking a supplier exception resolved (%s) and recording a partial refund against the store's Stripe account (%s)"
+           "order detail allows reviewing the order, recording a manual purchase-order reference (%s), marking a supplier exception resolved (%s) and recording a partial refund that returns the money on the store's Stripe account and shows its refund id (%s)"
            % (ref_saved, resolved, refunded))
 except Exception:
     for n in (15, 16, 17):

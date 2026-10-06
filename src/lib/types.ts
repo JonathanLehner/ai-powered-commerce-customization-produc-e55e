@@ -579,7 +579,15 @@ export interface Order {
       at: string;
     } | null;
   };
-  refunds: { id: string; amount: number; reason: string; at: string; actor: string }[];
+  /** `gatewayRefundId` is absent on refund rows recorded before gateway refunds. */
+  refunds: {
+    id: string;
+    amount: number;
+    reason: string;
+    at: string;
+    actor: string;
+    gatewayRefundId?: string;
+  }[];
   events: FulfillmentEvent[];
   /** Set on the orders a gift campaign produced, absent on ordinary shopper orders. */
   campaign?: {

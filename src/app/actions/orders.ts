@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
 import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
 import { assertStoreAccess } from "@/lib/session";
+import { refundCharge } from "@/lib/stripe";
 import type { FulfillmentEvent, Order, OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -385,26 +386,58 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
   if (reason.length < 4) {
     return { status: "error", message: "Give a short reason — it appears in the audit history.", field: "reason" };
   }
+  if (order.payment.status !== "succeeded" && order.payment.status !== "refunded") {
+    return { status: "error", message: "This order has no captured payment to refund." };
+  }
+
+  // Money first: nothing is recorded unless the gateway actually returned it.
+  // The key makes a double submit land as one refund at the gateway too — the
+  // already-refunded total is part of it, so a genuine second refund differs.
+  const gateway = await refundCharge({
+    store,
+    paymentIntentId: order.payment.paymentIntentId,
+    amount,
+    currency: order.currency,
+    idempotencyKey: `${order.id}:${alreadyRefunded}:${amount}`,
+  });
+  if (!gateway.ok) return { status: "error", message: gateway.message };
 
   const refunds = [
     ...order.refunds,
-    { id: newId("ref"), amount, reason, at: new Date().toISOString(), actor: user.name },
+    {
+      id: newId("ref"),
+      amount,
+      reason,
+      at: new Date().toISOString(),
+      actor: user.name,
+      gatewayRefundId: gateway.refundId ?? undefined,
+    },
   ];
   const fullyRefunded = refunds.reduce((sum, r) => sum + r.amount, 0) >= order.total;
 
-  await updateOrder(orderId, {
-    refunds,
-    status: cancel ? "cancelled" : order.status,
-    payment: { ...order.payment, status: fullyRefunded ? "refunded" : order.payment.status },
-    events: [
-      ...order.events,
-      event(
-        cancel ? "Cancelled and refunded" : "Refund issued",
-        `${formatMoney(amount, order.currency)} refunded — ${reason}`,
-        user.name,
-      ),
-    ],
-  });
+  const written = await updateOrder(
+    orderId,
+    {
+      refunds,
+      status: cancel ? "cancelled" : order.status,
+      payment: { ...order.payment, status: fullyRefunded ? "refunded" : order.payment.status },
+      events: [
+        ...order.events,
+        event(
+          cancel ? "Cancelled and refunded" : "Refund issued",
+          `${formatMoney(amount, order.currency)} refunded (${gateway.refundId}) — ${reason}`,
+          user.name,
+        ),
+      ],
+    },
+    { updatedAt: order.updatedAt },
+  );
+  if (!written) {
+    // The order moved under us. The gateway call was idempotent, so the refund
+    // that did land is already on the reloaded order.
+    refresh(storeId, orderId);
+    return { status: "error", message: "The order changed while this refund was being recorded. Reload and check the refund list before trying again." };
+  }
   recordAudit({
     category: "order_routing",
     action: cancel ? "order.cancelled_refunded" : "order.refunded",
@@ -415,11 +448,11 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     actorName: user.name,
     entity: "order",
     entityId: order.code,
-    meta: { amount, reason },
+    meta: { amount, reason, gatewayRefundId: gateway.refundId },
   });
   refresh(storeId, orderId);
   return {
     status: "success",
-    message: `${formatMoney(amount, order.currency)} refunded${cancel ? " and the order was cancelled" : ""}.`,
+    message: `${formatMoney(amount, order.currency)} refunded${cancel ? " and the order was cancelled" : ""} — ${gateway.refundId}.`,
   };
 }

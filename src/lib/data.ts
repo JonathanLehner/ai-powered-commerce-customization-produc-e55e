@@ -247,12 +247,23 @@ export function getOrderByIdempotencyKey(key: string) {
   return db.findOne<Order>(COLLECTIONS.orders, { idempotencyKey: key });
 }
 
-export async function updateOrder(id: string, patch: Partial<Order>) {
-  await db.updateOne(
+/**
+ * Pass `where` to make the write guarded: it applies only while the order still
+ * matches, and the boolean says whether it did. Matching on the `updatedAt` the
+ * caller read is how a double click or two managers at once lands once — which
+ * matters where the write follows a payment-gateway call.
+ */
+export async function updateOrder(
+  id: string,
+  patch: Partial<Order>,
+  where: Record<string, unknown> = {},
+): Promise<boolean> {
+  const result = (await db.updateOne(
     COLLECTIONS.orders,
-    { id },
+    { ...where, id },
     { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
-  );
+  )) as { matchedCount?: number } | null;
+  return (result?.matchedCount ?? 0) > 0;
 }
 
 /* --------------------------------------------------------- plan enquiries */
