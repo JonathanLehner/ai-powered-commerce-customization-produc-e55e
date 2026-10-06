@@ -202,7 +202,7 @@ export const en = {
       "To protect delivery and personalisation details, confirm the email address on order {code} before we show it.",
     confirmedTitle: "Thank you — your order is confirmed",
     confirmedBody:
-      "Save or bookmark this page — it is where the progress of your order is shown. The store does not send confirmation emails yet.",
+      "Save or bookmark this page — it is where the progress of your order is shown. A confirmation email with this link is on its way to you.",
     confirmedFindAgain:
       "You can also find it again from “Order status” with order code {code} and the email address {email}.",
     heading: "Order {code}",
@@ -328,6 +328,42 @@ export const en = {
     newsletterEmail: "Email address",
     notifyMe: "Notify me",
     welcome: "Welcome",
+  },
+
+  /**
+   * Transactional email. The store sends these in its own storefront language,
+   * so the keys live beside the rest of the shopper-facing copy rather than in
+   * the sending code.
+   */
+  email: {
+    logoAlt: "{store}",
+    greeting: "Hello {name},",
+    footer: "{client} is the merchant of record for this store. Sent by {store}.",
+    support: "Questions? Email us at {email}.",
+    orderSubject: "Order {code} is confirmed — {store}",
+    orderHeading: "Thank you for your order",
+    orderBody:
+      "We have your order {code} and your payment went through. The link below opens its progress page at any time — it is worth saving.",
+    orderCta: "View your order",
+    orderTotalLabel: "Total paid",
+    orderDeliveryLabel: "Delivering to",
+    shippedSubject: "Order {code} is on its way — {store}",
+    shippedHeading: "Your parcel is on its way",
+    shippedBody: "Order {code} has been handed to {carrier}.",
+    shippedTrackingLabel: "Tracking number",
+    shippedCta: "Track your parcel",
+    inviteSubject: "{inviter} invited you to {store}",
+    inviteHeading: "You have been invited to {store}",
+    inviteBody:
+      "{inviter} has invited you to work on {store} as {role}. Opening the link below creates your account and activates your access. It works once.",
+    inviteCta: "Accept the invitation",
+    approvalSubject: "Gift campaign {code} needs your approval — {store}",
+    approvalHeading: "A gift campaign is waiting for your approval",
+    approvalBody:
+      "{buyer} submitted “{campaign}” for {company}. Nothing is charged until you approve the list.",
+    approvalRecipientsLabel: "Recipients",
+    approvalTotalLabel: "Total",
+    approvalCta: "Review the list",
   },
 
   /** Shown by the storefront's not-found and error boundaries. */

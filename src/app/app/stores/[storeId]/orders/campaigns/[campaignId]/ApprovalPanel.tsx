@@ -99,8 +99,8 @@ export function ApprovalPanel({
             }
           >
             <p className="text-sm text-muted">
-              Parcelith does not mail the approver for you: the link above is theirs alone. Recording the request
-              puts it in this campaign&rsquo;s history and the store&rsquo;s audit log, then send them the link.
+              The request is emailed to the approver again, and recorded in this campaign&rsquo;s history and the
+              store&rsquo;s audit log. The link above is theirs alone if you would rather send it yourself.
             </p>
           </ActionForm>
 
@@ -122,7 +122,7 @@ export function ApprovalPanel({
                   <div className="space-y-4">
                     <p className="text-sm text-muted">
                       For an approver who has left or cannot be reached. The link stays the same — it belongs to
-                      the campaign — so the new person can decide as soon as you send it to them.
+                      the campaign — and the new person is emailed the request as soon as you save this.
                     </p>
                     <Field label="New approver" htmlFor="approverName">
                       <input

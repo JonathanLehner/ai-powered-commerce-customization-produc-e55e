@@ -199,7 +199,7 @@ export const nl: StorefrontCopy = {
       "Om bezorg- en personalisatiegegevens te beschermen, bevestig eerst het e-mailadres bij bestelling {code} voordat we die tonen.",
     confirmedTitle: "Bedankt — je bestelling is bevestigd",
     confirmedBody:
-      "Bewaar deze pagina of sla haar op als bladwijzer — hier zie je hoe je bestelling vordert. De winkel stuurt nog geen bevestigingsmails.",
+      "Bewaar deze pagina of sla haar op als bladwijzer — hier zie je hoe je bestelling vordert. Er is een bevestigingsmail met deze link naar je onderweg.",
     confirmedFindAgain:
       "Je vindt haar ook terug via “Bestelstatus” met bestelcode {code} en het e-mailadres {email}.",
     heading: "Bestelling {code}",
@@ -326,6 +326,37 @@ export const nl: StorefrontCopy = {
     newsletterEmail: "E-mailadres",
     notifyMe: "Houd me op de hoogte",
     welcome: "Welkom",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "Hallo {name},",
+    footer: "{client} is de verkoper van deze winkel. Verzonden door {store}.",
+    support: "Vragen? Mail ons op {email}.",
+    orderSubject: "Bestelling {code} is bevestigd — {store}",
+    orderHeading: "Bedankt voor je bestelling",
+    orderBody:
+      "We hebben je bestelling {code} ontvangen en de betaling is gelukt. De link hieronder opent de statuspagina wanneer je maar wilt — bewaar hem goed.",
+    orderCta: "Bekijk je bestelling",
+    orderTotalLabel: "Totaal betaald",
+    orderDeliveryLabel: "Bezorgen aan",
+    shippedSubject: "Bestelling {code} is onderweg — {store}",
+    shippedHeading: "Je pakket is onderweg",
+    shippedBody: "Bestelling {code} is overgedragen aan {carrier}.",
+    shippedTrackingLabel: "Trackingnummer",
+    shippedCta: "Volg je pakket",
+    inviteSubject: "{inviter} heeft je uitgenodigd voor {store}",
+    inviteHeading: "Je bent uitgenodigd voor {store}",
+    inviteBody:
+      "{inviter} nodigt je uit om als {role} aan {store} te werken. Met de link hieronder wordt je account aangemaakt en je toegang geactiveerd. Hij werkt één keer.",
+    inviteCta: "Uitnodiging accepteren",
+    approvalSubject: "Geschenkcampagne {code} wacht op jouw goedkeuring — {store}",
+    approvalHeading: "Een geschenkcampagne wacht op jouw goedkeuring",
+    approvalBody:
+      "{buyer} heeft “{campaign}” voor {company} ingediend. Er wordt niets afgeschreven voordat jij de lijst goedkeurt.",
+    approvalRecipientsLabel: "Ontvangers",
+    approvalTotalLabel: "Totaal",
+    approvalCta: "Bekijk de lijst",
   },
 
   fallback: {

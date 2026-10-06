@@ -19,8 +19,8 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
     headers(),
   ]);
 
-  // The invitation link has to be pasted into a chat or an email by hand, so it
-  // needs the full origin the admin is looking at, not a relative path.
+  // The same link the invitation email carries, shown so it can be passed on by
+  // hand as well; it needs the full origin the admin is looking at.
   const host = headerList.get("host") ?? "";
   const proto = headerList.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = host ? `${proto}://${host}` : "";
@@ -95,8 +95,8 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                         member.inviteToken ? (
                           <div className="mt-2 max-w-sm">
                             <p className="text-xs text-muted">
-                              No email is sent. Send them this link — it creates their account and activates
-                              access when they open it, then stops working.
+                              This link was emailed to them. Send it on yourself if it never arrived — it
+                              creates their account and activates access when they open it, then stops working.
                             </p>
                             <code className="mt-1 block break-all rounded-lg border border-line bg-canvas px-2 py-1.5 text-[11px] text-inksoft">
                               {origin}/invite/{member.inviteToken}

@@ -15,6 +15,8 @@ import {
   updateGiftCampaign,
   updateGiftCatalogue,
 } from "@/lib/data";
+import { sendEmail, siteOrigin } from "@/lib/email";
+import { brandFor, giftApprovalEmail } from "@/lib/email-templates";
 import { routeOrder } from "@/lib/fulfillment";
 import {
   campaignPath,
@@ -302,6 +304,52 @@ export async function setGiftCatalogueStatus(formData: FormData): Promise<void> 
   refreshCatalogue(storeId, catalogueId);
 }
 
+/**
+ * Puts a campaign in front of its approver by email.
+ *
+ * The approval link is the approver's own, derived from the campaign and the
+ * role, so what is emailed is exactly what the store team sees in the approval
+ * panel. Nothing here can stop a campaign being created or chased.
+ */
+async function emailApprovalRequest(
+  store: Store,
+  catalogue: GiftCatalogue,
+  campaign: GiftCampaign,
+): Promise<void> {
+  const to = campaign.approval.approverEmail.trim();
+  if (!to) return;
+  try {
+    const origin = await siteOrigin();
+    const link = campaignPath(
+      catalogue.slug,
+      campaign.code,
+      await campaignToken(campaign.id, "approver"),
+      "approver",
+    );
+    sendEmail({
+      to,
+      message: giftApprovalEmail(brandFor(store), {
+        approverName: campaign.approval.approverName,
+        buyerName: campaign.buyer.name,
+        campaignName: campaign.name,
+        campaignCode: campaign.code,
+        companyName: catalogue.companyName,
+        recipients: campaign.recipients.length,
+        total: campaign.totals.total,
+        currency: campaign.currency,
+        approvalUrl: `${origin}${link}`,
+      }),
+      kind: "gift approval request",
+      storeId: store.id,
+      agencyId: store.agencyId,
+      entity: "gift_campaign",
+      entityId: campaign.code,
+    });
+  } catch (error) {
+    console.error("Gift approval email could not be queued", error);
+  }
+}
+
 /* ------------------------------------------------- a campaign stuck at approval */
 
 async function campaignForStore(campaignId: string, storeId: string): Promise<GiftCampaign> {
@@ -318,10 +366,9 @@ function refreshCampaign(storeId: string, campaign: GiftCampaign) {
 /**
  * Chases the approver on a campaign that is still waiting.
  *
- * Nothing is emailed from here — the approval link is personal and the store
- * team sends it themselves from the panel — so what this records is the chase:
- * a line in the campaign's own history and one in the store's audit log, plus
- * the moment it happened, which is what the panel counts the wait from.
+ * The request goes out again by email, and the chase is recorded either way: a
+ * line in the campaign's own history and one in the store's audit log, plus the
+ * moment it happened, which is what the panel counts the wait from.
  */
 export async function resendApprovalRequest(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
@@ -363,8 +410,11 @@ export async function resendApprovalRequest(_prev: ActionState, formData: FormDa
     entityId: campaign.code,
     meta: { approver, waitingDays: waited, reminders },
   });
+  const catalogue = await getGiftCatalogue(campaign.catalogueId);
+  if (catalogue) await emailApprovalRequest(store, catalogue, campaign);
+
   refreshCampaign(storeId, campaign);
-  return ok(`Recorded. Send ${approver} the approval link below.`);
+  return ok(`The approval request is on its way to ${approver} again. The link is also below.`);
 }
 
 /**
@@ -427,8 +477,16 @@ export async function changeCampaignApprover(_prev: ActionState, formData: FormD
     entityId: campaign.code,
     meta: { from: previous, to: `${name} (${email})`, reason: reason || null },
   });
+  const catalogue = await getGiftCatalogue(campaign.catalogueId);
+  if (catalogue) {
+    await emailApprovalRequest(store, catalogue, {
+      ...campaign,
+      approval: { ...campaign.approval, approverName: name, approverEmail: email },
+    });
+  }
+
   refreshCampaign(storeId, campaign);
-  return ok(`${name} is now the approver. Send them the approval link below.`);
+  return ok(`${name} is now the approver and the request is on its way to them. The link is also below.`);
 }
 
 /* -------------------------------------------------------------- gift portal */
@@ -670,6 +728,9 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
     entityId: campaign.code,
     meta: { recipients: recipients.length, total: quote.total, currency: catalogue.currency },
   });
+  if (campaign.status === "awaiting_approval") {
+    await emailApprovalRequest(store, catalogue, campaign);
+  }
   revalidatePath(`/app/stores/${store.id}/gifting`);
   redirect(campaignPath(slug, campaign.code, await campaignToken(campaign.id, "buyer"), "buyer"));
 }

@@ -11,9 +11,11 @@ import {
   listMemberships,
   recordAudit,
 } from "@/lib/data";
+import { sendEmail, siteOrigin } from "@/lib/email";
+import { brandFor, teamInviteEmail } from "@/lib/email-templates";
 import { db } from "@/lib/platform";
 import { assertStoreAccess } from "@/lib/session";
-import { STORE_ROLE_LABELS, type Membership, type StoreRole, type User } from "@/lib/types";
+import { STORE_ROLE_LABELS, type Membership, type Store, type StoreRole, type User } from "@/lib/types";
 import { newId } from "@/lib/util";
 import { signInUser } from "./auth";
 import type { ActionState } from "./stores";
@@ -74,13 +76,48 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
     meta: { role, email },
   });
 
+  if (membership.inviteToken) {
+    await emailInvitation(store, membership, user.name);
+  }
+
   revalidatePath(`/app/stores/${storeId}/team`);
   return {
     status: "success",
     message: account
       ? `${account.name} already has a Parcelith account, so access is active immediately.`
-      : `Invitation created for ${email}. No email is sent — copy the acceptance link from the members list above and pass it on. Their account is created when they open it.`,
+      : `Invitation created for ${email} and the email is on its way. The acceptance link is also in the members list above if it never arrives.`,
   };
+}
+
+/**
+ * Emails one invitation. The acceptance link has to be absolute, and it is the
+ * same link the members list shows, so a person who never receives the email
+ * can still be sent it by hand.
+ */
+async function emailInvitation(
+  store: Store,
+  membership: Membership,
+  inviterName: string,
+): Promise<void> {
+  try {
+    const origin = await siteOrigin();
+    sendEmail({
+      to: membership.email,
+      message: teamInviteEmail(brandFor(store), {
+        name: membership.name,
+        inviterName,
+        roleLabel: STORE_ROLE_LABELS[membership.role],
+        acceptUrl: `${origin}/invite/${membership.inviteToken}`,
+      }),
+      kind: "team invitation",
+      storeId: store.id,
+      agencyId: store.agencyId,
+      entity: "membership",
+      entityId: membership.id,
+    });
+  } catch (error) {
+    console.error("Team invitation email could not be queued", error);
+  }
 }
 
 export async function changeMemberRole(formData: FormData): Promise<void> {
@@ -142,15 +179,17 @@ export async function resendInvite(formData: FormData): Promise<void> {
   const membership = await getMembership(membershipId);
   if (!membership || membership.storeId !== storeId || membership.status !== "invited") return;
 
+  const token = newId("inv");
   await db.updateOne(
     COLLECTIONS.memberships,
     { id: membershipId },
-    { $set: { invitedAt: new Date().toISOString(), invitedBy: user.name, inviteToken: newId("inv") } },
+    { $set: { invitedAt: new Date().toISOString(), invitedBy: user.name, inviteToken: token } },
   );
+  await emailInvitation(store, { ...membership, inviteToken: token }, user.name);
   recordAudit({
     category: "team",
     action: "team.invite_resent",
-    summary: `Issued a new acceptance link for ${membership.email}`,
+    summary: `Issued a new acceptance link for ${membership.email} and emailed it to them`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,

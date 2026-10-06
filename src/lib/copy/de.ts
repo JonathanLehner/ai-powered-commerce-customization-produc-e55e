@@ -199,7 +199,7 @@ export const de: StorefrontCopy = {
       "Zum Schutz von Liefer- und Personalisierungsdaten bestätigen Sie bitte die E-Mail-Adresse zur Bestellung {code}, bevor wir sie anzeigen.",
     confirmedTitle: "Vielen Dank — Ihre Bestellung ist bestätigt",
     confirmedBody:
-      "Speichern Sie diese Seite oder setzen Sie ein Lesezeichen — hier sehen Sie den Fortschritt Ihrer Bestellung. Der Shop verschickt noch keine Bestätigungs-E-Mails.",
+      "Speichern Sie diese Seite oder setzen Sie ein Lesezeichen — hier sehen Sie den Fortschritt Ihrer Bestellung. Eine Bestätigungs-E-Mail mit diesem Link ist bereits zu Ihnen unterwegs.",
     confirmedFindAgain:
       "Sie finden sie jederzeit über „Bestellstatus“ mit dem Bestellcode {code} und der E-Mail-Adresse {email} wieder.",
     heading: "Bestellung {code}",
@@ -328,6 +328,37 @@ export const de: StorefrontCopy = {
     newsletterEmail: "E-Mail-Adresse",
     notifyMe: "Benachrichtigen",
     welcome: "Willkommen",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "Hallo {name},",
+    footer: "{client} ist der Vertragshändler dieses Shops. Gesendet von {store}.",
+    support: "Fragen? Schreiben Sie uns an {email}.",
+    orderSubject: "Bestellung {code} ist bestätigt — {store}",
+    orderHeading: "Vielen Dank für Ihre Bestellung",
+    orderBody:
+      "Ihre Bestellung {code} ist bei uns eingegangen und die Zahlung war erfolgreich. Der Link unten öffnet jederzeit die Statusseite — bewahren Sie ihn auf.",
+    orderCta: "Bestellung ansehen",
+    orderTotalLabel: "Bezahlter Gesamtbetrag",
+    orderDeliveryLabel: "Lieferung an",
+    shippedSubject: "Bestellung {code} ist unterwegs — {store}",
+    shippedHeading: "Ihr Paket ist unterwegs",
+    shippedBody: "Bestellung {code} wurde an {carrier} übergeben.",
+    shippedTrackingLabel: "Sendungsnummer",
+    shippedCta: "Paket verfolgen",
+    inviteSubject: "{inviter} hat Sie zu {store} eingeladen",
+    inviteHeading: "Sie wurden zu {store} eingeladen",
+    inviteBody:
+      "{inviter} hat Sie eingeladen, als {role} an {store} mitzuarbeiten. Mit dem Link unten wird Ihr Konto erstellt und Ihr Zugang aktiviert. Er funktioniert einmal.",
+    inviteCta: "Einladung annehmen",
+    approvalSubject: "Geschenkkampagne {code} wartet auf Ihre Freigabe — {store}",
+    approvalHeading: "Eine Geschenkkampagne wartet auf Ihre Freigabe",
+    approvalBody:
+      "{buyer} hat „{campaign}“ für {company} eingereicht. Es wird nichts berechnet, bevor Sie die Liste freigeben.",
+    approvalRecipientsLabel: "Empfänger",
+    approvalTotalLabel: "Gesamt",
+    approvalCta: "Liste prüfen",
   },
 
   fallback: {

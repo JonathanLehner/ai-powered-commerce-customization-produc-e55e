@@ -197,7 +197,7 @@ export const sv: StorefrontCopy = {
       "För att skydda leverans- och personaliseringsuppgifter behöver du bekräfta e-postadressen på order {code} innan vi visar den.",
     confirmedTitle: "Tack — din order är bekräftad",
     confirmedBody:
-      "Spara den här sidan eller lägg den som bokmärke — det är här din order följs. Butiken skickar ännu inga bekräftelsemejl.",
+      "Spara den här sidan eller lägg den som bokmärke — det är här din order följs. Ett bekräftelsemejl med den här länken är på väg till dig.",
     confirmedFindAgain:
       "Du hittar den också via ”Orderstatus” med orderkoden {code} och e-postadressen {email}.",
     heading: "Order {code}",
@@ -324,6 +324,37 @@ export const sv: StorefrontCopy = {
     newsletterEmail: "E-postadress",
     notifyMe: "Meddela mig",
     welcome: "Välkommen",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "Hej {name},",
+    footer: "{client} är säljare i den här butiken. Skickat av {store}.",
+    support: "Frågor? Mejla oss på {email}.",
+    orderSubject: "Order {code} är bekräftad — {store}",
+    orderHeading: "Tack för din beställning",
+    orderBody:
+      "Vi har tagit emot order {code} och betalningen gick igenom. Länken nedan öppnar orderns statussida när som helst — spara den gärna.",
+    orderCta: "Visa din order",
+    orderTotalLabel: "Totalt betalt",
+    orderDeliveryLabel: "Levereras till",
+    shippedSubject: "Order {code} är på väg — {store}",
+    shippedHeading: "Ditt paket är på väg",
+    shippedBody: "Order {code} har lämnats till {carrier}.",
+    shippedTrackingLabel: "Kolli-id",
+    shippedCta: "Spåra paketet",
+    inviteSubject: "{inviter} har bjudit in dig till {store}",
+    inviteHeading: "Du har blivit inbjuden till {store}",
+    inviteBody:
+      "{inviter} bjuder in dig att arbeta med {store} som {role}. Länken nedan skapar ditt konto och aktiverar din åtkomst. Den fungerar en gång.",
+    inviteCta: "Tacka ja till inbjudan",
+    approvalSubject: "Gåvokampanj {code} väntar på ditt godkännande — {store}",
+    approvalHeading: "En gåvokampanj väntar på ditt godkännande",
+    approvalBody:
+      "{buyer} har skickat in ”{campaign}” för {company}. Ingenting debiteras förrän du godkänner listan.",
+    approvalRecipientsLabel: "Mottagare",
+    approvalTotalLabel: "Totalt",
+    approvalCta: "Granska listan",
   },
 
   fallback: {

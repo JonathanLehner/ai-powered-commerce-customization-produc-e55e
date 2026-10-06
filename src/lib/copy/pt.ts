@@ -198,7 +198,7 @@ export const pt: StorefrontCopy = {
       "Para proteger os dados de entrega e personalização, confirme o e-mail da encomenda {code} antes de a mostrarmos.",
     confirmedTitle: "Obrigado — a sua encomenda está confirmada",
     confirmedBody:
-      "Guarde esta página ou adicione-a aos favoritos — é aqui que aparece o progresso da sua encomenda. A loja ainda não envia e-mails de confirmação.",
+      "Guarde esta página ou adicione-a aos favoritos — é aqui que aparece o progresso da sua encomenda. Enviámos-lhe um e-mail de confirmação com esta ligação.",
     confirmedFindAgain:
       "Também a pode voltar a abrir em «Estado da encomenda» com o código {code} e o e-mail {email}.",
     heading: "Encomenda {code}",
@@ -325,6 +325,37 @@ export const pt: StorefrontCopy = {
     newsletterEmail: "Endereço de e-mail",
     notifyMe: "Avisem-me",
     welcome: "Bem-vindo",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "Olá {name},",
+    footer: "{client} é o comerciante responsável por esta loja. Enviado por {store}.",
+    support: "Dúvidas? Escreva-nos para {email}.",
+    orderSubject: "Encomenda {code} confirmada — {store}",
+    orderHeading: "Obrigado pela sua encomenda",
+    orderBody:
+      "Recebemos a encomenda {code} e o pagamento foi aceite. A ligação abaixo abre a página de estado a qualquer momento — vale a pena guardá-la.",
+    orderCta: "Ver a minha encomenda",
+    orderTotalLabel: "Total pago",
+    orderDeliveryLabel: "Entrega a",
+    shippedSubject: "A encomenda {code} está a caminho — {store}",
+    shippedHeading: "A sua encomenda está a caminho",
+    shippedBody: "A encomenda {code} foi entregue à {carrier}.",
+    shippedTrackingLabel: "Número de seguimento",
+    shippedCta: "Seguir a encomenda",
+    inviteSubject: "{inviter} convidou-o para {store}",
+    inviteHeading: "Foi convidado para {store}",
+    inviteBody:
+      "{inviter} convidou-o para trabalhar em {store} como {role}. Ao abrir a ligação abaixo a sua conta é criada e o acesso é activado. Funciona uma única vez.",
+    inviteCta: "Aceitar o convite",
+    approvalSubject: "A campanha de ofertas {code} aguarda a sua aprovação — {store}",
+    approvalHeading: "Uma campanha de ofertas aguarda a sua aprovação",
+    approvalBody:
+      "{buyer} submeteu “{campaign}” para {company}. Nada é cobrado enquanto não aprovar a lista.",
+    approvalRecipientsLabel: "Destinatários",
+    approvalTotalLabel: "Total",
+    approvalCta: "Rever a lista",
   },
 
   fallback: {

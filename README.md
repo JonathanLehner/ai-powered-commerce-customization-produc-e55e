@@ -109,6 +109,16 @@ gifting, orders, team, guided setup, activity.
 - **Audit history.** Store setup, imports, price changes, AI approvals,
   publishing, order routing and administration are all recorded per store and
   platform-wide.
+- **Transactional email.** Four messages leave the platform: the shopper's order
+  confirmation with the signed status link, the shipping notification when
+  tracking is added, the team invitation with its acceptance link, and the gift
+  campaign approval request to the approver. Each is built from the store's own
+  storefront language and branding — logo, store name, merchant of record and
+  support address — by one send function (`src/lib/email.ts`). The provider is
+  configured with environment variables; with none set, the message is logged and
+  written to the store's activity history under the Email category instead of
+  failing, and nothing an email does can block or fail a checkout
+  (`npm run email-check`).
 - **Addresses that no longer work.** An old product link, a renamed shop, a
   mistyped path: each lands on a page belonging to the surface it was aimed at.
   Inside a shop the store's header, logo and footer stay, the copy is in the
@@ -135,6 +145,18 @@ CLAWCORP_API_KEY=…
 It authenticates the ClawCorp platform services used from server code only:
 the project-scoped MongoDB, text generation, and the asset upload endpoint that
 stores logos, artwork and rendered mockups.
+
+Transactional email is optional. With these set, messages are sent through the
+provider; with any of them missing, every message is logged and recorded in the
+store's activity history instead, which is what a preview or a development run
+wants:
+
+```
+EMAIL_PROVIDER=resend
+EMAIL_API_KEY=…
+EMAIL_FROM="Northwind Supply <orders@northwind.example>"
+APP_ORIGIN=https://…        # optional; otherwise the request's own origin is used
+```
 
 ### Demo accounts
 

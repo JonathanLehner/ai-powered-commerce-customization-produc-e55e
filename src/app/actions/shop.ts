@@ -19,7 +19,10 @@ import {
   getStoreProduct,
   recordAudit,
 } from "@/lib/data";
-import { copyFor, fmt } from "@/lib/i18n";
+import { brandFor, orderConfirmationEmail } from "@/lib/email-templates";
+import { sendEmail, siteOrigin } from "@/lib/email";
+import { localCountryName } from "@/lib/countries";
+import { copyFor, fmt, localeTag } from "@/lib/i18n";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
 import { basketTotals } from "@/lib/basket";
@@ -487,7 +490,36 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
 
   revalidatePath(`/s/${store.slug}/cart`);
   revalidatePath(`/app/stores/${storeId}/orders`);
-  redirect(orderStatusUrl(store.slug, code, await signOrderToken(storeId, code), "&new=1"));
+
+  const token = await signOrderToken(storeId, code);
+  // The confirmation is queued, never awaited, and every failure inside it is
+  // swallowed into the activity log — a shopper who has paid must not see an
+  // error because the mail provider was down.
+  try {
+    const origin = await siteOrigin();
+    sendEmail({
+      to: email,
+      message: orderConfirmationEmail(brandFor(store), {
+        customerName: name,
+        code,
+        total,
+        currency,
+        deliveryAddress: [line1, city, postalCode, localCountryName(country, localeTag(store.defaultLanguage))]
+          .filter(Boolean)
+          .join(", "),
+        statusUrl: `${origin}${orderStatusUrl(store.slug, code, token)}`,
+      }),
+      kind: "order confirmation",
+      storeId,
+      agencyId: store.agencyId,
+      entity: "order",
+      entityId: code,
+    });
+  } catch (error) {
+    console.error("Order confirmation email could not be queued", error);
+  }
+
+  redirect(orderStatusUrl(store.slug, code, token, "&new=1"));
 }
 
 /* -------------------------------------------------------------- order status */

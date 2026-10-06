@@ -199,7 +199,7 @@ export const fr: StorefrontCopy = {
       "Pour protéger les détails de livraison et de personnalisation, confirmez l’adresse e-mail de la commande {code} avant que nous l’affichions.",
     confirmedTitle: "Merci — votre commande est confirmée",
     confirmedBody:
-      "Enregistrez cette page ou mettez-la en favori : c’est ici qu’apparaît l’avancement de votre commande. La boutique n’envoie pas encore d’e-mail de confirmation.",
+      "Enregistrez cette page ou mettez-la en favori : c’est ici qu’apparaît l’avancement de votre commande. Un e-mail de confirmation contenant ce lien vous a été envoyé.",
     confirmedFindAgain:
       "Vous pouvez aussi la retrouver depuis « Suivi de commande » avec le code {code} et l’adresse e-mail {email}.",
     heading: "Commande {code}",
@@ -327,6 +327,37 @@ export const fr: StorefrontCopy = {
     newsletterEmail: "Adresse e-mail",
     notifyMe: "Me prévenir",
     welcome: "Bienvenue",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "Bonjour {name},",
+    footer: "{client} est le marchand officiel de cette boutique. Envoyé par {store}.",
+    support: "Une question ? Écrivez-nous à {email}.",
+    orderSubject: "Commande {code} confirmée — {store}",
+    orderHeading: "Merci pour votre commande",
+    orderBody:
+      "Nous avons bien reçu votre commande {code} et votre paiement a été accepté. Le lien ci-dessous ouvre son suivi à tout moment — conservez-le.",
+    orderCta: "Voir ma commande",
+    orderTotalLabel: "Total payé",
+    orderDeliveryLabel: "Livraison à",
+    shippedSubject: "La commande {code} est en route — {store}",
+    shippedHeading: "Votre colis est en route",
+    shippedBody: "La commande {code} a été remise à {carrier}.",
+    shippedTrackingLabel: "Numéro de suivi",
+    shippedCta: "Suivre mon colis",
+    inviteSubject: "{inviter} vous a invité·e sur {store}",
+    inviteHeading: "Vous êtes invité·e sur {store}",
+    inviteBody:
+      "{inviter} vous invite à travailler sur {store} en tant que {role}. Le lien ci-dessous crée votre compte et active votre accès. Il ne fonctionne qu’une fois.",
+    inviteCta: "Accepter l’invitation",
+    approvalSubject: "La campagne cadeaux {code} attend votre validation — {store}",
+    approvalHeading: "Une campagne cadeaux attend votre validation",
+    approvalBody:
+      "{buyer} a soumis « {campaign} » pour {company}. Rien n’est débité tant que vous n’avez pas validé la liste.",
+    approvalRecipientsLabel: "Destinataires",
+    approvalTotalLabel: "Total",
+    approvalCta: "Examiner la liste",
   },
 
   fallback: {

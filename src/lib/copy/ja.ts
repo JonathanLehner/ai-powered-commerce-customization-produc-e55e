@@ -197,7 +197,7 @@ export const ja: StorefrontCopy = {
       "お届け先とカスタマイズの内容を保護するため、注文 {code} のメールアドレスをご確認のうえ表示します。",
     confirmedTitle: "ありがとうございます — ご注文を承りました",
     confirmedBody:
-      "このページを保存するかブックマークしてください。ご注文の進み具合はここに表示されます。ストアはまだ確認メールを送っていません。",
+      "このページを保存するかブックマークしてください。ご注文の進み具合はここに表示されます。このリンクを記載した確認メールをお送りしました。",
     confirmedFindAgain:
       "「注文状況」から、注文コード {code} とメールアドレス {email} を入力しても開けます。",
     heading: "注文 {code}",
@@ -322,6 +322,37 @@ export const ja: StorefrontCopy = {
     newsletterEmail: "メールアドレス",
     notifyMe: "お知らせを受け取る",
     welcome: "ようこそ",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "{name} 様",
+    footer: "このストアの販売事業者は {client} です。{store} より送信しています。",
+    support: "ご不明な点は {email} までご連絡ください。",
+    orderSubject: "ご注文 {code} を承りました — {store}",
+    orderHeading: "ご注文ありがとうございます",
+    orderBody:
+      "ご注文 {code} を承り、お支払いが完了しました。下のリンクからいつでも進捗ページを開けますので、保存しておいてください。",
+    orderCta: "注文を確認する",
+    orderTotalLabel: "お支払い金額",
+    orderDeliveryLabel: "お届け先",
+    shippedSubject: "ご注文 {code} を発送しました — {store}",
+    shippedHeading: "お荷物を発送しました",
+    shippedBody: "ご注文 {code} を {carrier} に引き渡しました。",
+    shippedTrackingLabel: "追跡番号",
+    shippedCta: "配送状況を見る",
+    inviteSubject: "{inviter} さんが {store} に招待しています",
+    inviteHeading: "{store} に招待されました",
+    inviteBody:
+      "{inviter} さんが、{role} として {store} に参加するよう招待しています。下のリンクを開くとアカウントが作成され、アクセスが有効になります。リンクは一度だけ有効です。",
+    inviteCta: "招待を受ける",
+    approvalSubject: "ギフトキャンペーン {code} の承認をお願いします — {store}",
+    approvalHeading: "承認待ちのギフトキャンペーンがあります",
+    approvalBody:
+      "{buyer} さんが {company} 向けに「{campaign}」を申請しました。承認されるまで請求は発生しません。",
+    approvalRecipientsLabel: "受取人",
+    approvalTotalLabel: "合計",
+    approvalCta: "リストを確認する",
   },
 
   fallback: {

@@ -198,7 +198,7 @@ export const es: StorefrontCopy = {
       "Para proteger los datos de envío y personalización, confirma el correo electrónico del pedido {code} antes de mostrarlo.",
     confirmedTitle: "Gracias: tu pedido está confirmado",
     confirmedBody:
-      "Guarda esta página o añádela a favoritos: aquí se muestra el avance de tu pedido. La tienda todavía no envía correos de confirmación.",
+      "Guarda esta página o añádela a favoritos: aquí se muestra el avance de tu pedido. Te hemos enviado un correo de confirmación con este enlace.",
     confirmedFindAgain:
       "También puedes volver a abrirla desde «Estado del pedido» con el código {code} y el correo electrónico {email}.",
     heading: "Pedido {code}",
@@ -325,6 +325,37 @@ export const es: StorefrontCopy = {
     newsletterEmail: "Correo electrónico",
     notifyMe: "Avisadme",
     welcome: "Bienvenido",
+  },
+
+  email: {
+    logoAlt: "{store}",
+    greeting: "Hola {name}:",
+    footer: "{client} es el comerciante responsable de esta tienda. Enviado por {store}.",
+    support: "¿Dudas? Escríbenos a {email}.",
+    orderSubject: "Pedido {code} confirmado — {store}",
+    orderHeading: "Gracias por tu pedido",
+    orderBody:
+      "Hemos recibido tu pedido {code} y el pago se ha completado. El enlace de abajo abre su seguimiento en cualquier momento: guárdalo.",
+    orderCta: "Ver mi pedido",
+    orderTotalLabel: "Total pagado",
+    orderDeliveryLabel: "Envío a",
+    shippedSubject: "El pedido {code} está en camino — {store}",
+    shippedHeading: "Tu paquete está en camino",
+    shippedBody: "El pedido {code} se ha entregado a {carrier}.",
+    shippedTrackingLabel: "Número de seguimiento",
+    shippedCta: "Seguir el paquete",
+    inviteSubject: "{inviter} te ha invitado a {store}",
+    inviteHeading: "Te han invitado a {store}",
+    inviteBody:
+      "{inviter} te invita a trabajar en {store} como {role}. Al abrir el enlace de abajo se crea tu cuenta y se activa tu acceso. Funciona una sola vez.",
+    inviteCta: "Aceptar la invitación",
+    approvalSubject: "La campaña de regalos {code} necesita tu aprobación — {store}",
+    approvalHeading: "Una campaña de regalos espera tu aprobación",
+    approvalBody:
+      "{buyer} ha enviado «{campaign}» para {company}. No se cobra nada hasta que apruebes la lista.",
+    approvalRecipientsLabel: "Destinatarios",
+    approvalTotalLabel: "Total",
+    approvalCta: "Revisar la lista",
   },
 
   fallback: {

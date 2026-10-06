@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
+import { sendEmail, siteOrigin } from "@/lib/email";
+import { brandFor, shippingNotificationEmail } from "@/lib/email-templates";
+import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
 import { assertStoreAccess } from "@/lib/session";
 import { refundCharge } from "@/lib/stripe";
@@ -237,14 +240,10 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
     return { status: "error", message: "Tracking numbers are at least 6 characters.", field: "trackingNumber" };
   }
 
+  const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
   await updateOrder(orderId, {
     status: "shipped",
-    fulfillment: {
-      ...order.fulfillment,
-      carrier,
-      trackingNumber,
-      trackingUrl: TRACKING_URLS[carrier](trackingNumber),
-    },
+    fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
     events: [
       ...order.events,
       event("Shipped", `Handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`, user.name),
@@ -262,8 +261,33 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
     entityId: order.code,
     meta: { carrier, trackingNumber },
   });
+
+  // The shopper is told their parcel is moving; a mail provider that is down
+  // leaves the shipment recorded and the attempt in the store's activity.
+  try {
+    const origin = await siteOrigin();
+    sendEmail({
+      to: order.customer.email,
+      message: shippingNotificationEmail(brandFor(store), {
+        customerName: order.customer.name,
+        code: order.code,
+        carrierName: CARRIER_LABELS[carrier],
+        trackingNumber,
+        trackingUrl,
+        statusUrl: `${origin}${orderStatusUrl(store.slug, order.code, await signOrderToken(storeId, order.code))}`,
+      }),
+      kind: "shipping notification",
+      storeId,
+      agencyId: store.agencyId,
+      entity: "order",
+      entityId: order.code,
+    });
+  } catch (error) {
+    console.error("Shipping notification could not be queued", error);
+  }
+
   refresh(storeId, orderId);
-  return { status: "success", message: `Tracking added. The shopper can now follow ${trackingNumber}.` };
+  return { status: "success", message: `Tracking added. The shipping notification to ${order.customer.email} is queued.` };
 }
 
 export async function advanceStatus(formData: FormData): Promise<void> {

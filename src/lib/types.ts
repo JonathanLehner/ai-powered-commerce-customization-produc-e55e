@@ -791,7 +791,8 @@ export type AuditCategory =
   | "administration"
   | "team"
   | "gifting"
-  | "sourcing";
+  | "sourcing"
+  | "email";
 
 export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   store_setup: "Store setup",
@@ -804,6 +805,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   team: "Team",
   gifting: "Gifting",
   sourcing: "Sourcing",
+  email: "Email",
 };
 
 export interface AuditLog {
