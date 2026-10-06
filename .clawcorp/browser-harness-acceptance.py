@@ -1,5 +1,5 @@
 # clawcorp-acceptance: 00a9c9bbe8e71490
-# clawcorp-order: WyJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBhZ2VuY3kgYWRtaW5pc3RyYXRvcnMgdG8gY3JlYXRlLCByZW5hbWUsIGFyY2hpdmUsIGFuZCBzd2l0Y2ggYmV0d2VlbiBtdWx0aXBsZSBjbGllbnQgc3RvcmVzIGZyb20gb25lIGRhc2hib2FyZCB3aXRob3V0IGV4cG9zaW5nIGRhdGEgYmV0d2VlbiBzdG9yZXMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgZWFjaCBzdG9yZSB0byBpbnZpdGUgdGVhbSBtZW1iZXJzIGFuZCBhc3NpZ24gc3RvcmUtc3BlY2lmaWMgYWRtaW5pc3RyYXRvciwgY2F0YWxvZyBtYW5hZ2VyLCBvcmRlciBtYW5hZ2VyLCBhbmQgdmlld2VyIHJvbGVzLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IEd1aWRlIHVzZXJzIHRocm91Z2ggc3RvcmUgc2V0dXAgZm9yIGxvZ28sIHRoZW1lLCBkZWZhdWx0IGxhbmd1YWdlLCBzZWxsaW5nIGN1cnJlbmNpZXMsIGN1c3RvbSBkb21haW4sIFN0cmlwZSBhY2NvdW50LCBzaGlwcGluZyBjYXJyaWVycywgYW5kIHRheCBjb25maWd1cmF0aW9uLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IFByb3ZpZGUgYSBkcmFnLWFuZC1kcm9wIHN0b3JlZnJvbnQgZWRpdG9yIGZvciBhcnJhbmdpbmcgYXBwcm92ZWQgcGFnZSBzZWN0aW9ucywgcHJldmlld2luZyByZXNwb25zaXZlIGxheW91dHMsIGFuZCBwdWJsaXNoaW5nIG9yIHJldmVydGluZyBzdG9yZWZyb250IGNoYW5nZXMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgcGxhdGZvcm0gYWRtaW5pc3RyYXRvcnMgdG8gbWFuYWdlIGEgc2hhcmVkIGNhdGFsb2cgb2Ygc3VwcGxpZXItYmFja2VkIGFwcGFyZWwgYW5kIG11Z3MsIGluY2x1ZGluZyB2YXJpYW50cywgYmFzZSBjb3N0cywgcHJpbnQgYXJlYXMsIGF2YWlsYWJpbGl0eSwgYW5kIGZ1bGZpbGxtZW50IHJlZ2lvbnMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgc3RvcmUgbWFuYWdlcnMgdG8gc2VhcmNoLCBmaWx0ZXIsIGNvbXBhcmUsIGFuZCBjb3B5IHByb2R1Y3RzIGZyb20gdGhlIHNoYXJlZCBzdXBwbGllciBjYXRhbG9nIGludG8gYW4gaXNvbGF0ZWQgc3RvcmUgY2F0YWxvZy4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyB1c2VycyB0byB1cGxvYWQgbG9nbyBvciBhcnR3b3JrIGZpbGVzIGFuZCBwb3NpdGlvbiwgc2NhbGUsIHJvdGF0ZSwgYW5kIHJlbW92ZSB0aGVtIHdpdGhpbiBkZWZpbmVkIDJEIHByaW50IGFyZWFzIG9uIGFwcGFyZWwgYW5kIG11Z3MuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogUHJldmVudCBwcm9kdWN0IGFwcHJvdmFsIHdoZW4gYXJ0d29yayBmYWxscyBvdXRzaWRlIHRoZSBwcmludGFibGUgYXJlYSBvciBmYWlscyB0aGUgc3VwcGxpZXIncyBmaWxlIHJlcXVpcmVtZW50cywgYW5kIHNob3cgdGhlIHVzZXIgaG93IHRvIGNvcnJlY3QgZWFjaCBpc3N1ZS4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBHZW5lcmF0ZSBmcm9udCwgYmFjaywgYW5kIHJlbGV2YW50IHNpZGUgbW9ja3VwIHByZXZpZXdzIGZvciBjb25maWd1cmVkIHByb2R1Y3RzIGFuZCByZXF1aXJlIHVzZXIgYXBwcm92YWwgYmVmb3JlIHNhdmluZyBvciBwdWJsaXNoaW5nIHRoZW0uIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogU2hvdyBzdXBwbGllciBjb3N0LCBjdXN0b21pemF0aW9uIGNvc3QsIGVzdGltYXRlZCBzaGlwcGluZywgc2VsZWN0ZWQgdGF4IGJyYWNrZXQsIHNlbGxpbmcgcHJpY2UsIG1hcmdpbiBhbW91bnQsIGFuZCBtYXJnaW4gcGVyY2VudGFnZSBiZWZvcmUgcHVibGljYXRpb24uIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgc3RvcmUgbWFuYWdlcnMgdG8gY29uZmlndXJlIHByb2R1Y3QgdmFyaWFudHMsIGRlc2NyaXB0aW9ucywgdGFncywgcHJpY2VzLCB0YXggYnJhY2tldHMsIHZpc2liaWxpdHksIGFuZCBwdWJsaWNhdGlvbiBzdGF0dXMgaW5kZXBlbmRlbnRseSBmb3IgZWFjaCBzdG9yZS4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBVc2UgR2VtaW5pIHRvIHN1Z2dlc3QgcHJvZHVjdHMsIHN1cHBsaWVycywgZGVzY3JpcHRpb25zLCB0YWdzLCBhbmQgcHJpY2VzLCBhbmQgcmVxdWlyZSBleHBsaWNpdCB1c2VyIGNvbmZpcm1hdGlvbiBiZWZvcmUgYXBwbHlpbmcgZXZlcnkgc3VnZ2VzdGlvbi4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBzaG9wcGVycyB0byBicm93c2UgcHJvZHVjdHMsIHNlbGVjdCB2YXJpYW50cywgY3VzdG9taXplIGVsaWdpYmxlIGFydHdvcmsgb3IgdGV4dCBvcHRpb25zLCByZXZpZXcgYSBmaW5hbCBwcmV2aWV3LCBhbmQgYWRkIHRoZSBjb25maWd1cmVkIGl0ZW0gdG8gdGhlaXIgY2FydC4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBzaG9wcGVycyB0byBwYXkgdGhyb3VnaCB0aGUgc3RvcmUncyBjb25uZWN0ZWQgU3RyaXBlIGFjY291bnQgaW4gYSBzdXBwb3J0ZWQgY3VycmVuY3kgYW5kIHJlY2VpdmUgb3JkZXIgY29uZmlybWF0aW9uIGFuZCBzdGF0dXMgdXBkYXRlcy4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBSb3V0ZSBwYWlkIG9yZGVyIGl0ZW1zIHRvIHRoZSBzZWxlY3RlZCBmdWxmaWxsbWVudCBzdXBwbGllciwgcmVjb3JkIHN1Ym1pc3Npb24gcmVzdWx0cywgYW5kIGZsYWcgb3JkZXJzIHRoYXQgcmVxdWlyZSBtYW51YWwgc3VwcGxpZXIgaGFuZGxpbmcuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogRGlzcGxheSBwcm9kdWN0aW9uLCBzaGlwbWVudCwgZGVsaXZlcnksIGNhbmNlbGxhdGlvbiwgYW5kIGV4Y2VwdGlvbiBzdGF0dXNlcyB3aXRoIGF2YWlsYWJsZSBESEwsIEZlZEV4LCBvciBVUFMgdHJhY2tpbmcgbGlua3MgdG8gc3RvcmUgdGVhbXMgYW5kIHNob3BwZXJzLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IFByb3ZpZGUgc3RvcmUtbGV2ZWwgb3JkZXIgbWFuYWdlbWVudCBmb3IgcmV2aWV3aW5nIG9yZGVycywgdXBkYXRpbmcgbWFudWFsIGZ1bGZpbG1lbnQgc3RlcHMsIHJlY29yZGluZyByZWZ1bmRzIG9yIGNhbmNlbGxhdGlvbnMsIGFuZCByZXNvbHZpbmcgc3VwcGxpZXIgZXhjZXB0aW9ucy4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBQcm92aWRlIGFuIGFnZW5jeSBkYXNoYm9hcmQgc2hvd2luZyBzdG9yZS1zcGVjaWZpYyBzYWxlcywgb3JkZXIgdm9sdW1lLCBmdWxmaWxsbWVudCBzdGF0dXMsIGV4Y2VwdGlvbnMsIGFuZCBwcm9kdWN0IHBlcmZvcm1hbmNlIHdpdGhvdXQgY29tYmluaW5nIHNob3BwZXIgZGF0YSBhY3Jvc3Mgc3RvcmVzLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IEFsbG93IHBsYXRmb3JtIGFkbWluaXN0cmF0b3JzIHRvIGNvbmZpZ3VyZSBnbG9iYWwgdGF4IGJyYWNrZXRzIGFuZCByYXRlcywgYXBwcm92ZWQgc3VwcGxpZXJzLCBzdXBwb3J0ZWQgZnVsZmlsbG1lbnQgcmVnaW9ucywgYWdlbmNpZXMsIGFuZCBzdG9yZSBhY2Nlc3MuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogUmVjb3JkIGFuIGF1ZGl0IGhpc3RvcnkgZm9yIHN0b3JlIHNldHVwIGNoYW5nZXMsIHByb2R1Y3QgaW1wb3J0cywgcHJpY2luZyBjaGFuZ2VzLCBBSSBhcHByb3ZhbHMsIHB1Ymxpc2hpbmcgYWN0aW9ucywgb3JkZXIgcm91dGluZywgYW5kIGFkbWluaXN0cmF0aXZlIGFjdGlvbnMuIiwiVmVyaWZ5IHByaW1hcnkgbmF2aWdhdGlvbiBhbmQgZXZlcnkgY29yZSB1c2VyIGpvdXJuZXkgd29yayB3aXRob3V0IGJyb2tlbiBsaW5rcyBvciBydW50aW1lIGVycm9ycy4iLCJWZXJpZnkgdGhlIGludGVyZmFjZSBhdCBkZXNrdG9wIGFuZCBtb2JpbGUgd2lkdGhzOiBjb250ZW50IHJlbWFpbnMgcmVhZGFibGUsIGNvbnRyb2xzIHVzYWJsZSwgYW5kIG5vdGhpbmcgb3ZlcmZsb3dzLiIsIlZlcmlmeSBmb3JtcyBhcmUga2V5Ym9hcmQtYWNjZXNzaWJsZSwgY2xlYXJseSBsYWJlbGxlZCwgdmFsaWRhdGUgcmVxdWlyZWQgb3IgaW52YWxpZCBpbnB1dCwgYW5kIHNob3cgYW4gdW5hbWJpZ3VvdXMgc3VjY2VzcyBzdGF0ZS4iLCJWZXJpZnkgdXNlci12aXNpYmxlIHN0YXRlIGFuZCBzdWJtaXR0ZWQgZGF0YSBwZXJzaXN0IGFmdGVyIG5hdmlnYXRpb24gb3IgcmVsb2FkIHdoZXJldmVyIHRoZSBicmllZiByZXF1aXJlcyBwZXJzaXN0ZW5jZS4iLCJWZXJpZnkgdmlzaWJsZSBjb3B5LCBpbWFnZXMsIG1lZGlhLCBsb2FkaW5nIHN0YXRlcywgZW1wdHkgc3RhdGVzLCBhbmQgZXJyb3Igc3RhdGVzIGFyZSBjb21wbGV0ZSBhbmQgYXBwcm9wcmlhdGUgZm9yIHRoZSBicmllZi4iXQ
+# clawcorp-order: WyJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBhZ2VuY3kgYWRtaW5pc3RyYXRvcnMgdG8gY3JlYXRlLCByZW5hbWUsIGFyY2hpdmUsIGFuZCBzd2l0Y2ggYmV0d2VlbiBtdWx0aXBsZSBjbGllbnQgc3RvcmVzIGZyb20gb25lIGRhc2hib2FyZCB3aXRob3V0IGV4cG9zaW5nIGRhdGEgYmV0d2VlbiBzdG9yZXMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgZWFjaCBzdG9yZSB0byBpbnZpdGUgdGVhbSBtZW1iZXJzIGFuZCBhc3NpZ24gc3RvcmUtc3BlY2lmaWMgYWRtaW5pc3RyYXRvciwgY2F0YWxvZyBtYW5hZ2VyLCBvcmRlciBtYW5hZ2VyLCBhbmQgdmlld2VyIHJvbGVzLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IEd1aWRlIHVzZXJzIHRocm91Z2ggc3RvcmUgc2V0dXAgZm9yIGxvZ28sIHRoZW1lLCBkZWZhdWx0IGxhbmd1YWdlLCBzZWxsaW5nIGN1cnJlbmNpZXMsIGN1c3RvbSBkb21haW4sIFN0cmlwZSBhY2NvdW50LCBzaGlwcGluZyBjYXJyaWVycywgYW5kIHRheCBjb25maWd1cmF0aW9uLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IFByb3ZpZGUgYSBkcmFnLWFuZC1kcm9wIHN0b3JlZnJvbnQgZWRpdG9yIGZvciBhcnJhbmdpbmcgYXBwcm92ZWQgcGFnZSBzZWN0aW9ucywgcHJldmlld2luZyByZXNwb25zaXZlIGxheW91dHMsIGFuZCBwdWJsaXNoaW5nIG9yIHJldmVydGluZyBzdG9yZWZyb250IGNoYW5nZXMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgcGxhdGZvcm0gYWRtaW5pc3RyYXRvcnMgdG8gbWFuYWdlIGEgc2hhcmVkIGNhdGFsb2cgb2Ygc3VwcGxpZXItYmFja2VkIGFwcGFyZWwgYW5kIG11Z3MsIGluY2x1ZGluZyB2YXJpYW50cywgYmFzZSBjb3N0cywgcHJpbnQgYXJlYXMsIGF2YWlsYWJpbGl0eSwgYW5kIGZ1bGZpbGxtZW50IHJlZ2lvbnMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgc3RvcmUgbWFuYWdlcnMgdG8gc2VhcmNoLCBmaWx0ZXIsIGNvbXBhcmUsIGFuZCBjb3B5IHByb2R1Y3RzIGZyb20gdGhlIHNoYXJlZCBzdXBwbGllciBjYXRhbG9nIGludG8gYW4gaXNvbGF0ZWQgc3RvcmUgY2F0YWxvZy4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyB1c2VycyB0byB1cGxvYWQgbG9nbyBvciBhcnR3b3JrIGZpbGVzIGFuZCBwb3NpdGlvbiwgc2NhbGUsIHJvdGF0ZSwgYW5kIHJlbW92ZSB0aGVtIHdpdGhpbiBkZWZpbmVkIDJEIHByaW50IGFyZWFzIG9uIGFwcGFyZWwgYW5kIG11Z3MuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogUHJldmVudCBwcm9kdWN0IGFwcHJvdmFsIHdoZW4gYXJ0d29yayBmYWxscyBvdXRzaWRlIHRoZSBwcmludGFibGUgYXJlYSBvciBmYWlscyB0aGUgc3VwcGxpZXIncyBmaWxlIHJlcXVpcmVtZW50cywgYW5kIHNob3cgdGhlIHVzZXIgaG93IHRvIGNvcnJlY3QgZWFjaCBpc3N1ZS4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBHZW5lcmF0ZSBmcm9udCwgYmFjaywgYW5kIHJlbGV2YW50IHNpZGUgbW9ja3VwIHByZXZpZXdzIGZvciBjb25maWd1cmVkIHByb2R1Y3RzIGFuZCByZXF1aXJlIHVzZXIgYXBwcm92YWwgYmVmb3JlIHNhdmluZyBvciBwdWJsaXNoaW5nIHRoZW0uIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogU2hvdyBzdXBwbGllciBjb3N0LCBjdXN0b21pemF0aW9uIGNvc3QsIGVzdGltYXRlZCBzaGlwcGluZywgc2VsZWN0ZWQgdGF4IGJyYWNrZXQsIHNlbGxpbmcgcHJpY2UsIG1hcmdpbiBhbW91bnQsIGFuZCBtYXJnaW4gcGVyY2VudGFnZSBiZWZvcmUgcHVibGljYXRpb24uIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogQWxsb3cgc3RvcmUgbWFuYWdlcnMgdG8gY29uZmlndXJlIHByb2R1Y3QgdmFyaWFudHMsIGRlc2NyaXB0aW9ucywgdGFncywgcHJpY2VzLCB0YXggYnJhY2tldHMsIHZpc2liaWxpdHksIGFuZCBwdWJsaWNhdGlvbiBzdGF0dXMgaW5kZXBlbmRlbnRseSBmb3IgZWFjaCBzdG9yZS4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBVc2UgR2VtaW5pIHRvIHN1Z2dlc3QgcHJvZHVjdHMsIHN1cHBsaWVycywgZGVzY3JpcHRpb25zLCB0YWdzLCBhbmQgcHJpY2VzLCBhbmQgcmVxdWlyZSBleHBsaWNpdCB1c2VyIGNvbmZpcm1hdGlvbiBiZWZvcmUgYXBwbHlpbmcgZXZlcnkgc3VnZ2VzdGlvbi4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBzaG9wcGVycyB0byBicm93c2UgcHJvZHVjdHMsIHNlbGVjdCB2YXJpYW50cywgY3VzdG9taXplIGVsaWdpYmxlIGFydHdvcmsgb3IgdGV4dCBvcHRpb25zLCByZXZpZXcgYSBmaW5hbCBwcmV2aWV3LCBhbmQgYWRkIHRoZSBjb25maWd1cmVkIGl0ZW0gdG8gdGhlaXIgY2FydC4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBzaG9wcGVycyB0byBwYXkgdGhyb3VnaCB0aGUgc3RvcmUncyBjb25uZWN0ZWQgU3RyaXBlIGFjY291bnQgaW4gYSBzdXBwb3J0ZWQgY3VycmVuY3kgYW5kIHJlY2VpdmUgb3JkZXIgY29uZmlybWF0aW9uIGFuZCBzdGF0dXMgdXBkYXRlcy4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBSb3V0ZSBwYWlkIG9yZGVyIGl0ZW1zIHRvIHRoZSBzZWxlY3RlZCBmdWxmaWxsbWVudCBzdXBwbGllciwgcmVjb3JkIHN1Ym1pc3Npb24gcmVzdWx0cywgYW5kIGZsYWcgb3JkZXJzIHRoYXQgcmVxdWlyZSBtYW51YWwgc3VwcGxpZXIgaGFuZGxpbmcuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogRGlzcGxheSBwcm9kdWN0aW9uLCBzaGlwbWVudCwgZGVsaXZlcnksIGNhbmNlbGxhdGlvbiwgYW5kIGV4Y2VwdGlvbiBzdGF0dXNlcyB3aXRoIGF2YWlsYWJsZSBESEwsIEZlZEV4LCBvciBVUFMgdHJhY2tpbmcgbGlua3MgdG8gc3RvcmUgdGVhbXMgYW5kIHNob3BwZXJzLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IFByb3ZpZGUgc3RvcmUtbGV2ZWwgb3JkZXIgbWFuYWdlbWVudCBmb3IgcmV2aWV3aW5nIG9yZGVycywgdXBkYXRpbmcgbWFudWFsIGZ1bGZpbGxtZW50IHN0ZXBzLCByZWNvcmRpbmcgcmVmdW5kcyBvciBjYW5jZWxsYXRpb25zLCBhbmQgcmVzb2x2aW5nIHN1cHBsaWVyIGV4Y2VwdGlvbnMuIiwiVmVyaWZ5IHRoaXMgd29ya3MgZW5kIHRvIGVuZDogUHJvdmlkZSBhbiBhZ2VuY3kgZGFzaGJvYXJkIHNob3dpbmcgc3RvcmUtc3BlY2lmaWMgc2FsZXMsIG9yZGVyIHZvbHVtZSwgZnVsZmlsbG1lbnQgc3RhdHVzLCBleGNlcHRpb25zLCBhbmQgcHJvZHVjdCBwZXJmb3JtYW5jZSB3aXRob3V0IGNvbWJpbmluZyBzaG9wcGVyIGRhdGEgYWNyb3NzIHN0b3Jlcy4iLCJWZXJpZnkgdGhpcyB3b3JrcyBlbmQgdG8gZW5kOiBBbGxvdyBwbGF0Zm9ybSBhZG1pbmlzdHJhdG9ycyB0byBjb25maWd1cmUgZ2xvYmFsIHRheCBicmFja2V0cyBhbmQgcmF0ZXMsIGFwcHJvdmVkIHN1cHBsaWVycywgc3VwcG9ydGVkIGZ1bGZpbGxtZW50IHJlZ2lvbnMsIGFnZW5jaWVzLCBhbmQgc3RvcmUgYWNjZXNzLiIsIlZlcmlmeSB0aGlzIHdvcmtzIGVuZCB0byBlbmQ6IFJlY29yZCBhbiBhdWRpdCBoaXN0b3J5IGZvciBzdG9yZSBzZXR1cCBjaGFuZ2VzLCBwcm9kdWN0IGltcG9ydHMsIHByaWNpbmcgY2hhbmdlcywgQUkgYXBwcm92YWxzLCBwdWJsaXNoaW5nIGFjdGlvbnMsIG9yZGVyIHJvdXRpbmcsIGFuZCBhZG1pbmlzdHJhdGl2ZSBhY3Rpb25zLiIsIlZlcmlmeSBwcmltYXJ5IG5hdmlnYXRpb24gYW5kIGV2ZXJ5IGNvcmUgdXNlciBqb3VybmV5IHdvcmsgd2l0aG91dCBicm9rZW4gbGlua3Mgb3IgcnVudGltZSBlcnJvcnMuIiwiVmVyaWZ5IHRoZSBpbnRlcmZhY2UgYXQgZGVza3RvcCBhbmQgbW9iaWxlIHdpZHRoczogY29udGVudCByZW1haW5zIHJlYWRhYmxlLCBjb250cm9scyB1c2FibGUsIGFuZCBub3RoaW5nIG92ZXJmbG93cy4iLCJWZXJpZnkgZm9ybXMgYXJlIGtleWJvYXJkLWFjY2Vzc2libGUsIGNsZWFybHkgbGFiZWxsZWQsIHZhbGlkYXRlIHJlcXVpcmVkIG9yIGludmFsaWQgaW5wdXQsIGFuZCBzaG93IGFuIHVuYW1iaWd1b3VzIHN1Y2Nlc3Mgc3RhdGUuIiwiVmVyaWZ5IHVzZXItdmlzaWJsZSBzdGF0ZSBhbmQgc3VibWl0dGVkIGRhdGEgcGVyc2lzdCBhZnRlciBuYXZpZ2F0aW9uIG9yIHJlbG9hZCB3aGVyZXZlciB0aGUgYnJpZWYgcmVxdWlyZXMgcGVyc2lzdGVuY2UuIiwiVmVyaWZ5IHZpc2libGUgY29weSwgaW1hZ2VzLCBtZWRpYSwgbG9hZGluZyBzdGF0ZXMsIGVtcHR5IHN0YXRlcywgYW5kIGVycm9yIHN0YXRlcyBhcmUgY29tcGxldGUgYW5kIGFwcHJvcHJpYXRlIGZvciB0aGUgYnJpZWYuIl0
 #
 # Parcelith acceptance replay. Single browser-harness script, 25 canonical steps.
 #   CLAWCORP_TEST_URL   base url of a running dev server
@@ -72,7 +72,7 @@ TAB = None
 def T():
     if TAB:
         try:
-            switch_tab(TAB)
+            switch_tab(TAB, activate=True)
         except Exception:
             pass
 
@@ -137,8 +137,69 @@ def click_text(tag, needle, nth=0, timeout=10.0):
             raise RuntimeError("no %s containing %r (#%d)" % (tag, needle, nth))
         time.sleep(0.5)
 
+def wait_sel(selector, timeout=25.0):
+    deadline = time.time() + timeout
+    while True:
+        if J("!!document.querySelector(%r)" % selector):
+            return True
+        if time.time() > deadline:
+            raise RuntimeError("selector never appeared: %s" % selector)
+        time.sleep(0.5)
+
+def wait_until(expr, timeout=60.0, pause=1.0):
+    """Poll a truthy JS expression. Fixed sleeps are not enough: the first hit on a
+    dev-server route compiles it, so a server action can take far longer than a
+    warmed-up one."""
+    deadline = time.time() + timeout
+    while True:
+        try:
+            if J(expr):
+                return True
+        except Exception:
+            pass
+        if time.time() > deadline:
+            return False
+        time.sleep(pause)
+
+def wait_upload():
+    """Block until an artwork upload has finished and the page has settled."""
+    wait_until("!/Uploading…|Saving…/.test(document.body.innerText)", 120.0)
+    wait_for_load()
+    time.sleep(2.0)
+
+def place_artwork(scale_target=50):
+    """Upload artwork into the active print area and size it, then save."""
+    upload_file("input[type=file]", ART)
+    wait_upload()
+    for _ in range(3):
+        if set_range("scale", scale_target) == scale_target:
+            break
+        time.sleep(1.5)
+    try:
+        click_text("button", "Save placement")
+        wait_until("document.body.innerText.includes('Placement saved')", 90.0)
+        wait_for_load()
+    except Exception:
+        pass
+
+def set_range(elem_id, target, limit=220):
+    """Drive a native range input to an exact value with the arrow keys.
+
+    Pressing a fixed number of arrows is not repeatable — the saved placement from
+    the previous run is the starting point — so walk to the target and assert it."""
+    wait_sel("#" + elem_id)
+    J("document.getElementById(%r).focus()" % elem_id)
+    for _ in range(limit):
+        v = int(float(J("document.getElementById(%r).value" % elem_id)))
+        if v == target:
+            break
+        press_key("ArrowRight" if v < target else "ArrowLeft")
+    time.sleep(0.8)
+    return int(float(J("document.getElementById(%r).value" % elem_id)))
+
 def fill(selector, value):
     T()
+    wait_sel(selector)
     J("(()=>{const e=document.querySelector(%r); e.focus(); e.select && e.select();})()" % selector)
     type_text(str(value))
 
@@ -225,15 +286,16 @@ try:
     fill("input[name=clientName]", "QA Harness Client")
     set_select("select[name=defaultCurrency]", "USD")
     click_text("button", "Create store and continue")
-    time.sleep(4); wait_for_load()
+    wait_until("location.pathname.includes('/app/stores/str')", 90.0)
+    wait_for_load()
     qa_store_url = re.sub(r"/setup.*$", "", J("location.pathname"))
     assert "/app/stores/str" in qa_store_url, "store not created: " + qa_store_url
     # rename
     G(qa_store_url + "/setup")
     fill("input[name=name]", STORE_RENAMED)
     click_text("button", "Save name")
-    time.sleep(3); wait_for_load()
-    renamed = STORE_RENAMED in text()
+    renamed = wait_until("document.body.innerText.includes(%r)" % STORE_RENAMED, 60.0)
+    wait_for_load()
     # isolation: a store belonging to another agency must be refused
     G("/app/stores/str_rivet")
     denied = "do not have access to that store" in text()
@@ -263,9 +325,9 @@ try:
     labelled = J("""[...document.querySelectorAll('input[name=email],input[name=name]')]
         .every(i=>!!document.querySelector('label[for="'+i.id+'"]'))""")
     click_text("button", "Send invitation")
-    time.sleep(3.5); wait_for_load()
+    invited = wait_until("document.body.innerText.includes(%r)" % INVITE_EMAIL, 90.0)
+    wait_for_load()
     t = text()
-    invited = INVITE_EMAIL in t
     shot(2, "table")
     record(2, "pass" if (invited and len(roles) >= 4) else "fail",
            "invite form offers %d store roles (%s); invited %s as catalog manager and the member row appears: %s"
@@ -427,19 +489,17 @@ try:
     G(DRAFT_PRODUCT)
     # --- 7. upload, position, scale, rotate, remove
     upload_file("input[type=file]", ART)
-    time.sleep(7); wait_for_load()
+    wait_upload()
     uploaded = "qa-harness-artwork.png" in text()
-    J("document.getElementById('scale').focus()")
-    for _ in range(10):
-        press_key("ArrowLeft")
-    time.sleep(0.8)
-    J("document.getElementById('rotation').focus()")
-    for _ in range(5):
-        press_key("ArrowRight")
-    time.sleep(1.2)
-    t = text()
-    rotated = "Rotation" in t and "5°" in t
-    scaled = "140 × 140 mm" in t
+    # The placement saved by the previous run is this run's starting point, so the
+    # sliders are driven to absolute values and the printed size is read back.
+    size_before = J("(()=>{const m=document.body.innerText.match(/Size\\n([^\\n]+)/); return m?m[1]:null;})()")
+    scale_value = set_range("scale", 40)
+    size_after = J("(()=>{const m=document.body.innerText.match(/Size\\n([^\\n]+)/); return m?m[1]:null;})()")
+    scaled = scale_value == 40 and "112" in (size_after or "")
+    rotation_value = set_range("rotation", 5)
+    rotated = rotation_value == 5 and "5°" in (
+        J("(()=>{const m=document.body.innerText.match(/Rotation\\n([^\\n]+)/); return m?m[1]:null;})()") or "")
     # position with the x/y number fields, pushed outside the area on purpose (step 8)
     fill("#pos-x", "99")
     time.sleep(1.5)
@@ -456,42 +516,27 @@ try:
     except Exception:
         pass
     # remove + re-upload to prove removal works
-    click_text("button", "Remove"); time.sleep(3.5); wait_for_load()
-    removed = "qa-harness-artwork.png" not in text()
-    upload_file("input[type=file]", ART); time.sleep(7); wait_for_load()
-    J("document.getElementById('scale').focus()")
-    for _ in range(10):
-        press_key("ArrowLeft")
-    time.sleep(1)
-    try:
-        click_text("button", "Save placement"); time.sleep(3.5); wait_for_load()
-    except Exception:
-        pass
+    click_text("button", "Remove")
+    removed = wait_until("!document.getElementById('scale')", 60.0)
+    wait_for_load()
+    place_artwork(50)
     shot(7, "#scale")
     record(7, "pass" if (uploaded and scaled and rotated and removed) else "fail",
-           "artwork uploaded on file choice into the Front chest print area; scale slider resized it to 140x140mm (%s), rotation slider set 5° (%s), x/y fields repositioned it, Remove cleared it (%s)"
-           % (scaled, rotated, removed))
+           "artwork uploaded into the Front chest print area the moment the file was chosen; the size slider resized it to %s (%s), the rotation slider set 5° (%s), the x/y fields repositioned it, and Remove cleared the placement (%s)"
+           % (size_after, scaled, rotated, removed))
 
     # --- 9. mockups for every decorated view, approval gate
     click_text("button", "Back", 0)
-    time.sleep(1)
-    upload_file("input[type=file]", ART); time.sleep(7); wait_for_load()
-    J("document.getElementById('scale').focus()")
-    for _ in range(10):
-        press_key("ArrowLeft")
-    time.sleep(1)
-    try:
-        click_text("button", "Save placement"); time.sleep(3.5); wait_for_load()
-    except Exception:
-        pass
+    wait_until("document.body.innerText.includes('Artwork for Back')", 60.0)
+    place_artwork(50)
     click_text("button", "Generate mockups"); time.sleep(14); wait_for_load()
     t = text()
     gated = "Approval is required before the product can be published" in t or "Awaiting approval" in t
     views = re.findall(r"(Front|Back|Left|Right)\n(?:Awaiting approval|Approved)", t)
     imgs = J("""[...document.querySelectorAll('img')].filter(i=>i.naturalWidth>0).length""")
     click_text("button", "Approve ")
-    time.sleep(6); wait_for_load()
-    approved = "Approved by" in text()
+    approved = wait_until("document.body.innerText.includes('Approved by')", 90.0)
+    wait_for_load()
     shot(9, "img")
     record(9, "pass" if (gated and approved and len(views) >= 2) else "fail",
            "mockups rendered for every decorated view (%s) from the saved placements; previews sit in 'Awaiting approval' and block publishing until approved (%s), then show 'Approved by …' (%s)"
@@ -518,8 +563,10 @@ try:
     set_select("select[name=taxBracketId]", "8.25")
     J("""(()=>{const r=[...document.querySelectorAll('input[name=visibility]')].find(x=>x.value==='public');
           if(r) r.click();})()""")
-    click_text("button", "Save product details"); time.sleep(4); wait_for_load()
-    saved_ok = "Saved" in text() or new_tags.split(",")[0] in text()
+    click_text("button", "Save product details")
+    saved_ok = wait_until("document.body.innerText.includes('Saved') || document.body.innerText.includes(%r)"
+                          % new_tags.split(",")[0], 90.0)
+    wait_for_load()
     # variants
     try:
         click_text("button", "Save variants"); time.sleep(3.5); wait_for_load()
@@ -527,7 +574,9 @@ try:
         pass
     # publish
     try:
-        click_text("button", "Publish to storefront"); time.sleep(5); wait_for_load()
+        click_text("button", "Publish to storefront")
+        wait_until("document.body.innerText.includes('live on the storefront')", 90.0)
+        wait_for_load()
     except Exception:
         pass
     live = "live on the storefront" in text()
@@ -556,27 +605,28 @@ except Exception:
 # ================================================ 12. Gemini suggestions
 try:
     G(NORTHWIND + "/assistant")
+
+    def pending_count():
+        m = re.search(r"Pending review (\d+)", text())
+        return int(m.group(1)) if m else 0
+
+    before = pending_count()
     ok = J("""(()=>{const f=[...document.querySelectorAll('form')].find(f=>f.innerText.includes('Draft description and'));
         if(!f) return false; const s=f.querySelector('select[name=productId]');
         s.value=s.options[1].value; s.dispatchEvent(new Event('change',{bubbles:true}));
         f.querySelector('button[type=submit]').click(); return true;})()""")
+    # A live model call is slow and its timestamps are relative, so the queue
+    # length is what proves a new suggestion was drafted.
     generated = False
-    for _ in range(10):
-        time.sleep(12)
-        try:
-            wait_for_load()
-        except Exception:
-            pass
-        if "just now" in text():
-            generated = True
-            break
+    deadline = time.time() + 180
+    while time.time() < deadline:
+        time.sleep(8)
         G(NORTHWIND + "/assistant", 0.5)
-        if "just now" in text():
+        if pending_count() > before:
             generated = True
             break
     t = text()
-    pending_m = re.search(r"Pending review (\d+)", t)
-    pending = int(pending_m.group(1)) if pending_m else 0
+    pending = pending_count()
     needs_confirm = "Suggestions stay pending until you apply one" in t
     # apply one explicitly
     click_text("button", "Apply this change")
@@ -628,7 +678,8 @@ try:
     fill("input[name=expiry]", "12/29")
     fill("input[name=cvc]", "123")
     click_text("button", "Pay and place order")
-    time.sleep(10); wait_for_load()
+    wait_until("/ORD-\\d+/.test(document.body.innerText)", 120.0)
+    wait_for_load()
     t = text()
     m = re.search(r"ORD-\d+", t)
     order_code = m.group(0) if m else None
