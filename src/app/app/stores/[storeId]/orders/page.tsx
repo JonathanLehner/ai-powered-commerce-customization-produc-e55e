@@ -1,8 +1,17 @@
 import Link from "next/link";
+import { OrdersPager } from "@/components/OrdersPager";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { listGiftCampaigns, listOrders, listStoreProducts } from "@/lib/data";
 import { storeMetrics } from "@/lib/metrics";
-import { requireStoreAccess } from "@/lib/session";
+import {
+  filterOrders,
+  hasOrderFilters,
+  orderListQuery,
+  pageOrders,
+  parseOrderFilters,
+  type OrderListParams,
+} from "@/lib/order-list";
+import { requireStoreAccess, roleCan } from "@/lib/session";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
 
@@ -21,11 +30,12 @@ export default async function OrdersPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ status?: string; q?: string; view?: string; campaign?: string }>;
+  searchParams: Promise<OrderListParams>;
 }) {
   const { storeId } = await params;
-  const { status, q, view, campaign } = await searchParams;
-  const { store, viaPlatform } = await requireStoreAccess(storeId);
+  const filters = parseOrderFilters(await searchParams);
+  const { campaign, q, status, view } = filters;
+  const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
   const [orders, products, campaigns] = await Promise.all([
     listOrders(storeId),
@@ -48,26 +58,16 @@ export default async function OrdersPage({
   });
   const activeCampaign = campaignRows.find((row) => row.campaign.code === campaign)?.campaign ?? null;
 
-  const filtered = orders
-    .filter((o) => (campaign ? o.campaign?.campaignCode === campaign : true))
-    .filter((o) => !status || o.status === status)
-    .filter((o) =>
-      view === "attention"
-        ? o.status === "exception" || o.fulfillment.routing === "manual_required" || o.status === "paid"
-        : true,
-    )
-    .filter((o) =>
-      !q
-        ? true
-        : // Under platform access the shopper fields are not searchable either — a
-          // hit would name the shopper just as plainly as printing the column.
-          (viaPlatform
-            ? `${o.code} ${o.fulfillment.trackingNumber ?? ""}`
-            : `${o.code} ${o.customer.name} ${o.customer.email} ${o.fulfillment.trackingNumber ?? ""}`
-          )
-            .toLowerCase()
-            .includes(q.toLowerCase()),
-    );
+  // The filters live in the URL, so the table, the pager and the download all
+  // read the same query string and can never disagree about what they contain.
+  const matched = filterOrders(orders, filters, { viaPlatform });
+  const page = pageOrders(matched, filters.page);
+  const base = `/app/stores/${storeId}/orders`;
+  // Shopper records and order values are in the spreadsheet, so it is handed to
+  // the people who work the queue rather than to platform oversight.
+  const exportHref = roleCan(role, "store.orders")
+    ? `${base}/export${orderListQuery(filters, { page: 1 })}`
+    : null;
 
   return (
     <div className="space-y-6">
@@ -84,7 +84,8 @@ export default async function OrdersPage({
         }
         actions={
           <Link
-            href={`/app/stores/${storeId}/orders${view === "attention" ? "" : "?view=attention"}`}
+            href={`${base}${orderListQuery(filters, { view: view === "attention" ? null : "attention", page: 1 })}`}
+            prefetch={false}
             className={view === "attention" ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
           >
             {view === "attention" ? "Showing needs attention" : `Needs attention (${metrics.awaitingAction})`}
@@ -127,9 +128,10 @@ export default async function OrdersPage({
               <li key={row.campaign.id}>
                 <Link
                   href={
-                    campaign === row.campaign.code
-                      ? `/app/stores/${storeId}/orders`
-                      : `/app/stores/${storeId}/orders?campaign=${encodeURIComponent(row.campaign.code)}`
+                    `${base}${orderListQuery(filters, {
+                      campaign: campaign === row.campaign.code ? null : row.campaign.code,
+                      page: 1,
+                    })}`
                   }
                   aria-current={campaign === row.campaign.code ? "true" : undefined}
                   className={
@@ -166,8 +168,9 @@ export default async function OrdersPage({
         </section>
       ) : null}
 
-      <form method="get" className="card flex flex-wrap items-end gap-3 p-4">
+      <form method="get" action={base} className="card flex flex-wrap items-end gap-3 p-4">
         {campaign ? <input type="hidden" name="campaign" value={campaign} /> : null}
+        {view ? <input type="hidden" name="view" value={view} /> : null}
         <div className="min-w-[12rem] flex-1">
           <label htmlFor="q" className="field-label text-xs">
             Search
@@ -175,7 +178,7 @@ export default async function OrdersPage({
           <input
             id="q"
             name="q"
-            defaultValue={q ?? ""}
+            defaultValue={q}
             placeholder={viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"}
             className="input py-1.5"
           />
@@ -196,14 +199,31 @@ export default async function OrdersPage({
         <button type="submit" className="btn-secondary">
           Filter
         </button>
-        {q || status || view || campaign ? (
-          <Link href={`/app/stores/${storeId}/orders`} className="btn-ghost">
+        {hasOrderFilters(filters) ? (
+          <Link href={base} prefetch={false} className="btn-ghost">
             Clear
           </Link>
         ) : null}
+        <span className="ml-auto flex items-center gap-2">
+          {exportHref ? (
+            // A download, not a navigation: the browser saves the CSV the route
+            // handler returns and leaves the page where it is.
+            <a href={exportHref} download className="btn-secondary">
+              Download CSV
+            </a>
+          ) : (
+            <span
+              className="btn-secondary cursor-not-allowed opacity-50"
+              aria-disabled="true"
+              title="Only the store team who work the orders can download the shopper records."
+            >
+              Download CSV
+            </span>
+          )}
+        </span>
       </form>
 
-      {filtered.length === 0 ? (
+      {page.total === 0 ? (
         <EmptyState
           title={orders.length === 0 ? "No orders yet" : "Nothing matches that filter"}
           description={
@@ -213,92 +233,96 @@ export default async function OrdersPage({
           }
         />
       ) : (
-        <div className="card relative overflow-x-auto">
-          <table className="w-full min-w-[52rem] text-left text-sm">
-            <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
-              <tr>
-                <th scope="col" className="px-4 py-3">Order</th>
-                {viaPlatform ? null : <th scope="col" className="px-4 py-3">Customer</th>}
-                <th scope="col" className="px-4 py-3">Status</th>
-                <th scope="col" className="px-4 py-3">Fulfilment</th>
-                {viaPlatform ? null : <th scope="col" className="px-4 py-3 text-right">Total</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {filtered.map((order) => (
-                <tr key={order.id} className="align-top">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/app/stores/${storeId}/orders/${order.id}`}
-                      className="font-medium text-ink hover:underline"
-                    >
-                      {order.code}
-                    </Link>
-                    <p className="text-xs text-muted">{formatDate(order.createdAt)}</p>
-                  </td>
-                  {viaPlatform ? null : (
+        <div className="space-y-3">
+          <OrdersPager basePath={base} filters={filters} page={page} />
+          <div className="card relative overflow-x-auto">
+            <table className="w-full min-w-[52rem] text-left text-sm">
+              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+                <tr>
+                  <th scope="col" className="px-4 py-3">Order</th>
+                  {viaPlatform ? null : <th scope="col" className="px-4 py-3">Customer</th>}
+                  <th scope="col" className="px-4 py-3">Status</th>
+                  <th scope="col" className="px-4 py-3">Fulfilment</th>
+                  {viaPlatform ? null : <th scope="col" className="px-4 py-3 text-right">Total</th>}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {page.orders.map((order) => (
+                  <tr key={order.id} className="align-top">
                     <td className="px-4 py-3">
-                      <p className="text-ink">{order.customer.name}</p>
-                      <p className="text-xs text-muted">
-                        {order.customer.city}, {order.customer.country}
-                      </p>
-                      {order.campaign ? (
-                        <Link
-                          href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
-                          className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
-                        >
-                          Gift · {order.campaign.campaignCode}
-                        </Link>
+                      <Link
+                        href={`/app/stores/${storeId}/orders/${order.id}`}
+                        className="font-medium text-ink hover:underline"
+                      >
+                        {order.code}
+                      </Link>
+                      <p className="text-xs text-muted">{formatDate(order.createdAt)}</p>
+                    </td>
+                    {viaPlatform ? null : (
+                      <td className="px-4 py-3">
+                        <p className="text-ink">{order.customer.name}</p>
+                        <p className="text-xs text-muted">
+                          {order.customer.city}, {order.customer.country}
+                        </p>
+                        {order.campaign ? (
+                          <Link
+                            href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
+                            className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
+                          >
+                            Gift · {order.campaign.campaignCode}
+                          </Link>
+                        ) : null}
+                      </td>
+                    )}
+                    <td className="px-4 py-3">
+                      <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                      {order.refunds.length > 0 ? (
+                        <p className="mt-1 text-xs text-muted">
+                          {viaPlatform
+                            ? "Refunded"
+                            : `${formatMoney(
+                                order.refunds.reduce((s, r) => s + r.amount, 0),
+                                order.currency,
+                              )} refunded`}
+                        </p>
                       ) : null}
                     </td>
-                  )}
-                  <td className="px-4 py-3">
-                    <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
-                    {order.refunds.length > 0 ? (
-                      <p className="mt-1 text-xs text-muted">
-                        {viaPlatform
-                          ? "Refunded"
-                          : `${formatMoney(
-                              order.refunds.reduce((s, r) => s + r.amount, 0),
-                              order.currency,
-                            )} refunded`}
+                    <td className="px-4 py-3">
+                      <p className="text-xs text-inksoft">
+                        {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
+                        {order.fulfillment.routing === "submitted"
+                          ? "submitted"
+                          : order.fulfillment.routing === "manual_required"
+                            ? "manual required"
+                            : order.fulfillment.routing}
                       </p>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="text-xs text-inksoft">
-                      {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
-                      {order.fulfillment.routing === "submitted"
-                        ? "submitted"
-                        : order.fulfillment.routing === "manual_required"
-                          ? "manual required"
-                          : order.fulfillment.routing}
-                    </p>
-                    {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
-                      <a
-                        href={order.fulfillment.trackingUrl ?? "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-medium text-brand-700 hover:underline"
-                      >
-                        {CARRIER_LABELS[order.fulfillment.carrier]} {order.fulfillment.trackingNumber} ↗
-                      </a>
-                    ) : null}
-                    {order.fulfillment.exception ? (
-                      <p className="mt-1 text-xs text-rose-700">
-                        {viaPlatform ? "Fulfilment exception raised" : order.fulfillment.exception}
-                      </p>
-                    ) : null}
-                  </td>
-                  {viaPlatform ? null : (
-                    <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
-                      {formatMoney(order.total, order.currency)}
+                      {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
+                        <a
+                          href={order.fulfillment.trackingUrl ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-medium text-brand-700 hover:underline"
+                        >
+                          {CARRIER_LABELS[order.fulfillment.carrier]} {order.fulfillment.trackingNumber} ↗
+                        </a>
+                      ) : null}
+                      {order.fulfillment.exception ? (
+                        <p className="mt-1 text-xs text-rose-700">
+                          {viaPlatform ? "Fulfilment exception raised" : order.fulfillment.exception}
+                        </p>
+                      ) : null}
                     </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {viaPlatform ? null : (
+                      <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
+                        {formatMoney(order.total, order.currency)}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <OrdersPager basePath={base} filters={filters} page={page} />
         </div>
       )}
     </div>

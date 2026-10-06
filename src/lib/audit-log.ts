@@ -647,7 +647,16 @@ export function auditCsv(
       ? [cells[0], options.storeName!(entry.storeId), ...cells.slice(1)]
       : cells;
   });
-  return `﻿${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
+  return csvDocument([header, ...rows]);
+}
+
+/**
+ * Rows written as CSV, which every spreadsheet opens: a byte-order mark so
+ * Excel reads the UTF-8, CRLF line endings, and a leading apostrophe on
+ * anything a spreadsheet would otherwise treat as a formula.
+ */
+export function csvDocument(rows: string[][]): string {
+  return `﻿${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
 
 function csvCell(value: string): string {
