@@ -496,9 +496,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                       type="checkbox"
                       name={`${carrier.carrier}_enabled`}
                       defaultChecked={carrier.enabled}
-                      onChange={(e) =>
-                        setCarrierEnabled((prev) => ({ ...prev, [carrier.carrier]: e.currentTarget.checked }))
-                      }
+                      onChange={(e) => {
+                        // The updater runs after React has released the event, so read it now.
+                        const enabled = e.currentTarget.checked;
+                        setCarrierEnabled((prev) => ({ ...prev, [carrier.carrier]: enabled }));
+                      }}
                       className="h-4 w-4 accent-brand-600"
                     />
                     <span className="text-sm font-semibold text-ink">{CARRIER_LABELS[carrier.carrier]}</span>
