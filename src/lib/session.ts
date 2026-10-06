@@ -136,7 +136,7 @@ export interface AccessibleStore {
 
 /** Stores accessible to a user, used by the dashboard and the store switcher. */
 export async function accessibleStores(user: User): Promise<AccessibleStore[]> {
-  const { listAllStores, listStoresForAgency } = await import("./data");
+  const { getStoresByIds, listAllStores, listStoresForAgency } = await import("./data");
   if (user.platformRole === "platform_admin") {
     const stores = await listAllStores();
     return stores.map((store) => ({ store, role: "viewer" as StoreRole, viaPlatform: true }));
@@ -146,11 +146,12 @@ export async function accessibleStores(user: User): Promise<AccessibleStore[]> {
     return stores.map((store) => ({ store, role: "store_admin" as StoreRole, viaPlatform: false }));
   }
   const memberships = (await listMembershipsForUser(user.id)).filter((m) => m.status === "active");
-  // One read per membership, all in flight together — fetched in sequence this
-  // was the slowest part of loading the store switcher.
-  const stores = await Promise.all(memberships.map((m) => getStore(m.storeId)));
-  return memberships.flatMap((m, index) => {
-    const store = stores[index];
+  // Every membership's store in one read. In flight together it was still one
+  // fetch per store, and the platform runs only about six at a time, so a user
+  // invited to many stores waited through wave after wave of them.
+  const stores = await getStoresByIds(memberships.map((m) => m.storeId));
+  return memberships.flatMap((m) => {
+    const store = stores.get(m.storeId);
     return store ? [{ store, role: m.role, viaPlatform: false }] : [];
   });
 }

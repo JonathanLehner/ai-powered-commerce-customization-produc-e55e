@@ -9,6 +9,13 @@ export async function resolve(specifier, context, nextResolve) {
     return await nextResolve(wanted, context);
   } catch (error) {
     if (error?.code !== "ERR_MODULE_NOT_FOUND") throw error;
-    return nextResolve(`${wanted}.ts`, context);
+    // ".js" as well as ".ts": a package without an "exports" map — Next itself —
+    // publishes "next/server" as a plain file that ESM will not find on its own.
+    try {
+      return await nextResolve(`${wanted}.ts`, context);
+    } catch (tsError) {
+      if (tsError?.code !== "ERR_MODULE_NOT_FOUND") throw tsError;
+      return nextResolve(`${wanted}.js`, context);
+    }
   }
 }

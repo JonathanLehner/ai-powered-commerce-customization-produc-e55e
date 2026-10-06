@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar } from "@/components/ui";
 import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
-import { listAgencies, listAudit, listOrders, listStoreProducts } from "@/lib/data";
+import { listAgencies, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
 import { planFor } from "@/lib/plans";
 import { accessibleStores } from "@/lib/session";
@@ -43,12 +43,23 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
   // Read as platform access: no shopper names, no order values.
   const activity = recentAuditRuns(platformAuditEntries(audit), ACTIVITY_ROWS);
 
-  const rows: Row[] = await Promise.all(
-    stores.map(async ({ store }) => {
-      const [orders, products] = await Promise.all([listOrders(store.id), listStoreProducts(store.id)]);
-      return { store, metrics: storeMetrics(orders, products, store.defaultCurrency) };
-    }),
-  );
+  // One read for every store's orders and one for their products, as on the
+  // agency dashboard — platform oversight lists every store on the platform, so
+  // a pair of reads per store was the slowest page in the app.
+  const storeIds = stores.map(({ store }) => store.id);
+  const [ordersByStore, productsByStore] = await Promise.all([
+    listOrdersByStore(storeIds),
+    listStoreProductsByStore(storeIds),
+  ]);
+
+  const rows: Row[] = stores.map(({ store }) => ({
+    store,
+    metrics: storeMetrics(
+      ordersByStore.get(store.id) ?? [],
+      productsByStore.get(store.id) ?? [],
+      store.defaultCurrency,
+    ),
+  }));
 
   // Every agency gets a section, including one that has not opened a store yet,
   // and a store whose agency record is gone still has to appear somewhere.

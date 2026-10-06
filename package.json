@@ -30,7 +30,8 @@
     "email-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/email-check.mjs",
     "whitelabel-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/whitelabel-check.mjs",
     "order-status-check": "node --experimental-strip-types scripts/order-status-check.mjs",
-    "order-list-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/order-list-check.mjs"
+    "order-list-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/order-list-check.mjs",
+    "batch-read-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/batch-read-check.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

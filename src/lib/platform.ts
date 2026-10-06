@@ -34,11 +34,11 @@ type DbBody = {
 };
 
 class DbError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-  ) {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
     super(message);
+    this.status = status;
   }
 }
 
@@ -262,6 +262,70 @@ async function sharedCollection<T>(collection: string): Promise<T[]> {
   return structuredClone(await rows) as T[];
 }
 
+/* ------------------------------------------------------------ batched reads */
+
+/** Documents the platform API returns from one `find`, however many match. */
+const FIND_CAP = 100;
+/** Values per batched read. Keeps one request body small and bounds a re-read. */
+const IN_BATCH = 25;
+/** Re-reads of a single value, so one value past the cap cannot loop. */
+const IN_PAGE_READS = 20;
+
+/**
+ * Every document whose `field` is one of `values`, read with `{$in: [...]}`
+ * rather than one round trip per value.
+ *
+ * A read comes back with at most `FIND_CAP` documents, so one that is exactly
+ * full has been truncated and rows are missing. The batch is then halved and
+ * both halves read, down to a single value, which is paged by excluding the ids
+ * already in hand — so a batched read never silently drops rows the way a plain
+ * `{$in: [...]}` over a long list would.
+ */
+async function findIn<T extends { id: string }>(
+  collection: string,
+  field: string,
+  values: string[],
+  extra: Record<string, unknown>,
+): Promise<T[]> {
+  const unique = [...new Set(values)].filter((value) => value);
+  if (unique.length === 0) return [];
+  const batches: string[][] = [];
+  for (let i = 0; i < unique.length; i += IN_BATCH) batches.push(unique.slice(i, i + IN_BATCH));
+  const reads = await Promise.all(batches.map((batch) => readIn<T>(collection, field, batch, extra)));
+  return reads.flat();
+}
+
+async function readIn<T extends { id: string }>(
+  collection: string,
+  field: string,
+  batch: string[],
+  extra: Record<string, unknown>,
+): Promise<T[]> {
+  const rows = await db.find<T>(collection, { ...extra, [field]: { $in: batch } });
+  if (rows.length < FIND_CAP) return rows;
+
+  if (batch.length > 1) {
+    const mid = Math.ceil(batch.length / 2);
+    const halves = await Promise.all([
+      readIn<T>(collection, field, batch.slice(0, mid), extra),
+      readIn<T>(collection, field, batch.slice(mid), extra),
+    ]);
+    return halves.flat();
+  }
+
+  const out = [...rows];
+  const seen = rows.map((row) => row.id);
+  for (let read = 1; read < IN_PAGE_READS; read++) {
+    const page = await db.find<T>(collection, {
+      $and: [{ ...extra, [field]: { $in: batch } }, { id: { $nin: seen } }],
+    });
+    out.push(...page);
+    if (page.length < FIND_CAP) break;
+    for (const row of page) seen.push(row.id);
+  }
+  return out;
+}
+
 /**
  * Thin typed wrapper over the ClawCorp project-scoped MongoDB.
  * Note: the platform API has no upsert and Mongo `_id` values never match the
@@ -277,6 +341,18 @@ export const db = {
         : callDb<T[]>(body),
     );
     return applyOptions(Array.isArray(rows) ? rows : [], options);
+  },
+  /**
+   * See `findIn` above: one read for many values of one field, in place of a
+   * round trip per value. Unordered — the caller groups and sorts the rows.
+   */
+  findIn<T extends { id: string }>(
+    collection: string,
+    field: string,
+    values: string[],
+    extra: Record<string, unknown> = {},
+  ) {
+    return findIn<T>(collection, field, values, extra);
   },
   findOne<T>(collection: string, filter: Record<string, unknown>) {
     const body: DbBody = { collection, action: "findOne", filter };

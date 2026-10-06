@@ -242,6 +242,31 @@ def sign_in_as(first):
     time.sleep(2.5)
     wait_for_load()
 
+def archive_store(url):
+    """Archives the QA store the run created, and says whether it ended archived.
+
+    The control on the Settings tab arms itself on the first click and only
+    submits on the confirmation, so clicking "Archive store" on its own left the
+    store live — which is how every run used to leave a "QA Harness Store ..."
+    on the agency's dashboard, counting against its plan limit. Re-running this
+    on an already archived store is a no-op, so it is safe to call twice.
+    """
+    for _ in range(3):
+        G(url + "/setup")
+        if "Restore store" in text():
+            return True
+        try:
+            click_text("button", "Archive store")
+            time.sleep(1.0)
+            click_text("button", "Yes, archive it")
+        except Exception:
+            pass
+        time.sleep(4)
+        wait_for_load()
+        if "Restore store" in text():
+            return True
+    return False
+
 def step(n):
     """Decorator-ish guard: run body, record a fail on exception."""
     def wrap(fn):
@@ -798,12 +823,10 @@ except Exception:
 
 # ============================================ archive the QA store, then step 1 shot
 try:
-    if qa_store_url:
-        G(qa_store_url + "/setup")
-        click_text("button", "Archive store"); time.sleep(4); wait_for_load()
+    archived = archive_store(qa_store_url) if qa_store_url else False
     G("/app")
     t = text()
-    archived_ok = STORE_RENAMED in t and "Archived stores" in t
+    archived_ok = archived and STORE_RENAMED in t and "Archived stores" in t
     switcher = J("""[...document.querySelectorAll('a')].filter(a=>/\\/app\\/stores\\/str/.test(a.getAttribute('href')||'')).length""")
     shot(1)
     if RESULTS.get(1, {}).get("status") == "pass":
@@ -920,6 +943,19 @@ try:
            % (imgs, total_imgs, ", ".join(broken_imgs) or "none broken", has_empty, branded_404, denied))
 except Exception:
     record(25, "fail", "content/error state check failed: %s" % traceback.format_exc().strip().splitlines()[-1])
+
+# ============================================ cleanup: leave no QA store live
+# Every run creates a store. One left active stays on the agency's live
+# dashboard and counts against its plan limit, so the last thing the replay does
+# is archive its own store — whatever happened in the steps above, and even
+# though the step-18 block already tried.
+try:
+    if qa_store_url:
+        sign_in_as("Alex")
+        print("[cleanup] %s archived: %s" % (STORE_RENAMED, archive_store(qa_store_url)))
+except Exception:
+    print("[cleanup] could not archive %s: %s"
+          % (STORE_RENAMED, traceback.format_exc().strip().splitlines()[-1]))
 
 # ------------------------------------------------------------------- summary
 for i in range(1, 26):

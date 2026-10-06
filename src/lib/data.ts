@@ -91,6 +91,16 @@ export function getStoreBySlug(slug: string) {
   return db.findOne<Store>(COLLECTIONS.stores, { slug });
 }
 
+/**
+ * Several stores by id, in one read. The store switcher resolves a membership
+ * list this way: a read per membership put one fetch per store in flight, and
+ * the platform runs only a handful at a time, so they queued behind each other.
+ */
+export async function getStoresByIds(ids: string[]): Promise<Map<string, Store>> {
+  const rows = await db.findIn<Store>(COLLECTIONS.stores, "id", ids);
+  return new Map(rows.map((row) => [row.id, row]));
+}
+
 export async function updateStore(id: string, patch: Partial<Store>) {
   await db.updateOne(COLLECTIONS.stores, { id }, { $set: patch as Record<string, unknown> });
 }
@@ -146,6 +156,26 @@ async function fromCollection<T extends { id: string }>(
   return all.find((row) => row.id === id) ?? (all.length < 100 ? null : await lookup());
 }
 
+/**
+ * Groups rows read in one batched `{$in: [...]}` call under the ids they were
+ * asked for, newest first by `stamp`.
+ *
+ * Every id asked for gets an entry, so a store with no records of its own reads
+ * as an empty list rather than as a missing one — the callers below stand in
+ * for a round trip per id and have to behave the same way.
+ */
+function groupById<T>(
+  ids: string[],
+  rows: T[],
+  key: (row: T) => string,
+  stamp: (row: T) => string,
+): Map<string, T[]> {
+  const out = new Map<string, T[]>(ids.map((id) => [id, []]));
+  for (const row of rows) out.get(key(row))?.push(row);
+  for (const list of out.values()) list.sort((a, b) => stamp(b).localeCompare(stamp(a)));
+  return out;
+}
+
 /* --------------------------------------------------------------- suppliers */
 
 export function listSuppliers() {
@@ -170,6 +200,25 @@ export function getCatalogProduct(id: string) {
 
 export function listStoreProducts(storeId: string) {
   return db.find<StoreProduct>(COLLECTIONS.storeProducts, { storeId }, { sort: { updatedAt: -1 } });
+}
+
+/**
+ * Store products for several stores at once, grouped by store and ordered the
+ * way `listStoreProducts` orders them. One read for the whole dashboard rather
+ * than one per store.
+ */
+export async function listStoreProductsByStore(storeIds: string[]): Promise<Map<string, StoreProduct[]>> {
+  const rows = await db.findIn<StoreProduct>(COLLECTIONS.storeProducts, "storeId", storeIds);
+  return groupById(storeIds, rows, (row) => row.storeId, (row) => row.updatedAt);
+}
+
+/**
+ * Several store products by id, in one read. Used where a basket or a recipient
+ * list would otherwise cost a round trip per line.
+ */
+export async function getStoreProductsByIds(ids: string[]): Promise<Map<string, StoreProduct>> {
+  const rows = await db.findIn<StoreProduct>(COLLECTIONS.storeProducts, "id", ids);
+  return new Map(rows.map((row) => [row.id, row]));
 }
 
 export async function listPublishedProducts(storeId: string) {
@@ -235,6 +284,15 @@ export function getTaxBracket(id: string) {
 
 export function listOrders(storeId: string) {
   return db.find<Order>(COLLECTIONS.orders, { storeId }, { sort: { createdAt: -1 } });
+}
+
+/**
+ * Orders for several stores at once, grouped by store, newest first — the order
+ * `listOrders` returns them in.
+ */
+export async function listOrdersByStore(storeIds: string[]): Promise<Map<string, Order[]>> {
+  const rows = await db.findIn<Order>(COLLECTIONS.orders, "storeId", storeIds);
+  return groupById(storeIds, rows, (row) => row.storeId, (row) => row.createdAt);
 }
 
 export function getOrder(id: string) {

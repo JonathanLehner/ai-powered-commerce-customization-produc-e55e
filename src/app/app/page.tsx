@@ -4,7 +4,7 @@ import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
 import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
-import { getAgency, listAudit, listOrders, listStoreProducts } from "@/lib/data";
+import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeAllowance, storeUsageLabel } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
@@ -37,12 +37,26 @@ export default async function AgencyDashboard({
   // still list every record.
   const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
 
-  const rows = await Promise.all(
-    stores.map(async ({ store, role, viaPlatform }) => {
-      const [orders, products] = await Promise.all([listOrders(store.id), listStoreProducts(store.id)]);
-      return { store, role, viaPlatform, metrics: storeMetrics(orders, products, store.defaultCurrency) };
-    }),
-  );
+  // Orders and store products for every store on the page, one read each.
+  // Read per store it was two round trips times the store count — fifty fetches
+  // for an agency with twenty-five clients — and the platform runs only about
+  // six at a time, so they queued and the page took twenty seconds to render.
+  const storeIds = stores.map(({ store }) => store.id);
+  const [ordersByStore, productsByStore] = await Promise.all([
+    listOrdersByStore(storeIds),
+    listStoreProductsByStore(storeIds),
+  ]);
+
+  const rows = stores.map(({ store, role, viaPlatform }) => ({
+    store,
+    role,
+    viaPlatform,
+    metrics: storeMetrics(
+      ordersByStore.get(store.id) ?? [],
+      productsByStore.get(store.id) ?? [],
+      store.defaultCurrency,
+    ),
+  }));
 
   const active = rows.filter((r) => r.store.status === "active");
   const archived = rows.filter((r) => r.store.status === "archived");

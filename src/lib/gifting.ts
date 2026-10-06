@@ -10,7 +10,7 @@ import "server-only";
  * Monday may be paid for on Friday.
  */
 
-import { getStoreProduct, getTaxBracket } from "./data";
+import { getStoreProductsByIds, getTaxBracket } from "./data";
 import { convert, parcelShipping, taxRowsFor, type TaxRow } from "./pricing";
 import type { CampaignRecipient, GiftCatalogue, Store, StoreProduct } from "./types";
 import type { GiftProductOption } from "./gift-recipients";
@@ -59,9 +59,11 @@ export async function quoteCampaign(
   currency: string,
   spendLimit: number,
 ): Promise<CampaignQuote> {
+  // One read for the whole recipient list. A bulk campaign names hundreds of
+  // recipients, and a read per distinct product was a fetch per product.
   const productIds = [...new Set(recipients.map((r) => r.storeProductId).filter(Boolean))];
-  const loaded = await Promise.all(productIds.map((id) => getStoreProduct(id)));
-  const products = new Map(productIds.map((id, index) => [id, loaded[index]]));
+  const products = await getStoreProductsByIds(productIds);
+  const loaded = productIds.map((id) => products.get(id) ?? null);
 
   const bracketIds = [
     ...new Set(loaded.map((product) => product?.taxBracketId).filter(Boolean)),
