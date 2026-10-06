@@ -862,7 +862,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
     return fail("This campaign link is not valid. Ask your programme owner to send it again.");
   }
   const key = `gift_${campaign.id}`;
-  if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(`${key}:0`))) {
+  if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(store.id, `${key}:0`))) {
     // A retried submission must not charge twice or duplicate the orders.
     redirect(campaignPath(slug, campaign.code, token, "buyer"));
   }

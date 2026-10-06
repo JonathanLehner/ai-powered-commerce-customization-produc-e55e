@@ -373,7 +373,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const [store, replayed, cart] = await Promise.all([
     getStore(storeId),
     // A retried submission must not create a second order.
-    idempotencyKey ? getOrderByIdempotencyKey(idempotencyKey) : Promise.resolve(null),
+    idempotencyKey ? getOrderByIdempotencyKey(storeId, idempotencyKey) : Promise.resolve(null),
     loadCart(storeId, false),
   ]);
   const t = copyFor(store?.defaultLanguage);

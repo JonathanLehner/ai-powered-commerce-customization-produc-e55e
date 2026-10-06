@@ -8,7 +8,7 @@ import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
 import { orderTaxRows } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { ORDER_STATUS_LABELS } from "@/lib/types";
+import { canMoveOrder, ORDER_STATUS_LABELS } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
 import {
   ExceptionForm,
@@ -289,7 +289,7 @@ export default async function OrderDetailPage({
                         <button
                           type="submit"
                           className={order.status === status ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
-                          disabled={order.status === status}
+                          disabled={!canMoveOrder(order, status)}
                         >
                           {ORDER_STATUS_LABELS[status]}
                         </button>

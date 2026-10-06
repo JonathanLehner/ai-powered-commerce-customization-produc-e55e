@@ -506,6 +506,23 @@ export interface OrderDiscount {
   amount: number;
 }
 
+/** Moves the store team may make by hand. Exceptions are raised and resolved by their own actions. */
+const ORDER_STATUS_NEXT: Record<OrderStatus, OrderStatus[]> = {
+  awaiting_payment: ["cancelled"],
+  paid: ["in_production", "cancelled"],
+  in_production: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+  exception: ["paid", "in_production", "shipped", "delivered", "cancelled"],
+};
+
+/** A captured payment is only cancelled through the refund form, so the money goes back too. */
+export function canMoveOrder(order: Pick<Order, "status" | "payment">, to: OrderStatus): boolean {
+  if (to === "cancelled" && order.payment.status === "succeeded") return false;
+  return ORDER_STATUS_NEXT[order.status].includes(to);
+}
+
 export interface OrderItem {
   id: string;
   storeProductId: string;

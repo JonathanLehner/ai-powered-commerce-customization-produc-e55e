@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { placeOrder } from "@/app/actions/shop";
 import { CountrySelect } from "@/components/CountrySelect";
 import { ActionForm } from "@/components/forms";
@@ -44,10 +44,7 @@ export function CheckoutForm({
   t: StorefrontCopy["checkout"];
 }) {
   // Generated once per page load so a double submit cannot create two orders.
-  const idempotencyKey = useMemo(
-    () => `idem_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`,
-    [],
-  );
+  const [idempotencyKey] = useState(() => `idem_${crypto.randomUUID()}`);
   const [country, setCountry] = useState(() =>
     isCountryCode(defaultCountry) ? defaultCountry.toUpperCase() : "US",
   );

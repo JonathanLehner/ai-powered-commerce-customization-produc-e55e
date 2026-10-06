@@ -245,8 +245,8 @@ export function getOrderByCode(storeId: string, code: string) {
   return db.findOne<Order>(COLLECTIONS.orders, { storeId, code });
 }
 
-export function getOrderByIdempotencyKey(key: string) {
-  return db.findOne<Order>(COLLECTIONS.orders, { idempotencyKey: key });
+export function getOrderByIdempotencyKey(storeId: string, key: string) {
+  return db.findOne<Order>(COLLECTIONS.orders, { storeId, idempotencyKey: key });
 }
 
 /**

@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStore, getUserById, listMembershipsForUser } from "./data";
+import { hmac, safeEqual } from "./order-access";
 import { resolveStoreRole, roleCan, type Capability } from "./store-access";
 import type { Store, StoreRole, User } from "./types";
 
@@ -11,9 +12,18 @@ export const SHOPPER_COOKIE = "cc_shopper";
 export { resolveStoreRole, roleCan };
 export type { Capability, StoreGrant } from "./store-access";
 
+/** Cookie value is `userId.signature`, so a user id alone cannot be replayed as a session. */
+export async function sessionCookieValue(userId: string): Promise<string> {
+  return `${userId}.${await hmac(`session:${userId}`)}`;
+}
+
 async function sessionUserId(): Promise<string | null> {
   const jar = await cookies();
-  return jar.get(SESSION_COOKIE)?.value ?? null;
+  const value = jar.get(SESSION_COOKIE)?.value ?? "";
+  const dot = value.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const id = value.slice(0, dot);
+  return safeEqual(value, await sessionCookieValue(id)) ? id : null;
 }
 
 export async function getSessionUser(): Promise<User | null> {

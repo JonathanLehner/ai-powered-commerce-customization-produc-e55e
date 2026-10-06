@@ -8,7 +8,7 @@ import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
 import { assertStoreAccess } from "@/lib/session";
 import { refundCharge } from "@/lib/stripe";
-import type { FulfillmentEvent, Order, OrderStatus } from "@/lib/types";
+import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
@@ -298,6 +298,7 @@ export async function advanceStatus(formData: FormData): Promise<void> {
   if (!allowed.includes(status)) return;
 
   const { user, store, order } = await load(storeId, orderId);
+  if (!canMoveOrder(order, status)) return;
   const notes: Partial<Record<OrderStatus, string>> = {
     in_production: "Production started at the supplier.",
     shipped: "Parcel handed to the carrier.",

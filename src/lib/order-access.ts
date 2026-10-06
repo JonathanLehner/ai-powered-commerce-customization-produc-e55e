@@ -13,7 +13,8 @@ import "server-only";
  */
 const SECRET = process.env.CLAWCORP_API_KEY ?? "parcelith-dev-order-token";
 
-async function mac(storeId: string, code: string): Promise<string> {
+/** HMAC of any value, url-safe; also signs the staff session cookie. */
+export async function hmac(message: string): Promise<string> {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
@@ -22,7 +23,7 @@ async function mac(storeId: string, code: string): Promise<string> {
     false,
     ["sign"],
   );
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(`${storeId}:${code}`));
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
   return btoa(String.fromCharCode(...new Uint8Array(signature)))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -31,7 +32,14 @@ async function mac(storeId: string, code: string): Promise<string> {
 }
 
 export function signOrderToken(storeId: string, code: string): Promise<string> {
-  return mac(storeId, code);
+  return hmac(`${storeId}:${code}`);
+}
+
+export function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
 
 export async function verifyOrderToken(
@@ -40,11 +48,7 @@ export async function verifyOrderToken(
   token: string | undefined,
 ): Promise<boolean> {
   if (!token) return false;
-  const expected = await mac(storeId, code);
-  if (token.length !== expected.length) return false;
-  let diff = 0;
-  for (let i = 0; i < expected.length; i += 1) diff |= token.charCodeAt(i) ^ expected.charCodeAt(i);
-  return diff === 0;
+  return safeEqual(token, await signOrderToken(storeId, code));
 }
 
 export function emailMatchesOrder(orderEmail: string, given: string): boolean {

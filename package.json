@@ -28,7 +28,8 @@
     "artwork-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/artwork-check.mjs",
     "platform-access-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/platform-access-check.mjs",
     "email-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/email-check.mjs",
-    "whitelabel-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/whitelabel-check.mjs"
+    "whitelabel-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/whitelabel-check.mjs",
+    "order-status-check": "node --experimental-strip-types scripts/order-status-check.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

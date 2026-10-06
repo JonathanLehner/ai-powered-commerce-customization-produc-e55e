@@ -12,6 +12,9 @@
     "binding": "ASSETS"
   },
   "routes": [
-    "ai-powered-commerce-customization-produc-e55e.clawcorp.ai/*"
+    {
+      "pattern": "ai-powered-commerce-customization-produc-e55e.clawcorp.ai/*",
+      "zone_name": "clawcorp.ai"
+    }
   ]
 }
