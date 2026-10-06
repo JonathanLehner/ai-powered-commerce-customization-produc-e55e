@@ -375,6 +375,188 @@ export const ja: StorefrontCopy = {
     approvalCta: "リストを確認する",
   },
 
+  gift: {
+    chromeSubtitle: "ギフトカタログ · {store}",
+    private: "非公開",
+    operatedBy:
+      "販売事業者は {client} です。ギフトは受注後に製作し、受取人ごとに個別に発送します。",
+    supportTitle: "キャンペーンに関するお問い合わせ:",
+    supportPending: "{client} はまだサポート連絡先を公開していません。",
+    legal: "© {year} {client}. 法人ギフトは Parcelith が提供しています。",
+
+    closedTitle: "このカタログは閉じられています",
+    closedBody:
+      "{company} のギフトプログラムは一時停止中です。運営担当者が再開できます。すでに発注済みのキャンペーンには影響しません。",
+
+    privateBadge: "非公開カタログ",
+    inviteBody:
+      "{company} のギフトカタログは招待された方のみご利用いただけます。招待が届いたアドレスをご確認いただければ、そのまま入れます。",
+    linkOnlyBody:
+      "このカタログは {company} のプログラム担当者が共有した非公開リンクから開きます。そのリンクをもう一度お使いいただくか、新しいリンクを担当者にお尋ねください。担当が変わるたびにリンクは更新されます。",
+    gateEmail: "勤務先メールアドレス",
+    gateEmailHint: "プログラム担当者が招待したアドレスのいずれかである必要があります。",
+    gateSubmit: "カタログを開く",
+    gatePending: "確認中…",
+
+    introFallback:
+      "{company} のためのギフトです。受注後に製作し、受取人ごとに個別にお届けします。",
+    startOrder: "一括注文を始める",
+    spendLimitLabel: "受取人ごとの上限金額",
+    noLimit: "上限なし",
+    approvalLabel: "承認",
+    approvalRequired: "必要",
+    approvalNotRequired: "不要",
+    recipientsLabel: "1キャンペーンの受取人数",
+    recipientsUpTo: "最大 {count} 名",
+    emptyTitle: "現在ご利用いただけるギフトはありません",
+    emptyBody:
+      "このカタログの商品は現在製作されていません。プログラムの運営担当者が再開時期をご案内できます。",
+    giftsTitle: "このカタログのギフト",
+    previewSoon: "プレビューは近日公開",
+    overLimit: "上限超過",
+    sizes: "サイズ: {sizes}",
+    oneSize: "フリーサイズ",
+    overLimitTitle: "一部のギフトが上限金額を超えています",
+    overLimitBody:
+      "これらを指定した受取人はリスト読み込み時に除外されるため、承認を依頼する前に該当行を修正できます。",
+    howItWorks: "キャンペーンの流れ",
+    step1Title: "ギフトを選ぶ",
+    step1Body:
+      "ここにあるものはすべてこのプログラム向けに製作済みで、選べるサイズもそろっています。",
+    step2Title: "受取人リストを追加する",
+    step2Body:
+      "表計算ソフトから貼り付けるか、CSV をアップロードしてください。氏名・住所・サイズ、任意のメッセージを入力できます。",
+    step3Title: "承認",
+    step3Body: "支払いの前に、リストと合計金額が承認者へ渡ります。",
+    step4Title: "支払いは1回、荷物は1人に1つ",
+    step4Body:
+      "お支払いは一度だけです。受取人それぞれに専用の荷物と追跡番号が用意されます。",
+
+    orderTitle: "ギフトの一括注文",
+    campaignTitle: "ギフトキャンペーン",
+    orderIntro:
+      "送付先の住所と着用サイズを添えて、お送りする方をすべて追加してください。リストは何度でも確認できます。送信する{approval}まで何も作成されません。",
+    orderIntroApproval: "（承認へ）",
+    paymentPendingTitle: "このストアではまだ決済が有効になっていません",
+    paymentPendingBody:
+      "キャンペーンの作成と承認依頼は可能です。{client} が決済アカウントの接続を完了するまで支払いはできません。",
+    yourApprover: "承認者",
+
+    buyerTitle: "ご注文者",
+    campaignName: "キャンペーン名",
+    campaignNamePlaceholder: "第4四半期の顧客向けギフト",
+    buyerName: "お名前",
+    orderingAs:
+      "{email} として注文します。次に表示されるキャンペーンのリンクを保存してください。メールは送信されず、承認と領収内容はそのページに表示されます。",
+    buyerEmail: "勤務先メールアドレス",
+    buyerEmailHint:
+      "キャンペーンの注文者として記録されます。次に表示されるキャンペーンのリンクを保存してください。メールは送信されず、承認と領収内容はそのページに表示されます。",
+    giftTitle: "ギフト",
+    giftHint: "商品名が書かれていない行すべてに適用されます。",
+    giftHintLimit: "受取人ごとに {amount} まで利用できます。",
+    giftHintNoLimit: "このプログラムに上限金額はありません。",
+    listTitle: "受取人",
+    listHintLead: "1行に1名、最大 {max} 名。列:",
+    listHintTail: "見出し行は自動的に判別され、{product} と {note} は任意です。",
+    uploadCsv: "CSV をアップロード",
+    pasteExample: "例を貼り付ける",
+    fileLoaded: "{file} を読み込みました",
+    fileTooLarge: "{file} は {size} KB です。受取人リストは {limit} KB 未満にしてください。",
+    fileUnreadable: "このファイルは読み込めませんでした。CSV として保存し直してお試しください。",
+    listLabel: "受取人リスト",
+    checkList: "リストを確認",
+    checkPending: "リストを読み込み中…",
+    sendForApproval: "承認へ送る",
+    checkAndSend: "確認して送信",
+    sendPending: "処理中…",
+    previewRecipients: "受取人 {count} 名",
+    previewToFix: "要修正 {count} 件",
+    previewTotal: "合計 {amount}",
+    previewOverflow: "上限を超えた {count} 行は読み込まれませんでした",
+    columnLine: "行",
+    columnRecipient: "受取人",
+    columnGift: "ギフト",
+    columnDelivered: "お届け",
+    columnDelivery: "配送先",
+    columnValue: "金額",
+    noName: "名前なし",
+    subtotal: "ギフト",
+    shipping: "送料",
+    tax: "税",
+    taxRow: "税 {rate}%",
+    total: "合計",
+    approvalNote:
+      "送信すると、キャンペーンは {approver} に渡ります。承認され、お支払いいただくまで請求は発生しません。",
+    noApprovalNote:
+      "このプログラムに承認は不要です。リストに問題がなければそのままお支払いへ進みます。",
+
+    linkInvalidTitle: "このキャンペーンのリンクは無効です",
+    linkInvalidBody:
+      "キャンペーンのリンクは個別です。注文者用と承認者用が1つずつあります。ご自身のリンクを再送してもらうか、カタログを開いて新しく注文を作成してください。",
+    backToCatalogue: "カタログに戻る",
+    campaignSubmitted: "受取人 {count} 名 · {buyer} が {when} に送信",
+    waitingTitle: "承認待ち",
+    waitingBody:
+      "{approver} がリストと合計金額を確認しています。承認されればすぐにお支払いいただけます。請求はまだ発生していません。",
+    decisionTitle: "ご判断を記録しました",
+    decisionBody: "{who} が {when} に{decision}しました。",
+    decisionCanPay: "{buyer} がお支払いに進めます。あなたへの請求はありません。",
+    decisionApproved: "承認",
+    decisionDeclined: "却下",
+    declinedNoReason: "理由は入力されていません。",
+    declinedBody: "承認者の指摘を反映して、カタログから新しい注文を作成してください。",
+    orderedTitle: "支払い済み・製作中",
+    orderedBody:
+      "受取人ごとに {count} 件の注文を作成しました。それぞれ個別の配送と追跡が付きます。下のリンクから確認できます。",
+    unpayableTitle: "承認済みですが、ストアはまだ決済を受け付けられません",
+    unpayableBody:
+      "{client} が決済アカウントの接続を完了していません。キャンペーンは保存されており、接続が完了すればお支払いいただけます。",
+    recipientsTitle: "受取人",
+    track: "{code} を追跡",
+    historyTitle: "履歴",
+    totalsTitle: "キャンペーン合計",
+    spendLimitNote: "受取人ごとの上限は {amount} です。",
+    noSpendLimitNote: "このプログラムに上限金額はありません。",
+    decisionFormTitle: "ご判断",
+    paymentTitle: "お支払い",
+    approvalIntro:
+      "このキャンペーンを支払えるようにするには {buyer} があなたの承認を必要としています。承認しても請求は発生せず、支払いは注文者が自身の画面で行います。",
+    noteLabel: "メモ（却下する場合は必須）",
+    notePlaceholder: "第4四半期のマーケティング予算で承認します。",
+    approve: "{total} を承認",
+    approvePending: "ご判断を記録中…",
+    decline: "却下",
+    declinePending: "記録中…",
+    paymentIntro:
+      "キャンペーン全体を1回のお支払いで、ストア自身の Stripe アカウント {account} を通じて決済します。その後、受取人ごとに追跡付きの注文が作成されます。",
+    pay: "{total} を支払う",
+    payPending: "決済処理中…",
+    withdraw: "このキャンペーンを取り下げる",
+    withdrawConfirm: "キャンペーンを取り下げる",
+    withdrawQuestion: "リストは取り下げられ、誰にも請求されません。",
+    withdrawPending: "処理中…",
+    cancel: "キャンセル",
+
+    statusAwaitingApproval: "承認待ち",
+    statusApproved: "承認済み・支払い待ち",
+    statusDeclined: "却下",
+    statusOrdered: "注文済み",
+    statusCancelled: "取り消し",
+
+    eyebrow: "ギフトポータル",
+    notFoundTitle: "そのページは見つかりません",
+    notFoundBody:
+      "アドレスが間違っているか、リンク送信後にそのキャンペーンまたは商品が終了した可能性があります。カタログ自体は開いています。",
+    notFoundBoundaryBody:
+      "リンクの有効期限が切れたか、ギフトカタログを作成した企業が閉じた可能性があります。このリンクを受け取った方は、送り主に最新のリンクをお尋ねください。",
+    errorTitle: "こちら側で問題が発生しました",
+    errorBody:
+      "このページを読み込めませんでした。送信された内容は失われていません。もう一度お試しいただき、続くようでしたら数分後にお越しください。",
+    errorRetry: "再試行",
+    errorReference: "参照番号 {digest}",
+    goToParcelith: "Parcelith へ",
+  },
+
   fallback: {
     notFoundTitle: "ページが見つかりません",
     notFoundBody:

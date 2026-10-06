@@ -231,11 +231,16 @@ export function ConfirmSubmit({
   confirmLabel,
   className = "btn-danger",
   question = "Are you sure?",
+  pendingLabel = "Working…",
+  cancelLabel = "Cancel",
 }: {
   children: ReactNode;
   confirmLabel: string;
   className?: string;
   question?: string;
+  /** Overridden where the control is shopper-facing and has to be translated. */
+  pendingLabel?: string;
+  cancelLabel?: string;
 }) {
   const [armed, setArmed] = useState(false);
   const { pending } = useFormStatus();
@@ -251,10 +256,10 @@ export function ConfirmSubmit({
     <span className="inline-flex flex-wrap items-center gap-2">
       <span className="text-sm text-inksoft">{question}</span>
       <button type="submit" className={className} disabled={pending}>
-        {pending ? "Working…" : confirmLabel}
+        {pending ? pendingLabel : confirmLabel}
       </button>
       <button type="button" className="btn-ghost btn-sm" onClick={() => setArmed(false)} disabled={pending}>
-        Cancel
+        {cancelLabel}
       </button>
     </span>
   );

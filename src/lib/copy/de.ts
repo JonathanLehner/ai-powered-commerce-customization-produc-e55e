@@ -381,6 +381,191 @@ export const de: StorefrontCopy = {
     approvalCta: "Liste prüfen",
   },
 
+  gift: {
+    chromeSubtitle: "Geschenkkatalog · {store}",
+    private: "Privat",
+    operatedBy:
+      "Betrieben von {client} als Vertragshändler. Geschenke werden auf Bestellung gefertigt und einzeln an jeden Empfänger versandt.",
+    supportTitle: "Fragen zu einer Kampagne:",
+    supportPending: "{client} hat noch keine Kontaktdaten für den Support hinterlegt.",
+    legal: "© {year} {client}. Corporate Gifting powered by Parcelith.",
+
+    closedTitle: "Dieser Katalog ist geschlossen",
+    closedBody:
+      "Das Geschenkprogramm von {company} ist pausiert. Die verantwortliche Person kann es wieder öffnen — bereits aufgegebene Kampagnen sind davon nicht betroffen.",
+
+    privateBadge: "Privater Katalog",
+    inviteBody:
+      "Der Geschenkkatalog von {company} steht eingeladenen Kolleginnen und Kollegen offen. Bestätigen Sie die Adresse, an die die Einladung ging, und Sie sind sofort drin.",
+    linkOnlyBody:
+      "Dieser Katalog öffnet sich über den privaten Link, den die Programmverantwortlichen von {company} geteilt haben. Verwenden Sie diesen Link erneut oder bitten Sie um einen neuen — Links werden gewechselt, sobald das Programm in andere Hände übergeht.",
+    gateEmail: "Geschäftliche E-Mail",
+    gateEmailHint: "Es muss eine der Adressen sein, die Ihre Programmverantwortlichen eingeladen haben.",
+    gateSubmit: "Katalog öffnen",
+    gatePending: "Wird geprüft…",
+
+    introFallback:
+      "Geschenke für {company}, auf Bestellung gefertigt und einzeln an jeden Empfänger geliefert.",
+    startOrder: "Sammelbestellung starten",
+    spendLimitLabel: "Budget pro Empfänger",
+    noLimit: "Kein Limit",
+    approvalLabel: "Freigabe",
+    approvalRequired: "Erforderlich",
+    approvalNotRequired: "Nicht erforderlich",
+    recipientsLabel: "Empfänger pro Kampagne",
+    recipientsUpTo: "Bis zu {count}",
+    emptyTitle: "Derzeit sind keine Geschenke verfügbar",
+    emptyBody:
+      "Aus diesem Katalog wird gerade nichts produziert. Die Programmverantwortlichen wissen, wann es wieder verfügbar ist.",
+    giftsTitle: "Geschenke in diesem Katalog",
+    previewSoon: "Vorschau folgt in Kürze",
+    overLimit: "Über dem Limit",
+    sizes: "Größen: {sizes}",
+    oneSize: "Einheitsgröße",
+    overLimitTitle: "Einige Geschenke liegen über Ihrem Budget",
+    overLimitBody:
+      "Ein Empfänger, dem eines davon zugeordnet ist, wird beim Einlesen der Liste abgewiesen, sodass die Zeile geändert werden kann, bevor jemand um Freigabe gebeten wird.",
+    howItWorks: "So läuft eine Kampagne",
+    step1Title: "Geschenk auswählen",
+    step1Body:
+      "Alles hier wird bereits für dieses Programm produziert, in den Größen, aus denen Ihre Leute wählen können.",
+    step2Title: "Empfängerliste hinzufügen",
+    step2Body:
+      "Fügen Sie sie aus einer Tabelle ein oder laden Sie eine CSV hoch — Namen, Adressen, Größen und eine optionale Nachricht.",
+    step3Title: "Freigabe",
+    step3Body:
+      "Die Liste geht mit ihrer Gesamtsumme an Ihre freigebende Person, bevor etwas bezahlt wird.",
+    step4Title: "Eine Zahlung, je ein Paket",
+    step4Body:
+      "Sie zahlen einmal. Jeder Empfänger erhält sein eigenes Paket und seine eigene Sendungsverfolgung.",
+
+    orderTitle: "Geschenk-Sammelbestellung",
+    campaignTitle: "Geschenkkampagne",
+    orderIntro:
+      "Tragen Sie alle ein, an die Sie senden, mit der Lieferadresse und der passenden Größe. Prüfen Sie die Liste so oft Sie möchten — es wird nichts angelegt, bevor Sie sie absenden{approval}.",
+    orderIntroApproval: " zur Freigabe",
+    paymentPendingTitle: "Für diesen Shop sind Zahlungen noch nicht aktiviert",
+    paymentPendingBody:
+      "Sie können eine Kampagne trotzdem erstellen und zur Freigabe senden. Bezahlt werden kann sie erst, wenn {client} die Einrichtung des Zahlungskontos abgeschlossen hat.",
+    yourApprover: "Ihre freigebende Person",
+
+    buyerTitle: "Wer bestellt",
+    campaignName: "Name der Kampagne",
+    campaignNamePlaceholder: "Kundengeschenke Q4",
+    buyerName: "Ihr Name",
+    orderingAs:
+      "Sie bestellen als {email}. Bewahren Sie den Kampagnenlink auf, auf dem Sie als Nächstes landen — es wird keine E-Mail versendet, und auf dieser Seite erscheinen Freigabe und Beleg.",
+    buyerEmail: "Ihre geschäftliche E-Mail",
+    buyerEmailHint:
+      "Wird als Besteller der Kampagne erfasst. Bewahren Sie den Kampagnenlink auf, auf dem Sie als Nächstes landen — es wird keine E-Mail versendet, und auf dieser Seite erscheinen Freigabe und Beleg.",
+    giftTitle: "Das Geschenk",
+    giftHint: "Gilt für jede Zeile, die kein eigenes Produkt nennt.",
+    giftHintLimit: "Pro Empfänger dürfen bis zu {amount} ausgegeben werden.",
+    giftHintNoLimit: "Für dieses Programm gibt es kein Budgetlimit.",
+    listTitle: "Empfänger",
+    listHintLead: "Eine Person pro Zeile, bis zu {max}. Spalten:",
+    listHintTail: "Eine Kopfzeile wird automatisch erkannt, und {product} und {note} sind optional.",
+    uploadCsv: "CSV hochladen",
+    pasteExample: "Beispiel einfügen",
+    fileLoaded: "{file} geladen",
+    fileTooLarge: "{file} hat {size} KB. Empfängerlisten müssen unter {limit} KB liegen.",
+    fileUnreadable:
+      "Diese Datei konnte nicht gelesen werden. Speichern Sie sie als CSV und versuchen Sie es erneut.",
+    listLabel: "Empfängerliste",
+    checkList: "Liste prüfen",
+    checkPending: "Liste wird gelesen…",
+    sendForApproval: "Zur Freigabe senden",
+    checkAndSend: "Prüfen und senden",
+    sendPending: "Wird bearbeitet…",
+    previewRecipients: "{count} Empfänger",
+    previewToFix: "{count} zu korrigieren",
+    previewTotal: "{amount} insgesamt",
+    previewOverflow: "{count} Zeilen über dem Limit wurden nicht gelesen",
+    columnLine: "Zeile",
+    columnRecipient: "Empfänger",
+    columnGift: "Geschenk",
+    columnDelivered: "Geliefert",
+    columnDelivery: "Lieferung",
+    columnValue: "Wert",
+    noName: "Kein Name",
+    subtotal: "Geschenke",
+    shipping: "Versand",
+    tax: "Steuer",
+    taxRow: "Steuer {rate} %",
+    total: "Gesamt",
+    approvalNote:
+      "Mit dem Senden geht die Kampagne an {approver}. Es wird nichts berechnet, bevor sie freigegeben ist und Sie bezahlen.",
+    noApprovalNote:
+      "Dieses Programm benötigt keine Freigabe; Sie gehen direkt zur Zahlung, sobald die Liste fehlerfrei ist.",
+
+    linkInvalidTitle: "Dieser Kampagnenlink ist nicht gültig",
+    linkInvalidBody:
+      "Kampagnenlinks sind persönlich: einer für den Besteller, einer für die freigebende Person. Bitten Sie darum, Ihren erneut zu senden, oder öffnen Sie den Katalog und starten Sie eine neue Bestellung.",
+    backToCatalogue: "Zurück zum Katalog",
+    campaignSubmitted: "{count} Empfänger · eingereicht von {buyer} am {when}",
+    waitingTitle: "Warten auf Freigabe",
+    waitingBody:
+      "{approver} hat die Liste und die Gesamtsumme. Sie können zahlen, sobald die Freigabe erteilt ist — es wurde noch nichts berechnet.",
+    decisionTitle: "Ihre Entscheidung ist erfasst",
+    decisionBody: "{decision} von {who} am {when}.",
+    decisionCanPay: "{buyer} kann jetzt bezahlen — Ihnen wurde nichts berechnet.",
+    decisionApproved: "Freigegeben",
+    decisionDeclined: "Abgelehnt",
+    declinedNoReason: "Es wurde keine Begründung angegeben.",
+    declinedBody:
+      "Starten Sie eine neue Bestellung aus dem Katalog mit den Änderungen, um die Ihre freigebende Person gebeten hat.",
+    orderedTitle: "Bezahlt und in Produktion",
+    orderedBody:
+      "{count} Bestellungen wurden angelegt, eine pro Empfänger, jede mit eigener Lieferung und Sendungsverfolgung. Verfolgen Sie sie unten.",
+    unpayableTitle: "Freigegeben, aber der Shop kann noch keine Zahlung annehmen",
+    unpayableBody:
+      "{client} hat die Einrichtung des Zahlungskontos noch nicht abgeschlossen. Ihre Kampagne ist gespeichert und kann bezahlt werden, sobald das erledigt ist.",
+    recipientsTitle: "Empfänger",
+    track: "{code} verfolgen",
+    historyTitle: "Verlauf",
+    totalsTitle: "Kampagnensumme",
+    spendLimitNote: "Budget {amount} pro Empfänger.",
+    noSpendLimitNote: "Für dieses Programm gibt es kein Budgetlimit.",
+    decisionFormTitle: "Ihre Entscheidung",
+    paymentTitle: "Zahlung",
+    approvalIntro:
+      "{buyer} benötigt Ihre Freigabe, bevor diese Kampagne bezahlt werden kann. Die Freigabe selbst kostet nichts — bezahlt wird vom Besteller auf dessen eigener Seite.",
+    noteLabel: "Notiz (für eine Ablehnung erforderlich)",
+    notePlaceholder: "Freigegeben zulasten des Marketingbudgets Q4.",
+    approve: "{total} freigeben",
+    approvePending: "Entscheidung wird erfasst…",
+    decline: "Ablehnen",
+    declinePending: "Wird erfasst…",
+    paymentIntro:
+      "Eine Zahlung für die gesamte Kampagne, abgewickelt über das eigene Stripe-Konto des Shops {account}. Jeder Empfänger wird danach als eigene Bestellung mit eigener Sendungsverfolgung angelegt.",
+    pay: "{total} bezahlen",
+    payPending: "Zahlung wird verarbeitet…",
+    withdraw: "Diese Kampagne zurückziehen",
+    withdrawConfirm: "Kampagne zurückziehen",
+    withdrawQuestion: "Die Liste wird zurückgezogen und niemandem etwas berechnet.",
+    withdrawPending: "Wird bearbeitet…",
+    cancel: "Abbrechen",
+
+    statusAwaitingApproval: "Warten auf Freigabe",
+    statusApproved: "Freigegeben, Zahlung offen",
+    statusDeclined: "Abgelehnt",
+    statusOrdered: "Bestellt",
+    statusCancelled: "Storniert",
+
+    eyebrow: "Geschenkportal",
+    notFoundTitle: "Diese Seite gibt es nicht",
+    notFoundBody:
+      "Die Adresse ist womöglich falsch geschrieben, oder die Kampagne bzw. das Produkt dahinter wurde seit dem Versand des Links geschlossen. Der Katalog selbst ist weiterhin offen.",
+    notFoundBoundaryBody:
+      "Der Link ist womöglich abgelaufen, oder der Geschenkkatalog wurde von dem Unternehmen geschlossen, das ihn eingerichtet hat. Wenn Ihnen jemand diesen Link geschickt hat, bitten Sie um einen aktuellen.",
+    errorTitle: "Da ist bei uns etwas schiefgelaufen",
+    errorBody:
+      "Diese Seite konnte nicht geladen werden. Nichts von dem, was Sie gesendet haben, ist verloren — versuchen Sie es erneut und schauen Sie in ein paar Minuten wieder vorbei, falls es weiterhin nicht klappt.",
+    errorRetry: "Erneut versuchen",
+    errorReference: "Referenz {digest}",
+    goToParcelith: "Zu Parcelith",
+  },
+
   fallback: {
     notFoundTitle: "Diese Seite gibt es nicht mehr",
     notFoundBody:

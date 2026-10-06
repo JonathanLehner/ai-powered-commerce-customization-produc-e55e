@@ -379,6 +379,191 @@ export const it: StorefrontCopy = {
     approvalCta: "Controlla l’elenco",
   },
 
+  gift: {
+    chromeSubtitle: "Catalogo regali · {store}",
+    private: "Privato",
+    operatedBy:
+      "Gestito da {client}, che è il venditore responsabile. I regali sono realizzati su ordinazione e spediti singolarmente a ciascun destinatario.",
+    supportTitle: "Domande su una campagna:",
+    supportPending: "{client} non ha ancora pubblicato i contatti dell’assistenza.",
+    legal: "© {year} {client}. Regali aziendali con tecnologia Parcelith.",
+
+    closedTitle: "Questo catalogo è chiuso",
+    closedBody:
+      "Il programma regali di {company} è in pausa. Chi lo gestisce per voi può riaprirlo: le campagne già inviate non sono interessate.",
+
+    privateBadge: "Catalogo privato",
+    inviteBody:
+      "Il catalogo regali di {company} è aperto ai colleghi invitati. Confermate l’indirizzo a cui è stato inviato e entrerete subito.",
+    linkOnlyBody:
+      "Questo catalogo si apre con il link privato condiviso da chi gestisce il programma di {company}. Usate di nuovo quel link oppure chiedetene uno nuovo: i link vengono rinnovati ogni volta che il programma passa di mano.",
+    gateEmail: "E-mail di lavoro",
+    gateEmailHint: "Deve essere uno degli indirizzi invitati da chi gestisce il programma.",
+    gateSubmit: "Apri il catalogo",
+    gatePending: "Verifica in corso…",
+
+    introFallback:
+      "Regali per {company}, prodotti su ordinazione e consegnati singolarmente a ciascun destinatario.",
+    startOrder: "Avvia un ordine multiplo",
+    spendLimitLabel: "Limite di spesa per destinatario",
+    noLimit: "Nessun limite",
+    approvalLabel: "Approvazione",
+    approvalRequired: "Necessaria",
+    approvalNotRequired: "Non necessaria",
+    recipientsLabel: "Destinatari per campagna",
+    recipientsUpTo: "Fino a {count}",
+    emptyTitle: "Nessun regalo disponibile al momento",
+    emptyBody:
+      "Nulla in questo catalogo è attualmente in produzione. Chi gestisce il programma saprà quando tornerà disponibile.",
+    giftsTitle: "I regali di questo catalogo",
+    previewSoon: "Anteprima disponibile a breve",
+    overLimit: "Oltre il limite",
+    sizes: "Taglie: {sizes}",
+    oneSize: "Taglia unica",
+    overLimitTitle: "Alcuni regali superano il vostro limite di spesa",
+    overLimitBody:
+      "Un destinatario abbinato a uno di questi viene rifiutato alla lettura della lista, così la riga può essere corretta prima di chiedere un’approvazione.",
+    howItWorks: "Come funziona una campagna",
+    step1Title: "Scegliete il regalo",
+    step1Body:
+      "Tutto quello che vedete qui è già prodotto per questo programma, nelle taglie tra cui le vostre persone possono scegliere.",
+    step2Title: "Aggiungete la lista dei destinatari",
+    step2Body:
+      "Incollatela da un foglio di calcolo o caricate un CSV: nomi, indirizzi, taglie e un messaggio facoltativo.",
+    step3Title: "Approvazione",
+    step3Body:
+      "La lista arriva con il suo totale a chi deve approvarla, prima di qualsiasi pagamento.",
+    step4Title: "Un pagamento, un pacco a testa",
+    step4Body:
+      "Pagate una sola volta. Ogni destinatario riceve il proprio pacco e il proprio tracciamento.",
+
+    orderTitle: "Ordine multiplo di regali",
+    campaignTitle: "Campagna regali",
+    orderIntro:
+      "Aggiungete tutte le persone a cui spedite, con l’indirizzo di consegna e la taglia che indossano. Controllate la lista quante volte volete: non viene creato nulla finché non la inviate{approval}.",
+    orderIntroApproval: " per l’approvazione",
+    paymentPendingTitle: "I pagamenti non sono ancora attivi per questo negozio",
+    paymentPendingBody:
+      "Potete comunque preparare una campagna e inviarla per l’approvazione. Non potrà essere pagata finché {client} non avrà completato il collegamento del proprio account di pagamento.",
+    yourApprover: "chi approva",
+
+    buyerTitle: "Chi ordina",
+    campaignName: "Nome della campagna",
+    campaignNamePlaceholder: "Regali clienti Q4",
+    buyerName: "Il vostro nome",
+    orderingAs:
+      "Ordinate come {email}. Conservate il link della campagna su cui arriverete: non viene inviata alcuna e-mail ed è su quella pagina che compaiono l’approvazione e la ricevuta.",
+    buyerEmail: "La vostra e-mail di lavoro",
+    buyerEmailHint:
+      "Registrata sulla campagna come acquirente. Conservate il link della campagna su cui arriverete: non viene inviata alcuna e-mail ed è su quella pagina che compaiono l’approvazione e la ricevuta.",
+    giftTitle: "Il regalo",
+    giftHint: "Usato per ogni riga che non indica un prodotto proprio.",
+    giftHintLimit: "Per ogni destinatario si possono spendere fino a {amount}.",
+    giftHintNoLimit: "Questo programma non ha limiti di spesa.",
+    listTitle: "Destinatari",
+    listHintLead: "Una persona per riga, fino a {max}. Colonne:",
+    listHintTail:
+      "La riga di intestazione viene rilevata automaticamente e {product} e {note} sono facoltative.",
+    uploadCsv: "Carica un CSV",
+    pasteExample: "Incolla l’esempio",
+    fileLoaded: "{file} caricato",
+    fileTooLarge: "{file} è di {size} KB. Le liste di destinatari stanno sotto i {limit} KB.",
+    fileUnreadable: "Non è stato possibile leggere il file. Salvatelo come CSV e riprovate.",
+    listLabel: "Lista dei destinatari",
+    checkList: "Controlla la lista",
+    checkPending: "Lettura della lista…",
+    sendForApproval: "Invia per approvazione",
+    checkAndSend: "Controlla e invia",
+    sendPending: "Elaborazione…",
+    previewRecipients: "{count} destinatari",
+    previewToFix: "{count} da correggere",
+    previewTotal: "{amount} in totale",
+    previewOverflow: "{count} righe oltre il limite non sono state lette",
+    columnLine: "Riga",
+    columnRecipient: "Destinatario",
+    columnGift: "Regalo",
+    columnDelivered: "Consegnato",
+    columnDelivery: "Consegna",
+    columnValue: "Valore",
+    noName: "Senza nome",
+    subtotal: "Regali",
+    shipping: "Spedizione",
+    tax: "Imposte",
+    taxRow: "Imposte {rate} %",
+    total: "Totale",
+    approvalNote:
+      "Con l’invio la campagna passa a {approver}. Nulla viene addebitato prima dell’approvazione e del vostro pagamento.",
+    noApprovalNote:
+      "Questo programma non richiede approvazione: si passa direttamente al pagamento appena la lista è corretta.",
+
+    linkInvalidTitle: "Questo link di campagna non è valido",
+    linkInvalidBody:
+      "I link delle campagne sono personali: uno per l’acquirente, uno per chi approva. Chiedete che il vostro venga inviato di nuovo, oppure aprite il catalogo e avviate un nuovo ordine.",
+    backToCatalogue: "Torna al catalogo",
+    campaignSubmitted: "{count} destinatari · inviata da {buyer} il {when}",
+    waitingTitle: "In attesa di approvazione",
+    waitingBody:
+      "{approver} ha la lista e il suo totale. Potrete pagare appena la approva: non è stato addebitato nulla.",
+    decisionTitle: "La vostra decisione è registrata",
+    decisionBody: "{decision} da {who} il {when}.",
+    decisionCanPay: "{buyer} può ora pagarla: a voi non è stato addebitato nulla.",
+    decisionApproved: "Approvata",
+    decisionDeclined: "Rifiutata",
+    declinedNoReason: "Non è stata indicata alcuna motivazione.",
+    declinedBody:
+      "Avviate un nuovo ordine dal catalogo con le modifiche richieste da chi approva.",
+    orderedTitle: "Pagata e in produzione",
+    orderedBody:
+      "Sono stati creati {count} ordini, uno per destinatario, ciascuno con la propria consegna e il proprio tracciamento. Seguiteli qui sotto.",
+    unpayableTitle: "Approvata, ma il negozio non può ancora incassare",
+    unpayableBody:
+      "{client} non ha completato il collegamento del proprio account di pagamento. La campagna è salvata e potrà essere pagata appena sarà pronto.",
+    recipientsTitle: "Destinatari",
+    track: "Segui {code}",
+    historyTitle: "Cronologia",
+    totalsTitle: "Totale della campagna",
+    spendLimitNote: "Limite di spesa di {amount} per destinatario.",
+    noSpendLimitNote: "Nessun limite di spesa su questo programma.",
+    decisionFormTitle: "La vostra decisione",
+    paymentTitle: "Pagamento",
+    approvalIntro:
+      "{buyer} ha bisogno della vostra approvazione prima che la campagna possa essere pagata. Approvare non comporta alcun addebito: l’acquirente paga dalla propria schermata.",
+    noteLabel: "Nota (obbligatoria per rifiutare)",
+    notePlaceholder: "Approvata sul budget marketing Q4.",
+    approve: "Approva {total}",
+    approvePending: "Registrazione della decisione…",
+    decline: "Rifiuta",
+    declinePending: "Registrazione…",
+    paymentIntro:
+      "Un solo pagamento per l’intera campagna, addebitato tramite l’account Stripe del negozio {account}. Ogni destinatario diventa poi un ordine a sé con il proprio tracciamento.",
+    pay: "Paga {total}",
+    payPending: "Pagamento in corso…",
+    withdraw: "Ritira questa campagna",
+    withdrawConfirm: "Ritira la campagna",
+    withdrawQuestion: "La lista viene ritirata e nessuno viene addebitato.",
+    withdrawPending: "Elaborazione…",
+    cancel: "Annulla",
+
+    statusAwaitingApproval: "In attesa di approvazione",
+    statusApproved: "Approvata, in attesa di pagamento",
+    statusDeclined: "Rifiutata",
+    statusOrdered: "Ordinata",
+    statusCancelled: "Annullata",
+
+    eyebrow: "Portale regali",
+    notFoundTitle: "Non riusciamo a trovare questa pagina",
+    notFoundBody:
+      "L’indirizzo potrebbe essere errato, oppure la campagna o il prodotto a cui puntava è stato chiuso da quando il link è stato inviato. Il catalogo è comunque aperto.",
+    notFoundBoundaryBody:
+      "Il link potrebbe essere scaduto, oppure il catalogo regali può essere stato chiuso dall’azienda che lo ha creato. Se qualcuno vi ha inviato questo link, chiedetene uno aggiornato.",
+    errorTitle: "Qualcosa è andato storto da parte nostra",
+    errorBody:
+      "Questa pagina non è stata caricata. Nulla di quanto avete inviato è andato perduto: riprovate e, se continua, tornate tra qualche minuto.",
+    errorRetry: "Riprova",
+    errorReference: "Riferimento {digest}",
+    goToParcelith: "Vai su Parcelith",
+  },
+
   fallback: {
     notFoundTitle: "Non troviamo questa pagina",
     notFoundBody:

@@ -380,6 +380,191 @@ export const fr: StorefrontCopy = {
     approvalCta: "Examiner la liste",
   },
 
+  gift: {
+    chromeSubtitle: "Catalogue cadeaux · {store}",
+    private: "Privé",
+    operatedBy:
+      "Exploité par {client}, qui est le marchand officiel. Les cadeaux sont fabriqués à la commande et expédiés individuellement à chaque destinataire.",
+    supportTitle: "Une question sur une campagne :",
+    supportPending: "{client} n’a pas encore publié de coordonnées d’assistance.",
+    legal: "© {year} {client}. Cadeaux d’entreprise propulsés par Parcelith.",
+
+    closedTitle: "Ce catalogue est fermé",
+    closedBody:
+      "Le programme de cadeaux de {company} est en pause. La personne qui le gère pour vous peut le réouvrir — les campagnes déjà passées ne sont pas affectées.",
+
+    privateBadge: "Catalogue privé",
+    inviteBody:
+      "Le catalogue cadeaux de {company} est ouvert aux collègues invités. Confirmez l’adresse à laquelle l’invitation a été envoyée et vous entrerez directement.",
+    linkOnlyBody:
+      "Ce catalogue s’ouvre avec le lien privé partagé par la personne qui gère le programme de {company}. Réutilisez ce lien, ou demandez-lui un nouveau — les liens sont renouvelés dès que le programme change de mains.",
+    gateEmail: "E-mail professionnel",
+    gateEmailHint: "Ce doit être l’une des adresses invitées par la personne qui gère votre programme.",
+    gateSubmit: "Ouvrir le catalogue",
+    gatePending: "Vérification…",
+
+    introFallback:
+      "Des cadeaux pour {company}, fabriqués à la commande et livrés individuellement à chaque destinataire.",
+    startOrder: "Lancer une commande groupée",
+    spendLimitLabel: "Budget par destinataire",
+    noLimit: "Aucune limite",
+    approvalLabel: "Validation",
+    approvalRequired: "Requise",
+    approvalNotRequired: "Non requise",
+    recipientsLabel: "Destinataires par campagne",
+    recipientsUpTo: "Jusqu’à {count}",
+    emptyTitle: "Aucun cadeau disponible pour le moment",
+    emptyBody:
+      "Rien dans ce catalogue n’est actuellement en production. La personne qui gère le programme pour vous saura quand ce sera de retour.",
+    giftsTitle: "Les cadeaux de ce catalogue",
+    previewSoon: "Aperçu bientôt disponible",
+    overLimit: "Au-dessus du budget",
+    sizes: "Tailles : {sizes}",
+    oneSize: "Taille unique",
+    overLimitTitle: "Certains cadeaux dépassent votre budget",
+    overLimitBody:
+      "Un destinataire associé à l’un d’eux est refusé à la lecture de la liste, afin que la ligne puisse être corrigée avant de demander une validation.",
+    howItWorks: "Comment se déroule une campagne",
+    step1Title: "Choisissez le cadeau",
+    step1Body:
+      "Tout ce qui figure ici est déjà produit pour ce programme, dans les tailles que vos équipes peuvent choisir.",
+    step2Title: "Ajoutez votre liste de destinataires",
+    step2Body:
+      "Collez-la depuis un tableur ou importez un CSV — noms, adresses, tailles et un message facultatif.",
+    step3Title: "Validation",
+    step3Body:
+      "La liste part avec son total vers la personne qui valide, avant tout paiement.",
+    step4Title: "Un paiement, un colis chacun",
+    step4Body:
+      "Vous êtes débité une seule fois. Chaque destinataire reçoit son propre colis et son propre suivi.",
+
+    orderTitle: "Commande groupée de cadeaux",
+    campaignTitle: "Campagne cadeaux",
+    orderIntro:
+      "Ajoutez toutes les personnes à qui vous envoyez, avec l’adresse de livraison et la taille portée. Vérifiez la liste autant de fois que vous le souhaitez — rien n’est créé avant l’envoi{approval}.",
+    orderIntroApproval: " pour validation",
+    paymentPendingTitle: "Les paiements ne sont pas encore activés pour cette boutique",
+    paymentPendingBody:
+      "Vous pouvez tout de même préparer une campagne et l’envoyer pour validation. Elle ne pourra être payée qu’une fois que {client} aura terminé la configuration de son compte de paiement.",
+    yourApprover: "la personne qui valide",
+
+    buyerTitle: "Qui commande",
+    campaignName: "Nom de la campagne",
+    campaignNamePlaceholder: "Cadeaux clients T4",
+    buyerName: "Votre nom",
+    orderingAs:
+      "Vous commandez en tant que {email}. Conservez le lien de campagne sur lequel vous arriverez — aucun e-mail n’est envoyé, et c’est sur cette page qu’apparaissent la validation et le reçu.",
+    buyerEmail: "Votre e-mail professionnel",
+    buyerEmailHint:
+      "Enregistré sur la campagne comme acheteur. Conservez le lien de campagne sur lequel vous arriverez — aucun e-mail n’est envoyé, et c’est sur cette page qu’apparaissent la validation et le reçu.",
+    giftTitle: "Le cadeau",
+    giftHint: "Utilisé pour chaque ligne qui ne nomme pas son propre produit.",
+    giftHintLimit: "Chaque destinataire peut recevoir jusqu’à {amount}.",
+    giftHintNoLimit: "Ce programme n’a aucune limite de budget.",
+    listTitle: "Destinataires",
+    listHintLead: "Une personne par ligne, jusqu’à {max}. Colonnes :",
+    listHintTail:
+      "Une ligne d’en-tête est détectée automatiquement, et {product} et {note} sont facultatives.",
+    uploadCsv: "Importer un CSV",
+    pasteExample: "Coller l’exemple",
+    fileLoaded: "{file} chargé",
+    fileTooLarge: "{file} pèse {size} Ko. Les listes de destinataires font moins de {limit} Ko.",
+    fileUnreadable: "Ce fichier n’a pas pu être lu. Enregistrez-le en CSV et réessayez.",
+    listLabel: "Liste de destinataires",
+    checkList: "Vérifier la liste",
+    checkPending: "Lecture de la liste…",
+    sendForApproval: "Envoyer pour validation",
+    checkAndSend: "Vérifier et envoyer",
+    sendPending: "Traitement…",
+    previewRecipients: "{count} destinataires",
+    previewToFix: "{count} à corriger",
+    previewTotal: "{amount} au total",
+    previewOverflow: "{count} lignes au-delà de la limite n’ont pas été lues",
+    columnLine: "Ligne",
+    columnRecipient: "Destinataire",
+    columnGift: "Cadeau",
+    columnDelivered: "Livré",
+    columnDelivery: "Livraison",
+    columnValue: "Valeur",
+    noName: "Sans nom",
+    subtotal: "Cadeaux",
+    shipping: "Livraison",
+    tax: "Taxes",
+    taxRow: "Taxes {rate} %",
+    total: "Total",
+    approvalNote:
+      "L’envoi place la campagne devant {approver}. Rien n’est débité avant sa validation et votre paiement.",
+    noApprovalNote:
+      "Ce programme ne demande aucune validation : vous passez directement au paiement dès que la liste est correcte.",
+
+    linkInvalidTitle: "Ce lien de campagne n’est pas valide",
+    linkInvalidBody:
+      "Les liens de campagne sont personnels : un pour l’acheteur, un pour la personne qui valide. Demandez que le vôtre soit renvoyé, ou ouvrez le catalogue et lancez une nouvelle commande.",
+    backToCatalogue: "Retour au catalogue",
+    campaignSubmitted: "{count} destinataires · envoyée par {buyer} le {when}",
+    waitingTitle: "En attente de validation",
+    waitingBody:
+      "{approver} a la liste et son total. Vous pourrez payer dès la validation — rien n’a été débité.",
+    decisionTitle: "Votre décision est enregistrée",
+    decisionBody: "{decision} par {who} le {when}.",
+    decisionCanPay: "{buyer} peut maintenant payer — rien ne vous a été débité.",
+    decisionApproved: "Validée",
+    decisionDeclined: "Refusée",
+    declinedNoReason: "Aucun motif n’a été donné.",
+    declinedBody:
+      "Lancez une nouvelle commande depuis le catalogue avec les changements demandés par la personne qui valide.",
+    orderedTitle: "Payée et en production",
+    orderedBody:
+      "{count} commandes ont été créées, une par destinataire, chacune avec sa livraison et son suivi. Suivez-les ci-dessous.",
+    unpayableTitle: "Validée, mais la boutique ne peut pas encore encaisser",
+    unpayableBody:
+      "{client} n’a pas terminé la configuration de son compte de paiement. Votre campagne est enregistrée et pourra être payée dès que ce sera fait.",
+    recipientsTitle: "Destinataires",
+    track: "Suivre {code}",
+    historyTitle: "Historique",
+    totalsTitle: "Total de la campagne",
+    spendLimitNote: "Budget de {amount} par destinataire.",
+    noSpendLimitNote: "Aucune limite de budget sur ce programme.",
+    decisionFormTitle: "Votre décision",
+    paymentTitle: "Paiement",
+    approvalIntro:
+      "{buyer} a besoin de votre accord avant que cette campagne puisse être payée. Valider ne débite rien — l’acheteur paie depuis son propre écran.",
+    noteLabel: "Note (obligatoire pour refuser)",
+    notePlaceholder: "Validé sur le budget marketing du T4.",
+    approve: "Valider {total}",
+    approvePending: "Enregistrement de votre décision…",
+    decline: "Refuser",
+    declinePending: "Enregistrement…",
+    paymentIntro:
+      "Un seul paiement pour toute la campagne, encaissé via le compte Stripe de la boutique {account}. Chaque destinataire devient ensuite sa propre commande avec son propre suivi.",
+    pay: "Payer {total}",
+    payPending: "Paiement en cours…",
+    withdraw: "Retirer cette campagne",
+    withdrawConfirm: "Retirer la campagne",
+    withdrawQuestion: "La liste est retirée et personne n’est débité.",
+    withdrawPending: "Traitement…",
+    cancel: "Annuler",
+
+    statusAwaitingApproval: "En attente de validation",
+    statusApproved: "Validée, paiement en attente",
+    statusDeclined: "Refusée",
+    statusOrdered: "Commandée",
+    statusCancelled: "Annulée",
+
+    eyebrow: "Portail cadeaux",
+    notFoundTitle: "Cette page est introuvable",
+    notFoundBody:
+      "L’adresse est peut-être mal saisie, ou la campagne ou le produit visé a été fermé depuis l’envoi du lien. Le catalogue lui-même est toujours ouvert.",
+    notFoundBoundaryBody:
+      "Le lien a peut-être expiré, ou le catalogue cadeaux a été fermé par l’entreprise qui l’a mis en place. Si quelqu’un vous a envoyé ce lien, demandez-lui-en un à jour.",
+    errorTitle: "Quelque chose s’est mal passé de notre côté",
+    errorBody:
+      "Cette page n’a pas pu être chargée. Rien de ce que vous avez envoyé n’a été perdu — réessayez, et si cela persiste revenez dans quelques minutes.",
+    errorRetry: "Réessayer",
+    errorReference: "Référence {digest}",
+    goToParcelith: "Aller sur Parcelith",
+  },
+
   fallback: {
     notFoundTitle: "Cette page est introuvable",
     notFoundBody:

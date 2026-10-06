@@ -390,6 +390,194 @@ export const en = {
     approvalCta: "Review the list",
   },
 
+  /**
+   * The private corporate gift portal: /g/<catalogue>. The portal is the
+   * store's own surface, so it reads in the store's storefront language exactly
+   * as the shop does — the buyer and the approver are the client's own people.
+   */
+  gift: {
+    chromeSubtitle: "Gift catalogue · {store}",
+    private: "Private",
+    operatedBy:
+      "Operated by {client}, who is the merchant of record. Gifts are made to order and shipped to each recipient individually.",
+    supportTitle: "Questions about a campaign:",
+    supportPending: "{client} has not published support contact details yet.",
+    legal: "© {year} {client}. Corporate gifting powered by Parcelith.",
+
+    closedTitle: "This catalogue is closed",
+    closedBody:
+      "{company}’s gifting programme is paused. Whoever runs it for you can reopen it — campaigns already placed are unaffected.",
+
+    privateBadge: "Private catalogue",
+    inviteBody:
+      "{company}’s gift catalogue is open to invited colleagues. Confirm the address it was sent to and you will be let straight in.",
+    linkOnlyBody:
+      "This catalogue opens from the private link {company}’s programme owner shared. Use that link again, or ask them for a fresh one — links are rotated whenever the programme changes hands.",
+    gateEmail: "Work email",
+    gateEmailHint: "It has to be one of the addresses your programme owner invited.",
+    gateSubmit: "Open the catalogue",
+    gatePending: "Checking…",
+
+    introFallback:
+      "Gifts for {company}, produced to order and delivered to each recipient individually.",
+    startOrder: "Start a bulk order",
+    spendLimitLabel: "Spend limit per recipient",
+    noLimit: "No limit",
+    approvalLabel: "Approval",
+    approvalRequired: "Required",
+    approvalNotRequired: "Not required",
+    recipientsLabel: "Recipients per campaign",
+    recipientsUpTo: "Up to {count}",
+    emptyTitle: "No gifts available right now",
+    emptyBody:
+      "Nothing in this catalogue is currently in production. Whoever runs the programme for you will know when it is back.",
+    giftsTitle: "Gifts in this catalogue",
+    previewSoon: "Preview coming soon",
+    overLimit: "Over limit",
+    sizes: "Sizes: {sizes}",
+    oneSize: "One size",
+    overLimitTitle: "Some gifts sit above your spend limit",
+    overLimitBody:
+      "A recipient listed against one of these is rejected when the list is read, so the row can be changed before anyone is asked to approve it.",
+    howItWorks: "How a campaign works",
+    step1Title: "Pick the gift",
+    step1Body:
+      "Everything here is already produced for this programme, in the sizes your people can choose from.",
+    step2Title: "Add your recipient list",
+    step2Body:
+      "Paste it from a spreadsheet or upload a CSV — names, addresses, sizes and an optional message.",
+    step3Title: "Approval",
+    step3Body: "The list goes to your approver with its total before anything is paid for.",
+    step4Title: "One payment, one parcel each",
+    step4Body:
+      "You are charged once. Every recipient gets their own parcel and their own tracking.",
+
+    orderTitle: "Bulk gift order",
+    campaignTitle: "Gift campaign",
+    orderIntro:
+      "Add everyone you are sending to, with the address the parcel should reach and the size they wear. Check the list as often as you like — nothing is created until you send it{approval}.",
+    orderIntroApproval: " for approval",
+    paymentPendingTitle: "Payment is not switched on for this store yet",
+    paymentPendingBody:
+      "You can still build and send a campaign for approval. It cannot be paid for until {client} finishes connecting their payment account.",
+    yourApprover: "your approver",
+
+    buyerTitle: "Who is ordering",
+    campaignName: "Campaign name",
+    campaignNamePlaceholder: "Q4 client gifts",
+    buyerName: "Your name",
+    orderingAs:
+      "Ordering as {email}. Save the campaign link you land on next — no email is sent, and that page is where the approval and the receipt appear.",
+    buyerEmail: "Your work email",
+    buyerEmailHint:
+      "Recorded on the campaign as the buyer. Save the campaign link you land on next — no email is sent, and that page is where the approval and the receipt appear.",
+    giftTitle: "The gift",
+    giftHint: "Used for every row that does not name a product of its own.",
+    giftHintLimit: "Each recipient may be spent up to {amount}.",
+    giftHintNoLimit: "There is no spend limit on this programme.",
+    listTitle: "Recipients",
+    listHintLead: "One person per line, up to {max}. Columns:",
+    listHintTail: "A header row is detected automatically, and {product} and {note} are optional.",
+    uploadCsv: "Upload a CSV",
+    pasteExample: "Paste the example",
+    fileLoaded: "Loaded {file}",
+    fileTooLarge: "{file} is {size} KB. Recipient lists are under {limit} KB.",
+    fileUnreadable: "That file could not be read. Save it as CSV and try again.",
+    listLabel: "Recipient list",
+    checkList: "Check the list",
+    checkPending: "Reading the list…",
+    sendForApproval: "Send for approval",
+    checkAndSend: "Check and send",
+    sendPending: "Working…",
+    previewRecipients: "{count} recipients",
+    previewToFix: "{count} to fix",
+    previewTotal: "{amount} in total",
+    previewOverflow: "{count} rows past the limit were not read",
+    columnLine: "Line",
+    columnRecipient: "Recipient",
+    columnGift: "Gift",
+    columnDelivered: "Delivered",
+    columnDelivery: "Delivery",
+    columnValue: "Value",
+    noName: "No name",
+    subtotal: "Gifts",
+    shipping: "Delivery",
+    tax: "Tax",
+    taxRow: "Tax {rate}%",
+    total: "Total",
+    approvalNote:
+      "Sending puts the campaign in front of {approver}. Nothing is charged until it is approved and you pay.",
+    noApprovalNote:
+      "This programme needs no approval, so you go straight to payment once the list is clean.",
+
+    linkInvalidTitle: "This campaign link is not valid",
+    linkInvalidBody:
+      "Campaign links are personal: one for the buyer, one for the approver. Ask for yours to be sent again, or open the catalogue and start a new order.",
+    backToCatalogue: "Back to the catalogue",
+    campaignSubmitted: "{count} recipients · submitted by {buyer} on {when}",
+    waitingTitle: "Waiting for approval",
+    waitingBody:
+      "{approver} has the list and its total. You can pay as soon as they approve it — nothing has been charged.",
+    decisionTitle: "Your decision is recorded",
+    decisionBody: "{decision} by {who} on {when}.",
+    decisionCanPay: "{buyer} can now pay for it — nothing has been charged to you.",
+    decisionApproved: "Approved",
+    decisionDeclined: "Declined",
+    declinedNoReason: "No reason was given.",
+    declinedBody:
+      "Start a new order from the catalogue with the changes your approver asked for.",
+    orderedTitle: "Paid and in production",
+    orderedBody:
+      "{count} orders were raised, one per recipient, each with its own delivery and tracking. Follow any of them below.",
+    unpayableTitle: "Approved, but the store cannot take payment yet",
+    unpayableBody:
+      "{client} has not finished connecting their payment account. Your campaign is saved and can be paid for as soon as they have.",
+    recipientsTitle: "Recipients",
+    track: "Track {code}",
+    historyTitle: "History",
+    totalsTitle: "Campaign total",
+    spendLimitNote: "Spend limit {amount} per recipient.",
+    noSpendLimitNote: "No spend limit on this programme.",
+    decisionFormTitle: "Your decision",
+    paymentTitle: "Payment",
+    approvalIntro:
+      "{buyer} needs your sign-off before this campaign can be paid for. Approving charges nothing — the buyer pays on their own screen.",
+    noteLabel: "Note (required to decline)",
+    notePlaceholder: "Approved against the Q4 marketing budget.",
+    approve: "Approve {total}",
+    approvePending: "Recording your decision…",
+    decline: "Decline",
+    declinePending: "Recording…",
+    paymentIntro:
+      "One payment for the whole campaign, charged through the store’s own Stripe account {account}. Every recipient is then raised as their own order with their own tracking.",
+    pay: "Pay {total}",
+    payPending: "Taking payment…",
+    withdraw: "Withdraw this campaign",
+    withdrawConfirm: "Withdraw campaign",
+    withdrawQuestion: "The list is withdrawn and nobody is charged.",
+    withdrawPending: "Working…",
+    cancel: "Cancel",
+
+    statusAwaitingApproval: "Awaiting approval",
+    statusApproved: "Approved, awaiting payment",
+    statusDeclined: "Declined",
+    statusOrdered: "Ordered",
+    statusCancelled: "Cancelled",
+
+    eyebrow: "Gift portal",
+    notFoundTitle: "We cannot find that page",
+    notFoundBody:
+      "The address may be mistyped, or the campaign or product it pointed at may have been closed since the link was sent. The catalogue itself is still open.",
+    notFoundBoundaryBody:
+      "The link may have expired, or the gift catalogue may have been closed by the company that set it up. If someone sent you this link, ask them for a current one.",
+    errorTitle: "Something went wrong at our end",
+    errorBody:
+      "This page could not be loaded. Nothing you have submitted has been lost — try again, and if it keeps happening come back in a few minutes.",
+    errorRetry: "Try again",
+    errorReference: "Reference {digest}",
+    goToParcelith: "Go to Parcelith",
+  },
+
   /** Shown by the storefront's not-found and error boundaries. */
   fallback: {
     notFoundTitle: "We cannot find that page",

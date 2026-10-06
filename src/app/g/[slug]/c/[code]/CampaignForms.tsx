@@ -4,7 +4,15 @@ import { useActionState } from "react";
 import { cancelCampaign, decideCampaign, payCampaign } from "@/app/actions/gifting";
 import type { ActionState } from "@/app/actions/stores";
 import { ActionForm, ConfirmSubmit, FormStatus, SubmitButton } from "@/components/forms";
+import { fmt, fmtAround, type StorefrontCopy } from "@/lib/i18n";
 import { TEST_CARDS } from "@/lib/stripe";
+
+/** Stripe's published test numbers, labelled in the store's language. */
+const TEST_CARD_LABELS: Record<string, keyof StorefrontCopy["checkout"]> = {
+  "4242 4242 4242 4242": "cardSucceeds",
+  "4000 0000 0000 0002": "cardDeclined",
+  "4000 0000 0000 9995": "cardInsufficient",
+};
 
 /**
  * Approve or decline, from the link sent to the approver.
@@ -20,12 +28,14 @@ export function ApprovalForm({
   token,
   buyerName,
   total,
+  t,
 }: {
   slug: string;
   code: string;
   token: string;
   buyerName: string;
   total: string;
+  t: StorefrontCopy["gift"];
 }) {
   const [state, formAction] = useActionState<ActionState, FormData>(decideCampaign, { status: "idle" });
 
@@ -34,18 +44,15 @@ export function ApprovalForm({
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="code" value={code} />
       <input type="hidden" name="token" value={token} />
-      <p className="text-sm text-muted">
-        {buyerName} needs your sign-off before this campaign can be paid for. Approving charges nothing — the
-        buyer pays on their own screen.
-      </p>
+      <p className="text-sm text-muted">{fmt(t.approvalIntro, { buyer: buyerName })}</p>
       <label htmlFor="note" className="field-label mt-4">
-        Note (required to decline)
+        {t.noteLabel}
       </label>
       <textarea
         id="note"
         name="note"
         rows={3}
-        placeholder="Approved against the Q4 marketing budget."
+        placeholder={t.notePlaceholder}
         aria-invalid={state.field === "note" ? true : undefined}
         className={state.field === "note" ? "input input-error" : "input"}
       />
@@ -53,14 +60,19 @@ export function ApprovalForm({
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <SubmitButton
           className="btn-primary"
-          pendingLabel="Recording your decision…"
+          pendingLabel={t.approvePending}
           name="decision"
           value="approve"
         >
-          {`Approve ${total}`}
+          {fmt(t.approve, { total })}
         </SubmitButton>
-        <SubmitButton className="btn-danger" pendingLabel="Recording…" name="decision" value="decline">
-          Decline
+        <SubmitButton
+          className="btn-danger"
+          pendingLabel={t.declinePending}
+          name="decision"
+          value="decline"
+        >
+          {t.decline}
         </SubmitButton>
       </div>
     </form>
@@ -73,31 +85,40 @@ export function PaymentForm({
   token,
   total,
   stripeAccountId,
+  t,
+  card,
 }: {
   slug: string;
   code: string;
   token: string;
   total: string;
   stripeAccountId: string | null;
+  t: StorefrontCopy["gift"];
+  /** The card fields are the checkout's, so they share its copy. */
+  card: StorefrontCopy["checkout"];
 }) {
+  // The account id is rendered as a node, so the sentence is split around it
+  // and each half keeps its own language's word order.
+  const [payBefore, payAfter] = fmtAround(t.paymentIntro, "account");
+
   return (
     <ActionForm
       action={payCampaign}
-      submitLabel={`Pay ${total}`}
-      pendingLabel="Taking payment…"
+      submitLabel={fmt(t.pay, { total })}
+      pendingLabel={t.payPending}
       hidden={{ slug, code, token }}
     >
       {(state) => (
         <>
           <p className="text-sm text-muted">
-            One payment for the whole campaign, charged through the store&rsquo;s own Stripe account
-            {stripeAccountId ? <span className="font-mono text-xs"> {stripeAccountId}</span> : null}. Every
-            recipient is then raised as their own order with their own tracking.
+            {payBefore}
+            {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
+            {payAfter}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="cardNumber" className="field-label">
-                Card number
+                {card.cardNumber}
               </label>
               <input
                 id="cardNumber"
@@ -112,7 +133,7 @@ export function PaymentForm({
             </div>
             <div>
               <label htmlFor="expiry" className="field-label">
-                Expiry (MM/YY)
+                {card.expiry}
               </label>
               <input
                 id="expiry"
@@ -126,7 +147,7 @@ export function PaymentForm({
             </div>
             <div>
               <label htmlFor="cvc" className="field-label">
-                Security code
+                {card.securityCode}
               </label>
               <input
                 id="cvc"
@@ -141,11 +162,12 @@ export function PaymentForm({
             </div>
           </div>
           <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted">
-            <p className="font-medium text-ink">Stripe test mode</p>
+            <p className="font-medium text-ink">{card.testMode}</p>
             <ul className="mt-1.5 space-y-1">
-              {TEST_CARDS.map((card) => (
-                <li key={card.number}>
-                  <span className="font-mono">{card.number}</span> — {card.label}
+              {TEST_CARDS.map((entry) => (
+                <li key={entry.number}>
+                  <span className="font-mono">{entry.number}</span> —{" "}
+                  {card[TEST_CARD_LABELS[entry.number]] ?? entry.label}
                 </li>
               ))}
             </ul>
@@ -160,10 +182,12 @@ export function CancelCampaignForm({
   slug,
   code,
   token,
+  t,
 }: {
   slug: string;
   code: string;
   token: string;
+  t: StorefrontCopy["gift"];
 }) {
   return (
     <form action={cancelCampaign}>
@@ -172,10 +196,12 @@ export function CancelCampaignForm({
       <input type="hidden" name="token" value={token} />
       <ConfirmSubmit
         className="btn-ghost btn-sm"
-        confirmLabel="Withdraw campaign"
-        question="The list is withdrawn and nobody is charged."
+        confirmLabel={t.withdrawConfirm}
+        question={t.withdrawQuestion}
+        pendingLabel={t.withdrawPending}
+        cancelLabel={t.cancel}
       >
-        Withdraw this campaign
+        {t.withdraw}
       </ConfirmSubmit>
     </form>
   );

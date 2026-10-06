@@ -378,6 +378,191 @@ export const es: StorefrontCopy = {
     approvalCta: "Revisar la lista",
   },
 
+  gift: {
+    chromeSubtitle: "Catálogo de regalos · {store}",
+    private: "Privado",
+    operatedBy:
+      "Gestionado por {client}, que es el comerciante responsable. Los regalos se fabrican por encargo y se envían individualmente a cada destinatario.",
+    supportTitle: "¿Dudas sobre una campaña?",
+    supportPending: "{client} aún no ha publicado datos de contacto de soporte.",
+    legal: "© {year} {client}. Regalos corporativos con tecnología de Parcelith.",
+
+    closedTitle: "Este catálogo está cerrado",
+    closedBody:
+      "El programa de regalos de {company} está en pausa. Quien lo gestione puede reabrirlo; las campañas ya realizadas no se ven afectadas.",
+
+    privateBadge: "Catálogo privado",
+    inviteBody:
+      "El catálogo de regalos de {company} está abierto a las personas invitadas. Confirme la dirección a la que se envió y entrará directamente.",
+    linkOnlyBody:
+      "Este catálogo se abre con el enlace privado que compartió la persona responsable del programa de {company}. Vuelva a usar ese enlace o pídale uno nuevo: los enlaces se renuevan cada vez que el programa cambia de manos.",
+    gateEmail: "Correo de trabajo",
+    gateEmailHint: "Tiene que ser una de las direcciones que invitó la persona responsable del programa.",
+    gateSubmit: "Abrir el catálogo",
+    gatePending: "Comprobando…",
+
+    introFallback:
+      "Regalos para {company}, fabricados por encargo y entregados individualmente a cada destinatario.",
+    startOrder: "Iniciar un pedido masivo",
+    spendLimitLabel: "Límite de gasto por destinatario",
+    noLimit: "Sin límite",
+    approvalLabel: "Aprobación",
+    approvalRequired: "Obligatoria",
+    approvalNotRequired: "No necesaria",
+    recipientsLabel: "Destinatarios por campaña",
+    recipientsUpTo: "Hasta {count}",
+    emptyTitle: "Ahora mismo no hay regalos disponibles",
+    emptyBody:
+      "Nada de este catálogo está en producción en este momento. Quien gestione el programa sabrá cuándo vuelve a estar disponible.",
+    giftsTitle: "Regalos de este catálogo",
+    previewSoon: "Vista previa disponible en breve",
+    overLimit: "Por encima del límite",
+    sizes: "Tallas: {sizes}",
+    oneSize: "Talla única",
+    overLimitTitle: "Algunos regalos superan su límite de gasto",
+    overLimitBody:
+      "Un destinatario asignado a uno de ellos se rechaza al leer la lista, de modo que la fila puede corregirse antes de pedir una aprobación.",
+    howItWorks: "Cómo funciona una campaña",
+    step1Title: "Elija el regalo",
+    step1Body:
+      "Todo lo que aparece aquí ya se produce para este programa, en las tallas entre las que puede elegir su equipo.",
+    step2Title: "Añada su lista de destinatarios",
+    step2Body:
+      "Péguela desde una hoja de cálculo o suba un CSV: nombres, direcciones, tallas y un mensaje opcional.",
+    step3Title: "Aprobación",
+    step3Body:
+      "La lista llega con su total a quien debe aprobarla antes de pagar nada.",
+    step4Title: "Un pago, un paquete para cada uno",
+    step4Body:
+      "Se le cobra una sola vez. Cada destinatario recibe su propio paquete y su propio seguimiento.",
+
+    orderTitle: "Pedido masivo de regalos",
+    campaignTitle: "Campaña de regalos",
+    orderIntro:
+      "Añada a todas las personas a las que envía, con la dirección de entrega y la talla que usan. Revise la lista tantas veces como quiera: no se crea nada hasta que la envíe{approval}.",
+    orderIntroApproval: " para su aprobación",
+    paymentPendingTitle: "Esta tienda todavía no tiene los pagos activados",
+    paymentPendingBody:
+      "Aún puede preparar una campaña y enviarla para su aprobación. No podrá pagarse hasta que {client} termine de conectar su cuenta de pagos.",
+    yourApprover: "la persona que aprueba",
+
+    buyerTitle: "Quién hace el pedido",
+    campaignName: "Nombre de la campaña",
+    campaignNamePlaceholder: "Regalos de clientes del T4",
+    buyerName: "Su nombre",
+    orderingAs:
+      "Pedido como {email}. Guarde el enlace de la campaña al que llegará a continuación: no se envía ningún correo y es en esa página donde aparecen la aprobación y el recibo.",
+    buyerEmail: "Su correo de trabajo",
+    buyerEmailHint:
+      "Se registra en la campaña como comprador. Guarde el enlace de la campaña al que llegará a continuación: no se envía ningún correo y es en esa página donde aparecen la aprobación y el recibo.",
+    giftTitle: "El regalo",
+    giftHint: "Se usa en cada fila que no indique un producto propio.",
+    giftHintLimit: "Por cada destinatario se pueden gastar hasta {amount}.",
+    giftHintNoLimit: "Este programa no tiene límite de gasto.",
+    listTitle: "Destinatarios",
+    listHintLead: "Una persona por línea, hasta {max}. Columnas:",
+    listHintTail:
+      "La fila de encabezado se detecta automáticamente, y {product} y {note} son opcionales.",
+    uploadCsv: "Subir un CSV",
+    pasteExample: "Pegar el ejemplo",
+    fileLoaded: "{file} cargado",
+    fileTooLarge: "{file} tiene {size} KB. Las listas de destinatarios no llegan a {limit} KB.",
+    fileUnreadable: "No se ha podido leer ese archivo. Guárdelo como CSV e inténtelo de nuevo.",
+    listLabel: "Lista de destinatarios",
+    checkList: "Revisar la lista",
+    checkPending: "Leyendo la lista…",
+    sendForApproval: "Enviar para aprobación",
+    checkAndSend: "Revisar y enviar",
+    sendPending: "Procesando…",
+    previewRecipients: "{count} destinatarios",
+    previewToFix: "{count} por corregir",
+    previewTotal: "{amount} en total",
+    previewOverflow: "{count} filas por encima del límite no se han leído",
+    columnLine: "Línea",
+    columnRecipient: "Destinatario",
+    columnGift: "Regalo",
+    columnDelivered: "Entregado",
+    columnDelivery: "Entrega",
+    columnValue: "Valor",
+    noName: "Sin nombre",
+    subtotal: "Regalos",
+    shipping: "Envío",
+    tax: "Impuestos",
+    taxRow: "Impuestos {rate} %",
+    total: "Total",
+    approvalNote:
+      "Al enviarla, la campaña pasa a {approver}. No se cobra nada hasta que se apruebe y usted pague.",
+    noApprovalNote:
+      "Este programa no necesita aprobación, así que pasará directamente al pago cuando la lista esté correcta.",
+
+    linkInvalidTitle: "Este enlace de campaña no es válido",
+    linkInvalidBody:
+      "Los enlaces de campaña son personales: uno para el comprador y otro para quien aprueba. Pida que le reenvíen el suyo, o abra el catálogo y empiece un pedido nuevo.",
+    backToCatalogue: "Volver al catálogo",
+    campaignSubmitted: "{count} destinatarios · enviada por {buyer} el {when}",
+    waitingTitle: "Pendiente de aprobación",
+    waitingBody:
+      "{approver} tiene la lista y su total. Podrá pagar en cuanto la apruebe: todavía no se ha cobrado nada.",
+    decisionTitle: "Su decisión queda registrada",
+    decisionBody: "{decision} por {who} el {when}.",
+    decisionCanPay: "{buyer} ya puede pagarla: a usted no se le ha cobrado nada.",
+    decisionApproved: "Aprobada",
+    decisionDeclined: "Rechazada",
+    declinedNoReason: "No se indicó ningún motivo.",
+    declinedBody:
+      "Empiece un pedido nuevo desde el catálogo con los cambios que le ha pedido quien aprueba.",
+    orderedTitle: "Pagada y en producción",
+    orderedBody:
+      "Se han creado {count} pedidos, uno por destinatario, cada uno con su entrega y su seguimiento. Puede seguirlos abajo.",
+    unpayableTitle: "Aprobada, pero la tienda aún no puede aceptar pagos",
+    unpayableBody:
+      "{client} no ha terminado de conectar su cuenta de pagos. Su campaña está guardada y podrá pagarse en cuanto lo haga.",
+    recipientsTitle: "Destinatarios",
+    track: "Seguir {code}",
+    historyTitle: "Historial",
+    totalsTitle: "Total de la campaña",
+    spendLimitNote: "Límite de gasto de {amount} por destinatario.",
+    noSpendLimitNote: "Este programa no tiene límite de gasto.",
+    decisionFormTitle: "Su decisión",
+    paymentTitle: "Pago",
+    approvalIntro:
+      "{buyer} necesita su visto bueno antes de poder pagar esta campaña. Aprobarla no cobra nada: el comprador paga en su propia pantalla.",
+    noteLabel: "Nota (obligatoria para rechazar)",
+    notePlaceholder: "Aprobada con cargo al presupuesto de marketing del T4.",
+    approve: "Aprobar {total}",
+    approvePending: "Registrando su decisión…",
+    decline: "Rechazar",
+    declinePending: "Registrando…",
+    paymentIntro:
+      "Un único pago por toda la campaña, cobrado a través de la cuenta de Stripe de la tienda {account}. Después, cada destinatario se convierte en su propio pedido con su propio seguimiento.",
+    pay: "Pagar {total}",
+    payPending: "Procesando el pago…",
+    withdraw: "Retirar esta campaña",
+    withdrawConfirm: "Retirar la campaña",
+    withdrawQuestion: "La lista se retira y no se cobra a nadie.",
+    withdrawPending: "Procesando…",
+    cancel: "Cancelar",
+
+    statusAwaitingApproval: "Pendiente de aprobación",
+    statusApproved: "Aprobada, pendiente de pago",
+    statusDeclined: "Rechazada",
+    statusOrdered: "Pedida",
+    statusCancelled: "Cancelada",
+
+    eyebrow: "Portal de regalos",
+    notFoundTitle: "No encontramos esa página",
+    notFoundBody:
+      "Puede que la dirección esté mal escrita, o que la campaña o el producto al que apuntaba se haya cerrado desde que se envió el enlace. El catálogo sigue abierto.",
+    notFoundBoundaryBody:
+      "Puede que el enlace haya caducado o que la empresa que creó el catálogo de regalos lo haya cerrado. Si alguien le envió este enlace, pídale uno actual.",
+    errorTitle: "Algo ha ido mal por nuestra parte",
+    errorBody:
+      "No se ha podido cargar esta página. Nada de lo que ha enviado se ha perdido: inténtelo de nuevo y, si sigue ocurriendo, vuelva en unos minutos.",
+    errorRetry: "Intentarlo de nuevo",
+    errorReference: "Referencia {digest}",
+    goToParcelith: "Ir a Parcelith",
+  },
+
   fallback: {
     notFoundTitle: "No encontramos esa página",
     notFoundBody:

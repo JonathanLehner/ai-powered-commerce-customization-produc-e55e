@@ -4,7 +4,7 @@ import {
   notFoundRobots,
   UnknownGiftPortalView,
 } from "@/components/NotFoundViews";
-import { getGiftCatalogueBySlug } from "@/lib/data";
+import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 
 /**
  * Any address inside a gift portal that matches no page. Like the storefront
@@ -20,8 +20,10 @@ export default async function GiftPortalCatchAll({
 }) {
   const { slug } = await params;
   const catalogue = await getGiftCatalogueBySlug(slug);
+  // The store comes with it, because the body reads in that store's language.
+  const store = catalogue ? await getStore(catalogue.storeId) : null;
   return catalogue ? (
-    <GiftPortalNotFoundView catalogue={catalogue} />
+    <GiftPortalNotFoundView catalogue={catalogue} store={store} />
   ) : (
     <UnknownGiftPortalView slug={slug} />
   );

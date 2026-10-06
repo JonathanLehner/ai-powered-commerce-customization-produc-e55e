@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Document, siteMetadata } from "@/components/Document";
+import { GiftPortalFallbackProvider } from "@/components/GiftPortalFallback";
 import { PlainDocument } from "@/components/SiteChrome";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
+import { fmt, storefrontLocale } from "@/lib/i18n";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { THEMES } from "@/lib/types";
@@ -27,9 +29,11 @@ export async function generateMetadata({
 }
 
 /**
- * Root layout for a company's private gift portal. Unlike the client storefront
- * this is a buyer-and-approver workflow rather than shopper-facing retail copy,
- * so it stays in English regardless of the store's storefront language.
+ * Root layout for a company's private gift portal. It is a root layout rather
+ * than a nested one so the page can be marked with the store's own language:
+ * the portal is the store's surface as much as the shop is, so its built-in
+ * copy, money and dates follow the store's `defaultLanguage` exactly as the
+ * storefront's do.
  *
  * It carries the store's branding
  * because the store is the merchant of record here too, but it is never linked
@@ -54,13 +58,14 @@ export default async function GiftPortalLayout({
   }
 
   const theme = THEMES[store.theme];
+  const { tag, t } = storefrontLocale(store);
   // The same contacts the storefront publishes: a gifting buyer with a problem
   // has no other route to the seller either, and nothing here is invented from
   // the client's name.
   const support = storeSupport(store);
 
   return (
-    <Document>
+    <Document lang={tag}>
       <div className="flex min-h-full flex-col bg-white">
         <header className="border-b border-line bg-white">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
@@ -87,27 +92,30 @@ export default async function GiftPortalLayout({
                 <span className="block truncate text-base font-semibold tracking-tight text-ink">
                   {catalogue.companyName}
                 </span>
-                <span className="block truncate text-xs text-muted">Gift catalogue · {store.name}</span>
+                <span className="block truncate text-xs text-muted">
+                  {fmt(t.gift.chromeSubtitle, { store: store.name })}
+                </span>
               </span>
             </Link>
             <span className="ml-auto rounded-full border border-line bg-canvas px-2.5 py-0.5 text-xs font-medium text-inksoft">
-              Private
+              {t.gift.private}
             </span>
           </div>
         </header>
 
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          <GiftPortalFallbackProvider value={{ slug: catalogue.slug, t: t.gift }}>
+            {children}
+          </GiftPortalFallbackProvider>
+        </main>
 
         <footer className="border-t border-line bg-canvas">
           <div className="mx-auto w-full max-w-6xl px-4 py-8 text-sm text-muted sm:px-6">
             <p className="text-ink">{catalogue.name}</p>
-            <p className="mt-1">
-              Operated by {store.clientName}, who is the merchant of record. Gifts are made to order and shipped to
-              each recipient individually.
-            </p>
+            <p className="mt-1">{fmt(t.gift.operatedBy, { client: store.clientName })}</p>
             {support.email || support.phone ? (
               <p className="mt-3">
-                Questions about a campaign:{" "}
+                {t.gift.supportTitle}{" "}
                 {support.email ? (
                   <a href={supportMailto(support.email)} className="text-ink hover:underline">
                     {support.email}
@@ -121,10 +129,10 @@ export default async function GiftPortalLayout({
                 ) : null}
               </p>
             ) : (
-              <p className="mt-3">{store.clientName} has not published support contact details yet.</p>
+              <p className="mt-3">{fmt(t.gift.supportPending, { client: store.clientName })}</p>
             )}
             <p className="mt-3 text-xs">
-              © {new Date().getFullYear()} {store.clientName}. Corporate gifting powered by Parcelith.
+              {fmt(t.gift.legal, { year: new Date().getFullYear(), client: store.clientName })}
             </p>
           </div>
         </footer>

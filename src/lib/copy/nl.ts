@@ -379,6 +379,191 @@ export const nl: StorefrontCopy = {
     approvalCta: "Bekijk de lijst",
   },
 
+  gift: {
+    chromeSubtitle: "Cadeaucatalogus · {store}",
+    private: "Privé",
+    operatedBy:
+      "Beheerd door {client}, die de verkopende partij is. Cadeaus worden op bestelling gemaakt en afzonderlijk naar elke ontvanger verzonden.",
+    supportTitle: "Vragen over een campagne:",
+    supportPending: "{client} heeft nog geen contactgegevens voor support gepubliceerd.",
+    legal: "© {year} {client}. Zakelijke cadeaus mogelijk gemaakt door Parcelith.",
+
+    closedTitle: "Deze catalogus is gesloten",
+    closedBody:
+      "Het cadeauprogramma van {company} staat op pauze. Degene die het voor u beheert kan het heropenen — al geplaatste campagnes blijven ongemoeid.",
+
+    privateBadge: "Privécatalogus",
+    inviteBody:
+      "De cadeaucatalogus van {company} staat open voor uitgenodigde collega’s. Bevestig het adres waarnaar de uitnodiging is gestuurd en u komt er direct in.",
+    linkOnlyBody:
+      "Deze catalogus opent met de privélink die de beheerder van het programma van {company} heeft gedeeld. Gebruik die link opnieuw of vraag om een nieuwe — links worden vernieuwd zodra het programma in andere handen komt.",
+    gateEmail: "Werk-e-mail",
+    gateEmailHint: "Het moet een van de adressen zijn die uw programmabeheerder heeft uitgenodigd.",
+    gateSubmit: "Catalogus openen",
+    gatePending: "Controleren…",
+
+    introFallback:
+      "Cadeaus voor {company}, op bestelling gemaakt en afzonderlijk bij elke ontvanger bezorgd.",
+    startOrder: "Bulkorder starten",
+    spendLimitLabel: "Budget per ontvanger",
+    noLimit: "Geen limiet",
+    approvalLabel: "Goedkeuring",
+    approvalRequired: "Vereist",
+    approvalNotRequired: "Niet vereist",
+    recipientsLabel: "Ontvangers per campagne",
+    recipientsUpTo: "Tot {count}",
+    emptyTitle: "Er zijn nu geen cadeaus beschikbaar",
+    emptyBody:
+      "Niets in deze catalogus is momenteel in productie. Degene die het programma voor u beheert weet wanneer het terug is.",
+    giftsTitle: "Cadeaus in deze catalogus",
+    previewSoon: "Voorbeeld volgt binnenkort",
+    overLimit: "Boven het budget",
+    sizes: "Maten: {sizes}",
+    oneSize: "Eén maat",
+    overLimitTitle: "Sommige cadeaus liggen boven uw budget",
+    overLimitBody:
+      "Een ontvanger die aan zo’n cadeau is gekoppeld wordt bij het inlezen van de lijst geweigerd, zodat de regel kan worden aangepast voordat iemand om goedkeuring wordt gevraagd.",
+    howItWorks: "Zo werkt een campagne",
+    step1Title: "Kies het cadeau",
+    step1Body:
+      "Alles hier wordt al voor dit programma geproduceerd, in de maten waaruit uw mensen kunnen kiezen.",
+    step2Title: "Voeg uw ontvangerslijst toe",
+    step2Body:
+      "Plak die uit een spreadsheet of upload een CSV — namen, adressen, maten en een optioneel bericht.",
+    step3Title: "Goedkeuring",
+    step3Body:
+      "De lijst gaat met het totaal naar uw goedkeurder voordat er iets wordt betaald.",
+    step4Title: "Eén betaling, voor ieder een pakket",
+    step4Body:
+      "U betaalt één keer. Elke ontvanger krijgt zijn eigen pakket en zijn eigen tracking.",
+
+    orderTitle: "Bulkorder cadeaus",
+    campaignTitle: "Cadeaucampagne",
+    orderIntro:
+      "Voeg iedereen toe naar wie u verzendt, met het bezorgadres en de maat die ze dragen. Controleer de lijst zo vaak u wilt — er wordt niets aangemaakt totdat u de lijst verstuurt{approval}.",
+    orderIntroApproval: " ter goedkeuring",
+    paymentPendingTitle: "Betalingen staan voor deze winkel nog niet aan",
+    paymentPendingBody:
+      "U kunt een campagne wel opstellen en ter goedkeuring versturen. Betalen kan pas als {client} het betaalaccount volledig heeft gekoppeld.",
+    yourApprover: "uw goedkeurder",
+
+    buyerTitle: "Wie bestelt",
+    campaignName: "Naam van de campagne",
+    campaignNamePlaceholder: "Relatiegeschenken Q4",
+    buyerName: "Uw naam",
+    orderingAs:
+      "U bestelt als {email}. Bewaar de campagnelink waarop u straks terechtkomt — er wordt geen e-mail verzonden, en op die pagina verschijnen de goedkeuring en de bon.",
+    buyerEmail: "Uw werk-e-mail",
+    buyerEmailHint:
+      "Wordt op de campagne vastgelegd als besteller. Bewaar de campagnelink waarop u straks terechtkomt — er wordt geen e-mail verzonden, en op die pagina verschijnen de goedkeuring en de bon.",
+    giftTitle: "Het cadeau",
+    giftHint: "Geldt voor elke regel die geen eigen product noemt.",
+    giftHintLimit: "Per ontvanger mag tot {amount} worden besteed.",
+    giftHintNoLimit: "Dit programma heeft geen budgetlimiet.",
+    listTitle: "Ontvangers",
+    listHintLead: "Eén persoon per regel, tot {max}. Kolommen:",
+    listHintTail:
+      "Een kopregel wordt automatisch herkend, en {product} en {note} zijn optioneel.",
+    uploadCsv: "CSV uploaden",
+    pasteExample: "Voorbeeld plakken",
+    fileLoaded: "{file} geladen",
+    fileTooLarge: "{file} is {size} KB. Ontvangerslijsten blijven onder {limit} KB.",
+    fileUnreadable: "Dat bestand kon niet worden gelezen. Sla het op als CSV en probeer het opnieuw.",
+    listLabel: "Ontvangerslijst",
+    checkList: "Lijst controleren",
+    checkPending: "Lijst wordt gelezen…",
+    sendForApproval: "Ter goedkeuring versturen",
+    checkAndSend: "Controleren en versturen",
+    sendPending: "Bezig…",
+    previewRecipients: "{count} ontvangers",
+    previewToFix: "{count} te herstellen",
+    previewTotal: "{amount} in totaal",
+    previewOverflow: "{count} regels boven de limiet zijn niet gelezen",
+    columnLine: "Regel",
+    columnRecipient: "Ontvanger",
+    columnGift: "Cadeau",
+    columnDelivered: "Bezorgd",
+    columnDelivery: "Bezorging",
+    columnValue: "Waarde",
+    noName: "Geen naam",
+    subtotal: "Cadeaus",
+    shipping: "Verzending",
+    tax: "Btw",
+    taxRow: "Btw {rate}%",
+    total: "Totaal",
+    approvalNote:
+      "Na het versturen ligt de campagne bij {approver}. Er wordt niets afgeschreven tot die is goedgekeurd en u betaalt.",
+    noApprovalNote:
+      "Dit programma heeft geen goedkeuring nodig, dus u gaat direct naar de betaling zodra de lijst klopt.",
+
+    linkInvalidTitle: "Deze campagnelink is niet geldig",
+    linkInvalidBody:
+      "Campagnelinks zijn persoonlijk: één voor de besteller, één voor de goedkeurder. Vraag of de uwe opnieuw wordt verstuurd, of open de catalogus en begin een nieuwe order.",
+    backToCatalogue: "Terug naar de catalogus",
+    campaignSubmitted: "{count} ontvangers · ingediend door {buyer} op {when}",
+    waitingTitle: "Wacht op goedkeuring",
+    waitingBody:
+      "{approver} heeft de lijst en het totaal. U kunt betalen zodra die is goedgekeurd — er is nog niets afgeschreven.",
+    decisionTitle: "Uw beslissing is vastgelegd",
+    decisionBody: "{decision} door {who} op {when}.",
+    decisionCanPay: "{buyer} kan nu betalen — u is niets afgeschreven.",
+    decisionApproved: "Goedgekeurd",
+    decisionDeclined: "Afgewezen",
+    declinedNoReason: "Er is geen reden opgegeven.",
+    declinedBody:
+      "Begin een nieuwe order vanuit de catalogus met de wijzigingen waar uw goedkeurder om vroeg.",
+    orderedTitle: "Betaald en in productie",
+    orderedBody:
+      "Er zijn {count} orders aangemaakt, één per ontvanger, elk met eigen bezorging en tracking. Volg ze hieronder.",
+    unpayableTitle: "Goedgekeurd, maar de winkel kan nog niet afrekenen",
+    unpayableBody:
+      "{client} heeft het betaalaccount nog niet volledig gekoppeld. Uw campagne is bewaard en kan worden betaald zodra dat is gebeurd.",
+    recipientsTitle: "Ontvangers",
+    track: "{code} volgen",
+    historyTitle: "Geschiedenis",
+    totalsTitle: "Campagnetotaal",
+    spendLimitNote: "Budget {amount} per ontvanger.",
+    noSpendLimitNote: "Dit programma heeft geen budgetlimiet.",
+    decisionFormTitle: "Uw beslissing",
+    paymentTitle: "Betaling",
+    approvalIntro:
+      "{buyer} heeft uw fiat nodig voordat deze campagne kan worden betaald. Goedkeuren kost niets — de besteller betaalt op zijn eigen scherm.",
+    noteLabel: "Opmerking (verplicht bij afwijzen)",
+    notePlaceholder: "Goedgekeurd ten laste van het marketingbudget Q4.",
+    approve: "{total} goedkeuren",
+    approvePending: "Beslissing wordt vastgelegd…",
+    decline: "Afwijzen",
+    declinePending: "Vastleggen…",
+    paymentIntro:
+      "Eén betaling voor de hele campagne, afgeschreven via het eigen Stripe-account van de winkel {account}. Elke ontvanger wordt daarna een eigen order met eigen tracking.",
+    pay: "{total} betalen",
+    payPending: "Betaling wordt verwerkt…",
+    withdraw: "Deze campagne terugtrekken",
+    withdrawConfirm: "Campagne terugtrekken",
+    withdrawQuestion: "De lijst wordt teruggetrokken en niemand wordt afgeschreven.",
+    withdrawPending: "Bezig…",
+    cancel: "Annuleren",
+
+    statusAwaitingApproval: "Wacht op goedkeuring",
+    statusApproved: "Goedgekeurd, wacht op betaling",
+    statusDeclined: "Afgewezen",
+    statusOrdered: "Besteld",
+    statusCancelled: "Geannuleerd",
+
+    eyebrow: "Cadeauportaal",
+    notFoundTitle: "We kunnen die pagina niet vinden",
+    notFoundBody:
+      "Het adres is misschien verkeerd getypt, of de campagne of het product waarnaar het verwees is gesloten sinds de link is verstuurd. De catalogus zelf is nog open.",
+    notFoundBoundaryBody:
+      "De link is misschien verlopen, of de cadeaucatalogus is gesloten door het bedrijf dat hem heeft opgezet. Als iemand u deze link heeft gestuurd, vraag dan om een actuele.",
+    errorTitle: "Er is iets misgegaan aan onze kant",
+    errorBody:
+      "Deze pagina kon niet worden geladen. Niets van wat u hebt verstuurd is verloren — probeer het opnieuw en kom over een paar minuten terug als het blijft gebeuren.",
+    errorRetry: "Opnieuw proberen",
+    errorReference: "Referentie {digest}",
+    goToParcelith: "Naar Parcelith",
+  },
+
   fallback: {
     notFoundTitle: "Deze pagina kunnen we niet vinden",
     notFoundBody:

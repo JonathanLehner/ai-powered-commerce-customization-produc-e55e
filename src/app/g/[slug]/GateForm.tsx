@@ -2,20 +2,21 @@
 
 import { unlockGiftCatalogue } from "@/app/actions/gifting";
 import { ActionForm } from "@/components/forms";
+import type { StorefrontCopy } from "@/lib/i18n";
 
 /** Invite-gated catalogues let somebody in on their work email, nothing else. */
-export function GateForm({ slug }: { slug: string }) {
+export function GateForm({ slug, t }: { slug: string; t: StorefrontCopy["gift"] }) {
   return (
     <ActionForm
       action={unlockGiftCatalogue}
-      submitLabel="Open the catalogue"
-      pendingLabel="Checking…"
+      submitLabel={t.gateSubmit}
+      pendingLabel={t.gatePending}
       hidden={{ slug }}
     >
       {(state) => (
         <div>
           <label htmlFor="email" className="field-label">
-            Work email
+            {t.gateEmail}
           </label>
           <input
             id="email"
@@ -28,7 +29,7 @@ export function GateForm({ slug }: { slug: string }) {
             className={state.field === "email" ? "input input-error" : "input"}
           />
           <p id="email-hint" className="field-hint">
-            It has to be one of the addresses your programme owner invited.
+            {t.gateEmailHint}
           </p>
         </div>
       )}

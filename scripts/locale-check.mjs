@@ -4,7 +4,10 @@
 // for every entry in it: a full dictionary, matching placeholders, a locale tag
 // that actually changes how money and dates read, and no English left behind.
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -85,6 +88,100 @@ for (const { code } of LANGUAGES) {
   const dictionary = flatten(copyFor(code));
   for (const key of SAMPLE) {
     assert.notEqual(dictionary[key], english[key], `${code}.${key} is still the English string`);
+  }
+}
+
+/* ------------------------------------- the gift portal is translated as well */
+
+// The bug this exists for: the private gift portal under src/app/g shipped with
+// its copy written straight into the JSX — "Preview coming soon" beside a
+// product with no mockup, "Over limit" on a badge — so a German store's
+// storefront read in German while its own gifting portal stayed in English. The
+// portal is the store's surface too, and it renders in the store's language, so
+// every shopper-facing string in it has to come from these dictionaries.
+for (const { code } of LANGUAGES) {
+  if (code === "en") continue;
+  const dictionary = flatten(copyFor(code));
+  for (const key of ["gift.startOrder", "gift.previewSoon", "gift.overLimit", "gift.recipientsTitle"]) {
+    assert.notEqual(dictionary[key], english[key], `${code}.${key} is still the English string`);
+  }
+}
+
+const PORTAL = fileURLToPath(new URL("../src/app/g/", import.meta.url));
+
+/**
+ * The English the portal is still allowed to contain, and why.
+ *
+ * Each of these renders only for an address that belongs to no catalogue, or to
+ * a catalogue whose store could not be loaded. There is no store language to
+ * read at that point, so Parcelith's own English is all that is left to say —
+ * exactly as on the storefront's "no such shop" page.
+ */
+const ALLOWED_ENGLISH = new Set([
+  "Corporate gifting powered by Parcelith.",
+  "Bulk gift order",
+  "Gift campaign",
+]);
+
+const portalFiles = [];
+(function walk(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) walk(path);
+    else if (/\.tsx?$/.test(entry.name)) portalFiles.push(path);
+  }
+})(PORTAL);
+assert.ok(portalFiles.length >= 8, "the gift portal scan found almost nothing — has src/app/g moved?");
+
+/** Drops comments, so prose explaining the rule is not read as breaking it. */
+const withoutComments = (source) =>
+  source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+
+/**
+ * Two short English words in a row, either case on the first. Portal copy now
+ * arrives as `{t.gift.…}`, so a sentence left in the source — in the JSX, in a
+ * template literal, in a validation message — still reads like English and
+ * nothing else in TypeScript does. The second word has to be plain lowercase so
+ * `of readdirSync` and `of giftProductOptions` are not mistaken for prose.
+ */
+const ENGLISH_WORDS = [
+  "the", "your", "you", "every", "their", "this", "that", "with", "from", "are", "was", "has",
+  "have", "its", "not", "any", "and", "all", "of", "is", "it", "or", "be", "no", "we", "our",
+  "will", "can", "cannot", "until", "once", "nothing", "something",
+];
+const PROSE = new RegExp(
+  `\\b(?:${ENGLISH_WORDS.map((w) => `[${w[0].toUpperCase()}${w[0]}]${w.slice(1)}`).join("|")})` +
+    `\\s+[a-z]{2,}\\b(?![\\w.(])`,
+  "g",
+);
+
+/** A bare JSX text node that has a word in it was never passed through a dictionary. */
+const JSX_TEXT = />([^<>{}]+)<\//g;
+
+// Props and object keys that carry a sentence to the screen: a literal there is
+// copy, wherever in the file it sits.
+const COPY_PROPS =
+  /(?:^|[\s{(,])(?:title|description|label|submitLabel|pendingLabel|confirmLabel|cancelLabel|question|eyebrow|note|placeholder|approverLabel|aria-label)\s*[:=]\s*\{?\s*"([^"]+)"/g;
+
+const allowed = (value) => ALLOWED_ENGLISH.has(value.trim());
+
+for (const path of portalFiles) {
+  const source = withoutComments(readFileSync(path, "utf8"));
+  const name = `src/app/g/${path.slice(PORTAL.length)}`;
+
+  for (const [, text] of source.matchAll(JSX_TEXT)) {
+    const value = text.trim();
+    if (!value || !/[A-Za-z]{2,}/.test(value) || allowed(value)) continue;
+    assert.fail(`${name} renders the untranslated string “${value}”`);
+  }
+
+  for (const [, value] of source.matchAll(COPY_PROPS)) {
+    if (!/[A-Za-z]{2,}/.test(value) || allowed(value)) continue;
+    assert.fail(`${name} passes the untranslated string “${value}”`);
+  }
+
+  for (const [phrase] of source.matchAll(PROSE)) {
+    assert.fail(`${name} still writes English copy in the source: “${phrase}…”`);
   }
 }
 

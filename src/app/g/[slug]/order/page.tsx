@@ -6,14 +6,25 @@ import { Callout } from "@/components/ui";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess, GIFT_LINK_HOLDER } from "@/lib/gift-access";
 import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
+import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { sizesFor } from "@/lib/gift-recipients";
 import { BulkOrderForm } from "./BulkOrderForm";
 
-export const metadata: Metadata = {
-  title: "Bulk gift order",
-  robots: { index: false, follow: false },
-};
+/** The tab title is the store's too, so it is resolved per catalogue. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const catalogue = await getGiftCatalogueBySlug(slug);
+  const store = catalogue ? await getStore(catalogue.storeId) : null;
+  return {
+    title: store ? storefrontLocale(store).t.gift.orderTitle : "Bulk gift order",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function BulkOrderPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -27,6 +38,7 @@ export default async function BulkOrderPage({ params }: { params: Promise<{ slug
   const access = await readGiftAccess(catalogue);
   if (!access || catalogue.status !== "active" || store.status !== "active") redirect(`/g/${slug}`);
 
+  const { t, tag } = storefrontLocale(store);
   const published = await listPublishedProducts(store.id);
   const options = giftProductOptions(catalogue, published, store.channelCode);
   if (options.length === 0) redirect(`/g/${slug}`);
@@ -47,18 +59,17 @@ export default async function BulkOrderPage({ params }: { params: Promise<{ slug
       <Link href={`/g/${slug}`} className="text-sm font-medium text-brand-700 hover:underline">
         ← {catalogue.name}
       </Link>
-      <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink">Bulk gift order</h1>
+      <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink">{t.gift.orderTitle}</h1>
       <p className="mt-2 max-w-2xl text-sm text-inksoft">
-        Add everyone you are sending to, with the address the parcel should reach and the size they wear. Check
-        the list as often as you like — nothing is created until you send it
-        {catalogue.approvalRequired ? " for approval" : ""}.
+        {fmt(t.gift.orderIntro, {
+          approval: catalogue.approvalRequired ? t.gift.orderIntroApproval : "",
+        })}
       </p>
 
       {!store.stripe.connected || !store.stripe.chargesEnabled ? (
         <div className="mt-6">
-          <Callout tone="amber" title="Payment is not switched on for this store yet">
-            You can still build and send a campaign for approval. It cannot be paid for until{" "}
-            {store.clientName} finishes connecting their payment account.
+          <Callout tone="amber" title={t.gift.paymentPendingTitle}>
+            {fmt(t.gift.paymentPendingBody, { client: store.clientName })}
           </Callout>
         </div>
       ) : null}
@@ -71,8 +82,10 @@ export default async function BulkOrderPage({ params }: { params: Promise<{ slug
           spendLimit={catalogue.spendLimitPerRecipient}
           maxRecipients={MAX_RECIPIENTS}
           approvalRequired={catalogue.approvalRequired}
-          approverLabel={catalogue.approverName || catalogue.approverEmail || "your approver"}
+          approverLabel={catalogue.approverName || catalogue.approverEmail || t.gift.yourApprover}
           buyerEmail={access.email === GIFT_LINK_HOLDER ? null : access.email}
+          t={t.gift}
+          localeTag={tag}
         />
       </div>
     </div>

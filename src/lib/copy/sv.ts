@@ -377,6 +377,191 @@ export const sv: StorefrontCopy = {
     approvalCta: "Granska listan",
   },
 
+  gift: {
+    chromeSubtitle: "Gåvokatalog · {store}",
+    private: "Privat",
+    operatedBy:
+      "Drivs av {client}, som är säljare. Gåvorna tillverkas på beställning och skickas separat till varje mottagare.",
+    supportTitle: "Frågor om en kampanj:",
+    supportPending: "{client} har ännu inte publicerat några kontaktuppgifter för support.",
+    legal: "© {year} {client}. Företagsgåvor drivs av Parcelith.",
+
+    closedTitle: "Den här katalogen är stängd",
+    closedBody:
+      "Gåvoprogrammet för {company} är pausat. Den som sköter det åt er kan öppna det igen — kampanjer som redan lagts påverkas inte.",
+
+    privateBadge: "Privat katalog",
+    inviteBody:
+      "Gåvokatalogen för {company} är öppen för inbjudna kollegor. Bekräfta adressen som inbjudan skickades till, så släpps du in direkt.",
+    linkOnlyBody:
+      "Den här katalogen öppnas med den privata länk som programansvarig hos {company} delade. Använd länken igen eller be om en ny — länkarna byts ut så snart programmet byter ansvarig.",
+    gateEmail: "Jobbmejl",
+    gateEmailHint: "Det måste vara en av adresserna som er programansvariga bjöd in.",
+    gateSubmit: "Öppna katalogen",
+    gatePending: "Kontrollerar…",
+
+    introFallback:
+      "Gåvor för {company}, tillverkade på beställning och levererade separat till varje mottagare.",
+    startOrder: "Starta en massbeställning",
+    spendLimitLabel: "Beloppsgräns per mottagare",
+    noLimit: "Ingen gräns",
+    approvalLabel: "Godkännande",
+    approvalRequired: "Krävs",
+    approvalNotRequired: "Krävs inte",
+    recipientsLabel: "Mottagare per kampanj",
+    recipientsUpTo: "Upp till {count}",
+    emptyTitle: "Inga gåvor är tillgängliga just nu",
+    emptyBody:
+      "Inget i den här katalogen är i produktion för tillfället. Den som sköter programmet åt er vet när det är tillbaka.",
+    giftsTitle: "Gåvor i den här katalogen",
+    previewSoon: "Förhandsvisning kommer snart",
+    overLimit: "Över gränsen",
+    sizes: "Storlekar: {sizes}",
+    oneSize: "En storlek",
+    overLimitTitle: "Några gåvor ligger över er beloppsgräns",
+    overLimitBody:
+      "En mottagare som kopplas till någon av dem avvisas när listan läses in, så att raden kan ändras innan någon ombeds godkänna den.",
+    howItWorks: "Så fungerar en kampanj",
+    step1Title: "Välj gåvan",
+    step1Body:
+      "Allt här produceras redan för det här programmet, i de storlekar era medarbetare kan välja mellan.",
+    step2Title: "Lägg till er mottagarlista",
+    step2Body:
+      "Klistra in den från ett kalkylblad eller ladda upp en CSV — namn, adresser, storlekar och ett valfritt meddelande.",
+    step3Title: "Godkännande",
+    step3Body:
+      "Listan går med sin totalsumma till den som godkänner innan något betalas.",
+    step4Title: "En betalning, ett paket var",
+    step4Body:
+      "Ni betalar en gång. Varje mottagare får sitt eget paket och sin egen spårning.",
+
+    orderTitle: "Massbeställning av gåvor",
+    campaignTitle: "Gåvokampanj",
+    orderIntro:
+      "Lägg till alla ni skickar till, med adressen paketet ska nå och storleken de bär. Kontrollera listan hur ofta ni vill — inget skapas förrän ni skickar in den{approval}.",
+    orderIntroApproval: " för godkännande",
+    paymentPendingTitle: "Betalningar är ännu inte påslagna för den här butiken",
+    paymentPendingBody:
+      "Ni kan ändå bygga en kampanj och skicka den för godkännande. Den kan inte betalas förrän {client} har kopplat sitt betalkonto färdigt.",
+    yourApprover: "den som godkänner",
+
+    buyerTitle: "Vem beställer",
+    campaignName: "Kampanjens namn",
+    campaignNamePlaceholder: "Kundgåvor Q4",
+    buyerName: "Ditt namn",
+    orderingAs:
+      "Du beställer som {email}. Spara kampanjlänken du landar på härnäst — inget mejl skickas, och det är på den sidan godkännandet och kvittot visas.",
+    buyerEmail: "Ditt jobbmejl",
+    buyerEmailHint:
+      "Registreras på kampanjen som beställare. Spara kampanjlänken du landar på härnäst — inget mejl skickas, och det är på den sidan godkännandet och kvittot visas.",
+    giftTitle: "Gåvan",
+    giftHint: "Används för varje rad som inte anger en egen produkt.",
+    giftHintLimit: "Per mottagare får upp till {amount} användas.",
+    giftHintNoLimit: "Det här programmet har ingen beloppsgräns.",
+    listTitle: "Mottagare",
+    listHintLead: "En person per rad, upp till {max}. Kolumner:",
+    listHintTail:
+      "En rubrikrad känns igen automatiskt, och {product} och {note} är valfria.",
+    uploadCsv: "Ladda upp en CSV",
+    pasteExample: "Klistra in exemplet",
+    fileLoaded: "{file} inläst",
+    fileTooLarge: "{file} är {size} KB. Mottagarlistor ligger under {limit} KB.",
+    fileUnreadable: "Filen kunde inte läsas. Spara den som CSV och försök igen.",
+    listLabel: "Mottagarlista",
+    checkList: "Kontrollera listan",
+    checkPending: "Läser listan…",
+    sendForApproval: "Skicka för godkännande",
+    checkAndSend: "Kontrollera och skicka",
+    sendPending: "Arbetar…",
+    previewRecipients: "{count} mottagare",
+    previewToFix: "{count} att rätta",
+    previewTotal: "{amount} totalt",
+    previewOverflow: "{count} rader över gränsen lästes inte",
+    columnLine: "Rad",
+    columnRecipient: "Mottagare",
+    columnGift: "Gåva",
+    columnDelivered: "Levererat",
+    columnDelivery: "Leverans",
+    columnValue: "Värde",
+    noName: "Inget namn",
+    subtotal: "Gåvor",
+    shipping: "Frakt",
+    tax: "Moms",
+    taxRow: "Moms {rate} %",
+    total: "Totalt",
+    approvalNote:
+      "När ni skickar in hamnar kampanjen hos {approver}. Inget debiteras förrän den är godkänd och ni betalar.",
+    noApprovalNote:
+      "Det här programmet behöver inget godkännande, så ni går direkt till betalning när listan är ren.",
+
+    linkInvalidTitle: "Den här kampanjlänken är inte giltig",
+    linkInvalidBody:
+      "Kampanjlänkar är personliga: en för beställaren, en för den som godkänner. Be att din skickas igen, eller öppna katalogen och börja en ny beställning.",
+    backToCatalogue: "Tillbaka till katalogen",
+    campaignSubmitted: "{count} mottagare · skickad av {buyer} den {when}",
+    waitingTitle: "Väntar på godkännande",
+    waitingBody:
+      "{approver} har listan och dess totalsumma. Ni kan betala så snart den är godkänd — inget har debiterats.",
+    decisionTitle: "Ditt beslut är registrerat",
+    decisionBody: "{decision} av {who} den {when}.",
+    decisionCanPay: "{buyer} kan nu betala den — inget har debiterats dig.",
+    decisionApproved: "Godkänd",
+    decisionDeclined: "Avslagen",
+    declinedNoReason: "Ingen anledning angavs.",
+    declinedBody:
+      "Börja en ny beställning från katalogen med de ändringar den som godkänner bad om.",
+    orderedTitle: "Betald och i produktion",
+    orderedBody:
+      "{count} beställningar skapades, en per mottagare, var och en med egen leverans och spårning. Följ dem nedan.",
+    unpayableTitle: "Godkänd, men butiken kan inte ta betalt ännu",
+    unpayableBody:
+      "{client} har inte kopplat sitt betalkonto färdigt. Er kampanj är sparad och kan betalas så snart det är klart.",
+    recipientsTitle: "Mottagare",
+    track: "Spåra {code}",
+    historyTitle: "Historik",
+    totalsTitle: "Kampanjens totalsumma",
+    spendLimitNote: "Beloppsgräns {amount} per mottagare.",
+    noSpendLimitNote: "Ingen beloppsgräns i det här programmet.",
+    decisionFormTitle: "Ditt beslut",
+    paymentTitle: "Betalning",
+    approvalIntro:
+      "{buyer} behöver ditt godkännande innan kampanjen kan betalas. Att godkänna kostar ingenting — beställaren betalar på sin egen skärm.",
+    noteLabel: "Notering (krävs för avslag)",
+    notePlaceholder: "Godkänd mot marknadsbudgeten för Q4.",
+    approve: "Godkänn {total}",
+    approvePending: "Registrerar ditt beslut…",
+    decline: "Avslå",
+    declinePending: "Registrerar…",
+    paymentIntro:
+      "En betalning för hela kampanjen, dragen via butikens eget Stripe-konto {account}. Varje mottagare blir sedan en egen beställning med egen spårning.",
+    pay: "Betala {total}",
+    payPending: "Genomför betalningen…",
+    withdraw: "Dra tillbaka kampanjen",
+    withdrawConfirm: "Dra tillbaka kampanjen",
+    withdrawQuestion: "Listan dras tillbaka och ingen debiteras.",
+    withdrawPending: "Arbetar…",
+    cancel: "Avbryt",
+
+    statusAwaitingApproval: "Väntar på godkännande",
+    statusApproved: "Godkänd, väntar på betalning",
+    statusDeclined: "Avslagen",
+    statusOrdered: "Beställd",
+    statusCancelled: "Avbruten",
+
+    eyebrow: "Gåvoportal",
+    notFoundTitle: "Vi hittar inte den sidan",
+    notFoundBody:
+      "Adressen kan vara felstavad, eller kampanjen eller produkten den pekade på kan ha stängts sedan länken skickades. Själva katalogen är fortfarande öppen.",
+    notFoundBoundaryBody:
+      "Länken kan ha gått ut, eller gåvokatalogen kan ha stängts av företaget som skapade den. Om någon skickade dig länken, be om en aktuell.",
+    errorTitle: "Något gick fel hos oss",
+    errorBody:
+      "Sidan kunde inte laddas. Inget av det du skickat in har förlorats — försök igen, och kom tillbaka om några minuter om det fortsätter.",
+    errorRetry: "Försök igen",
+    errorReference: "Referens {digest}",
+    goToParcelith: "Till Parcelith",
+  },
+
   fallback: {
     notFoundTitle: "Vi hittar inte den sidan",
     notFoundBody:

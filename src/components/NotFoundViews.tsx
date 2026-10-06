@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
-import { fmt, storefrontLocale } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, fmt, storefrontLocale } from "@/lib/i18n";
 import { THEMES, type Store } from "@/lib/types";
 
 /**
@@ -93,28 +93,27 @@ export function UnknownStoreView({ slug }: { slug: string }) {
 }
 
 /**
- * A mistyped address inside a gift portal that does resolve. The portal is a
- * buyer-and-approver workflow rather than shopper-facing retail, so — like the
- * rest of the portal — it stays in English.
+ * A mistyped address inside a gift portal that does resolve. The portal runs in
+ * the store's own storefront language, so this reads in it too; a catalogue
+ * whose store could not be loaded falls back to English.
  */
 export function GiftPortalNotFoundView({
   catalogue,
+  store,
 }: {
   catalogue: { slug: string; name: string };
+  store: Store | null;
 }) {
+  const { t } = storefrontLocale(store ?? { defaultLanguage: DEFAULT_LANGUAGE });
+
   return (
     <FallbackPanel
       eyebrow={catalogue.name}
-      title="We cannot find that page"
-      description={
-        <p>
-          The address may be mistyped, or the campaign or product it pointed at may have been closed
-          since the link was sent. The catalogue itself is still open.
-        </p>
-      }
+      title={t.gift.notFoundTitle}
+      description={<p>{t.gift.notFoundBody}</p>}
       actions={
         <Link href={`/g/${catalogue.slug}`} className="btn-primary">
-          Back to the catalogue
+          {t.gift.backToCatalogue}
         </Link>
       }
     />

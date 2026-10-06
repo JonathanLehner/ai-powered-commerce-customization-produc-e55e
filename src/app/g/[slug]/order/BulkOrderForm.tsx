@@ -6,7 +6,11 @@ import { buildCampaign, type GiftActionState } from "@/app/actions/gifting";
 import { FormStatus } from "@/components/forms";
 import { Badge } from "@/components/ui";
 import { RECIPIENT_COLUMNS, RECIPIENT_TEMPLATE } from "@/lib/gift-recipients";
+import { fmt, fmtAround, type StorefrontCopy } from "@/lib/i18n";
 import { formatMoney } from "@/lib/util";
+
+/** The largest recipient list a browser is asked to read, in KB. */
+const MAX_LIST_KB = 512;
 
 interface GiftOption {
   id: string;
@@ -16,17 +20,39 @@ interface GiftOption {
 }
 
 /** The two ways forward: price the list, or commit it. */
-function Actions({ hasRows }: { hasRows: boolean }) {
+function Actions({ hasRows, t }: { hasRows: boolean; t: StorefrontCopy["gift"] }) {
   const { pending } = useFormStatus();
   return (
     <div className="mt-5 flex flex-wrap items-center gap-3">
       <button type="submit" name="intent" value="check" className="btn-secondary" disabled={pending}>
-        {pending ? "Reading the list…" : "Check the list"}
+        {pending ? t.checkPending : t.checkList}
       </button>
       <button type="submit" name="intent" value="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Working…" : hasRows ? "Send for approval" : "Check and send"}
+        {pending ? t.sendPending : hasRows ? t.sendForApproval : t.checkAndSend}
       </button>
     </div>
+  );
+}
+
+/**
+ * The hint under the recipient box names two optional columns in the mono type
+ * the columns themselves are shown in. The sentence is one dictionary string,
+ * so it is split around its placeholders rather than assembled from fragments
+ * in English word order.
+ */
+function ListHintTail({ template }: { template: string }) {
+  return (
+    <>
+      {template.split(/(\{product\}|\{note\})/).map((part, index) =>
+        part === "{product}" || part === "{note}" ? (
+          <span key={index} className="font-mono text-xs">
+            {part === "{product}" ? "product" : "note"}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
   );
 }
 
@@ -39,6 +65,8 @@ export function BulkOrderForm({
   approvalRequired,
   approverLabel,
   buyerEmail,
+  t,
+  localeTag,
 }: {
   slug: string;
   products: GiftOption[];
@@ -49,6 +77,9 @@ export function BulkOrderForm({
   approverLabel: string;
   /** Known already when the buyer was let in on their work address. */
   buyerEmail: string | null;
+  t: StorefrontCopy["gift"];
+  /** BCP-47 tag the catalogue's money is formatted for. */
+  localeTag: string;
 }) {
   const [state, formAction] = useActionState<GiftActionState, FormData>(buildCampaign, { status: "idle" });
   const [fileName, setFileName] = useState<string | null>(null);
@@ -74,37 +105,47 @@ export function BulkOrderForm({
     event.currentTarget.value = "";
     if (!file) return;
     setFileError(null);
-    if (file.size > 512 * 1024) {
-      setFileError(`${file.name} is ${(file.size / 1024).toFixed(0)} KB. Recipient lists are under 512 KB.`);
+    if (file.size > MAX_LIST_KB * 1024) {
+      setFileError(
+        fmt(t.fileTooLarge, {
+          file: file.name,
+          size: (file.size / 1024).toFixed(0),
+          limit: MAX_LIST_KB,
+        }),
+      );
       return;
     }
     try {
       setList(await file.text());
       setFileName(file.name);
     } catch {
-      setFileError("That file could not be read. Save it as CSV and try again.");
+      setFileError(t.fileUnreadable);
     }
   }
 
   const preview = state.preview;
+  const money = (minor: number, code: string) => formatMoney(minor, code, localeTag);
+  // The address is rendered as a node, so the sentence is split around it and
+  // each half keeps its own language's word order.
+  const [orderingBefore, orderingAfter] = fmtAround(t.orderingAs, "email");
 
   return (
     <form action={formAction} className="space-y-6" noValidate>
       <input type="hidden" name="slug" value={slug} />
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Who is ordering</h2>
+        <h2 className="text-base font-semibold text-ink">{t.buyerTitle}</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="campaignName" className="field-label">
-              Campaign name
+              {t.campaignName}
             </label>
             <input
               id="campaignName"
               name="campaignName"
               value={campaignName}
               onChange={(event) => setCampaignName(event.currentTarget.value)}
-              placeholder="Q4 client gifts"
+              placeholder={t.campaignNamePlaceholder}
               required
               aria-invalid={state.field === "campaignName" ? true : undefined}
               className={state.field === "campaignName" ? "input input-error" : "input"}
@@ -112,7 +153,7 @@ export function BulkOrderForm({
           </div>
           <div>
             <label htmlFor="buyerName" className="field-label">
-              Your name
+              {t.buyerName}
             </label>
             <input
               id="buyerName"
@@ -128,14 +169,15 @@ export function BulkOrderForm({
           {buyerEmail ? (
             <div className="sm:col-span-2">
               <p className="text-sm text-muted">
-                Ordering as <span className="font-medium text-ink">{buyerEmail}</span>. Save the campaign link you
-                land on next — no email is sent, and that page is where the approval and the receipt appear.
+                {orderingBefore}
+                <span className="font-medium text-ink">{buyerEmail}</span>
+                {orderingAfter}
               </p>
             </div>
           ) : (
             <div className="sm:col-span-2">
               <label htmlFor="buyerEmail" className="field-label">
-                Your work email
+                {t.buyerEmail}
               </label>
               <input
                 id="buyerEmail"
@@ -150,8 +192,7 @@ export function BulkOrderForm({
                 className={state.field === "buyerEmail" ? "input input-error" : "input"}
               />
               <p id="buyerEmail-hint" className="field-hint">
-                Recorded on the campaign as the buyer. Save the campaign link you land on next — no email is sent,
-                and that page is where the approval and the receipt appear.
+                {t.buyerEmailHint}
               </p>
             </div>
           )}
@@ -159,12 +200,12 @@ export function BulkOrderForm({
       </section>
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">The gift</h2>
+        <h2 className="text-base font-semibold text-ink">{t.giftTitle}</h2>
         <p className="mt-1 text-sm text-muted">
-          Used for every row that does not name a product of its own.
+          {t.giftHint}{" "}
           {spendLimit > 0
-            ? ` Each recipient may be spent up to ${formatMoney(spendLimit, currency)}.`
-            : " There is no spend limit on this programme."}
+            ? fmt(t.giftHintLimit, { amount: money(spendLimit, currency) })
+            : t.giftHintNoLimit}
         </p>
         <div className="mt-4 space-y-2">
           {products.map((product) => (
@@ -183,11 +224,13 @@ export function BulkOrderForm({
               <span className="min-w-0 flex-1">
                 <span className="block font-medium text-ink">{product.name}</span>
                 <span className="block text-xs text-muted">
-                  {product.sizes.length > 0 ? `Sizes: ${product.sizes.join(", ")}` : "One size"}
+                  {product.sizes.length > 0
+                    ? fmt(t.sizes, { sizes: product.sizes.join(", ") })
+                    : t.oneSize}
                 </span>
               </span>
               <span className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-                {formatMoney(product.price, currency)}
+                {money(product.price, currency)}
               </span>
             </label>
           ))}
@@ -195,18 +238,17 @@ export function BulkOrderForm({
       </section>
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Recipients</h2>
+        <h2 className="text-base font-semibold text-ink">{t.listTitle}</h2>
         <p className="mt-1 text-sm text-muted">
-          One person per line, up to {maxRecipients}. Columns:{" "}
-          <span className="font-mono text-xs text-inksoft">{RECIPIENT_COLUMNS.join(", ")}</span>. A header row is
-          detected automatically, and <span className="font-mono text-xs">product</span> and{" "}
-          <span className="font-mono text-xs">note</span> are optional.
+          {fmt(t.listHintLead, { max: maxRecipients })}{" "}
+          <span className="font-mono text-xs text-inksoft">{RECIPIENT_COLUMNS.join(", ")}</span>.{" "}
+          <ListHintTail template={t.listHintTail} />
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <label className="btn-secondary btn-sm cursor-pointer">
             <input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" onChange={onFile} className="sr-only" />
-            Upload a CSV
+            {t.uploadCsv}
           </label>
           <button
             type="button"
@@ -216,9 +258,11 @@ export function BulkOrderForm({
               setFileName(null);
             }}
           >
-            Paste the example
+            {t.pasteExample}
           </button>
-          {fileName ? <span className="text-xs text-muted">Loaded {fileName}</span> : null}
+          {fileName ? (
+            <span className="text-xs text-muted">{fmt(t.fileLoaded, { file: fileName })}</span>
+          ) : null}
         </div>
         {fileError ? (
           <p role="alert" className="mt-2 text-sm text-rose-700">
@@ -227,7 +271,7 @@ export function BulkOrderForm({
         ) : null}
 
         <label htmlFor="recipients" className="sr-only">
-          Recipient list
+          {t.listLabel}
         </label>
         <textarea
           id="recipients"
@@ -251,15 +295,17 @@ export function BulkOrderForm({
           <div className="mt-5">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone={preview.withIssues > 0 ? "rose" : "green"}>
-                {preview.recipients} recipients
+                {fmt(t.previewRecipients, { count: preview.recipients })}
               </Badge>
               {preview.withIssues > 0 ? (
-                <Badge tone="rose">{preview.withIssues} to fix</Badge>
+                <Badge tone="rose">{fmt(t.previewToFix, { count: preview.withIssues })}</Badge>
               ) : (
-                <Badge tone="brand">{formatMoney(preview.total, preview.currency)} in total</Badge>
+                <Badge tone="brand">
+                  {fmt(t.previewTotal, { amount: money(preview.total, preview.currency) })}
+                </Badge>
               )}
               {preview.overflow > 0 ? (
-                <Badge tone="amber">{preview.overflow} rows past the limit were not read</Badge>
+                <Badge tone="amber">{fmt(t.previewOverflow, { count: preview.overflow })}</Badge>
               ) : null}
             </div>
 
@@ -267,10 +313,10 @@ export function BulkOrderForm({
               <table className="w-full min-w-[44rem] text-left text-sm">
                 <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
                   <tr>
-                    <th scope="col" className="px-3 py-2">Line</th>
-                    <th scope="col" className="px-3 py-2">Recipient</th>
-                    <th scope="col" className="px-3 py-2">Gift</th>
-                    <th scope="col" className="px-3 py-2 text-right">Delivered</th>
+                    <th scope="col" className="px-3 py-2">{t.columnLine}</th>
+                    <th scope="col" className="px-3 py-2">{t.columnRecipient}</th>
+                    <th scope="col" className="px-3 py-2">{t.columnGift}</th>
+                    <th scope="col" className="px-3 py-2 text-right">{t.columnDelivered}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
@@ -278,7 +324,9 @@ export function BulkOrderForm({
                     <tr key={`${row.line}-${row.email}`} className="align-top">
                       <td className="px-3 py-2 text-xs tabular-nums text-muted">{row.line}</td>
                       <td className="px-3 py-2">
-                        <p className="text-ink">{row.name || <span className="text-muted">No name</span>}</p>
+                        <p className="text-ink">
+                          {row.name || <span className="text-muted">{t.noName}</span>}
+                        </p>
                         <p className="text-xs text-muted">
                           {row.email} · {row.destination}
                         </p>
@@ -296,7 +344,7 @@ export function BulkOrderForm({
                         {row.quantity > 1 ? ` × ${row.quantity}` : ""}
                       </td>
                       <td className="px-3 py-2 text-right text-sm tabular-nums text-ink">
-                        {row.issues.length > 0 ? "—" : formatMoney(row.total, preview.currency)}
+                        {row.issues.length > 0 ? "—" : money(row.total, preview.currency)}
                       </td>
                     </tr>
                   ))}
@@ -307,21 +355,21 @@ export function BulkOrderForm({
             {preview.withIssues === 0 ? (
               <dl className="mt-4 max-w-xs space-y-1.5 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-muted">Gifts</dt>
-                  <dd className="tabular-nums text-ink">{formatMoney(preview.subtotal, preview.currency)}</dd>
+                  <dt className="text-muted">{t.subtotal}</dt>
+                  <dd className="tabular-nums text-ink">{money(preview.subtotal, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">Delivery</dt>
-                  <dd className="tabular-nums text-ink">{formatMoney(preview.shipping, preview.currency)}</dd>
+                  <dt className="text-muted">{t.shipping}</dt>
+                  <dd className="tabular-nums text-ink">{money(preview.shipping, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">Tax</dt>
-                  <dd className="tabular-nums text-ink">{formatMoney(preview.taxAmount, preview.currency)}</dd>
+                  <dt className="text-muted">{t.tax}</dt>
+                  <dd className="tabular-nums text-ink">{money(preview.taxAmount, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between border-t border-line pt-1.5">
-                  <dt className="font-semibold text-ink">Total</dt>
+                  <dt className="font-semibold text-ink">{t.total}</dt>
                   <dd className="font-semibold tabular-nums text-ink">
-                    {formatMoney(preview.total, preview.currency)}
+                    {money(preview.total, preview.currency)}
                   </dd>
                 </div>
               </dl>
@@ -331,11 +379,11 @@ export function BulkOrderForm({
 
         <p className="mt-4 text-xs text-muted">
           {approvalRequired
-            ? `Sending puts the campaign in front of ${approverLabel}. Nothing is charged until it is approved and you pay.`
-            : "This programme needs no approval, so you go straight to payment once the list is clean."}
+            ? fmt(t.approvalNote, { approver: approverLabel })
+            : t.noApprovalNote}
         </p>
 
-        <Actions hasRows={Boolean(preview && preview.withIssues === 0)} />
+        <Actions hasRows={Boolean(preview && preview.withIssues === 0)} t={t} />
       </section>
     </form>
   );

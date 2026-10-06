@@ -2,17 +2,36 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GiftPortalNotFoundView, UnknownGiftPortalView } from "@/components/NotFoundViews";
 import { Badge, Callout } from "@/components/ui";
-import { countryName } from "@/lib/countries";
+import { localCountryName } from "@/lib/countries";
 import { getGiftCampaignByCode, getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { verifyCampaignToken } from "@/lib/gift-access";
+import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
 import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
-import { CAMPAIGN_STATUS_LABELS, type CampaignStatus } from "@/lib/types";
-import { formatDateTime, formatMoney } from "@/lib/util";
+import type { CampaignStatus } from "@/lib/types";
 import { ApprovalForm, CancelCampaignForm, PaymentForm } from "./CampaignForms";
 
-export const metadata: Metadata = {
-  title: "Gift campaign",
-  robots: { index: false, follow: false },
+/** The tab title is the store's too, so it is resolved per catalogue. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const catalogue = await getGiftCatalogueBySlug(slug);
+  const store = catalogue ? await getStore(catalogue.storeId) : null;
+  return {
+    title: store ? storefrontLocale(store).t.gift.campaignTitle : "Gift campaign",
+    robots: { index: false, follow: false },
+  };
+}
+
+/** The campaign's own status, in the store's language. */
+const STATUS_LABELS: Record<CampaignStatus, keyof StorefrontCopy["gift"]> = {
+  awaiting_approval: "statusAwaitingApproval",
+  approved: "statusApproved",
+  declined: "statusDeclined",
+  ordered: "statusOrdered",
+  cancelled: "statusCancelled",
 };
 
 const TONES: Record<CampaignStatus, "amber" | "brand" | "green" | "rose" | "slate"> = {
@@ -31,7 +50,8 @@ export default async function CampaignPage({
   searchParams: Promise<{ t?: string; a?: string }>;
 }) {
   const { slug, code } = await params;
-  const { t, a } = await searchParams;
+  // Renamed off `t`/`a`: `t` is the store's copy dictionary on this page.
+  const { t: buyerToken, a: approverToken } = await searchParams;
 
   const catalogue = await getGiftCatalogueBySlug(slug);
   if (!catalogue) return <UnknownGiftPortalView slug={slug} />;
@@ -42,24 +62,23 @@ export default async function CampaignPage({
   // The catalogue is real but this campaign code is not: stay inside the
   // portal's own chrome and point back at the catalogue.
   if (!store || !campaign || campaign.catalogueId !== catalogue.id)
-    return <GiftPortalNotFoundView catalogue={catalogue} />;
+    return <GiftPortalNotFoundView catalogue={catalogue} store={store} />;
+
+  const { t, tag, money, dateTime } = storefrontLocale(store);
 
   const [isBuyer, isApprover] = await Promise.all([
-    verifyCampaignToken(campaign.id, "buyer", t),
-    verifyCampaignToken(campaign.id, "approver", a),
+    verifyCampaignToken(campaign.id, "buyer", buyerToken),
+    verifyCampaignToken(campaign.id, "approver", approverToken),
   ]);
 
   if (!isBuyer && !isApprover) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
         <div className="card p-6">
-          <h1 className="text-lg font-semibold tracking-tight text-ink">This campaign link is not valid</h1>
-          <p className="mt-2 text-sm text-muted">
-            Campaign links are personal: one for the buyer, one for the approver. Ask for yours to be sent again,
-            or open the catalogue and start a new order.
-          </p>
+          <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.linkInvalidTitle}</h1>
+          <p className="mt-2 text-sm text-muted">{t.gift.linkInvalidBody}</p>
           <Link href={`/g/${slug}`} className="btn-secondary btn-sm mt-5 inline-flex">
-            Back to the catalogue
+            {t.gift.backToCatalogue}
           </Link>
         </div>
       </div>
@@ -104,29 +123,36 @@ export default async function CampaignPage({
             {campaign.code} · {campaign.name}
           </h1>
           <p className="mt-1 text-sm text-muted">
-            {campaign.recipients.length} recipients · submitted by {campaign.buyer.name} on{" "}
-            {formatDateTime(campaign.createdAt)}
+            {fmt(t.gift.campaignSubmitted, {
+              count: campaign.recipients.length,
+              buyer: campaign.buyer.name,
+              when: dateTime(campaign.createdAt),
+            })}
           </p>
         </div>
-        <Badge tone={TONES[campaign.status]}>{CAMPAIGN_STATUS_LABELS[campaign.status]}</Badge>
+        <Badge tone={TONES[campaign.status]}>{t.gift[STATUS_LABELS[campaign.status]]}</Badge>
       </div>
 
       {campaign.status === "awaiting_approval" && !isApprover ? (
         <div className="mt-6">
-          <Callout tone="amber" title="Waiting for approval">
-            {campaign.approval.approverName || campaign.approval.approverEmail} has the list and its total. You can
-            pay as soon as they approve it — nothing has been charged.
+          <Callout tone="amber" title={t.gift.waitingTitle}>
+            {fmt(t.gift.waitingBody, {
+              approver: campaign.approval.approverName || campaign.approval.approverEmail,
+            })}
           </Callout>
         </div>
       ) : null}
 
       {isApprover && campaign.approval.decidedAt ? (
         <div className="mt-6">
-          <Callout tone={campaign.status === "declined" ? "rose" : "green"} title="Your decision is recorded">
-            {campaign.status === "declined" ? "Declined" : "Approved"} by {campaign.approval.decidedBy} on{" "}
-            {formatDateTime(campaign.approval.decidedAt)}.{" "}
+          <Callout tone={campaign.status === "declined" ? "rose" : "green"} title={t.gift.decisionTitle}>
+            {fmt(t.gift.decisionBody, {
+              decision: campaign.status === "declined" ? t.gift.decisionDeclined : t.gift.decisionApproved,
+              who: campaign.approval.decidedBy ?? campaign.approval.approverName,
+              when: dateTime(campaign.approval.decidedAt),
+            })}{" "}
             {campaign.status === "approved"
-              ? `${campaign.buyer.name} can now pay for it — nothing has been charged to you.`
+              ? fmt(t.gift.decisionCanPay, { buyer: campaign.buyer.name })
               : ""}
           </Callout>
         </div>
@@ -134,42 +160,39 @@ export default async function CampaignPage({
 
       {campaign.status === "declined" ? (
         <div className="mt-6">
-          <Callout tone="rose" title="Declined">
-            {campaign.approval.note ?? "No reason was given."} Start a new order from the catalogue with the
-            changes your approver asked for.
+          <Callout tone="rose" title={t.gift.decisionDeclined}>
+            {campaign.approval.note ?? t.gift.declinedNoReason} {t.gift.declinedBody}
           </Callout>
         </div>
       ) : null}
 
       {campaign.status === "ordered" ? (
         <div className="mt-6">
-          <Callout tone="green" title="Paid and in production">
-            {campaign.recipients.length} orders were raised, one per recipient, each with its own delivery and
-            tracking. Follow any of them below.
+          <Callout tone="green" title={t.gift.orderedTitle}>
+            {fmt(t.gift.orderedBody, { count: campaign.recipients.length })}
           </Callout>
         </div>
       ) : null}
 
       {campaign.status === "approved" && !payable && isBuyer ? (
         <div className="mt-6">
-          <Callout tone="amber" title="Approved, but the store cannot take payment yet">
-            {store.clientName} has not finished connecting their payment account. Your campaign is saved and can
-            be paid for as soon as they have.
+          <Callout tone="amber" title={t.gift.unpayableTitle}>
+            {fmt(t.gift.unpayableBody, { client: store.clientName })}
           </Callout>
         </div>
       ) : null}
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="min-w-0">
-          <h2 className="text-base font-semibold text-ink">Recipients</h2>
+          <h2 className="text-base font-semibold text-ink">{t.gift.recipientsTitle}</h2>
           <div className="mt-3 card relative overflow-x-auto">
             <table className="w-full min-w-[44rem] text-left text-sm">
               <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
-                  <th scope="col" className="px-4 py-3">Recipient</th>
-                  <th scope="col" className="px-4 py-3">Gift</th>
-                  <th scope="col" className="px-4 py-3">Delivery</th>
-                  <th scope="col" className="px-4 py-3 text-right">Value</th>
+                  <th scope="col" className="px-4 py-3">{t.gift.columnRecipient}</th>
+                  <th scope="col" className="px-4 py-3">{t.gift.columnGift}</th>
+                  <th scope="col" className="px-4 py-3">{t.gift.columnDelivery}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{t.gift.columnValue}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -191,18 +214,18 @@ export default async function CampaignPage({
                     </td>
                     <td className="px-4 py-3 text-xs text-muted">
                       {recipient.line1}, {recipient.city} {recipient.postalCode}
-                      <span className="block">{countryName(recipient.country)}</span>
+                      <span className="block">{localCountryName(recipient.country, tag)}</span>
                       {orderLinks.get(recipient.id) ? (
                         <Link
                           href={orderLinks.get(recipient.id) as string}
                           className="mt-1 inline-block font-medium text-brand-700 hover:underline"
                         >
-                          Track {recipient.orderCode}
+                          {fmt(t.gift.track, { code: recipient.orderCode as string })}
                         </Link>
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums text-ink">
-                      {formatMoney(recipient.unitPrice * recipient.quantity, campaign.currency)}
+                      {money(recipient.unitPrice * recipient.quantity, campaign.currency)}
                     </td>
                   </tr>
                 ))}
@@ -210,14 +233,14 @@ export default async function CampaignPage({
             </table>
           </div>
 
-          <h2 className="mt-8 text-base font-semibold text-ink">History</h2>
+          <h2 className="mt-8 text-base font-semibold text-ink">{t.gift.historyTitle}</h2>
           <ol className="mt-3 card divide-y divide-line p-5 text-sm">
             {campaign.events.map((entry, index) => (
               <li key={`${entry.at}-${index}`} className="py-2.5 first:pt-0 last:pb-0">
                 <p className="font-medium text-ink">{entry.status}</p>
                 <p className="text-inksoft">{entry.note}</p>
                 <p className="text-xs text-muted">
-                  {entry.actor} · {formatDateTime(entry.at)}
+                  {entry.actor} · {dateTime(entry.at)}
                 </p>
               </li>
             ))}
@@ -226,50 +249,53 @@ export default async function CampaignPage({
 
         <aside className="space-y-6">
           <div className="h-fit rounded-xl border border-line bg-canvas p-5">
-            <h2 className="text-base font-semibold text-ink">Campaign total</h2>
+            <h2 className="text-base font-semibold text-ink">{t.gift.totalsTitle}</h2>
             <dl className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">Gifts</dt>
+                <dt className="text-muted">{t.gift.subtotal}</dt>
                 <dd className="tabular-nums text-ink">
-                  {formatMoney(campaign.totals.subtotal, campaign.currency)}
+                  {money(campaign.totals.subtotal, campaign.currency)}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted">Delivery</dt>
+                <dt className="text-muted">{t.gift.shipping}</dt>
                 <dd className="tabular-nums text-ink">
-                  {formatMoney(campaign.totals.shipping, campaign.currency)}
+                  {money(campaign.totals.shipping, campaign.currency)}
                 </dd>
               </div>
               {campaign.totals.taxLines.map((row) => (
                 <div key={row.rate} className="flex justify-between">
-                  <dt className="text-muted">Tax {row.rate}%</dt>
-                  <dd className="tabular-nums text-ink">{formatMoney(row.amount, campaign.currency)}</dd>
+                  <dt className="text-muted">{fmt(t.gift.taxRow, { rate: row.rate })}</dt>
+                  <dd className="tabular-nums text-ink">{money(row.amount, campaign.currency)}</dd>
                 </div>
               ))}
               <div className="flex justify-between border-t border-line pt-2">
-                <dt className="font-semibold text-ink">Total</dt>
+                <dt className="font-semibold text-ink">{t.gift.total}</dt>
                 <dd className="text-base font-semibold tabular-nums text-ink">
-                  {formatMoney(campaign.totals.total, campaign.currency)}
+                  {money(campaign.totals.total, campaign.currency)}
                 </dd>
               </div>
             </dl>
             <p className="mt-3 text-xs text-muted">
               {campaign.spendLimitPerRecipient > 0
-                ? `Spend limit ${formatMoney(campaign.spendLimitPerRecipient, campaign.currency)} per recipient.`
-                : "No spend limit on this programme."}
+                ? fmt(t.gift.spendLimitNote, {
+                    amount: money(campaign.spendLimitPerRecipient, campaign.currency),
+                  })
+                : t.gift.noSpendLimitNote}
             </p>
           </div>
 
           {isApprover && campaign.status === "awaiting_approval" ? (
             <div className="card p-5">
-              <h2 className="text-base font-semibold text-ink">Your decision</h2>
+              <h2 className="text-base font-semibold text-ink">{t.gift.decisionFormTitle}</h2>
               <div className="mt-3">
                 <ApprovalForm
                   slug={slug}
                   code={campaign.code}
-                  token={a as string}
+                  token={approverToken as string}
                   buyerName={campaign.buyer.name}
-                  total={formatMoney(campaign.totals.total, campaign.currency)}
+                  total={money(campaign.totals.total, campaign.currency)}
+                  t={t.gift}
                 />
               </div>
             </div>
@@ -277,21 +303,23 @@ export default async function CampaignPage({
 
           {payable ? (
             <div className="card p-5">
-              <h2 className="text-base font-semibold text-ink">Payment</h2>
+              <h2 className="text-base font-semibold text-ink">{t.gift.paymentTitle}</h2>
               <div className="mt-3">
                 <PaymentForm
                   slug={slug}
                   code={campaign.code}
-                  token={t as string}
-                  total={formatMoney(campaign.totals.total, campaign.currency)}
+                  token={buyerToken as string}
+                  total={money(campaign.totals.total, campaign.currency)}
                   stripeAccountId={store.stripe.accountId}
+                  t={t.gift}
+                  card={t.checkout}
                 />
               </div>
             </div>
           ) : null}
 
           {isBuyer && (campaign.status === "awaiting_approval" || campaign.status === "approved") ? (
-            <CancelCampaignForm slug={slug} code={campaign.code} token={t as string} />
+            <CancelCampaignForm slug={slug} code={campaign.code} token={buyerToken as string} t={t.gift} />
           ) : null}
         </aside>
       </div>
