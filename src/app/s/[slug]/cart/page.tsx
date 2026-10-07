@@ -4,6 +4,8 @@ import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from
 import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { EmptyState } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
@@ -37,42 +39,42 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
     await basketTotals(store, items, currency, discountCode);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.basket.title}</h1>
+    <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{t.basket.title}</h1>
 
       {items.length === 0 ? (
-        <div className="mt-8">
+        <div className="mt-10">
           <EmptyState
             title={t.basket.emptyTitle}
             description={t.basket.emptyBody}
             action={
-              <Link href={`/s/${store.slug}/products`} className="btn-primary">
-                {t.basket.browseShop}
-              </Link>
+              <Button asChild>
+                <Link href={`/s/${store.slug}/products`}>{t.basket.browseShop}</Link>
+              </Button>
             }
           />
         </div>
       ) : (
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          <ul className="divide-y divide-line">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-14">
+          <ul className="divide-y divide-line border-y border-line">
             {lines.map(({ item, unit }) => (
-              <li key={item.id} className="flex flex-wrap gap-4 py-5">
+              <li key={item.id} className="flex flex-wrap gap-5 py-6">
                 {item.previewUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={item.previewUrl}
                     alt={fmt(t.basket.previewAlt, { name: item.productName })}
-                    width={112}
-                    height={112}
+                    width={96}
+                    height={120}
                     loading="lazy"
-                    className="h-28 w-28 shrink-0 rounded-lg border border-line bg-canvas object-cover"
+                    className="h-[120px] w-24 shrink-0 rounded-card border border-line bg-secondary object-cover"
                   />
                 ) : null}
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-ink">{item.productName}</p>
-                  <p className="text-xs text-muted">{item.variantName}</p>
+                  <p className="text-sm font-medium text-ink">{item.productName}</p>
+                  <p className="mt-0.5 text-xs text-muted">{item.variantName}</p>
                   {item.text ? (
-                    <p className="mt-1 text-xs text-inksoft">
+                    <p className="mt-1.5 text-xs text-inksoft">
                       {t.basket.personalisation}{" "}
                       <span className="font-medium text-ink">{item.text}</span>
                     </p>
@@ -83,91 +85,93 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                     </p>
                   ) : null}
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                     <form action={updateCartItem} className="flex items-center gap-2">
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="itemId" value={item.id} />
                       <label htmlFor={`qty-${item.id}`} className="text-xs text-muted">
                         {t.basket.quantity}
                       </label>
-                      <input
+                      <Input
                         id={`qty-${item.id}`}
                         name="quantity"
                         type="number"
                         min={0}
                         max={50}
                         defaultValue={item.quantity}
-                        className="input mt-0 w-20 py-1 text-sm"
+                        className="h-9 w-18 tabular-nums"
                       />
-                      <button type="submit" className="btn-secondary btn-sm">
+                      <Button type="submit" variant="outline" size="sm" className="h-9">
                         {t.basket.update}
-                      </button>
+                      </Button>
                     </form>
                     <form action={removeCartItem}>
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="itemId" value={item.id} />
-                      <button type="submit" className="btn-ghost btn-sm text-rose-700">
+                      <Button type="submit" variant="ghost" size="sm" className="h-9 text-rose-700">
                         {t.basket.remove}
-                      </button>
+                      </Button>
                     </form>
                   </div>
                 </div>
-                <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
+                <p className="shrink-0 text-sm font-medium tabular-nums text-ink">
                   {money(unit * item.quantity, currency)}
                 </p>
               </li>
             ))}
           </ul>
 
-          <aside className="h-fit rounded-xl border border-line bg-canvas p-5">
-            <h2 className="text-base font-semibold text-ink">{t.basket.summary}</h2>
-            <dl className="mt-4 space-y-2.5 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-muted">{t.basket.subtotal}</dt>
-                <dd className="font-medium tabular-nums text-ink">{money(subtotal, currency)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-muted">{t.basket.shipping}</dt>
-                <dd className="font-medium tabular-nums text-ink">{money(shipping, currency)}</dd>
-              </div>
-              {discount ? (
-                <div className="flex justify-between">
-                  <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
-                  <dd className="font-medium tabular-nums text-emerald-700">
-                    − {money(discount.amount, currency)}
+          <aside className="h-fit rounded-card border border-border bg-card p-5 lg:sticky lg:top-24">
+              <h2 className="text-base font-semibold text-ink">{t.basket.summary}</h2>
+              <dl className="mt-5 space-y-3 text-sm">
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted">{t.basket.subtotal}</dt>
+                  <dd className="font-medium tabular-nums text-ink">{money(subtotal, currency)}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted">{t.basket.shipping}</dt>
+                  <dd className="font-medium tabular-nums text-ink">{money(shipping, currency)}</dd>
+                </div>
+                {discount ? (
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
+                    <dd className="font-medium tabular-nums text-emerald-700">
+                      − {money(discount.amount, currency)}
+                    </dd>
+                  </div>
+                ) : null}
+                {taxRows.map((row) => (
+                  <div key={row.rate} className="flex justify-between gap-4">
+                    <dt className="text-muted">
+                      {fmt(t.basket.taxRow, { rate: row.rate })}{" "}
+                      {store.pricesIncludeTax ? t.basket.taxIncludedSuffix : ""}
+                    </dt>
+                    <dd className="font-medium tabular-nums text-ink">{money(row.amount, currency)}</dd>
+                  </div>
+                ))}
+                <div className="flex justify-between gap-4 border-t border-line pt-3">
+                  <dt className="font-semibold text-ink">{t.basket.total}</dt>
+                  <dd className="text-base font-semibold tabular-nums text-ink">
+                    {money(total, currency)}
                   </dd>
                 </div>
-              ) : null}
-              {taxRows.map((row) => (
-                <div key={row.rate} className="flex justify-between">
-                  <dt className="text-muted">
-                    {fmt(t.basket.taxRow, { rate: row.rate })}{" "}
-                    {store.pricesIncludeTax ? t.basket.taxIncludedSuffix : ""}
-                  </dt>
-                  <dd className="font-medium tabular-nums text-ink">{money(row.amount, currency)}</dd>
-                </div>
-              ))}
-              <div className="flex justify-between border-t border-line pt-2.5">
-                <dt className="font-semibold text-ink">{t.basket.total}</dt>
-                <dd className="text-base font-semibold tabular-nums text-ink">{money(total, currency)}</dd>
-              </div>
-            </dl>
-            <DiscountEntry
-              storeId={store.id}
-              code={cart?.discountCode ?? null}
-              note={
-                discountRefusal
-                  ? fmt(t.discount[discountRefusal], { amount: money(discountMinimum, currency) })
-                  : null
-              }
-              t={t.discount}
-            />
-            <Link href={`/s/${store.slug}/checkout`} className="btn-primary mt-5 w-full">
-              {t.basket.checkout}
-            </Link>
-            <Link href={`/s/${store.slug}/products`} className="btn-ghost mt-2 w-full">
-              {t.basket.keepShopping}
-            </Link>
+              </dl>
+              <DiscountEntry
+                storeId={store.id}
+                code={cart?.discountCode ?? null}
+                note={
+                  discountRefusal
+                    ? fmt(t.discount[discountRefusal], { amount: money(discountMinimum, currency) })
+                    : null
+                }
+                t={t.discount}
+              />
+              <Button asChild size="lg" className="mt-5 w-full">
+                <Link href={`/s/${store.slug}/checkout`}>{t.basket.checkout}</Link>
+              </Button>
+              <Button asChild variant="ghost" className="mt-2 w-full">
+                <Link href={`/s/${store.slug}/products`}>{t.basket.keepShopping}</Link>
+              </Button>
           </aside>
         </div>
       )}

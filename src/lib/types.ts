@@ -146,13 +146,42 @@ export interface Store {
 
 export type ThemeKey = "atelier" | "meridian" | "graphite" | "bloom";
 
-export const THEMES: Record<ThemeKey, { name: string; description: string; accent: string; surface: string; ink: string }> = {
+/**
+ * A storefront theme: the client's colour, surface and ink, plus the typeface
+ * the guided-setup branding step picked. `fontVar` names the CSS variable the
+ * storefront layout loads that face into, so the theme table stays plain data
+ * and can be imported by client components.
+ */
+export interface StorefrontTheme {
+  name: string;
+  description: string;
+  accent: string;
+  surface: string;
+  ink: string;
+  /** How the typeface reads in the branding step. */
+  fontName: string;
+  /** Body text. */
+  fontVar: string;
+  /** Headings. */
+  displayFontVar: string;
+  /** Generic family to fall back on while the display face loads. */
+  displayFallback: string;
+  /** Corner radius for cards, inputs and buttons on this storefront. */
+  radius: string;
+}
+
+export const THEMES: Record<ThemeKey, StorefrontTheme> = {
   atelier: {
     name: "Atelier",
-    description: "Editorial layout with generous whitespace — suits apparel drops.",
+    description: "Editorial layout with generous whitespace \u2014 suits apparel drops.",
     accent: "#0d9488",
     surface: "#f8fafc",
     ink: "#0f172a",
+    fontName: "Inter with Playfair Display headings",
+    fontVar: "--font-store-inter",
+    displayFontVar: "--font-store-playfair",
+    displayFallback: "ui-serif, Georgia, serif",
+    radius: "0.75rem",
   },
   meridian: {
     name: "Meridian",
@@ -160,6 +189,11 @@ export const THEMES: Record<ThemeKey, { name: string; description: string; accen
     accent: "#5b4bf5",
     surface: "#f5f3ff",
     ink: "#1e1b4b",
+    fontName: "Space Grotesk",
+    fontVar: "--font-store-grotesk",
+    displayFontVar: "--font-store-grotesk",
+    displayFallback: "ui-sans-serif, system-ui, sans-serif",
+    radius: "0.625rem",
   },
   graphite: {
     name: "Graphite",
@@ -167,13 +201,23 @@ export const THEMES: Record<ThemeKey, { name: string; description: string; accen
     accent: "#334155",
     surface: "#f1f5f9",
     ink: "#0f172a",
+    fontName: "Inter",
+    fontVar: "--font-store-inter",
+    displayFontVar: "--font-store-inter",
+    displayFallback: "ui-sans-serif, system-ui, sans-serif",
+    radius: "0.5rem",
   },
   bloom: {
     name: "Bloom",
-    description: "Warm and friendly — creator stores and community merch.",
+    description: "Warm and friendly \u2014 creator stores and community merch.",
     accent: "#e11d48",
     surface: "#fff1f2",
     ink: "#4c0519",
+    fontName: "Nunito",
+    fontVar: "--font-store-nunito",
+    displayFontVar: "--font-store-nunito",
+    displayFallback: "ui-sans-serif, system-ui, sans-serif",
+    radius: "1rem",
   },
 };
 

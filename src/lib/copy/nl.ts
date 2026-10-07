@@ -8,6 +8,7 @@ export const nl: StorefrontCopy = {
     currencyApply: "Toepassen",
     basket: "Winkelmand",
     basketWithCount: "Winkelmand ({count})",
+    basketClose: "Winkelmand sluiten",
     operatedBy: "Beheerd door {client}. Op bestelling gemaakt en wereldwijd verzonden.",
     allProducts: "Alle producten",
     orderStatus: "Bestelstatus",

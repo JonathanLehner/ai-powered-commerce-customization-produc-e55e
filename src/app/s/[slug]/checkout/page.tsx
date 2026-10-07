@@ -5,6 +5,7 @@ import { readCurrency, readShopperSession } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { Callout } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import type { FulfillmentSource } from "@/lib/countries";
 import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
@@ -61,46 +62,37 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.checkout.title}</h1>
+    <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
+      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{t.checkout.title}</h1>
       <p className="mt-2 text-sm text-muted">
         {fmt(t.checkout.merchantNote, { client: store.clientName })}
       </p>
 
       {!store.stripe.connected || !store.stripe.chargesEnabled ? (
-        <div className="mt-6">
+        <div className="mt-8">
           <Callout tone="rose" title={t.checkout.unavailableTitle}>
             {t.checkout.unavailableBody}
             <p className="mt-3">
-              <Link href={`/s/${store.slug}/cart`} className="btn-secondary btn-sm">
-                {t.checkout.backToBasket}
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/s/${store.slug}/cart`}>{t.checkout.backToBasket}</Link>
+              </Button>
             </p>
           </Callout>
         </div>
       ) : (
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          <CheckoutForm
-            storeId={store.id}
-            currencies={store.currencies}
-            currency={currency}
-            stripeAccountId={store.stripe.accountId}
-            defaultCountry={store.stripe.country}
-            fulfillmentSources={[...sources.values()]}
-            localeTag={localeTag}
-            t={t.checkout}
-          />
-
-          <aside className="h-fit rounded-xl border border-line bg-canvas p-5">
+        <div className="mt-8 space-y-8">
+          {/* The summary comes first: a single column reads top to bottom, and
+              what is being paid for belongs above the card details. */}
+          <section className="rounded-card border border-border bg-secondary p-5">
             <h2 className="text-base font-semibold text-ink">{t.checkout.summaryTitle}</h2>
             <ul className="mt-4 space-y-3 text-sm">
               {lines.map(({ item, unit }) => (
-                <li key={item.id} className="flex justify-between gap-3">
+                <li key={item.id} className="flex justify-between gap-4">
                   <span className="min-w-0">
                     <span className="block truncate text-ink">{item.productName}</span>
                     <span className="block text-xs text-muted">
                       {item.variantName} × {item.quantity}
-                      {item.text ? ` · “${item.text}”` : ""}
+                      {item.text ? ` · \u201c${item.text}\u201d` : ""}
                     </span>
                   </span>
                   <span className="shrink-0 tabular-nums text-ink">
@@ -110,18 +102,18 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
               ))}
             </ul>
             <dl className="mt-4 space-y-2 border-t border-line pt-4 text-sm">
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
                 <dt className="text-muted">{t.checkout.shipping}</dt>
                 <dd className="tabular-nums text-ink">{money(shipping, currency)}</dd>
               </div>
               {discount ? (
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-4">
                   <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
                   <dd className="tabular-nums text-emerald-700">− {money(discount.amount, currency)}</dd>
                 </div>
               ) : null}
               {taxRows.map((row) => (
-                <div key={row.rate} className="flex justify-between">
+                <div key={row.rate} className="flex justify-between gap-4">
                   <dt className="text-muted">
                     {fmt(t.checkout.taxRow, { rate: row.rate })}{" "}
                     {store.pricesIncludeTax ? t.checkout.taxIncludedSuffix : ""}
@@ -129,9 +121,11 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                   <dd className="tabular-nums text-ink">{money(row.amount, currency)}</dd>
                 </div>
               ))}
-              <div className="flex justify-between border-t border-line pt-2">
+              <div className="flex justify-between gap-4 border-t border-line pt-2">
                 <dt className="font-semibold text-ink">{t.checkout.total}</dt>
-                <dd className="text-base font-semibold tabular-nums text-ink">{money(total, currency)}</dd>
+                <dd className="text-base font-semibold tabular-nums text-ink">
+                  {money(total, currency)}
+                </dd>
               </div>
             </dl>
             <DiscountEntry
@@ -144,7 +138,18 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
               }
               t={t.discount}
             />
-          </aside>
+          </section>
+
+          <CheckoutForm
+            storeId={store.id}
+            currencies={store.currencies}
+            currency={currency}
+            stripeAccountId={store.stripe.accountId}
+            defaultCountry={store.stripe.country}
+            fulfillmentSources={[...sources.values()]}
+            localeTag={localeTag}
+            t={t.checkout}
+          />
         </div>
       )}
     </div>

@@ -8,6 +8,7 @@ export const sv: StorefrontCopy = {
     currencyApply: "Använd",
     basket: "Varukorg",
     basketWithCount: "Varukorg ({count})",
+    basketClose: "Stäng varukorgen",
     operatedBy: "Drivs av {client}. Tillverkas på beställning och skickas över hela världen.",
     allProducts: "Alla produkter",
     orderStatus: "Orderstatus",

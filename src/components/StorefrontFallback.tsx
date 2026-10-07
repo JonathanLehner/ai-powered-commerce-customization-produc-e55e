@@ -11,7 +11,7 @@ import { createContext, useContext, type ReactNode } from "react";
  * they are standing in.
  *
  * Boundary files are handed no params, so the layout — which has already
- * resolved the store, its theme and its language — passes it down through
+ * resolved the store and its language — passes it down through
  * context instead. No provider therefore means exactly one thing: the address
  * does not belong to a store at all, and the shopper is told that rather than
  * being offered links into a shop that does not exist.
@@ -19,8 +19,6 @@ import { createContext, useContext, type ReactNode } from "react";
 export interface StorefrontFallbackValue {
   slug: string;
   storeName: string;
-  /** The store theme's accent, used for the primary action as elsewhere on the storefront. */
-  accent: string;
   basketLabel: string;
   orderStatusLabel: string;
   t: StorefrontCopy["fallback"];
@@ -82,7 +80,7 @@ export function StorefrontNotFound() {
   const store = useContext(StorefrontFallbackContext);
   if (!store) return <NoSuchStore />;
 
-  const { slug, storeName, accent, basketLabel, orderStatusLabel, t } = store;
+  const { slug, storeName, basketLabel, orderStatusLabel, t } = store;
   return (
     <FallbackPanel
       eyebrow={storeName}
@@ -90,7 +88,7 @@ export function StorefrontNotFound() {
       description={<p>{fmt(t.notFoundBody, { store: storeName })}</p>}
       actions={
         <>
-          <Link href={`/s/${slug}/products`} className="btn text-white" style={{ background: accent }}>
+          <Link href={`/s/${slug}/products`} className="btn-primary">
             {t.browseProducts}
           </Link>
           <Link href={`/s/${slug}/cart`} className="btn-secondary">
@@ -130,7 +128,7 @@ export function StorefrontError({ digest, retry }: { digest?: string; retry: () 
     );
   }
 
-  const { slug, storeName, accent, t } = store;
+  const { slug, storeName, t } = store;
   return (
     <FallbackPanel
       eyebrow={storeName}
@@ -138,7 +136,7 @@ export function StorefrontError({ digest, retry }: { digest?: string; retry: () 
       description={<p>{t.errorBody}</p>}
       actions={
         <>
-          <button type="button" onClick={retry} className="btn text-white" style={{ background: accent }}>
+          <button type="button" onClick={retry} className="btn-primary">
             {t.errorRetry}
           </button>
           <Link href={`/s/${slug}`} className="btn-secondary">

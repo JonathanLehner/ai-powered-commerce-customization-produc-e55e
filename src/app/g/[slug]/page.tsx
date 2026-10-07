@@ -1,7 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
+import { LockIcon } from "lucide-react";
 import { UnknownGiftPortalView } from "@/components/NotFoundViews";
-import { Badge, Callout, EmptyState } from "@/components/ui";
+import { ProductCard } from "@/components/ProductCard";
+import { Callout, EmptyState } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess } from "@/lib/gift-access";
 import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
@@ -31,38 +35,41 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
 
   if (catalogue.status !== "active" || store.status !== "active") {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
-        <div className="card p-6">
+      <div className="mx-auto w-full max-w-md px-4 py-16 sm:px-6">
+        <Card className="p-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.closedTitle}</h1>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm leading-relaxed text-muted">
             {fmt(t.gift.closedBody, { company: catalogue.companyName })}
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
 
   if (!access) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
-        <div className="card p-6">
-          <Badge tone="brand">{t.gift.privateBadge}</Badge>
-          <h1 className="mt-3 text-lg font-semibold tracking-tight text-ink">{catalogue.name}</h1>
+      <div className="mx-auto w-full max-w-md px-4 py-16 sm:px-6">
+        <Card className="p-6">
+          <Badge className="gap-1.5">
+            <LockIcon aria-hidden className="size-3" />
+            {t.gift.privateBadge}
+          </Badge>
+          <h1 className="mt-4 text-xl font-semibold tracking-tight text-ink">{catalogue.name}</h1>
           {catalogue.access === "invite" ? (
             <>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-sm leading-relaxed text-muted">
                 {fmt(t.gift.inviteBody, { company: catalogue.companyName })}
               </p>
-              <div className="mt-5">
+              <div className="mt-6">
                 <GateForm slug={catalogue.slug} t={t.gift} />
               </div>
             </>
           ) : (
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm leading-relaxed text-muted">
               {fmt(t.gift.linkOnlyBody, { company: catalogue.companyName })}
             </p>
           )}
-        </div>
+        </Card>
       </div>
     );
   }
@@ -72,98 +79,80 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
   const available = published.filter((product) => products.some((option) => option.id === product.id));
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{catalogue.name}</h1>
-          <p className="mt-2 max-w-2xl text-sm text-inksoft">
+    <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+      <div className="flex flex-wrap items-end justify-between gap-6 border-b border-line pb-8">
+        <div className="min-w-0 max-w-2xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-balance text-ink sm:text-4xl">
+            {catalogue.name}
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
             {catalogue.intro || fmt(t.gift.introFallback, { company: catalogue.companyName })}
           </p>
         </div>
         {available.length > 0 ? (
-          <Link href={`/g/${catalogue.slug}/order`} className="btn-primary">
-            {t.gift.startOrder}
-          </Link>
+          <Button asChild size="lg">
+            <Link href={`/g/${catalogue.slug}/order`}>{t.gift.startOrder}</Link>
+          </Button>
         ) : null}
       </div>
 
-      <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted">{t.gift.spendLimitLabel}</dt>
-          <dd className="mt-1 text-lg font-semibold text-ink">
-            {catalogue.spendLimitPerRecipient > 0
-              ? money(catalogue.spendLimitPerRecipient, catalogue.currency)
-              : t.gift.noLimit}
-          </dd>
-        </div>
-        <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted">{t.gift.approvalLabel}</dt>
-          <dd className="mt-1 text-lg font-semibold text-ink">
-            {catalogue.approvalRequired
+      <dl className="mt-8 grid gap-4 sm:grid-cols-3">
+        {[
+          {
+            label: t.gift.spendLimitLabel,
+            value:
+              catalogue.spendLimitPerRecipient > 0
+                ? money(catalogue.spendLimitPerRecipient, catalogue.currency)
+                : t.gift.noLimit,
+          },
+          {
+            label: t.gift.approvalLabel,
+            value: catalogue.approvalRequired
               ? catalogue.approverName || t.gift.approvalRequired
-              : t.gift.approvalNotRequired}
-          </dd>
-        </div>
-        <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted">{t.gift.recipientsLabel}</dt>
-          <dd className="mt-1 text-lg font-semibold text-ink">
-            {fmt(t.gift.recipientsUpTo, { count: MAX_RECIPIENTS })}
-          </dd>
-        </div>
+              : t.gift.approvalNotRequired,
+          },
+          {
+            label: t.gift.recipientsLabel,
+            value: fmt(t.gift.recipientsUpTo, { count: MAX_RECIPIENTS }),
+          },
+        ].map((row) => (
+          <Card key={row.label} className="bg-secondary p-4">
+            <dt className="text-xs font-medium tracking-wide text-muted uppercase">{row.label}</dt>
+            <dd className="mt-1.5 text-base font-semibold text-ink">{row.value}</dd>
+          </Card>
+        ))}
       </dl>
 
       {available.length === 0 ? (
-        <div className="mt-8">
+        <div className="mt-10">
           <EmptyState title={t.gift.emptyTitle} description={t.gift.emptyBody} />
         </div>
       ) : (
         <>
-          <h2 className="mt-10 text-base font-semibold text-ink">{t.gift.giftsTitle}</h2>
-          <ul className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="mt-14 text-xl font-semibold tracking-tight text-ink">{t.gift.giftsTitle}</h2>
+          <ul className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-3">
             {available.map((product, index) => {
               const price = convert(product.price, product.currency, catalogue.currency);
               const sizes = [
                 ...new Set(product.variants.filter((v) => v.enabled).map((v) => v.size).filter(Boolean)),
               ];
+              const overLimit =
+                catalogue.spendLimitPerRecipient > 0 && price > catalogue.spendLimitPerRecipient;
               return (
-                <li key={product.id} className="overflow-hidden rounded-xl border border-line bg-white">
-                  <div className="bg-canvas">
-                    {product.mockups[0] ? (
-                      <Image
-                        src={product.mockups[0].url}
-                        alt={product.name}
-                        width={640}
-                        height={640}
-                        priority={index < 3}
-                        loading={index < 3 ? "eager" : "lazy"}
-                        sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
-                        className="h-auto w-full object-cover"
-                        style={{ aspectRatio: "1 / 1" }}
-                      />
-                    ) : (
-                      <div
-                        className="flex items-center justify-center text-sm text-muted"
-                        style={{ aspectRatio: "1 / 1" }}
-                      >
-                        {t.gift.previewSoon}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-semibold text-ink">{product.name}</h3>
-                      {catalogue.spendLimitPerRecipient > 0 && price > catalogue.spendLimitPerRecipient ? (
-                        <Badge tone="amber">{t.gift.overLimit}</Badge>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted">{product.description.split("\n")[0]}</p>
-                    <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                      {money(price, catalogue.currency)}
-                    </p>
-                    <p className="mt-1 text-xs text-muted">
-                      {sizes.length > 0 ? fmt(t.gift.sizes, { sizes: sizes.join(", ") }) : t.gift.oneSize}
-                    </p>
-                  </div>
+                <li key={product.id}>
+                  <ProductCard
+                    href={`/g/${catalogue.slug}/order`}
+                    name={product.name}
+                    price={money(price, catalogue.currency)}
+                    tagline={product.description.split("\n")[0]}
+                    imageUrl={product.mockups[0]?.url ?? null}
+                    placeholder={t.gift.previewSoon}
+                    eager={index < 2}
+                    badge={overLimit ? <Badge variant="warning">{t.gift.overLimit}</Badge> : null}
+                    footnote={
+                      sizes.length > 0 ? fmt(t.gift.sizes, { sizes: sizes.join(", ") }) : t.gift.oneSize
+                    }
+                  />
                 </li>
               );
             })}
@@ -176,30 +165,30 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
           catalogue.spendLimitPerRecipient > 0 &&
           convert(product.price, product.currency, catalogue.currency) > catalogue.spendLimitPerRecipient,
       ) ? (
-        <div className="mt-6">
+        <div className="mt-8">
           <Callout tone="amber" title={t.gift.overLimitTitle}>
             {t.gift.overLimitBody}
           </Callout>
         </div>
       ) : null}
 
-      <section className="mt-12 rounded-xl border border-line bg-canvas p-6">
-        <h2 className="text-base font-semibold text-ink">{t.gift.howItWorks}</h2>
-        <ol className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mt-16 rounded-card border border-line bg-secondary p-6 sm:p-8">
+        <h2 className="text-lg font-semibold tracking-tight text-ink">{t.gift.howItWorks}</h2>
+        <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {steps(t.gift).map((step, index) => (
             <li key={step.title}>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink">
+              <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {index + 1}
               </span>
-              <p className="mt-2 text-sm font-semibold text-ink">{step.title}</p>
-              <p className="mt-1 text-sm text-muted">{step.detail}</p>
+              <p className="mt-3 text-sm font-semibold text-ink">{step.title}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted">{step.detail}</p>
             </li>
           ))}
         </ol>
         {available.length > 0 ? (
-          <Link href={`/g/${catalogue.slug}/order`} className="btn-primary mt-6 inline-flex">
-            {t.gift.startOrder}
-          </Link>
+          <Button asChild className="mt-7">
+            <Link href={`/g/${catalogue.slug}/order`}>{t.gift.startOrder}</Link>
+          </Button>
         ) : null}
       </section>
     </div>

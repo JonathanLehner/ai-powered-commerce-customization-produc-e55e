@@ -1,6 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Badge as UiBadge, type badgeVariants } from "@/components/ui/badge";
 import { classNames } from "@/lib/util";
+
+type BadgeVariant = NonNullable<
+  NonNullable<Parameters<typeof badgeVariants>[0]>["variant"]
+>;
 
 /**
  * Intrinsic size of `public/logo.png` — kept in step with the trimmed mark that
@@ -42,6 +47,20 @@ const TONE_CLASSES: Record<Tone, string> = {
   slate: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
+/**
+ * The workspace's tone-named badge, implemented on the shadcn `Badge` primitive
+ * so there is one badge in the product rather than two that drift apart.
+ */
+const TONE_VARIANTS: Record<Tone, BadgeVariant> = {
+  neutral: "outline",
+  brand: "default",
+  iris: "default",
+  green: "success",
+  amber: "warning",
+  rose: "danger",
+  slate: "outline",
+};
+
 export function Badge({
   children,
   tone = "neutral",
@@ -52,15 +71,12 @@ export function Badge({
   className?: string;
 }) {
   return (
-    <span
-      className={classNames(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
-        TONE_CLASSES[tone],
-        className,
-      )}
+    <UiBadge
+      variant={TONE_VARIANTS[tone]}
+      className={classNames(tone === "iris" && "bg-iris-50 text-iris-700", className)}
     >
       {children}
-    </span>
+    </UiBadge>
   );
 }
 

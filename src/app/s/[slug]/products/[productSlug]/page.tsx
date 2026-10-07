@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, StorefrontNotFoundView, UnknownStoreView } from "@/components/NotFoundViews";
-import { Badge, Breadcrumbs } from "@/components/ui";
+import { Breadcrumbs } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { isLive } from "@/lib/artwork";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug, getSupplier } from "@/lib/data";
 import { fmt, joinList, storefrontLocale } from "@/lib/i18n";
@@ -80,7 +82,7 @@ export default async function StorefrontProductPage({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pt-6 pb-28 sm:px-6 lg:pb-16">
       <Breadcrumbs
         label={t.product.breadcrumb}
         items={[
@@ -90,32 +92,38 @@ export default async function StorefrontProductPage({
         ]}
       />
 
-      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{product.name}</h1>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {product.tags.map((tag) => (
-          <Link key={tag} href={`/s/${store.slug}/products?tag=${encodeURIComponent(tag)}`}>
-            <Badge tone="neutral">{tag}</Badge>
-          </Link>
-        ))}
-      </div>
+      <h1 className="max-w-2xl text-2xl font-semibold tracking-tight text-balance text-ink sm:text-3xl">
+        {product.name}
+      </h1>
+      {product.tags.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {product.tags.map((tag) => (
+            <Link key={tag} href={`/s/${store.slug}/products?tag=${encodeURIComponent(tag)}`}>
+              <Badge variant="outline" className="hover:border-ink/25 hover:text-ink">
+                {tag}
+              </Badge>
+            </Link>
+          ))}
+        </div>
+      ) : null}
 
-      <div className="mt-8">
+      <div className="mt-10">
         <ProductPurchase product={purchase} />
       </div>
 
-      <div className="mt-12 grid gap-8 border-t border-line pt-8 lg:grid-cols-3">
+      <div className="mt-16 grid gap-10 border-t border-line pt-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <h2 className="text-lg font-semibold text-ink">{t.product.about}</h2>
-          <div className="mt-3 space-y-3 text-sm leading-relaxed text-inksoft">
+          <div className="mt-4 max-w-2xl space-y-4 text-sm leading-7 text-inksoft">
             {product.description.split("\n\n").map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
           </div>
         </div>
         <aside className="space-y-4 text-sm">
-          <div className="rounded-xl border border-line p-4">
+          <Card className="p-4">
             <h2 className="text-sm font-semibold text-ink">{t.product.madeToOrder}</h2>
-            <p className="mt-1.5 text-muted">
+            <p className="mt-1.5 leading-relaxed text-muted">
               {fmt(t.product.producedBy, {
                 supplier: supplier?.name ?? t.product.defaultSupplier,
                 lead: catalog
@@ -130,11 +138,11 @@ export default async function StorefrontProductPage({
                     : t.product.defaultCarrier,
               })}
             </p>
-          </div>
+          </Card>
           {area ? (
-            <div className="rounded-xl border border-line p-4">
+            <Card className="p-4">
               <h2 className="text-sm font-semibold text-ink">{t.product.printDetail}</h2>
-              <p className="mt-1.5 text-muted">
+              <p className="mt-1.5 leading-relaxed text-muted">
                 {fmt(t.product.printDetailBody, {
                   area: area.name,
                   width: area.widthMm,
@@ -142,18 +150,18 @@ export default async function StorefrontProductPage({
                   dpi: area.minDpi,
                 })}
               </p>
-            </div>
+            </Card>
           ) : null}
-          <div className="rounded-xl border border-line p-4">
+          <Card className="p-4">
             <h2 className="text-sm font-semibold text-ink">{t.product.taxAndDelivery}</h2>
-            <p className="mt-1.5 text-muted">
+            <p className="mt-1.5 leading-relaxed text-muted">
               {fmt(t.product.pricesShownIn, {
                 currency,
                 tax: store.pricesIncludeTax ? t.product.taxIncluded : t.product.taxAtCheckout,
               })}{" "}
               {fmt(t.product.merchantOfRecord, { client: store.clientName })}
             </p>
-          </div>
+          </Card>
         </aside>
       </div>
     </div>

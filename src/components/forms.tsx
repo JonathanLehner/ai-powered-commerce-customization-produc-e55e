@@ -169,6 +169,7 @@ export function ActionForm({
   pendingLabel,
   submitClassName = "btn-primary",
   className,
+  actionsClassName = "mt-5 flex flex-wrap items-center gap-3",
   footer,
   hidden,
   submitDisabled,
@@ -180,6 +181,8 @@ export function ActionForm({
   pendingLabel?: string;
   submitClassName?: string;
   className?: string;
+  /** The row holding the submit button, so a storefront can pin it to the viewport. */
+  actionsClassName?: string;
   footer?: ReactNode;
   hidden?: Record<string, string>;
   /** Locks the submit button while the form is not ready, e.g. an upload in flight. */
@@ -215,7 +218,7 @@ export function ActionForm({
         : null}
       {typeof children === "function" ? children(state) : children}
       <FormStatus state={state} />
-      <div className="mt-5 flex flex-wrap items-center gap-3">
+      <div className={actionsClassName}>
         <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
           {submitLabel}
         </SubmitButton>

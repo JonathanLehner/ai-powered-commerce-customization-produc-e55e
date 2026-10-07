@@ -2,6 +2,8 @@
 
 import { lookupOrder } from "@/app/actions/shop";
 import { ActionForm } from "@/components/forms";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { StorefrontCopy } from "@/lib/i18n";
 
 export function OrderLookupForm({
@@ -19,16 +21,14 @@ export function OrderLookupForm({
       submitLabel={t.lookupSubmit}
       pendingLabel={t.lookupPending}
       hidden={{ slug }}
-      className="card mt-6 p-5"
+      className="mt-7 rounded-card border border-border bg-card p-5"
     >
       {(state) => (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="code" className="field-label">
-                {t.orderCode}
-              </label>
-              <input
+              <Label htmlFor="code">{t.orderCode}</Label>
+              <Input
                 id="code"
                 name="code"
                 defaultValue={code}
@@ -36,24 +36,22 @@ export function OrderLookupForm({
                 required
                 aria-invalid={state.field === "code" ? true : undefined}
                 aria-describedby="code-hint"
-                className={state.field === "code" ? "input input-error" : "input"}
+                className="mt-1.5 font-mono tabular-nums"
               />
               <p id="code-hint" className="field-hint">
                 {t.orderCodeHint}
               </p>
             </div>
             <div>
-              <label htmlFor="email" className="field-label">
-                {t.emailOnOrder}
-              </label>
-              <input
+              <Label htmlFor="email">{t.emailOnOrder}</Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
                 aria-invalid={state.field === "email" ? true : undefined}
-                className={state.field === "email" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
               <p className="field-hint">{t.emailHint}</p>
             </div>

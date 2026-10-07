@@ -7,6 +7,8 @@ import type { ActionState } from "@/app/actions/stores";
 import { FormStatus } from "@/components/forms";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { Badge } from "@/components/ui";
+import { STORE_FONT_CLASSES } from "@/lib/store-fonts";
+import { storeThemeVars } from "@/lib/store-theme";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
 import { classNames, formatDateTime } from "@/lib/util";
 
@@ -427,9 +429,14 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
         </div>
 
         <div className="relative overflow-x-auto rounded-xl border border-line bg-canvas p-3">
+          {/* The canvas carries the store's own design tokens and typeface, so
+              what is being arranged here looks like what shoppers will get. */}
           <div
-            className="mx-auto overflow-hidden rounded-lg border border-line bg-white transition-all"
-            style={{ maxWidth: width }}
+            className={classNames(
+              "store-surface mx-auto overflow-hidden rounded-lg border border-line bg-background transition-all",
+              STORE_FONT_CLASSES,
+            )}
+            style={{ maxWidth: width, ...storeThemeVars(props.context.theme) }}
           >
             <Frame data={props.data} />
           </div>

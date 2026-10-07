@@ -8,6 +8,7 @@ export const es: StorefrontCopy = {
     currencyApply: "Aplicar",
     basket: "Cesta",
     basketWithCount: "Cesta ({count})",
+    basketClose: "Cerrar la cesta",
     operatedBy: "Gestionada por {client}. Fabricado bajo pedido y enviado a todo el mundo.",
     allProducts: "Todos los productos",
     orderStatus: "Estado del pedido",

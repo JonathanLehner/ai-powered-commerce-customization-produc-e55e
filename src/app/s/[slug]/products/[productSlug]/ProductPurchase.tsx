@@ -3,8 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { addToCart } from "@/app/actions/shop";
+import { CheckIcon } from "lucide-react";
 import { ActionForm } from "@/components/forms";
-import { Badge } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { placementBox } from "@/lib/artwork";
 import {
   canPreview,
@@ -309,9 +315,13 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <div>
-        <div className="overflow-hidden rounded-xl border border-line bg-canvas">
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14">
+      <div className="lg:sticky lg:top-24 lg:self-start">
+        {/* The gallery frame stays square: the print-area rectangle and the
+            artwork on top of it are positioned as fractions of the product
+            photograph, so cropping the photograph to another ratio would move
+            the personalisation away from where it will actually print. */}
+        <div className="overflow-hidden rounded-card bg-secondary ring-1 ring-line">
           <div ref={canvasRef} className="relative" style={{ aspectRatio: "1 / 1" }}>
             {activeMockup ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -329,7 +339,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 aria-hidden
                 className={classNames(
                   "pointer-events-none absolute rounded-sm border-2 border-dashed",
-                  blocked ? "border-rose-500/70" : "border-brand-500/70",
+                  blocked ? "border-rose-500/70" : "border-primary/70",
                 )}
                 style={{
                   left: `${area.rect.x * 100}%`,
@@ -359,7 +369,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     onPointerUp={endDrag}
                     onPointerCancel={endDrag}
                     onKeyDown={onKeyDown}
-                    className="absolute cursor-move touch-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                    className="absolute cursor-move touch-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     style={{
                       left: `${placement.x * 100}%`,
                       top: `${placement.y * 100}%`,
@@ -378,7 +388,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 ) : null}
                 {text ? (
                   <span
-                    className="pointer-events-none absolute left-1/2 top-[86%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[3.2cqw] font-bold"
+                    className="pointer-events-none absolute top-[86%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-[3.2cqw] font-bold whitespace-nowrap"
                     style={{ color: variant?.colourHex === "#ffffff" ? "#111827" : "#f8fafc" }}
                   >
                     {text}
@@ -398,8 +408,8 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   onClick={() => setActiveView(mockup.view)}
                   aria-pressed={activeMockup === mockup.url}
                   className={classNames(
-                    "overflow-hidden rounded-lg border-2",
-                    activeMockup === mockup.url ? "border-brand-500" : "border-line",
+                    "overflow-hidden rounded-md ring-1 transition",
+                    activeMockup === mockup.url ? "ring-2 ring-primary" : "ring-line hover:ring-ink/25",
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -415,7 +425,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         ) : null}
 
         {artworkPreview || text ? (
-          <p className="mt-3 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
+          <p className="mt-4 rounded-lg border border-line bg-accent px-3 py-2 text-xs leading-relaxed text-accent-foreground">
             {t.livePreview}
           </p>
         ) : null}
@@ -426,12 +436,21 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         beforeSubmit={renderPreview}
         submitLabel={t.addToBasket}
         pendingLabel={t.adding}
+        submitClassName="btn-primary flex-1 sm:flex-none sm:min-w-44"
         submitDisabled={artworkStatus !== "idle" || blocked}
         hidden={{ storeId: product.storeId, productId: product.id }}
+        // Pinned to the bottom of a phone viewport: the picker, the
+        // personalisation and the pre-flight are taller than one screen, so the
+        // one control that commits the configuration has to stay reachable.
+        actionsClassName={classNames(
+          "mt-7 flex flex-wrap items-center gap-3",
+          "max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-40 max-lg:mt-0 max-lg:border-t",
+          "max-lg:border-line max-lg:bg-background/95 max-lg:px-4 max-lg:py-3 max-lg:backdrop-blur",
+        )}
         footer={
-          <Link href={`/s/${product.storeSlug}/cart`} className="btn-secondary">
-            {t.viewBasket}
-          </Link>
+          <Button asChild variant="outline">
+            <Link href={`/s/${product.storeSlug}/cart`}>{t.viewBasket}</Link>
+          </Button>
         }
       >
         {(state) => (
@@ -446,90 +465,87 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
               </>
             ) : null}
 
-            <p className="text-2xl font-semibold tabular-nums text-ink">
+            <p className="text-3xl font-semibold tracking-tight tabular-nums text-ink">
               {variant ? formatMoney(variant.price, product.displayCurrency, product.localeTag) : ""}
             </p>
 
             {colours.length > 1 ? (
-              <fieldset className="mt-5">
-                <legend className="field-label">{t.colour}</legend>
-                <div className="mt-2 flex flex-wrap gap-2">
+              <fieldset className="mt-7">
+                <legend className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  {t.colour}
+                </legend>
+                <ToggleGroup
+                  type="single"
+                  value={colour}
+                  onValueChange={(next) => next && selectColour(next)}
+                  aria-label={t.colour}
+                  className="mt-3"
+                >
                   {colours.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => selectColour(option)}
-                      aria-pressed={colour === option}
-                      className={classNames(
-                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm",
-                        colour === option ? "border-brand-500 bg-brand-50" : "border-line hover:bg-canvas",
-                      )}
-                    >
+                    <ToggleGroupItem key={option} value={option}>
                       <span
                         aria-hidden
-                        className="h-4 w-4 rounded-full border border-line"
+                        className="size-4 rounded-full ring-1 ring-ink/15"
                         style={{
-                          background: product.variants.find((v) => v.colour === option)?.colourHex ?? "#fff",
+                          background:
+                            product.variants.find((v) => v.colour === option)?.colourHex ?? "#fff",
                         }}
                       />
                       {option}
-                    </button>
+                    </ToggleGroupItem>
                   ))}
-                </div>
+                </ToggleGroup>
               </fieldset>
             ) : null}
 
-            <fieldset className="mt-5">
-              <legend className="field-label">
+            <fieldset className="mt-6">
+              <legend className="text-xs font-semibold tracking-wide text-muted uppercase">
                 {sizes.length > 1 ? t.size : t.option}
                 {state.field === "variantId" ? (
-                  <span className="ml-2 text-xs text-rose-600">{t.required}</span>
+                  <span className="ml-2 text-rose-600 normal-case">{t.required}</span>
                 ) : null}
               </legend>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <ToggleGroup
+                type="single"
+                value={variantId}
+                onValueChange={(next) => next && setVariantId(next)}
+                aria-label={sizes.length > 1 ? t.size : t.option}
+                className="mt-3"
+              >
                 {sizes.map((option) => (
-                  <button
+                  <ToggleGroupItem
                     key={option.id}
-                    type="button"
-                    onClick={() => setVariantId(option.id)}
-                    aria-pressed={variantId === option.id}
+                    value={option.id}
                     disabled={option.availability === "out_of_stock"}
-                    className={classNames(
-                      "rounded-lg border px-3.5 py-2 text-sm",
-                      variantId === option.id ? "border-brand-500 bg-brand-50 font-medium" : "border-line hover:bg-canvas",
-                      option.availability === "out_of_stock" && "cursor-not-allowed opacity-50",
-                    )}
                   >
                     {option.size || option.name}
                     {option.availability === "low_stock" ? (
-                      <span className="ml-1.5 text-xs text-amber-700">{t.lowStock}</span>
+                      <span className="text-xs text-amber-700">{t.lowStock}</span>
                     ) : null}
-                  </button>
+                  </ToggleGroupItem>
                 ))}
-              </div>
+              </ToggleGroup>
             </fieldset>
 
-            <div className="mt-5 max-w-[8rem]">
-              <label htmlFor="quantity" className="field-label">
+            <div className="mt-6 max-w-[7rem]">
+              <Label htmlFor="quantity" className="text-xs font-semibold tracking-wide text-muted uppercase">
                 {t.quantity}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="quantity"
                 name="quantity"
                 type="number"
                 min={1}
                 max={50}
                 defaultValue={1}
-                className="input"
+                className="mt-2 tabular-nums"
               />
             </div>
 
             {product.shopperCustomization.textLine ? (
-              <div className="mt-5">
-                <label htmlFor="text" className="field-label">
-                  {product.shopperCustomization.textLabel}
-                </label>
-                <input
+              <div className="mt-6">
+                <Label htmlFor="text">{product.shopperCustomization.textLabel}</Label>
+                <Input
                   id="text"
                   name="text"
                   value={text}
@@ -538,7 +554,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   placeholder={t.textPlaceholder}
                   aria-invalid={state.field === "text" ? true : undefined}
                   aria-describedby="text-hint"
-                  className={state.field === "text" ? "input input-error" : "input"}
+                  className="mt-2"
                 />
                 <p id="text-hint" className="field-hint">
                   {fmt(t.textCounter, {
@@ -550,11 +566,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
             ) : null}
 
             {product.shopperCustomization.artworkUpload ? (
-              <div className="mt-5">
-                <label htmlFor="artwork" className="field-label">
-                  {t.artworkLabel}
-                </label>
-                <input
+              <div className="mt-6">
+                <Label htmlFor="artwork">{t.artworkLabel}</Label>
+                <Input
                   id="artwork"
                   ref={fileInput}
                   type="file"
@@ -564,11 +578,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     state.field === "artwork" || artworkStatus === "error" || blocked ? true : undefined
                   }
                   aria-describedby="artwork-hint"
-                  className={classNames(
-                    "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-                    (state.field === "artwork" || artworkStatus === "error" || blocked) && "input-error",
-                    artworkStatus === "uploading" && "opacity-60",
-                  )}
+                  className={classNames("mt-2 h-auto py-1.5", artworkStatus === "uploading" && "opacity-60")}
                 />
                 <p id="artwork-hint" className="field-hint">
                   {area && rules
@@ -587,21 +597,27 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   ) : artworkError ? (
                     <span className="text-sm text-rose-700">{artworkError}</span>
                   ) : artwork ? (
-                    <Badge tone="brand">{artwork.fileName}</Badge>
+                    <Badge>{artwork.fileName}</Badge>
                   ) : null}
                 </p>
 
                 {liveArtwork && area && box ? (
-                  <div className="mt-4 rounded-xl border border-line p-4">
+                  <Card className="mt-4 p-4">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-sm font-semibold text-ink">{t.artworkPlacementTitle}</h3>
-                      <button type="button" className="btn-ghost btn-sm text-rose-700" onClick={clearArtwork}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-rose-700"
+                        onClick={clearArtwork}
+                      >
                         {t.artworkRemove}
-                      </button>
+                      </Button>
                     </div>
                     <p className="mt-1 text-xs text-muted">{t.artworkPlacementHelp}</p>
 
-                    <div className="mt-3 space-y-3">
+                    <div className="mt-4 space-y-3.5">
                       <div>
                         <label
                           htmlFor="artwork-scale"
@@ -620,7 +636,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           step={1}
                           value={Math.round(placement.scale * 100)}
                           onChange={(e) => movePlacement({ scale: Number(e.currentTarget.value) / 100 })}
-                          className="mt-1 w-full accent-brand-600"
+                          className="mt-1.5 w-full accent-primary"
                         />
                       </div>
                       <div>
@@ -639,10 +655,10 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           step={1}
                           value={placement.rotation}
                           onChange={(e) => movePlacement({ rotation: Number(e.currentTarget.value) })}
-                          className="mt-1 w-full accent-brand-600"
+                          className="mt-1.5 w-full accent-primary"
                         />
                       </div>
-                      <div className="flex items-center justify-between rounded-lg bg-canvas px-3 py-2 text-xs">
+                      <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2 text-xs">
                         <span className="text-muted">{t.artworkResolution}</span>
                         <span
                           className={classNames(
@@ -653,21 +669,22 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           {Math.round(box.effectiveDpi)} DPI
                         </span>
                       </div>
-                      <button
+                      <Button
                         type="button"
-                        className="btn-ghost btn-sm"
+                        variant="ghost"
+                        size="sm"
                         // Position only: a shopper who has found the right size
                         // should not lose it by nudging the artwork back.
                         onClick={() => movePlacement({ x: DEFAULT_PLACEMENT.x, y: DEFAULT_PLACEMENT.y })}
                       >
                         {t.artworkRecentre}
-                      </button>
+                      </Button>
                     </div>
-                  </div>
+                  </Card>
                 ) : null}
 
                 {errors.length > 0 ? (
-                  <div className="mt-3" role="alert">
+                  <div className="mt-4" role="alert">
                     <p className="text-sm font-semibold text-rose-900">{t.artworkChecksFail}</p>
                     <ul className="mt-2 space-y-2.5">
                       {errors.map((issue) => (
@@ -681,9 +698,15 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     </ul>
                     <p className="mt-2 text-xs text-rose-800">{t.artworkBlocked}</p>
                     {!liveArtwork ? (
-                      <button type="button" className="btn-ghost btn-sm mt-1 text-rose-700" onClick={clearArtwork}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="mt-1 text-rose-700"
+                        onClick={clearArtwork}
+                      >
                         {t.artworkRemove}
-                      </button>
+                      </Button>
                     ) : null}
                   </div>
                 ) : null}
@@ -700,8 +723,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 ) : null}
 
                 {liveArtwork && errors.length === 0 && warnings.length === 0 ? (
-                  <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-                    ✓ {t.artworkChecksPass}
+                  <p className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                    <CheckIcon aria-hidden className="size-4 shrink-0" />
+                    {t.artworkChecksPass}
                   </p>
                 ) : null}
               </div>

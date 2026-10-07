@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
 import { DEFAULT_LANGUAGE, fmt, storefrontLocale } from "@/lib/i18n";
-import { THEMES, type Store } from "@/lib/types";
+import type { Store } from "@/lib/types";
 
 /**
  * The bodies of every "we cannot find that" page, as server components.
@@ -24,7 +24,6 @@ import { THEMES, type Store } from "@/lib/types";
 /** The way back for a mistyped or retired shopper URL, in the store's own language. */
 export function StorefrontNotFoundView({ store }: { store: Store }) {
   const { t } = storefrontLocale(store);
-  const accent = THEMES[store.theme].accent;
 
   return (
     <FallbackPanel
@@ -33,11 +32,7 @@ export function StorefrontNotFoundView({ store }: { store: Store }) {
       description={<p>{fmt(t.fallback.notFoundBody, { store: store.name })}</p>}
       actions={
         <>
-          <Link
-            href={`/s/${store.slug}/products`}
-            className="btn text-white"
-            style={{ background: accent }}
-          >
+          <Link href={`/s/${store.slug}/products`} className="btn-primary">
             {t.fallback.browseProducts}
           </Link>
           <Link href={`/s/${store.slug}/cart`} className="btn-secondary">

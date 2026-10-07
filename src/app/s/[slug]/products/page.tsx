@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { SearchIcon } from "lucide-react";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
-import { Badge, EmptyState } from "@/components/ui";
+import { ProductCard } from "@/components/ProductCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
@@ -51,104 +56,106 @@ export default async function StorefrontProductsPage({
     );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{t.shop.title}</h1>
-      <p className="mt-2 max-w-2xl text-sm text-inksoft">
-        {fmt(t.shop.intro, {
-          currency,
-          tax: store.pricesIncludeTax ? t.shop.taxIncluded : t.shop.taxAtCheckout,
-        })}
-      </p>
+    <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+      <header className="max-w-2xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-balance text-ink sm:text-4xl">
+          {t.shop.title}
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          {fmt(t.shop.intro, {
+            currency,
+            tax: store.pricesIncludeTax ? t.shop.taxIncluded : t.shop.taxAtCheckout,
+          })}
+        </p>
+      </header>
 
-      <form method="get" className="mt-6 flex flex-wrap items-end gap-3">
-        <div className="min-w-[12rem] flex-1">
-          <label htmlFor="q" className="field-label text-xs">
-            {t.shop.searchLabel}
-          </label>
-          <input
-            id="q"
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder={t.shop.searchPlaceholder}
-            className="input py-1.5"
-          />
-        </div>
-        {tag ? <input type="hidden" name="tag" value={tag} /> : null}
-        <button type="submit" className="btn-secondary">
-          {t.shop.searchSubmit}
-        </button>
-        {q || tag ? (
-          <Link href={`/s/${store.slug}/products`} className="btn-ghost">
-            {t.shop.clear}
-          </Link>
+      <div className="mt-10 flex flex-col gap-4 border-y border-line py-4 lg:flex-row lg:items-center lg:justify-between">
+        <form method="get" className="flex w-full items-end gap-2 lg:max-w-sm">
+          <div className="min-w-0 flex-1">
+            <Label htmlFor="q" className="sr-only">
+              {t.shop.searchLabel}
+            </Label>
+            <div className="relative">
+              <SearchIcon
+                aria-hidden
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
+              />
+              <Input
+                id="q"
+                name="q"
+                defaultValue={q ?? ""}
+                placeholder={t.shop.searchPlaceholder}
+                className="h-9 pl-9"
+              />
+            </div>
+          </div>
+          {tag ? <input type="hidden" name="tag" value={tag} /> : null}
+          <Button type="submit" variant="outline" size="sm" className="h-9">
+            {t.shop.searchSubmit}
+          </Button>
+          {q || tag ? (
+            <Button asChild variant="ghost" size="sm" className="h-9">
+              <Link href={`/s/${store.slug}/products`}>{t.shop.clear}</Link>
+            </Button>
+          ) : null}
+        </form>
+
+        {tags.length > 0 ? (
+          <nav
+            aria-label={t.shop.filterByTag}
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0"
+          >
+            {tags.slice(0, 12).map((item) => (
+              <Link
+                key={item}
+                href={`/s/${store.slug}/products?tag=${encodeURIComponent(item)}`}
+                aria-current={item === tag ? "true" : undefined}
+                className={
+                  item === tag
+                    ? "shrink-0 rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-white"
+                    : "shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-inksoft transition-colors hover:border-ink/25 hover:text-ink"
+                }
+              >
+                {item}
+              </Link>
+            ))}
+          </nav>
         ) : null}
-      </form>
-
-      {tags.length > 0 ? (
-        <nav aria-label={t.shop.filterByTag} className="mt-4 flex flex-wrap gap-2">
-          {tags.slice(0, 12).map((item) => (
-            <Link
-              key={item}
-              href={`/s/${store.slug}/products?tag=${encodeURIComponent(item)}`}
-              className={item === tag ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
-            >
-              {item}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
+      </div>
 
       {visible.length === 0 ? (
-        <div className="mt-8">
+        <div className="mt-10">
           <EmptyState
             title={products.length === 0 ? t.shop.emptyTitle : t.shop.noMatchTitle}
             description={products.length === 0 ? t.shop.emptyBody : t.shop.noMatchBody}
             action={
               products.length > 0 ? (
-                <Link href={`/s/${store.slug}/products`} className="btn-secondary">
-                  {t.shop.clearFilters}
-                </Link>
+                <Button asChild variant="outline">
+                  <Link href={`/s/${store.slug}/products`}>{t.shop.clearFilters}</Link>
+                </Button>
               ) : null
             }
           />
         </div>
       ) : (
-        <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-3">
           {visible.map((product, index) => (
-            <li key={product.id} className="group overflow-hidden rounded-xl border border-line bg-white">
-              <Link href={`/s/${store.slug}/products/${product.slug}`}>
-                <div className="bg-canvas">
-                  {product.mockups[0] ? (
-                    <Image
-                      src={product.mockups[0].url}
-                      alt={product.name}
-                      width={640}
-                      height={640}
-                      priority={index < 3}
-                      loading={index < 3 ? "eager" : "lazy"}
-                      sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
-                      className="h-auto w-full object-cover transition group-hover:scale-[1.02]"
-                      style={{ aspectRatio: "1 / 1" }}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center text-sm text-muted" style={{ aspectRatio: "1 / 1" }}>
-                      {t.shop.previewSoon}
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h2 className="text-sm font-semibold text-ink">{product.name}</h2>
-                    {product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
-                      <Badge tone="brand">{t.shop.personalise}</Badge>
-                    ) : null}
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted">{product.description.split("\n")[0]}</p>
-                  <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                    {money(convert(product.price, product.currency, currency), currency)}
-                  </p>
-                </div>
-              </Link>
+            <li key={product.id}>
+              <ProductCard
+                href={`/s/${store.slug}/products/${product.slug}`}
+                name={product.name}
+                price={money(convert(product.price, product.currency, currency), currency)}
+                tagline={product.description.split("\n")[0]}
+                imageUrl={product.mockups[0]?.url ?? null}
+                placeholder={t.shop.previewSoon}
+                eager={index < 2}
+                badge={
+                  product.shopperCustomization.artworkUpload ||
+                  product.shopperCustomization.textLine ? (
+                    <Badge variant="solid">{t.shop.personalise}</Badge>
+                  ) : null
+                }
+              />
             </li>
           ))}
         </ul>

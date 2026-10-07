@@ -8,6 +8,7 @@ export const it: StorefrontCopy = {
     currencyApply: "Applica",
     basket: "Carrello",
     basketWithCount: "Carrello ({count})",
+    basketClose: "Chiudi il carrello",
     operatedBy: "Gestito da {client}. Prodotto su ordinazione e spedito in tutto il mondo.",
     allProducts: "Tutti i prodotti",
     orderStatus: "Stato dell’ordine",

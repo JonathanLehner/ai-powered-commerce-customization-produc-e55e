@@ -3,6 +3,7 @@ import Link from "next/link";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
+import { Button } from "@/components/ui/button";
 import { getStoreBySlug, getStorefront, listPublishedProducts } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
@@ -59,9 +60,9 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
 
   if (store.status === "archived") {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.home.closedTitle}</h1>
-        <p className="mt-3 text-sm text-muted">
+      <div className="mx-auto w-full max-w-xl px-4 py-28 text-center sm:px-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-balance text-ink">{t.home.closedTitle}</h1>
+        <p className="mt-4 text-sm leading-relaxed text-muted">
           {fmt(t.home.closedBody, { client: store.clientName, store: store.name })}
         </p>
       </div>
@@ -70,18 +71,20 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
 
   if (sections.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+      <div className="mx-auto w-full max-w-xl px-4 py-28 text-center sm:px-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-balance text-ink sm:text-3xl">
           {fmt(t.home.comingSoonTitle, { store: store.name })}
         </h1>
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-4 text-sm leading-relaxed text-muted">
           {t.home.comingSoonBody}{" "}
           {products.length > 0 ? t.home.comingSoonWithProducts : t.home.comingSoonNoProducts}
         </p>
         {products.length > 0 ? (
-          <Link href={`/s/${store.slug}/products`} className="btn-primary mt-6">
-            {fmt(t.home.browseProducts, { count: products.length })}
-          </Link>
+          <Button asChild size="lg" className="mt-8">
+            <Link href={`/s/${store.slug}/products`}>
+              {fmt(t.home.browseProducts, { count: products.length })}
+            </Link>
+          </Button>
         ) : null}
       </div>
     );

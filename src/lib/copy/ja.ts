@@ -8,6 +8,7 @@ export const ja: StorefrontCopy = {
     currencyApply: "適用",
     basket: "カート",
     basketWithCount: "カート（{count}）",
+    basketClose: "カートを閉じる",
     operatedBy: "運営：{client}。受注生産で世界中へお届けします。",
     allProducts: "すべての商品",
     orderStatus: "注文状況",

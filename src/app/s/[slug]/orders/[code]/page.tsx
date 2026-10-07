@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { StorefrontNotFoundView, UnknownStoreView } from "@/components/NotFoundViews";
-import { Badge, Callout, DataList } from "@/components/ui";
+import { CheckIcon } from "lucide-react";
+import { Callout, DataList } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { localCountryName } from "@/lib/countries";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
@@ -31,16 +34,16 @@ const SHOPPER_STATUS: Record<
   {
     label: keyof StorefrontCopy["status"];
     note: keyof StorefrontCopy["status"];
-    tone: "brand" | "green" | "amber" | "rose" | "slate";
+    tone: "default" | "outline" | "success" | "warning" | "danger";
   }
 > = {
-  awaiting_payment: { label: "awaitingPayment", note: "awaitingPaymentNote", tone: "slate" },
-  paid: { label: "paid", note: "paidNote", tone: "brand" },
-  in_production: { label: "inProduction", note: "inProductionNote", tone: "amber" },
-  shipped: { label: "shipped", note: "shippedNote", tone: "brand" },
-  delivered: { label: "delivered", note: "deliveredNote", tone: "green" },
-  cancelled: { label: "cancelled", note: "cancelledNote", tone: "slate" },
-  exception: { label: "exception", note: "exceptionNote", tone: "rose" },
+  awaiting_payment: { label: "awaitingPayment", note: "awaitingPaymentNote", tone: "outline" },
+  paid: { label: "paid", note: "paidNote", tone: "default" },
+  in_production: { label: "inProduction", note: "inProductionNote", tone: "warning" },
+  shipped: { label: "shipped", note: "shippedNote", tone: "default" },
+  delivered: { label: "delivered", note: "deliveredNote", tone: "success" },
+  cancelled: { label: "cancelled", note: "cancelledNote", tone: "outline" },
+  exception: { label: "exception", note: "exceptionNote", tone: "danger" },
 };
 
 export default async function OrderStatusPage({
@@ -62,7 +65,7 @@ export default async function OrderStatusPage({
   // the signed link from checkout or the email address on the order.
   if (!(await verifyOrderToken(store.id, code, token))) {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-xl px-4 py-12 sm:px-6 sm:py-16">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.order.title}</h1>
         <p className="mt-2 text-sm text-muted">{fmt(t.order.gateBody, { code })}</p>
         <OrderLookupForm slug={store.slug} code={code} t={t.order} />
@@ -80,7 +83,7 @@ export default async function OrderStatusPage({
   const contactSubject = fmt(t.order.contactSubject, { code: order.code });
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
       {isNew ? (
         // No order email is sent, so this page — and the lookup below it — is
         // the shopper's only way back to the order. The banner says so.
@@ -104,25 +107,22 @@ export default async function OrderStatusPage({
             {fmt(t.order.placed, { when: dateTime(order.createdAt) })}
           </p>
         </div>
-        <Badge tone={status.tone}>{t.status[status.label]}</Badge>
+        <Badge variant={status.tone}>{t.status[status.label]}</Badge>
       </div>
 
-      <p className="mt-3 rounded-lg border border-line bg-canvas px-4 py-3 text-sm text-inksoft">
+      <p className="mt-4 rounded-card border border-line bg-secondary px-4 py-3 text-sm leading-relaxed text-inksoft">
         {t.status[status.note]}
       </p>
 
       {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
-        <a
-          href={order.fulfillment.trackingUrl ?? "#"}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-primary mt-4"
-        >
-          {fmt(t.order.trackWith, { carrier: CARRIER_LABELS[order.fulfillment.carrier] })}
-        </a>
+        <Button asChild className="mt-5">
+          <a href={order.fulfillment.trackingUrl ?? "#"} target="_blank" rel="noreferrer">
+            {fmt(t.order.trackWith, { carrier: CARRIER_LABELS[order.fulfillment.carrier] })}
+          </a>
+        </Button>
       ) : null}
 
-      <section className="mt-8">
+      <section className="mt-12">
         <h2 className="text-base font-semibold text-ink">{t.order.whatYouOrdered}</h2>
         <ul className="mt-3 divide-y divide-line">
           {order.items.map((item) => (
@@ -132,10 +132,10 @@ export default async function OrderStatusPage({
                 <img
                   src={item.customization.previewUrl}
                   alt={fmt(t.order.previewAlt, { name: item.productName })}
-                  width={96}
+                  width={80}
                   height={96}
                   loading="lazy"
-                  className="h-24 w-24 shrink-0 rounded-lg border border-line bg-canvas object-cover"
+                  className="h-24 w-20 shrink-0 rounded-card border border-line bg-secondary object-cover"
                 />
               ) : null}
               <div className="min-w-0 flex-1">
@@ -186,7 +186,7 @@ export default async function OrderStatusPage({
         </div>
       </section>
 
-      <section className="mt-8 grid gap-6 sm:grid-cols-2">
+      <section className="mt-12 grid gap-8 sm:grid-cols-2">
         <div>
           <h2 className="text-base font-semibold text-ink">{t.order.deliveringTo}</h2>
           <address className="mt-2 not-italic text-sm text-inksoft">
@@ -214,23 +214,48 @@ export default async function OrderStatusPage({
         </div>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-12">
         <h2 className="text-base font-semibold text-ink">{t.order.progress}</h2>
-        <ol className="mt-3 space-y-4">
-          {order.events.map((entry, index) => (
-            <li key={index} className="flex gap-3">
-              <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-ink">{entry.status}</p>
-                <p className="text-sm text-inksoft">{entry.note}</p>
-                <p className="text-xs text-muted">{dateTime(entry.at)}</p>
-              </div>
-            </li>
-          ))}
+        {/* A timeline, not a list: the rail joins what has already happened to
+            where the order stands now, which is the last entry. Each note is
+            kept verbatim — it is what the store recorded. */}
+        <ol className="mt-5">
+          {order.events.map((entry, index) => {
+            const current = index === order.events.length - 1;
+            return (
+              <li key={index} className="relative flex gap-4 pb-7 last:pb-0">
+                {current ? null : (
+                  <span
+                    aria-hidden
+                    className="absolute top-6 bottom-0 left-[11px] w-px bg-line"
+                  />
+                )}
+                <span
+                  aria-hidden
+                  className={
+                    current
+                      ? "relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary ring-4 ring-accent"
+                      : "relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-accent-foreground ring-1 ring-line"
+                  }
+                >
+                  {current ? (
+                    <span className="size-2 rounded-full bg-primary-foreground" />
+                  ) : (
+                    <CheckIcon className="size-3.5" />
+                  )}
+                </span>
+                <div className="min-w-0 pt-0.5">
+                  <p className="text-sm font-medium text-ink">{entry.status}</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-inksoft">{entry.note}</p>
+                  <p className="mt-1 text-xs tabular-nums text-muted">{dateTime(entry.at)}</p>
+                </div>
+              </li>
+            );
+          })}
         </ol>
       </section>
 
-      <section className="mt-8 rounded-xl border border-line bg-canvas px-4 py-4">
+      <section className="mt-12 rounded-card border border-line bg-secondary px-5 py-4">
         <h2 className="text-base font-semibold text-ink">{t.order.supportTitle}</h2>
         {support.email || support.phone ? (
           <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
@@ -262,14 +287,14 @@ export default async function OrderStatusPage({
         )}
       </section>
 
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link href={`/s/${store.slug}/products`} className="btn-secondary">
-          {t.order.continueShopping}
-        </Link>
+      <div className="mt-10 flex flex-wrap gap-3">
+        <Button asChild variant="outline">
+          <Link href={`/s/${store.slug}/products`}>{t.order.continueShopping}</Link>
+        </Button>
         {support.email ? (
-          <a href={supportMailto(support.email, contactSubject)} className="btn-ghost">
-            {t.order.contactStore}
-          </a>
+          <Button asChild variant="ghost">
+            <a href={supportMailto(support.email, contactSubject)}>{t.order.contactStore}</a>
+          </Button>
         ) : null}
       </div>
     </div>

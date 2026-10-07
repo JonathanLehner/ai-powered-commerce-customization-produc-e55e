@@ -13,6 +13,7 @@ export const en = {
     currencyApply: "Set",
     basket: "Basket",
     basketWithCount: "Basket ({count})",
+    basketClose: "Close the basket",
     operatedBy: "Operated by {client}. Printed on demand and shipped worldwide.",
     allProducts: "All products",
     orderStatus: "Order status",

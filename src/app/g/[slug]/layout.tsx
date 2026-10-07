@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { LockIcon } from "lucide-react";
 import { Document, siteMetadata } from "@/components/Document";
 import { GiftPortalFallbackProvider } from "@/components/GiftPortalFallback";
 import { PlainDocument } from "@/components/SiteChrome";
+import { Badge } from "@/components/ui/badge";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
+import { STORE_FONT_CLASSES } from "@/lib/store-fonts";
+import { storeThemeVars } from "@/lib/store-theme";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
-import { THEMES } from "@/lib/types";
+import { classNames } from "@/lib/util";
 
 /**
  * The portal is the client's, not Parcelith's: pages below it are suffixed with
@@ -57,7 +61,6 @@ export default async function GiftPortalLayout({
     return <PlainDocument note="Corporate gifting powered by Parcelith.">{children}</PlainDocument>;
   }
 
-  const theme = THEMES[store.theme];
   const { tag, t } = storefrontLocale(store);
   // The same contacts the storefront publishes: a gifting buyer with a problem
   // has no other route to the seller either, and nothing here is invented from
@@ -66,9 +69,12 @@ export default async function GiftPortalLayout({
 
   return (
     <Document lang={tag}>
-      <div className="flex min-h-full flex-col bg-white">
-        <header className="border-b border-line bg-white">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+      <div
+        className={classNames("store-surface flex min-h-full flex-col bg-background", STORE_FONT_CLASSES)}
+        style={storeThemeVars(store.theme)}
+      >
+        <header className="border-b border-line bg-background">
+          <div className="mx-auto flex h-16 w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 sm:px-6">
             <Link href={`/g/${catalogue.slug}`} className="flex min-w-0 items-center gap-2.5">
               {store.logoUrl ? (
                 <Image
@@ -77,13 +83,12 @@ export default async function GiftPortalLayout({
                   width={40}
                   height={40}
                   sizes="40px"
-                  className="h-9 w-9 shrink-0 rounded object-contain"
+                  className="h-9 w-9 shrink-0 rounded-md object-contain"
                 />
               ) : (
                 <span
                   aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-sm font-bold text-white"
-                  style={{ background: theme.accent }}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground"
                 >
                   {store.name.slice(0, 1)}
                 </span>
@@ -97,9 +102,10 @@ export default async function GiftPortalLayout({
                 </span>
               </span>
             </Link>
-            <span className="ml-auto rounded-full border border-line bg-canvas px-2.5 py-0.5 text-xs font-medium text-inksoft">
+            <Badge variant="outline" className="ml-auto gap-1.5">
+              <LockIcon aria-hidden className="size-3" />
               {t.gift.private}
-            </span>
+            </Badge>
           </div>
         </header>
 
@@ -109,8 +115,8 @@ export default async function GiftPortalLayout({
           </GiftPortalFallbackProvider>
         </main>
 
-        <footer className="border-t border-line bg-canvas">
-          <div className="mx-auto w-full max-w-6xl px-4 py-8 text-sm text-muted sm:px-6">
+        <footer className="mt-20 border-t border-line bg-secondary">
+          <div className="mx-auto w-full max-w-6xl px-4 py-10 text-sm text-muted sm:px-6">
             <p className="text-ink">{catalogue.name}</p>
             <p className="mt-1">{fmt(t.gift.operatedBy, { client: store.clientName })}</p>
             {support.email || support.phone ? (
