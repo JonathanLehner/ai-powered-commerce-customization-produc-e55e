@@ -37,7 +37,7 @@ export default async function StoreSetupPage({
       <section className="space-y-4" id="guided-setup">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-ink">Guided setup</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Seven steps take a new store from empty to able to sell. Each one saves on its own, so you can
             leave and come back.
           </p>
@@ -50,7 +50,7 @@ export default async function StoreSetupPage({
               ✓ Everything is configured. This store can take orders and route them to production.
             </p>
           ) : (
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 text-sm text-muted-foreground">
               Payments and shipping are the two that block selling — a shopper cannot check out until Stripe is
               connected and at least one carrier is enabled.
             </p>

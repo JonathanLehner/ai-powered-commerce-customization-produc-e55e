@@ -1,8 +1,49 @@
+"use client";
+
+import { ChevronsUpDownIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { signOut } from "@/app/actions/auth";
 import { Badge, Logo } from "@/components/ui";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import type { AccessibleStore } from "@/lib/session";
 import { storeAccessLabel, type User } from "@/lib/types";
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("");
+}
+
+function platformRoleLabel(role: User["platformRole"]): string {
+  return role === "platform_admin"
+    ? "Platform admin"
+    : role === "agency_admin"
+      ? "Agency admin"
+      : "Agency member";
+}
 
 export function AppHeader({
   user,
@@ -13,115 +54,132 @@ export function AppHeader({
   stores: AccessibleStore[];
   currentStoreId?: string;
 }) {
+  const router = useRouter();
+  const [switcherOpen, setSwitcherOpen] = useState(false);
   const active = stores.filter((s) => s.store.status === "active");
   const current = stores.find((s) => s.store.id === currentStoreId);
 
+  function go(href: string) {
+    setSwitcherOpen(false);
+    router.push(href);
+  }
+
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white">
-      <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-3 px-3 sm:gap-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
+      <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-2 px-3 sm:gap-3 sm:px-6">
         <Link href="/app" className="shrink-0" aria-label="Parcelith agency workspace">
-          <Logo size={26} />
+          <Logo size={24} />
         </Link>
 
-        <span aria-hidden className="hidden h-6 w-px bg-line sm:block" />
+        <Separator orientation="vertical" className="hidden h-5! sm:block" />
 
-        <details className="relative min-w-0 flex-1 sm:flex-none">
-          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-line px-2.5 py-1.5 text-sm hover:bg-canvas [&::-webkit-details-marker]:hidden">
-            <span className="truncate font-medium text-ink">
-              {current ? current.store.name : "All stores"}
-            </span>
-            <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-muted" fill="currentColor">
-              <path d="M5.5 8l4.5 4.5L14.5 8z" />
-            </svg>
-          </summary>
-          <div className="fixed inset-x-3 top-[3.75rem] z-50 rounded-xl border border-line bg-white p-2 shadow-lg sm:absolute sm:inset-x-auto sm:left-0 sm:top-auto sm:mt-2 sm:w-72">
-            <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
-              Switch store
-            </p>
-            <ul className="max-h-80 overflow-y-auto">
-              {active.length === 0 ? (
-                <li className="px-2 py-2 text-sm text-muted">No active stores yet.</li>
-              ) : null}
-              {active.map(({ store, role, viaPlatform }) => (
-                <li key={store.id}>
-                  <Link
-                    href={`/app/stores/${store.id}`}
-                    className={
-                      store.id === currentStoreId
-                        ? "flex items-center justify-between gap-2 rounded-lg bg-brand-50 px-2 py-2 text-sm font-medium text-brand-800"
-                        : "flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-sm text-ink hover:bg-canvas"
-                    }
+        <Popover open={switcherOpen} onOpenChange={setSwitcherOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-label="Switch store"
+              className="min-w-0 flex-1 justify-between font-normal sm:w-56 sm:flex-none"
+            >
+              <span className="truncate">{current ? current.store.name : "All stores"}</span>
+              <ChevronsUpDownIcon className="shrink-0 text-muted-foreground" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-[min(18rem,calc(100vw-1.5rem))] p-0">
+            <Command>
+              <CommandInput placeholder="Switch store" />
+              <CommandList>
+                <CommandEmpty>No active stores yet.</CommandEmpty>
+                <CommandGroup>
+                  {active.map(({ store, role, viaPlatform }) => (
+                    <CommandItem
+                      key={store.id}
+                      value={`${store.name} ${store.clientName}`}
+                      data-checked={store.id === currentStoreId ? "true" : undefined}
+                      onSelect={() => go(`/app/stores/${store.id}`)}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate">{store.name}</span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {store.clientName}
+                        </span>
+                      </span>
+                      {store.id === currentStoreId ? null : (
+                        <span className="shrink-0 text-[11px] text-muted-foreground">
+                          {storeAccessLabel(role, viaPlatform).split(" ")[0]}
+                        </span>
+                      )}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+                <CommandSeparator />
+                <CommandGroup>
+                  <CommandItem value="All stores" onSelect={() => go("/app")}>
+                    All stores
+                  </CommandItem>
+                  <CommandItem
+                    value="Create a client store"
+                    onSelect={() => go("/app/stores/new")}
+                    className="text-primary"
                   >
-                    <span className="min-w-0">
-                      <span className="block truncate">{store.name}</span>
-                      <span className="block truncate text-xs text-muted">{store.clientName}</span>
-                    </span>
-                    <span className="shrink-0 text-[11px] text-muted">
-                      {storeAccessLabel(role, viaPlatform).split(" ")[0]}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-1 border-t border-line pt-1">
-              <Link href="/app" className="block rounded-lg px-2 py-2 text-sm text-inksoft hover:bg-canvas">
-                All stores
-              </Link>
-              <Link
-                href="/app/stores/new"
-                className="block rounded-lg px-2 py-2 text-sm font-medium text-brand-700 hover:bg-canvas"
-              >
-                + Create a client store
-              </Link>
-            </div>
-          </div>
-        </details>
+                    + Create a client store
+                  </CommandItem>
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
           {user.platformRole === "platform_admin" ? (
-            <Link href="/admin" className="hidden rounded-lg px-3 py-1.5 text-sm font-medium text-inksoft hover:bg-canvas sm:block">
-              Platform admin
-            </Link>
+            <Button asChild variant="ghost" className="hidden sm:inline-flex">
+              <Link href="/admin">Platform admin</Link>
+            </Button>
           ) : null}
-          <details className="relative">
-            <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-canvas [&::-webkit-details-marker]:hidden">
-              <span
-                aria-hidden
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-iris-100 text-xs font-semibold text-iris-700"
-              >
-                {user.name
-                  .split(" ")
-                  .map((p) => p[0])
-                  .slice(0, 2)
-                  .join("")}
-              </span>
-              <span className="hidden text-sm font-medium text-ink sm:block">{user.name}</span>
-            </summary>
-            <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-line bg-white p-3 shadow-lg">
-              <p className="text-sm font-semibold text-ink">{user.name}</p>
-              <p className="truncate text-xs text-muted">{user.email}</p>
-              <p className="mt-2">
-                <Badge tone={user.platformRole === "platform_admin" ? "green" : "brand"}>
-                  {user.platformRole === "platform_admin"
-                    ? "Platform admin"
-                    : user.platformRole === "agency_admin"
-                      ? "Agency admin"
-                      : "Agency member"}
-                </Badge>
-              </p>
-              <p className="mt-2 text-xs text-muted">{user.title}</p>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="gap-2 px-1.5" aria-label={user.name}>
+                <Avatar size="sm">
+                  <AvatarFallback className="bg-brand-50 text-[11px] font-semibold text-brand-700">
+                    {initials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden font-medium sm:block">{user.name}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 p-2">
+              <div className="px-1.5 py-1">
+                <p className="text-sm font-medium text-foreground">{user.name}</p>
+                <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                <p className="mt-2">
+                  <Badge tone={user.platformRole === "platform_admin" ? "green" : "brand"}>
+                    {platformRoleLabel(user.platformRole)}
+                  </Badge>
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">{user.title}</p>
+              </div>
+              <DropdownMenuSeparator />
               {user.platformRole === "platform_admin" ? (
-                <Link href="/admin" className="btn-secondary btn-sm mt-3 w-full sm:hidden">
-                  Platform admin
-                </Link>
+                <DropdownMenuItem asChild className="sm:hidden">
+                  <Link href="/admin">
+                    <ShieldCheckIcon />
+                    Platform admin
+                  </Link>
+                </DropdownMenuItem>
               ) : null}
+              {/* A POST to the server action, so signing out is not a GET a
+                  prefetch or a crawler could fire. Selecting the item does not
+                  close the menu, which would unmount the button mid-submit. */}
               <form action={signOut}>
-                <button type="submit" className="btn-secondary btn-sm mt-3 w-full">
-                  Sign out
-                </button>
+                <DropdownMenuItem asChild onSelect={(event) => event.preventDefault()}>
+                  <button type="submit" className="w-full">
+                    <LogOutIcon />
+                    Sign out
+                  </button>
+                </DropdownMenuItem>
               </form>
-            </div>
-          </details>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

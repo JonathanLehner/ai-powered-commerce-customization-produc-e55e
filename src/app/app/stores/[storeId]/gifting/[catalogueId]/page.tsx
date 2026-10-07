@@ -108,7 +108,7 @@ export default async function GiftCataloguePage({
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">The portal</h2>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
           This is the whole catalogue for the company: the private address, the products it offers and the bulk
           order screen. It is never linked from the public storefront.{" "}
           {catalogue.access === "invite"
@@ -139,7 +139,7 @@ export default async function GiftCataloguePage({
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="card p-5">
           <h2 className="text-base font-semibold text-ink">Programme rules</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             The spend limit is per recipient, not per campaign, and it is enforced when the list is read and again
             before the card is charged.
           </p>
@@ -150,7 +150,7 @@ export default async function GiftCataloguePage({
 
         <section className="card p-5">
           <h2 className="text-base font-semibold text-ink">Access</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             A gifting buyer has no Parcelith account: access is the private link, or their work email against the
             invitation list.
           </p>
@@ -162,7 +162,7 @@ export default async function GiftCataloguePage({
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">Products in the catalogue</h2>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
           Drawn from this store&rsquo;s published products. Anything unpublished later simply drops out of the
           portal — a recipient list naming it is rejected with the row that has to change.
         </p>
@@ -190,7 +190,7 @@ export default async function GiftCataloguePage({
                     >
                       {campaign.code} · {campaign.name}
                     </Link>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-muted-foreground">
                       {campaign.buyer.name} ({campaign.buyer.email}) · {campaign.recipients.length} recipients ·{" "}
                       {formatDate(campaign.createdAt)}
                     </p>
@@ -206,7 +206,7 @@ export default async function GiftCataloguePage({
                 </div>
                 {approverLinks.get(campaign.id) ? (
                   <div className="mt-3">
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-muted-foreground">
                       Approval link for{" "}
                       {campaign.approval.approverName || campaign.approval.approverEmail} ·{" "}
                       {approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()}. Chasing it, and moving it

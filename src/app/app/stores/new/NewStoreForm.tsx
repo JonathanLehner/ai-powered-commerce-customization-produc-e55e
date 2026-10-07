@@ -28,7 +28,7 @@ export function NewStoreForm({
     >
       {(state) => (
         <>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted-foreground">
             The store is created under <span className="font-medium text-ink">{agencyName}</span>. Everything
             below can be changed later in store settings.
             {allowanceNote ? <span className="mt-1 block text-xs">{allowanceNote}</span> : null}
@@ -128,7 +128,7 @@ export function NewStoreForm({
                       />
                       <span className="text-sm font-semibold text-ink">{THEMES[key].name}</span>
                     </span>
-                    <span className="mt-1 block text-xs text-muted">{THEMES[key].description}</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">{THEMES[key].description}</span>
                   </span>
                 </label>
               ))}

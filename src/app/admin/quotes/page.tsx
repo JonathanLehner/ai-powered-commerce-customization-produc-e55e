@@ -57,12 +57,12 @@ export default async function AdminQuotesPage() {
           return (
             <li key={request.id} className="card p-5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs text-muted">{request.code}</span>
+                <span className="font-mono text-xs text-muted-foreground">{request.code}</span>
                 <h2 className="text-base font-semibold text-ink">{request.productName}</h2>
                 <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
                 {request.storeProductId ? <Badge tone="neutral">Copied into the store</Badge> : null}
               </div>
-              <p className="mt-1 text-xs text-muted">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {request.storeName} · {request.supplierName} · raised by {request.requestedBy} on{" "}
                 {formatDateTime(request.createdAt)}
               </p>
@@ -108,7 +108,7 @@ export default async function AdminQuotesPage() {
                           Accepted by the store
                         </Badge>
                       ) : null}
-                      {quote.notes ? <p className="mt-1 text-xs text-muted">{quote.notes}</p> : null}
+                      {quote.notes ? <p className="mt-1 text-xs text-muted-foreground">{quote.notes}</p> : null}
                     </li>
                   ))}
                 </ul>
@@ -119,9 +119,9 @@ export default async function AdminQuotesPage() {
               ) : null}
 
               {request.status === "withdrawn" ? (
-                <p className="mt-3 text-sm text-muted">The store withdrew this enquiry, so nothing is owed to it.</p>
+                <p className="mt-3 text-sm text-muted-foreground">The store withdrew this enquiry, so nothing is owed to it.</p>
               ) : request.status === "accepted" ? (
-                <p className="mt-3 text-sm text-muted">
+                <p className="mt-3 text-sm text-muted-foreground">
                   The store accepted a quote. Raise the purchase order with that supplier when orders arrive.
                 </p>
               ) : (

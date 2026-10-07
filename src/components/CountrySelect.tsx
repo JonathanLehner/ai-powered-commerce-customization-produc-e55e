@@ -135,7 +135,7 @@ export function CountrySelect({
         onKeyDown={onKeyDown}
         className={classNames("input pr-9", invalid && "input-error")}
       />
-      <span aria-hidden className="pointer-events-none absolute top-1/2 right-3 mt-0.5 -translate-y-1/2 text-muted">
+      <span aria-hidden className="pointer-events-none absolute top-1/2 right-3 mt-0.5 -translate-y-1/2 text-muted-foreground">
         ▾
       </span>
 
@@ -148,7 +148,7 @@ export function CountrySelect({
           className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-line bg-white py-1 shadow-lg"
         >
           {matches.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-muted">
+            <li className="px-3 py-2 text-sm text-muted-foreground">
               {noMatch ? fmt(noMatch, { query: query ?? "" }) : `No country matches “${query}”.`}
             </li>
           ) : (
@@ -170,7 +170,7 @@ export function CountrySelect({
                 )}
               >
                 <span>{country.name}</span>
-                <span className="font-mono text-xs text-muted">{country.code}</span>
+                <span className="font-mono text-xs text-muted-foreground">{country.code}</span>
               </li>
             ))
           )}

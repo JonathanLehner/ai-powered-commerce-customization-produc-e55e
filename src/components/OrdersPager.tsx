@@ -22,7 +22,7 @@ export function OrdersPager({
   if (page.total === 0) return null;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs text-muted">
+      <p className="text-xs text-muted-foreground">
         Showing <span className="tabular-nums">{page.first}</span>–
         <span className="tabular-nums">{page.last}</span> of{" "}
         <span className="tabular-nums">{page.total}</span> orders
@@ -43,7 +43,7 @@ export function OrdersPager({
               Previous
             </span>
           )}
-          <span className="text-xs text-muted tabular-nums">
+          <span className="text-xs text-muted-foreground tabular-nums">
             Page {page.page} of {page.pages}
           </span>
           {page.page < page.pages ? (

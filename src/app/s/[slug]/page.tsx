@@ -61,7 +61,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.home.closedTitle}</h1>
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-3 text-sm text-muted-foreground">
           {fmt(t.home.closedBody, { client: store.clientName, store: store.name })}
         </p>
       </div>
@@ -74,7 +74,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
         <h1 className="text-2xl font-semibold tracking-tight text-ink">
           {fmt(t.home.comingSoonTitle, { store: store.name })}
         </h1>
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-3 text-sm text-muted-foreground">
           {t.home.comingSoonBody}{" "}
           {products.length > 0 ? t.home.comingSoonWithProducts : t.home.comingSoonNoProducts}
         </p>

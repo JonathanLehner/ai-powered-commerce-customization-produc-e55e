@@ -39,7 +39,7 @@ export default function GlobalError({
               Go to Parcelith
             </a>
           </div>
-          {error.digest ? <p className="mt-8 text-xs text-muted">Reference {error.digest}</p> : null}
+          {error.digest ? <p className="mt-8 text-xs text-muted-foreground">Reference {error.digest}</p> : null}
         </div>
       </body>
     </html>

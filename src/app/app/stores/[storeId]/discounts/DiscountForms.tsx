@@ -106,7 +106,7 @@ function Terms({
           />
           <span>
             Active
-            <span className="mt-0.5 block text-xs text-muted">
+            <span className="mt-0.5 block text-xs text-muted-foreground">
               An inactive code is refused in the basket and at checkout, and drops off any basket holding it.
             </span>
           </span>

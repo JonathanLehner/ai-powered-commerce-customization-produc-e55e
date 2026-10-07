@@ -131,7 +131,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
               ) : (
                 <Badge tone="amber">No agency record</Badge>
               )}
-              <p className="text-xs text-muted">
+              <p className="text-xs text-muted-foreground">
                 {group.active.length} active {group.active.length === 1 ? "store" : "stores"}
                 {group.archived.length ? `, ${group.archived.length} archived` : ""} · counted within this
                 agency only
@@ -139,7 +139,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
             </div>
 
             {group.active.length === 0 && group.archived.length === 0 ? (
-              <p className="mt-3 text-sm text-muted">No stores yet.</p>
+              <p className="mt-3 text-sm text-muted-foreground">No stores yet.</p>
             ) : null}
 
             {group.active.length > 0 ? (
@@ -157,7 +157,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                           >
                             {store.name}
                           </Link>
-                          <p className="truncate text-sm text-muted">
+                          <p className="truncate text-sm text-muted-foreground">
                             {store.clientName} · {group.name}
                           </p>
                         </div>
@@ -183,17 +183,17 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                       {/* Operational status only — no sales figures, no shopper records. */}
                       <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-line py-3 text-sm">
                         <div>
-                          <dt className="text-xs text-muted">Orders</dt>
+                          <dt className="text-xs text-muted-foreground">Orders</dt>
                           <dd className="mt-0.5 font-semibold tabular-nums text-ink">{metrics.orderCount}</dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted">Published</dt>
+                          <dt className="text-xs text-muted-foreground">Published</dt>
                           <dd className="mt-0.5 font-semibold tabular-nums text-ink">
                             {metrics.publishedProducts}
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted">Needs attention</dt>
+                          <dt className="text-xs text-muted-foreground">Needs attention</dt>
                           <dd className="mt-0.5 font-semibold tabular-nums text-ink">
                             {metrics.awaitingAction}
                           </dd>
@@ -243,9 +243,9 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                   <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-ink">
-                        {store.name} <span className="font-normal text-muted">· archived</span>
+                        {store.name} <span className="font-normal text-muted-foreground">· archived</span>
                       </p>
-                      <p className="truncate text-xs text-muted">
+                      <p className="truncate text-xs text-muted-foreground">
                         {store.clientName} · {metrics.orderCount} historic orders
                       </p>
                     </div>
@@ -261,17 +261,17 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
 
         <section className="mt-9 pb-4">
           <h2 className="text-base font-semibold text-ink">Recent platform activity</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Who did what, across every agency. Order and customer records are not part of it.
           </p>
           {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-muted">Nothing recorded yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
           ) : (
             <ol className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
                   <span className="text-sm text-ink">{auditRunSummary(run)}</span>
-                  <span className="text-xs text-muted">
+                  <span className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </span>
                 </li>

@@ -1,15 +1,50 @@
 "use client";
 
+import { CheckIcon, CopyIcon } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/app/actions/stores";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   captureValues,
   planRestore,
   type ControlSnapshot,
   type SubmittedValues,
 } from "@/lib/form-restore";
-import { classNames, newId } from "@/lib/util";
+import { newId } from "@/lib/util";
+import { cn } from "@/lib/utils";
+
+/**
+ * Every caller styles its buttons the way the rest of the app does — with the
+ * `btn-primary` / `btn-secondary` / `btn-ghost` / `btn-danger` / `btn-sm`
+ * classes. Those names are translated here into the shadcn Button's own variant
+ * and size, so the control is a real Button while no caller has to change.
+ */
+function asButton(className: string): {
+  variant: "default" | "outline" | "secondary" | "ghost" | "destructive";
+  size: "default" | "sm";
+  className: string;
+} {
+  const has = (name: string) => className.split(/\s+/).includes(name);
+  return {
+    variant: has("btn-danger")
+      ? "destructive"
+      : has("btn-secondary")
+        ? "outline"
+        : has("btn-ghost")
+          ? "ghost"
+          : has("btn-iris")
+            ? "secondary"
+            : "default",
+    size: has("btn-sm") ? "sm" : "default",
+    // Whatever the caller added on top — `w-full`, a margin, a text colour.
+    className: className
+      .split(/\s+/)
+      .filter((name) => name !== "" && !/^btn(-[a-z]+)?$/.test(name))
+      .join(" "),
+  };
+}
 
 /**
  * One key per filled-in form, posted as `submissionKey`. A double click, a slow
@@ -135,9 +170,9 @@ export function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className={className} disabled={pending || disabled} name={name} value={value}>
+    <Button type="submit" {...asButton(className)} disabled={pending || disabled} name={name} value={value}>
       {pending ? (pendingLabel ?? "Saving…") : children}
-    </button>
+    </Button>
   );
 }
 
@@ -148,9 +183,11 @@ export function FormStatus({ state }: { state: ActionState }) {
     <p
       role="status"
       aria-live="polite"
-      className={classNames(
+      className={cn(
         "mt-4 rounded-lg border px-3 py-2 text-sm",
-        error ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-800",
+        error
+          ? "border-destructive/30 bg-destructive/10 text-destructive"
+          : "border-emerald-200 bg-emerald-50 text-emerald-800",
       )}
     >
       {error ? state.message : `✓ ${state.message}`}
@@ -247,20 +284,20 @@ export function ConfirmSubmit({
 
   if (!armed) {
     return (
-      <button type="button" className={className} onClick={() => setArmed(true)} disabled={pending}>
+      <Button type="button" {...asButton(className)} onClick={() => setArmed(true)} disabled={pending}>
         {children}
-      </button>
+      </Button>
     );
   }
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
       <span className="text-sm text-inksoft">{question}</span>
-      <button type="submit" className={className} disabled={pending}>
+      <Button type="submit" {...asButton(className)} disabled={pending}>
         {pending ? pendingLabel : confirmLabel}
-      </button>
-      <button type="button" className="btn-ghost btn-sm" onClick={() => setArmed(false)} disabled={pending}>
+      </Button>
+      <Button type="button" variant="ghost" size="sm" onClick={() => setArmed(false)} disabled={pending}>
         {cancelLabel}
-      </button>
+      </Button>
     </span>
   );
 }
@@ -298,15 +335,16 @@ export function CopyField({ value, label = "Copy link" }: { value: string; label
     <div>
       <p
         ref={textRef}
-        className="break-all rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-xs text-inksoft"
+        className="rounded-lg border border-border bg-muted px-3 py-2 font-mono text-xs break-all text-inksoft"
       >
         {value}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <button type="button" className="btn-secondary btn-sm" onClick={copy}>
+        <Button type="button" variant="outline" size="sm" onClick={copy}>
+          {result === "copied" ? <CheckIcon /> : <CopyIcon />}
           {label}
-        </button>
-        <span role="status" aria-live="polite" className="text-xs text-muted">
+        </Button>
+        <span role="status" aria-live="polite" className="text-xs text-muted-foreground">
           {result === "copied"
             ? "Copied to the clipboard."
             : result === "failed"
@@ -335,12 +373,10 @@ export function Field({
 }) {
   return (
     <div className={className}>
-      <label htmlFor={htmlFor} className="field-label">
-        {label}
-      </label>
+      <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {hint ? (
-        <p id={`${htmlFor}-hint`} className={classNames("field-hint", error && "text-rose-600")}>
+        <p id={`${htmlFor}-hint`} className={cn("field-hint", error && "text-destructive")}>
           {hint}
         </p>
       ) : null}

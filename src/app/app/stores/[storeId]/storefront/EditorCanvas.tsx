@@ -91,7 +91,7 @@ function Toolbox() {
   return (
     <div className="card p-4">
       <h2 className="text-sm font-semibold text-ink">Approved sections</h2>
-      <p className="mt-1 text-xs text-muted">
+      <p className="mt-1 text-xs text-muted-foreground">
         Drag a section onto the canvas, or use Add to append it to the bottom of the page.
       </p>
       <ul className="mt-3 space-y-2">
@@ -111,7 +111,7 @@ function Toolbox() {
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-ink">{SECTION_DEFS[type].name}</p>
-                <p className="mt-0.5 text-xs text-muted">{SECTION_DEFS[type].description}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{SECTION_DEFS[type].description}</p>
               </div>
               <button type="button" className="btn-secondary btn-sm shrink-0" onClick={() => append(type)}>
                 Add
@@ -148,7 +148,7 @@ function SettingsPanel() {
     return (
       <div className="card p-4">
         <h2 className="text-sm font-semibold text-ink">Section settings</h2>
-        <p className="mt-1.5 text-xs text-muted">
+        <p className="mt-1.5 text-xs text-muted-foreground">
           Select a section on the canvas — or in the page order list — to edit its copy, imagery and layout.
         </p>
       </div>
@@ -287,7 +287,7 @@ function LayerList() {
     <div className="card p-4">
       <h2 className="text-sm font-semibold text-ink">Page order</h2>
       {nodes.length === 0 ? (
-        <p className="mt-1.5 text-xs text-muted">The page is empty. Add a section to begin.</p>
+        <p className="mt-1.5 text-xs text-muted-foreground">The page is empty. Add a section to begin.</p>
       ) : (
         <ol className="mt-3 space-y-1.5">
           {nodes.map((node, i) => (
@@ -300,7 +300,7 @@ function LayerList() {
                   node.id === selectedId ? "bg-brand-50 font-medium text-brand-800" : "text-inksoft hover:bg-canvas",
                 )}
               >
-                <span className="w-5 text-xs tabular-nums text-muted">{i + 1}</span>
+                <span className="w-5 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
                 {node.name}
               </button>
             </li>
@@ -364,7 +364,7 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
     <div className="space-y-4">
       <div className="card flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-muted">Preview width</span>
+          <span className="text-xs font-medium text-muted-foreground">Preview width</span>
           <div role="group" aria-label="Preview width" className="flex rounded-lg border border-line p-0.5">
             {WIDTHS.map((option) => (
               <button
@@ -405,7 +405,7 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
 
       <FormStatus state={status} />
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         <Badge tone={props.publishedAt ? "green" : "amber"}>
           {props.publishedAt ? `Published by ${props.publishedBy}` : "Never published"}
         </Badge>
@@ -440,14 +440,14 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
           {props.history.length > 0 ? (
             <div className="card p-4">
               <h2 className="text-sm font-semibold text-ink">Version history</h2>
-              <p className="mt-1 text-xs text-muted">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Restoring loads a version into the draft. It only goes live when you publish.
               </p>
               <ul className="mt-3 space-y-2 text-sm">
                 {props.history.map((version) => (
                   <li key={version.id} className="rounded-lg border border-line p-3">
                     <p className="font-medium text-ink">{version.label}</p>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-muted-foreground">
                       {version.savedBy} · {formatDateTime(version.savedAt)}
                     </p>
                     <form action={restoreVersion} className="mt-2">

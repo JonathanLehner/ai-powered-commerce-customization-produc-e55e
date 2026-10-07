@@ -240,7 +240,7 @@ export function CatalogProductForm({
                       ))}
                     </select>
                   ) : (
-                    <p className="input flex items-center bg-canvas text-muted">{currency}</p>
+                    <p className="input flex items-center bg-canvas text-muted-foreground">{currency}</p>
                   )}
                 </div>
               </div>
@@ -311,12 +311,12 @@ export function CatalogProductForm({
 
           <section className="card p-5">
             <h2 className="text-base font-semibold text-ink">Print areas</h2>
-            <p className="mt-1 text-sm text-muted">
+            <p className="mt-1 text-sm text-muted-foreground">
               Physical size and minimum resolution. Store artwork is pre-flighted against these numbers.
             </p>
             <div className="mt-4 relative overflow-x-auto">
               <table className="w-full min-w-[40rem] text-left text-sm">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th scope="col" className="py-2 pr-3">Area</th>
                     <th scope="col" className="py-2 pr-3">View</th>
@@ -414,7 +414,7 @@ export function CatalogProductForm({
                   ))}
                   {areas.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-3 text-sm text-muted">
+                      <td colSpan={6} className="py-3 text-sm text-muted-foreground">
                         No print areas yet. A product needs at least one.
                       </td>
                     </tr>
@@ -451,12 +451,12 @@ export function CatalogProductForm({
 
           <section className="card p-5">
             <h2 className="text-base font-semibold text-ink">Variants and availability</h2>
-            <p className="mt-1 text-sm text-muted">
+            <p className="mt-1 text-sm text-muted-foreground">
               Every variant needs its own SKU. Option values are what shoppers pick from on the storefront.
             </p>
             <div className="mt-4 relative overflow-x-auto">
               <table className="w-full min-w-[44rem] text-left text-sm">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th scope="col" className="py-2 pr-3">Colour</th>
                     <th scope="col" className="py-2 pr-3">Swatch</th>
@@ -564,7 +564,7 @@ export function CatalogProductForm({
                   ))}
                   {variants.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-3 text-sm text-muted">
+                      <td colSpan={7} className="py-3 text-sm text-muted-foreground">
                         No variants yet. A product needs at least one.
                       </td>
                     </tr>
@@ -603,7 +603,7 @@ export function CatalogProductForm({
           <section className="card p-5">
             <fieldset>
               <legend className="text-base font-semibold text-ink">Fulfilment regions</legend>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Orders shipping outside these regions are flagged for manual routing instead of being submitted.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">

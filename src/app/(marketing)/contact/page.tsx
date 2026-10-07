@@ -50,7 +50,7 @@ export default function ContactPage() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
           <div className="card p-6 sm:p-8">
             <h2 className="text-lg font-semibold tracking-tight text-ink">Send us the details</h2>
-            <p className="mt-1.5 text-sm text-muted">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Nothing is charged today and no card is asked for.
             </p>
             <div className="mt-6">
@@ -64,7 +64,7 @@ export default function ContactPage() {
                 <li key={item.step} className="card p-5">
                   <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
                   <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.body}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                 </li>
               ))}
             </ol>

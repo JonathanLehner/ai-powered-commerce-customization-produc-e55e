@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Document, siteMetadata } from "@/components/Document";
+import { Toaster } from "@/components/ui/sonner";
 import { requireUser } from "@/lib/session";
 
 export const metadata: Metadata = siteMetadata;
@@ -12,7 +13,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   await requireUser();
   return (
     <Document>
-      <div className="flex min-h-full flex-col bg-canvas">{children}</div>
+      <div data-surface="workspace" className="flex min-h-full flex-col bg-canvas">{children}</div>
+      {/* Light-only, so the toast never follows the visitor's OS to dark. */}
+      <Toaster theme="light" position="bottom-right" />
     </Document>
   );
 }

@@ -155,7 +155,7 @@ export default function HowItWorksPage() {
           <h2 className="text-2xl font-semibold tracking-tight text-ink">Who can do what</h2>
           <div className="mt-6 relative overflow-x-auto rounded-xl border border-line bg-white">
             <table className="w-full min-w-[36rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-4 py-3">Role</th>
                   <th scope="col" className="px-4 py-3">Owns</th>
@@ -167,7 +167,7 @@ export default function HowItWorksPage() {
                   <tr key={row.role}>
                     <th scope="row" className="px-4 py-3 font-semibold text-ink">{row.role}</th>
                     <td className="px-4 py-3 text-inksoft">{row.owns}</td>
-                    <td className="px-4 py-3 text-muted">{row.cannot}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{row.cannot}</td>
                   </tr>
                 ))}
               </tbody>

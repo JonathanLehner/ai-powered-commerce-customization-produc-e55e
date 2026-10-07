@@ -36,14 +36,14 @@ export default async function StoreLayout({
       <div className="border-b border-line bg-white">
         <div className="mx-auto flex w-full max-w-[92rem] flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-4 sm:px-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">{store.name}</h1>
-          <span className="text-sm text-muted">{store.clientName}</span>
+          <span className="text-sm text-muted-foreground">{store.clientName}</span>
           <Badge tone={store.status === "active" ? "green" : "slate"}>
             {store.status === "active" ? "Active" : "Archived"}
           </Badge>
           <Badge tone={viaPlatform ? "iris" : "neutral"}>{storeAccessLabel(role, viaPlatform)}</Badge>
         </div>
         {viaPlatform ? (
-          <p className="mx-auto w-full max-w-[92rem] px-4 pt-2 text-xs text-muted sm:px-6">
+          <p className="mx-auto w-full max-w-[92rem] px-4 pt-2 text-xs text-muted-foreground sm:px-6">
             {PLATFORM_ACCESS_NOTE}
           </p>
         ) : null}

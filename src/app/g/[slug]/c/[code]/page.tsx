@@ -76,7 +76,7 @@ export default async function CampaignPage({
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
         <div className="card p-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.linkInvalidTitle}</h1>
-          <p className="mt-2 text-sm text-muted">{t.gift.linkInvalidBody}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t.gift.linkInvalidBody}</p>
           <Link href={`/g/${slug}`} className="btn-secondary btn-sm mt-5 inline-flex">
             {t.gift.backToCatalogue}
           </Link>
@@ -122,7 +122,7 @@ export default async function CampaignPage({
           <h1 className="text-2xl font-semibold tracking-tight text-ink">
             {campaign.code} · {campaign.name}
           </h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             {fmt(t.gift.campaignSubmitted, {
               count: campaign.recipients.length,
               buyer: campaign.buyer.name,
@@ -187,7 +187,7 @@ export default async function CampaignPage({
           <h2 className="text-base font-semibold text-ink">{t.gift.recipientsTitle}</h2>
           <div className="mt-3 card relative overflow-x-auto">
             <table className="w-full min-w-[44rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-4 py-3">{t.gift.columnRecipient}</th>
                   <th scope="col" className="px-4 py-3">{t.gift.columnGift}</th>
@@ -200,19 +200,19 @@ export default async function CampaignPage({
                   <tr key={recipient.id} className="align-top">
                     <td className="px-4 py-3">
                       <p className="font-medium text-ink">{recipient.name}</p>
-                      <p className="text-xs text-muted">{recipient.email}</p>
+                      <p className="text-xs text-muted-foreground">{recipient.email}</p>
                       {recipient.note ? (
                         <p className="mt-1 text-xs text-inksoft">“{recipient.note}”</p>
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-inksoft">
                       {recipient.productName}
-                      <span className="block text-xs text-muted">
+                      <span className="block text-xs text-muted-foreground">
                         {recipient.variantName || recipient.size}
                         {recipient.quantity > 1 ? ` × ${recipient.quantity}` : ""}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted">
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
                       {recipient.line1}, {recipient.city} {recipient.postalCode}
                       <span className="block">{localCountryName(recipient.country, tag)}</span>
                       {orderLinks.get(recipient.id) ? (
@@ -239,7 +239,7 @@ export default async function CampaignPage({
               <li key={`${entry.at}-${index}`} className="py-2.5 first:pt-0 last:pb-0">
                 <p className="font-medium text-ink">{entry.status}</p>
                 <p className="text-inksoft">{entry.note}</p>
-                <p className="text-xs text-muted">
+                <p className="text-xs text-muted-foreground">
                   {entry.actor} · {dateTime(entry.at)}
                 </p>
               </li>
@@ -252,20 +252,20 @@ export default async function CampaignPage({
             <h2 className="text-base font-semibold text-ink">{t.gift.totalsTitle}</h2>
             <dl className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">{t.gift.subtotal}</dt>
+                <dt className="text-muted-foreground">{t.gift.subtotal}</dt>
                 <dd className="tabular-nums text-ink">
                   {money(campaign.totals.subtotal, campaign.currency)}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted">{t.gift.shipping}</dt>
+                <dt className="text-muted-foreground">{t.gift.shipping}</dt>
                 <dd className="tabular-nums text-ink">
                   {money(campaign.totals.shipping, campaign.currency)}
                 </dd>
               </div>
               {campaign.totals.taxLines.map((row) => (
                 <div key={row.rate} className="flex justify-between">
-                  <dt className="text-muted">{fmt(t.gift.taxRow, { rate: row.rate })}</dt>
+                  <dt className="text-muted-foreground">{fmt(t.gift.taxRow, { rate: row.rate })}</dt>
                   <dd className="tabular-nums text-ink">{money(row.amount, campaign.currency)}</dd>
                 </div>
               ))}
@@ -276,7 +276,7 @@ export default async function CampaignPage({
                 </dd>
               </div>
             </dl>
-            <p className="mt-3 text-xs text-muted">
+            <p className="mt-3 text-xs text-muted-foreground">
               {campaign.spendLimitPerRecipient > 0
                 ? fmt(t.gift.spendLimitNote, {
                     amount: money(campaign.spendLimitPerRecipient, campaign.currency),

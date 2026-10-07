@@ -34,7 +34,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
         <div className="card p-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.closedTitle}</h1>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm text-muted-foreground">
             {fmt(t.gift.closedBody, { company: catalogue.companyName })}
           </p>
         </div>
@@ -50,7 +50,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
           <h1 className="mt-3 text-lg font-semibold tracking-tight text-ink">{catalogue.name}</h1>
           {catalogue.access === "invite" ? (
             <>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {fmt(t.gift.inviteBody, { company: catalogue.companyName })}
               </p>
               <div className="mt-5">
@@ -58,7 +58,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
               </div>
             </>
           ) : (
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-muted-foreground">
               {fmt(t.gift.linkOnlyBody, { company: catalogue.companyName })}
             </p>
           )}
@@ -89,7 +89,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
 
       <dl className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted">{t.gift.spendLimitLabel}</dt>
+          <dt className="text-xs font-medium text-muted-foreground">{t.gift.spendLimitLabel}</dt>
           <dd className="mt-1 text-lg font-semibold text-ink">
             {catalogue.spendLimitPerRecipient > 0
               ? money(catalogue.spendLimitPerRecipient, catalogue.currency)
@@ -97,7 +97,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
           </dd>
         </div>
         <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted">{t.gift.approvalLabel}</dt>
+          <dt className="text-xs font-medium text-muted-foreground">{t.gift.approvalLabel}</dt>
           <dd className="mt-1 text-lg font-semibold text-ink">
             {catalogue.approvalRequired
               ? catalogue.approverName || t.gift.approvalRequired
@@ -105,7 +105,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
           </dd>
         </div>
         <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted">{t.gift.recipientsLabel}</dt>
+          <dt className="text-xs font-medium text-muted-foreground">{t.gift.recipientsLabel}</dt>
           <dd className="mt-1 text-lg font-semibold text-ink">
             {fmt(t.gift.recipientsUpTo, { count: MAX_RECIPIENTS })}
           </dd>
@@ -142,7 +142,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
                       />
                     ) : (
                       <div
-                        className="flex items-center justify-center text-sm text-muted"
+                        className="flex items-center justify-center text-sm text-muted-foreground"
                         style={{ aspectRatio: "1 / 1" }}
                       >
                         {t.gift.previewSoon}
@@ -156,11 +156,11 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
                         <Badge tone="amber">{t.gift.overLimit}</Badge>
                       ) : null}
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted">{product.description.split("\n")[0]}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{product.description.split("\n")[0]}</p>
                     <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
                       {money(price, catalogue.currency)}
                     </p>
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {sizes.length > 0 ? fmt(t.gift.sizes, { sizes: sizes.join(", ") }) : t.gift.oneSize}
                     </p>
                   </div>
@@ -192,7 +192,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
                 {index + 1}
               </span>
               <p className="mt-2 text-sm font-semibold text-ink">{step.title}</p>
-              <p className="mt-1 text-sm text-muted">{step.detail}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{step.detail}</p>
             </li>
           ))}
         </ol>

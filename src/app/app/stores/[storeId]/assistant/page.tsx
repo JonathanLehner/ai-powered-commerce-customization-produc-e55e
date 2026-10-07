@@ -51,14 +51,14 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
           Recommended partner:{" "}
           <span className="font-semibold text-ink">{String(payload.supplierName ?? "")}</span>
         </p>
-        {payload.risk ? <p className="mt-1.5 text-xs text-muted">Trade-off: {String(payload.risk)}</p> : null}
+        {payload.risk ? <p className="mt-1.5 text-xs text-muted-foreground">Trade-off: {String(payload.risk)}</p> : null}
       </div>
     );
   }
   return (
     <div className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
       <p className="whitespace-pre-line">{String(payload.description ?? "")}</p>
-      <p className="mt-2 text-xs text-muted">
+      <p className="mt-2 text-xs text-muted-foreground">
         Proposed price {String(payload.suggestedPriceMajor ?? "—")} · tags{" "}
         {Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : "—"}
       </p>
@@ -117,7 +117,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                       <Badge tone="iris">{KIND_LABELS[suggestion.kind]}</Badge>
                       <h3 className="mt-2 text-sm font-semibold text-ink">{suggestion.title}</h3>
                       {product ? (
-                        <p className="text-xs text-muted">
+                        <p className="text-xs text-muted-foreground">
                           For{" "}
                           <Link
                             href={`/app/stores/${storeId}/catalog/${product.id}`}
@@ -129,7 +129,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                         </p>
                       ) : null}
                     </div>
-                    <span className="text-xs text-muted">{relativeTime(suggestion.createdAt)}</span>
+                    <span className="text-xs text-muted-foreground">{relativeTime(suggestion.createdAt)}</span>
                   </div>
 
                   <p className="mt-2 text-sm text-inksoft">{suggestion.rationale}</p>
@@ -173,7 +173,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
               <li key={suggestion.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm text-ink">{suggestion.title}</p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     {KIND_LABELS[suggestion.kind]} · drafted by {suggestion.createdBy}
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                   <Badge tone={suggestion.status === "applied" ? "green" : "slate"}>
                     {suggestion.status === "applied" ? "Applied" : "Dismissed"}
                   </Badge>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {suggestion.decidedBy} ·{" "}
                     {suggestion.decidedAt ? formatDateTime(suggestion.decidedAt) : ""}
                   </p>

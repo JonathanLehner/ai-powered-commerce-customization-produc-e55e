@@ -327,7 +327,7 @@ export default async function SourcingPage({
       name: (
         <>
           {request.productName}
-          <span className="block text-xs font-normal text-muted">
+          <span className="block text-xs font-normal text-muted-foreground">
             Quote on {request.code} · {quote.supplierLabel}
           </span>
         </>
@@ -458,7 +458,7 @@ export default async function SourcingPage({
                     copy. Comparable runs have come in at {indicativeRange(asking)}, and suppliers answer in{" "}
                     {asking.bulkSourcing.responseDays[0]}–{asking.bulkSourcing.responseDays[1]} working days.
                   </p>
-                  <p className="mt-1 max-w-2xl text-xs text-muted">{asking.bulkSourcing.quoteNotes}</p>
+                  <p className="mt-1 max-w-2xl text-xs text-muted-foreground">{asking.bulkSourcing.quoteNotes}</p>
                 </>
               ) : (
                 <>
@@ -527,7 +527,7 @@ export default async function SourcingPage({
           </div>
           <div className="mt-4 relative overflow-x-auto">
             <table className="w-full min-w-[44rem] text-left text-sm">
-              <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="py-2 pr-3">Attribute</th>
                   {columns.map((c) => (
@@ -535,7 +535,7 @@ export default async function SourcingPage({
                       <div>{c.name}</div>
                       <Link
                         href={toggleCompare(c.key)}
-                        className="mt-1 inline-block text-xs font-medium text-muted underline underline-offset-2 hover:text-ink"
+                        className="mt-1 inline-block text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-ink"
                         scroll={false}
                       >
                         Remove from comparison
@@ -547,7 +547,7 @@ export default async function SourcingPage({
               <tbody className="divide-y divide-line">
                 {COMPARE_ROWS.map((row) => (
                   <tr key={row.label}>
-                    <th scope="row" className="py-2.5 pr-3 font-medium text-muted">
+                    <th scope="row" className="py-2.5 pr-3 font-medium text-muted-foreground">
                       {row.label}
                     </th>
                     {columns.map((c) => (
@@ -558,7 +558,7 @@ export default async function SourcingPage({
                   </tr>
                 ))}
                 <tr>
-                  <th scope="row" className="py-2.5 pr-3 font-medium text-muted">
+                  <th scope="row" className="py-2.5 pr-3 font-medium text-muted-foreground">
                     Next step
                   </th>
                   {columns.map((c) => (
@@ -640,20 +640,20 @@ export default async function SourcingPage({
                       {quoteOnly ? "Bulk sourcing" : product.availability}
                     </Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {supplierName(product.supplierId)} · {product.productType}
                   </p>
                   <p className="mt-2 line-clamp-3 text-sm text-inksoft">{product.description}</p>
 
                   <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-line py-3 text-xs">
                     <div>
-                      <dt className="text-muted">Unit cost</dt>
+                      <dt className="text-muted-foreground">Unit cost</dt>
                       <dd className="font-semibold tabular-nums text-ink">
                         {quoteOnly ? QUOTE_PRICE_LABEL : formatMoney(product.baseCost, product.currency)}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted">{quoteOnly ? "Minimum order" : "Print areas"}</dt>
+                      <dt className="text-muted-foreground">{quoteOnly ? "Minimum order" : "Print areas"}</dt>
                       <dd className="font-semibold text-ink">
                         {isQuoteOnly(product)
                           ? formatQuantity(product.bulkSourcing.minimumOrderQuantity)
@@ -661,23 +661,23 @@ export default async function SourcingPage({
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted">Lead time</dt>
+                      <dt className="text-muted-foreground">Lead time</dt>
                       <dd className="font-semibold text-ink">
                         {product.leadTimeDays[0]}–{product.leadTimeDays[1]} days
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted">Variants</dt>
+                      <dt className="text-muted-foreground">Variants</dt>
                       <dd className="font-semibold text-ink">{product.variants.length}</dd>
                     </div>
                   </dl>
 
-                  <p className="mt-3 text-xs text-muted">
+                  <p className="mt-3 text-xs text-muted-foreground">
                     Fulfils to {product.fulfillmentRegions.slice(0, 3).join(", ")}
                     {product.fulfillmentRegions.length > 3 ? ` +${product.fulfillmentRegions.length - 3}` : ""}
                   </p>
                   {isQuoteOnly(product) ? (
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       Recent runs {indicativeRange(product)} · quoted per enquiry, ordered by manual purchase
                       order
                     </p>

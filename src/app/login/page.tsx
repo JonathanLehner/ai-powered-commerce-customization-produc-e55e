@@ -67,7 +67,7 @@ export default function LoginPage() {
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
         <section>
           <h1 className="text-xl font-semibold tracking-tight text-ink">Pick an account</h1>
-          <p className="mt-1.5 text-sm text-muted">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             Permissions are enforced per role, so what you can change depends on who you continue as.
           </p>
           <Suspense fallback={null}>
@@ -81,7 +81,7 @@ export default function LoginPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-ink">{persona.name}</p>
-                      <p className="truncate text-xs text-muted">{persona.title}</p>
+                      <p className="truncate text-xs text-muted-foreground">{persona.title}</p>
                     </div>
                     <Badge tone={persona.tone}>{persona.email.split("@")[1]}</Badge>
                   </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
           </ul>
           <form action={signInWithPassword} className="card mt-6 p-4">
             <p className="text-sm font-semibold text-ink">Sign in with a password</p>
-            <p className="mt-1 text-xs text-muted">
+            <p className="mt-1 text-xs text-muted-foreground">
               Every demo account uses the password <code className="font-mono">parcelith</code>.
             </p>
             <div className="mt-3 flex flex-wrap items-end gap-2">
@@ -151,7 +151,7 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <p className="mt-5 text-xs text-muted">
+          <p className="mt-5 text-xs text-muted-foreground">
             Shopper storefronts are public — no sign-in needed. Open a store from the agency dashboard to
             browse, customise and check out as a customer would.
           </p>

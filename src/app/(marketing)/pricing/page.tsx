@@ -134,10 +134,10 @@ export default function PricingPage() {
                 </span>
               ) : null}
               <h2 className="text-lg font-semibold text-ink">{plan.name}</h2>
-              <p className="mt-1 text-sm text-muted">{plan.summary}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{plan.summary}</p>
               <p className="mt-5 flex items-baseline gap-2">
                 <span className="text-3xl font-semibold tracking-tight text-ink">{plan.price}</span>
-                <span className="text-sm text-muted">{plan.cadence}</span>
+                <span className="text-sm text-muted-foreground">{plan.cadence}</span>
               </p>
               <ul className="mt-6 space-y-2.5">
                 {plan.features.map((feature) => (

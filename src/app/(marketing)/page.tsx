@@ -142,15 +142,15 @@ export default function LandingPage() {
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-line pt-6 text-sm">
               <div>
-                <dt className="text-muted">Print areas</dt>
+                <dt className="text-muted-foreground">Print areas</dt>
                 <dd className="mt-0.5 text-lg font-semibold text-ink">Defined in mm</dd>
               </div>
               <div>
-                <dt className="text-muted">Payments</dt>
+                <dt className="text-muted-foreground">Payments</dt>
                 <dd className="mt-0.5 text-lg font-semibold text-ink">Seller&rsquo;s Stripe</dd>
               </div>
               <div>
-                <dt className="text-muted">Carriers</dt>
+                <dt className="text-muted-foreground">Carriers</dt>
                 <dd className="mt-0.5 text-lg font-semibold text-ink">DHL · FedEx · UPS</dd>
               </div>
             </dl>
@@ -282,7 +282,7 @@ export default function LandingPage() {
               <li key={item.step} className="card p-5">
                 <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
                 <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.body}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
               </li>
             ))}
           </ol>
@@ -302,7 +302,7 @@ export default function LandingPage() {
             <li key={item.step} className="card p-5">
               <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
               <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.body}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </li>
           ))}
         </ol>

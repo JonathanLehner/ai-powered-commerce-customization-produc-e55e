@@ -35,7 +35,7 @@ export default async function AdminAgenciesPage() {
                     <Badge tone="brand">{agency.plan}</Badge>
                     {allowance.atLimit ? <Badge tone="amber">at store limit</Badge> : null}
                   </div>
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {agency.contactEmail} · joined {formatDate(agency.createdAt)} · {storeUsageLabel(allowance)}{" "}
                     ({agencyStores.length} in total) · {agencyUsers.length} people
                   </p>
@@ -91,7 +91,7 @@ export default async function AdminAgenciesPage() {
                       </li>
                     ))}
                     {agencyStores.length === 0 ? (
-                      <li className="py-2 text-muted">No stores yet.</li>
+                      <li className="py-2 text-muted-foreground">No stores yet.</li>
                     ) : null}
                   </ul>
                 </div>
@@ -102,7 +102,7 @@ export default async function AdminAgenciesPage() {
                       <li key={person.id} className="flex items-center justify-between gap-3 py-2">
                         <span className="min-w-0">
                           <span className="block truncate text-ink">{person.name}</span>
-                          <span className="block truncate text-xs text-muted">{person.email}</span>
+                          <span className="block truncate text-xs text-muted-foreground">{person.email}</span>
                         </span>
                         <Badge tone={person.platformRole === "agency_admin" ? "brand" : "neutral"}>
                           {person.platformRole === "agency_admin" ? "Agency admin" : "Member"}

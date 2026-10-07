@@ -62,7 +62,7 @@ export function AddSupplierForm() {
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Add a supplier</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             New suppliers land in review. Stores cannot source from them until they are approved.
           </p>
 

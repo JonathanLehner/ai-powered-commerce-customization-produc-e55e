@@ -63,7 +63,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
       <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.checkout.title}</h1>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-sm text-muted-foreground">
         {fmt(t.checkout.merchantNote, { client: store.clientName })}
       </p>
 
@@ -98,7 +98,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                 <li key={item.id} className="flex justify-between gap-3">
                   <span className="min-w-0">
                     <span className="block truncate text-ink">{item.productName}</span>
-                    <span className="block text-xs text-muted">
+                    <span className="block text-xs text-muted-foreground">
                       {item.variantName} × {item.quantity}
                       {item.text ? ` · “${item.text}”` : ""}
                     </span>
@@ -111,18 +111,18 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
             </ul>
             <dl className="mt-4 space-y-2 border-t border-line pt-4 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">{t.checkout.shipping}</dt>
+                <dt className="text-muted-foreground">{t.checkout.shipping}</dt>
                 <dd className="tabular-nums text-ink">{money(shipping, currency)}</dd>
               </div>
               {discount ? (
                 <div className="flex justify-between">
-                  <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
+                  <dt className="text-muted-foreground">{fmt(t.discount.row, { code: discount.code })}</dt>
                   <dd className="tabular-nums text-emerald-700">− {money(discount.amount, currency)}</dd>
                 </div>
               ) : null}
               {taxRows.map((row) => (
                 <div key={row.rate} className="flex justify-between">
-                  <dt className="text-muted">
+                  <dt className="text-muted-foreground">
                     {fmt(t.checkout.taxRow, { rate: row.rate })}{" "}
                     {store.pricesIncludeTax ? t.checkout.taxIncludedSuffix : ""}
                   </dt>

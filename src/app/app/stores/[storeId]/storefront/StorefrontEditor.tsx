@@ -7,7 +7,7 @@ import type { EditorCanvasProps } from "./EditorCanvas";
 const EditorCanvas = dynamic(() => import("./EditorCanvas"), {
   ssr: false,
   loading: () => (
-    <div className="rounded-xl border border-line bg-white p-10 text-center text-sm text-muted">
+    <div className="rounded-xl border border-line bg-white p-10 text-center text-sm text-muted-foreground">
       Loading the storefront editor…
     </div>
   ),

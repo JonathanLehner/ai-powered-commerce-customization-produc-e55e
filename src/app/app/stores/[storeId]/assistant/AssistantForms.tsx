@@ -15,7 +15,7 @@ export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: s
       className="card p-5"
     >
       <h2 className="text-base font-semibold text-ink">Product ideas</h2>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-1 text-sm text-muted-foreground">
         Three products for {storeName}, each mapped to a real item in the approved supplier catalog.
       </p>
       <div className="mt-4">
@@ -57,7 +57,7 @@ export function CopyForm({
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Description and tags</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Rewrites storefront copy using the product&rsquo;s real category and configured variants.
           </p>
           <div className="mt-4">
@@ -105,7 +105,7 @@ export function PriceForm({
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Pricing</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Suggests a retail price against the product&rsquo;s landed cost and explains the reasoning.
           </p>
           <div className="mt-4">
@@ -152,7 +152,7 @@ export function SupplierForm({
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Supplier comparison</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Compares approved production partners for a destination, weighing lead time, regions and whether
             they expose an order API.
           </p>

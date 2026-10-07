@@ -64,7 +64,7 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
                     <span className="font-mono text-sm font-semibold text-ink">{code.code}</span>
                     <Badge tone={state.tone}>{state.label}</Badge>
                     <span className="text-sm text-inksoft">{worth(code)}</span>
-                    <span className="text-xs text-muted">
+                    <span className="text-xs text-muted-foreground">
                       {code.minimumSubtotal > 0
                         ? `Minimum ${formatMoney(code.minimumSubtotal, code.currency)} · `
                         : ""}
@@ -73,7 +73,7 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
                       {code.usageLimit === null ? " used, no limit" : ` of ${code.usageLimit} used`}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Created by {code.createdBy} on {formatDate(code.createdAt)}
                   </p>
                   <details className="mt-3">

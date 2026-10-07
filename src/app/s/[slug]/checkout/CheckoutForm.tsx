@@ -195,7 +195,7 @@ export function CheckoutForm({
           </div>
 
           <h2 className="mt-8 text-base font-semibold text-ink">{t.paymentTitle}</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             {payBefore}
             {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
             {payAfter}
@@ -247,7 +247,7 @@ export function CheckoutForm({
             </div>
           </div>
 
-          <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted">
+          <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted-foreground">
             <p className="font-medium text-ink">{t.testMode}</p>
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((card) => (

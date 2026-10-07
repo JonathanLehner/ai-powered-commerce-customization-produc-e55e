@@ -186,7 +186,7 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
       </div>
 
       {products.length === 0 ? (
-        <p className="mt-6 rounded-xl border border-dashed border-line bg-canvas px-5 py-10 text-center text-sm text-muted">
+        <p className="mt-6 rounded-xl border border-dashed border-line bg-canvas px-5 py-10 text-center text-sm text-muted-foreground">
           {ctx.t.noProducts}
         </p>
       ) : (
@@ -207,14 +207,14 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
                       style={{ aspectRatio: "1 / 1" }}
                     />
                   ) : (
-                    <div className="flex items-center justify-center text-sm text-muted" style={{ aspectRatio: "1 / 1" }}>
+                    <div className="flex items-center justify-center text-sm text-muted-foreground" style={{ aspectRatio: "1 / 1" }}>
                       {ctx.t.previewSoon}
                     </div>
                   )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-sm font-semibold text-ink">{product.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted">{product.tagline}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{product.tagline}</p>
                   {showPrice ? (
                     <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
                       {formatMoney(product.price, product.currency, ctx.localeTag)}
@@ -252,7 +252,7 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
             </div>
           ) : (
             <div
-              className="flex items-center justify-center rounded-2xl border border-dashed border-line bg-white text-sm text-muted"
+              className="flex items-center justify-center rounded-2xl border border-dashed border-line bg-white text-sm text-muted-foreground"
               style={{ aspectRatio: "4 / 3" }}
             >
               {ctx.t.imagePlaceholder}
@@ -262,7 +262,7 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
         <div className={right ? "lg:order-1" : ""}>
           <h2 className="text-2xl font-semibold tracking-tight text-ink">{str(props, "heading")}</h2>
           <p className="mt-3 text-sm leading-relaxed text-inksoft sm:text-base">{str(props, "body")}</p>
-          <p className="mt-4 text-xs text-muted">{ctx.clientName}</p>
+          <p className="mt-4 text-xs text-muted-foreground">{ctx.clientName}</p>
         </div>
       </div>
     </section>
@@ -288,7 +288,7 @@ export function Testimonial({ props, ctx }: { props: Record<string, unknown>; ct
       <figure className="rounded-2xl border border-line bg-white p-8 text-center">
         <span aria-hidden className="mx-auto block h-1 w-10 rounded-full" style={{ background: accent }} />
         <blockquote className="mt-5 text-lg leading-relaxed text-ink">“{str(props, "quote")}”</blockquote>
-        <figcaption className="mt-4 text-sm text-muted">
+        <figcaption className="mt-4 text-sm text-muted-foreground">
           <span className="font-medium text-ink">{str(props, "author")}</span>
           {str(props, "role") ? ` · ${str(props, "role")}` : ""}
         </figcaption>
@@ -316,7 +316,7 @@ export function NewsletterSignup({ props, ctx }: { props: Record<string, unknown
             type="email"
             name="email"
             placeholder="you@example.com"
-            className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-brand-500 focus:outline-2 focus:outline-brand-500/40"
+            className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-muted-foreground focus:border-brand-500 focus:outline-2 focus:outline-brand-500/40"
           />
           <button
             type="submit"

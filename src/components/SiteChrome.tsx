@@ -50,7 +50,7 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-2">
           <Logo />
-          <p className="mt-3 max-w-sm text-sm text-muted">
+          <p className="mt-3 max-w-sm text-sm text-muted-foreground">
             Parcelith is the commerce operating system agencies use to launch, customise and run branded
             product stores for every client — from artwork pre-flight to tracked delivery.
           </p>
@@ -73,7 +73,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-line">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} Parcelith. Sellers are the merchant of record for their own stores.</p>
           <p>Production partners: Printful · Gelato · Printify · Alibaba.com sourcing</p>
         </div>
@@ -102,7 +102,7 @@ export function PlainDocument({ note, children }: { note: string; children: Reac
         </header>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-line bg-canvas">
-          <p className="mx-auto w-full max-w-6xl px-4 py-6 text-xs text-muted sm:px-6">{note}</p>
+          <p className="mx-auto w-full max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6">{note}</p>
         </footer>
       </div>
     </Document>

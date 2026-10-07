@@ -40,7 +40,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       <Shell>
         <section className="card p-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">This link is no longer valid</h1>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm text-muted-foreground">
             An acceptance link works once. If it has already been used, sign in with the email address it was
             sent to. Otherwise ask the person who invited you for a new link.
           </p>
@@ -59,14 +59,14 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         <h1 className="mt-3 text-lg font-semibold tracking-tight text-ink">
           {membership.invitedBy} invited you to {store.name}
         </h1>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-sm text-muted-foreground">
           Accepting creates a Parcelith account for {membership.email} and signs you in.
         </p>
         <p className="mt-2 text-sm text-inksoft">
           <span className="font-medium text-ink">{STORE_ROLE_LABELS[membership.role]}</span> —{" "}
           {STORE_ROLE_DESCRIPTIONS[membership.role]}
         </p>
-        <p className="mt-2 text-xs text-muted">Invited {formatDate(membership.invitedAt)}.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Invited {formatDate(membership.invitedAt)}.</p>
 
         <form action={acceptInvitation} className="mt-6">
           <input type="hidden" name="token" value={token} />

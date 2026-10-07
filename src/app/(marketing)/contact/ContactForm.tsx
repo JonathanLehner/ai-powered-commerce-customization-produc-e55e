@@ -88,7 +88,7 @@ export function ContactForm() {
       action={submitPlanEnquiry}
       submitLabel="Send enquiry"
       pendingLabel="Sending…"
-      footer={<span className="text-xs text-muted">We reply within one working day.</span>}
+      footer={<span className="text-xs text-muted-foreground">We reply within one working day.</span>}
     >
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">

@@ -53,7 +53,7 @@ export default async function AdminOverviewPage() {
               <li key={supplier.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-ink">{supplier.name}</p>
-                  <p className="text-xs text-muted">{supplier.summary}</p>
+                  <p className="text-xs text-muted-foreground">{supplier.summary}</p>
                 </div>
                 <Link href="/admin/suppliers" className="btn-secondary btn-sm">
                   Review
@@ -66,13 +66,13 @@ export default async function AdminOverviewPage() {
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">Stores across the platform</h2>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-muted-foreground">
           Platform administrators can see that a store exists and who operates it. Order and customer records
           stay with the store team.
         </p>
         <div className="mt-4 relative overflow-x-auto">
           <table className="w-full min-w-[42rem] text-left text-sm">
-            <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+            <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th scope="col" className="py-2 pr-3">Store</th>
                 <th scope="col" className="py-2 pr-3">Agency</th>
@@ -88,7 +88,7 @@ export default async function AdminOverviewPage() {
                     <Link href={`/app/stores/${store.id}`} className="font-medium text-ink hover:underline">
                       {store.name}
                     </Link>
-                    <p className="text-xs text-muted">{store.clientName}</p>
+                    <p className="text-xs text-muted-foreground">{store.clientName}</p>
                   </td>
                   <td className="py-2.5 pr-3 text-inksoft">
                     {agencies.find((a) => a.id === store.agencyId)?.name ?? "—"}
@@ -112,7 +112,7 @@ export default async function AdminOverviewPage() {
       {enquiries.length > 0 ? (
         <section className="card p-5">
           <h2 className="text-base font-semibold text-ink">Plan enquiries</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Left on the public pricing page. Nothing here creates an agency or a login — someone has to reply
             and open the workspace.
           </p>
@@ -123,7 +123,7 @@ export default async function AdminOverviewPage() {
                   <p className="text-sm font-medium text-ink">
                     {enquiry.company} · {enquiry.name}
                   </p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     <a href={`mailto:${enquiry.email}`} className="hover:underline">
                       {enquiry.email}
                     </a>
@@ -137,7 +137,7 @@ export default async function AdminOverviewPage() {
                   <Badge tone={enquiry.plan === UNDECIDED ? "slate" : "brand"}>
                     {planEnquiryLabel(enquiry.plan)}
                   </Badge>
-                  <span className="text-xs text-muted">{formatDateTime(enquiry.createdAt)}</span>
+                  <span className="text-xs text-muted-foreground">{formatDateTime(enquiry.createdAt)}</span>
                 </div>
               </li>
             ))}
@@ -156,7 +156,7 @@ export default async function AdminOverviewPage() {
           {audit.map((entry) => (
             <li key={entry.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
               <span className="text-ink">{entry.summary}</span>
-              <span className="text-xs text-muted">
+              <span className="text-xs text-muted-foreground">
                 {entry.actorName} · {formatDateTime(entry.at)}
               </span>
             </li>

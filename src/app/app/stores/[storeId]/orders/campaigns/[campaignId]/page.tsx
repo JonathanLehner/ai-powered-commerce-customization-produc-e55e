@@ -183,7 +183,7 @@ export default async function CampaignFulfilmentPage({
                       >
                         {order.code}
                       </Link>
-                      <span className="ml-2 text-xs text-muted">
+                      <span className="ml-2 text-xs text-muted-foreground">
                         {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
                         {order.fulfillment.routing === "manual_required" ? "manual required" : order.fulfillment.routing}
                       </span>
@@ -203,7 +203,7 @@ export default async function CampaignFulfilmentPage({
           ) : (
             <div className="mt-4 relative overflow-x-auto">
               <table className="w-full min-w-[48rem] text-left text-sm">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th scope="col" className="py-2 pr-3">Recipient</th>
                     <th scope="col" className="py-2 pr-3">Gift</th>
@@ -218,7 +218,7 @@ export default async function CampaignFulfilmentPage({
                       <tr key={recipient.id} className="align-top">
                         <td className="py-2.5 pr-3">
                           <p className="font-medium text-ink">{recipient.name}</p>
-                          <p className="text-xs text-muted">
+                          <p className="text-xs text-muted-foreground">
                             {recipient.city}, {countryName(recipient.country)}
                           </p>
                           {recipient.note ? (
@@ -227,7 +227,7 @@ export default async function CampaignFulfilmentPage({
                         </td>
                         <td className="py-2.5 pr-3">
                           <p className="text-ink">{recipient.productName}</p>
-                          <p className="text-xs text-muted">
+                          <p className="text-xs text-muted-foreground">
                             {recipient.variantName || recipient.size} × {recipient.quantity} ·{" "}
                             {formatMoney(recipient.unitPrice * recipient.quantity, campaign.currency)}
                           </p>
@@ -241,7 +241,7 @@ export default async function CampaignFulfilmentPage({
                               {order.code}
                             </Link>
                           ) : (
-                            <span className="text-xs text-muted">Not ordered yet</span>
+                            <span className="text-xs text-muted-foreground">Not ordered yet</span>
                           )}
                           {order ? (
                             <p className="mt-1">
@@ -273,7 +273,7 @@ export default async function CampaignFulfilmentPage({
                               ) : null}
                             </>
                           ) : (
-                            <span className="text-xs text-muted">—</span>
+                            <span className="text-xs text-muted-foreground">—</span>
                           )}
                         </td>
                       </tr>
@@ -360,7 +360,7 @@ export default async function CampaignFulfilmentPage({
                   {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
                   {/* The buyer and the approver act under their own names, so
                       platform access reads the step and when, not who. */}
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     {viaPlatform ? "" : `${entry.actor} · `}
                     {formatDateTime(entry.at)}
                   </p>

@@ -131,7 +131,7 @@ export default async function StorefrontProductsPage({
                       style={{ aspectRatio: "1 / 1" }}
                     />
                   ) : (
-                    <div className="flex items-center justify-center text-sm text-muted" style={{ aspectRatio: "1 / 1" }}>
+                    <div className="flex items-center justify-center text-sm text-muted-foreground" style={{ aspectRatio: "1 / 1" }}>
                       {t.shop.previewSoon}
                     </div>
                   )}
@@ -143,7 +143,7 @@ export default async function StorefrontProductsPage({
                       <Badge tone="brand">{t.shop.personalise}</Badge>
                     ) : null}
                   </div>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted">{product.description.split("\n")[0]}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{product.description.split("\n")[0]}</p>
                   <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
                     {money(convert(product.price, product.currency, currency), currency)}
                   </p>

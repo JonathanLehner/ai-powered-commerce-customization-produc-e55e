@@ -66,18 +66,18 @@ export default async function AdminCatalogPage() {
                 <h2 className="text-sm font-semibold text-ink">{product.name}</h2>
                 <Badge tone={product.status === "active" ? "green" : "slate"}>{product.status}</Badge>
               </div>
-              <p className="mt-1 text-xs text-muted">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {supplierName(product.supplierId)} · {product.productType}
               </p>
               <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-line py-3 text-xs">
                 <div>
-                  <dt className="text-muted">Base cost</dt>
+                  <dt className="text-muted-foreground">Base cost</dt>
                   <dd className="font-semibold tabular-nums text-ink">
                     {isQuoteOnly(product) ? QUOTE_PRICE_LABEL : formatMoney(product.baseCost, product.currency)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted">{isQuoteOnly(product) ? "Minimum order" : "Per print area"}</dt>
+                  <dt className="text-muted-foreground">{isQuoteOnly(product) ? "Minimum order" : "Per print area"}</dt>
                   <dd className="font-semibold tabular-nums text-ink">
                     {isQuoteOnly(product)
                       ? formatQuantity(product.bulkSourcing.minimumOrderQuantity)
@@ -85,15 +85,15 @@ export default async function AdminCatalogPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted">Variants</dt>
+                  <dt className="text-muted-foreground">Variants</dt>
                   <dd className="font-semibold text-ink">{product.variants.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted">Availability</dt>
+                  <dt className="text-muted-foreground">Availability</dt>
                   <dd className="font-semibold text-ink">{product.availability}</dd>
                 </div>
               </dl>
-              <p className="mt-3 text-xs text-muted">
+              <p className="mt-3 text-xs text-muted-foreground">
                 {product.printAreas.map((a) => `${a.name} ${a.widthMm}×${a.heightMm} mm`).join(" · ")}
               </p>
               <div className="mt-auto pt-4">

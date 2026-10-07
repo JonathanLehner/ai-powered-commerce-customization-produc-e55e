@@ -168,7 +168,7 @@ export function BulkOrderForm({
           </div>
           {buyerEmail ? (
             <div className="sm:col-span-2">
-              <p className="text-sm text-muted">
+              <p className="text-sm text-muted-foreground">
                 {orderingBefore}
                 <span className="font-medium text-ink">{buyerEmail}</span>
                 {orderingAfter}
@@ -201,7 +201,7 @@ export function BulkOrderForm({
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">{t.giftTitle}</h2>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-muted-foreground">
           {t.giftHint}{" "}
           {spendLimit > 0
             ? fmt(t.giftHintLimit, { amount: money(spendLimit, currency) })
@@ -223,7 +223,7 @@ export function BulkOrderForm({
               />
               <span className="min-w-0 flex-1">
                 <span className="block font-medium text-ink">{product.name}</span>
-                <span className="block text-xs text-muted">
+                <span className="block text-xs text-muted-foreground">
                   {product.sizes.length > 0
                     ? fmt(t.sizes, { sizes: product.sizes.join(", ") })
                     : t.oneSize}
@@ -239,7 +239,7 @@ export function BulkOrderForm({
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">{t.listTitle}</h2>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-muted-foreground">
           {fmt(t.listHintLead, { max: maxRecipients })}{" "}
           <span className="font-mono text-xs text-inksoft">{RECIPIENT_COLUMNS.join(", ")}</span>.{" "}
           <ListHintTail template={t.listHintTail} />
@@ -261,7 +261,7 @@ export function BulkOrderForm({
             {t.pasteExample}
           </button>
           {fileName ? (
-            <span className="text-xs text-muted">{fmt(t.fileLoaded, { file: fileName })}</span>
+            <span className="text-xs text-muted-foreground">{fmt(t.fileLoaded, { file: fileName })}</span>
           ) : null}
         </div>
         {fileError ? (
@@ -311,7 +311,7 @@ export function BulkOrderForm({
 
             <div className="mt-3 relative overflow-x-auto rounded-lg border border-line">
               <table className="w-full min-w-[44rem] text-left text-sm">
-                <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+                <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th scope="col" className="px-3 py-2">{t.columnLine}</th>
                     <th scope="col" className="px-3 py-2">{t.columnRecipient}</th>
@@ -322,12 +322,12 @@ export function BulkOrderForm({
                 <tbody className="divide-y divide-line">
                   {preview.rows.map((row) => (
                     <tr key={`${row.line}-${row.email}`} className="align-top">
-                      <td className="px-3 py-2 text-xs tabular-nums text-muted">{row.line}</td>
+                      <td className="px-3 py-2 text-xs tabular-nums text-muted-foreground">{row.line}</td>
                       <td className="px-3 py-2">
                         <p className="text-ink">
-                          {row.name || <span className="text-muted">{t.noName}</span>}
+                          {row.name || <span className="text-muted-foreground">{t.noName}</span>}
                         </p>
-                        <p className="text-xs text-muted">
+                        <p className="text-xs text-muted-foreground">
                           {row.email} · {row.destination}
                         </p>
                         {row.issues.length > 0 ? (
@@ -355,15 +355,15 @@ export function BulkOrderForm({
             {preview.withIssues === 0 ? (
               <dl className="mt-4 max-w-xs space-y-1.5 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-muted">{t.subtotal}</dt>
+                  <dt className="text-muted-foreground">{t.subtotal}</dt>
                   <dd className="tabular-nums text-ink">{money(preview.subtotal, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">{t.shipping}</dt>
+                  <dt className="text-muted-foreground">{t.shipping}</dt>
                   <dd className="tabular-nums text-ink">{money(preview.shipping, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">{t.tax}</dt>
+                  <dt className="text-muted-foreground">{t.tax}</dt>
                   <dd className="tabular-nums text-ink">{money(preview.taxAmount, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between border-t border-line pt-1.5">
@@ -377,7 +377,7 @@ export function BulkOrderForm({
           </div>
         ) : null}
 
-        <p className="mt-4 text-xs text-muted">
+        <p className="mt-4 text-xs text-muted-foreground">
           {approvalRequired
             ? fmt(t.approvalNote, { approver: approverLabel })
             : t.noApprovalNote}

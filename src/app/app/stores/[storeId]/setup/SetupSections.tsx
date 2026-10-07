@@ -44,14 +44,14 @@ function Step({
               className={
                 done
                   ? "flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700"
-                  : "flex h-6 w-6 items-center justify-center rounded-full bg-canvas text-xs font-bold text-muted"
+                  : "flex h-6 w-6 items-center justify-center rounded-full bg-canvas text-xs font-bold text-muted-foreground"
               }
             >
               {done ? "✓" : index}
             </span>
             {title}
           </h2>
-          <p className="mt-1.5 max-w-2xl text-sm text-muted">{description}</p>
+          <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>
         </div>
         <Badge tone={done ? "green" : "amber"}>{done ? "Complete" : "Needs attention"}</Badge>
       </div>
@@ -112,7 +112,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
             className="h-full w-full object-contain p-2"
           />
         ) : (
-          <span className="px-2 text-center text-xs text-muted">No logo yet</span>
+          <span className="px-2 text-center text-xs text-muted-foreground">No logo yet</span>
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -137,7 +137,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
           PNG, JPG, WEBP or SVG up to {LOGO_MAX_MB} MB. Uploads as soon as you choose a file.
         </p>
         <p role="status" aria-live="polite" className="mt-2 text-sm">
-          {uploading ? <span className="text-muted">Uploading…</span> : null}
+          {uploading ? <span className="text-muted-foreground">Uploading…</span> : null}
           {error ? <span className="text-rose-700">{error}</span> : null}
         </p>
       </div>
@@ -214,7 +214,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                           />
                           <span className="text-sm font-semibold text-ink">{THEMES[key].name}</span>
                         </span>
-                        <span className="mt-1 block text-xs text-muted">{THEMES[key].description}</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">{THEMES[key].description}</span>
                       </span>
                     </label>
                   ))}
@@ -297,7 +297,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                         className="h-4 w-4 accent-brand-600"
                       />
                       <span className="font-medium text-ink">{c.code}</span>
-                      <span className="truncate text-xs text-muted">{c.label}</span>
+                      <span className="truncate text-xs text-muted-foreground">{c.label}</span>
                     </label>
                   ))}
                 </div>
@@ -336,7 +336,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
               </div>
               <div>
                 <label htmlFor="supportPhone" className="field-label">
-                  Support phone number <span className="font-normal text-muted">(optional)</span>
+                  Support phone number <span className="font-normal text-muted-foreground">(optional)</span>
                 </label>
                 <input
                   id="supportPhone"
@@ -389,7 +389,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                 <p className="mt-1.5 font-mono text-xs text-inksoft">
                   CNAME {store.customDomain ?? "shop"} → stores.parcelith.net
                 </p>
-                <p className="mt-2 text-xs text-muted">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Current status:{" "}
                   <Badge tone={store.domainStatus === "verified" ? "green" : store.domainStatus === "pending" ? "amber" : "neutral"}>
                     {store.domainStatus === "verified"
@@ -518,12 +518,12 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                       aria-invalid={state.field === `${carrier.carrier}_account` ? true : undefined}
                       className={
                         state.field === `${carrier.carrier}_account`
-                          ? "input input-error disabled:bg-canvas disabled:text-muted"
-                          : "input disabled:bg-canvas disabled:text-muted"
+                          ? "input input-error disabled:bg-canvas disabled:text-muted-foreground"
+                          : "input disabled:bg-canvas disabled:text-muted-foreground"
                       }
                     />
                   </div>
-                  <p className="mt-2 text-xs text-muted">{carrier.services.join(" · ")}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">{carrier.services.join(" · ")}</p>
                 </div>
               ))}
             </div>
@@ -568,14 +568,14 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                 />
                 <span>
                   <span className="block text-sm font-medium text-ink">Displayed prices include tax</span>
-                  <span className="mt-0.5 block text-xs text-muted">
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
                     Standard for UK and EU storefronts. Leave off to add tax at checkout, as is normal in the US.
                   </span>
                 </span>
               </label>
               <div className="mt-5 relative overflow-x-auto rounded-xl border border-line">
                 <table className="w-full min-w-[30rem] text-left text-sm">
-                  <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+                  <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     <tr>
                       <th scope="col" className="px-3 py-2">Bracket</th>
                       <th scope="col" className="px-3 py-2">Rate</th>
@@ -587,7 +587,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                       <tr key={b.id}>
                         <td className="px-3 py-2 font-medium text-ink">{b.name}</td>
                         <td className="px-3 py-2 tabular-nums text-inksoft">{b.rate}%</td>
-                        <td className="px-3 py-2 text-muted">{b.regions.join(", ")}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{b.regions.join(", ")}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -1,4 +1,69 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * Light theme only. `dark:` is bound to a `.dark` ancestor the app never
+ * renders, so the shadcn components' dark branches can never activate off the
+ * visitor's OS preference.
+ */
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------- tokens ---
+ * One source of truth for the workspace look: neutral zinc greys, Parcelith's
+ * teal as the primary, an 8px radius, 1px hairlines and soft shadows that only
+ * ever land on overlays.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* 8px, which `rounded-lg` resolves to and the rest of the scale derives from. */
+  --radius: 0.5rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+
+  /* Parcelith teal — brand-600, the shade the product has always used for its
+     primary action, and the only one of the scale that clears 4.5:1 on white. */
+  --primary: var(--color-brand-600);
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: var(--color-brand-500);
+
+  --chart-1: var(--color-brand-500);
+  --chart-2: var(--color-brand-700);
+  --chart-3: oklch(0.552 0.016 285.938);
+  --chart-4: oklch(0.705 0.015 286.067);
+  --chart-5: oklch(0.871 0.006 286.286);
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: var(--color-brand-600);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: var(--color-brand-500);
+
+  /* A mid zinc for secondary prose — between `--foreground` and
+     `--muted-foreground`, and the value the legacy `text-inksoft` resolves to. */
+  --foreground-soft: oklch(0.442 0.017 285.786);
+}
 
 @theme {
   --color-brand-50: #effcfa;
@@ -23,83 +88,168 @@
   --color-iris-800: #3d2fae;
   --color-iris-900: #342c8a;
 
-  --color-ink: #0d1524;
-  --color-inksoft: #3d4a60;
-  --color-muted: #6b7789;
-  --color-line: #e3e8ef;
-  --color-canvas: #f6f8fa;
-
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Soft, and only reached by the overlay components. */
+  --shadow-sm: 0 1px 2px 0 oklch(0.141 0.005 285.823 / 0.06);
+  --shadow-md:
+    0 2px 4px -2px oklch(0.141 0.005 285.823 / 0.06),
+    0 8px 20px -6px oklch(0.141 0.005 285.823 / 0.1);
+  --shadow-lg:
+    0 4px 8px -4px oklch(0.141 0.005 285.823 / 0.08),
+    0 16px 40px -12px oklch(0.141 0.005 285.823 / 0.14);
 }
 
-:root {
-  color-scheme: light;
+@theme inline {
+  --font-heading: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /*
+   * The names the pages were written against, now resolving to the shadcn
+   * tokens above so a page nobody has migrated yet sits in the same palette as
+   * a shadcn component next to it.
+   */
+  --color-ink: var(--foreground);
+  --color-inksoft: var(--foreground-soft);
+  --color-line: var(--border);
+  --color-canvas: var(--muted);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-html,
-body {
-  background: #ffffff;
-  color: var(--color-ink);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
-body {
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+/*
+ * The workspace and platform administration read at a 14px base, the density
+ * this kind of tool is built for. Marketing and the storefronts keep the
+ * browser's 16px, so only elements without an explicit size are affected.
+ */
+[data-surface="workspace"] {
+  font-size: 14px;
 }
+
+/* ------------------------------------------------------------- primitives ---
+ * Component classes that predate shadcn, rebuilt on the tokens above so they
+ * render as the shadcn Button, Card and Input do. Sizing stays padding-driven
+ * rather than fixed-height, because callers pass their own `py-*`.
+ */
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition
-    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600
-    disabled:cursor-not-allowed disabled:opacity-55;
+  @apply inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg
+    border border-transparent bg-clip-padding px-3 text-sm font-medium whitespace-nowrap
+    transition-all outline-none select-none
+    focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
+    active:not-aria-[haspopup]:translate-y-px
+    disabled:pointer-events-none disabled:opacity-50
+    [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4;
 }
 
 @utility card {
-  @apply rounded-xl border border-line bg-white;
+  @apply rounded-xl border border-border bg-card text-card-foreground;
 }
 
 @utility input {
-  @apply mt-1.5 block w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink
-    placeholder:text-muted focus:border-brand-500 focus:outline-2 focus:outline-offset-0 focus:outline-brand-500/40;
+  @apply mt-1.5 block w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5
+    text-sm text-foreground transition-colors outline-none
+    placeholder:text-muted-foreground
+    focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
+    disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50
+    aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20;
 }
 
 @layer components {
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/80;
   }
   .btn-secondary {
-    @apply btn border border-line bg-white text-ink hover:bg-canvas;
+    @apply btn border-border bg-background hover:bg-muted hover:text-foreground
+      aria-expanded:bg-muted aria-expanded:text-foreground;
   }
   .btn-iris {
-    @apply btn bg-iris-600 text-white hover:bg-iris-700;
+    @apply btn bg-secondary text-secondary-foreground
+      hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)];
   }
   .btn-ghost {
-    @apply btn text-inksoft hover:bg-canvas;
+    @apply btn text-foreground/70 hover:bg-muted hover:text-foreground
+      aria-expanded:bg-muted aria-expanded:text-foreground;
   }
   .btn-danger {
-    @apply btn border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100;
+    @apply btn bg-destructive/10 text-destructive hover:bg-destructive/20
+      focus-visible:border-destructive/40 focus-visible:ring-destructive/20;
   }
   .btn-sm {
-    @apply px-3 py-1.5 text-xs;
+    @apply h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem]
+      [&_svg:not([class*='size-'])]:size-3.5;
   }
 
   .field-label {
-    @apply block text-sm font-medium text-ink;
+    @apply block text-sm leading-none font-medium text-foreground select-none;
   }
   .field-hint {
-    @apply mt-1 text-xs text-muted;
+    @apply mt-1.5 text-xs text-muted-foreground;
   }
   .input-error {
-    @apply border-rose-400 focus:border-rose-500 focus:outline-rose-500/40;
+    @apply border-destructive ring-3 ring-destructive/20
+      focus-visible:border-destructive focus-visible:ring-destructive/20;
   }
   .card-pad {
     @apply card p-5;
   }
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-xs font-medium text-inksoft;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1
+      text-xs font-medium text-foreground/70;
   }
   .section-title {
-    @apply text-xs font-semibold tracking-wide text-muted uppercase;
+    @apply text-xs font-semibold tracking-wide text-muted-foreground uppercase;
   }
 }
 

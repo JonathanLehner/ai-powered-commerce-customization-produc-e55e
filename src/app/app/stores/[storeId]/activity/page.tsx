@@ -114,14 +114,14 @@ export default async function ActivityPage({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={TONES[entry.category]}>{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
-                      <span className="font-mono text-xs text-muted">{entry.action}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{entry.action}</span>
                     </div>
                     <p className="mt-1.5 text-sm text-ink">{entry.summary}</p>
-                    {line ? <p className="mt-1 text-xs text-muted">{line}</p> : null}
+                    {line ? <p className="mt-1 text-xs text-muted-foreground">{line}</p> : null}
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm text-inksoft">{entry.actorName}</p>
-                    <p className="text-xs text-muted">{formatDateTime(entry.at)}</p>
+                    <p className="text-xs text-muted-foreground">{formatDateTime(entry.at)}</p>
                   </div>
                 </li>
               );

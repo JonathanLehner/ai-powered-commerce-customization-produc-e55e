@@ -86,7 +86,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                       >
                         {catalogue.name}
                       </Link>
-                      <p className="mt-0.5 text-sm text-muted">
+                      <p className="mt-0.5 text-sm text-muted-foreground">
                         {catalogue.companyName} · created {formatDate(catalogue.createdAt)} by {catalogue.createdBy}
                       </p>
                     </div>
@@ -104,11 +104,11 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
 
                   <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
                     <div>
-                      <dt className="text-xs text-muted">Products</dt>
+                      <dt className="text-xs text-muted-foreground">Products</dt>
                       <dd className="font-medium text-ink">{catalogue.productIds.length}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-muted">Spend limit</dt>
+                      <dt className="text-xs text-muted-foreground">Spend limit</dt>
                       <dd className="font-medium text-ink">
                         {catalogue.spendLimitPerRecipient > 0
                           ? `${formatMoney(catalogue.spendLimitPerRecipient, catalogue.currency)} each`
@@ -116,7 +116,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-muted">Approval</dt>
+                      <dt className="text-xs text-muted-foreground">Approval</dt>
                       <dd className="font-medium text-ink">
                         {catalogue.approvalRequired ? catalogue.approverName || catalogue.approverEmail : "Not required"}
                       </dd>
@@ -131,7 +131,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                     <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`} className="btn-secondary btn-sm">
                       Open catalogue
                     </Link>
-                    <span className="text-xs text-muted">
+                    <span className="text-xs text-muted-foreground">
                       {catalogueCampaigns.length} {catalogueCampaigns.length === 1 ? "campaign" : "campaigns"}
                     </span>
                   </div>
@@ -152,7 +152,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
         ) : (
           <div className="card relative overflow-x-auto">
             <table className="w-full min-w-[54rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-4 py-3">Campaign</th>
                   <th scope="col" className="px-4 py-3">Buyer</th>
@@ -173,20 +173,20 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                         >
                           {campaign.code}
                         </Link>
-                        <p className="text-xs text-muted">
+                        <p className="text-xs text-muted-foreground">
                           {campaign.name} · {catalogue?.companyName ?? "Catalogue removed"}
                         </p>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-ink">{campaign.buyer.name}</p>
-                        <p className="text-xs text-muted">{campaign.buyer.email}</p>
+                        <p className="text-xs text-muted-foreground">{campaign.buyer.email}</p>
                       </td>
                       <td className="px-4 py-3 tabular-nums text-ink">{campaign.recipients.length}</td>
                       <td className="px-4 py-3">
                         <Badge tone={CAMPAIGN_TONES[campaign.status]}>
                           {CAMPAIGN_STATUS_LABELS[campaign.status]}
                         </Badge>
-                        <p className="mt-1 text-xs text-muted">{formatDate(campaign.createdAt)}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{formatDate(campaign.createdAt)}</p>
                       </td>
                       <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
                         {formatMoney(campaign.totals.total, campaign.currency)}
@@ -202,7 +202,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">New gift catalogue</h2>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
           One catalogue per company. You choose which published products it offers, how much may be spent on each
           recipient and who signs a campaign off before it is paid for.
         </p>

@@ -64,7 +64,7 @@ export default async function OrderStatusPage({
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.order.title}</h1>
-        <p className="mt-2 text-sm text-muted">{fmt(t.order.gateBody, { code })}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{fmt(t.order.gateBody, { code })}</p>
         <OrderLookupForm slug={store.slug} code={code} t={t.order} />
       </div>
     );
@@ -100,7 +100,7 @@ export default async function OrderStatusPage({
           <h1 className="text-2xl font-semibold tracking-tight text-ink">
             {fmt(t.order.heading, { code: order.code })}
           </h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             {fmt(t.order.placed, { when: dateTime(order.createdAt) })}
           </p>
         </div>
@@ -140,7 +140,7 @@ export default async function OrderStatusPage({
               ) : null}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-ink">{item.productName}</p>
-                <p className="text-xs text-muted">
+                <p className="text-xs text-muted-foreground">
                   {fmt(t.order.variantQuantity, {
                     variant: item.variantName,
                     count: item.quantity,
@@ -208,7 +208,7 @@ export default async function OrderStatusPage({
             · {order.payment.status === "refunded" ? t.order.refundedWord : t.order.paidWord} ·{" "}
             {order.payment.paidAt ? dateTime(order.payment.paidAt) : ""}
           </p>
-          <p className="mt-1 text-xs text-muted">
+          <p className="mt-1 text-xs text-muted-foreground">
             {fmt(t.order.merchantOfRecord, { client: store.clientName })}
           </p>
         </div>
@@ -223,7 +223,7 @@ export default async function OrderStatusPage({
               <div>
                 <p className="text-sm font-medium text-ink">{entry.status}</p>
                 <p className="text-sm text-inksoft">{entry.note}</p>
-                <p className="text-xs text-muted">{dateTime(entry.at)}</p>
+                <p className="text-xs text-muted-foreground">{dateTime(entry.at)}</p>
               </div>
             </li>
           ))}
@@ -236,7 +236,7 @@ export default async function OrderStatusPage({
           <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
             {support.email ? (
               <>
-                <dt className="text-muted">{t.chrome.supportEmailLabel}</dt>
+                <dt className="text-muted-foreground">{t.chrome.supportEmailLabel}</dt>
                 <dd>
                   <a href={supportMailto(support.email, contactSubject)} className="text-ink hover:underline">
                     {support.email}
@@ -246,7 +246,7 @@ export default async function OrderStatusPage({
             ) : null}
             {support.phone ? (
               <>
-                <dt className="text-muted">{t.chrome.supportPhoneLabel}</dt>
+                <dt className="text-muted-foreground">{t.chrome.supportPhoneLabel}</dt>
                 <dd>
                   <a href={supportTel(support.phone)} className="text-ink hover:underline">
                     {support.phone}
@@ -258,7 +258,7 @@ export default async function OrderStatusPage({
         ) : (
           // Better an honest gap than a button that writes to an address
           // nobody reads: the store has not published one yet.
-          <p className="mt-2 text-sm text-muted">{t.chrome.supportPending}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t.chrome.supportPending}</p>
         )}
       </section>
 

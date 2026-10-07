@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <Document>
-      <div className="flex min-h-full flex-col bg-canvas">
+      <div data-surface="workspace" className="flex min-h-full flex-col bg-canvas">
         <header className="sticky top-0 z-40 border-b border-line bg-white">
           <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-3 px-4 sm:px-6">
             <Link href="/admin" aria-label="Parcelith platform administration">
@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <span className="sm:hidden">Workspace</span>
                 <span className="hidden sm:inline">Agency workspace</span>
               </Link>
-              <span className="hidden text-sm text-muted sm:block">{user.name}</span>
+              <span className="hidden text-sm text-muted-foreground sm:block">{user.name}</span>
               <form action={signOut}>
                 <button type="submit" className="btn-secondary btn-sm">
                   Sign out

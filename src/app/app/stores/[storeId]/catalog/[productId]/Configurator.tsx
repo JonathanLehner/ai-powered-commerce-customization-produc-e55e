@@ -103,7 +103,7 @@ function UploadForm({
         {needsTransparency ? " This product needs a transparent background." : ""}
       </p>
       {busy ? (
-        <p role="status" aria-live="polite" className="mt-4 text-sm text-muted">
+        <p role="status" aria-live="polite" className="mt-4 text-sm text-muted-foreground">
           {uploading ? "Uploading…" : "Saving…"}
         </p>
       ) : uploadError ? (
@@ -280,7 +280,7 @@ export function Configurator({
 
   if (!area || !base) {
     return (
-      <p className="text-sm text-muted">
+      <p className="text-sm text-muted-foreground">
         This supplier product has no print areas or product photography configured.
       </p>
     );
@@ -377,7 +377,7 @@ export function Configurator({
           ) : null}
         </div>
 
-        <p className="mt-2 text-xs text-muted">
+        <p className="mt-2 text-xs text-muted-foreground">
           Printable area {area.widthMm} × {area.heightMm} mm at {area.minDpi} DPI minimum. Drag the artwork, or
           focus it and use the arrow keys.
         </p>
@@ -390,7 +390,7 @@ export function Configurator({
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-ink">{artwork.fileName}</p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     {artwork.pixelWidth} × {artwork.pixelHeight} px ·{" "}
                     {(artwork.sizeBytes / 1024).toFixed(0)} KB · {artwork.hasAlpha ? "transparent" : "opaque"}
                   </p>
@@ -411,7 +411,7 @@ export function Configurator({
                 <div>
                   <label htmlFor="scale" className="flex items-center justify-between text-xs font-medium text-ink">
                     <span>Size</span>
-                    <span className="tabular-nums text-muted">
+                    <span className="tabular-nums text-muted-foreground">
                       {box ? `${Math.round(box.printedWidthMm)} × ${Math.round(box.printedHeightMm)} mm` : ""}
                     </span>
                   </label>
@@ -430,7 +430,7 @@ export function Configurator({
                 <div>
                   <label htmlFor="rotation" className="flex items-center justify-between text-xs font-medium text-ink">
                     <span>Rotation</span>
-                    <span className="tabular-nums text-muted">{placement.rotation}°</span>
+                    <span className="tabular-nums text-muted-foreground">{placement.rotation}°</span>
                   </label>
                   <input
                     id="rotation"
@@ -479,7 +479,7 @@ export function Configurator({
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-canvas px-3 py-2 text-xs">
-                  <span className="text-muted">Effective print resolution</span>
+                  <span className="text-muted-foreground">Effective print resolution</span>
                   <span
                     className={classNames(
                       "font-semibold tabular-nums",
@@ -547,7 +547,7 @@ export function Configurator({
                   ))}
                 </ul>
               ) : null}
-              <dl className="mt-3 space-y-1.5 text-xs text-muted">
+              <dl className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex justify-between gap-2">
                   <dt>Accepted formats</dt>
                   <dd className="text-ink">{catalog.fileRequirements.formats.join(", ")}</dd>
@@ -568,7 +568,7 @@ export function Configurator({
         ) : (
           <div className="card p-4">
             <h3 className="text-sm font-semibold text-ink">No artwork on {area.name}</h3>
-            <p className="mt-1.5 text-sm text-muted">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Upload the client&rsquo;s logo or a design for this print area. It is placed in the centre and you
               can move it from there.
             </p>
@@ -598,7 +598,7 @@ export function Configurator({
             className="card p-4"
           >
             <h3 className="text-sm font-semibold text-ink">Mockups</h3>
-            <p className="mt-1.5 text-sm text-muted">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Renders the saved placement onto the supplier photography for every decorated view. Approving the
               result is required before publishing.
             </p>

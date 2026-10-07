@@ -148,7 +148,7 @@ export default async function StoreCatalogPage({
                     />
                   ) : (
                     <div
-                      className="flex w-full items-center justify-center text-sm text-muted"
+                      className="flex w-full items-center justify-center text-sm text-muted-foreground"
                       style={{ aspectRatio: "1 / 1" }}
                     >
                       No mockup generated yet
@@ -170,26 +170,26 @@ export default async function StoreCatalogPage({
                       {product.name}
                     </Link>
                   </h3>
-                  <p className="mt-1 font-mono text-xs text-muted">{storeSku(product, store.channelCode)}</p>
+                  <p className="mt-1 font-mono text-xs text-muted-foreground">{storeSku(product, store.channelCode)}</p>
                   {product.manualFulfilment ? (
                     <p className="mt-1.5">
                       <Badge tone="iris">Manual fulfilment · {product.manualFulfilment.quoteCode}</Badge>
                     </p>
                   ) : null}
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {product.variants.filter((v) => v.enabled).length} variants · imported{" "}
                     {formatDate(product.importedAt)} · updated {relativeTime(product.updatedAt)}
                   </p>
 
                   <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-line py-3 text-xs">
                     <div>
-                      <dt className="text-muted">Price</dt>
+                      <dt className="text-muted-foreground">Price</dt>
                       <dd className="font-semibold tabular-nums text-ink">
                         {formatMoney(product.price, product.currency)}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted">Cost</dt>
+                      <dt className="text-muted-foreground">Cost</dt>
                       <dd className="font-semibold tabular-nums text-ink">
                         {formatMoney(
                           product.costs.supplierCost + product.costs.customizationCost + product.costs.shippingEstimate,
@@ -198,7 +198,7 @@ export default async function StoreCatalogPage({
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted">Margin</dt>
+                      <dt className="text-muted-foreground">Margin</dt>
                       <dd
                         className={
                           tone === "healthy"

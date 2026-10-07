@@ -102,9 +102,9 @@ function QuoteLine({
             <span className="font-semibold">{quote.supplierLabel}</span> ·{" "}
             <span className="font-semibold tabular-nums">{formatMoney(quote.unitCost, request.currency)}</span> a
             unit
-            {vsTarget ? <span className="text-muted"> ({vsTarget})</span> : null}
+            {vsTarget ? <span className="text-muted-foreground"> ({vsTarget})</span> : null}
           </p>
-          <p className="mt-0.5 text-xs text-muted">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Minimum {formatQuantity(quote.minimumOrderQuantity)} · {quote.leadTimeDays} days production · built on{" "}
             {catalogName(quote.baseCatalogProductId)}
             {quote.validUntil ? ` · ${live ? "valid until" : "expired"} ${formatDate(quote.validUntil)}` : ""}
@@ -146,11 +146,11 @@ function EnquiryRow({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-xs text-muted">{request.code}</span>
+            <span className="font-mono text-xs text-muted-foreground">{request.code}</span>
             <h3 className="text-sm font-semibold text-ink">{request.productName}</h3>
             <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
           </div>
-          <p className="mt-1 text-xs text-muted">
+          <p className="mt-1 text-xs text-muted-foreground">
             {formatQuantity(request.quantity)} to {request.destination}
             {request.targetUnitCost === null
               ? ""
@@ -165,7 +165,7 @@ function EnquiryRow({
           </p>
           <p className="mt-2 text-sm text-inksoft">{QUOTE_STATUS_NOTES[request.status]}</p>
           {request.status === "declined" && request.declineReason ? (
-            <p className="mt-1 text-xs text-muted">Reason: {request.declineReason}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Reason: {request.declineReason}</p>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">

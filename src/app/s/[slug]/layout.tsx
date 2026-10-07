@@ -159,7 +159,7 @@ export default async function StorefrontLayout({
           <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
             <div>
               <p className="text-sm font-semibold text-ink">{store.name}</p>
-              <p className="mt-1.5 text-sm text-muted">
+              <p className="mt-1.5 text-sm text-muted-foreground">
                 {fmt(t.chrome.operatedBy, { client: store.clientName })}
               </p>
             </div>
@@ -189,7 +189,7 @@ export default async function StorefrontLayout({
                 <ul className="mt-2 space-y-1.5 text-sm text-inksoft">
                   {support.email ? (
                     <li>
-                      <span className="text-muted">{t.chrome.supportEmailLabel}:</span>{" "}
+                      <span className="text-muted-foreground">{t.chrome.supportEmailLabel}:</span>{" "}
                       <a href={supportMailto(support.email)} className="hover:underline">
                         {support.email}
                       </a>
@@ -197,7 +197,7 @@ export default async function StorefrontLayout({
                   ) : null}
                   {support.phone ? (
                     <li>
-                      <span className="text-muted">{t.chrome.supportPhoneLabel}:</span>{" "}
+                      <span className="text-muted-foreground">{t.chrome.supportPhoneLabel}:</span>{" "}
                       <a href={supportTel(support.phone)} className="hover:underline">
                         {support.phone}
                       </a>
@@ -205,12 +205,12 @@ export default async function StorefrontLayout({
                   ) : null}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-muted">{t.chrome.supportPending}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{t.chrome.supportPending}</p>
               )}
             </div>
             <div>
               <p className="section-title">{t.chrome.delivery}</p>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {store.carriers
                   .filter((c) => c.enabled)
                   .map((c) => c.carrier.toUpperCase())
@@ -224,7 +224,7 @@ export default async function StorefrontLayout({
             </div>
           </div>
           <div className="border-t border-line">
-            <p className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-muted sm:px-6">
+            <p className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-muted-foreground sm:px-6">
               {fmt(t.chrome.legal, {
                 year: new Date().getFullYear(),
                 client: store.clientName,

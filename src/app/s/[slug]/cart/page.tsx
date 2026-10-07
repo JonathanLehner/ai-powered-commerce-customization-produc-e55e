@@ -70,7 +70,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                 ) : null}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-ink">{item.productName}</p>
-                  <p className="text-xs text-muted">{item.variantName}</p>
+                  <p className="text-xs text-muted-foreground">{item.variantName}</p>
                   {item.text ? (
                     <p className="mt-1 text-xs text-inksoft">
                       {t.basket.personalisation}{" "}
@@ -87,7 +87,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                     <form action={updateCartItem} className="flex items-center gap-2">
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="itemId" value={item.id} />
-                      <label htmlFor={`qty-${item.id}`} className="text-xs text-muted">
+                      <label htmlFor={`qty-${item.id}`} className="text-xs text-muted-foreground">
                         {t.basket.quantity}
                       </label>
                       <input
@@ -123,16 +123,16 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
             <h2 className="text-base font-semibold text-ink">{t.basket.summary}</h2>
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">{t.basket.subtotal}</dt>
+                <dt className="text-muted-foreground">{t.basket.subtotal}</dt>
                 <dd className="font-medium tabular-nums text-ink">{money(subtotal, currency)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted">{t.basket.shipping}</dt>
+                <dt className="text-muted-foreground">{t.basket.shipping}</dt>
                 <dd className="font-medium tabular-nums text-ink">{money(shipping, currency)}</dd>
               </div>
               {discount ? (
                 <div className="flex justify-between">
-                  <dt className="text-muted">{fmt(t.discount.row, { code: discount.code })}</dt>
+                  <dt className="text-muted-foreground">{fmt(t.discount.row, { code: discount.code })}</dt>
                   <dd className="font-medium tabular-nums text-emerald-700">
                     − {money(discount.amount, currency)}
                   </dd>
@@ -140,7 +140,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
               ) : null}
               {taxRows.map((row) => (
                 <div key={row.rate} className="flex justify-between">
-                  <dt className="text-muted">
+                  <dt className="text-muted-foreground">
                     {fmt(t.basket.taxRow, { rate: row.rate })}{" "}
                     {store.pricesIncludeTax ? t.basket.taxIncludedSuffix : ""}
                   </dt>

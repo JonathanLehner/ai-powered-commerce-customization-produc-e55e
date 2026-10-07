@@ -60,7 +60,7 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
       <h1 className="text-3xl font-semibold tracking-tight text-ink">Privacy notice</h1>
-      <p className="mt-3 text-sm text-muted">
+      <p className="mt-3 text-sm text-muted-foreground">
         How data moves through an agency workspace, and where the boundary between stores sits.
       </p>
       <div className="mt-10 space-y-9">

@@ -120,8 +120,8 @@ export default async function OrderDetailPage({
                   ) : null}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-ink">{item.productName}</p>
-                    <p className="text-xs text-muted">{item.variantName}</p>
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="text-xs text-muted-foreground">{item.variantName}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {viaPlatform
                         ? `Quantity ${item.quantity}`
                         : `Quantity ${item.quantity} · ${formatMoney(item.unitPrice, order.currency)} each · supplier cost ${formatMoney(item.supplierCost, order.currency)}`}
@@ -132,7 +132,7 @@ export default async function OrderDetailPage({
                       </p>
                     ) : null}
                     {item.customization.artworkFileName && !viaPlatform ? (
-                      <p className="mt-1 text-xs text-muted">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Artwork:{" "}
                         {item.customization.artworkUrl ? (
                           <a
@@ -149,7 +149,7 @@ export default async function OrderDetailPage({
                       </p>
                     ) : null}
                     {item.customization.artworkPlacement ? (
-                      <p className="mt-1 text-xs text-muted">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Placement: {Math.round(item.customization.artworkPlacement.x * 100)}% across,{" "}
                         {Math.round(item.customization.artworkPlacement.y * 100)}% down, at{" "}
                         {Math.round(item.customization.artworkPlacement.scale * 100)}% of the print area
@@ -170,7 +170,7 @@ export default async function OrderDetailPage({
 
             <div className="mt-4 border-t border-line pt-4">
               {viaPlatform ? (
-                <p className="text-sm text-muted">
+                <p className="text-sm text-muted-foreground">
                   Order values stay with the store team. {order.items.length}{" "}
                   {order.items.length === 1 ? "line" : "lines"} on this order.
                 </p>
@@ -217,7 +217,7 @@ export default async function OrderDetailPage({
                     {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
                     {/* A step a shopper took is recorded under their own name,
                         so platform access reads the step and when, not who. */}
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-muted-foreground">
                       {formatDateTime(entry.at)}
                       {viaPlatform ? null : ` · ${entry.actor}`}
                     </p>
@@ -230,14 +230,14 @@ export default async function OrderDetailPage({
           {canManage ? (
             <section className="card p-5">
               <h2 className="text-base font-semibold text-ink">Manual fulfilment steps</h2>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Use these when a supplier has no order API, or when something needs correcting by hand.
               </p>
 
               <div className="mt-5 space-y-6">
                 <div className="rounded-xl border border-line p-4">
                   <h3 className="text-sm font-semibold text-ink">Supplier routing</h3>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {order.fulfillment.submissionMessage ?? "This order has not been routed yet."}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -251,7 +251,7 @@ export default async function OrderDetailPage({
                   </div>
                   {routingOptions ? (
                     <div className="mt-5 border-t border-line pt-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {routingOptions.available.length === 0
                           ? "Alternative production partners"
                           : order.fulfillment.routing === "submitted"
@@ -263,7 +263,7 @@ export default async function OrderDetailPage({
                   ) : null}
                   {order.fulfillment.routing !== "submitted" ? (
                     <div className="mt-5 border-t border-line pt-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Purchase order raised by hand
                       </h4>
                       <div className="mt-3">
@@ -305,7 +305,7 @@ export default async function OrderDetailPage({
 
                 <div className="rounded-xl border border-rose-200 p-4">
                   <h3 className="text-sm font-semibold text-ink">Refund or cancel</h3>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Refunds are issued against the store&rsquo;s own Stripe account. Already refunded:{" "}
                     {formatMoney(refunded, order.currency)}.
                   </p>
@@ -350,7 +350,7 @@ export default async function OrderDetailPage({
                 Track with {CARRIER_LABELS[order.fulfillment.carrier]} ↗
               </a>
             ) : (
-              <p className="mt-4 text-xs text-muted">No tracking number yet.</p>
+              <p className="mt-4 text-xs text-muted-foreground">No tracking number yet.</p>
             )}
           </section>
 
@@ -445,11 +445,11 @@ export default async function OrderDetailPage({
                     <p className="font-medium tabular-nums text-ink">
                       {viaPlatform ? "Refund issued" : formatMoney(refund.amount, order.currency)}
                     </p>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-muted-foreground">
                       {refund.reason} · {refund.actor} · {formatDateTime(refund.at)}
                     </p>
                     {refund.gatewayRefundId ? (
-                      <p className="mt-0.5 font-mono text-[11px] text-muted">{refund.gatewayRefundId}</p>
+                      <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{refund.gatewayRefundId}</p>
                     ) : null}
                   </li>
                 ))}

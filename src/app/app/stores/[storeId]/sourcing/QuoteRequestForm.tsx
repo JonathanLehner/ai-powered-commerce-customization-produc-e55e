@@ -40,7 +40,7 @@ export function QuoteRequestForm({
       submitLabel="Send enquiry"
       pendingLabel="Sending…"
       footer={
-        <span className="text-xs text-muted">
+        <span className="text-xs text-muted-foreground">
           Nothing is ordered or paid today. The quotes that come back appear beside the print-on-demand options.
         </span>
       }

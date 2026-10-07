@@ -121,7 +121,7 @@ export function NewBracketForm() {
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Add a tax bracket</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Brackets are global. Store managers pick one per product; they never set a rate themselves.
           </p>
           <div className="mt-5">

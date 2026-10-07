@@ -22,7 +22,7 @@ export function ProductDetailsForm({
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Product details</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             These values belong to this store only. The same supplier product can be named and priced
             differently in another client&rsquo;s catalog.
           </p>
@@ -143,7 +143,7 @@ export function ProductDetailsForm({
                     />
                     <span>
                       <span className="block text-sm font-semibold text-ink">{option.label}</span>
-                      <span className="mt-0.5 block text-xs text-muted">{option.hint}</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">{option.hint}</span>
                     </span>
                   </label>
                 ))}
@@ -152,7 +152,7 @@ export function ProductDetailsForm({
 
             <fieldset className="lg:col-span-2 rounded-xl border border-line p-4">
               <legend className="px-1 text-sm font-semibold text-ink">Shopper customisation</legend>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-muted-foreground">
                 What a shopper may change on this product before adding it to the cart.
               </p>
               <div className="mt-3 space-y-3">
@@ -165,7 +165,7 @@ export function ProductDetailsForm({
                   />
                   <span>
                     <span className="block text-sm font-medium text-ink">Allow artwork upload</span>
-                    <span className="text-xs text-muted">
+                    <span className="text-xs text-muted-foreground">
                       The shopper&rsquo;s image is pre-flighted against the same print area rules and rendered
                       into a preview before checkout.
                     </span>
@@ -180,7 +180,7 @@ export function ProductDetailsForm({
                   />
                   <span>
                     <span className="block text-sm font-medium text-ink">Allow a personalisation line</span>
-                    <span className="text-xs text-muted">A short piece of text printed with the design.</span>
+                    <span className="text-xs text-muted-foreground">A short piece of text printed with the design.</span>
                   </span>
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -230,13 +230,13 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Variants</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Disable the sizes or colours this client does not want to offer. Variant prices override the base
             selling price.
           </p>
           <div className="mt-4 relative overflow-x-auto">
             <table className="w-full min-w-[38rem] text-left text-sm">
-              <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="py-2 pr-3">Enabled</th>
                   <th scope="col" className="py-2 pr-3">Variant</th>
@@ -271,7 +271,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                         <span className="font-medium text-ink">{variant.name}</span>
                       </span>
                     </td>
-                    <td className="py-2 pr-3 font-mono text-xs text-muted">{variant.sku}</td>
+                    <td className="py-2 pr-3 font-mono text-xs text-muted-foreground">{variant.sku}</td>
                     <td className="py-2 pr-3 tabular-nums text-inksoft">
                       {formatMoney(variant.baseCost, product.currency)}
                     </td>

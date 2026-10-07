@@ -120,7 +120,7 @@ export default async function AgencyDashboard({
         <section className="mt-9">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-ink">Client stores</h2>
-            <p className="text-xs text-muted">Sales shown in each store&rsquo;s own currency</p>
+            <p className="text-xs text-muted-foreground">Sales shown in each store&rsquo;s own currency</p>
           </div>
 
           {active.length === 0 ? (
@@ -150,7 +150,7 @@ export default async function AgencyDashboard({
                         >
                           {store.name}
                         </Link>
-                        <p className="truncate text-sm text-muted">{store.clientName}</p>
+                        <p className="truncate text-sm text-muted-foreground">{store.clientName}</p>
                       </div>
                       <span
                         aria-hidden
@@ -173,17 +173,17 @@ export default async function AgencyDashboard({
 
                     <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-line py-3 text-sm">
                       <div>
-                        <dt className="text-xs text-muted">Sales, 30 days</dt>
+                        <dt className="text-xs text-muted-foreground">Sales, 30 days</dt>
                         <dd className="mt-0.5 font-semibold tabular-nums text-ink">
                           {formatMoney(metrics.last30Sales, store.defaultCurrency)}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-muted">Orders</dt>
+                        <dt className="text-xs text-muted-foreground">Orders</dt>
                         <dd className="mt-0.5 font-semibold tabular-nums text-ink">{metrics.orderCount}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-muted">Products</dt>
+                        <dt className="text-xs text-muted-foreground">Products</dt>
                         <dd className="mt-0.5 font-semibold tabular-nums text-ink">
                           {metrics.publishedProducts}
                         </dd>
@@ -234,7 +234,7 @@ export default async function AgencyDashboard({
         {archived.length > 0 ? (
           <section className="mt-9">
             <h2 className="text-base font-semibold text-ink">Archived stores</h2>
-            <p className="mt-1 text-sm text-muted">
+            <p className="mt-1 text-sm text-muted-foreground">
               Archived stores keep their records for reporting and audit. Their storefronts are offline.
             </p>
             <ul className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
@@ -242,7 +242,7 @@ export default async function AgencyDashboard({
                 <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-ink">{store.name}</p>
-                    <p className="truncate text-xs text-muted">
+                    <p className="truncate text-xs text-muted-foreground">
                       {store.clientName} · {metrics.orderCount} historic orders ·{" "}
                       {formatMoney(metrics.grossSales, store.defaultCurrency)} lifetime
                     </p>
@@ -268,13 +268,13 @@ export default async function AgencyDashboard({
         <section className="mt-9 pb-4">
           <h2 className="text-base font-semibold text-ink">Recent activity</h2>
           {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-muted">Nothing recorded yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
           ) : (
             <ol className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
                   <span className="text-sm text-ink">{auditRunSummary(run)}</span>
-                  <span className="text-xs text-muted">
+                  <span className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </span>
                 </li>

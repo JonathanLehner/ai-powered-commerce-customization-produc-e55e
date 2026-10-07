@@ -38,7 +38,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">Agency administrators</h2>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-muted-foreground">
           Inherited from {agency?.name ?? "the agency"} — they hold store administrator rights everywhere in
           this agency and cannot be removed from a single store.
         </p>
@@ -47,7 +47,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
             <li key={admin.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-ink">{admin.name}</p>
-                <p className="truncate text-xs text-muted">
+                <p className="truncate text-xs text-muted-foreground">
                   {admin.email} · {admin.title}
                 </p>
               </div>
@@ -55,7 +55,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
             </li>
           ))}
           {agencyAdmins.length === 0 ? (
-            <li className="py-3 text-sm text-muted">This agency has no administrator account yet.</li>
+            <li className="py-3 text-sm text-muted-foreground">This agency has no administrator account yet.</li>
           ) : null}
         </ul>
       </section>
@@ -63,13 +63,13 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
       <section className="card p-5">
         <h2 className="text-base font-semibold text-ink">Invited members</h2>
         {memberships.length === 0 ? (
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm text-muted-foreground">
             Nobody has been invited to this store yet. Use the form below to add the first person.
           </p>
         ) : (
           <div className="mt-4 relative overflow-x-auto">
             <table className="w-full min-w-[46rem] text-left text-sm">
-              <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="py-2 pr-3">Person</th>
                   <th scope="col" className="py-2 pr-3">Status</th>
@@ -82,19 +82,19 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                   <tr key={member.id}>
                     <td className="py-3 pr-3">
                       <p className="font-medium text-ink">{member.name}</p>
-                      <p className="text-xs text-muted">{member.email}</p>
+                      <p className="text-xs text-muted-foreground">{member.email}</p>
                     </td>
                     <td className="py-3 pr-3">
                       <Badge tone={member.status === "active" ? "green" : "amber"}>
                         {member.status === "active" ? "Active" : "Invitation pending"}
                       </Badge>
-                      <p className="mt-1 text-xs text-muted">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Invited {formatDate(member.invitedAt)} by {member.invitedBy}
                       </p>
                       {member.status === "invited" ? (
                         member.inviteToken ? (
                           <div className="mt-2 max-w-sm">
-                            <p className="text-xs text-muted">
+                            <p className="text-xs text-muted-foreground">
                               This link was emailed to them. Send it on yourself if it never arrived — it
                               creates their account and activates access when they open it, then stops working.
                             </p>
@@ -173,7 +173,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
           {ROLES.map((role) => (
             <li key={role} className="text-sm">
               <span className="font-medium text-ink">{STORE_ROLE_LABELS[role]}</span> —{" "}
-              <span className="text-muted">{STORE_ROLE_DESCRIPTIONS[role]}</span>
+              <span className="text-muted-foreground">{STORE_ROLE_DESCRIPTIONS[role]}</span>
             </li>
           ))}
         </ul>

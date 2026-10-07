@@ -82,7 +82,7 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
           <AuditPager basePath={base} filters={filters} page={page} />
           <div className="card relative overflow-x-auto">
             <table className="w-full min-w-[52rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-4 py-3">When</th>
                   <th scope="col" className="px-4 py-3">Scope</th>
@@ -95,17 +95,17 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
                   const line = auditDetail(entry, detail);
                   return (
                     <tr key={entry.id} className="align-top">
-                      <td className="whitespace-nowrap px-4 py-3 text-muted">
+                      <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                         {formatDateTime(entry.at)}
                       </td>
                       <td className="px-4 py-3">
                         <Badge tone="neutral">{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
-                        <p className="mt-1 text-xs text-muted">{storeName(entry.storeId)}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{storeName(entry.storeId)}</p>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-ink">{entry.summary}</p>
-                        <p className="font-mono text-xs text-muted">{entry.action}</p>
-                        {line ? <p className="text-xs text-muted">{line}</p> : null}
+                        <p className="font-mono text-xs text-muted-foreground">{entry.action}</p>
+                        {line ? <p className="text-xs text-muted-foreground">{line}</p> : null}
                       </td>
                       <td className="px-4 py-3 text-inksoft">{entry.actorName}</td>
                     </tr>

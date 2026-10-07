@@ -141,7 +141,7 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
               />
               <span>
                 Require approval before a campaign can be paid for
-                <span className="mt-0.5 block text-xs text-muted">
+                <span className="mt-0.5 block text-xs text-muted-foreground">
                   The buyer cannot reach the payment step until the approver has signed the list off.
                 </span>
               </span>
@@ -211,7 +211,7 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
                   />
                   <span>
                     <span className="block font-medium text-ink">{option.title}</span>
-                    <span className="block text-xs text-muted">{option.detail}</span>
+                    <span className="block text-xs text-muted-foreground">{option.detail}</span>
                   </span>
                 </label>
               ))}
@@ -234,7 +234,7 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
             />
           </Field>
           {access === "link" && catalogue.invitedEmails.length === 0 ? (
-            <p className="text-xs text-muted">Addresses are kept for when you switch this catalogue to invites.</p>
+            <p className="text-xs text-muted-foreground">Addresses are kept for when you switch this catalogue to invites.</p>
           ) : null}
         </div>
       )}
@@ -260,7 +260,7 @@ export function CatalogueProductsForm({
       {(state) => (
         <div>
           {products.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="text-sm text-muted-foreground">
               This store has no published products with approved previews, so there is nothing to offer yet.
             </p>
           ) : (
@@ -283,7 +283,7 @@ export function CatalogueProductsForm({
                     />
                     <span className="min-w-0">
                       <span className="block truncate font-medium text-ink">{product.name}</span>
-                      <span className="block text-xs text-muted">
+                      <span className="block text-xs text-muted-foreground">
                         {formatMoney(product.price, product.currency)} ·{" "}
                         {product.variants.filter((v) => v.enabled).length} options
                         {catalogue.spendLimitPerRecipient > 0 &&

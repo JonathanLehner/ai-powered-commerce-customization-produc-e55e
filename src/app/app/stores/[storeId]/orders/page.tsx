@@ -143,7 +143,7 @@ export default async function OrdersPage({
                   <span className="font-semibold text-ink">
                     {row.campaign.code} · {row.campaign.name}
                   </span>
-                  <span className="text-muted">
+                  <span className="text-muted-foreground">
                     {row.orders} orders · {row.delivered} delivered
                     {row.exceptions > 0 ? (
                       <span className="text-rose-700"> · {row.exceptions} need attention</span>
@@ -154,7 +154,7 @@ export default async function OrdersPage({
             ))}
           </ul>
           {activeCampaign ? (
-            <p className="mt-3 text-xs text-muted">
+            <p className="mt-3 text-xs text-muted-foreground">
               Showing {activeCampaign.code} only.{" "}
               <Link
                 href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
@@ -237,7 +237,7 @@ export default async function OrdersPage({
           <OrdersPager basePath={base} filters={filters} page={page} />
           <div className="card relative overflow-x-auto">
             <table className="w-full min-w-[52rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted">
+              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-4 py-3">Order</th>
                   {viaPlatform ? null : <th scope="col" className="px-4 py-3">Customer</th>}
@@ -256,12 +256,12 @@ export default async function OrdersPage({
                       >
                         {order.code}
                       </Link>
-                      <p className="text-xs text-muted">{formatDate(order.createdAt)}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
                     </td>
                     {viaPlatform ? null : (
                       <td className="px-4 py-3">
                         <p className="text-ink">{order.customer.name}</p>
-                        <p className="text-xs text-muted">
+                        <p className="text-xs text-muted-foreground">
                           {order.customer.city}, {order.customer.country}
                         </p>
                         {order.campaign ? (
@@ -277,7 +277,7 @@ export default async function OrdersPage({
                     <td className="px-4 py-3">
                       <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
                       {order.refunds.length > 0 ? (
-                        <p className="mt-1 text-xs text-muted">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {viaPlatform
                             ? "Refunded"
                             : `${formatMoney(

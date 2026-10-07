@@ -44,7 +44,7 @@ export function ApprovalForm({
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="code" value={code} />
       <input type="hidden" name="token" value={token} />
-      <p className="text-sm text-muted">{fmt(t.approvalIntro, { buyer: buyerName })}</p>
+      <p className="text-sm text-muted-foreground">{fmt(t.approvalIntro, { buyer: buyerName })}</p>
       <label htmlFor="note" className="field-label mt-4">
         {t.noteLabel}
       </label>
@@ -110,7 +110,7 @@ export function PaymentForm({
     >
       {(state) => (
         <>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted-foreground">
             {payBefore}
             {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
             {payAfter}
@@ -161,7 +161,7 @@ export function PaymentForm({
               />
             </div>
           </div>
-          <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted">
+          <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted-foreground">
             <p className="font-medium text-ink">{card.testMode}</p>
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((entry) => (

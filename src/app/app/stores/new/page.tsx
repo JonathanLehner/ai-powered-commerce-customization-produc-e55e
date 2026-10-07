@@ -58,7 +58,7 @@ export default async function NewStorePage() {
 
               <section className="card p-5">
                 <h2 className="text-base font-semibold text-ink">Archive a store</h2>
-                <p className="mt-1 text-sm text-muted">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Archiving takes that storefront offline and stops new orders. Its products, orders and audit
                   history are kept, and it can be restored later — archived stores do not count against the
                   plan.
@@ -73,7 +73,7 @@ export default async function NewStorePage() {
                         >
                           {store.name}
                         </Link>
-                        <span className="block truncate text-xs text-muted">
+                        <span className="block truncate text-xs text-muted-foreground">
                           {store.clientName} · live since {formatDate(store.createdAt)}
                         </span>
                       </span>
@@ -81,7 +81,7 @@ export default async function NewStorePage() {
                     </li>
                   ))}
                   {liveStores.length === 0 ? (
-                    <li className="py-2.5 text-muted">
+                    <li className="py-2.5 text-muted-foreground">
                       No live stores are visible from this account. Ask the platform administrator to review
                       the agency&rsquo;s plan.
                     </li>
@@ -91,7 +91,7 @@ export default async function NewStorePage() {
 
               <section className="card p-5">
                 <h2 className="text-base font-semibold text-ink">Move up a plan</h2>
-                <p className="mt-1 text-sm text-muted">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {allowance.nextPlan
                     ? `${allowance.nextPlan.name} runs ${planStoreLabel(allowance.nextPlan).toLowerCase()} on the same workspace — nothing is migrated and no store is interrupted.`
                     : "This is the top plan. Talk to us about running more stores under one agreement."}
@@ -105,7 +105,7 @@ export default async function NewStorePage() {
                       Change this agency&rsquo;s plan
                     </Link>
                   ) : (
-                    <span className="text-xs text-muted">
+                    <span className="text-xs text-muted-foreground">
                       A platform administrator applies the change to {agency.name}.
                     </span>
                   )}

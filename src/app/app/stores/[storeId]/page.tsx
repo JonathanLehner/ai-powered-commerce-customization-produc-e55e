@@ -105,7 +105,7 @@ export default async function StoreOverviewPage({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-ink">Finish setting up this store</h2>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {progress.done} of {progress.total} steps complete. The storefront cannot take payments until
                 Stripe and a carrier are connected.
               </p>
@@ -183,7 +183,7 @@ export default async function StoreOverviewPage({
           ) : (
             <div className="mt-4 relative overflow-x-auto">
               <table className="w-full min-w-[34rem] text-left text-sm">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-muted">
+                <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th scope="col" className="py-2 pr-3">Order</th>
                     <th scope="col" className="py-2 pr-3">Placed</th>
@@ -202,10 +202,10 @@ export default async function StoreOverviewPage({
                           {order.code}
                         </Link>
                         {viaPlatform ? null : (
-                          <span className="block text-xs text-muted">{order.customer.name}</span>
+                          <span className="block text-xs text-muted-foreground">{order.customer.name}</span>
                         )}
                       </td>
-                      <td className="py-2.5 pr-3 text-muted">{formatDate(order.createdAt)}</td>
+                      <td className="py-2.5 pr-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
                       <td className="py-2.5 pr-3">
                         <Badge
                           tone={
@@ -271,7 +271,7 @@ export default async function StoreOverviewPage({
                 </Link>
               </div>
               {openEnquiries.length === 0 ? (
-                <p className="mt-2 text-sm text-muted">
+                <p className="mt-2 text-sm text-muted-foreground">
                   {enquiries.length > 0
                     ? "Nothing open. Past enquiries stay on the Sourcing page."
                     : "No enquiries yet. Ask Alibaba.com suppliers to quote on a bulk run from the Sourcing page."}
@@ -281,7 +281,7 @@ export default async function StoreOverviewPage({
                   {openEnquiries.slice(0, 5).map((request) => (
                     <li key={request.id} className="flex items-center justify-between gap-3 py-2">
                       <span className="min-w-0 truncate text-ink">
-                        <span className="font-mono text-xs text-muted">{request.code}</span> {request.productName}
+                        <span className="font-mono text-xs text-muted-foreground">{request.code}</span> {request.productName}
                       </span>
                       <Badge tone={QUOTE_STATUS_TONES[request.status]}>
                         {request.status === "quoted"
@@ -297,7 +297,7 @@ export default async function StoreOverviewPage({
 
           <div className="card p-5">
             <h2 className="text-base font-semibold text-ink">Storefront</h2>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-muted-foreground">
               {storefront?.published
                 ? `Published ${formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt)} by ${storefront.publishedBy ?? "the store team"}.`
                 : "Not published yet — the storefront shows a placeholder until you publish a layout."}
@@ -329,13 +329,13 @@ export default async function StoreOverviewPage({
         <section className="card p-5">
           <h2 className="text-base font-semibold text-ink">Product performance</h2>
           {metrics.topProducts.length === 0 ? (
-            <p className="mt-2 text-sm text-muted">No paid orders yet, so there is nothing to rank.</p>
+            <p className="mt-2 text-sm text-muted-foreground">No paid orders yet, so there is nothing to rank.</p>
           ) : (
             <ol className="mt-3 divide-y divide-line text-sm">
               {metrics.topProducts.map((product) => (
                 <li key={product.name} className="flex items-center justify-between gap-3 py-2.5">
                   <span className="min-w-0 truncate text-ink">{product.name}</span>
-                  <span className="shrink-0 text-muted">
+                  <span className="shrink-0 text-muted-foreground">
                     {product.units} units
                     {viaPlatform ? null : (
                       <>
@@ -360,13 +360,13 @@ export default async function StoreOverviewPage({
             </Link>
           </div>
           {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-muted">Nothing recorded for this store yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Nothing recorded for this store yet.</p>
           ) : (
             <ol className="mt-3 divide-y divide-line text-sm">
               {activity.map((run) => (
                 <li key={run.entry.id} className="py-2.5">
                   <p className="text-ink">{auditRunSummary(run)}</p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </p>
                 </li>

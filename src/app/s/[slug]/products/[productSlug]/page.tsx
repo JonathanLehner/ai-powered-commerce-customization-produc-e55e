@@ -115,7 +115,7 @@ export default async function StorefrontProductPage({
         <aside className="space-y-4 text-sm">
           <div className="rounded-xl border border-line p-4">
             <h2 className="text-sm font-semibold text-ink">{t.product.madeToOrder}</h2>
-            <p className="mt-1.5 text-muted">
+            <p className="mt-1.5 text-muted-foreground">
               {fmt(t.product.producedBy, {
                 supplier: supplier?.name ?? t.product.defaultSupplier,
                 lead: catalog
@@ -134,7 +134,7 @@ export default async function StorefrontProductPage({
           {area ? (
             <div className="rounded-xl border border-line p-4">
               <h2 className="text-sm font-semibold text-ink">{t.product.printDetail}</h2>
-              <p className="mt-1.5 text-muted">
+              <p className="mt-1.5 text-muted-foreground">
                 {fmt(t.product.printDetailBody, {
                   area: area.name,
                   width: area.widthMm,
@@ -146,7 +146,7 @@ export default async function StorefrontProductPage({
           ) : null}
           <div className="rounded-xl border border-line p-4">
             <h2 className="text-sm font-semibold text-ink">{t.product.taxAndDelivery}</h2>
-            <p className="mt-1.5 text-muted">
+            <p className="mt-1.5 text-muted-foreground">
               {fmt(t.product.pricesShownIn, {
                 currency,
                 tax: store.pricesIncludeTax ? t.product.taxIncluded : t.product.taxAtCheckout,

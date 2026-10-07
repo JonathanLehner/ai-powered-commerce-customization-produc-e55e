@@ -24,7 +24,7 @@ export function AddQuoteForm({
       pendingLabel="Saving…"
       submitClassName="btn-primary btn-sm"
       footer={
-        <span className="text-xs text-muted">The store sees it beside the print-on-demand options and can accept it.</span>
+        <span className="text-xs text-muted-foreground">The store sees it beside the print-on-demand options and can accept it.</span>
       }
     >
       {(state) => (

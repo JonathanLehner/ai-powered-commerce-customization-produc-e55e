@@ -38,8 +38,8 @@ export default async function AdminTaxPage() {
                     <Badge tone="brand">{bracket.rate}%</Badge>
                     <Badge tone="neutral">{bracket.code}</Badge>
                   </div>
-                  <p className="mt-1.5 max-w-2xl text-sm text-muted">{bracket.description}</p>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{bracket.description}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Used by {inUse} product{inUse === 1 ? "" : "s"} · {bracket.regions.join(", ")}
                   </p>
                 </div>

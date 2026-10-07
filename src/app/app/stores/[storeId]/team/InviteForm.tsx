@@ -18,7 +18,7 @@ export function InviteForm({ storeId }: { storeId: string }) {
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">Invite someone to this store</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Access is scoped to this store only. The same person can hold a different role in another client
             store.
           </p>
@@ -71,7 +71,7 @@ export function InviteForm({ storeId }: { storeId: string }) {
                   />
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-ink">{STORE_ROLE_LABELS[role]}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{STORE_ROLE_DESCRIPTIONS[role]}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">{STORE_ROLE_DESCRIPTIONS[role]}</span>
                   </span>
                 </label>
               ))}

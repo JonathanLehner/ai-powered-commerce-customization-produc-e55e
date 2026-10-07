@@ -92,7 +92,7 @@ export default async function GiftPortalLayout({
                 <span className="block truncate text-base font-semibold tracking-tight text-ink">
                   {catalogue.companyName}
                 </span>
-                <span className="block truncate text-xs text-muted">
+                <span className="block truncate text-xs text-muted-foreground">
                   {fmt(t.gift.chromeSubtitle, { store: store.name })}
                 </span>
               </span>
@@ -110,7 +110,7 @@ export default async function GiftPortalLayout({
         </main>
 
         <footer className="border-t border-line bg-canvas">
-          <div className="mx-auto w-full max-w-6xl px-4 py-8 text-sm text-muted sm:px-6">
+          <div className="mx-auto w-full max-w-6xl px-4 py-8 text-sm text-muted-foreground sm:px-6">
             <p className="text-ink">{catalogue.name}</p>
             <p className="mt-1">{fmt(t.gift.operatedBy, { client: store.clientName })}</p>
             {support.email || support.phone ? (

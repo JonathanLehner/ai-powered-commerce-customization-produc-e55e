@@ -90,7 +90,7 @@ export default async function AdminCatalogItemPage({
           <section className="card p-5">
             <h2 className="text-sm font-semibold text-ink">Supplier photography</h2>
             {item.mockups.length === 0 ? (
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-sm text-muted-foreground">
                 None yet. Costs, print areas and variants all work without it, but a store cannot generate or
                 approve mockups until this product has photography for each print area’s view.
               </p>
@@ -108,7 +108,7 @@ export default async function AdminCatalogItemPage({
                     className="h-auto w-full bg-canvas object-cover"
                     style={{ aspectRatio: "1 / 1" }}
                   />
-                  <p className="px-2 py-1.5 text-[11px] text-muted">
+                  <p className="px-2 py-1.5 text-[11px] text-muted-foreground">
                     {VIEW_LABELS[mockup.view]} · {mockup.colour}
                   </p>
                 </li>

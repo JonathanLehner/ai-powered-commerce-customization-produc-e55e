@@ -55,7 +55,7 @@ export default async function AdminSuppliersPage() {
                     <Badge tone="neutral">{supplier.kind.replace(/_/g, " ")}</Badge>
                   </div>
                   <p className="mt-2 max-w-3xl text-sm text-inksoft">{supplier.summary}</p>
-                  <p className="mt-2 text-xs text-muted">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     <a href={supplier.website} target="_blank" rel="noreferrer" className="hover:underline">
                       {supplier.website.replace("https://", "")} ↗
                     </a>{" "}

@@ -11,7 +11,7 @@ export function StoreAdminPanel({ store }: { store: Store }) {
   return (
     <section className="card p-5">
       <h2 className="text-base font-semibold text-ink">Store administration</h2>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-1 text-sm text-muted-foreground">
         Renaming a store changes how it appears in the workspace and on the storefront. Its web address
         (<span className="font-mono text-xs">/s/{store.slug}</span>) stays the same so existing links keep working.
       </p>
@@ -60,7 +60,7 @@ export function StoreAdminPanel({ store }: { store: Store }) {
           <h3 className="text-sm font-semibold text-ink">
             {archived ? "Restore this store" : "Archive this store"}
           </h3>
-          <p className="mt-1.5 text-sm text-muted">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {archived
               ? `Archived ${store.archivedAt ? formatDate(store.archivedAt) : ""}. Restoring puts the storefront back online and lets the store take orders again.`
               : "Archiving takes the storefront offline and stops new orders. Products, orders and audit history are kept."}

@@ -322,7 +322,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 draggable={false}
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted">{t.noPreview}</div>
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{t.noPreview}</div>
             )}
             {area && artworkPreview ? (
               <div
@@ -583,7 +583,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 </p>
                 <p role="status" aria-live="polite" className="mt-2">
                   {artworkStatus === "uploading" ? (
-                    <span className="text-sm text-muted">{t.uploading}</span>
+                    <span className="text-sm text-muted-foreground">{t.uploading}</span>
                   ) : artworkError ? (
                     <span className="text-sm text-rose-700">{artworkError}</span>
                   ) : artwork ? (
@@ -599,7 +599,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                         {t.artworkRemove}
                       </button>
                     </div>
-                    <p className="mt-1 text-xs text-muted">{t.artworkPlacementHelp}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t.artworkPlacementHelp}</p>
 
                     <div className="mt-3 space-y-3">
                       <div>
@@ -608,7 +608,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           className="flex items-center justify-between text-xs font-medium text-ink"
                         >
                           <span>{t.artworkSize}</span>
-                          <span className="tabular-nums text-muted">
+                          <span className="tabular-nums text-muted-foreground">
                             {Math.round(box.printedWidthMm)} × {Math.round(box.printedHeightMm)} mm
                           </span>
                         </label>
@@ -629,7 +629,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           className="flex items-center justify-between text-xs font-medium text-ink"
                         >
                           <span>{t.artworkRotation}</span>
-                          <span className="tabular-nums text-muted">{placement.rotation}°</span>
+                          <span className="tabular-nums text-muted-foreground">{placement.rotation}°</span>
                         </label>
                         <input
                           id="artwork-rotation"
@@ -643,7 +643,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                         />
                       </div>
                       <div className="flex items-center justify-between rounded-lg bg-canvas px-3 py-2 text-xs">
-                        <span className="text-muted">{t.artworkResolution}</span>
+                        <span className="text-muted-foreground">{t.artworkResolution}</span>
                         <span
                           className={classNames(
                             "font-semibold tabular-nums",
