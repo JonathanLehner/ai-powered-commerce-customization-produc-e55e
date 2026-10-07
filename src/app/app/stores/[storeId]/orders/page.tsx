@@ -1,11 +1,21 @@
 import Link from "next/link";
 import { OrdersPager } from "@/components/OrdersPager";
-import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { OrdersToolbar } from "@/components/OrdersToolbar";
+import { Badge, Dot, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { listGiftCampaigns, listOrders, listStoreProducts } from "@/lib/data";
 import { storeMetrics } from "@/lib/metrics";
 import {
   filterOrders,
-  hasOrderFilters,
   orderListQuery,
   pageOrders,
   parseOrderFilters,
@@ -34,7 +44,7 @@ export default async function OrdersPage({
 }) {
   const { storeId } = await params;
   const filters = parseOrderFilters(await searchParams);
-  const { campaign, q, status, view } = filters;
+  const { campaign, view } = filters;
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
   const [orders, products, campaigns] = await Promise.all([
@@ -83,13 +93,14 @@ export default async function OrdersPage({
               : "Production and delivery status for every order placed on this store."
         }
         actions={
-          <Link
-            href={`${base}${orderListQuery(filters, { view: view === "attention" ? null : "attention", page: 1 })}`}
-            prefetch={false}
-            className={view === "attention" ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
-          >
-            {view === "attention" ? "Showing needs attention" : `Needs attention (${metrics.awaitingAction})`}
-          </Link>
+          <Button asChild size="sm" variant={view === "attention" ? "default" : "outline"}>
+            <Link
+              href={`${base}${orderListQuery(filters, { view: view === "attention" ? null : "attention", page: 1 })}`}
+              prefetch={false}
+            >
+              {view === "attention" ? "Showing needs attention" : `Needs attention (${metrics.awaitingAction})`}
+            </Link>
+          </Button>
         }
       />
 
@@ -114,16 +125,19 @@ export default async function OrdersPage({
       </div>
 
       {campaignRows.length > 0 ? (
-        <section className="card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-ink">Gift campaigns</h2>
+        <Card size="sm" className="gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-(--card-spacing)">
+            <h2 className="font-heading text-sm font-medium text-foreground">Gift campaigns</h2>
             {viaPlatform ? null : (
-              <Link href={`/app/stores/${storeId}/gifting`} className="text-sm font-medium text-brand-700 hover:underline">
+              <Link
+                href={`/app/stores/${storeId}/gifting`}
+                className="text-sm font-medium text-primary hover:underline"
+              >
                 Gifting
               </Link>
             )}
           </div>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2 px-(--card-spacing)">
             {campaignRows.map((row) => (
               <li key={row.campaign.id}>
                 <Link
@@ -136,11 +150,11 @@ export default async function OrdersPage({
                   aria-current={campaign === row.campaign.code ? "true" : undefined}
                   className={
                     campaign === row.campaign.code
-                      ? "flex flex-col rounded-lg border border-brand-400 bg-brand-50 px-3 py-2 text-left text-xs"
-                      : "flex flex-col rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-canvas"
+                      ? "flex flex-col rounded-lg border border-primary bg-primary/5 px-3 py-2 text-left text-xs"
+                      : "flex flex-col rounded-lg border border-border px-3 py-2 text-left text-xs hover:bg-muted"
                   }
                 >
-                  <span className="font-semibold text-ink">
+                  <span className="font-medium text-foreground">
                     {row.campaign.code} · {row.campaign.name}
                   </span>
                   <span className="text-muted-foreground">
@@ -154,74 +168,28 @@ export default async function OrdersPage({
             ))}
           </ul>
           {activeCampaign ? (
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="px-(--card-spacing) text-xs text-muted-foreground">
               Showing {activeCampaign.code} only.{" "}
               <Link
                 href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
-                className="font-medium text-brand-700 hover:underline"
+                className="font-medium text-primary hover:underline"
               >
                 Work the campaign recipient by recipient
               </Link>
               .
             </p>
           ) : null}
-        </section>
+        </Card>
       ) : null}
 
-      <form method="get" action={base} className="card flex flex-wrap items-end gap-3 p-4">
-        {campaign ? <input type="hidden" name="campaign" value={campaign} /> : null}
-        {view ? <input type="hidden" name="view" value={view} /> : null}
-        <div className="min-w-[12rem] flex-1">
-          <label htmlFor="q" className="field-label text-xs">
-            Search
-          </label>
-          <input
-            id="q"
-            name="q"
-            defaultValue={q}
-            placeholder={viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"}
-            className="input py-1.5"
-          />
-        </div>
-        <div>
-          <label htmlFor="status" className="field-label text-xs">
-            Status
-          </label>
-          <select id="status" name="status" defaultValue={status ?? ""} className="input py-1.5">
-            <option value="">All</option>
-            {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((key) => (
-              <option key={key} value={key}>
-                {ORDER_STATUS_LABELS[key]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="btn-secondary">
-          Filter
-        </button>
-        {hasOrderFilters(filters) ? (
-          <Link href={base} prefetch={false} className="btn-ghost">
-            Clear
-          </Link>
-        ) : null}
-        <span className="ml-auto flex items-center gap-2">
-          {exportHref ? (
-            // A download, not a navigation: the browser saves the CSV the route
-            // handler returns and leaves the page where it is.
-            <a href={exportHref} download className="btn-secondary">
-              Download CSV
-            </a>
-          ) : (
-            <span
-              className="btn-secondary cursor-not-allowed opacity-50"
-              aria-disabled="true"
-              title="Only the store team who work the orders can download the shopper records."
-            >
-              Download CSV
-            </span>
-          )}
-        </span>
-      </form>
+      <OrdersToolbar
+        action={base}
+        filters={filters}
+        placeholder={
+          viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"
+        }
+        exportHref={exportHref}
+      />
 
       {page.total === 0 ? (
         <EmptyState
@@ -234,48 +202,54 @@ export default async function OrdersPage({
         />
       ) : (
         <div className="space-y-3">
-          <OrdersPager basePath={base} filters={filters} page={page} />
-          <div className="card relative overflow-x-auto">
-            <table className="w-full min-w-[52rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-3">Order</th>
-                  {viaPlatform ? null : <th scope="col" className="px-4 py-3">Customer</th>}
-                  <th scope="col" className="px-4 py-3">Status</th>
-                  <th scope="col" className="px-4 py-3">Fulfilment</th>
-                  {viaPlatform ? null : <th scope="col" className="px-4 py-3 text-right">Total</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
+          {/* The header stays put while the queue is read, so the column a row
+              belongs to is never guessed. */}
+          <Card className="py-0 [&_[data-slot=table-container]]:max-h-[36rem]">
+            <Table className="min-w-[52rem]">
+              <TableHeader className="sticky top-0 z-10 bg-muted">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="px-4">Order</TableHead>
+                  {viaPlatform ? null : <TableHead className="px-4">Customer</TableHead>}
+                  <TableHead className="px-4">Status</TableHead>
+                  <TableHead className="px-4">Fulfilment</TableHead>
+                  {viaPlatform ? null : <TableHead className="px-4 text-right">Total</TableHead>}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {page.orders.map((order) => (
-                  <tr key={order.id} className="align-top">
-                    <td className="px-4 py-3">
+                  // The row is the link: the code carries it, stretched over the
+                  // whole row, and the links inside it stay clickable on top.
+                  <TableRow key={order.id} className="relative align-top">
+                    <TableCell className="px-4 py-3">
                       <Link
                         href={`/app/stores/${storeId}/orders/${order.id}`}
-                        className="font-medium text-ink hover:underline"
+                        className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
                       >
                         {order.code}
                       </Link>
                       <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
-                    </td>
+                    </TableCell>
                     {viaPlatform ? null : (
-                      <td className="px-4 py-3">
-                        <p className="text-ink">{order.customer.name}</p>
+                      <TableCell className="px-4 py-3">
+                        <p className="text-foreground">{order.customer.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {order.customer.city}, {order.customer.country}
                         </p>
                         {order.campaign ? (
                           <Link
                             href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
-                            className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
+                            className="relative mt-1 inline-block text-xs font-medium text-primary hover:underline"
                           >
                             Gift · {order.campaign.campaignCode}
                           </Link>
                         ) : null}
-                      </td>
+                      </TableCell>
                     )}
-                    <td className="px-4 py-3">
-                      <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                    <TableCell className="px-4 py-3">
+                      <Badge tone={TONES[order.status]}>
+                        <Dot tone={TONES[order.status]} />
+                        {ORDER_STATUS_LABELS[order.status]}
+                      </Badge>
                       {order.refunds.length > 0 ? (
                         <p className="mt-1 text-xs text-muted-foreground">
                           {viaPlatform
@@ -286,8 +260,8 @@ export default async function OrdersPage({
                               )} refunded`}
                         </p>
                       ) : null}
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
                       <p className="text-xs text-inksoft">
                         {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
                         {order.fulfillment.routing === "submitted"
@@ -301,7 +275,7 @@ export default async function OrdersPage({
                           href={order.fulfillment.trackingUrl ?? "#"}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-xs font-medium text-brand-700 hover:underline"
+                          className="relative text-xs font-medium text-primary hover:underline"
                         >
                           {CARRIER_LABELS[order.fulfillment.carrier]} {order.fulfillment.trackingNumber} ↗
                         </a>
@@ -311,17 +285,17 @@ export default async function OrdersPage({
                           {viaPlatform ? "Fulfilment exception raised" : order.fulfillment.exception}
                         </p>
                       ) : null}
-                    </td>
+                    </TableCell>
                     {viaPlatform ? null : (
-                      <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
+                      <TableCell className="px-4 py-3 text-right font-medium tabular-nums text-foreground">
                         {formatMoney(order.total, order.currency)}
-                      </td>
+                      </TableCell>
                     )}
-                  </tr>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </Card>
           <OrdersPager basePath={base} filters={filters} page={page} />
         </div>
       )}

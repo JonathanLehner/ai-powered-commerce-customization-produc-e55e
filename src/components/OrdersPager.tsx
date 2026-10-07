@@ -1,5 +1,23 @@
-import Link from "next/link";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { orderListQuery, type OrderListFilters, type OrderListPage } from "@/lib/order-list";
+
+/**
+ * The page numbers worth printing: the ends, and a window around the page being
+ * read. `null` is where the run of numbers is broken.
+ */
+function pageWindow(current: number, pages: number): (number | null)[] {
+  const wanted = new Set([1, pages, current - 1, current, current + 1]);
+  const shown = [...wanted].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
+  return shown.flatMap((n, i) => (i > 0 && n - shown[i - 1] > 1 ? [null, n] : [n]));
+}
 
 /**
  * "Showing 1–25 of 132", with the way to the next screenful — the Activity
@@ -20,6 +38,8 @@ export function OrdersPager({
   page: OrderListPage;
 }) {
   if (page.total === 0) return null;
+  const href = (n: number) => `${basePath}${orderListQuery(filters, { page: n })}`;
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-muted-foreground">
@@ -28,39 +48,39 @@ export function OrdersPager({
         <span className="tabular-nums">{page.total}</span> orders
       </p>
       {page.pages > 1 ? (
-        <nav aria-label="Pages" className="flex items-center gap-2">
-          {page.page > 1 ? (
-            <Link
-              href={`${basePath}${orderListQuery(filters, { page: page.page - 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="prev"
-            >
-              Previous
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Previous
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground tabular-nums">
-            Page {page.page} of {page.pages}
-          </span>
-          {page.page < page.pages ? (
-            <Link
-              href={`${basePath}${orderListQuery(filters, { page: page.page + 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="next"
-            >
-              Next
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Next
-            </span>
-          )}
-        </nav>
+        <Pagination className="mx-0 w-auto justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={page.page > 1 ? href(page.page - 1) : undefined}
+                rel="prev"
+                aria-disabled={page.page === 1 || undefined}
+                className={page.page === 1 ? "pointer-events-none opacity-50" : undefined}
+              />
+            </PaginationItem>
+            {pageWindow(page.page, page.pages).map((n, i) =>
+              n === null ? (
+                <PaginationItem key={`gap-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={n}>
+                  <PaginationLink href={href(n)} isActive={n === page.page} className="tabular-nums">
+                    {n}
+                  </PaginationLink>
+                </PaginationItem>
+              ),
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href={page.page < page.pages ? href(page.page + 1) : undefined}
+                rel="next"
+                aria-disabled={page.page === page.pages || undefined}
+                className={page.page === page.pages ? "pointer-events-none opacity-50" : undefined}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       ) : null}
     </div>
   );
