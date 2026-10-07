@@ -1,8 +1,13 @@
+import { CreditCardIcon, GlobeIcon } from "lucide-react";
 import Link from "next/link";
+import { ArchivedStores } from "@/app/app/ArchivedStores";
 import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
@@ -13,6 +18,17 @@ import { formatMoney, relativeTime } from "@/lib/util";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 12;
+
+/** Up to two letters for the store's avatar, which carries its theme colour. */
+function storeInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
 
 export default async function AgencyDashboard({
   searchParams,
@@ -90,9 +106,9 @@ export default async function AgencyDashboard({
           }
           actions={
             user.platformRole === "agency_admin" ? (
-              <Link href="/app/stores/new" className="btn-primary">
-                Create a client store
-              </Link>
+              <Button asChild>
+                <Link href="/app/stores/new">Create a client store</Link>
+              </Button>
             ) : null
           }
         />
@@ -129,9 +145,9 @@ export default async function AgencyDashboard({
                 title="No stores yet"
                 description="Create the first client store to set up branding, payments, shipping and a catalog. It takes about five minutes."
                 action={
-                  <Link href="/app/stores/new" className="btn-primary">
-                    Create a client store
-                  </Link>
+                  <Button asChild>
+                    <Link href="/app/stores/new">Create a client store</Link>
+                  </Button>
                 }
               />
             </div>
@@ -141,89 +157,118 @@ export default async function AgencyDashboard({
                 const progress = setupProgress(store.setup);
                 const theme = THEMES[store.theme];
                 return (
-                  <li key={store.id} className="card flex flex-col p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <Link
-                          href={`/app/stores/${store.id}`}
-                          className="text-base font-semibold text-ink hover:underline"
-                        >
-                          {store.name}
-                        </Link>
-                        <p className="truncate text-sm text-muted-foreground">{store.clientName}</p>
-                      </div>
-                      <span
-                        aria-hidden
-                        className="h-8 w-8 shrink-0 rounded-lg border border-line"
-                        style={{ background: theme.accent }}
-                      />
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <Badge tone="neutral">{storeAccessLabel(role, viaPlatform)}</Badge>
-                      <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                        {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
-                      </Badge>
-                      {store.customDomain ? (
-                        <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>
-                          {store.customDomain}
+                  <li key={store.id}>
+                    <Card className="h-full">
+                      <CardHeader className="flex flex-row items-start gap-3">
+                        {/* The store's own theme colour, so a client is
+                            recognised before its name is read. */}
+                        <Avatar size="lg" aria-hidden>
+                          <AvatarFallback
+                            style={{ backgroundColor: theme.accent }}
+                            className="text-xs font-semibold text-white"
+                          >
+                            {storeInitials(store.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="truncate">
+                            <Link
+                              href={`/app/stores/${store.id}`}
+                              className="font-semibold hover:underline"
+                            >
+                              {store.name}
+                            </Link>
+                          </CardTitle>
+                          <p className="truncate text-sm text-muted-foreground">{store.clientName}</p>
+                        </div>
+                        <Badge tone="neutral" className="shrink-0">
+                          {storeAccessLabel(role, viaPlatform)}
                         </Badge>
-                      ) : null}
-                    </div>
+                      </CardHeader>
 
-                    <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-line py-3 text-sm">
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Sales, 30 days</dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-ink">
-                          {formatMoney(metrics.last30Sales, store.defaultCurrency)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Orders</dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-ink">{metrics.orderCount}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Products</dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-ink">
-                          {metrics.publishedProducts}
-                        </dd>
-                      </div>
-                    </dl>
+                      <CardContent className="flex flex-1 flex-col gap-4">
+                        <div className="space-y-1.5 text-xs text-muted-foreground">
+                          <p className="flex items-center gap-1.5">
+                            <CreditCardIcon
+                              aria-hidden
+                              className={
+                                store.stripe.connected
+                                  ? "size-3.5 shrink-0 text-emerald-600"
+                                  : "size-3.5 shrink-0 text-amber-600"
+                              }
+                            />
+                            {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
+                          </p>
+                          {store.customDomain ? (
+                            <p className="flex items-center gap-1.5">
+                              <GlobeIcon
+                                aria-hidden
+                                className={
+                                  store.domainStatus === "verified"
+                                    ? "size-3.5 shrink-0 text-emerald-600"
+                                    : "size-3.5 shrink-0 text-amber-600"
+                                }
+                              />
+                              <span className="truncate">{store.customDomain}</span>
+                            </p>
+                          ) : null}
+                        </div>
 
-                    <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                      <span className="chip">{metrics.inProduction} in production</span>
-                      <span className="chip">{metrics.shipped} shipped</span>
-                      <span className="chip">{metrics.delivered} delivered</span>
-                      {metrics.exceptions > 0 ? (
-                        <Badge tone="rose">{metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}</Badge>
-                      ) : null}
-                      {metrics.manualRouting > 0 ? (
-                        <Badge tone="amber">{metrics.manualRouting} manual</Badge>
-                      ) : null}
-                    </div>
+                        <dl className="grid grid-cols-3 gap-3 border-y border-border py-3 text-sm">
+                          <div>
+                            <dt className="text-xs text-muted-foreground">Sales, 30 days</dt>
+                            <dd className="mt-0.5 font-semibold tabular-nums">
+                              {formatMoney(metrics.last30Sales, store.defaultCurrency)}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">Orders</dt>
+                            <dd className="mt-0.5 font-semibold tabular-nums">{metrics.orderCount}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">Products</dt>
+                            <dd className="mt-0.5 font-semibold tabular-nums">
+                              {metrics.publishedProducts}
+                            </dd>
+                          </div>
+                        </dl>
 
-                    {progress.pct < 100 ? (
-                      <div className="mt-4">
-                        <ProgressBar value={progress.pct} label={`Setup ${progress.done}/${progress.total}`} />
-                      </div>
-                    ) : null}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                          <p className="text-xs text-muted-foreground">
+                            {metrics.inProduction} in production · {metrics.shipped} shipped ·{" "}
+                            {metrics.delivered} delivered
+                          </p>
+                          {metrics.exceptions > 0 ? (
+                            <Badge tone="rose">
+                              {metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}
+                            </Badge>
+                          ) : null}
+                          {metrics.manualRouting > 0 ? (
+                            <Badge tone="amber">{metrics.manualRouting} manual</Badge>
+                          ) : null}
+                        </div>
 
-                    <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                      <Link href={`/app/stores/${store.id}`} className="btn-secondary btn-sm">
-                        Open
-                      </Link>
-                      <Link href={`/app/stores/${store.id}/orders`} className="btn-ghost btn-sm">
-                        Orders
-                      </Link>
-                      <Link
-                        href={`/s/${store.slug}`}
-                        className="btn-ghost btn-sm"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Storefront ↗
-                      </Link>
-                    </div>
+                        {progress.pct < 100 ? (
+                          <div className="mt-auto">
+                            <ProgressBar value={progress.pct} label={`Setup ${progress.done}/${progress.total}`} />
+                          </div>
+                        ) : null}
+                      </CardContent>
+
+                      <CardFooter className="gap-2">
+                        <Button asChild size="sm">
+                          <Link href={`/app/stores/${store.id}`}>Open</Link>
+                        </Button>
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/app/stores/${store.id}/orders`}>Orders</Link>
+                        </Button>
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
+                            Storefront ↗
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
                   </li>
                 );
               })}
@@ -232,37 +277,33 @@ export default async function AgencyDashboard({
         </section>
 
         {archived.length > 0 ? (
-          <section className="mt-9">
-            <h2 className="text-base font-semibold text-ink">Archived stores</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Archived stores keep their records for reporting and audit. Their storefronts are offline.
-            </p>
-            <ul className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+          <ArchivedStores count={archived.length}>
+            <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
               {archived.map(({ store, metrics }) => (
                 <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">{store.name}</p>
+                    <p className="truncate text-sm font-medium">{store.name}</p>
                     <p className="truncate text-xs text-muted-foreground">
                       {store.clientName} · {metrics.orderCount} historic orders ·{" "}
                       {formatMoney(metrics.grossSales, store.defaultCurrency)} lifetime
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Link href={`/app/stores/${store.id}`} className="btn-ghost btn-sm">
-                      View records
-                    </Link>
+                    <Button asChild variant="ghost" size="sm">
+                      <Link href={`/app/stores/${store.id}`}>View records</Link>
+                    </Button>
                     <form action={setStoreStatus}>
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="status" value="active" />
-                      <button type="submit" className="btn-secondary btn-sm">
+                      <Button type="submit" variant="outline" size="sm">
                         Restore
-                      </button>
+                      </Button>
                     </form>
                   </div>
                 </li>
               ))}
             </ul>
-          </section>
+          </ArchivedStores>
         ) : null}
 
         <section className="mt-9 pb-4">

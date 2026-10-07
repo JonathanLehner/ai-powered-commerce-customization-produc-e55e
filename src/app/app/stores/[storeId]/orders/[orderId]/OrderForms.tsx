@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormStatus } from "react-dom";
 import {
   addTracking,
   raiseException,
@@ -8,6 +9,28 @@ import {
   rerouteToSupplier,
 } from "@/app/actions/orders";
 import { ActionForm } from "@/components/forms";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { Order, RoutingOptions, Store, SupplierChoice } from "@/lib/types";
 import { CARRIER_LABELS, toMajorString } from "@/lib/util";
 
@@ -89,46 +112,45 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
       pendingLabel="Sending…"
       submitClassName="btn-primary btn-sm"
       submitDisabled={!options.carriersEnabled}
+      toastOnSuccess
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="space-y-3">
-          <div>
-            <label htmlFor="supplierId" className="field-label text-xs">
-              Alternative production partner
-            </label>
-            <select
-              id="supplierId"
-              name="supplierId"
-              defaultValue={options.available[0].id}
-              aria-invalid={state.field === "supplierId" ? true : undefined}
-              aria-describedby="supplierId-hint"
-              className={state.field === "supplierId" ? "input input-error py-1.5" : "input py-1.5"}
-            >
-              {options.available.map((choice) => (
-                <option key={choice.id} value={choice.id}>
-                  {choiceLabel(choice)}
-                </option>
-              ))}
-            </select>
+          <div className="space-y-1.5">
+            <Label htmlFor="supplierId">Alternative production partner</Label>
+            <Select name="supplierId" defaultValue={options.available[0].id}>
+              <SelectTrigger
+                id="supplierId"
+                aria-invalid={state.field === "supplierId" ? true : undefined}
+                aria-describedby="supplierId-hint"
+                className="w-full"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {options.available.map((choice) => (
+                  <SelectItem key={choice.id} value={choice.id}>
+                    {choiceLabel(choice)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <p id="supplierId-hint" className="field-hint">
               Approved partners whose own product records fulfil {needs || "these items"} to{" "}
               {options.region}. {held ? "The supplier this job failed on" : "The supplier it is with now"} is
               not offered.
             </p>
           </div>
-          <div>
-            <label htmlFor="reroute-reason" className="field-label text-xs">
-              Why is it moving?
-            </label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="reroute-reason">Why is it moving?</Label>
+            <Input
               id="reroute-reason"
               name="reason"
               required
               placeholder="Original supplier does not fulfil to this destination"
               aria-invalid={state.field === "reason" ? true : undefined}
               aria-describedby="reroute-reason-hint"
-              className={state.field === "reason" ? "input input-error py-1.5" : "input py-1.5"}
             />
             <p id="reroute-reason-hint" className="field-hint">
               Recorded against your name in the fulfilment timeline and the audit history.
@@ -152,21 +174,19 @@ export function ManualSubmissionForm({ order }: { order: Order }) {
       action={recordManualSubmission}
       submitLabel="Record supplier reference"
       submitClassName="btn-primary btn-sm"
+      toastOnSuccess
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
-        <div>
-          <label htmlFor="reference" className="field-label text-xs">
-            Supplier purchase order reference
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="reference">Supplier purchase order reference</Label>
+          <Input
             id="reference"
             name="reference"
             required
             placeholder="e.g. ALB-2049117"
             aria-invalid={state.field === "reference" ? true : undefined}
             aria-describedby="reference-hint"
-            className={state.field === "reference" ? "input input-error py-1.5" : "input py-1.5"}
           />
           <p id="reference-hint" className="field-hint">
             Use this once the purchase order has been raised with the supplier by hand.
@@ -184,40 +204,49 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
       action={addTracking}
       submitLabel={order.fulfillment.trackingNumber ? "Update tracking" : "Mark shipped"}
       submitClassName="btn-primary btn-sm"
+      className="mt-3"
+      toastOnSuccess
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <label htmlFor="carrier" className="field-label text-xs">
-              Carrier
-            </label>
-            <select
-              id="carrier"
+          <div className="space-y-1.5">
+            <Label htmlFor="carrier">Carrier</Label>
+            {/* No carrier enabled is a real state: the field says so and the
+                action refuses, rather than offering a carrier that is off. */}
+            <Select
               name="carrier"
-              defaultValue={order.fulfillment.carrier ?? enabled[0]?.carrier ?? ""}
-              aria-invalid={state.field === "carrier" ? true : undefined}
-              className={state.field === "carrier" ? "input input-error py-1.5" : "input py-1.5"}
+              defaultValue={order.fulfillment.carrier ?? enabled[0]?.carrier ?? "none"}
             >
-              {enabled.length === 0 ? <option value="">No carriers enabled</option> : null}
-              {enabled.map((c) => (
-                <option key={c.carrier} value={c.carrier}>
-                  {CARRIER_LABELS[c.carrier]}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                id="carrier"
+                aria-invalid={state.field === "carrier" ? true : undefined}
+                className="w-full"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {enabled.length === 0 ? (
+                  <SelectItem value="none" disabled>
+                    No carriers enabled
+                  </SelectItem>
+                ) : null}
+                {enabled.map((c) => (
+                  <SelectItem key={c.carrier} value={c.carrier}>
+                    {CARRIER_LABELS[c.carrier]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <label htmlFor="trackingNumber" className="field-label text-xs">
-              Tracking number
-            </label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="trackingNumber">Tracking number</Label>
+            <Input
               id="trackingNumber"
               name="trackingNumber"
               defaultValue={order.fulfillment.trackingNumber ?? ""}
               placeholder="Leave blank to generate one"
               aria-invalid={state.field === "trackingNumber" ? true : undefined}
-              className={state.field === "trackingNumber" ? "input input-error py-1.5" : "input py-1.5"}
             />
           </div>
         </div>
@@ -232,25 +261,63 @@ export function ExceptionForm({ order }: { order: Order }) {
       action={raiseException}
       submitLabel="Raise exception"
       submitClassName="btn-danger btn-sm"
+      className="mt-3"
+      toastOnSuccess
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
-        <div>
-          <label htmlFor="note" className="field-label text-xs">
-            What has gone wrong?
-          </label>
-          <textarea
+        <div className="space-y-1.5">
+          <Label htmlFor="note">What has gone wrong?</Label>
+          <Textarea
             id="note"
             name="note"
             rows={2}
             required
             placeholder="Supplier cannot print the artwork at this size; awaiting a replacement file."
             aria-invalid={state.field === "note" ? true : undefined}
-            className={state.field === "note" ? "input input-error py-1.5" : "input py-1.5"}
           />
         </div>
       )}
     </ActionForm>
+  );
+}
+
+/**
+ * Money leaving the store's Stripe account is asked about once before it goes.
+ * The confirmation posts the form it belongs to by id, because the dialog is
+ * portalled to the end of the document and so sits outside that form.
+ */
+function RefundConfirm({ formId, question }: { formId: string; question: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="destructive" size="sm" disabled={pending}>
+          {pending ? "Saving…" : "Record refund"}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Record refund</AlertDialogTitle>
+          <AlertDialogDescription>{question}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => {
+              // Posted from the handler rather than as the button's own default
+              // action: closing the dialog unmounts it first, and a submitter
+              // that has left the document submits nothing.
+              const form = document.getElementById(formId);
+              if (form instanceof HTMLFormElement) form.requestSubmit();
+            }}
+          >
+            Yes, record it
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -262,43 +329,45 @@ export function RefundForm({ order }: { order: Order }) {
       action={recordRefund}
       submitLabel="Record refund"
       submitClassName="btn-danger btn-sm"
+      toastOnSuccess
+      id="refund-form"
+      submit={
+        <RefundConfirm
+          formId="refund-form"
+          question="The money goes back on the store's own Stripe account and the refund is recorded against your name. This cannot be undone."
+        />
+      }
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="amount" className="field-label text-xs">
-                Amount ({order.currency})
-              </label>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="amount">Amount ({order.currency})</Label>
+              <Input
                 id="amount"
                 name="amount"
                 inputMode="decimal"
                 defaultValue={toMajorString(Math.max(0, remaining), order.currency)}
                 required
                 aria-invalid={state.field === "amount" ? true : undefined}
-                className={state.field === "amount" ? "input input-error py-1.5" : "input py-1.5"}
               />
             </div>
-            <div>
-              <label htmlFor="reason" className="field-label text-xs">
-                Reason
-              </label>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="reason">Reason</Label>
+              <Input
                 id="reason"
                 name="reason"
                 required
                 placeholder="Shopper cancelled before production"
                 aria-invalid={state.field === "reason" ? true : undefined}
-                className={state.field === "reason" ? "input input-error py-1.5" : "input py-1.5"}
               />
             </div>
           </div>
-          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-inksoft">
+          <Label className="w-fit cursor-pointer gap-2.5 font-normal text-inksoft">
             <input type="checkbox" name="cancel" className="h-4 w-4 accent-brand-600" />
             Also cancel the order
-          </label>
+          </Label>
         </div>
       )}
     </ActionForm>

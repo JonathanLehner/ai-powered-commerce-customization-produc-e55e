@@ -777,7 +777,9 @@ try:
             G(href)
             fill("input[name=amount]", "1.00")
             fill("input[name=reason]", "QA harness partial refund")
-            click_text("button", "Record refund"); time.sleep(5); wait_for_load()
+            # Money leaving the account is confirmed in a dialog first.
+            click_text("button", "Record refund"); time.sleep(1.0)
+            click_text("button", "Yes, record it"); time.sleep(5); wait_for_load()
             t = text()
             # the money actually went back: the gateway's refund id is on the row
             refunded = "refunded" in t.lower() and bool(re.search(r"\bre_3\w+", t))
@@ -825,6 +827,12 @@ except Exception:
 try:
     archived = archive_store(qa_store_url) if qa_store_url else False
     G("/app")
+    # The dashboard folds archived stores away behind their count.
+    try:
+        click_text("button", "Archived stores")
+        time.sleep(0.6)
+    except Exception:
+        pass
     t = text()
     archived_ok = archived and STORE_RENAMED in t and "Archived stores" in t
     switcher = J("""[...document.querySelectorAll('a')].filter(a=>/\\/app\\/stores\\/str/.test(a.getAttribute('href')||'')).length""")

@@ -1,4 +1,12 @@
-import Link from "next/link";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { orderListQuery, type OrderListFilters, type OrderListPage } from "@/lib/order-list";
 
 /**
@@ -10,6 +18,20 @@ import { orderListQuery, type OrderListFilters, type OrderListPage } from "@/lib
  * prefetching them all rendered the page over and over in the background for
  * the one page somebody actually asked for.
  */
+
+/** Page numbers around the current one, with gaps marked by `null`. */
+function windowed(page: number, pages: number): (number | null)[] {
+  if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
+  const around = [page - 1, page, page + 1].filter((n) => n > 1 && n < pages);
+  const numbers = [1, ...around, pages];
+  const out: (number | null)[] = [];
+  numbers.forEach((n, i) => {
+    if (i > 0 && n - numbers[i - 1] > 1) out.push(null);
+    out.push(n);
+  });
+  return out;
+}
+
 export function OrdersPager({
   basePath,
   filters,
@@ -20,6 +42,7 @@ export function OrdersPager({
   page: OrderListPage;
 }) {
   if (page.total === 0) return null;
+  const href = (n: number) => `${basePath}${orderListQuery(filters, { page: n })}`;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-muted-foreground">
@@ -28,39 +51,42 @@ export function OrdersPager({
         <span className="tabular-nums">{page.total}</span> orders
       </p>
       {page.pages > 1 ? (
-        <nav aria-label="Pages" className="flex items-center gap-2">
-          {page.page > 1 ? (
-            <Link
-              href={`${basePath}${orderListQuery(filters, { page: page.page - 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="prev"
-            >
-              Previous
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Previous
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground tabular-nums">
-            Page {page.page} of {page.pages}
-          </span>
-          {page.page < page.pages ? (
-            <Link
-              href={`${basePath}${orderListQuery(filters, { page: page.page + 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="next"
-            >
-              Next
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Next
-            </span>
-          )}
-        </nav>
+        <Pagination className="mx-0 w-auto justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={page.page > 1 ? href(page.page - 1) : undefined}
+                rel="prev"
+                aria-disabled={page.page > 1 ? undefined : true}
+                className={page.page > 1 ? undefined : "pointer-events-none opacity-50"}
+              />
+            </PaginationItem>
+            {windowed(page.page, page.pages).map((n, i) => (
+              <PaginationItem key={n ?? `gap-${i}`} className="hidden sm:block">
+                {n === null ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink href={href(n)} isActive={n === page.page} className="tabular-nums">
+                    {n}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+            <PaginationItem className="sm:hidden">
+              <span className="px-2 text-xs text-muted-foreground tabular-nums">
+                Page {page.page} of {page.pages}
+              </span>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href={page.page < page.pages ? href(page.page + 1) : undefined}
+                rel="next"
+                aria-disabled={page.page < page.pages ? undefined : true}
+                className={page.page < page.pages ? undefined : "pointer-events-none opacity-50"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       ) : null}
     </div>
   );

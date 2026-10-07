@@ -3,6 +3,7 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 import type { ActionState } from "@/app/actions/stores";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -210,6 +211,9 @@ export function ActionForm({
   hidden,
   submitDisabled,
   beforeSubmit,
+  toastOnSuccess,
+  id,
+  submit,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   children: ReactNode | ((state: ActionState) => ReactNode);
@@ -223,9 +227,29 @@ export function ActionForm({
   submitDisabled?: boolean;
   /** Last chance to add fields the browser has to produce, such as a rendered preview. */
   beforeSubmit?: (formData: FormData) => Promise<void>;
+  /**
+   * Raises the confirmation as a toast as well as inline. Used where the form
+   * sits far down a long page — an order's fulfilment panels — so the answer is
+   * not left off screen.
+   */
+  toastOnSuccess?: boolean;
+  /** So a submit button rendered outside the form can still post it. */
+  id?: string;
+  /**
+   * Replaces the default submit button — used where the action is confirmed in
+   * a dialog first, whose own button carries `form={id}`.
+   */
+  submit?: ReactNode;
 }) {
   const [{ state, attempt }, formAction] = useSubmission<ActionState>(action, { status: "idle" });
   const { formRef, capture } = useValueRestore(state.status, attempt);
+  const toasted = useRef(0);
+
+  useEffect(() => {
+    if (!toastOnSuccess || attempt === toasted.current) return;
+    toasted.current = attempt;
+    if (state.status === "success" && state.message) toast.success(state.message);
+  }, [toastOnSuccess, state.status, state.message, attempt]);
 
   return (
     <form
@@ -242,6 +266,7 @@ export function ActionForm({
         }
         formAction(formData);
       }}
+      id={id}
       className={className}
       noValidate
     >
@@ -253,9 +278,11 @@ export function ActionForm({
       {typeof children === "function" ? children(state) : children}
       <FormStatus state={state} />
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
-          {submitLabel}
-        </SubmitButton>
+        {submit ?? (
+          <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
+            {submitLabel}
+          </SubmitButton>
+        )}
         {footer}
       </div>
     </form>

@@ -3,6 +3,14 @@ import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/orders";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { countryName } from "@/lib/countries";
 import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
@@ -71,14 +79,11 @@ export default async function OrderDetailPage({
               {ORDER_STATUS_LABELS[order.status]}
             </Badge>
             {viaPlatform ? null : (
-              <Link
-                href={`/s/${store.slug}/orders/${order.code}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-secondary btn-sm"
-              >
-                Shopper status page ↗
-              </Link>
+              <Button asChild variant="outline">
+                <Link href={`/s/${store.slug}/orders/${order.code}`} target="_blank" rel="noreferrer">
+                  Shopper status page ↗
+                </Link>
+              </Button>
             )}
           </>
         }
@@ -93,9 +98,9 @@ export default async function OrderDetailPage({
             <form action={resolveException} className="mt-3">
               <input type="hidden" name="storeId" value={storeId} />
               <input type="hidden" name="orderId" value={order.id} />
-              <button type="submit" className="btn-secondary btn-sm">
+              <Button type="submit" variant="outline" size="sm">
                 Mark resolved
-              </button>
+              </Button>
             </form>
           ) : null}
         </Callout>
@@ -103,9 +108,12 @@ export default async function OrderDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Items</h2>
-            <ul className="mt-4 divide-y divide-line">
+          <Card>
+            <CardHeader>
+              <CardTitle>Items</CardTitle>
+            </CardHeader>
+            <CardContent>
+            <ul className="divide-y divide-border">
               {order.items.map((item) => (
                 <li key={item.id} className="flex flex-wrap gap-4 py-4">
                   {item.customization.previewUrl && !viaPlatform ? (
@@ -115,7 +123,7 @@ export default async function OrderDetailPage({
                       width={96}
                       height={96}
                       sizes="96px"
-                      className="h-24 w-24 shrink-0 rounded-lg border border-line bg-canvas object-cover"
+                      className="h-24 w-24 shrink-0 rounded-lg border border-border bg-muted object-cover"
                     />
                   ) : null}
                   <div className="min-w-0 flex-1">
@@ -168,7 +176,7 @@ export default async function OrderDetailPage({
               ))}
             </ul>
 
-            <div className="mt-4 border-t border-line pt-4">
+            <div className="mt-4 border-t border-border pt-4">
               {viaPlatform ? (
                 <p className="text-sm text-muted-foreground">
                   Order values stay with the store team. {order.items.length}{" "}
@@ -202,11 +210,15 @@ export default async function OrderDetailPage({
               />
               )}
             </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Fulfilment timeline</h2>
-            <ol className="mt-4 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Fulfilment timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+            <ol className="space-y-4">
               {order.events.map((entry, index) => (
                 <li key={index} className="flex gap-3">
                   <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
@@ -225,18 +237,21 @@ export default async function OrderDetailPage({
                 </li>
               ))}
             </ol>
-          </section>
+            </CardContent>
+          </Card>
 
           {canManage ? (
-            <section className="card p-5">
-              <h2 className="text-base font-semibold text-ink">Manual fulfilment steps</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Use these when a supplier has no order API, or when something needs correcting by hand.
-              </p>
-
-              <div className="mt-5 space-y-6">
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Supplier routing</h3>
+            <Card>
+              <CardHeader>
+                <CardTitle>Manual fulfilment steps</CardTitle>
+                <CardDescription>
+                  Use these when a supplier has no order API, or when something needs correcting by hand.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+              <div className="space-y-6">
+                <div className="rounded-xl border border-border p-4">
+                  <h3 className="text-sm font-semibold">Supplier routing</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {order.fulfillment.submissionMessage ?? "This order has not been routed yet."}
                   </p>
@@ -244,13 +259,13 @@ export default async function OrderDetailPage({
                     <form action={routeToSupplier}>
                       <input type="hidden" name="storeId" value={storeId} />
                       <input type="hidden" name="orderId" value={order.id} />
-                      <button type="submit" className="btn-secondary btn-sm">
+                      <Button type="submit" variant="outline" size="sm">
                         Re-run automatic routing
-                      </button>
+                      </Button>
                     </form>
                   </div>
                   {routingOptions ? (
-                    <div className="mt-5 border-t border-line pt-4">
+                    <div className="mt-5 border-t border-border pt-4">
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {routingOptions.available.length === 0
                           ? "Alternative production partners"
@@ -262,7 +277,7 @@ export default async function OrderDetailPage({
                     </div>
                   ) : null}
                   {order.fulfillment.routing !== "submitted" ? (
-                    <div className="mt-5 border-t border-line pt-4">
+                    <div className="mt-5 border-t border-border pt-4">
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Purchase order raised by hand
                       </h4>
@@ -273,38 +288,39 @@ export default async function OrderDetailPage({
                   ) : null}
                 </div>
 
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Shipment</h3>
+                <div className="rounded-xl border border-border p-4">
+                  <h3 className="text-sm font-semibold">Shipment</h3>
                   <TrackingForm order={order} store={store} />
                 </div>
 
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Status</h3>
+                <div className="rounded-xl border border-border p-4">
+                  <h3 className="text-sm font-semibold">Status</h3>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {(["in_production", "shipped", "delivered", "cancelled"] as const).map((status) => (
                       <form key={status} action={advanceStatus}>
                         <input type="hidden" name="storeId" value={storeId} />
                         <input type="hidden" name="orderId" value={order.id} />
                         <input type="hidden" name="status" value={status} />
-                        <button
+                        <Button
                           type="submit"
-                          className={order.status === status ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
+                          size="sm"
+                          variant={order.status === status ? "default" : "outline"}
                           disabled={!canMoveOrder(order, status)}
                         >
                           {ORDER_STATUS_LABELS[status]}
-                        </button>
+                        </Button>
                       </form>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Raise an exception</h3>
+                <div className="rounded-xl border border-border p-4">
+                  <h3 className="text-sm font-semibold">Raise an exception</h3>
                   <ExceptionForm order={order} />
                 </div>
 
                 <div className="rounded-xl border border-rose-200 p-4">
-                  <h3 className="text-sm font-semibold text-ink">Refund or cancel</h3>
+                  <h3 className="text-sm font-semibold">Refund or cancel</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Refunds are issued against the store&rsquo;s own Stripe account. Already refunded:{" "}
                     {formatMoney(refunded, order.currency)}.
@@ -314,22 +330,26 @@ export default async function OrderDetailPage({
                   </div>
                 </div>
               </div>
-            </section>
+            </CardContent>
+            </Card>
           ) : null}
         </div>
 
         <div className="space-y-6">
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Delivery</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Delivery</CardTitle>
+            </CardHeader>
+            <CardContent>
             {viaPlatform ? (
               // The fulfilment region is what routes the job; the address itself
               // is a shopper record and stays with the store team.
-              <p className="mt-3 text-sm text-inksoft">
+              <p className="text-sm text-inksoft">
                 Delivery address withheld. Fulfilment region:{" "}
                 <span className="font-medium text-ink">{regionForCountry(order.customer.country)}</span>.
               </p>
             ) : (
-              <address className="mt-3 not-italic text-sm text-inksoft">
+              <address className="not-italic text-sm text-inksoft">
                 {order.customer.name}
                 <br />
                 {order.customer.line1}
@@ -341,21 +361,22 @@ export default async function OrderDetailPage({
               </address>
             )}
             {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
-              <a
-                href={order.fulfillment.trackingUrl ?? "#"}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-secondary btn-sm mt-4"
-              >
-                Track with {CARRIER_LABELS[order.fulfillment.carrier]} ↗
-              </a>
+              <Button asChild variant="outline" size="sm" className="mt-4">
+                <a href={order.fulfillment.trackingUrl ?? "#"} target="_blank" rel="noreferrer">
+                  Track with {CARRIER_LABELS[order.fulfillment.carrier]} ↗
+                </a>
+              </Button>
             ) : (
               <p className="mt-4 text-xs text-muted-foreground">No tracking number yet.</p>
             )}
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Payment</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment</CardTitle>
+            </CardHeader>
+            <CardContent>
             <DataList
               rows={[
                 { label: "Provider", value: "Stripe" },
@@ -383,10 +404,14 @@ export default async function OrderDetailPage({
                 { label: "Paid", value: order.payment.paidAt ? formatDateTime(order.payment.paidAt) : "—" },
               ]}
             />
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Production</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Production</CardTitle>
+            </CardHeader>
+            <CardContent>
             <DataList
               rows={[
                 { label: "Supplier", value: order.fulfillment.supplierName ?? "Not assigned" },
@@ -434,12 +459,16 @@ export default async function OrderDetailPage({
                   : []),
               ]}
             />
-          </section>
+            </CardContent>
+          </Card>
 
           {order.refunds.length > 0 ? (
-            <section className="card p-5">
-              <h2 className="text-base font-semibold text-ink">Refunds</h2>
-              <ul className="mt-3 divide-y divide-line text-sm">
+            <Card>
+              <CardHeader>
+                <CardTitle>Refunds</CardTitle>
+              </CardHeader>
+              <CardContent>
+              <ul className="divide-y divide-border text-sm">
                 {order.refunds.map((refund) => (
                   <li key={refund.id} className="py-2.5">
                     <p className="font-medium tabular-nums text-ink">
@@ -454,7 +483,8 @@ export default async function OrderDetailPage({
                   </li>
                 ))}
               </ul>
-            </section>
+            </CardContent>
+            </Card>
           ) : null}
         </div>
       </div>
