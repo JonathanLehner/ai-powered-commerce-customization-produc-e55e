@@ -145,6 +145,8 @@ export const it: StorefrontCopy = {
     total: "Totale",
     checkout: "Vai al pagamento",
     keepShopping: "Continua gli acquisti",
+    viewBasket: "Vedi il carrello",
+    drawerIntro: "Un’occhiata rapida al carrello. Quantità e codici sconto si trovano nella pagina completa del carrello.",
   },
 
   discount: {

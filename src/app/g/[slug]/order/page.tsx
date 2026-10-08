@@ -55,12 +55,12 @@ export default async function BulkOrderPage({ params }: { params: Promise<{ slug
   }));
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
-      <Link href={`/g/${slug}`} className="text-sm font-medium text-brand-700 hover:underline">
+    <div className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6">
+      <Link href={`/g/${slug}`} className="text-sm font-medium text-primary hover:underline">
         ← {catalogue.name}
       </Link>
-      <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink">{t.gift.orderTitle}</h1>
-      <p className="mt-2 max-w-2xl text-sm text-inksoft">
+      <h1 className="font-heading mt-3 text-3xl font-semibold tracking-tight text-foreground">{t.gift.orderTitle}</h1>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-inksoft">
         {fmt(t.gift.orderIntro, {
           approval: catalogue.approvalRequired ? t.gift.orderIntroApproval : "",
         })}

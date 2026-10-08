@@ -62,7 +62,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
   if (store.status === "archived") {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.home.closedTitle}</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">{t.home.closedTitle}</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           {fmt(t.home.closedBody, { client: store.clientName, store: store.name })}
         </p>
@@ -73,7 +73,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
   if (sections.length === 0) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
           {fmt(t.home.comingSoonTitle, { store: store.name })}
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -81,7 +81,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
           {products.length > 0 ? t.home.comingSoonWithProducts : t.home.comingSoonNoProducts}
         </p>
         {products.length> 0 ? (
-          <Link href={`/s/${store.slug}/products`} className={cn(buttonVariants(), "mt-6")}>
+          <Link href={`/s/${store.slug}/products`} className={cn(buttonVariants({ size: "lg" }), "mt-6")}>
             {fmt(t.home.browseProducts, { count: products.length })}
           </Link>
         ) : null}

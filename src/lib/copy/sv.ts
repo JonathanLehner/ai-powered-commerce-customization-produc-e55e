@@ -144,6 +144,8 @@ export const sv: StorefrontCopy = {
     total: "Totalt",
     checkout: "Till kassan",
     keepShopping: "Fortsätt handla",
+    viewBasket: "Visa varukorgen",
+    drawerIntro: "En snabb titt i varukorgen. Antal och rabattkoder finns på den fullständiga varukorgssidan.",
   },
 
   discount: {

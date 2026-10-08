@@ -14,6 +14,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 /** The largest recipient list a browser is asked to read, in KB. */
 const MAX_LIST_KB = 512;
@@ -30,10 +40,10 @@ function Actions({ hasRows, t }: { hasRows: boolean; t: StorefrontCopy["gift"] }
   const { pending } = useFormStatus();
   return (
     <div className="mt-5 flex flex-wrap items-center gap-3">
-      <Button type="submit" name="intent" value="check" variant="outline" disabled={pending}>
+      <Button type="submit" name="intent" value="check" variant="outline" size="lg" disabled={pending}>
         {pending ? t.checkPending : t.checkList}
       </Button>
-      <Button type="submit" name="intent" value="submit"  disabled={pending}>
+      <Button type="submit" name="intent" value="submit" size="lg" disabled={pending}>
         {pending ? t.sendPending : hasRows ? t.sendForApproval : t.checkAndSend}
       </Button>
     </div>
@@ -141,7 +151,7 @@ export function BulkOrderForm({
 
       <Card asChild className="block overflow-visible p-5">
       <section>
-        <h2 className="text-base font-semibold text-ink">{t.buyerTitle}</h2>
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.buyerTitle}</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="campaignName">
@@ -177,7 +187,7 @@ export function BulkOrderForm({
             <div className="sm:col-span-2">
               <p className="text-sm text-muted-foreground">
                 {orderingBefore}
-                <span className="font-medium text-ink">{buyerEmail}</span>
+                <span className="font-medium text-foreground">{buyerEmail}</span>
                 {orderingAfter}
               </p>
             </div>
@@ -209,47 +219,50 @@ export function BulkOrderForm({
 
       <Card asChild className="block overflow-visible p-5">
       <section>
-        <h2 className="text-base font-semibold text-ink">{t.giftTitle}</h2>
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.giftTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t.giftHint}{" "}
           {spendLimit > 0
             ? fmt(t.giftHintLimit, { amount: money(spendLimit, currency) })
             : t.giftHintNoLimit}
         </p>
-        <div className="mt-4 space-y-2">
+        <input type="hidden" name="defaultProductId" value={productId} />
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="lg"
+          aria-label={t.giftTitle}
+          value={productId}
+          onValueChange={(next) => next && setProductId(next)}
+          orientation="vertical"
+          className="mt-4 w-full"
+        >
           {products.map((product) => (
-            <label
+            <ToggleGroupItem
               key={product.id}
-              className="flex flex-wrap items-start gap-3 rounded-lg border border-line px-3 py-2.5 text-sm has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50"
+              value={product.id}
+              className="h-auto justify-between gap-3 px-3 py-2.5 text-left"
             >
-              <input
-                type="radio"
-                name="defaultProductId"
-                value={product.id}
-                checked={productId === product.id}
-                onChange={() => setProductId(product.id)}
-                className="mt-0.5 h-4 w-4"
-              />
               <span className="min-w-0 flex-1">
-                <span className="block font-medium text-ink">{product.name}</span>
-                <span className="block text-xs text-muted-foreground">
+                <span className="block font-medium">{product.name}</span>
+                <span className="block text-xs font-normal text-muted-foreground">
                   {product.sizes.length > 0
                     ? fmt(t.sizes, { sizes: product.sizes.join(", ") })
                     : t.oneSize}
                 </span>
               </span>
-              <span className="shrink-0 text-sm font-semibold tabular-nums text-ink">
+              <span className="shrink-0 font-medium tabular-nums">
                 {money(product.price, currency)}
               </span>
-            </label>
+            </ToggleGroupItem>
           ))}
-        </div>
+        </ToggleGroup>
       </section>
       </Card>
 
       <Card asChild className="block overflow-visible p-5">
       <section>
-        <h2 className="text-base font-semibold text-ink">{t.listTitle}</h2>
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.listTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {fmt(t.listHintLead, { max: maxRecipients })}{" "}
           <span className="font-mono text-xs text-inksoft">{RECIPIENT_COLUMNS.join(", ")}</span>.{" "}
@@ -316,66 +329,69 @@ export function BulkOrderForm({
               ) : null}
             </div>
 
-            <div className="mt-3 relative overflow-x-auto rounded-lg border border-line">
-              <table className="w-full min-w-[44rem] text-left text-sm">
-                <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th scope="col" className="px-3 py-2">{t.columnLine}</th>
-                    <th scope="col" className="px-3 py-2">{t.columnRecipient}</th>
-                    <th scope="col" className="px-3 py-2">{t.columnGift}</th>
-                    <th scope="col" className="px-3 py-2 text-right">{t.columnDelivered}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
+            <div className="relative mt-3 overflow-x-auto rounded-lg border border-border">
+              <Table className="min-w-[44rem]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t.columnLine}</TableHead>
+                    <TableHead>{t.columnRecipient}</TableHead>
+                    <TableHead>{t.columnGift}</TableHead>
+                    <TableHead className="text-right">{t.columnDelivered}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {preview.rows.map((row) => (
-                    <tr key={`${row.line}-${row.email}`} className="align-top">
-                      <td className="px-3 py-2 text-xs tabular-nums text-muted-foreground">{row.line}</td>
-                      <td className="px-3 py-2">
-                        <p className="text-ink">
+                    <TableRow key={`${row.line}-${row.email}`} className="align-top">
+                      <TableCell className="text-xs tabular-nums text-muted-foreground">
+                        {row.line}
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-foreground">
                           {row.name || <span className="text-muted-foreground">{t.noName}</span>}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {row.email} · {row.destination}
                         </p>
                         {row.issues.length > 0 ? (
-                          <ul className="mt-1 space-y-0.5 text-xs text-rose-700">
+                          <ul className="mt-1 space-y-0.5 text-xs text-destructive">
                             {row.issues.map((issue) => (
                               <li key={issue}>{issue}</li>
                             ))}
                           </ul>
                         ) : null}
-                      </td>
-                      <td className="px-3 py-2 text-xs text-inksoft">
+                      </TableCell>
+                      <TableCell className="text-xs text-inksoft">
                         {row.productName || "—"}
                         {row.variantName ? ` · ${row.variantName}` : ""}
                         {row.quantity > 1 ? ` × ${row.quantity}` : ""}
-                      </td>
-                      <td className="px-3 py-2 text-right text-sm tabular-nums text-ink">
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-foreground">
                         {row.issues.length > 0 ? "—" : money(row.total, preview.currency)}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
 
             {preview.withIssues === 0 ? (
               <dl className="mt-4 max-w-xs space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t.subtotal}</dt>
-                  <dd className="tabular-nums text-ink">{money(preview.subtotal, preview.currency)}</dd>
+                  <dd className="tabular-nums text-foreground">{money(preview.subtotal, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t.shipping}</dt>
-                  <dd className="tabular-nums text-ink">{money(preview.shipping, preview.currency)}</dd>
+                  <dd className="tabular-nums text-foreground">{money(preview.shipping, preview.currency)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t.tax}</dt>
-                  <dd className="tabular-nums text-ink">{money(preview.taxAmount, preview.currency)}</dd>
+                  <dd className="tabular-nums text-foreground">{money(preview.taxAmount, preview.currency)}</dd>
                 </div>
-                <div className="flex justify-between border-t border-line pt-1.5">
-                  <dt className="font-semibold text-ink">{t.total}</dt>
-                  <dd className="font-semibold tabular-nums text-ink">
+                <Separator className="my-1" />
+                <div className="flex justify-between">
+                  <dt className="font-semibold text-foreground">{t.total}</dt>
+                  <dd className="font-semibold tabular-nums text-foreground">
                     {money(preview.total, preview.currency)}
                   </dd>
                 </div>

@@ -145,6 +145,8 @@ export const nl: StorefrontCopy = {
     total: "Totaal",
     checkout: "Afrekenen",
     keepShopping: "Verder winkelen",
+    viewBasket: "Mandje bekijken",
+    drawerIntro: "Een snelle blik in je mandje. Aantallen en kortingscodes staan op de volledige mandjepagina.",
   },
 
   discount: {

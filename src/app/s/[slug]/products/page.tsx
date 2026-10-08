@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { SearchIcon } from "lucide-react";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
+import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
 import { Badge, EmptyState } from "@/components/ui";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 
 export async function generateMetadata({
@@ -54,41 +55,52 @@ export default async function StorefrontProductsPage({
     );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{t.shop.title}</h1>
-      <p className="mt-2 max-w-2xl text-sm text-inksoft">
-        {fmt(t.shop.intro, {
-          currency,
-          tax: store.pricesIncludeTax ? t.shop.taxIncluded : t.shop.taxAtCheckout,
-        })}
-      </p>
+    <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
+      <header className="max-w-2xl">
+        <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          {t.shop.title}
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-inksoft">
+          {fmt(t.shop.intro, {
+            currency,
+            tax: store.pricesIncludeTax ? t.shop.taxIncluded : t.shop.taxAtCheckout,
+          })}
+        </p>
+      </header>
 
-      <form method="get" className="mt-6 flex flex-wrap items-end gap-3">
-        <div className="min-w-[12rem] flex-1">
-          <Label htmlFor="q" className="text-xs">
-            {t.shop.searchLabel}
-          </Label>
-          <Input
-            id="q"
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder={t.shop.searchPlaceholder}
-            className="mt-1.5 py-1.5"
-          />
+      <form method="get" className="mt-8 flex flex-wrap items-center gap-2">
+        <Label htmlFor="q" className="sr-only">
+          {t.shop.searchLabel}
+        </Label>
+        <div className="min-w-[14rem] flex-1">
+          <InputGroup className="h-9">
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+            <InputGroupInput
+              id="q"
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder={t.shop.searchPlaceholder}
+            />
+          </InputGroup>
         </div>
         {tag ? <input type="hidden" name="tag" value={tag} /> : null}
-        <Button type="submit" variant="outline">
+        <Button type="submit" variant="outline" size="lg">
           {t.shop.searchSubmit}
         </Button>
         {q || tag ? (
-          <Link href={`/s/${store.slug}/products`} className={buttonVariants({ variant: "ghost" })}>
+          <Link
+            href={`/s/${store.slug}/products`}
+            className={buttonVariants({ variant: "ghost", size: "lg" })}
+          >
             {t.shop.clear}
           </Link>
         ) : null}
       </form>
 
       {tags.length > 0 ? (
-        <nav aria-label={t.shop.filterByTag} className="mt-4 flex flex-wrap gap-2">
+        <nav aria-label={t.shop.filterByTag} className="mt-3 flex flex-wrap gap-2">
           {tags.slice(0, 12).map((item) => (
             <Link
               key={item}
@@ -102,7 +114,7 @@ export default async function StorefrontProductsPage({
       ) : null}
 
       {visible.length === 0 ? (
-        <div className="mt-8">
+        <div className="mt-10">
           <EmptyState
             title={products.length === 0 ? t.shop.emptyTitle : t.shop.noMatchTitle}
             description={products.length === 0 ? t.shop.emptyBody : t.shop.noMatchBody}
@@ -116,45 +128,26 @@ export default async function StorefrontProductsPage({
           />
         </div>
       ) : (
-        <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ProductTileGrid className="mt-10">
           {visible.map((product, index) => (
-            <li key={product.id} className="group overflow-hidden rounded-xl border border-line bg-white">
-              <Link href={`/s/${store.slug}/products/${product.slug}`}>
-                <div className="bg-canvas">
-                  {product.mockups[0] ? (
-                    <Image
-                      src={product.mockups[0].url}
-                      alt={product.name}
-                      width={640}
-                      height={640}
-                      priority={index < 3}
-                      loading={index < 3 ? "eager" : "lazy"}
-                      sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
-                      className="h-auto w-full object-cover transition group-hover:scale-[1.02]"
-                      style={{ aspectRatio: "1 / 1" }}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center text-sm text-muted-foreground" style={{ aspectRatio: "1 / 1" }}>
-                      {t.shop.previewSoon}
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h2 className="text-sm font-semibold text-ink">{product.name}</h2>
-                    {product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
-                      <Badge tone="brand">{t.shop.personalise}</Badge>
-                    ) : null}
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{product.description.split("\n")[0]}</p>
-                  <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                    {money(convert(product.price, product.currency, currency), currency)}
-                  </p>
-                </div>
-              </Link>
-            </li>
+            <ProductTile
+              key={product.id}
+              href={`/s/${store.slug}/products/${product.slug}`}
+              name={product.name}
+              tagline={product.description.split("\n")[0]}
+              price={money(convert(product.price, product.currency, currency), currency)}
+              imageUrl={product.mockups[0]?.url ?? null}
+              imageAlt={product.name}
+              placeholder={t.shop.previewSoon}
+              priority={index < 3}
+              badge={
+                product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
+                  <Badge tone="brand">{t.shop.personalise}</Badge>
+                ) : null
+              }
+            />
           ))}
-        </ul>
+        </ProductTileGrid>
       )}
     </div>
   );

@@ -32,10 +32,10 @@ export function DiscountEntry({
 
   if (code) {
     return (
-      <div className="mt-5 border-t border-line pt-4">
+      <div className="mt-5 border-t border-border pt-4">
         <p className="text-sm leading-none font-medium text-foreground">{t.title}</p>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <span className="font-mono text-sm text-ink">{code}</span>
+          <span className="font-mono text-sm text-foreground">{code}</span>
           <form action={removeDiscount}>
             <input type="hidden" name="storeId" value={storeId} />
             <SubmitButton variant="ghost" size="sm" pendingLabel={t.applying}>
@@ -49,7 +49,7 @@ export function DiscountEntry({
   }
 
   return (
-    <form action={formAction} className="mt-5 border-t border-line pt-4" noValidate>
+    <form action={formAction} className="mt-5 border-t border-border pt-4" noValidate>
       <input type="hidden" name="storeId" value={storeId} />
       <Label htmlFor="discount-code">{t.title}</Label>
       <div className="mt-1 flex items-start gap-2">

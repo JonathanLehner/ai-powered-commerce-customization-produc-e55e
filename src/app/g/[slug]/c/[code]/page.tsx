@@ -12,6 +12,14 @@ import { ApprovalForm, CancelCampaignForm, PaymentForm } from "./CampaignForms";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 /** The tab title is the store's too, so it is resolved per catalogue. */
 export async function generateMetadata({
@@ -78,7 +86,7 @@ export default async function CampaignPage({
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
         <Card className="block overflow-visible p-6">
-          <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.linkInvalidTitle}</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">{t.gift.linkInvalidTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{t.gift.linkInvalidBody}</p>
           <Link href={`/g/${slug}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-5 inline-flex")}>
             {t.gift.backToCatalogue}
@@ -116,13 +124,13 @@ export default async function CampaignPage({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-      <Link href={`/g/${slug}`} className="text-sm font-medium text-brand-700 hover:underline">
+      <Link href={`/g/${slug}`} className="text-sm font-medium text-primary hover:underline">
         ← {catalogue.name}
       </Link>
 
       <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">
             {campaign.code} · {campaign.name}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -187,61 +195,61 @@ export default async function CampaignPage({
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="min-w-0">
-          <h2 className="text-base font-semibold text-ink">{t.gift.recipientsTitle}</h2>
+          <h2 className="text-base font-semibold text-foreground">{t.gift.recipientsTitle}</h2>
           <Card className="relative mt-3 block overflow-x-auto">
-            <table className="w-full min-w-[44rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-3">{t.gift.columnRecipient}</th>
-                  <th scope="col" className="px-4 py-3">{t.gift.columnGift}</th>
-                  <th scope="col" className="px-4 py-3">{t.gift.columnDelivery}</th>
-                  <th scope="col" className="px-4 py-3 text-right">{t.gift.columnValue}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
+            <Table className="min-w-[44rem]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t.gift.columnRecipient}</TableHead>
+                  <TableHead>{t.gift.columnGift}</TableHead>
+                  <TableHead>{t.gift.columnDelivery}</TableHead>
+                  <TableHead className="text-right">{t.gift.columnValue}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {campaign.recipients.map((recipient) => (
-                  <tr key={recipient.id} className="align-top">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-ink">{recipient.name}</p>
+                  <TableRow key={recipient.id} className="align-top">
+                    <TableCell>
+                      <p className="font-medium text-foreground">{recipient.name}</p>
                       <p className="text-xs text-muted-foreground">{recipient.email}</p>
                       {recipient.note ? (
                         <p className="mt-1 text-xs text-inksoft">“{recipient.note}”</p>
                       ) : null}
-                    </td>
-                    <td className="px-4 py-3 text-inksoft">
+                    </TableCell>
+                    <TableCell className="text-inksoft">
                       {recipient.productName}
                       <span className="block text-xs text-muted-foreground">
                         {recipient.variantName || recipient.size}
                         {recipient.quantity > 1 ? ` × ${recipient.quantity}` : ""}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
                       {recipient.line1}, {recipient.city} {recipient.postalCode}
                       <span className="block">{localCountryName(recipient.country, tag)}</span>
                       {orderLinks.get(recipient.id) ? (
                         <Link
                           href={orderLinks.get(recipient.id) as string}
-                          className="mt-1 inline-block font-medium text-brand-700 hover:underline"
+                          className="mt-1 inline-block font-medium text-primary hover:underline"
                         >
                           {fmt(t.gift.track, { code: recipient.orderCode as string })}
                         </Link>
                       ) : null}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-ink">
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums text-foreground">
                       {money(recipient.unitPrice * recipient.quantity, campaign.currency)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-          </table>
+              </TableBody>
+            </Table>
           </Card>
 
-          <h2 className="mt-8 text-base font-semibold text-ink">{t.gift.historyTitle}</h2>
+          <h2 className="mt-8 text-base font-semibold text-foreground">{t.gift.historyTitle}</h2>
           <Card asChild className="mt-3 block overflow-visible p-5 text-sm">
-          <ol className="divide-y divide-line">
+          <ol className="divide-y divide-border">
               {campaign.events.map((entry, index) => (
                 <li key={`${entry.at}-${index}`} className="py-2.5 first:pt-0 last:pb-0">
-                  <p className="font-medium text-ink">{entry.status}</p>
+                  <p className="font-medium text-foreground">{entry.status}</p>
                   <p className="text-inksoft">{entry.note}</p>
                   <p className="text-xs text-muted-foreground">
                     {entry.actor} · {dateTime(entry.at)}
@@ -253,30 +261,30 @@ export default async function CampaignPage({
         </section>
 
         <aside className="space-y-6">
-          <div className="h-fit rounded-xl border border-line bg-canvas p-5">
-            <h2 className="text-base font-semibold text-ink">{t.gift.totalsTitle}</h2>
+          <div className="h-fit rounded-xl border border-border bg-muted p-5">
+            <h2 className="text-base font-semibold text-foreground">{t.gift.totalsTitle}</h2>
             <dl className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t.gift.subtotal}</dt>
-                <dd className="tabular-nums text-ink">
+                <dd className="tabular-nums text-foreground">
                   {money(campaign.totals.subtotal, campaign.currency)}
                 </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t.gift.shipping}</dt>
-                <dd className="tabular-nums text-ink">
+                <dd className="tabular-nums text-foreground">
                   {money(campaign.totals.shipping, campaign.currency)}
                 </dd>
               </div>
               {campaign.totals.taxLines.map((row) => (
                 <div key={row.rate} className="flex justify-between">
                   <dt className="text-muted-foreground">{fmt(t.gift.taxRow, { rate: row.rate })}</dt>
-                  <dd className="tabular-nums text-ink">{money(row.amount, campaign.currency)}</dd>
+                  <dd className="tabular-nums text-foreground">{money(row.amount, campaign.currency)}</dd>
                 </div>
               ))}
-              <div className="flex justify-between border-t border-line pt-2">
-                <dt className="font-semibold text-ink">{t.gift.total}</dt>
-                <dd className="text-base font-semibold tabular-nums text-ink">
+              <div className="flex justify-between border-t border-border pt-2">
+                <dt className="font-semibold text-foreground">{t.gift.total}</dt>
+                <dd className="text-base font-semibold tabular-nums text-foreground">
                   {money(campaign.totals.total, campaign.currency)}
                 </dd>
               </div>
@@ -292,7 +300,7 @@ export default async function CampaignPage({
 
           {isApprover && campaign.status === "awaiting_approval" ? (
             <Card className="block overflow-visible p-5">
-              <h2 className="text-base font-semibold text-ink">{t.gift.decisionFormTitle}</h2>
+              <h2 className="text-base font-semibold text-foreground">{t.gift.decisionFormTitle}</h2>
               <div className="mt-3">
                 <ApprovalForm
                   slug={slug}
@@ -308,7 +316,7 @@ export default async function CampaignPage({
 
           {payable ? (
             <Card className="block overflow-visible p-5">
-              <h2 className="text-base font-semibold text-ink">{t.gift.paymentTitle}</h2>
+              <h2 className="text-base font-semibold text-foreground">{t.gift.paymentTitle}</h2>
               <div className="mt-3">
                 <PaymentForm
                   slug={slug}

@@ -148,6 +148,8 @@ export const en = {
     total: "Total",
     checkout: "Checkout",
     keepShopping: "Keep shopping",
+    viewBasket: "View basket",
+    drawerIntro: "A quick look at your basket. Quantities and discount codes are on the full basket page.",
   },
 
   /**

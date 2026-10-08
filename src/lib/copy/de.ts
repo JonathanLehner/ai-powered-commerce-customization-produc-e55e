@@ -145,6 +145,8 @@ export const de: StorefrontCopy = {
     total: "Gesamt",
     checkout: "Zur Kasse",
     keepShopping: "Weiter einkaufen",
+    viewBasket: "Warenkorb ansehen",
+    drawerIntro: "Ein kurzer Blick in den Warenkorb. Mengen und Rabattcodes gibt es auf der vollständigen Warenkorbseite.",
   },
 
   discount: {

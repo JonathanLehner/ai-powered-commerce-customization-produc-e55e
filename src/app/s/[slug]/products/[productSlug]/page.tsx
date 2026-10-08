@@ -7,6 +7,7 @@ import { isLive } from "@/lib/artwork";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug, getSupplier } from "@/lib/data";
 import { fmt, joinList, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
+import { Card, CardContent } from "@/components/ui/card";
 import { ProductPurchase, type PurchaseProduct } from "./ProductPurchase";
 
 export async function generateMetadata({
@@ -80,7 +81,7 @@ export default async function StorefrontProductPage({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 max-lg:pb-28 sm:px-6">
       <Breadcrumbs
         label={t.product.breadcrumb}
         items={[
@@ -90,70 +91,83 @@ export default async function StorefrontProductPage({
         ]}
       />
 
-      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{product.name}</h1>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {product.tags.map((tag) => (
-          <Link key={tag} href={`/s/${store.slug}/products?tag=${encodeURIComponent(tag)}`}>
-            <Badge tone="neutral">{tag}</Badge>
-          </Link>
-        ))}
-      </div>
+      <ProductPurchase
+        product={purchase}
+        heading={
+          <>
+            <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {product.name}
+            </h1>
+            {product.tags.length > 0 ? (
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {product.tags.map((item) => (
+                  <Link key={item} href={`/s/${store.slug}/products?tag=${encodeURIComponent(item)}`}>
+                    <Badge tone="neutral">{item}</Badge>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </>
+        }
+      />
 
-      <div className="mt-8">
-        <ProductPurchase product={purchase} />
-      </div>
-
-      <div className="mt-12 grid gap-8 border-t border-line pt-8 lg:grid-cols-3">
+      <div className="mt-16 grid gap-10 border-t border-border pt-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h2 className="text-lg font-semibold text-ink">{t.product.about}</h2>
-          <div className="mt-3 space-y-3 text-sm leading-relaxed text-inksoft">
+          <h2 className="font-heading text-lg font-semibold text-foreground">{t.product.about}</h2>
+          <div className="mt-4 space-y-3 text-sm leading-relaxed text-inksoft">
             {product.description.split("\n\n").map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
           </div>
         </div>
-        <aside className="space-y-4 text-sm">
-          <div className="rounded-xl border border-line p-4">
-            <h2 className="text-sm font-semibold text-ink">{t.product.madeToOrder}</h2>
-            <p className="mt-1.5 text-muted-foreground">
-              {fmt(t.product.producedBy, {
-                supplier: supplier?.name ?? t.product.defaultSupplier,
-                lead: catalog
-                  ? fmt(t.product.leadDays, {
-                      from: catalog.leadTimeDays[0],
-                      to: catalog.leadTimeDays[1],
-                    })
-                  : t.product.leadUnknown,
-                carriers:
-                  carriers.length > 0
-                    ? joinList(carriers, t.product.carrierJoin)
-                    : t.product.defaultCarrier,
-              })}
-            </p>
-          </div>
-          {area ? (
-            <div className="rounded-xl border border-line p-4">
-              <h2 className="text-sm font-semibold text-ink">{t.product.printDetail}</h2>
+        <aside className="space-y-3 text-sm">
+          <Card size="sm">
+            <CardContent>
+              <h2 className="text-sm font-semibold text-foreground">{t.product.madeToOrder}</h2>
               <p className="mt-1.5 text-muted-foreground">
-                {fmt(t.product.printDetailBody, {
-                  area: area.name,
-                  width: area.widthMm,
-                  height: area.heightMm,
-                  dpi: area.minDpi,
+                {fmt(t.product.producedBy, {
+                  supplier: supplier?.name ?? t.product.defaultSupplier,
+                  lead: catalog
+                    ? fmt(t.product.leadDays, {
+                        from: catalog.leadTimeDays[0],
+                        to: catalog.leadTimeDays[1],
+                      })
+                    : t.product.leadUnknown,
+                  carriers:
+                    carriers.length > 0
+                      ? joinList(carriers, t.product.carrierJoin)
+                      : t.product.defaultCarrier,
                 })}
               </p>
-            </div>
+            </CardContent>
+          </Card>
+          {area ? (
+            <Card size="sm">
+              <CardContent>
+                <h2 className="text-sm font-semibold text-foreground">{t.product.printDetail}</h2>
+                <p className="mt-1.5 text-muted-foreground">
+                  {fmt(t.product.printDetailBody, {
+                    area: area.name,
+                    width: area.widthMm,
+                    height: area.heightMm,
+                    dpi: area.minDpi,
+                  })}
+                </p>
+              </CardContent>
+            </Card>
           ) : null}
-          <div className="rounded-xl border border-line p-4">
-            <h2 className="text-sm font-semibold text-ink">{t.product.taxAndDelivery}</h2>
-            <p className="mt-1.5 text-muted-foreground">
-              {fmt(t.product.pricesShownIn, {
-                currency,
-                tax: store.pricesIncludeTax ? t.product.taxIncluded : t.product.taxAtCheckout,
-              })}{" "}
-              {fmt(t.product.merchantOfRecord, { client: store.clientName })}
-            </p>
-          </div>
+          <Card size="sm">
+            <CardContent>
+              <h2 className="text-sm font-semibold text-foreground">{t.product.taxAndDelivery}</h2>
+              <p className="mt-1.5 text-muted-foreground">
+                {fmt(t.product.pricesShownIn, {
+                  currency,
+                  tax: store.pricesIncludeTax ? t.product.taxIncluded : t.product.taxAtCheckout,
+                })}{" "}
+                {fmt(t.product.merchantOfRecord, { client: store.clientName })}
+              </p>
+            </CardContent>
+          </Card>
         </aside>
       </div>
     </div>

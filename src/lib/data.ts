@@ -553,8 +553,30 @@ export function getCart(storeId: string, sessionId: string) {
 
 /* ------------------------------------------------------------- suggestions */
 
-export function listSuggestions(storeId: string) {
-  return db.find<AiSuggestion>(COLLECTIONS.suggestions, { storeId }, { sort: { createdAt: -1 }, limit: 40 });
+/**
+ * Pending suggestions and a window of recently decided ones.
+ *
+ * The two are read separately because one shared `limit` is lossy in a way
+ * that matters: decided suggestions accumulate forever, so a single window
+ * sorted by date eventually fills with them and pushes pending ones out of
+ * sight — and a pending suggestion nobody can see is one nobody can apply or
+ * dismiss. Pending is therefore read whole (100 is the data API's own ceiling)
+ * and only the decided history is trimmed.
+ */
+export async function listSuggestions(storeId: string) {
+  const [pending, decided] = await Promise.all([
+    db.find<AiSuggestion>(
+      COLLECTIONS.suggestions,
+      { storeId, status: "pending" },
+      { sort: { createdAt: -1 }, limit: 100 },
+    ),
+    db.find<AiSuggestion>(
+      COLLECTIONS.suggestions,
+      { storeId, status: { $ne: "pending" } },
+      { sort: { createdAt: -1 }, limit: 40 },
+    ),
+  ]);
+  return [...pending, ...decided];
 }
 
 export function getSuggestion(id: string) {
