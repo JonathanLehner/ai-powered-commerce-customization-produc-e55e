@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "cn"
+import { Slot } from "radix-ui"
 
 function Card({
   className,
@@ -32,9 +33,17 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+function CardTitle({
+  className,
+  asChild = false,
+  ...props
+}: React.ComponentProps<"div"> & { asChild?: boolean }) {
+  // `asChild` so a card section can keep its heading element, which the
+  // workspace pages rely on for their document outline.
+  const Comp = asChild ? Slot.Root : "div"
+
   return (
-    <div
+    <Comp
       data-slot="card-title"
       className={cn(
         "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",

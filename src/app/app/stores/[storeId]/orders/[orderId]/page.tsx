@@ -2,7 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/orders";
-import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
+import { Breadcrumbs, Callout, DataList, Dot, PageHeader } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { countryName } from "@/lib/countries";
 import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
@@ -57,28 +60,26 @@ export default async function OrderDetailPage({
         }
         actions={
           <>
-            <Badge
-              tone={
-                order.status === "exception"
-                  ? "rose"
-                  : order.status === "delivered"
-                    ? "green"
-                    : order.status === "cancelled"
-                      ? "slate"
-                      : "brand"
-              }
-            >
+            <Badge variant="outline" className="gap-1.5">
+              <Dot
+                tone={
+                  order.status === "exception"
+                    ? "rose"
+                    : order.status === "delivered"
+                      ? "green"
+                      : order.status === "cancelled"
+                        ? "slate"
+                        : "brand"
+                }
+              />
               {ORDER_STATUS_LABELS[order.status]}
             </Badge>
             {viaPlatform ? null : (
-              <Link
-                href={`/s/${store.slug}/orders/${order.code}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-secondary btn-sm"
-              >
-                Shopper status page ↗
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/s/${store.slug}/orders/${order.code}`} target="_blank" rel="noreferrer">
+                  Shopper status page ↗
+                </Link>
+              </Button>
             )}
           </>
         }
@@ -93,9 +94,9 @@ export default async function OrderDetailPage({
             <form action={resolveException} className="mt-3">
               <input type="hidden" name="storeId" value={storeId} />
               <input type="hidden" name="orderId" value={order.id} />
-              <button type="submit" className="btn-secondary btn-sm">
+              <Button type="submit" variant="outline" size="sm">
                 Mark resolved
-              </button>
+              </Button>
             </form>
           ) : null}
         </Callout>
@@ -103,357 +104,428 @@ export default async function OrderDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Items</h2>
-            <ul className="mt-4 divide-y divide-line">
-              {order.items.map((item) => (
-                <li key={item.id} className="flex flex-wrap gap-4 py-4">
-                  {item.customization.previewUrl && !viaPlatform ? (
-                    <Image
-                      src={item.customization.previewUrl}
-                      alt={`${item.productName} preview`}
-                      width={96}
-                      height={96}
-                      sizes="96px"
-                      className="h-24 w-24 shrink-0 rounded-lg border border-line bg-canvas object-cover"
-                    />
-                  ) : null}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-ink">{item.productName}</p>
-                    <p className="text-xs text-muted-foreground">{item.variantName}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {viaPlatform
-                        ? `Quantity ${item.quantity}`
-                        : `Quantity ${item.quantity} · ${formatMoney(item.unitPrice, order.currency)} each · supplier cost ${formatMoney(item.supplierCost, order.currency)}`}
-                    </p>
-                    {item.customization.text && !viaPlatform ? (
-                      <p className="mt-1.5 text-xs text-inksoft">
-                        Personalisation: <span className="font-medium text-ink">{item.customization.text}</span>
-                      </p>
-                    ) : null}
-                    {item.customization.artworkFileName && !viaPlatform ? (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Artwork:{" "}
-                        {item.customization.artworkUrl ? (
-                          <a
-                            href={item.customization.artworkUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-medium text-brand-700 hover:underline"
-                          >
-                            {item.customization.artworkFileName} ↗
-                          </a>
-                        ) : (
-                          item.customization.artworkFileName
-                        )}
-                      </p>
-                    ) : null}
-                    {item.customization.artworkPlacement ? (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Placement: {Math.round(item.customization.artworkPlacement.x * 100)}% across,{" "}
-                        {Math.round(item.customization.artworkPlacement.y * 100)}% down, at{" "}
-                        {Math.round(item.customization.artworkPlacement.scale * 100)}% of the print area
-                        {item.customization.artworkPlacement.rotation
-                          ? `, rotated ${Math.round(item.customization.artworkPlacement.rotation)}°`
-                          : ""}
-                      </p>
-                    ) : null}
-                  </div>
-                  {viaPlatform ? null : (
-                    <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-                      {formatMoney(item.unitPrice * item.quantity, order.currency)}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ul>
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle asChild>
+                  <h2>Items</h2>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="divide-y divide-border border-t border-border">
+                  {order.items.map((item) => (
+                    <li key={item.id} className="flex flex-wrap gap-4 py-4">
+                      {item.customization.previewUrl && !viaPlatform ? (
+                        <Image
+                          src={item.customization.previewUrl}
+                          alt={`${item.productName} preview`}
+                          width={96}
+                          height={96}
+                          sizes="96px"
+                          className="h-24 w-24 shrink-0 rounded-lg border border-border bg-muted object-cover"
+                        />
+                      ) : null}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground">{item.productName}</p>
+                        <p className="text-xs text-muted-foreground">{item.variantName}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {viaPlatform
+                            ? `Quantity ${item.quantity}`
+                            : `Quantity ${item.quantity} · ${formatMoney(item.unitPrice, order.currency)} each · supplier cost ${formatMoney(item.supplierCost, order.currency)}`}
+                        </p>
+                        {item.customization.text && !viaPlatform ? (
+                          <p className="mt-1.5 text-xs text-inksoft">
+                            Personalisation:{" "}
+                            <span className="font-medium text-foreground">{item.customization.text}</span>
+                          </p>
+                        ) : null}
+                        {item.customization.artworkFileName && !viaPlatform ? (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Artwork:{" "}
+                            {item.customization.artworkUrl ? (
+                              <a
+                                href={item.customization.artworkUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium text-primary hover:underline"
+                              >
+                                {item.customization.artworkFileName} ↗
+                              </a>
+                            ) : (
+                              item.customization.artworkFileName
+                            )}
+                          </p>
+                        ) : null}
+                        {item.customization.artworkPlacement ? (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Placement: {Math.round(item.customization.artworkPlacement.x * 100)}% across,{" "}
+                            {Math.round(item.customization.artworkPlacement.y * 100)}% down, at{" "}
+                            {Math.round(item.customization.artworkPlacement.scale * 100)}% of the print area
+                            {item.customization.artworkPlacement.rotation
+                              ? `, rotated ${Math.round(item.customization.artworkPlacement.rotation)}°`
+                              : ""}
+                          </p>
+                        ) : null}
+                      </div>
+                      {viaPlatform ? null : (
+                        <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
+                          {formatMoney(item.unitPrice * item.quantity, order.currency)}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
 
-            <div className="mt-4 border-t border-line pt-4">
-              {viaPlatform ? (
-                <p className="text-sm text-muted-foreground">
-                  Order values stay with the store team. {order.items.length}{" "}
-                  {order.items.length === 1 ? "line" : "lines"} on this order.
-                </p>
-              ) : (
-              <DataList
-                rows={[
-                  { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
-                  { label: "Shipping", value: formatMoney(order.shipping, order.currency) },
-                  ...(order.discount
-                    ? [
+                <div className="mt-4 border-t border-border pt-4">
+                  {viaPlatform ? (
+                    <p className="text-sm text-muted-foreground">
+                      Order values stay with the store team. {order.items.length}{" "}
+                      {order.items.length === 1 ? "line" : "lines"} on this order.
+                    </p>
+                  ) : (
+                    <DataList
+                      rows={[
+                        { label: "Subtotal", value: formatMoney(order.subtotal, order.currency) },
+                        { label: "Shipping", value: formatMoney(order.shipping, order.currency) },
+                        ...(order.discount
+                          ? [
+                              {
+                                label: `Discount ${order.discount.code}`,
+                                value: `− ${formatMoney(order.discount.amount, order.currency)}`,
+                              },
+                            ]
+                          : []),
+                        ...orderTaxRows(order).map((row) => ({
+                          label: `Tax ${row.rate}%`,
+                          value: formatMoney(row.amount, order.currency),
+                        })),
                         {
-                          label: `Discount ${order.discount.code}`,
-                          value: `− ${formatMoney(order.discount.amount, order.currency)}`,
+                          label: "Total",
+                          value: <span className="text-base">{formatMoney(order.total, order.currency)}</span>,
                         },
-                      ]
-                    : []),
-                  ...orderTaxRows(order).map((row) => ({
-                    label: `Tax ${row.rate}%`,
-                    value: formatMoney(row.amount, order.currency),
-                  })),
-                  {
-                    label: "Total",
-                    value: <span className="text-base">{formatMoney(order.total, order.currency)}</span>,
-                  },
-                  ...(refunded > 0
-                    ? [{ label: "Refunded", value: `− ${formatMoney(refunded, order.currency)}` }]
-                    : []),
-                ]}
-              />
-              )}
-            </div>
+                        ...(refunded > 0
+                          ? [{ label: "Refunded", value: `− ${formatMoney(refunded, order.currency)}` }]
+                          : []),
+                      ]}
+                    />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </section>
 
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Fulfilment timeline</h2>
-            <ol className="mt-4 space-y-4">
-              {order.events.map((entry, index) => (
-                <li key={index} className="flex gap-3">
-                  <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink">{entry.status}</p>
-                    {/* Notes quote amounts and, on a refund, the reason the team
-                        wrote. Platform access sees the step, not the wording. */}
-                    {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
-                    {/* A step a shopper took is recorded under their own name,
-                        so platform access reads the step and when, not who. */}
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(entry.at)}
-                      {viaPlatform ? null : ` · ${entry.actor}`}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle asChild>
+                  <h2>Fulfilment timeline</h2>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ol className="space-y-4">
+                  {order.events.map((entry, index) => (
+                    <li key={index} className="flex gap-3">
+                      <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{entry.status}</p>
+                        {/* Notes quote amounts and, on a refund, the reason the team
+                            wrote. Platform access sees the step, not the wording. */}
+                        {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
+                        {/* A step a shopper took is recorded under their own name,
+                            so platform access reads the step and when, not who. */}
+                        <p className="text-xs text-muted-foreground">
+                          {formatDateTime(entry.at)}
+                          {viaPlatform ? null : ` · ${entry.actor}`}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </CardContent>
+            </Card>
           </section>
 
           {canManage ? (
-            <section className="card p-5">
-              <h2 className="text-base font-semibold text-ink">Manual fulfilment steps</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Use these when a supplier has no order API, or when something needs correcting by hand.
-              </p>
-
-              <div className="mt-5 space-y-6">
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Supplier routing</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {order.fulfillment.submissionMessage ?? "This order has not been routed yet."}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <form action={routeToSupplier}>
-                      <input type="hidden" name="storeId" value={storeId} />
-                      <input type="hidden" name="orderId" value={order.id} />
-                      <button type="submit" className="btn-secondary btn-sm">
-                        Re-run automatic routing
-                      </button>
-                    </form>
-                  </div>
-                  {routingOptions ? (
-                    <div className="mt-5 border-t border-line pt-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {routingOptions.available.length === 0
-                          ? "Alternative production partners"
-                          : order.fulfillment.routing === "submitted"
-                            ? "Move production elsewhere"
-                            : "Choose a production partner"}
-                      </h4>
-                      <SupplierPickerForm order={order} options={routingOptions} />
-                    </div>
-                  ) : null}
-                  {order.fulfillment.routing !== "submitted" ? (
-                    <div className="mt-5 border-t border-line pt-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Purchase order raised by hand
-                      </h4>
-                      <div className="mt-3">
-                        <ManualSubmissionForm order={order} />
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Shipment</h3>
-                  <TrackingForm order={order} store={store} />
-                </div>
-
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Status</h3>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(["in_production", "shipped", "delivered", "cancelled"] as const).map((status) => (
-                      <form key={status} action={advanceStatus}>
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle asChild>
+                    <h2>Manual fulfilment steps</h2>
+                  </CardTitle>
+                  <CardDescription>
+                    Use these when a supplier has no order API, or when something needs correcting by hand.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="rounded-xl border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground">Supplier routing</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {order.fulfillment.submissionMessage ?? "This order has not been routed yet."}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <form action={routeToSupplier}>
                         <input type="hidden" name="storeId" value={storeId} />
                         <input type="hidden" name="orderId" value={order.id} />
-                        <input type="hidden" name="status" value={status} />
-                        <button
-                          type="submit"
-                          className={order.status === status ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
-                          disabled={!canMoveOrder(order, status)}
-                        >
-                          {ORDER_STATUS_LABELS[status]}
-                        </button>
+                        <Button type="submit" variant="outline" size="sm">
+                          Re-run automatic routing
+                        </Button>
                       </form>
-                    ))}
+                    </div>
+                    {routingOptions ? (
+                      <div className="mt-5 border-t border-border pt-4">
+                        <h4 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                          {routingOptions.available.length === 0
+                            ? "Alternative production partners"
+                            : order.fulfillment.routing === "submitted"
+                              ? "Move production elsewhere"
+                              : "Choose a production partner"}
+                        </h4>
+                        <SupplierPickerForm order={order} options={routingOptions} />
+                      </div>
+                    ) : null}
+                    {order.fulfillment.routing !== "submitted" ? (
+                      <div className="mt-5 border-t border-border pt-4">
+                        <h4 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                          Purchase order raised by hand
+                        </h4>
+                        <div className="mt-3">
+                          <ManualSubmissionForm order={order} />
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
-                </div>
 
-                <div className="rounded-xl border border-line p-4">
-                  <h3 className="text-sm font-semibold text-ink">Raise an exception</h3>
-                  <ExceptionForm order={order} />
-                </div>
-
-                <div className="rounded-xl border border-rose-200 p-4">
-                  <h3 className="text-sm font-semibold text-ink">Refund or cancel</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Refunds are issued against the store&rsquo;s own Stripe account. Already refunded:{" "}
-                    {formatMoney(refunded, order.currency)}.
-                  </p>
-                  <div className="mt-3">
-                    <RefundForm order={order} />
+                  <div className="rounded-xl border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground">Shipment</h3>
+                    <div className="mt-3">
+                      <TrackingForm order={order} store={store} />
+                    </div>
                   </div>
-                </div>
-              </div>
+
+                  <div className="rounded-xl border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground">Status</h3>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {(["in_production", "shipped", "delivered", "cancelled"] as const).map((status) => (
+                        <form key={status} action={advanceStatus}>
+                          <input type="hidden" name="storeId" value={storeId} />
+                          <input type="hidden" name="orderId" value={order.id} />
+                          <input type="hidden" name="status" value={status} />
+                          <Button
+                            type="submit"
+                            size="sm"
+                            variant={order.status === status ? "default" : "outline"}
+                            disabled={!canMoveOrder(order, status)}
+                          >
+                            {ORDER_STATUS_LABELS[status]}
+                          </Button>
+                        </form>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground">Raise an exception</h3>
+                    <div className="mt-3">
+                      <ExceptionForm order={order} />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-destructive/30 p-4">
+                    <h3 className="text-sm font-semibold text-foreground">Refund or cancel</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Refunds are issued against the store&rsquo;s own Stripe account. Already refunded:{" "}
+                      {formatMoney(refunded, order.currency)}.
+                    </p>
+                    <div className="mt-3">
+                      <RefundForm order={order} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </section>
           ) : null}
         </div>
 
         <div className="space-y-6">
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Delivery</h2>
-            {viaPlatform ? (
-              // The fulfilment region is what routes the job; the address itself
-              // is a shopper record and stays with the store team.
-              <p className="mt-3 text-sm text-inksoft">
-                Delivery address withheld. Fulfilment region:{" "}
-                <span className="font-medium text-ink">{regionForCountry(order.customer.country)}</span>.
-              </p>
-            ) : (
-              <address className="mt-3 not-italic text-sm text-inksoft">
-                {order.customer.name}
-                <br />
-                {order.customer.line1}
-                <br />
-                {order.customer.city} {order.customer.postalCode}
-                <br />
-                {countryName(order.customer.country)} ({order.customer.country}) ·{" "}
-                {regionForCountry(order.customer.country)}
-              </address>
-            )}
-            {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
-              <a
-                href={order.fulfillment.trackingUrl ?? "#"}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-secondary btn-sm mt-4"
-              >
-                Track with {CARRIER_LABELS[order.fulfillment.carrier]} ↗
-              </a>
-            ) : (
-              <p className="mt-4 text-xs text-muted-foreground">No tracking number yet.</p>
-            )}
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle asChild>
+                  <h2>Delivery</h2>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {viaPlatform ? (
+                  // The fulfilment region is what routes the job; the address itself
+                  // is a shopper record and stays with the store team.
+                  <p className="text-sm text-inksoft">
+                    Delivery address withheld. Fulfilment region:{" "}
+                    <span className="font-medium text-foreground">
+                      {regionForCountry(order.customer.country)}
+                    </span>
+                    .
+                  </p>
+                ) : (
+                  <address className="text-sm not-italic text-inksoft">
+                    {order.customer.name}
+                    <br />
+                    {order.customer.line1}
+                    <br />
+                    {order.customer.city} {order.customer.postalCode}
+                    <br />
+                    {countryName(order.customer.country)} ({order.customer.country}) ·{" "}
+                    {regionForCountry(order.customer.country)}
+                  </address>
+                )}
+                {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
+                  <Button asChild variant="outline" size="sm" className="mt-4">
+                    <a href={order.fulfillment.trackingUrl ?? "#"} target="_blank" rel="noreferrer">
+                      Track with {CARRIER_LABELS[order.fulfillment.carrier]} ↗
+                    </a>
+                  </Button>
+                ) : (
+                  <p className="mt-4 text-xs text-muted-foreground">No tracking number yet.</p>
+                )}
+              </CardContent>
+            </Card>
           </section>
 
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Payment</h2>
-            <DataList
-              rows={[
-                { label: "Provider", value: "Stripe" },
-                {
-                  label: "Status",
-                  value: (
-                    <Badge tone={order.payment.status === "succeeded" ? "green" : order.payment.status === "refunded" ? "slate" : "amber"}>
-                      {order.payment.status}
-                    </Badge>
-                  ),
-                },
-                ...(viaPlatform
-                  ? []
-                  : [
-                      {
-                        label: "Account",
-                        value: <span className="font-mono text-xs">{order.payment.stripeAccountId}</span>,
-                      },
-                      {
-                        label: "Intent",
-                        value: <span className="font-mono text-xs">{order.payment.paymentIntentId}</span>,
-                      },
-                      { label: "Card", value: order.payment.last4 ? `•••• ${order.payment.last4}` : "—" },
-                    ]),
-                { label: "Paid", value: order.payment.paidAt ? formatDateTime(order.payment.paidAt) : "—" },
-              ]}
-            />
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle asChild>
+                  <h2>Payment</h2>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DataList
+                  rows={[
+                    { label: "Provider", value: "Stripe" },
+                    {
+                      label: "Status",
+                      value: (
+                        <Badge variant="outline" className="gap-1.5">
+                          <Dot
+                            tone={
+                              order.payment.status === "succeeded"
+                                ? "green"
+                                : order.payment.status === "refunded"
+                                  ? "slate"
+                                  : "amber"
+                            }
+                          />
+                          {order.payment.status}
+                        </Badge>
+                      ),
+                    },
+                    ...(viaPlatform
+                      ? []
+                      : [
+                          {
+                            label: "Account",
+                            value: <span className="font-mono text-xs">{order.payment.stripeAccountId}</span>,
+                          },
+                          {
+                            label: "Intent",
+                            value: <span className="font-mono text-xs">{order.payment.paymentIntentId}</span>,
+                          },
+                          { label: "Card", value: order.payment.last4 ? `•••• ${order.payment.last4}` : "—" },
+                        ]),
+                    { label: "Paid", value: order.payment.paidAt ? formatDateTime(order.payment.paidAt) : "—" },
+                  ]}
+                />
+              </CardContent>
+            </Card>
           </section>
 
-          <section className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Production</h2>
-            <DataList
-              rows={[
-                { label: "Supplier", value: order.fulfillment.supplierName ?? "Not assigned" },
-                {
-                  label: "Integration",
-                  value: supplier ? (supplier.integration === "api" ? "Order API" : "Manual") : "—",
-                },
-                {
-                  label: "Routing",
-                  value: (
-                    <Badge
-                      tone={
-                        order.fulfillment.routing === "submitted"
-                          ? "green"
-                          : order.fulfillment.routing === "failed"
-                            ? "rose"
-                            : "amber"
-                      }
-                    >
-                      {order.fulfillment.routing.replace("_", " ")}
-                    </Badge>
-                  ),
-                },
-                { label: "Supplier reference", value: order.fulfillment.supplierOrderRef ?? "—" },
-                {
-                  label: "Submitted",
-                  value: order.fulfillment.submittedAt ? formatDateTime(order.fulfillment.submittedAt) : "—",
-                },
-                {
-                  label: "Lead time",
-                  value: supplier ? `${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} days` : "—",
-                },
-                ...(order.fulfillment.reroute
-                  ? [
-                      {
-                        label: "Rerouted",
-                        value: `${order.fulfillment.reroute.actor} · ${formatDateTime(order.fulfillment.reroute.at)}`,
-                      },
-                      {
-                        label: "Moved from",
-                        value: order.fulfillment.reroute.fromSupplierName ?? "Unassigned",
-                      },
-                      { label: "Reason", value: order.fulfillment.reroute.reason },
-                    ]
-                  : []),
-              ]}
-            />
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle asChild>
+                  <h2>Production</h2>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DataList
+                  rows={[
+                    { label: "Supplier", value: order.fulfillment.supplierName ?? "Not assigned" },
+                    {
+                      label: "Integration",
+                      value: supplier ? (supplier.integration === "api" ? "Order API" : "Manual") : "—",
+                    },
+                    {
+                      label: "Routing",
+                      value: (
+                        <Badge variant="outline" className="gap-1.5">
+                          <Dot
+                            tone={
+                              order.fulfillment.routing === "submitted"
+                                ? "green"
+                                : order.fulfillment.routing === "failed"
+                                  ? "rose"
+                                  : "amber"
+                            }
+                          />
+                          {order.fulfillment.routing.replace("_", " ")}
+                        </Badge>
+                      ),
+                    },
+                    { label: "Supplier reference", value: order.fulfillment.supplierOrderRef ?? "—" },
+                    {
+                      label: "Submitted",
+                      value: order.fulfillment.submittedAt ? formatDateTime(order.fulfillment.submittedAt) : "—",
+                    },
+                    {
+                      label: "Lead time",
+                      value: supplier ? `${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} days` : "—",
+                    },
+                    ...(order.fulfillment.reroute
+                      ? [
+                          {
+                            label: "Rerouted",
+                            value: `${order.fulfillment.reroute.actor} · ${formatDateTime(order.fulfillment.reroute.at)}`,
+                          },
+                          {
+                            label: "Moved from",
+                            value: order.fulfillment.reroute.fromSupplierName ?? "Unassigned",
+                          },
+                          { label: "Reason", value: order.fulfillment.reroute.reason },
+                        ]
+                      : []),
+                  ]}
+                />
+              </CardContent>
+            </Card>
           </section>
 
           {order.refunds.length > 0 ? (
-            <section className="card p-5">
-              <h2 className="text-base font-semibold text-ink">Refunds</h2>
-              <ul className="mt-3 divide-y divide-line text-sm">
-                {order.refunds.map((refund) => (
-                  <li key={refund.id} className="py-2.5">
-                    <p className="font-medium tabular-nums text-ink">
-                      {viaPlatform ? "Refund issued" : formatMoney(refund.amount, order.currency)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {refund.reason} · {refund.actor} · {formatDateTime(refund.at)}
-                    </p>
-                    {refund.gatewayRefundId ? (
-                      <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{refund.gatewayRefundId}</p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle asChild>
+                    <h2>Refunds</h2>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="divide-y divide-border border-t border-border text-sm">
+                    {order.refunds.map((refund) => (
+                      <li key={refund.id} className="py-2.5">
+                        <p className="font-medium tabular-nums text-foreground">
+                          {viaPlatform ? "Refund issued" : formatMoney(refund.amount, order.currency)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {refund.reason} · {refund.actor} · {formatDateTime(refund.at)}
+                        </p>
+                        {refund.gatewayRefundId ? (
+                          <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
+                            {refund.gatewayRefundId}
+                          </p>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             </section>
           ) : null}
         </div>

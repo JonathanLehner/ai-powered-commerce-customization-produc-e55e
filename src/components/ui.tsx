@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Badge as ShadcnBadge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -194,16 +194,20 @@ export function Breadcrumbs({
     <Breadcrumb aria-label={label} className="mb-4">
       <BreadcrumbList className="text-xs">
         {items.map((item, i) => (
-          <BreadcrumbItem key={`${item.label}-${i}`}>
-            {item.href ? (
-              <BreadcrumbLink asChild>
-                <Link href={item.href}>{item.label}</Link>
-              </BreadcrumbLink>
-            ) : (
-              <BreadcrumbPage>{item.label}</BreadcrumbPage>
-            )}
+          // The separator is a list item of its own: nesting it inside the
+          // crumb puts an <li> inside an <li>, which React refuses to hydrate.
+          <Fragment key={`${item.label}-${i}`}>
+            <BreadcrumbItem>
+              {item.href ? (
+                <BreadcrumbLink asChild>
+                  <Link href={item.href}>{item.label}</Link>
+                </BreadcrumbLink>
+              ) : (
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              )}
+            </BreadcrumbItem>
             {i < items.length - 1 ? <BreadcrumbSeparator /> : null}
-          </BreadcrumbItem>
+          </Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

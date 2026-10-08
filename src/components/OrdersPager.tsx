@@ -1,4 +1,10 @@
-import Link from "next/link";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { orderListQuery, type OrderListFilters, type OrderListPage } from "@/lib/order-list";
 
 /**
@@ -6,9 +12,9 @@ import { orderListQuery, type OrderListFilters, type OrderListPage } from "@/lib
  * page's pager, reading the order queue's own filters so every page of the
  * table is a URL that can be bookmarked and shared.
  *
- * Nothing here prefetches: each link is a different screenful of orders, and
- * prefetching them all rendered the page over and over in the background for
- * the one page somebody actually asked for.
+ * The shadcn Pagination links are plain anchors on purpose: each one is a
+ * different screenful of orders, and the router prefetching them rendered the
+ * page over and over in the background for the one page somebody asked for.
  */
 export function OrdersPager({
   basePath,
@@ -20,6 +26,7 @@ export function OrdersPager({
   page: OrderListPage;
 }) {
   if (page.total === 0) return null;
+  const href = (n: number) => `${basePath}${orderListQuery(filters, { page: n })}`;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-muted-foreground">
@@ -28,39 +35,29 @@ export function OrdersPager({
         <span className="tabular-nums">{page.total}</span> orders
       </p>
       {page.pages > 1 ? (
-        <nav aria-label="Pages" className="flex items-center gap-2">
-          {page.page > 1 ? (
-            <Link
-              href={`${basePath}${orderListQuery(filters, { page: page.page - 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="prev"
-            >
-              Previous
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Previous
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground tabular-nums">
-            Page {page.page} of {page.pages}
-          </span>
-          {page.page < page.pages ? (
-            <Link
-              href={`${basePath}${orderListQuery(filters, { page: page.page + 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="next"
-            >
-              Next
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Next
-            </span>
-          )}
-        </nav>
+        <Pagination aria-label="Pages" className="mx-0 w-auto justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              {page.page > 1 ? (
+                <PaginationPrevious href={href(page.page - 1)} rel="prev" />
+              ) : (
+                <PaginationPrevious aria-disabled className="pointer-events-none opacity-50" />
+              )}
+            </PaginationItem>
+            <PaginationItem>
+              <span className="px-2 text-xs text-muted-foreground tabular-nums">
+                Page {page.page} of {page.pages}
+              </span>
+            </PaginationItem>
+            <PaginationItem>
+              {page.page < page.pages ? (
+                <PaginationNext href={href(page.page + 1)} rel="next" />
+              ) : (
+                <PaginationNext aria-disabled className="pointer-events-none opacity-50" />
+              )}
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       ) : null}
     </div>
   );

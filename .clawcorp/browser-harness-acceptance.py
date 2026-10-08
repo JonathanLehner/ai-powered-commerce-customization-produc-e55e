@@ -724,9 +724,18 @@ try:
     G(NORTHWIND + "/orders")
     t = text()
     routed = "Printful · submitted" in t or "Gelato · submitted" in t
-    manual = "manual required" in t
+    # Every run adds orders, so the queue's first page is all recent ones; the
+    # job a supplier cannot fulfil is read from the view made for it.
+    G(NORTHWIND + "/orders?view=attention")
+    manual = "manual required" in text()
+    G(NORTHWIND + "/orders")
     tracking = J("""[...document.querySelectorAll('a')].filter(a=>/dhl|ups|fedex/i.test(a.href)).map(a=>a.textContent.trim()+' '+a.href).slice(0,4)""") or []
-    statuses = [s for s in ["In production", "Shipped", "Delivered", "Cancelled", "Exception"] if s in t]
+    # The status filter is a shadcn Select, so its labels live on the options of
+    # the hidden native select it posts with, not in the page's visible text.
+    options = J("""(()=>{const s=document.querySelector('select[name=status]');
+      return s?[...s.options].map(o=>o.textContent.trim()):[];})()""") or []
+    statuses = [s for s in ["In production", "Shipped", "Delivered", "Cancelled", "Exception"]
+                if s in t or s in options]
     shot(16)
     record(16, "pass" if (len(statuses) >= 5 and tracking) else "fail",
            "order queue shows %s statuses and carrier tracking links out to the carriers (%s); the shopper status page shows the same timeline"
@@ -776,8 +785,15 @@ try:
         if href:
             G(href)
             fill("input[name=amount]", "1.00")
-            fill("input[name=reason]", "QA harness partial refund")
-            click_text("button", "Record refund"); time.sleep(5); wait_for_load()
+            # #reason is the refund's own field: the supplier picker further up
+            # the page posts a `reason` too.
+            fill("#reason", "QA harness partial refund")
+            # The button arms an AlertDialog; the dialog's own "Record refund"
+            # is what submits the form.
+            click_text("button", "Record refund")
+            time.sleep(1.0)
+            click_text("button", "Record refund", nth=1)
+            time.sleep(5); wait_for_load()
             t = text()
             # the money actually went back: the gateway's refund id is on the row
             refunded = "refunded" in t.lower() and bool(re.search(r"\bre_3\w+", t))
@@ -825,6 +841,12 @@ except Exception:
 try:
     archived = archive_store(qa_store_url) if qa_store_url else False
     G("/app")
+    # The archived list is collapsed behind a toggle that counts them.
+    try:
+        click_text("button", "archived store")
+        time.sleep(0.5)
+    except Exception:
+        pass
     t = text()
     archived_ok = archived and STORE_RENAMED in t and "Archived stores" in t
     switcher = J("""[...document.querySelectorAll('a')].filter(a=>/\\/app\\/stores\\/str/.test(a.getAttribute('href')||'')).length""")

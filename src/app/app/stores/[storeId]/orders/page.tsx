@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { OrdersPager } from "@/components/OrdersPager";
-import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Dot, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { listGiftCampaigns, listOrders, listStoreProducts } from "@/lib/data";
 import { storeMetrics } from "@/lib/metrics";
 import {
@@ -14,6 +25,7 @@ import {
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
+import { OrdersToolbar } from "./OrdersToolbar";
 
 const TONES: Record<OrderStatus, "green" | "amber" | "rose" | "brand" | "slate"> = {
   awaiting_payment: "slate",
@@ -34,7 +46,7 @@ export default async function OrdersPage({
 }) {
   const { storeId } = await params;
   const filters = parseOrderFilters(await searchParams);
-  const { campaign, q, status, view } = filters;
+  const { campaign, view } = filters;
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
   const [orders, products, campaigns] = await Promise.all([
@@ -83,13 +95,14 @@ export default async function OrdersPage({
               : "Production and delivery status for every order placed on this store."
         }
         actions={
-          <Link
-            href={`${base}${orderListQuery(filters, { view: view === "attention" ? null : "attention", page: 1 })}`}
-            prefetch={false}
-            className={view === "attention" ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
-          >
-            {view === "attention" ? "Showing needs attention" : `Needs attention (${metrics.awaitingAction})`}
-          </Link>
+          <Button asChild variant={view === "attention" ? "default" : "outline"} size="sm">
+            <Link
+              href={`${base}${orderListQuery(filters, { view: view === "attention" ? null : "attention", page: 1 })}`}
+              prefetch={false}
+            >
+              {view === "attention" ? "Showing needs attention" : `Needs attention (${metrics.awaitingAction})`}
+            </Link>
+          </Button>
         }
       />
 
@@ -114,114 +127,80 @@ export default async function OrdersPage({
       </div>
 
       {campaignRows.length > 0 ? (
-        <section className="card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-ink">Gift campaigns</h2>
-            {viaPlatform ? null : (
-              <Link href={`/app/stores/${storeId}/gifting`} className="text-sm font-medium text-brand-700 hover:underline">
-                Gifting
-              </Link>
-            )}
-          </div>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {campaignRows.map((row) => (
-              <li key={row.campaign.id}>
-                <Link
-                  href={
-                    `${base}${orderListQuery(filters, {
-                      campaign: campaign === row.campaign.code ? null : row.campaign.code,
-                      page: 1,
-                    })}`
-                  }
-                  aria-current={campaign === row.campaign.code ? "true" : undefined}
-                  className={
-                    campaign === row.campaign.code
-                      ? "flex flex-col rounded-lg border border-brand-400 bg-brand-50 px-3 py-2 text-left text-xs"
-                      : "flex flex-col rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-canvas"
-                  }
-                >
-                  <span className="font-semibold text-ink">
-                    {row.campaign.code} · {row.campaign.name}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {row.orders} orders · {row.delivered} delivered
-                    {row.exceptions > 0 ? (
-                      <span className="text-rose-700"> · {row.exceptions} need attention</span>
-                    ) : null}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {activeCampaign ? (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Showing {activeCampaign.code} only.{" "}
-              <Link
-                href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
-                className="font-medium text-brand-700 hover:underline"
-              >
-                Work the campaign recipient by recipient
-              </Link>
-              .
-            </p>
-          ) : null}
+        <section>
+          <Card size="sm">
+            <CardHeader>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <CardTitle asChild className="text-sm font-semibold">
+                  <h2>Gift campaigns</h2>
+                </CardTitle>
+                {viaPlatform ? null : (
+                  <Link
+                    href={`/app/stores/${storeId}/gifting`}
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    Gifting
+                  </Link>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ul className="flex flex-wrap gap-2">
+                {campaignRows.map((row) => (
+                  <li key={row.campaign.id}>
+                    <Link
+                      href={
+                        `${base}${orderListQuery(filters, {
+                          campaign: campaign === row.campaign.code ? null : row.campaign.code,
+                          page: 1,
+                        })}`
+                      }
+                      aria-current={campaign === row.campaign.code ? "true" : undefined}
+                      className={
+                        campaign === row.campaign.code
+                          ? "flex flex-col rounded-lg border border-primary bg-primary/5 px-3 py-2 text-left text-xs"
+                          : "flex flex-col rounded-lg border border-border px-3 py-2 text-left text-xs hover:bg-muted"
+                      }
+                    >
+                      <span className="font-semibold text-foreground">
+                        {row.campaign.code} · {row.campaign.name}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {row.orders} orders · {row.delivered} delivered
+                        {row.exceptions > 0 ? (
+                          <span className="text-destructive"> · {row.exceptions} need attention</span>
+                        ) : null}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {activeCampaign ? (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Showing {activeCampaign.code} only.{" "}
+                  <Link
+                    href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Work the campaign recipient by recipient
+                  </Link>
+                  .
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
         </section>
       ) : null}
 
-      <form method="get" action={base} className="card flex flex-wrap items-end gap-3 p-4">
-        {campaign ? <input type="hidden" name="campaign" value={campaign} /> : null}
-        {view ? <input type="hidden" name="view" value={view} /> : null}
-        <div className="min-w-[12rem] flex-1">
-          <label htmlFor="q" className="field-label text-xs">
-            Search
-          </label>
-          <input
-            id="q"
-            name="q"
-            defaultValue={q}
-            placeholder={viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"}
-            className="input py-1.5"
-          />
-        </div>
-        <div>
-          <label htmlFor="status" className="field-label text-xs">
-            Status
-          </label>
-          <select id="status" name="status" defaultValue={status ?? ""} className="input py-1.5">
-            <option value="">All</option>
-            {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((key) => (
-              <option key={key} value={key}>
-                {ORDER_STATUS_LABELS[key]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="btn-secondary">
-          Filter
-        </button>
-        {hasOrderFilters(filters) ? (
-          <Link href={base} prefetch={false} className="btn-ghost">
-            Clear
-          </Link>
-        ) : null}
-        <span className="ml-auto flex items-center gap-2">
-          {exportHref ? (
-            // A download, not a navigation: the browser saves the CSV the route
-            // handler returns and leaves the page where it is.
-            <a href={exportHref} download className="btn-secondary">
-              Download CSV
-            </a>
-          ) : (
-            <span
-              className="btn-secondary cursor-not-allowed opacity-50"
-              aria-disabled="true"
-              title="Only the store team who work the orders can download the shopper records."
-            >
-              Download CSV
-            </span>
-          )}
-        </span>
-      </form>
+      <OrdersToolbar
+        base={base}
+        filters={filters}
+        searchPlaceholder={
+          viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"
+        }
+        exportHref={exportHref}
+        showClear={hasOrderFilters(filters)}
+      />
 
       {page.total === 0 ? (
         <EmptyState
@@ -235,47 +214,68 @@ export default async function OrdersPage({
       ) : (
         <div className="space-y-3">
           <OrdersPager basePath={base} filters={filters} page={page} />
-          <div className="card relative overflow-x-auto">
-            <table className="w-full min-w-[52rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-3">Order</th>
-                  {viaPlatform ? null : <th scope="col" className="px-4 py-3">Customer</th>}
-                  <th scope="col" className="px-4 py-3">Status</th>
-                  <th scope="col" className="px-4 py-3">Fulfilment</th>
-                  {viaPlatform ? null : <th scope="col" className="px-4 py-3 text-right">Total</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
+          {/* The scroll lives on the table container, so the header can stick to
+              the top of it while the queue is read downwards. */}
+          <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10 *:max-h-[34rem]">
+            <Table className="min-w-[52rem]">
+              <TableHeader className="sticky top-0 z-10 bg-muted">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                    Order
+                  </TableHead>
+                  {viaPlatform ? null : (
+                    <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                      Customer
+                    </TableHead>
+                  )}
+                  <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                    Status
+                  </TableHead>
+                  <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                    Fulfilment
+                  </TableHead>
+                  {viaPlatform ? null : (
+                    <TableHead className="px-4 text-right text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                      Total
+                    </TableHead>
+                  )}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {page.orders.map((order) => (
-                  <tr key={order.id} className="align-top">
-                    <td className="px-4 py-3">
+                  // The row itself opens the order: the code's link is stretched
+                  // across it, and the links inside the row stay above it.
+                  <TableRow key={order.id} className="relative">
+                    <TableCell className="px-4 py-3 align-top">
                       <Link
                         href={`/app/stores/${storeId}/orders/${order.id}`}
-                        className="font-medium text-ink hover:underline"
+                        className="font-medium text-foreground after:absolute after:inset-0 after:content-[''] hover:underline"
                       >
                         {order.code}
                       </Link>
                       <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
-                    </td>
+                    </TableCell>
                     {viaPlatform ? null : (
-                      <td className="px-4 py-3">
-                        <p className="text-ink">{order.customer.name}</p>
+                      <TableCell className="px-4 py-3 align-top whitespace-normal">
+                        <p className="text-foreground">{order.customer.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {order.customer.city}, {order.customer.country}
                         </p>
                         {order.campaign ? (
                           <Link
                             href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
-                            className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
+                            className="relative mt-1 inline-block text-xs font-medium text-primary hover:underline"
                           >
                             Gift · {order.campaign.campaignCode}
                           </Link>
                         ) : null}
-                      </td>
+                      </TableCell>
                     )}
-                    <td className="px-4 py-3">
-                      <Badge tone={TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                    <TableCell className="px-4 py-3 align-top whitespace-normal">
+                      <Badge variant="outline" className="gap-1.5">
+                        <Dot tone={TONES[order.status]} />
+                        {ORDER_STATUS_LABELS[order.status]}
+                      </Badge>
                       {order.refunds.length > 0 ? (
                         <p className="mt-1 text-xs text-muted-foreground">
                           {viaPlatform
@@ -286,8 +286,8 @@ export default async function OrdersPage({
                               )} refunded`}
                         </p>
                       ) : null}
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell className="px-4 py-3 align-top whitespace-normal">
                       <p className="text-xs text-inksoft">
                         {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
                         {order.fulfillment.routing === "submitted"
@@ -301,26 +301,26 @@ export default async function OrdersPage({
                           href={order.fulfillment.trackingUrl ?? "#"}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-xs font-medium text-brand-700 hover:underline"
+                          className="relative text-xs font-medium text-primary hover:underline"
                         >
                           {CARRIER_LABELS[order.fulfillment.carrier]} {order.fulfillment.trackingNumber} ↗
                         </a>
                       ) : null}
                       {order.fulfillment.exception ? (
-                        <p className="mt-1 text-xs text-rose-700">
+                        <p className="mt-1 text-xs text-destructive">
                           {viaPlatform ? "Fulfilment exception raised" : order.fulfillment.exception}
                         </p>
                       ) : null}
-                    </td>
+                    </TableCell>
                     {viaPlatform ? null : (
-                      <td className="px-4 py-3 text-right font-medium tabular-nums text-ink">
+                      <TableCell className="px-4 py-3 text-right align-top font-medium tabular-nums whitespace-normal text-foreground">
                         {formatMoney(order.total, order.currency)}
-                      </td>
+                      </TableCell>
                     )}
-                  </tr>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
           <OrdersPager basePath={base} filters={filters} page={page} />
         </div>

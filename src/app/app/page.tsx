@@ -1,8 +1,14 @@
+import { CreditCardIcon, GlobeIcon } from "lucide-react";
 import Link from "next/link";
+import { ArchivedStores } from "@/app/app/ArchivedStores";
 import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
-import { Badge, EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
+import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
@@ -13,6 +19,17 @@ import { formatMoney, relativeTime } from "@/lib/util";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 12;
+
+/** The store's own mark: its theme colour, with the initials of its name. */
+function storeInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
 
 export default async function AgencyDashboard({
   searchParams,
@@ -90,9 +107,9 @@ export default async function AgencyDashboard({
           }
           actions={
             user.platformRole === "agency_admin" ? (
-              <Link href="/app/stores/new" className="btn-primary">
-                Create a client store
-              </Link>
+              <Button asChild>
+                <Link href="/app/stores/new">Create a client store</Link>
+              </Button>
             ) : null
           }
         />
@@ -119,7 +136,7 @@ export default async function AgencyDashboard({
 
         <section className="mt-9">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-ink">Client stores</h2>
+            <h2 className="text-base font-semibold text-foreground">Client stores</h2>
             <p className="text-xs text-muted-foreground">Sales shown in each store&rsquo;s own currency</p>
           </div>
 
@@ -129,9 +146,9 @@ export default async function AgencyDashboard({
                 title="No stores yet"
                 description="Create the first client store to set up branding, payments, shipping and a catalog. It takes about five minutes."
                 action={
-                  <Link href="/app/stores/new" className="btn-primary">
-                    Create a client store
-                  </Link>
+                  <Button asChild>
+                    <Link href="/app/stores/new">Create a client store</Link>
+                  </Button>
                 }
               />
             </div>
@@ -141,89 +158,121 @@ export default async function AgencyDashboard({
                 const progress = setupProgress(store.setup);
                 const theme = THEMES[store.theme];
                 return (
-                  <li key={store.id} className="card flex flex-col p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <Link
-                          href={`/app/stores/${store.id}`}
-                          className="text-base font-semibold text-ink hover:underline"
-                        >
-                          {store.name}
-                        </Link>
-                        <p className="truncate text-sm text-muted-foreground">{store.clientName}</p>
-                      </div>
-                      <span
-                        aria-hidden
-                        className="h-8 w-8 shrink-0 rounded-lg border border-line"
-                        style={{ background: theme.accent }}
-                      />
-                    </div>
+                  <li key={store.id}>
+                    <Card className="h-full">
+                      <CardHeader>
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <Avatar>
+                            {/* The store's own accent, so a card is recognised
+                                before its name is read. */}
+                            <AvatarFallback
+                              className="text-xs font-semibold text-white"
+                              style={{ background: theme.accent }}
+                            >
+                              {storeInitials(store.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <CardTitle className="truncate">
+                              <Link href={`/app/stores/${store.id}`} className="hover:underline">
+                                {store.name}
+                              </Link>
+                            </CardTitle>
+                            <p className="truncate text-sm text-muted-foreground">{store.clientName}</p>
+                          </div>
+                        </div>
+                        <CardAction>
+                          <Badge variant={viaPlatform ? "secondary" : "outline"}>
+                            {storeAccessLabel(role, viaPlatform)}
+                          </Badge>
+                        </CardAction>
+                      </CardHeader>
 
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <Badge tone="neutral">{storeAccessLabel(role, viaPlatform)}</Badge>
-                      <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                        {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
-                      </Badge>
-                      {store.customDomain ? (
-                        <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>
-                          {store.customDomain}
-                        </Badge>
-                      ) : null}
-                    </div>
+                      <CardContent className="space-y-3">
+                        <ul className="space-y-1.5 text-sm text-muted-foreground">
+                          <li className="flex items-center gap-2">
+                            <CreditCardIcon
+                              aria-hidden
+                              className={
+                                store.stripe.connected
+                                  ? "size-4 text-emerald-600"
+                                  : "size-4 text-amber-600"
+                              }
+                            />
+                            {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
+                          </li>
+                          {store.customDomain ? (
+                            <li className="flex items-center gap-2">
+                              <GlobeIcon
+                                aria-hidden
+                                className={
+                                  store.domainStatus === "verified"
+                                    ? "size-4 text-emerald-600"
+                                    : "size-4 text-amber-600"
+                                }
+                              />
+                              <span className="truncate">{store.customDomain}</span>
+                            </li>
+                          ) : null}
+                        </ul>
 
-                    <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-line py-3 text-sm">
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Sales, 30 days</dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-ink">
-                          {formatMoney(metrics.last30Sales, store.defaultCurrency)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Orders</dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-ink">{metrics.orderCount}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Products</dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-ink">
-                          {metrics.publishedProducts}
-                        </dd>
-                      </div>
-                    </dl>
+                        <dl className="grid grid-cols-3 gap-3 border-y border-border py-3 text-sm">
+                          <div>
+                            <dt className="text-xs text-muted-foreground">Sales, 30 days</dt>
+                            <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
+                              {formatMoney(metrics.last30Sales, store.defaultCurrency)}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">Orders</dt>
+                            <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
+                              {metrics.orderCount}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">Products</dt>
+                            <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
+                              {metrics.publishedProducts}
+                            </dd>
+                          </div>
+                        </dl>
 
-                    <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                      <span className="chip">{metrics.inProduction} in production</span>
-                      <span className="chip">{metrics.shipped} shipped</span>
-                      <span className="chip">{metrics.delivered} delivered</span>
-                      {metrics.exceptions > 0 ? (
-                        <Badge tone="rose">{metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}</Badge>
-                      ) : null}
-                      {metrics.manualRouting > 0 ? (
-                        <Badge tone="amber">{metrics.manualRouting} manual</Badge>
-                      ) : null}
-                    </div>
+                        <p className="text-xs text-muted-foreground">
+                          {metrics.inProduction} in production · {metrics.shipped} shipped ·{" "}
+                          {metrics.delivered} delivered
+                          {metrics.exceptions > 0 ? (
+                            <span className="text-destructive">
+                              {" · "}
+                              {metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}
+                            </span>
+                          ) : null}
+                          {metrics.manualRouting > 0 ? (
+                            <span className="text-amber-700">
+                              {" · "}
+                              {metrics.manualRouting} manual
+                            </span>
+                          ) : null}
+                        </p>
 
-                    {progress.pct < 100 ? (
-                      <div className="mt-4">
-                        <ProgressBar value={progress.pct} label={`Setup ${progress.done}/${progress.total}`} />
-                      </div>
-                    ) : null}
+                        {progress.pct < 100 ? (
+                          <ProgressBar value={progress.pct} label={`Setup ${progress.done}/${progress.total}`} />
+                        ) : null}
+                      </CardContent>
 
-                    <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                      <Link href={`/app/stores/${store.id}`} className="btn-secondary btn-sm">
-                        Open
-                      </Link>
-                      <Link href={`/app/stores/${store.id}/orders`} className="btn-ghost btn-sm">
-                        Orders
-                      </Link>
-                      <Link
-                        href={`/s/${store.slug}`}
-                        className="btn-ghost btn-sm"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Storefront ↗
-                      </Link>
-                    </div>
+                      <CardFooter className="mt-auto gap-2">
+                        <Button asChild size="sm">
+                          <Link href={`/app/stores/${store.id}`}>Open</Link>
+                        </Button>
+                        <Button asChild size="sm" variant="ghost">
+                          <Link href={`/app/stores/${store.id}/orders`}>Orders</Link>
+                        </Button>
+                        <Button asChild size="sm" variant="ghost">
+                          <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
+                            Storefront ↗
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
                   </li>
                 );
               })}
@@ -233,47 +282,52 @@ export default async function AgencyDashboard({
 
         {archived.length > 0 ? (
           <section className="mt-9">
-            <h2 className="text-base font-semibold text-ink">Archived stores</h2>
+            <h2 className="text-base font-semibold text-foreground">Archived stores</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Archived stores keep their records for reporting and audit. Their storefronts are offline.
             </p>
-            <ul className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
-              {archived.map(({ store, metrics }) => (
-                <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">{store.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {store.clientName} · {metrics.orderCount} historic orders ·{" "}
-                      {formatMoney(metrics.grossSales, store.defaultCurrency)} lifetime
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/app/stores/${store.id}`} className="btn-ghost btn-sm">
-                      View records
-                    </Link>
-                    <form action={setStoreStatus}>
-                      <input type="hidden" name="storeId" value={store.id} />
-                      <input type="hidden" name="status" value="active" />
-                      <button type="submit" className="btn-secondary btn-sm">
-                        Restore
-                      </button>
-                    </form>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {/* Collapsed by default: the live stores above are what the page is
+                for, and an agency that has run for a while has more archived
+                than active. */}
+            <ArchivedStores count={archived.length}>
+              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+                {archived.map(({ store, metrics }) => (
+                  <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{store.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {store.clientName} · {metrics.orderCount} historic orders ·{" "}
+                        {formatMoney(metrics.grossSales, store.defaultCurrency)} lifetime
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button asChild size="sm" variant="ghost">
+                        <Link href={`/app/stores/${store.id}`}>View records</Link>
+                      </Button>
+                      <form action={setStoreStatus}>
+                        <input type="hidden" name="storeId" value={store.id} />
+                        <input type="hidden" name="status" value="active" />
+                        <Button type="submit" size="sm" variant="outline">
+                          Restore
+                        </Button>
+                      </form>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </ArchivedStores>
           </section>
         ) : null}
 
         <section className="mt-9 pb-4">
-          <h2 className="text-base font-semibold text-ink">Recent activity</h2>
+          <h2 className="text-base font-semibold text-foreground">Recent activity</h2>
           {activity.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
           ) : (
-            <ol className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+            <ol className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
-                  <span className="text-sm text-ink">{auditRunSummary(run)}</span>
+                  <span className="text-sm text-foreground">{auditRunSummary(run)}</span>
                   <span className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </span>
