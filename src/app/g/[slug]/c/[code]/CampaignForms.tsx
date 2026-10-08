@@ -165,8 +165,8 @@ export function PaymentForm({
               />
             </div>
           </div>
-          <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted-foreground">
-            <p className="font-medium text-ink">{card.testMode}</p>
+          <div className="mt-4 rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground">{card.testMode}</p>
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((entry) => (
                 <li key={entry.number}>

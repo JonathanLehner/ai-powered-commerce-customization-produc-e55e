@@ -144,6 +144,8 @@ export const ja: StorefrontCopy = {
     total: "合計",
     checkout: "購入手続きへ",
     keepShopping: "買い物を続ける",
+    viewBasket: "カートを見る",
+    drawerIntro: "カートの概要です。数量の変更と割引コードはカートページで行えます。",
   },
 
   discount: {

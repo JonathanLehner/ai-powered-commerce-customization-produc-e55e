@@ -65,7 +65,7 @@ export default async function OrderStatusPage({
   if (!(await verifyOrderToken(store.id, code, token))) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.order.title}</h1>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">{t.order.title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{fmt(t.order.gateBody, { code })}</p>
         <OrderLookupForm slug={store.slug} code={code} t={t.order} />
       </div>
@@ -99,7 +99,7 @@ export default async function OrderStatusPage({
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">
             {fmt(t.order.heading, { code: order.code })}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -109,7 +109,7 @@ export default async function OrderStatusPage({
         <Badge tone={status.tone}>{t.status[status.label]}</Badge>
       </div>
 
-      <p className="mt-3 rounded-lg border border-line bg-canvas px-4 py-3 text-sm text-inksoft">
+      <p className="mt-3 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-inksoft">
         {t.status[status.note]}
       </p>
 
@@ -118,15 +118,15 @@ export default async function OrderStatusPage({
           href={order.fulfillment.trackingUrl ?? "#"}
           target="_blank"
           rel="noreferrer"
-          className={cn(buttonVariants(), "mt-4")}
+          className={cn(buttonVariants({ size: "lg" }), "mt-5")}
         >
           {fmt(t.order.trackWith, { carrier: CARRIER_LABELS[order.fulfillment.carrier] })}
         </a>
       ) : null}
 
       <section className="mt-8">
-        <h2 className="text-base font-semibold text-ink">{t.order.whatYouOrdered}</h2>
-        <ul className="mt-3 divide-y divide-line">
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.order.whatYouOrdered}</h2>
+        <ul className="mt-3 divide-y divide-border">
           {order.items.map((item) => (
             <li key={item.id} className="flex flex-wrap gap-4 py-4">
               {item.customization.previewUrl ? (
@@ -137,11 +137,11 @@ export default async function OrderStatusPage({
                   width={96}
                   height={96}
                   loading="lazy"
-                  className="h-24 w-24 shrink-0 rounded-lg border border-line bg-canvas object-cover"
+                  className="h-24 w-24 shrink-0 rounded-lg border border-border bg-muted object-cover"
                 />
               ) : null}
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-ink">{item.productName}</p>
+                <p className="text-sm font-semibold text-foreground">{item.productName}</p>
                 <p className="text-xs text-muted-foreground">
                   {fmt(t.order.variantQuantity, {
                     variant: item.variantName,
@@ -151,18 +151,18 @@ export default async function OrderStatusPage({
                 {item.customization.text ? (
                   <p className="mt-1 text-xs text-inksoft">
                     {t.order.personalisation}{" "}
-                    <span className="font-medium text-ink">{item.customization.text}</span>
+                    <span className="font-medium text-foreground">{item.customization.text}</span>
                   </p>
                 ) : null}
               </div>
-              <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
+              <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
                 {money(item.unitPrice * item.quantity, order.currency)}
               </p>
             </li>
           ))}
         </ul>
 
-        <div className="mt-4 border-t border-line pt-4">
+        <div className="mt-4 border-t border-border pt-4">
           <DataList
             rows={[
               { label: t.order.subtotal, value: money(order.subtotal, order.currency) },
@@ -190,7 +190,7 @@ export default async function OrderStatusPage({
 
       <section className="mt-8 grid gap-6 sm:grid-cols-2">
         <div>
-          <h2 className="text-base font-semibold text-ink">{t.order.deliveringTo}</h2>
+          <h2 className="font-heading text-base font-semibold text-foreground">{t.order.deliveringTo}</h2>
           <address className="mt-2 not-italic text-sm text-inksoft">
             {order.customer.name}
             <br />
@@ -202,7 +202,7 @@ export default async function OrderStatusPage({
           </address>
         </div>
         <div>
-          <h2 className="text-base font-semibold text-ink">{t.order.payment}</h2>
+          <h2 className="font-heading text-base font-semibold text-foreground">{t.order.payment}</h2>
           <p className="mt-2 text-sm text-inksoft">
             {order.payment.last4
               ? fmt(t.order.cardEnding, { last4: order.payment.last4 })
@@ -216,31 +216,49 @@ export default async function OrderStatusPage({
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-base font-semibold text-ink">{t.order.progress}</h2>
-        <ol className="mt-3 space-y-4">
-          {order.events.map((entry, index) => (
-            <li key={index} className="flex gap-3">
-              <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-ink">{entry.status}</p>
-                <p className="text-sm text-inksoft">{entry.note}</p>
-                <p className="text-xs text-muted-foreground">{dateTime(entry.at)}</p>
-              </div>
-            </li>
-          ))}
+      <section className="mt-10">
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.order.progress}</h2>
+        {/* A timeline, newest last: each entry is a filled dot on a hairline
+            rail, and the one the order is sitting on now is ringed so the
+            shopper can see where it has got to at a glance. */}
+        <ol className="mt-4">
+          {order.events.map((entry, index) => {
+            const current = index === order.events.length - 1;
+            return (
+              <li key={index} className="relative flex gap-4 pb-6 last:pb-0">
+                {current ? null : (
+                  <span
+                    aria-hidden
+                    className="absolute top-3 bottom-0 left-[0.3125rem] w-px bg-border"
+                  />
+                )}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "relative mt-2 size-2.5 shrink-0 rounded-full",
+                    current ? "bg-primary ring-4 ring-primary/15" : "bg-border",
+                  )}
+                />
+                <div className="min-w-0 pb-0.5">
+                  <p className="text-sm font-medium text-foreground">{entry.status}</p>
+                  <p className="mt-0.5 text-sm text-inksoft">{entry.note}</p>
+                  <p className="mt-1 text-xs tabular-nums text-muted-foreground">{dateTime(entry.at)}</p>
+                </div>
+              </li>
+            );
+          })}
         </ol>
       </section>
 
-      <section className="mt-8 rounded-xl border border-line bg-canvas px-4 py-4">
-        <h2 className="text-base font-semibold text-ink">{t.order.supportTitle}</h2>
+      <section className="mt-10 rounded-xl border border-border bg-muted/60 px-4 py-4">
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.order.supportTitle}</h2>
         {support.email || support.phone ? (
           <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
             {support.email ? (
               <>
                 <dt className="text-muted-foreground">{t.chrome.supportEmailLabel}</dt>
                 <dd>
-                  <a href={supportMailto(support.email, contactSubject)} className="text-ink hover:underline">
+                  <a href={supportMailto(support.email, contactSubject)} className="text-foreground hover:underline">
                     {support.email}
                   </a>
                 </dd>
@@ -250,7 +268,7 @@ export default async function OrderStatusPage({
               <>
                 <dt className="text-muted-foreground">{t.chrome.supportPhoneLabel}</dt>
                 <dd>
-                  <a href={supportTel(support.phone)} className="text-ink hover:underline">
+                  <a href={supportTel(support.phone)} className="text-foreground hover:underline">
                     {support.phone}
                   </a>
                 </dd>
@@ -265,11 +283,17 @@ export default async function OrderStatusPage({
       </section>
 
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link href={`/s/${store.slug}/products`} className={buttonVariants({ variant: "outline" })}>
+        <Link
+          href={`/s/${store.slug}/products`}
+          className={buttonVariants({ variant: "outline", size: "lg" })}
+        >
           {t.order.continueShopping}
         </Link>
         {support.email ? (
-          <a href={supportMailto(support.email, contactSubject)} className={buttonVariants({ variant: "ghost" })}>
+          <a
+            href={supportMailto(support.email, contactSubject)}
+            className={buttonVariants({ variant: "ghost", size: "lg" })}
+          >
             {t.order.contactStore}
           </a>
         ) : null}

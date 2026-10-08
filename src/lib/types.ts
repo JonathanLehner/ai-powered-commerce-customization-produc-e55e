@@ -146,13 +146,23 @@ export interface Store {
 
 export type ThemeKey = "atelier" | "meridian" | "graphite" | "bloom";
 
-export const THEMES: Record<ThemeKey, { name: string; description: string; accent: string; surface: string; ink: string }> = {
+/**
+ * A storefront theme is the client's brand, expressed in the three values the
+ * storefront layout maps onto the shadcn CSS variables — see
+ * `src/lib/store-theme.ts`. `font` is a font stack rather than a webfont so a
+ * client's choice costs no extra request on their shoppers' first paint.
+ */
+export const THEMES: Record<
+  ThemeKey,
+  { name: string; description: string; accent: string; surface: string; ink: string; font: string }
+> = {
   atelier: {
     name: "Atelier",
     description: "Editorial layout with generous whitespace — suits apparel drops.",
     accent: "#0d9488",
     surface: "#f8fafc",
     ink: "#0f172a",
+    font: '"Iowan Old Style", "Palatino Linotype", ui-serif, Georgia, serif',
   },
   meridian: {
     name: "Meridian",
@@ -160,6 +170,7 @@ export const THEMES: Record<ThemeKey, { name: string; description: string; accen
     accent: "#5b4bf5",
     surface: "#f5f3ff",
     ink: "#1e1b4b",
+    font: 'var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif',
   },
   graphite: {
     name: "Graphite",
@@ -167,6 +178,7 @@ export const THEMES: Record<ThemeKey, { name: string; description: string; accen
     accent: "#334155",
     surface: "#f1f5f9",
     ink: "#0f172a",
+    font: '"Helvetica Neue", Helvetica, Arial, ui-sans-serif, sans-serif',
   },
   bloom: {
     name: "Bloom",
@@ -174,6 +186,7 @@ export const THEMES: Record<ThemeKey, { name: string; description: string; accen
     accent: "#e11d48",
     surface: "#fff1f2",
     ink: "#4c0519",
+    font: '"Avenir Next", Avenir, "Trebuchet MS", ui-rounded, sans-serif',
   },
 };
 

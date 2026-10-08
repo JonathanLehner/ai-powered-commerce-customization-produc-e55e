@@ -22,6 +22,7 @@ export function OrderLookupForm({
       action={lookupOrder}
       submitLabel={t.lookupSubmit}
       pendingLabel={t.lookupPending}
+      submitSize="lg"
       hidden={{ slug }}
     >
       {(state) => (

@@ -29,8 +29,11 @@ import {
 } from "@/lib/types";
 import { classNames, formatMoney } from "@/lib/util";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export interface PurchaseProduct {
   id: string;
@@ -60,7 +63,14 @@ export interface PurchaseProduct {
   artworkCopy: StorefrontCopy["artwork"];
 }
 
-export function ProductPurchase({ product }: { product: PurchaseProduct }) {
+export function ProductPurchase({
+  product,
+  heading,
+}: {
+  product: PurchaseProduct;
+  /** The product's name and tags, rendered beside the gallery. */
+  heading?: React.ReactNode;
+}) {
   const t = product.t;
   const colours = [...new Set(product.variants.map((v) => v.colour))];
   const [colour, setColour] = useState(colours[0] ?? "");
@@ -312,9 +322,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
       <div>
-        <div className="overflow-hidden rounded-xl border border-line bg-canvas">
+        <div className="overflow-hidden rounded-xl border border-border bg-muted">
           <div ref={canvasRef} className="relative" style={{ aspectRatio: "1 / 1" }}>
             {activeMockup ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -332,7 +342,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 aria-hidden
                 className={classNames(
                   "pointer-events-none absolute rounded-sm border-2 border-dashed",
-                  blocked ? "border-rose-500/70" : "border-brand-500/70",
+                  blocked ? "border-destructive/70" : "border-primary/70",
                 )}
                 style={{
                   left: `${area.rect.x * 100}%`,
@@ -362,7 +372,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     onPointerUp={endDrag}
                     onPointerCancel={endDrag}
                     onKeyDown={onKeyDown}
-                    className="absolute cursor-move touch-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                    className="absolute cursor-move touch-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     style={{
                       left: `${placement.x * 100}%`,
                       top: `${placement.y * 100}%`,
@@ -393,7 +403,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         </div>
 
         {gallery.length > 1 ? (
-          <ul className="mt-3 flex gap-2">
+          <ul className="mt-3 flex gap-2.5">
             {gallery.map((mockup) => (
               <li key={mockup.id}>
                 <button
@@ -401,15 +411,17 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   onClick={() => setActiveView(mockup.view)}
                   aria-pressed={activeMockup === mockup.url}
                   className={classNames(
-                    "overflow-hidden rounded-lg border-2",
-                    activeMockup === mockup.url ? "border-brand-500" : "border-line",
+                    "overflow-hidden rounded-lg border transition-colors",
+                    activeMockup === mockup.url
+                      ? "border-primary ring-1 ring-primary"
+                      : "border-border hover:border-foreground/25",
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={mockup.url}
                     alt={fmt(t.viewAlt, { view: mockup.view })}
-                    className="h-16 w-16 object-cover"
+                    className="h-20 w-20 object-cover"
                   />
                 </button>
               </li>
@@ -418,7 +430,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         ) : null}
 
         {artworkPreview || text ? (
-          <p className="mt-3 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
+          <p className="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
             {t.livePreview}
           </p>
         ) : null}
@@ -429,10 +441,21 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         beforeSubmit={renderPreview}
         submitLabel={t.addToBasket}
         pendingLabel={t.adding}
+        submitSize="lg"
+        submitClassName="max-lg:flex-1"
         submitDisabled={artworkStatus !== "idle" || blocked}
         hidden={{ storeId: product.storeId, productId: product.id }}
+        // On a phone the add-to-basket row leaves the flow and sticks to the
+        // bottom of the screen, so it stays reachable however far down the
+        // personalisation controls the shopper has scrolled. The form's own
+        // status line travels with it, which is where a refused artwork or a
+        // missing size has to be read.
+        actionsClassName="max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-40 max-lg:border-t max-lg:border-border max-lg:bg-background/95 max-lg:px-4 max-lg:py-3 max-lg:*:mt-0 max-lg:supports-backdrop-filter:backdrop-blur"
         footer={
-          <Link href={`/s/${product.storeSlug}/cart`} className={buttonVariants({ variant: "outline" })}>
+          <Link
+            href={`/s/${product.storeSlug}/cart`}
+            className={buttonVariants({ variant: "outline", size: "lg" })}
+          >
             {t.viewBasket}
           </Link>
         }
@@ -449,70 +472,81 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
               </>
             ) : null}
 
-            <p className="text-2xl font-semibold tabular-nums text-ink">
+            {heading}
+
+            <p className="font-heading mt-5 text-3xl font-semibold tabular-nums text-foreground">
               {variant ? formatMoney(variant.price, product.displayCurrency, product.localeTag) : ""}
             </p>
 
+            <Separator className="mt-6" />
+
             {colours.length > 1 ? (
-              <fieldset className="mt-5">
-                <legend className="text-sm leading-none font-medium text-foreground select-none">{t.colour}</legend>
-                <div className="mt-2 flex flex-wrap gap-2">
+              <fieldset className="mt-6">
+                <legend className="text-sm leading-none font-medium text-foreground select-none">
+                  {t.colour}
+                </legend>
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  size="lg"
+                  aria-label={t.colour}
+                  value={colour}
+                  // Radix clears a single-value group when the active chip is
+                  // pressed again; a product is always in some colour, so an
+                  // empty value is ignored rather than deselecting the lot.
+                  onValueChange={(next) => next && selectColour(next)}
+                  className="mt-2.5 w-full flex-wrap"
+                >
                   {colours.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => selectColour(option)}
-                      aria-pressed={colour === option}
-                      className={classNames(
-                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm",
-                        colour === option ? "border-brand-500 bg-brand-50" : "border-line hover:bg-canvas",
-                      )}
-                    >
+                    <ToggleGroupItem key={option} value={option}>
                       <span
                         aria-hidden
-                        className="h-4 w-4 rounded-full border border-line"
+                        className="size-3.5 rounded-full border border-border"
                         style={{
-                          background: product.variants.find((v) => v.colour === option)?.colourHex ?? "#fff",
+                          background:
+                            product.variants.find((v) => v.colour === option)?.colourHex ?? "#fff",
                         }}
                       />
                       {option}
-                    </button>
+                    </ToggleGroupItem>
                   ))}
-                </div>
+                </ToggleGroup>
               </fieldset>
             ) : null}
 
-            <fieldset className="mt-5">
+            <fieldset className="mt-6">
               <legend className="text-sm leading-none font-medium text-foreground select-none">
                 {sizes.length > 1 ? t.size : t.option}
                 {state.field === "variantId" ? (
-                  <span className="ml-2 text-xs text-rose-600">{t.required}</span>
+                  <span className="ml-2 text-xs text-destructive">{t.required}</span>
                 ) : null}
               </legend>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="lg"
+                aria-label={sizes.length > 1 ? t.size : t.option}
+                value={variantId}
+                onValueChange={(next) => next && setVariantId(next)}
+                className="mt-2.5 w-full flex-wrap"
+              >
                 {sizes.map((option) => (
-                  <button
+                  <ToggleGroupItem
                     key={option.id}
-                    type="button"
-                    onClick={() => setVariantId(option.id)}
-                    aria-pressed={variantId === option.id}
+                    value={option.id}
                     disabled={option.availability === "out_of_stock"}
-                    className={classNames(
-                      "rounded-lg border px-3.5 py-2 text-sm",
-                      variantId === option.id ? "border-brand-500 bg-brand-50 font-medium" : "border-line hover:bg-canvas",
-                      option.availability === "out_of_stock" && "cursor-not-allowed opacity-50",
-                    )}
+                    className="min-w-12"
                   >
                     {option.size || option.name}
                     {option.availability === "low_stock" ? (
-                      <span className="ml-1.5 text-xs text-amber-700">{t.lowStock}</span>
+                      <span className="ml-1 text-xs text-amber-700">{t.lowStock}</span>
                     ) : null}
-                  </button>
+                  </ToggleGroupItem>
                 ))}
-              </div>
+              </ToggleGroup>
             </fieldset>
 
-            <div className="mt-5 max-w-[8rem]">
+            <div className="mt-6 max-w-[8rem]">
               <Label htmlFor="quantity">
                 {t.quantity}
               </Label>
@@ -523,7 +557,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 min={1}
                 max={50}
                 defaultValue={1}
-                className="mt-1.5"
+                className="mt-1.5 h-9"
               />
             </div>
 
@@ -568,7 +602,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   }
                   aria-describedby="artwork-hint"
                   className={classNames(
-                    "mt-1.5 file:mr-3 file:rounded-md file:bg-canvas file:px-3 file:py-1.5",
+                    "mt-1.5 file:mr-3 file:rounded-md file:bg-muted file:px-3 file:py-1.5",
                     artworkStatus === "uploading" && "opacity-60",
                   )}
                 />
@@ -594,9 +628,10 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                 </p>
 
                 {liveArtwork && area && box ? (
-                  <div className="mt-4 rounded-xl border border-line p-4">
+                  <Card size="sm" className="mt-4">
+                    <CardContent>
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-semibold text-ink">{t.artworkPlacementTitle}</h3>
+                      <h3 className="text-sm font-semibold text-foreground">{t.artworkPlacementTitle}</h3>
                       <Button type="button" variant="ghost" size="sm" className="text-rose-700" onClick={clearArtwork}>
                         {t.artworkRemove}
                       </Button>
@@ -607,7 +642,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                       <div>
                         <label
                           htmlFor="artwork-scale"
-                          className="flex items-center justify-between text-xs font-medium text-ink"
+                          className="flex items-center justify-between text-xs font-medium text-foreground"
                         >
                           <span>{t.artworkSize}</span>
                           <span className="tabular-nums text-muted-foreground">
@@ -628,7 +663,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                       <div>
                         <label
                           htmlFor="artwork-rotation"
-                          className="flex items-center justify-between text-xs font-medium text-ink"
+                          className="flex items-center justify-between text-xs font-medium text-foreground"
                         >
                           <span>{t.artworkRotation}</span>
                           <span className="tabular-nums text-muted-foreground">{placement.rotation}°</span>
@@ -644,7 +679,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           className="mt-1 w-full accent-brand-600"
                         />
                       </div>
-                      <div className="flex items-center justify-between rounded-lg bg-canvas px-3 py-2 text-xs">
+                      <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-xs">
                         <span className="text-muted-foreground">{t.artworkResolution}</span>
                         <span
                           className={classNames(
@@ -665,7 +700,8 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                         {t.artworkRecentre}
                       </Button>
                     </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ) : null}
 
                 {errors.length > 0 ? (
