@@ -7,8 +7,10 @@ import { PlainDocument } from "@/components/SiteChrome";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
+import { storeThemeStyle } from "@/lib/store-theme";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
-import { THEMES } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 /**
  * The portal is the client's, not Parcelith's: pages below it are suffixed with
@@ -57,7 +59,6 @@ export default async function GiftPortalLayout({
     return <PlainDocument note="Corporate gifting powered by Parcelith.">{children}</PlainDocument>;
   }
 
-  const theme = THEMES[store.theme];
   const { tag, t } = storefrontLocale(store);
   // The same contacts the storefront publishes: a gifting buyer with a problem
   // has no other route to the seller either, and nothing here is invented from
@@ -65,9 +66,9 @@ export default async function GiftPortalLayout({
   const support = storeSupport(store);
 
   return (
-    <Document lang={tag}>
-      <div className="flex min-h-full flex-col bg-white">
-        <header className="border-b border-line bg-white">
+    <Document lang={tag} style={storeThemeStyle(store.theme)}>
+      <div className="flex min-h-full flex-col bg-background">
+        <header className="border-b border-border bg-background">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
             <Link href={`/g/${catalogue.slug}`} className="flex min-w-0 items-center gap-2.5">
               {store.logoUrl ? (
@@ -77,19 +78,18 @@ export default async function GiftPortalLayout({
                   width={40}
                   height={40}
                   sizes="40px"
-                  className="h-9 w-9 shrink-0 rounded object-contain"
+                  className="h-9 w-9 shrink-0 rounded-md object-contain"
                 />
               ) : (
                 <span
                   aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-sm font-bold text-white"
-                  style={{ background: theme.accent }}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground"
                 >
                   {store.name.slice(0, 1)}
                 </span>
               )}
               <span className="min-w-0">
-                <span className="block truncate text-base font-semibold tracking-tight text-ink">
+                <span className="font-heading block truncate text-base font-semibold tracking-tight text-foreground">
                   {catalogue.companyName}
                 </span>
                 <span className="block truncate text-xs text-muted-foreground">
@@ -97,9 +97,9 @@ export default async function GiftPortalLayout({
                 </span>
               </span>
             </Link>
-            <span className="ml-auto rounded-full border border-line bg-canvas px-2.5 py-0.5 text-xs font-medium text-inksoft">
+            <Badge variant="outline" className="ml-auto rounded-full">
               {t.gift.private}
-            </span>
+            </Badge>
           </div>
         </header>
 
@@ -109,21 +109,21 @@ export default async function GiftPortalLayout({
           </GiftPortalFallbackProvider>
         </main>
 
-        <footer className="border-t border-line bg-canvas">
-          <div className="mx-auto w-full max-w-6xl px-4 py-8 text-sm text-muted-foreground sm:px-6">
-            <p className="text-ink">{catalogue.name}</p>
+        <footer className="mt-16 border-t border-border bg-muted/60">
+          <div className="mx-auto w-full max-w-6xl px-4 py-10 text-sm text-muted-foreground sm:px-6">
+            <p className="font-heading font-semibold text-foreground">{catalogue.name}</p>
             <p className="mt-1">{fmt(t.gift.operatedBy, { client: store.clientName })}</p>
             {support.email || support.phone ? (
               <p className="mt-3">
                 {t.gift.supportTitle}{" "}
                 {support.email ? (
-                  <a href={supportMailto(support.email)} className="text-ink hover:underline">
+                  <a href={supportMailto(support.email)} className="text-foreground hover:underline">
                     {support.email}
                   </a>
                 ) : null}
                 {support.email && support.phone ? " · " : null}
                 {support.phone ? (
-                  <a href={supportTel(support.phone)} className="text-ink hover:underline">
+                  <a href={supportTel(support.phone)} className="text-foreground hover:underline">
                     {support.phone}
                   </a>
                 ) : null}
@@ -131,10 +131,11 @@ export default async function GiftPortalLayout({
             ) : (
               <p className="mt-3">{fmt(t.gift.supportPending, { client: store.clientName })}</p>
             )}
-            <p className="mt-3 text-xs">
-              {fmt(t.gift.legal, { year: new Date().getFullYear(), client: store.clientName })}
-            </p>
           </div>
+          <Separator />
+          <p className="mx-auto w-full max-w-6xl px-4 py-5 text-xs text-muted-foreground sm:px-6">
+            {fmt(t.gift.legal, { year: new Date().getFullYear(), client: store.clientName })}
+          </p>
         </footer>
       </div>
     </Document>

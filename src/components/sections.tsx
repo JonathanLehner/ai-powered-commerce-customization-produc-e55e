@@ -1,10 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { StorefrontCopy } from "@/lib/i18n";
 import type { SectionType } from "@/lib/storefront-schema";
 import type { ThemeKey } from "@/lib/types";
-import { THEMES } from "@/lib/types";
 import { formatMoney } from "@/lib/util";
+import { cn } from "@/lib/utils";
 
 export interface StorefrontProductCard {
   id: string;
@@ -31,6 +35,14 @@ export interface StorefrontContext {
   localeTag: string;
 }
 
+/**
+ * The eight approved sections, drawn with the shared shadcn components and the
+ * shadcn tokens only. The store's own colours, type and hairlines arrive
+ * through those tokens — `storeThemeStyle` maps them onto `<html>` on the live
+ * storefront and onto the canvas in the editor — so a section never names a
+ * theme colour itself and the same markup is what the editor previews.
+ */
+
 function href(ctx: StorefrontContext, target: string): string {
   if (ctx.preview) return "#";
   if (target === "cart") return `/s/${ctx.slug}/cart`;
@@ -47,49 +59,56 @@ function num(props: Record<string, unknown>, key: string, fallback: number): num
   return Number.isFinite(value) ? value : fallback;
 }
 
+/** The three tones a section can be set to, as token classes. */
+function toneClasses(tone: string): string {
+  if (tone === "dark") return "bg-foreground text-background";
+  if (tone === "accent") return "bg-primary text-primary-foreground";
+  return "bg-muted/60 text-foreground";
+}
+
+/** The eyebrow above a section heading: small, wide, quiet. */
+const EYEBROW = "text-xs font-medium tracking-[0.14em] uppercase";
+
 export function HeroSection({ props, ctx }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
-  const accent = THEMES[ctx.theme].accent;
   const centred = str(props, "align", "left") === "center";
   const tone = str(props, "tone", "light");
+  const light = tone === "light";
   const image = str(props, "imageUrl");
 
   return (
-    <section
-      className={
-        tone === "dark"
-          ? "bg-ink text-white"
-          : tone === "accent"
-            ? "text-white"
-            : "bg-canvas text-ink"
-      }
-      style={tone === "accent" ? { background: accent } : undefined}
-    >
+    <section className={toneClasses(tone)}>
       <div
-        className={`mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 sm:py-16 ${
-          image ? "lg:grid-cols-2 lg:items-center" : ""
-        }`}
+        className={cn(
+          "mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20",
+          image ? "lg:grid-cols-2 lg:items-center" : "",
+        )}
       >
         <div className={centred && !image ? "mx-auto max-w-2xl text-center" : ""}>
           {str(props, "eyebrow") ? (
-            <p
-              className="text-xs font-semibold uppercase tracking-[0.14em]"
-              style={{ color: tone === "light" ? accent : undefined }}
-            >
+            <p className={cn(EYEBROW, light ? "text-primary" : "opacity-80")}>
               {str(props, "eyebrow")}
             </p>
           ) : null}
-          <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+          <h1 className="font-heading mt-4 text-3xl leading-[1.1] font-semibold tracking-tight text-balance sm:text-5xl">
             {str(props, "headline", ctx.t.welcome)}
           </h1>
-          <p className={`mt-4 text-base leading-relaxed ${tone === "light" ? "text-inksoft" : "text-white/85"}`}>
+          <p
+            className={cn(
+              "mt-5 max-w-xl text-base leading-relaxed",
+              light ? "text-inksoft" : "opacity-85",
+              centred && !image ? "mx-auto" : "",
+            )}
+          >
             {str(props, "body")}
           </p>
           {str(props, "ctaLabel") ? (
-            <div className={`mt-7 ${centred && !image ? "flex justify-center" : ""}`}>
+            <div className={cn("mt-8", centred && !image ? "flex justify-center" : "")}>
               <Link
                 href={href(ctx, str(props, "ctaHref", "products"))}
-                className="inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                style={{ background: tone === "light" ? accent : "#0d1524" }}
+                className={buttonVariants({
+                  variant: light ? "default" : "outline",
+                  size: "lg",
+                })}
               >
                 {str(props, "ctaLabel")}
               </Link>
@@ -97,7 +116,7 @@ export function HeroSection({ props, ctx }: { props: Record<string, unknown>; ct
           ) : null}
         </div>
         {image ? (
-          <div className="overflow-hidden rounded-2xl border border-black/5 bg-white/40">
+          <div className="overflow-hidden rounded-xl border border-border bg-background">
             <Image
               src={image}
               alt=""
@@ -116,17 +135,16 @@ export function HeroSection({ props, ctx }: { props: Record<string, unknown>; ct
 }
 
 export function PromoBanner({ props, ctx }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
-  const accent = THEMES[ctx.theme].accent;
   const tone = str(props, "tone", "accent");
   return (
-    <div
-      className={tone === "light" ? "bg-canvas text-ink" : "text-white"}
-      style={tone === "accent" ? { background: accent } : tone === "dark" ? { background: "#0d1524" } : undefined}
-    >
+    <div className={toneClasses(tone)}>
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-center gap-3 px-4 py-2.5 text-sm sm:px-6">
         <span className="font-medium">{str(props, "text")}</span>
         {str(props, "ctaLabel") ? (
-          <Link href={href(ctx, str(props, "ctaHref", "products"))} className="underline underline-offset-4">
+          <Link
+            href={href(ctx, str(props, "ctaHref", "products"))}
+            className="underline underline-offset-4 hover:no-underline"
+          >
             {str(props, "ctaLabel")}
           </Link>
         ) : null}
@@ -135,8 +153,7 @@ export function PromoBanner({ props, ctx }: { props: Record<string, unknown>; ct
   );
 }
 
-export function ValueProps({ props, ctx }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
-  const accent = THEMES[ctx.theme].accent;
+export function ValueProps({ props }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
   const items = [
     { title: str(props, "itemOneTitle"), body: str(props, "itemOneBody") },
     { title: str(props, "itemTwoTitle"), body: str(props, "itemTwoBody") },
@@ -144,17 +161,23 @@ export function ValueProps({ props, ctx }: { props: Record<string, unknown>; ctx
   ].filter((i) => i.title);
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
+    <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
       {str(props, "title") ? (
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">{str(props, "title")}</h2>
+        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          {str(props, "title")}
+        </h2>
       ) : null}
-      <div className="mt-6 grid gap-5 md:grid-cols-3">
+      <div className="mt-7 grid gap-5 md:grid-cols-3">
         {items.map((item) => (
-          <div key={item.title} className="rounded-xl border border-line bg-white p-5">
-            <span aria-hidden className="block h-1 w-8 rounded-full" style={{ background: accent }} />
-            <h3 className="mt-3 text-base font-semibold text-ink">{item.title}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-inksoft">{item.body}</p>
-          </div>
+          <Card key={item.title} className="h-full">
+            <CardContent>
+              <span aria-hidden className="block h-0.5 w-8 rounded-full bg-primary" />
+              <h3 className="font-heading mt-4 text-base font-semibold text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-inksoft">{item.body}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </section>
@@ -162,69 +185,49 @@ export function ValueProps({ props, ctx }: { props: Record<string, unknown>; ctx
 }
 
 export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
-  const columns = str(props, "columns", "3");
+  const columns = str(props, "columns", "3") === "2" ? 2 : str(props, "columns", "3") === "4" ? 4 : 3;
   const limit = num(props, "limit", 6);
   const showPrice = props.showPrice !== false;
   const products = ctx.products.slice(0, limit);
-  const colClass =
-    columns === "2" ? "sm:grid-cols-2" : columns === "4" ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-5">
         <div>
           {str(props, "title") ? (
-            <h2 className="text-2xl font-semibold tracking-tight text-ink">{str(props, "title")}</h2>
+            <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+              {str(props, "title")}
+            </h2>
           ) : null}
           {str(props, "subtitle") ? (
-            <p className="mt-1.5 max-w-xl text-sm text-inksoft">{str(props, "subtitle")}</p>
+            <p className="mt-2 max-w-xl text-sm text-inksoft">{str(props, "subtitle")}</p>
           ) : null}
         </div>
-        <Link href={href(ctx, "products")} className="text-sm font-medium text-brand-700 hover:underline">
+        <Link href={href(ctx, "products")} className={buttonVariants({ variant: "ghost", size: "lg" })}>
           {ctx.t.viewAll}
         </Link>
       </div>
 
       {products.length === 0 ? (
-        <p className="mt-6 rounded-xl border border-dashed border-line bg-canvas px-5 py-10 text-center text-sm text-muted-foreground">
+        <p className="mt-8 rounded-xl border border-dashed border-border bg-muted/60 px-5 py-12 text-center text-sm text-muted-foreground">
           {ctx.t.noProducts}
         </p>
       ) : (
-        <ul className={`mt-6 grid gap-5 ${colClass}`}>
+        <ProductTileGrid columns={columns} className="mt-8">
           {products.map((product) => (
-            <li key={product.id} className="group overflow-hidden rounded-xl border border-line bg-white">
-              <Link href={ctx.preview ? "#" : `/s/${ctx.slug}/products/${product.slug}`}>
-                <div className="bg-canvas">
-                  {product.imageUrl ? (
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      width={640}
-                      height={640}
-                      loading="lazy"
-                      sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 90vw"
-                      className="h-auto w-full object-cover transition group-hover:scale-[1.02]"
-                      style={{ aspectRatio: "1 / 1" }}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center text-sm text-muted-foreground" style={{ aspectRatio: "1 / 1" }}>
-                      {ctx.t.previewSoon}
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="text-sm font-semibold text-ink">{product.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{product.tagline}</p>
-                  {showPrice ? (
-                    <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                      {formatMoney(product.price, product.currency, ctx.localeTag)}
-                    </p>
-                  ) : null}
-                </div>
-              </Link>
-            </li>
+            <ProductTile
+              key={product.id}
+              columns={columns}
+              href={ctx.preview ? undefined : `/s/${ctx.slug}/products/${product.slug}`}
+              name={product.name}
+              tagline={product.tagline}
+              price={showPrice ? formatMoney(product.price, product.currency, ctx.localeTag) : null}
+              imageUrl={product.imageUrl}
+              imageAlt={product.name}
+              placeholder={ctx.t.previewSoon}
+            />
           ))}
-        </ul>
+        </ProductTileGrid>
       )}
     </section>
   );
@@ -234,11 +237,11 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
   const image = str(props, "imageUrl");
   const right = str(props, "imageSide", "left") === "right";
   return (
-    <section className="border-y border-line bg-canvas">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-center">
+    <section className="border-y border-border bg-muted/60">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:items-center">
         <div className={right ? "lg:order-2" : ""}>
           {image ? (
-            <div className="overflow-hidden rounded-2xl border border-line bg-white">
+            <div className="overflow-hidden rounded-xl border border-border bg-background">
               <Image
                 src={image}
                 alt=""
@@ -252,7 +255,7 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
             </div>
           ) : (
             <div
-              className="flex items-center justify-center rounded-2xl border border-dashed border-line bg-white text-sm text-muted-foreground"
+              className="flex items-center justify-center rounded-xl border border-dashed border-border bg-background text-sm text-muted-foreground"
               style={{ aspectRatio: "4 / 3" }}
             >
               {ctx.t.imagePlaceholder}
@@ -260,9 +263,11 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
           )}
         </div>
         <div className={right ? "lg:order-1" : ""}>
-          <h2 className="text-2xl font-semibold tracking-tight text-ink">{str(props, "heading")}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-inksoft sm:text-base">{str(props, "body")}</p>
-          <p className="mt-4 text-xs text-muted-foreground">{ctx.clientName}</p>
+          <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+            {str(props, "heading")}
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-inksoft sm:text-base">{str(props, "body")}</p>
+          <p className="mt-5 text-xs tracking-wide text-muted-foreground uppercase">{ctx.clientName}</p>
         </div>
       </div>
     </section>
@@ -272,59 +277,63 @@ export function ImageWithText({ props, ctx }: { props: Record<string, unknown>; 
 export function RichText({ props }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
   const centred = str(props, "align", "left") === "center";
   return (
-    <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
+    <section className="mx-auto w-full max-w-3xl px-4 py-14 sm:px-6">
       <div className={centred ? "text-center" : ""}>
-        <h2 className="text-xl font-semibold tracking-tight text-ink">{str(props, "heading")}</h2>
-        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-inksoft">{str(props, "body")}</p>
+        <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">
+          {str(props, "heading")}
+        </h2>
+        <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-inksoft">
+          {str(props, "body")}
+        </p>
       </div>
     </section>
   );
 }
 
-export function Testimonial({ props, ctx }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
-  const accent = THEMES[ctx.theme].accent;
+export function Testimonial({ props }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
   return (
-    <section className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6">
-      <figure className="rounded-2xl border border-line bg-white p-8 text-center">
-        <span aria-hidden className="mx-auto block h-1 w-10 rounded-full" style={{ background: accent }} />
-        <blockquote className="mt-5 text-lg leading-relaxed text-ink">“{str(props, "quote")}”</blockquote>
-        <figcaption className="mt-4 text-sm text-muted-foreground">
-          <span className="font-medium text-ink">{str(props, "author")}</span>
-          {str(props, "role") ? ` · ${str(props, "role")}` : ""}
-        </figcaption>
-      </figure>
+    <section className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6">
+      <Card asChild>
+        <figure className="px-8 py-10 text-center">
+          <span aria-hidden className="mx-auto block h-0.5 w-10 rounded-full bg-primary" />
+          <blockquote className="font-heading mt-6 text-xl leading-relaxed text-balance text-foreground">
+            “{str(props, "quote")}”
+          </blockquote>
+          <figcaption className="mt-5 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{str(props, "author")}</span>
+            {str(props, "role") ? ` · ${str(props, "role")}` : ""}
+          </figcaption>
+        </figure>
+      </Card>
     </section>
   );
 }
 
 export function NewsletterSignup({ props, ctx }: { props: Record<string, unknown>; ctx: StorefrontContext }) {
-  const accent = THEMES[ctx.theme].accent;
   return (
-    <section className="border-t border-line bg-canvas">
-      <div className="mx-auto w-full max-w-3xl px-4 py-12 text-center sm:px-6">
-        <h2 className="text-xl font-semibold tracking-tight text-ink">{str(props, "heading")}</h2>
-        <p className="mt-2 text-sm text-inksoft">{str(props, "body")}</p>
+    <section className="border-t border-border bg-muted/60">
+      <div className="mx-auto w-full max-w-3xl px-4 py-14 text-center sm:px-6">
+        <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">
+          {str(props, "heading")}
+        </h2>
+        <p className="mt-3 text-sm text-inksoft">{str(props, "body")}</p>
         <form
-          className="mx-auto mt-5 flex max-w-md flex-col gap-2 sm:flex-row"
+          className="mx-auto mt-6 flex max-w-md flex-col gap-2 sm:flex-row"
           action={ctx.preview ? undefined : `/s/${ctx.slug}/products`}
         >
           <label htmlFor="newsletter-email" className="sr-only">
             {ctx.t.newsletterEmail}
           </label>
-          <input
+          <Input
             id="newsletter-email"
             type="email"
             name="email"
             placeholder="you@example.com"
-            className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-muted-foreground focus:border-brand-500 focus:outline-2 focus:outline-brand-500/40"
+            className="h-9 bg-background"
           />
-          <button
-            type="submit"
-            className="rounded-lg px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: accent }}
-          >
+          <Button type="submit" size="lg">
             {str(props, "buttonLabel", ctx.t.notifyMe)}
-          </button>
+          </Button>
         </form>
       </div>
     </section>

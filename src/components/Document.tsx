@@ -40,15 +40,24 @@ export const siteMetadata: Metadata = {
 
 export function Document({
   lang = "en",
+  style,
   children,
 }: {
   /** BCP-47 tag announced to browsers and screen readers. */
   lang?: string;
+  /**
+   * CSS variables for the whole document. A client storefront passes its own
+   * theme here (see `storeThemeStyle`) so every shadcn component below — and
+   * everything a Sheet or Select portals into `<body>` — reads the client's
+   * colours, type and hairlines without a per-component override.
+   */
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
   return (
     <html
       lang={lang}
+      style={style}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-ink">{children}</body>

@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { UnknownGiftPortalView } from "@/components/NotFoundViews";
+import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
 import { Badge, Callout, EmptyState } from "@/components/ui";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess } from "@/lib/gift-access";
@@ -10,7 +10,7 @@ import { convert } from "@/lib/pricing";
 import { GateForm } from "./GateForm";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 /** The four steps of a campaign, in the store's own language. */
 const steps = (t: StorefrontCopy["gift"]) => [
@@ -36,7 +36,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
         <Card className="block overflow-visible p-6">
-          <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.closedTitle}</h1>
+          <h1 className="font-heading text-lg font-semibold tracking-tight text-foreground">{t.gift.closedTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {fmt(t.gift.closedBody, { company: catalogue.companyName })}
         </p>
@@ -50,7 +50,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
         <Card className="block overflow-visible p-6">
           <Badge tone="brand">{t.gift.privateBadge}</Badge>
-          <h1 className="mt-3 text-lg font-semibold tracking-tight text-ink">{catalogue.name}</h1>
+          <h1 className="font-heading mt-3 text-lg font-semibold tracking-tight text-foreground">{catalogue.name}</h1>
           {catalogue.access === "invite" ? (
             <>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -78,42 +78,52 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{catalogue.name}</h1>
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{catalogue.name}</h1>
           <p className="mt-2 max-w-2xl text-sm text-inksoft">
             {catalogue.intro || fmt(t.gift.introFallback, { company: catalogue.companyName })}
           </p>
         </div>
         {available.length> 0 ? (
-          <Link href={`/g/${catalogue.slug}/order`} className={buttonVariants()}>
+          <Link href={`/g/${catalogue.slug}/order`} className={buttonVariants({ size: "lg" })}>
             {t.gift.startOrder}
           </Link>
         ) : null}
       </div>
 
-      <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted-foreground">{t.gift.spendLimitLabel}</dt>
-          <dd className="mt-1 text-lg font-semibold text-ink">
-            {catalogue.spendLimitPerRecipient > 0
-              ? money(catalogue.spendLimitPerRecipient, catalogue.currency)
-              : t.gift.noLimit}
-          </dd>
-        </div>
-        <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted-foreground">{t.gift.approvalLabel}</dt>
-          <dd className="mt-1 text-lg font-semibold text-ink">
-            {catalogue.approvalRequired
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        {[
+          {
+            label: t.gift.spendLimitLabel,
+            value:
+              catalogue.spendLimitPerRecipient > 0
+                ? money(catalogue.spendLimitPerRecipient, catalogue.currency)
+                : t.gift.noLimit,
+          },
+          {
+            label: t.gift.approvalLabel,
+            value: catalogue.approvalRequired
               ? catalogue.approverName || t.gift.approvalRequired
-              : t.gift.approvalNotRequired}
-          </dd>
-        </div>
-        <div className="rounded-xl border border-line bg-canvas p-4">
-          <dt className="text-xs font-medium text-muted-foreground">{t.gift.recipientsLabel}</dt>
-          <dd className="mt-1 text-lg font-semibold text-ink">
-            {fmt(t.gift.recipientsUpTo, { count: MAX_RECIPIENTS })}
-          </dd>
-        </div>
-      </dl>
+              : t.gift.approvalNotRequired,
+          },
+          {
+            label: t.gift.recipientsLabel,
+            value: fmt(t.gift.recipientsUpTo, { count: MAX_RECIPIENTS }),
+          },
+        ].map((stat) => (
+          <Card asChild key={stat.label} size="sm">
+            <dl>
+              <CardContent>
+                <dt className="text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+                  {stat.label}
+                </dt>
+                <dd className="font-heading mt-1.5 text-lg font-semibold text-foreground">
+                  {stat.value}
+                </dd>
+              </CardContent>
+            </dl>
+          </Card>
+        ))}
+      </div>
 
       {available.length === 0 ? (
         <div className="mt-8">
@@ -121,56 +131,35 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
         </div>
       ) : (
         <>
-          <h2 className="mt-10 text-base font-semibold text-ink">{t.gift.giftsTitle}</h2>
-          <ul className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="font-heading mt-12 text-base font-semibold text-foreground">
+            {t.gift.giftsTitle}
+          </h2>
+          <ProductTileGrid className="mt-5">
             {available.map((product, index) => {
               const price = convert(product.price, product.currency, catalogue.currency);
               const sizes = [
                 ...new Set(product.variants.filter((v) => v.enabled).map((v) => v.size).filter(Boolean)),
               ];
               return (
-                <li key={product.id} className="overflow-hidden rounded-xl border border-line bg-white">
-                  <div className="bg-canvas">
-                    {product.mockups[0] ? (
-                      <Image
-                        src={product.mockups[0].url}
-                        alt={product.name}
-                        width={640}
-                        height={640}
-                        priority={index < 3}
-                        loading={index < 3 ? "eager" : "lazy"}
-                        sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
-                        className="h-auto w-full object-cover"
-                        style={{ aspectRatio: "1 / 1" }}
-                      />
-                    ) : (
-                      <div
-                        className="flex items-center justify-center text-sm text-muted-foreground"
-                        style={{ aspectRatio: "1 / 1" }}
-                      >
-                        {t.gift.previewSoon}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-semibold text-ink">{product.name}</h3>
-                      {catalogue.spendLimitPerRecipient > 0 && price > catalogue.spendLimitPerRecipient ? (
-                        <Badge tone="amber">{t.gift.overLimit}</Badge>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{product.description.split("\n")[0]}</p>
-                    <p className="mt-2 text-sm font-semibold tabular-nums text-ink">
-                      {money(price, catalogue.currency)}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {sizes.length > 0 ? fmt(t.gift.sizes, { sizes: sizes.join(", ") }) : t.gift.oneSize}
-                    </p>
-                  </div>
-                </li>
+                <ProductTile
+                  key={product.id}
+                  name={product.name}
+                  tagline={product.description.split("\n")[0]}
+                  price={money(price, catalogue.currency)}
+                  imageUrl={product.mockups[0]?.url ?? null}
+                  imageAlt={product.name}
+                  placeholder={t.gift.previewSoon}
+                  priority={index < 3}
+                  meta={sizes.length > 0 ? fmt(t.gift.sizes, { sizes: sizes.join(", ") }) : t.gift.oneSize}
+                  badge={
+                    catalogue.spendLimitPerRecipient > 0 && price > catalogue.spendLimitPerRecipient ? (
+                      <Badge tone="amber">{t.gift.overLimit}</Badge>
+                    ) : null
+                  }
+                />
               );
             })}
-          </ul>
+          </ProductTileGrid>
         </>
       )}
 
@@ -186,21 +175,24 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
         </div>
       ) : null}
 
-      <section className="mt-12 rounded-xl border border-line bg-canvas p-6">
-        <h2 className="text-base font-semibold text-ink">{t.gift.howItWorks}</h2>
-        <ol className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mt-16 rounded-xl border border-border bg-muted/60 p-6 sm:p-8">
+        <h2 className="font-heading text-base font-semibold text-foreground">{t.gift.howItWorks}</h2>
+        <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {steps(t.gift).map((step, index) => (
             <li key={step.title}>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink">
+              <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {index + 1}
               </span>
-              <p className="mt-2 text-sm font-semibold text-ink">{step.title}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{step.detail}</p>
+              <p className="mt-3 text-sm font-semibold text-foreground">{step.title}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.detail}</p>
             </li>
           ))}
         </ol>
-        {available.length> 0 ? (
-          <Link href={`/g/${catalogue.slug}/order`} className={cn(buttonVariants(), "mt-6 inline-flex")}>
+        {available.length > 0 ? (
+          <Link
+            href={`/g/${catalogue.slug}/order`}
+            className={cn(buttonVariants({ size: "lg" }), "mt-8 inline-flex")}
+          >
             {t.gift.startOrder}
           </Link>
         ) : null}

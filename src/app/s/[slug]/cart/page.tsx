@@ -8,8 +8,9 @@ import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -41,7 +42,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.basket.title}</h1>
+      <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">{t.basket.title}</h1>
 
       {items.length === 0 ? (
         <div className="mt-8">
@@ -49,7 +50,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
             title={t.basket.emptyTitle}
             description={t.basket.emptyBody}
             action={
-              <Link href={`/s/${store.slug}/products`} className={buttonVariants()}>
+              <Link href={`/s/${store.slug}/products`} className={buttonVariants({ size: "lg" })}>
                 {t.basket.browseShop}
               </Link>
             }
@@ -57,7 +58,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
         </div>
       ) : (
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-border">
             {lines.map(({ item, unit }) => (
               <li key={item.id} className="flex flex-wrap gap-4 py-5">
                 {item.previewUrl ? (
@@ -68,16 +69,16 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                     width={112}
                     height={112}
                     loading="lazy"
-                    className="h-28 w-28 shrink-0 rounded-lg border border-line bg-canvas object-cover"
+                    className="h-28 w-[5.6rem] shrink-0 rounded-lg border border-border bg-muted object-cover"
                   />
                 ) : null}
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-ink">{item.productName}</p>
+                  <p className="text-sm font-medium text-foreground">{item.productName}</p>
                   <p className="text-xs text-muted-foreground">{item.variantName}</p>
                   {item.text ? (
                     <p className="mt-1 text-xs text-inksoft">
                       {t.basket.personalisation}{" "}
-                      <span className="font-medium text-ink">{item.text}</span>
+                      <span className="font-medium text-foreground">{item.text}</span>
                     </p>
                   ) : null}
                   {item.artworkFileName ? (
@@ -115,23 +116,25 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                     </form>
                   </div>
                 </div>
-                <p className="shrink-0 text-sm font-semibold tabular-nums text-ink">
+                <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
                   {money(unit * item.quantity, currency)}
                 </p>
               </li>
             ))}
           </ul>
 
-          <aside className="h-fit rounded-xl border border-line bg-canvas p-5">
-            <h2 className="text-base font-semibold text-ink">{t.basket.summary}</h2>
+          <Card asChild className="h-fit">
+          <aside>
+            <CardContent>
+            <h2 className="font-heading text-base font-semibold text-foreground">{t.basket.summary}</h2>
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t.basket.subtotal}</dt>
-                <dd className="font-medium tabular-nums text-ink">{money(subtotal, currency)}</dd>
+                <dd className="font-medium tabular-nums text-foreground">{money(subtotal, currency)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t.basket.shipping}</dt>
-                <dd className="font-medium tabular-nums text-ink">{money(shipping, currency)}</dd>
+                <dd className="font-medium tabular-nums text-foreground">{money(shipping, currency)}</dd>
               </div>
               {discount ? (
                 <div className="flex justify-between">
@@ -147,12 +150,12 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                     {fmt(t.basket.taxRow, { rate: row.rate })}{" "}
                     {store.pricesIncludeTax ? t.basket.taxIncludedSuffix : ""}
                   </dt>
-                  <dd className="font-medium tabular-nums text-ink">{money(row.amount, currency)}</dd>
+                  <dd className="font-medium tabular-nums text-foreground">{money(row.amount, currency)}</dd>
                 </div>
               ))}
-              <div className="flex justify-between border-t border-line pt-2.5">
-                <dt className="font-semibold text-ink">{t.basket.total}</dt>
-                <dd className="text-base font-semibold tabular-nums text-ink">{money(total, currency)}</dd>
+              <div className="flex justify-between border-t border-border pt-2.5">
+                <dt className="font-semibold text-foreground">{t.basket.total}</dt>
+                <dd className="text-base font-semibold tabular-nums text-foreground">{money(total, currency)}</dd>
               </div>
             </dl>
             <DiscountEntry
@@ -165,13 +168,21 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
               }
               t={t.discount}
             />
-            <Link href={`/s/${store.slug}/checkout`} className={cn(buttonVariants(), "mt-5 w-full")}>
+            <Link
+              href={`/s/${store.slug}/checkout`}
+              className={cn(buttonVariants({ size: "lg" }), "mt-5 w-full")}
+            >
               {t.basket.checkout}
             </Link>
-            <Link href={`/s/${store.slug}/products`} className={cn(buttonVariants({ variant: "ghost" }), "mt-2 w-full")}>
+            <Link
+              href={`/s/${store.slug}/products`}
+              className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "mt-2 w-full")}
+            >
               {t.basket.keepShopping}
             </Link>
+            </CardContent>
           </aside>
+          </Card>
         </div>
       )}
     </div>

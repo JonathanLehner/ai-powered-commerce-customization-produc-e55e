@@ -21,6 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { storeThemeStyle } from "@/lib/store-theme";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
 import { classNames, formatDateTime } from "@/lib/util";
 
@@ -472,9 +473,14 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
         </div>
 
         <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
+          {/* The canvas carries the store's own theme, mapped onto the same
+              shadcn variables the live storefront maps them onto, so what is
+              arranged here is drawn in the client's brand rather than in
+              Parcelith's. The base font size is reset too: the workspace reads
+              at 14px and a storefront at the browser's 16px. */}
           <div
-            className="mx-auto overflow-hidden rounded-lg border border-border bg-background transition-all"
-            style={{ maxWidth: width }}
+            className="font-sans mx-auto overflow-hidden rounded-lg border border-border bg-background text-base transition-all"
+            style={{ maxWidth: width, ...storeThemeStyle(props.context.theme) }}
           >
             <Frame data={props.data} />
           </div>

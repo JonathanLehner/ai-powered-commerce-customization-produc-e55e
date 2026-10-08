@@ -68,11 +68,13 @@ export function CheckoutForm({
       action={placeOrder}
       submitLabel={t.submit}
       pendingLabel={t.pending}
+      submitSize="lg"
+      submitClassName="w-full sm:w-auto"
       hidden={{ storeId, idempotencyKey }}
     >
       {(state) => (
         <>
-          <h2 className="text-base font-semibold text-ink">{t.deliveryDetails}</h2>
+          <h2 className="font-heading text-base font-semibold text-foreground">{t.deliveryDetails}</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="name">
@@ -207,7 +209,7 @@ export function CheckoutForm({
             ) : null}
           </div>
 
-          <h2 className="mt-8 text-base font-semibold text-ink">{t.paymentTitle}</h2>
+          <h2 className="font-heading mt-8 text-base font-semibold text-foreground">{t.paymentTitle}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {payBefore}
             {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
@@ -260,8 +262,8 @@ export function CheckoutForm({
             </div>
           </div>
 
-          <div className="mt-4 rounded-lg border border-line bg-canvas p-3 text-xs text-muted-foreground">
-            <p className="font-medium text-ink">{t.testMode}</p>
+          <div className="mt-5 rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground">{t.testMode}</p>
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((card) => (
                 <li key={card.number}>
