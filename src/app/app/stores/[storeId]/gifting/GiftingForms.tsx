@@ -8,6 +8,18 @@ import {
   saveGiftProducts,
 } from "@/app/actions/gifting";
 import { ActionForm, Field } from "@/components/forms";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { convert } from "@/lib/pricing";
 import type { GiftCatalogue, StoreProduct } from "@/lib/types";
 import { formatMoney, toMajorString } from "@/lib/util";
@@ -23,19 +35,21 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Catalogue name" htmlFor="name" hint="What the company sees at the top of its portal.">
-            <input
+            <Input
               id="name"
               name="name"
               placeholder="Northwind employee gifting"
-              className={state.field === "name" ? "input input-error" : "input"}
+              className="mt-1.5"
+              aria-invalid={state.field === "name" ? true : undefined}
             />
           </Field>
           <Field label="Company" htmlFor="companyName">
-            <input
+            <Input
               id="companyName"
               name="companyName"
               placeholder="Northwind Technologies"
-              className={state.field === "companyName" ? "input input-error" : "input"}
+              className="mt-1.5"
+              aria-invalid={state.field === "companyName" ? true : undefined}
             />
           </Field>
           <Field
@@ -43,30 +57,42 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
             htmlFor="spendLimit"
             hint="0 for no limit. Checked on every recipient when a list is submitted and again before payment."
           >
-            <input
+            <Input
               id="spendLimit"
               name="spendLimit"
               inputMode="decimal"
               defaultValue="75"
-              className={state.field === "spendLimit" ? "input input-error" : "input"}
+              className="mt-1.5 tabular-nums"
+              aria-invalid={state.field === "spendLimit" ? true : undefined}
             />
           </Field>
           <Field label="Who may open it" htmlFor="access">
-            <select id="access" name="access" defaultValue="link" className="input">
-              <option value="link">Anyone with the private link</option>
-              <option value="invite">Only invited email addresses</option>
-            </select>
+            <Select name="access" defaultValue="link">
+              <SelectTrigger id="access" className="mt-1.5 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="link">Anyone with the private link</SelectItem>
+                <SelectItem value="invite">Only invited email addresses</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field label="Approver name" htmlFor="approverName" hint="Leave the email empty to order without approval.">
-            <input id="approverName" name="approverName" placeholder="Dana Whitfield" className="input" />
+            <Input
+              id="approverName"
+              name="approverName"
+              placeholder="Dana Whitfield"
+              className="mt-1.5"
+            />
           </Field>
           <Field label="Approver email" htmlFor="approverEmail">
-            <input
+            <Input
               id="approverEmail"
               name="approverEmail"
               type="email"
               placeholder="dana@northwind.example"
-              className={state.field === "approverEmail" ? "input input-error" : "input"}
+              className="mt-1.5"
+              aria-invalid={state.field === "approverEmail" ? true : undefined}
             />
           </Field>
         </div>
@@ -87,19 +113,21 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Catalogue name" htmlFor="name">
-            <input
+            <Input
               id="name"
               name="name"
               defaultValue={catalogue.name}
-              className={state.field === "name" ? "input input-error" : "input"}
+              className="mt-1.5"
+              aria-invalid={state.field === "name" ? true : undefined}
             />
           </Field>
           <Field label="Company" htmlFor="companyName">
-            <input
+            <Input
               id="companyName"
               name="companyName"
               defaultValue={catalogue.companyName}
-              className={state.field === "companyName" ? "input input-error" : "input"}
+              className="mt-1.5"
+              aria-invalid={state.field === "companyName" ? true : undefined}
             />
           </Field>
           <Field
@@ -108,13 +136,13 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
             className="sm:col-span-2"
             hint="Shown to buyers at the top of the portal — the programme rules, who to ask, what the deadline is."
           >
-            <textarea
+            <Textarea
               id="intro"
               name="intro"
               rows={3}
               defaultValue={catalogue.intro}
               placeholder="Gifts for new joiners and client thank-yous. Orders close on the 20th of each month."
-              className="input"
+              className="mt-1.5"
             />
           </Field>
           <Field
@@ -122,45 +150,52 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
             htmlFor="spendLimit"
             hint="0 for no limit."
           >
-            <input
+            <Input
               id="spendLimit"
               name="spendLimit"
               inputMode="decimal"
               defaultValue={toMajorString(catalogue.spendLimitPerRecipient, catalogue.currency)}
-              className={state.field === "spendLimit" ? "input input-error" : "input"}
+              className="mt-1.5 tabular-nums"
+              aria-invalid={state.field === "spendLimit" ? true : undefined}
             />
           </Field>
           <div className="flex items-end">
-            <label className="flex items-start gap-2 text-sm text-inksoft">
-              <input
-                type="checkbox"
+            <div className="flex items-start gap-2.5 text-sm text-inksoft">
+              <Switch
+                id="approvalRequired"
                 name="approvalRequired"
                 defaultChecked={catalogue.approvalRequired}
-                onChange={(event) => setApprovalRequired(event.currentTarget.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-line"
+                onCheckedChange={setApprovalRequired}
+                className="mt-0.5"
               />
-              <span>
+              <Label htmlFor="approvalRequired" className="block cursor-pointer font-normal">
                 Require approval before a campaign can be paid for
-                <span className="mt-0.5 block text-xs text-muted-foreground">
+                <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
                   The buyer cannot reach the payment step until the approver has signed the list off.
                 </span>
-              </span>
-            </label>
+              </Label>
+            </div>
           </div>
           <Field label="Approver name" htmlFor="approverName">
-            <input id="approverName" name="approverName" defaultValue={catalogue.approverName} className="input" />
+            <Input
+              id="approverName"
+              name="approverName"
+              defaultValue={catalogue.approverName}
+              className="mt-1.5"
+            />
           </Field>
           <Field
             label="Approver email"
             htmlFor="approverEmail"
             hint={approvalRequired ? "Required while approval is switched on." : undefined}
           >
-            <input
+            <Input
               id="approverEmail"
               name="approverEmail"
               type="email"
               defaultValue={catalogue.approverEmail}
-              className={state.field === "approverEmail" ? "input input-error" : "input"}
+              className="mt-1.5"
+              aria-invalid={state.field === "approverEmail" ? true : undefined}
             />
           </Field>
         </div>
@@ -181,7 +216,9 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
       {(state) => (
         <div className="space-y-4">
           <fieldset>
-            <legend className="field-label">Who may open this catalogue</legend>
+            <legend className="text-sm leading-none font-medium text-foreground select-none">
+              Who may open this catalogue
+            </legend>
             <div className="mt-2 space-y-2">
               {(
                 [
@@ -197,9 +234,9 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
                   },
                 ] as const
               ).map((option) => (
-                <label
+                <Label
                   key={option.value}
-                  className="flex items-start gap-3 rounded-lg border border-line px-3 py-2.5 text-sm has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50"
+                  className="flex items-start gap-3 rounded-lg border border-border px-3 py-2.5 text-sm font-normal has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                 >
                   <input
                     type="radio"
@@ -207,13 +244,13 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
                     value={option.value}
                     defaultChecked={catalogue.access === option.value}
                     onChange={() => setAccess(option.value)}
-                    className="mt-0.5 h-4 w-4"
+                    className="mt-0.5 size-4 accent-primary"
                   />
                   <span>
-                    <span className="block font-medium text-ink">{option.title}</span>
+                    <span className="block font-medium text-foreground">{option.title}</span>
                     <span className="block text-xs text-muted-foreground">{option.detail}</span>
                   </span>
-                </label>
+                </Label>
               ))}
             </div>
           </fieldset>
@@ -223,14 +260,15 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
             htmlFor="invitedEmails"
             hint="One per line, or separated by commas. Removing an address closes the catalogue to it on their next visit."
           >
-            <textarea
+            <Textarea
               id="invitedEmails"
               name="invitedEmails"
               rows={4}
               defaultValue={catalogue.invitedEmails.join("\n")}
               placeholder="people@northwind.example"
               aria-describedby="invitedEmails-hint"
-              className={state.field === "invitedEmails" ? "input input-error font-mono text-xs" : "input font-mono text-xs"}
+              className="mt-1.5 font-mono text-xs"
+              aria-invalid={state.field === "invitedEmails" ? true : undefined}
             />
           </Field>
           {access === "link" && catalogue.invitedEmails.length === 0 ? (
@@ -273,19 +311,23 @@ export function CatalogueProductsForm({
             >
               {products.map((product) => (
                 <li key={product.id}>
-                  <label className="flex items-start gap-3 rounded-lg border border-line px-3 py-2.5 text-sm has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50">
-                    <input
-                      type="checkbox"
+                  <Label className="flex items-start gap-3 rounded-lg border border-border px-3 py-2.5 text-sm font-normal has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                    <Checkbox
                       name="productIds"
                       value={product.id}
                       defaultChecked={chosen.has(product.id)}
-                      className="mt-0.5 h-4 w-4 rounded border-line"
+                      className="mt-0.5"
                     />
                     <span className="min-w-0">
-                      <span className="block truncate font-medium text-ink">{product.name}</span>
+                      <span className="block truncate font-medium text-foreground">{product.name}</span>
                       <span className="block text-xs text-muted-foreground">
-                        {formatMoney(product.price, product.currency)} ·{" "}
-                        {product.variants.filter((v) => v.enabled).length} options
+                        <span className="tabular-nums">
+                          {formatMoney(product.price, product.currency)}
+                        </span>{" "}
+                        · <span className="tabular-nums">
+                          {product.variants.filter((v) => v.enabled).length}
+                        </span>{" "}
+                        options
                         {catalogue.spendLimitPerRecipient > 0 &&
                         convert(product.price, product.currency, catalogue.currency) >
                           catalogue.spendLimitPerRecipient
@@ -293,7 +335,7 @@ export function CatalogueProductsForm({
                           : ""}
                       </span>
                     </span>
-                  </label>
+                  </Label>
                 </li>
               ))}
             </ul>

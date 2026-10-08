@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FallbackPanel, Logo } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 
 /**
  * A failure anywhere in the workspace. The header needs the signed-in user, and
@@ -17,7 +18,7 @@ export default function WorkspaceError({
 }) {
   return (
     <>
-      <header className="border-b border-line bg-white">
+      <header className="border-b border-border bg-background">
         <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center px-4 sm:px-6">
           <Link href="/app" aria-label="Parcelith agency workspace">
             <Logo size={26} />
@@ -35,12 +36,12 @@ export default function WorkspaceError({
         }
         actions={
           <>
-            <button type="button" onClick={unstable_retry} className="btn-primary">
+            <Button type="button" onClick={unstable_retry}>
               Try again
-            </button>
-            <Link href="/app" className="btn-secondary">
-              Go to the dashboard
-            </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/app">Go to the dashboard</Link>
+            </Button>
           </>
         }
         note={error.digest ? `Reference ${error.digest}` : null}

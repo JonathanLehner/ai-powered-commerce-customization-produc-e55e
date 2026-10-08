@@ -16,6 +16,26 @@ import {
 } from "@/app/actions/stores";
 import { ActionForm, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { LANGUAGE_OPTIONS } from "@/lib/i18n";
 import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
@@ -35,32 +55,45 @@ function Step({
   children: React.ReactNode;
 }) {
   return (
-    <section className="card p-5" id={`step-${index}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <span
-              aria-hidden
-              className={
-                done
-                  ? "flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700"
-                  : "flex h-6 w-6 items-center justify-center rounded-full bg-canvas text-xs font-bold text-muted-foreground"
-              }
-            >
-              {done ? "✓" : index}
-            </span>
-            {title}
-          </h2>
-          <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>
-        </div>
-        <Badge tone={done ? "green" : "amber"}>{done ? "Complete" : "Needs attention"}</Badge>
-      </div>
-      <div className="mt-5">{children}</div>
-    </section>
+    <Card asChild>
+      <section id={`step-${index}`}>
+        <CardHeader>
+          <CardTitle asChild>
+            <h2 className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className={
+                  done
+                    ? "flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold tabular-nums text-emerald-700"
+                    : "flex h-6 w-6 items-center justify-center rounded-full bg-canvas text-xs font-bold tabular-nums text-muted-foreground"
+                }
+              >
+                {done ? "✓" : index}
+              </span>
+              {title}
+            </h2>
+          </CardTitle>
+          <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
+          <CardAction>
+            <Badge tone={done ? "green" : "amber"}>{done ? "Complete" : "Needs attention"}</Badge>
+          </CardAction>
+        </CardHeader>
+        <CardContent>{children}</CardContent>
+      </section>
+    </Card>
   );
 }
 
 const LOGO_MAX_MB = 8;
+
+/** The column-head style every table in the workspace shares. */
+const TH = "px-3 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
+
+/**
+ * What the tax dropdown carries for "no bracket chosen". Radix refuses an empty
+ * option value, so a hidden field posts it back as the blank the action reads.
+ */
+const NO_BRACKET = "none";
 
 /**
  * The logo file is stored through `/api/uploads` the moment it is chosen and
@@ -101,7 +134,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
   return (
     <div className="flex flex-wrap items-start gap-5">
       {uploaded ? <StoredImageFields prefix="logo" image={uploaded} /> : null}
-      <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-canvas">
+      <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-canvas">
         {preview ? (
           <Image
             src={preview}
@@ -116,10 +149,8 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <label htmlFor="logo" className="field-label">
-          Client logo
-        </label>
-        <input
+        <Label htmlFor="logo">Client logo</Label>
+        <Input
           id="logo"
           type="file"
           accept="image/png,image/jpeg,image/webp,image/svg+xml"
@@ -127,13 +158,9 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
           onChange={onChange}
           aria-invalid={invalid || error !== null ? true : undefined}
           aria-describedby="logo-hint"
-          className={
-            invalid || error
-              ? "input input-error file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
-              : "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
-          }
+          className="mt-1.5 file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
         />
-        <p id="logo-hint" className="field-hint">
+        <p id="logo-hint" className="mt-1.5 text-xs text-muted-foreground">
           PNG, JPG, WEBP or SVG up to {LOGO_MAX_MB} MB. Uploads as soon as you choose a file.
         </p>
         <p role="status" aria-live="polite" className="mt-2 text-sm">
@@ -171,6 +198,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
   const [carrierEnabled, setCarrierEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(store.carriers.map((c) => [c.carrier, c.enabled])),
   );
+  const [bracket, setBracket] = useState(store.defaultTaxBracketId ?? NO_BRACKET);
   const hidden = { storeId: store.id };
 
   function toggleCurrency(code: string, on: boolean) {
@@ -191,32 +219,36 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
               <LogoField store={store} invalid={state.field === "logo"} />
 
               <fieldset className="mt-6">
-                <legend className="field-label">Storefront theme</legend>
+                <legend className="text-sm leading-none font-medium text-foreground select-none">
+                  Storefront theme
+                </legend>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {themeKeys.map((key) => (
-                    <label
+                    <Label
                       key={key}
-                      className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5 hover:border-brand-300 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50/50"
+                      className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3.5 font-normal hover:border-primary/40 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                     >
                       <input
                         type="radio"
                         name="theme"
                         value={key}
                         defaultChecked={store.theme === key}
-                        className="mt-1 h-4 w-4 accent-brand-600"
+                        className="mt-1 size-4 accent-primary"
                       />
                       <span className="min-w-0">
                         <span className="flex items-center gap-2">
                           <span
                             aria-hidden
-                            className="h-4 w-4 shrink-0 rounded border border-line"
+                            className="h-4 w-4 shrink-0 rounded border border-border"
                             style={{ background: THEMES[key].accent }}
                           />
-                          <span className="text-sm font-semibold text-ink">{THEMES[key].name}</span>
+                          <span className="text-sm font-semibold text-foreground">{THEMES[key].name}</span>
                         </span>
-                        <span className="mt-1 block text-xs text-muted-foreground">{THEMES[key].description}</span>
+                        <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                          {THEMES[key].description}
+                        </span>
                       </span>
-                    </label>
+                    </Label>
                   ))}
                 </div>
               </fieldset>
@@ -235,70 +267,70 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
           {(state) => (
             <>
               <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="defaultLanguage" className="field-label">
-                    Default language
-                  </label>
-                  <select
-                    id="defaultLanguage"
-                    name="defaultLanguage"
-                    defaultValue={store.defaultLanguage}
-                    className="input"
-                  >
-                    {LANGUAGE_OPTIONS.map((l) => (
-                      <option key={l.code} value={l.code}>
-                        {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="field-hint">
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor="defaultLanguage">Default language</Label>
+                  <Select name="defaultLanguage" defaultValue={store.defaultLanguage}>
+                    <SelectTrigger id="defaultLanguage" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGE_OPTIONS.map((l) => (
+                        <SelectItem key={l.code} value={l.code}>
+                          {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
                     Used for the storefront&rsquo;s own copy, its number and date formatting, and the language its
                     pages are marked with.
                   </p>
                 </div>
-                <div>
-                  <label htmlFor="defaultCurrency" className="field-label">
-                    Default currency
-                  </label>
-                  <select
-                    id="defaultCurrency"
-                    name="defaultCurrency"
-                    defaultValue={store.defaultCurrency}
-                    aria-invalid={state.field === "defaultCurrency" ? true : undefined}
-                    className={state.field === "defaultCurrency" ? "input input-error" : "input"}
-                  >
-                    {currencies.map((code) => (
-                      <option key={code} value={code}>
-                        {code}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="field-hint">Must be one of the selling currencies below.</p>
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor="defaultCurrency">Default currency</Label>
+                  <Select name="defaultCurrency" defaultValue={store.defaultCurrency}>
+                    <SelectTrigger
+                      id="defaultCurrency"
+                      className="w-full"
+                      aria-invalid={state.field === "defaultCurrency" ? true : undefined}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map((code) => (
+                        <SelectItem key={code} value={code}>
+                          {code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Must be one of the selling currencies below.</p>
                 </div>
               </div>
 
               <fieldset className="mt-6">
-                <legend className="field-label">Selling currencies</legend>
-                <p className="field-hint mb-3">
-                  {currencies.length} selected. Shoppers can switch between them on the storefront.
+                <legend className="text-sm leading-none font-medium text-foreground select-none">
+                  Selling currencies
+                </legend>
+                <p className="mt-1.5 mb-3 text-xs text-muted-foreground">
+                  <span className="tabular-nums">{currencies.length}</span> selected. Shoppers can switch
+                  between them on the storefront.
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                   {CURRENCY_OPTIONS.map((c) => (
-                    <label
+                    <Label
                       key={c.code}
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm hover:bg-canvas has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50/60"
+                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-normal hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         name="currencies"
                         value={c.code}
                         defaultChecked={store.currencies.includes(c.code)}
-                        onChange={(e) => toggleCurrency(c.code, e.currentTarget.checked)}
-                        className="h-4 w-4 accent-brand-600"
+                        onCheckedChange={(checked) => toggleCurrency(c.code, checked === true)}
                       />
-                      <span className="font-medium text-ink">{c.code}</span>
-                      <span className="truncate text-xs text-muted-foreground">{c.label}</span>
-                    </label>
+                      <span className="font-medium text-foreground">{c.code}</span>
+                      <span className="truncate text-xs font-normal text-muted-foreground">{c.label}</span>
+                    </Label>
                   ))}
                 </div>
               </fieldset>
@@ -316,11 +348,9 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
         <ActionForm action={saveSupport} submitLabel="Save support contacts" hidden={hidden}>
           {(state) => (
             <div className="grid max-w-2xl gap-5 sm:grid-cols-2">
-              <div>
-                <label htmlFor="supportEmail" className="field-label">
-                  Support email address
-                </label>
-                <input
+              <div className="grid content-start gap-1.5">
+                <Label htmlFor="supportEmail">Support email address</Label>
+                <Input
                   id="supportEmail"
                   name="supportEmail"
                   type="email"
@@ -328,17 +358,16 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   placeholder="support@yourclient.com"
                   aria-invalid={state.field === "supportEmail" ? true : undefined}
                   aria-describedby="supportEmail-hint"
-                  className={state.field === "supportEmail" ? "input input-error" : "input"}
                 />
-                <p id="supportEmail-hint" className="field-hint">
+                <p id="supportEmail-hint" className="text-xs text-muted-foreground">
                   Required. Shoppers write here about deliveries, personalisation and refunds.
                 </p>
               </div>
-              <div>
-                <label htmlFor="supportPhone" className="field-label">
+              <div className="grid content-start gap-1.5">
+                <Label htmlFor="supportPhone">
                   Support phone number <span className="font-normal text-muted-foreground">(optional)</span>
-                </label>
-                <input
+                </Label>
+                <Input
                   id="supportPhone"
                   name="supportPhone"
                   type="tel"
@@ -346,9 +375,8 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   placeholder="+1 503 555 0142"
                   aria-invalid={state.field === "supportPhone" ? true : undefined}
                   aria-describedby="supportPhone-hint"
-                  className={state.field === "supportPhone" ? "input input-error" : "input"}
                 />
-                <p id="supportPhone-hint" className="field-hint">
+                <p id="supportPhone-hint" className="text-xs text-muted-foreground">
                   Leave empty if the client does not answer a phone. Shown exactly as you type it.
                 </p>
               </div>
@@ -366,26 +394,23 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
         <ActionForm action={saveDomain} submitLabel="Save domain" hidden={hidden}>
           {(state) => (
             <>
-              <div className="max-w-md">
-                <label htmlFor="customDomain" className="field-label">
-                  Domain
-                </label>
-                <input
+              <div className="grid max-w-md gap-1.5">
+                <Label htmlFor="customDomain">Domain</Label>
+                <Input
                   id="customDomain"
                   name="customDomain"
                   defaultValue={store.customDomain ?? ""}
                   placeholder="shop.yourclient.com"
                   aria-invalid={state.field === "customDomain" ? true : undefined}
                   aria-describedby="domain-hint"
-                  className={state.field === "customDomain" ? "input input-error" : "input"}
                 />
-                <p id="domain-hint" className="field-hint">
+                <p id="domain-hint" className="text-xs text-muted-foreground">
                   Leave empty to serve the store from <span className="font-mono">/s/{store.slug}</span>.
                 </p>
               </div>
 
-              <div className="mt-4 rounded-lg border border-line bg-canvas p-4 text-sm">
-                <p className="font-medium text-ink">DNS record to add</p>
+              <div className="mt-4 rounded-lg border border-border bg-canvas p-4 text-sm">
+                <p className="font-medium text-foreground">DNS record to add</p>
                 <p className="mt-1.5 font-mono text-xs text-inksoft">
                   CNAME {store.customDomain ?? "shop"} → stores.parcelith.net
                 </p>
@@ -442,34 +467,34 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
           <ActionForm action={saveStripe} submitLabel="Connect Stripe account" hidden={hidden}>
             {(state) => (
               <div className="grid max-w-2xl gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="accountId" className="field-label">
-                    Stripe account ID
-                  </label>
-                  <input
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor="accountId">Stripe account ID</Label>
+                  <Input
                     id="accountId"
                     name="accountId"
                     placeholder="acct_1A2b3C4d5E6f"
                     aria-invalid={state.field === "accountId" ? true : undefined}
                     aria-describedby="accountId-hint"
-                    className={state.field === "accountId" ? "input input-error" : "input"}
                   />
-                  <p id="accountId-hint" className="field-hint">
+                  <p id="accountId-hint" className="text-xs text-muted-foreground">
                     Copy it from the client&rsquo;s Stripe dashboard under Settings → Account details.
                   </p>
                 </div>
-                <div>
-                  <label htmlFor="country" className="field-label">
-                    Account country
-                  </label>
-                  <select id="country" name="country" defaultValue={store.stripe.country} className="input">
-                    {STRIPE_COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="field-hint">Determines which currencies can be settled.</p>
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor="country">Account country</Label>
+                  <Select name="country" defaultValue={store.stripe.country}>
+                    <SelectTrigger id="country" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STRIPE_COUNTRIES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Determines which currencies can be settled.</p>
                 </div>
               </div>
             )}
@@ -489,38 +514,33 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
               {store.carriers.map((carrier) => (
                 <div
                   key={carrier.carrier}
-                  className="rounded-xl border border-line p-4 has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50/40"
+                  className="rounded-xl border border-border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                 >
-                  <label className="flex cursor-pointer items-center gap-2.5">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-center gap-2.5">
+                    <Switch
+                      id={`${carrier.carrier}_enabled`}
                       name={`${carrier.carrier}_enabled`}
                       defaultChecked={carrier.enabled}
-                      onChange={(e) => {
-                        // The updater runs after React has released the event, so read it now.
-                        const enabled = e.currentTarget.checked;
-                        setCarrierEnabled((prev) => ({ ...prev, [carrier.carrier]: enabled }));
-                      }}
-                      className="h-4 w-4 accent-brand-600"
+                      onCheckedChange={(enabled) =>
+                        setCarrierEnabled((prev) => ({ ...prev, [carrier.carrier]: enabled }))
+                      }
                     />
-                    <span className="text-sm font-semibold text-ink">{CARRIER_LABELS[carrier.carrier]}</span>
-                  </label>
-                  <div className="mt-3">
-                    <label htmlFor={`${carrier.carrier}_account`} className="field-label text-xs">
+                    <Label htmlFor={`${carrier.carrier}_enabled`} className="cursor-pointer font-semibold">
+                      {CARRIER_LABELS[carrier.carrier]}
+                    </Label>
+                  </div>
+                  <div className="mt-3 grid gap-1.5">
+                    <Label htmlFor={`${carrier.carrier}_account`} className="text-xs">
                       Account number
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id={`${carrier.carrier}_account`}
                       name={`${carrier.carrier}_account`}
                       defaultValue={carrier.accountNumber}
                       placeholder="Required when enabled"
                       disabled={!carrierEnabled[carrier.carrier]}
                       aria-invalid={state.field === `${carrier.carrier}_account` ? true : undefined}
-                      className={
-                        state.field === `${carrier.carrier}_account`
-                          ? "input input-error disabled:bg-canvas disabled:text-muted-foreground"
-                          : "input disabled:bg-canvas disabled:text-muted-foreground"
-                      }
+                      className="disabled:bg-canvas disabled:text-muted-foreground"
                     />
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">{carrier.services.join(" · ")}</p>
@@ -540,58 +560,69 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
         <ActionForm action={saveTaxSettings} submitLabel="Save tax settings" hidden={hidden}>
           {(state) => (
             <>
-              <div className="max-w-xl">
-                <label htmlFor="defaultTaxBracketId" className="field-label">
-                  Default tax bracket
-                </label>
-                <select
-                  id="defaultTaxBracketId"
-                  name="defaultTaxBracketId"
-                  defaultValue={store.defaultTaxBracketId ?? ""}
-                  aria-invalid={state.field === "defaultTaxBracketId" ? true : undefined}
-                  className={state.field === "defaultTaxBracketId" ? "input input-error" : "input"}
-                >
-                  <option value="">Select a bracket…</option>
-                  {brackets.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name} — {b.rate}% ({b.code})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <label className="mt-4 flex max-w-xl cursor-pointer items-start gap-3 rounded-lg border border-line p-3.5">
+              <div className="grid max-w-xl gap-1.5">
+                <Label htmlFor="defaultTaxBracketId">Default tax bracket</Label>
                 <input
-                  type="checkbox"
+                  type="hidden"
+                  name="defaultTaxBracketId"
+                  value={bracket === NO_BRACKET ? "" : bracket}
+                />
+                <Select value={bracket} onValueChange={setBracket}>
+                  <SelectTrigger
+                    id="defaultTaxBracketId"
+                    className="w-full"
+                    aria-invalid={state.field === "defaultTaxBracketId" ? true : undefined}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_BRACKET}>Select a bracket…</SelectItem>
+                    {brackets.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.name} — {b.rate}% ({b.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="mt-4 flex max-w-xl items-start gap-3 rounded-lg border border-border p-3.5">
+                <Switch
+                  id="pricesIncludeTax"
                   name="pricesIncludeTax"
                   defaultChecked={store.pricesIncludeTax}
-                  className="mt-0.5 h-4 w-4 accent-brand-600"
+                  className="mt-0.5"
                 />
-                <span>
-                  <span className="block text-sm font-medium text-ink">Displayed prices include tax</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    Standard for UK and EU storefronts. Leave off to add tax at checkout, as is normal in the US.
+                <Label htmlFor="pricesIncludeTax" className="block cursor-pointer font-normal">
+                  <span className="block text-sm font-medium text-foreground">
+                    Displayed prices include tax
                   </span>
-                </span>
-              </label>
-              <div className="mt-5 relative overflow-x-auto rounded-xl border border-line">
-                <table className="w-full min-w-[30rem] text-left text-sm">
-                  <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    <tr>
-                      <th scope="col" className="px-3 py-2">Bracket</th>
-                      <th scope="col" className="px-3 py-2">Rate</th>
-                      <th scope="col" className="px-3 py-2">Applies to</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
+                  <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                    Standard for UK and EU storefronts. Leave off to add tax at checkout, as is normal in the
+                    US.
+                  </span>
+                </Label>
+              </div>
+              <div className="relative mt-5 overflow-x-auto rounded-xl border border-border">
+                <Table className="min-w-[30rem]">
+                  <TableHeader className="bg-canvas">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className={TH}>Bracket</TableHead>
+                      <TableHead className={TH}>Rate</TableHead>
+                      <TableHead className={TH}>Applies to</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {brackets.map((b) => (
-                      <tr key={b.id}>
-                        <td className="px-3 py-2 font-medium text-ink">{b.name}</td>
-                        <td className="px-3 py-2 tabular-nums text-inksoft">{b.rate}%</td>
-                        <td className="px-3 py-2 text-muted-foreground">{b.regions.join(", ")}</td>
-                      </tr>
+                      <TableRow key={b.id} className="hover:bg-transparent">
+                        <TableCell className="px-3 py-2 font-medium text-foreground">{b.name}</TableCell>
+                        <TableCell className="px-3 py-2 tabular-nums text-inksoft">{b.rate}%</TableCell>
+                        <TableCell className="px-3 py-2 whitespace-normal text-muted-foreground">
+                          {b.regions.join(", ")}
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </>
           )}

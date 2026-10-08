@@ -1,4 +1,26 @@
+"use client";
+
+import { DownloadIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   auditQuery,
   hasAuditFilters,
@@ -15,10 +37,16 @@ import { formatDate } from "@/lib/util";
  * GET form and ordinary links: the filters live in the URL, which is what makes
  * a filtered view something you can bookmark, share and download.
  *
+ * The "made by" dropdown carries this sentinel for "anyone", because Radix
+ * refuses an empty option value; a hidden field posts it back as the blank the
+ * page already reads.
+ *
  * None of these links prefetch. Every one of them leads to a different reading
  * of the history, and prefetching them all rendered the page forty times over in
  * the background for the one view somebody actually asked for.
  */
+
+const ANYONE = "all";
 
 export function AuditFilterBar({
   basePath,
@@ -34,98 +62,134 @@ export function AuditFilterBar({
   exportHref: string | null;
   exportNote?: string;
 }) {
+  const [actor, setActor] = useState(filters.actorId ?? ANYONE);
+
   return (
     <div className="space-y-3">
       <nav aria-label="Filter by category" className="flex flex-wrap gap-2">
-        <Link
-          href={`${basePath}${auditQuery(filters, { category: null, page: 1 })}`}
-          prefetch={false}
-          aria-current={!filters.category ? "true" : undefined}
-          className={!filters.category ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
-        >
-          All
-        </Link>
-        {(Object.keys(AUDIT_CATEGORY_LABELS) as AuditCategory[]).map((key) => (
+        <Button asChild size="sm" variant={!filters.category ? "default" : "outline"}>
           <Link
-            key={key}
-            href={`${basePath}${auditQuery(filters, { category: key, page: 1 })}`}
+            href={`${basePath}${auditQuery(filters, { category: null, page: 1 })}`}
             prefetch={false}
-            aria-current={filters.category === key ? "true" : undefined}
-            className={filters.category === key ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
+            aria-current={!filters.category ? "true" : undefined}
           >
-            {AUDIT_CATEGORY_LABELS[key]}
+            All
           </Link>
+        </Button>
+        {(Object.keys(AUDIT_CATEGORY_LABELS) as AuditCategory[]).map((key) => (
+          <Button
+            key={key}
+            asChild
+            size="sm"
+            variant={filters.category === key ? "default" : "outline"}
+          >
+            <Link
+              href={`${basePath}${auditQuery(filters, { category: key, page: 1 })}`}
+              prefetch={false}
+              aria-current={filters.category === key ? "true" : undefined}
+            >
+              {AUDIT_CATEGORY_LABELS[key]}
+            </Link>
+          </Button>
         ))}
       </nav>
 
-      <form method="get" action={basePath} className="card flex flex-wrap items-end gap-3 p-4">
-        {/* The chips above set the category; the form carries it through. */}
-        {filters.category ? <input type="hidden" name="category" value={filters.category} /> : null}
-        <div className="min-w-[14rem] flex-1">
-          <label htmlFor="audit-q" className="field-label text-xs">
-            Search
-          </label>
-          <input
-            id="audit-q"
-            name="q"
-            defaultValue={filters.q}
-            placeholder="Anything in the entry — product, order, setting"
-            className="input py-1.5"
-          />
-        </div>
-        <div>
-          <label htmlFor="audit-actor" className="field-label text-xs">
-            Made by
-          </label>
-          <select id="audit-actor" name="actor" defaultValue={filters.actorId ?? ""} className="input py-1.5">
-            <option value="">Anyone</option>
-            {actors.map((actor) => (
-              <option key={actor.id} value={actor.id}>
-                {actor.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="audit-from" className="field-label text-xs">
-            From
-          </label>
-          <input
-            id="audit-from"
-            type="date"
-            name="from"
-            defaultValue={filters.from ?? ""}
-            className="input py-1.5"
-          />
-        </div>
-        <div>
-          <label htmlFor="audit-to" className="field-label text-xs">
-            To
-          </label>
-          <input id="audit-to" type="date" name="to" defaultValue={filters.to ?? ""} className="input py-1.5" />
-        </div>
-        <button type="submit" className="btn-secondary">
-          Filter
-        </button>
-        {hasAuditFilters(filters) ? (
-          <Link href={basePath} prefetch={false} className="btn-ghost">
-            Clear
-          </Link>
-        ) : null}
-        <span className="ml-auto flex items-center gap-2">
-          {exportHref ? (
-            // A download, not a navigation: the browser saves the CSV the route
-            // handler returns and leaves the page where it is.
-            <a href={exportHref} download className="btn-secondary">
-              Download spreadsheet
-            </a>
-          ) : (
-            <span className="btn-secondary cursor-not-allowed opacity-50" aria-disabled="true" title={exportNote}>
-              Download spreadsheet
+      <Card size="sm" asChild>
+        <form method="get" action={basePath}>
+          <CardContent className="flex flex-wrap items-end gap-3">
+            {/* The chips above set the category; the form carries it through. */}
+            {filters.category ? <input type="hidden" name="category" value={filters.category} /> : null}
+            <div className="min-w-[14rem] flex-1">
+              <Label htmlFor="audit-q" className="text-xs">
+                Search
+              </Label>
+              <div className="relative mt-1.5">
+                <SearchIcon
+                  aria-hidden
+                  className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                  id="audit-q"
+                  name="q"
+                  defaultValue={filters.q}
+                  placeholder="Anything in the entry — product, order, setting"
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="audit-actor" className="text-xs">
+                Made by
+              </Label>
+              <input type="hidden" name="actor" value={actor === ANYONE ? "" : actor} />
+              <Select value={actor} onValueChange={setActor}>
+                <SelectTrigger id="audit-actor" className="mt-1.5 w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ANYONE}>Anyone</SelectItem>
+                  {actors.map((entry) => (
+                    <SelectItem key={entry.id} value={entry.id}>
+                      {entry.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="audit-from" className="text-xs">
+                From
+              </Label>
+              <Input
+                id="audit-from"
+                type="date"
+                name="from"
+                defaultValue={filters.from ?? ""}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="audit-to" className="text-xs">
+                To
+              </Label>
+              <Input
+                id="audit-to"
+                type="date"
+                name="to"
+                defaultValue={filters.to ?? ""}
+                className="mt-1.5"
+              />
+            </div>
+            <Button type="submit" variant="outline">
+              Filter
+            </Button>
+            {hasAuditFilters(filters) ? (
+              <Button asChild variant="ghost">
+                <Link href={basePath} prefetch={false}>
+                  Clear
+                </Link>
+              </Button>
+            ) : null}
+            <span className="ml-auto flex items-center gap-2">
+              {exportHref ? (
+                // A download, not a navigation: the browser saves the CSV the
+                // route handler returns and leaves the page where it is.
+                <Button asChild variant="outline">
+                  <a href={exportHref} download>
+                    <DownloadIcon />
+                    Download spreadsheet
+                  </a>
+                </Button>
+              ) : (
+                <Button type="button" variant="outline" disabled title={exportNote}>
+                  <DownloadIcon />
+                  Download spreadsheet
+                </Button>
+              )}
             </span>
-          )}
-        </span>
-      </form>
+          </CardContent>
+        </form>
+      </Card>
       {!exportHref && exportNote ? <p className="text-xs text-muted-foreground">{exportNote}</p> : null}
     </div>
   );
@@ -150,39 +214,35 @@ export function AuditPager({
         <span className="tabular-nums">{page.total}</span> entries
       </p>
       {page.pages > 1 ? (
-        <nav aria-label="Pages" className="flex items-center gap-2">
-          {page.page > 1 ? (
-            <Link
-              href={`${basePath}${auditQuery(filters, { page: page.page - 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="prev"
-            >
-              Previous
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Previous
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground tabular-nums">
-            Page {page.page} of {page.pages}
-          </span>
-          {page.page < page.pages ? (
-            <Link
-              href={`${basePath}${auditQuery(filters, { page: page.page + 1 })}`}
-              prefetch={false}
-              className="btn-secondary btn-sm"
-              rel="next"
-            >
-              Next
-            </Link>
-          ) : (
-            <span className="btn-secondary btn-sm cursor-not-allowed opacity-50" aria-disabled="true">
-              Next
-            </span>
-          )}
-        </nav>
+        <Pagination aria-label="Pages" className="mx-0 w-auto justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              {page.page > 1 ? (
+                <PaginationPrevious
+                  href={`${basePath}${auditQuery(filters, { page: page.page - 1 })}`}
+                  rel="prev"
+                />
+              ) : (
+                <PaginationPrevious aria-disabled className="pointer-events-none opacity-50" />
+              )}
+            </PaginationItem>
+            <PaginationItem>
+              <span className="px-2 text-xs tabular-nums text-muted-foreground">
+                Page {page.page} of {page.pages}
+              </span>
+            </PaginationItem>
+            <PaginationItem>
+              {page.page < page.pages ? (
+                <PaginationNext
+                  href={`${basePath}${auditQuery(filters, { page: page.page + 1 })}`}
+                  rel="next"
+                />
+              ) : (
+                <PaginationNext aria-disabled className="pointer-events-none opacity-50" />
+              )}
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       ) : null}
     </div>
   );

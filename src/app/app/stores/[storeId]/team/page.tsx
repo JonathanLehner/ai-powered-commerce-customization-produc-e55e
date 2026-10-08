@@ -1,13 +1,27 @@
 import { headers } from "next/headers";
-import { changeMemberRole, removeMember, resendInvite } from "@/app/actions/team";
+import { resendInvite } from "@/app/actions/team";
 import { Badge, Callout, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getAgency, listMemberships, listUsers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
 import { STORE_ROLE_DESCRIPTIONS, STORE_ROLE_LABELS, type StoreRole } from "@/lib/types";
 import { formatDate } from "@/lib/util";
 import { InviteForm } from "./InviteForm";
+import { MemberRoleForm, RemoveMemberForm } from "./MemberActions";
 
 const ROLES: StoreRole[] = ["store_admin", "catalog_manager", "order_manager", "viewer"];
+
+/** The column-head style every table in the workspace shares. */
+const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
 
 export default async function TeamPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
@@ -36,17 +50,23 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
         description="Roles are per store. Everyone outside the agency needs an explicit invitation."
       />
 
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Agency administrators</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <Card asChild>
+      <section>
+        <CardHeader>
+        <CardTitle asChild>
+          <h2>Agency administrators</h2>
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
           Inherited from {agency?.name ?? "the agency"} — they hold store administrator rights everywhere in
           this agency and cannot be removed from a single store.
         </p>
-        <ul className="mt-4 divide-y divide-line">
+        </CardHeader>
+        <CardContent>
+        <ul className="divide-y divide-border">
           {agencyAdmins.map((admin) => (
             <li key={admin.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-ink">{admin.name}</p>
+                <p className="truncate text-sm font-medium text-foreground">{admin.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {admin.email} · {admin.title}
                 </p>
@@ -58,33 +78,42 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
             <li className="py-3 text-sm text-muted-foreground">This agency has no administrator account yet.</li>
           ) : null}
         </ul>
+        </CardContent>
       </section>
+      </Card>
 
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Invited members</h2>
+      <Card asChild>
+      <section>
+        <CardHeader>
+        <CardTitle asChild>
+          <h2>Invited members</h2>
+        </CardTitle>
         {memberships.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Nobody has been invited to this store yet. Use the form below to add the first person.
           </p>
-        ) : (
-          <div className="mt-4 relative overflow-x-auto">
-            <table className="w-full min-w-[46rem] text-left text-sm">
-              <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="py-2 pr-3">Person</th>
-                  <th scope="col" className="py-2 pr-3">Status</th>
-                  <th scope="col" className="py-2 pr-3">Role</th>
-                  <th scope="col" className="py-2 pr-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
+        ) : null}
+        </CardHeader>
+        {memberships.length === 0 ? null : (
+          <CardContent>
+          <div className="relative overflow-x-auto">
+            <Table className="min-w-[46rem]">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className={TH}>Person</TableHead>
+                  <TableHead className={TH}>Status</TableHead>
+                  <TableHead className={TH}>Role</TableHead>
+                  <TableHead className={`${TH} text-right`}>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {memberships.map((member) => (
-                  <tr key={member.id}>
-                    <td className="py-3 pr-3">
-                      <p className="font-medium text-ink">{member.name}</p>
+                  <TableRow key={member.id} className="hover:bg-transparent">
+                    <TableCell className="px-0 py-3 align-top whitespace-normal">
+                      <p className="font-medium text-foreground">{member.name}</p>
                       <p className="text-xs text-muted-foreground">{member.email}</p>
-                    </td>
-                    <td className="py-3 pr-3">
+                    </TableCell>
+                    <TableCell className="px-0 py-3 align-top whitespace-normal">
                       <Badge tone={member.status === "active" ? "green" : "amber"}>
                         {member.status === "active" ? "Active" : "Invitation pending"}
                       </Badge>
@@ -96,9 +125,10 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                           <div className="mt-2 max-w-sm">
                             <p className="text-xs text-muted-foreground">
                               This link was emailed to them. Send it on yourself if it never arrived — it
-                              creates their account and activates access when they open it, then stops working.
+                              creates their account and activates access when they open it, then stops
+                              working.
                             </p>
-                            <code className="mt-1 block break-all rounded-lg border border-line bg-canvas px-2 py-1.5 text-[11px] text-inksoft">
+                            <code className="mt-1 block break-all rounded-lg border border-border bg-canvas px-2 py-1.5 text-[11px] text-inksoft">
                               {origin}/invite/{member.inviteToken}
                             </code>
                           </div>
@@ -109,62 +139,47 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                           </p>
                         )
                       ) : null}
-                    </td>
-                    <td className="py-3 pr-3">
-                      <form action={changeMemberRole} className="flex items-center gap-2">
-                        <input type="hidden" name="storeId" value={storeId} />
-                        <input type="hidden" name="membershipId" value={member.id} />
-                        <label htmlFor={`role-${member.id}`} className="sr-only">
-                          Role for {member.name}
-                        </label>
-                        <select
-                          id={`role-${member.id}`}
-                          name="role"
-                          defaultValue={member.role}
-                          className="input mt-0 w-48 py-1.5 text-xs"
-                        >
-                          {ROLES.map((role) => (
-                            <option key={role} value={role}>
-                              {STORE_ROLE_LABELS[role]}
-                            </option>
-                          ))}
-                        </select>
-                        <button type="submit" className="btn-secondary btn-sm">
-                          Update
-                        </button>
-                      </form>
-                    </td>
-                    <td className="py-3 pr-3">
+                    </TableCell>
+                    <TableCell className="px-0 py-3 align-top whitespace-normal">
+                      <MemberRoleForm
+                        storeId={storeId}
+                        membershipId={member.id}
+                        name={member.name}
+                        role={member.role}
+                      />
+                    </TableCell>
+                    <TableCell className="px-0 py-3 align-top whitespace-normal">
                       <div className="flex justify-end gap-2">
                         {member.status === "invited" ? (
                           <form action={resendInvite}>
                             <input type="hidden" name="storeId" value={storeId} />
                             <input type="hidden" name="membershipId" value={member.id} />
-                            <button
+                            <Button
                               type="submit"
-                              className="btn-ghost btn-sm"
+                              variant="ghost"
+                              size="sm"
                               title="Invalidates the old link and issues a fresh one"
                             >
                               New link
-                            </button>
+                            </Button>
                           </form>
                         ) : null}
-                        <form action={removeMember}>
-                          <input type="hidden" name="storeId" value={storeId} />
-                          <input type="hidden" name="membershipId" value={member.id} />
-                          <button type="submit" className="btn-danger btn-sm">
-                            Remove
-                          </button>
-                        </form>
+                        <RemoveMemberForm
+                          storeId={storeId}
+                          membershipId={member.id}
+                          name={member.name}
+                        />
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
+          </CardContent>
         )}
       </section>
+      </Card>
 
       <InviteForm storeId={storeId} />
 
@@ -172,7 +187,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
         <ul className="mt-2 space-y-1.5">
           {ROLES.map((role) => (
             <li key={role} className="text-sm">
-              <span className="font-medium text-ink">{STORE_ROLE_LABELS[role]}</span> —{" "}
+              <span className="font-medium text-foreground">{STORE_ROLE_LABELS[role]}</span> —{" "}
               <span className="text-muted-foreground">{STORE_ROLE_DESCRIPTIONS[role]}</span>
             </li>
           ))}

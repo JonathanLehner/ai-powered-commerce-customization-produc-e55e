@@ -1,4 +1,5 @@
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { listDiscountCodes } from "@/lib/data";
 import { isExpired } from "@/lib/discounts";
 import { requireStoreAccess } from "@/lib/session";
@@ -48,7 +49,7 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-ink">Codes</h2>
+        <h2 className="text-base font-semibold text-foreground">Codes</h2>
         {codes.length === 0 ? (
           <EmptyState
             title="No discount codes yet"
@@ -59,31 +60,37 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
             {codes.map((code) => {
               const state = codeState(code);
               return (
-                <li key={code.id} className="card p-5">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="font-mono text-sm font-semibold text-ink">{code.code}</span>
-                    <Badge tone={state.tone}>{state.label}</Badge>
-                    <span className="text-sm text-inksoft">{worth(code)}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {code.minimumSubtotal > 0
-                        ? `Minimum ${formatMoney(code.minimumSubtotal, code.currency)} · `
-                        : ""}
-                      {code.expiresAt ? `Expires ${formatDate(code.expiresAt)} · ` : ""}
-                      {code.timesUsed ?? 0}
-                      {code.usageLimit === null ? " used, no limit" : ` of ${code.usageLimit} used`}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Created by {code.createdBy} on {formatDate(code.createdAt)}
-                  </p>
-                  <details className="mt-3">
-                    <summary className="cursor-pointer text-sm font-medium text-brand-700">
-                      Edit {code.code}
-                    </summary>
-                    <div className="mt-3 border-t border-line pt-4">
-                      <DiscountEditForm code={code} />
-                    </div>
-                  </details>
+                <li key={code.id}>
+                  <Card>
+                    <CardHeader>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="font-mono text-sm font-semibold text-foreground">{code.code}</span>
+                        <Badge tone={state.tone}>{state.label}</Badge>
+                        <span className="text-sm text-inksoft">{worth(code)}</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">
+                          {code.minimumSubtotal > 0
+                            ? `Minimum ${formatMoney(code.minimumSubtotal, code.currency)} · `
+                            : ""}
+                          {code.expiresAt ? `Expires ${formatDate(code.expiresAt)} · ` : ""}
+                          {code.timesUsed ?? 0}
+                          {code.usageLimit === null ? " used, no limit" : ` of ${code.usageLimit} used`}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Created by {code.createdBy} on {formatDate(code.createdAt)}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <details>
+                        <summary className="cursor-pointer text-sm font-medium text-primary">
+                          Edit {code.code}
+                        </summary>
+                        <div className="mt-3 border-t border-border pt-4">
+                          <DiscountEditForm code={code} />
+                        </div>
+                      </details>
+                    </CardContent>
+                  </Card>
                 </li>
               );
             })}
@@ -92,7 +99,7 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-ink">Create a code</h2>
+        <h2 className="text-base font-semibold text-foreground">Create a code</h2>
         <DiscountCreateForm storeId={storeId} currency={store.defaultCurrency} />
       </section>
     </div>

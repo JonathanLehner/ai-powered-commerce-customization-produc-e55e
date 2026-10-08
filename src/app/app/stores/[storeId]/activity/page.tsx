@@ -1,5 +1,6 @@
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
+import { Card } from "@/components/ui/card";
 import {
   auditDetail,
   auditActors,
@@ -106,7 +107,8 @@ export default async function ActivityPage({
       ) : (
         <div className="space-y-3">
           <AuditPager basePath={base} filters={filters} page={page} />
-          <ol className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+          <Card asChild className="py-0">
+          <ol className="divide-y divide-border">
             {page.entries.map((entry) => {
               const line = auditDetail(entry, detail);
               return (
@@ -116,7 +118,7 @@ export default async function ActivityPage({
                       <Badge tone={TONES[entry.category]}>{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
                       <span className="font-mono text-xs text-muted-foreground">{entry.action}</span>
                     </div>
-                    <p className="mt-1.5 text-sm text-ink">{entry.summary}</p>
+                    <p className="mt-1.5 text-sm text-foreground">{entry.summary}</p>
                     {line ? <p className="mt-1 text-xs text-muted-foreground">{line}</p> : null}
                   </div>
                   <div className="shrink-0 text-right">
@@ -127,6 +129,7 @@ export default async function ActivityPage({
               );
             })}
           </ol>
+          </Card>
           <AuditPager basePath={base} filters={filters} page={page} />
         </div>
       )}

@@ -1,5 +1,15 @@
 import Link from "next/link";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import {
   agencyStoreAllowance,
@@ -29,6 +39,9 @@ const SETUP_LABELS: Record<(typeof SETUP_STEPS)[number], string> = {
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 8;
+
+/** Every section heading on this page is a card title over the same column head style. */
+const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
 
 export default async function StoreOverviewPage({
   params,
@@ -101,33 +114,37 @@ export default async function StoreOverviewPage({
       ) : null}
 
       {progress.pct < 100 ? (
-        <section className="card p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="text-base font-semibold text-ink">Finish setting up this store</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Finish setting up this store</h2>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
                 {progress.done} of {progress.total} steps complete. The storefront cannot take payments until
                 Stripe and a carrier are connected.
               </p>
-            </div>
-            {roleCan(role, "store.settings") ? (
-              <Link href={`/app/stores/${store.id}/setup`} className="btn-primary">
-                Continue setup
-              </Link>
-            ) : null}
-          </div>
-          <div className="mt-4">
-            <ProgressBar value={progress.pct} />
-          </div>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {SETUP_STEPS.map((key) => (
-              <li key={key}>
-                <Badge tone={store.setup[key] ? "green" : "amber"}>
-                  {store.setup[key] ? "✓" : "•"} {SETUP_LABELS[key]}
-                </Badge>
-              </li>
-            ))}
-          </ul>
+              {roleCan(role, "store.settings") ? (
+                <CardAction>
+                  <Button asChild>
+                    <Link href={`/app/stores/${store.id}/setup`}>Continue setup</Link>
+                  </Button>
+                </CardAction>
+              ) : null}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ProgressBar value={progress.pct} />
+              <ul className="flex flex-wrap gap-2">
+                {SETUP_STEPS.map((key) => (
+                  <li key={key}>
+                    <Badge tone={store.setup[key] ? "green" : "amber"}>
+                      {store.setup[key] ? "✓" : "•"} {SETUP_LABELS[key]}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </section>
       ) : null}
 
@@ -166,213 +183,263 @@ export default async function StoreOverviewPage({
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="card min-w-0 p-5 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-ink">Recent orders</h2>
-            <Link href={`/app/stores/${store.id}/orders`} className="text-sm font-medium text-brand-700 hover:underline">
-              All orders
-            </Link>
-          </div>
-          {recentOrders.length === 0 ? (
-            <div className="mt-4">
-              <EmptyState
-                title="No orders yet"
-                description="Once the storefront is published and a shopper checks out, orders appear here with their production and delivery status."
-              />
-            </div>
-          ) : (
-            <div className="mt-4 relative overflow-x-auto">
-              <table className="w-full min-w-[34rem] text-left text-sm">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th scope="col" className="py-2 pr-3">Order</th>
-                    <th scope="col" className="py-2 pr-3">Placed</th>
-                    <th scope="col" className="py-2 pr-3">Status</th>
-                    {viaPlatform ? null : <th scope="col" className="py-2 pr-3 text-right">Total</th>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  {recentOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td className="py-2.5 pr-3">
-                        <Link
-                          href={`/app/stores/${store.id}/orders/${order.id}`}
-                          className="font-medium text-ink hover:underline"
-                        >
-                          {order.code}
-                        </Link>
-                        {viaPlatform ? null : (
-                          <span className="block text-xs text-muted-foreground">{order.customer.name}</span>
-                        )}
-                      </td>
-                      <td className="py-2.5 pr-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
-                      <td className="py-2.5 pr-3">
-                        <Badge
-                          tone={
-                            order.status === "exception"
-                              ? "rose"
-                              : order.status === "delivered"
-                                ? "green"
-                                : order.status === "cancelled"
-                                  ? "slate"
-                                  : "brand"
-                          }
-                        >
-                          {ORDER_STATUS_LABELS[order.status]}
-                        </Badge>
-                      </td>
-                      {viaPlatform ? null : (
-                        <td className="py-2.5 pr-3 text-right font-medium tabular-nums text-ink">
-                          {formatMoney(order.total, order.currency)}
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+        <section className="min-w-0 lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Recent orders</h2>
+              </CardTitle>
+              <CardAction>
+                <Link
+                  href={`/app/stores/${store.id}/orders`}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  All orders
+                </Link>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {recentOrders.length === 0 ? (
+                <EmptyState
+                  title="No orders yet"
+                  description="Once the storefront is published and a shopper checks out, orders appear here with their production and delivery status."
+                />
+              ) : (
+                <div className="relative overflow-x-auto">
+                  <Table className="min-w-[34rem]">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className={TH}>Order</TableHead>
+                        <TableHead className={TH}>Placed</TableHead>
+                        <TableHead className={TH}>Status</TableHead>
+                        {viaPlatform ? null : <TableHead className={`${TH} text-right`}>Total</TableHead>}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentOrders.map((order) => (
+                        <TableRow key={order.id} className="hover:bg-transparent">
+                          <TableCell className="px-0 py-2.5 align-top whitespace-normal">
+                            <Link
+                              href={`/app/stores/${store.id}/orders/${order.id}`}
+                              className="font-medium text-foreground hover:underline"
+                            >
+                              {order.code}
+                            </Link>
+                            {viaPlatform ? null : (
+                              <span className="block text-xs text-muted-foreground">{order.customer.name}</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="px-0 py-2.5 align-top text-muted-foreground">
+                            {formatDate(order.createdAt)}
+                          </TableCell>
+                          <TableCell className="px-0 py-2.5 align-top">
+                            <Badge
+                              tone={
+                                order.status === "exception"
+                                  ? "rose"
+                                  : order.status === "delivered"
+                                    ? "green"
+                                    : order.status === "cancelled"
+                                      ? "slate"
+                                      : "brand"
+                              }
+                            >
+                              {ORDER_STATUS_LABELS[order.status]}
+                            </Badge>
+                          </TableCell>
+                          {viaPlatform ? null : (
+                            <TableCell className="px-0 py-2.5 text-right align-top font-medium tabular-nums text-foreground">
+                              {formatMoney(order.total, order.currency)}
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </section>
 
         <section className="space-y-6">
-          <div className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Fulfilment</h2>
-            <DataList
-              rows={[
-                { label: ORDER_STATUS_LABELS.in_production, value: metrics.inProduction },
-                { label: ORDER_STATUS_LABELS.shipped, value: metrics.shipped },
-                { label: ORDER_STATUS_LABELS.delivered, value: metrics.delivered },
-                { label: ORDER_STATUS_LABELS.cancelled, value: metrics.cancelled },
-                {
-                  label: ORDER_STATUS_LABELS.exception,
-                  value:
-                    metrics.exceptions > 0 ? (
-                      <span className="text-rose-700">{metrics.exceptions}</span>
-                    ) : (
-                      0
-                    ),
-                },
-                ...(viaPlatform
-                  ? []
-                  : [{ label: "Refunded", value: formatMoney(metrics.refunded, store.defaultCurrency) }]),
-              ]}
-            />
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Fulfilment</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataList
+                rows={[
+                  { label: ORDER_STATUS_LABELS.in_production, value: metrics.inProduction },
+                  { label: ORDER_STATUS_LABELS.shipped, value: metrics.shipped },
+                  { label: ORDER_STATUS_LABELS.delivered, value: metrics.delivered },
+                  { label: ORDER_STATUS_LABELS.cancelled, value: metrics.cancelled },
+                  {
+                    label: ORDER_STATUS_LABELS.exception,
+                    value:
+                      metrics.exceptions > 0 ? (
+                        <span className="text-rose-700">{metrics.exceptions}</span>
+                      ) : (
+                        0
+                      ),
+                  },
+                  ...(viaPlatform
+                    ? []
+                    : [{ label: "Refunded", value: formatMoney(metrics.refunded, store.defaultCurrency) }]),
+                ]}
+              />
+            </CardContent>
+          </Card>
 
           {canSource ? (
-            <div className="card p-5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-ink">Bulk sourcing enquiries</h2>
-                <Link
-                  href={`/app/stores/${store.id}/sourcing${enquiries.length > 0 ? "#enquiries" : "?rfq=new#rfq"}`}
-                  className="text-sm font-medium text-brand-700 hover:underline"
-                >
-                  {enquiries.length > 0 ? "All enquiries" : "Start one"}
-                </Link>
-              </div>
-              {openEnquiries.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {enquiries.length > 0
-                    ? "Nothing open. Past enquiries stay on the Sourcing page."
-                    : "No enquiries yet. Ask Alibaba.com suppliers to quote on a bulk run from the Sourcing page."}
-                </p>
-              ) : (
-                <ul className="mt-3 divide-y divide-line text-sm">
-                  {openEnquiries.slice(0, 5).map((request) => (
-                    <li key={request.id} className="flex items-center justify-between gap-3 py-2">
-                      <span className="min-w-0 truncate text-ink">
-                        <span className="font-mono text-xs text-muted-foreground">{request.code}</span> {request.productName}
-                      </span>
-                      <Badge tone={QUOTE_STATUS_TONES[request.status]}>
-                        {request.status === "quoted"
-                          ? `${(request.quotes ?? []).length} to review`
-                          : QUOTE_STATUS_LABELS[request.status]}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle asChild>
+                  <h2>Bulk sourcing enquiries</h2>
+                </CardTitle>
+                <CardAction>
+                  <Link
+                    href={`/app/stores/${store.id}/sourcing${enquiries.length > 0 ? "#enquiries" : "?rfq=new#rfq"}`}
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    {enquiries.length > 0 ? "All enquiries" : "Start one"}
+                  </Link>
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                {openEnquiries.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    {enquiries.length > 0
+                      ? "Nothing open. Past enquiries stay on the Sourcing page."
+                      : "No enquiries yet. Ask Alibaba.com suppliers to quote on a bulk run from the Sourcing page."}
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-border text-sm">
+                    {openEnquiries.slice(0, 5).map((request) => (
+                      <li key={request.id} className="flex items-center justify-between gap-3 py-2">
+                        <span className="min-w-0 truncate text-foreground">
+                          <span className="font-mono text-xs text-muted-foreground">{request.code}</span>{" "}
+                          {request.productName}
+                        </span>
+                        <Badge tone={QUOTE_STATUS_TONES[request.status]}>
+                          {request.status === "quoted"
+                            ? `${(request.quotes ?? []).length} to review`
+                            : QUOTE_STATUS_LABELS[request.status]}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
           ) : null}
 
-          <div className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Storefront</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {storefront?.published
-                ? `Published ${formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt)} by ${storefront.publishedBy ?? "the store team"}.`
-                : "Not published yet — the storefront shows a placeholder until you publish a layout."}
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              <span aria-hidden className="h-5 w-5 rounded border border-line" style={{ background: theme.accent }} />
-              <span className="text-sm text-inksoft">{theme.name} theme</span>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {roleCan(role, "store.storefront") ? (
-                <Link href={`/app/stores/${store.id}/storefront`} className="btn-secondary btn-sm">
-                  Open editor
-                </Link>
-              ) : null}
-              <Link
-                href={`/s/${store.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-ghost btn-sm"
-              >
-                View storefront ↗
-              </Link>
-            </div>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Storefront</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {storefront?.published
+                  ? `Published ${formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt)} by ${storefront.publishedBy ?? "the store team"}.`
+                  : "Not published yet — the storefront shows a placeholder until you publish a layout."}
+              </p>
+              <div className="flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="h-5 w-5 rounded border border-border"
+                  style={{ background: theme.accent }}
+                />
+                <span className="text-sm text-inksoft">{theme.name} theme</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {roleCan(role, "store.storefront") ? (
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/app/stores/${store.id}/storefront`}>Open editor</Link>
+                  </Button>
+                ) : null}
+                <Button asChild variant="ghost" size="sm">
+                  <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
+                    View storefront ↗
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </section>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="card p-5">
-          <h2 className="text-base font-semibold text-ink">Product performance</h2>
-          {metrics.topProducts.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">No paid orders yet, so there is nothing to rank.</p>
-          ) : (
-            <ol className="mt-3 divide-y divide-line text-sm">
-              {metrics.topProducts.map((product) => (
-                <li key={product.name} className="flex items-center justify-between gap-3 py-2.5">
-                  <span className="min-w-0 truncate text-ink">{product.name}</span>
-                  <span className="shrink-0 text-muted-foreground">
-                    {product.units} units
-                    {viaPlatform ? null : (
-                      <>
-                        {" · "}
-                        <span className="font-medium text-ink tabular-nums">
-                          {formatMoney(product.revenue, store.defaultCurrency)}
-                        </span>
-                      </>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          )}
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Product performance</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {metrics.topProducts.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No paid orders yet, so there is nothing to rank.</p>
+              ) : (
+                <ol className="divide-y divide-border text-sm">
+                  {metrics.topProducts.map((product) => (
+                    <li key={product.name} className="flex items-center justify-between gap-3 py-2.5">
+                      <span className="min-w-0 truncate text-foreground">{product.name}</span>
+                      <span className="shrink-0 text-muted-foreground">
+                        <span className="tabular-nums">{product.units}</span> units
+                        {viaPlatform ? null : (
+                          <>
+                            {" · "}
+                            <span className="font-medium tabular-nums text-foreground">
+                              {formatMoney(product.revenue, store.defaultCurrency)}
+                            </span>
+                          </>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </CardContent>
+          </Card>
         </section>
 
-        <section className="card p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-ink">Recent activity</h2>
-            <Link href={`/app/stores/${store.id}/activity`} className="text-sm font-medium text-brand-700 hover:underline">
-              Full history
-            </Link>
-          </div>
-          {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">Nothing recorded for this store yet.</p>
-          ) : (
-            <ol className="mt-3 divide-y divide-line text-sm">
-              {activity.map((run) => (
-                <li key={run.entry.id} className="py-2.5">
-                  <p className="text-ink">{auditRunSummary(run)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {run.entry.actorName} · {relativeTime(run.entry.at)}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          )}
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Recent activity</h2>
+              </CardTitle>
+              <CardAction>
+                <Link
+                  href={`/app/stores/${store.id}/activity`}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Full history
+                </Link>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {activity.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nothing recorded for this store yet.</p>
+              ) : (
+                <ol className="divide-y divide-border text-sm">
+                  {activity.map((run) => (
+                    <li key={run.entry.id} className="py-2.5">
+                      <p className="text-foreground">{auditRunSummary(run)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {run.entry.actorName} · {relativeTime(run.entry.at)}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </CardContent>
+          </Card>
         </section>
       </div>
     </div>

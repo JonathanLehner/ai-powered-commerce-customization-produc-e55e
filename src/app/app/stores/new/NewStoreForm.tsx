@@ -2,6 +2,16 @@
 
 import { createStore } from "@/app/actions/stores";
 import { ActionForm } from "@/components/forms";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LANGUAGE_OPTIONS } from "@/lib/i18n";
 import { THEMES, type ThemeKey } from "@/lib/types";
 import { CURRENCY_OPTIONS } from "@/lib/util";
@@ -19,27 +29,27 @@ export function NewStoreForm({
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
 
   return (
+    <Card asChild>
     <ActionForm
       action={createStore}
       submitLabel="Create store and continue to setup"
       pendingLabel="Creating store…"
       hidden={{ agencyId }}
-      className="card p-6"
+      actionsClassName="px-(--card-spacing)"
     >
       {(state) => (
-        <>
+        <CardContent>
           <p className="text-sm text-muted-foreground">
-            The store is created under <span className="font-medium text-ink">{agencyName}</span>. Everything
+            The store is created under <span className="font-medium text-foreground">{agencyName}</span>.
+            Everything
             below can be changed later in store settings.
             {allowanceNote ? <span className="mt-1 block text-xs">{allowanceNote}</span> : null}
           </p>
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
-            <div>
-              <label htmlFor="name" className="field-label">
-                Store name
-              </label>
-              <input
+            <div className="grid content-start gap-1.5">
+              <Label htmlFor="name">Store name</Label>
+              <Input
                 id="name"
                 name="name"
                 required
@@ -47,95 +57,104 @@ export function NewStoreForm({
                 placeholder="Northwind Supply Co"
                 aria-invalid={state.field === "name" ? true : undefined}
                 aria-describedby="name-hint"
-                className={state.field === "name" ? "input input-error" : "input"}
               />
-              <p id="name-hint" className="field-hint">
+              <p id="name-hint" className="text-xs text-muted-foreground">
                 Shown in the workspace and on the storefront.
               </p>
             </div>
 
-            <div>
-              <label htmlFor="clientName" className="field-label">
-                Client
-              </label>
-              <input
+            <div className="grid content-start gap-1.5">
+              <Label htmlFor="clientName">Client</Label>
+              <Input
                 id="clientName"
                 name="clientName"
                 required
                 placeholder="Northwind Technologies"
                 aria-invalid={state.field === "clientName" ? true : undefined}
                 aria-describedby="clientName-hint"
-                className={state.field === "clientName" ? "input input-error" : "input"}
               />
-              <p id="clientName-hint" className="field-hint">
+              <p id="clientName-hint" className="text-xs text-muted-foreground">
                 The company this store belongs to.
               </p>
             </div>
 
-            <div>
-              <label htmlFor="defaultCurrency" className="field-label">
-                Default selling currency
-              </label>
-              <select id="defaultCurrency" name="defaultCurrency" defaultValue="USD" className="input">
-                {CURRENCY_OPTIONS.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} — {c.label}
-                  </option>
-                ))}
-              </select>
-              <p className="field-hint">More currencies can be added during setup.</p>
+            <div className="grid content-start gap-1.5">
+              <Label htmlFor="defaultCurrency">Default selling currency</Label>
+              <Select name="defaultCurrency" defaultValue="USD">
+                <SelectTrigger id="defaultCurrency" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCY_OPTIONS.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.code} — {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">More currencies can be added during setup.</p>
             </div>
 
-            <div>
-              <label htmlFor="defaultLanguage" className="field-label">
-                Default language
-              </label>
-              <select id="defaultLanguage" name="defaultLanguage" defaultValue="en" className="input">
-                {LANGUAGE_OPTIONS.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
-                  </option>
-                ))}
-              </select>
-              <p className="field-hint">
+            <div className="grid content-start gap-1.5">
+              <Label htmlFor="defaultLanguage">Default language</Label>
+              <Select name="defaultLanguage" defaultValue="en">
+                <SelectTrigger id="defaultLanguage" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGE_OPTIONS.map((l) => (
+                    <SelectItem key={l.code} value={l.code}>
+                      {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
                 The storefront is written and formatted in this language, and its pages are marked with it.
               </p>
             </div>
           </div>
 
           <fieldset className="mt-6">
-            <legend className="field-label">Storefront theme</legend>
-            <p className="field-hint mb-3">You can change this at any time and preview before publishing.</p>
+            <legend className="text-sm leading-none font-medium text-foreground select-none">
+              Storefront theme
+            </legend>
+            <p className="mt-1.5 mb-3 text-xs text-muted-foreground">
+              You can change this at any time and preview before publishing.
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {themeKeys.map((key, index) => (
-                <label
+                <Label
                   key={key}
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5 hover:border-brand-300 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50/50"
+                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3.5 font-normal hover:border-primary/40 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                 >
                   <input
                     type="radio"
                     name="theme"
                     value={key}
                     defaultChecked={index === 0}
-                    className="mt-1 h-4 w-4 accent-brand-600"
+                    className="mt-1 size-4 accent-primary"
                   />
                   <span className="min-w-0">
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden
-                        className="h-4 w-4 shrink-0 rounded border border-line"
+                        className="h-4 w-4 shrink-0 rounded border border-border"
                         style={{ background: THEMES[key].accent }}
                       />
-                      <span className="text-sm font-semibold text-ink">{THEMES[key].name}</span>
+                      <span className="text-sm font-semibold text-foreground">{THEMES[key].name}</span>
                     </span>
-                    <span className="mt-1 block text-xs text-muted-foreground">{THEMES[key].description}</span>
+                    <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                      {THEMES[key].description}
+                    </span>
                   </span>
-                </label>
+                </Label>
               ))}
             </div>
           </fieldset>
-        </>
+        </CardContent>
       )}
     </ActionForm>
+    </Card>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import {
   addTracking,
   raiseException,
@@ -9,7 +8,7 @@ import {
   rerouteToSupplier,
 } from "@/app/actions/orders";
 import type { ActionState } from "@/app/actions/stores";
-import { ActionForm, FormStatus, useSubmission, useValueRestore } from "@/components/forms";
+import { ActionForm, FormStatus, SuccessToast, useSubmission, useValueRestore } from "@/components/forms";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +21,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -45,26 +43,6 @@ const SUPPLIER_KINDS: Record<SupplierChoice["kind"], string> = {
 function choiceLabel(choice: SupplierChoice): string {
   const lead = `${choice.leadTimeDays[0]}–${choice.leadTimeDays[1]} day lead time`;
   return `${choice.name} — ${SUPPLIER_KINDS[choice.kind]}, ${lead}`;
-}
-
-/**
- * The confirmation a fulfilment step has run. The panel already shows the
- * action's own message inline; the toast is what says so when the step is far
- * enough down this page to be off screen.
- *
- * `toast` is taken from the module that renders the Toaster: imported straight
- * from "sonner" here, a page's chunk gets its own copy of sonner's state and
- * the toast is queued on a store the workspace's Toaster is not watching.
- */
-function SuccessToast({ state }: { state: ActionState }) {
-  const previous = useRef(state.status);
-  useEffect(() => {
-    if (state.status === "success" && previous.current !== "success") {
-      toast.success(state.message ?? "Saved.");
-    }
-    previous.current = state.status;
-  }, [state]);
-  return null;
 }
 
 /**
@@ -138,7 +116,6 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
     >
       {(state) => (
         <div className="space-y-3">
-          <SuccessToast state={state} />
           <div className="grid gap-1.5">
             <Label htmlFor="supplierId">Alternative production partner</Label>
             <Select name="supplierId" defaultValue={options.available[0].id}>
@@ -200,7 +177,6 @@ export function ManualSubmissionForm({ order }: { order: Order }) {
     >
       {(state) => (
         <div className="grid gap-1.5">
-          <SuccessToast state={state} />
           <Label htmlFor="reference">Supplier purchase order reference</Label>
           <Input
             id="reference"
@@ -230,7 +206,6 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
     >
       {(state) => (
         <div className="grid gap-3 sm:grid-cols-2">
-          <SuccessToast state={state} />
           <div className="grid gap-1.5">
             <Label htmlFor="carrier">Carrier</Label>
             <Select
@@ -280,7 +255,6 @@ export function ExceptionForm({ order }: { order: Order }) {
     >
       {(state) => (
         <div className="grid gap-1.5">
-          <SuccessToast state={state} />
           <Label htmlFor="note">What has gone wrong?</Label>
           <Textarea
             id="note"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { setStoreStatus } from "@/app/actions/stores";
+import { regenerateGiftLink } from "@/app/actions/gifting";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,42 +15,44 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-/** Frees a place under the plan limit without losing the store's records. */
-export function ArchiveStoreForm({ storeId, storeName }: { storeId: string; storeName: string }) {
-  const formId = `archive-${storeId}`;
+/**
+ * A new address invalidates every link already sent, so it is confirmed in an
+ * alert dialog. The dialog's own action submits this form by id, because the
+ * dialog is rendered in a portal outside it.
+ */
+export function RegenerateAccess({ storeId, catalogueId }: { storeId: string; catalogueId: string }) {
+  const formId = `regenerate-${catalogueId}`;
 
   return (
-    <form id={formId} action={setStoreStatus}>
+    <form id={formId} action={regenerateGiftLink}>
       <input type="hidden" name="storeId" value={storeId} />
-      <input type="hidden" name="status" value="archived" />
-      <ArchiveDialog formId={formId} storeName={storeName} />
+      <input type="hidden" name="catalogueId" value={catalogueId} />
+      <RegenerateDialog formId={formId} />
     </form>
   );
 }
 
-function ArchiveDialog({ formId, storeName }: { formId: string; storeName: string }) {
-  // Inside the form, so the trigger locks the moment the dialog submits it.
+function RegenerateDialog({ formId }: { formId: string }) {
   const { pending } = useFormStatus();
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="destructive" size="sm" disabled={pending}>
-          {pending ? "Working…" : "Archive"}
+        <Button type="button" variant="ghost" size="sm" disabled={pending}>
+          {pending ? "Working…" : "Regenerate access"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Take {storeName} offline?</AlertDialogTitle>
+          <AlertDialogTitle>Regenerate access</AlertDialogTitle>
           <AlertDialogDescription>
-            Its storefront stops serving shoppers and no new orders can be taken. Products, orders and audit
-            history are kept, and the store can be restored later.
+            Every link already sent stops working and everyone signed in is signed out.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-            Yes, archive it
+            Regenerate access
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

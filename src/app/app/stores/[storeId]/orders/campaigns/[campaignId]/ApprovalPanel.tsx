@@ -4,6 +4,9 @@ import { useState } from "react";
 import { changeCampaignApprover, resendApprovalRequest } from "@/app/actions/gifting";
 import { ActionForm, CopyField, Field } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export interface ApprovalPanelProps {
   storeId: string;
@@ -48,18 +51,23 @@ export function ApprovalPanel({
     : null;
 
   return (
-    <div className="card p-5">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h2 className="text-base font-semibold text-ink">Approval</h2>
-        <Badge tone={stale ? "rose" : "amber"}>{waitLabel}</Badge>
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle asChild>
+          <h2>Approval</h2>
+        </CardTitle>
+        <CardAction>
+          <Badge tone={stale ? "rose" : "amber"}>{waitLabel}</Badge>
+        </CardAction>
+      </CardHeader>
 
-      <p className="mt-2 text-sm text-inksoft">
-        <span className="font-medium text-ink">{approverName || "No approver named"}</span>
+      <CardContent>
+      <p className="text-sm text-inksoft">
+        <span className="font-medium text-foreground">{approverName || "No approver named"}</span>
         {approverEmail ? (
           <>
             {" · "}
-            <a href={`mailto:${approverEmail}`} className="text-brand-700 hover:underline">
+            <a href={`mailto:${approverEmail}`} className="text-primary hover:underline">
               {approverEmail}
             </a>
           </>
@@ -77,7 +85,9 @@ export function ApprovalPanel({
       ) : null}
 
       <div className="mt-4">
-        <p className="field-label">The approver&rsquo;s link</p>
+        <p className="text-sm leading-none font-medium text-foreground select-none">
+          The approver&rsquo;s link
+        </p>
         <CopyField value={approvalLink} />
       </div>
 
@@ -89,12 +99,12 @@ export function ApprovalPanel({
             submitLabel="Resend approval request"
             pendingLabel="Recording…"
             submitClassName="btn-secondary btn-sm"
-            className="mt-5 border-t border-line pt-5"
+            className="mt-5 border-t border-border pt-5"
             footer={
               mailto ? (
-                <a href={mailto} className="btn-ghost btn-sm">
-                  Open in your mail app
-                </a>
+                <Button asChild variant="ghost" size="sm">
+                  <a href={mailto}>Open in your mail app</a>
+                </Button>
               ) : null
             }
           >
@@ -104,7 +114,7 @@ export function ApprovalPanel({
             </p>
           </ActionForm>
 
-          <div className="mt-5 border-t border-line pt-5">
+          <div className="mt-5 border-t border-border pt-5">
             {changing ? (
               <ActionForm
                 action={changeCampaignApprover}
@@ -113,9 +123,9 @@ export function ApprovalPanel({
                 pendingLabel="Saving…"
                 submitClassName="btn-primary btn-sm"
                 footer={
-                  <button type="button" className="btn-ghost btn-sm" onClick={() => setChanging(false)}>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setChanging(false)}>
                     Cancel
-                  </button>
+                  </Button>
                 }
               >
                 {(state) => (
@@ -125,21 +135,23 @@ export function ApprovalPanel({
                       the campaign — and the new person is emailed the request as soon as you save this.
                     </p>
                     <Field label="New approver" htmlFor="approverName">
-                      <input
+                      <Input
                         id="approverName"
                         name="approverName"
                         defaultValue=""
                         placeholder="Sam Okafor"
-                        className={state.field === "approverName" ? "input input-error" : "input"}
+                        className="mt-1.5"
+                        aria-invalid={state.field === "approverName" ? true : undefined}
                       />
                     </Field>
                     <Field label="Their email address" htmlFor="approverEmail">
-                      <input
+                      <Input
                         id="approverEmail"
                         name="approverEmail"
                         type="email"
                         placeholder="sam@northwind.example"
-                        className={state.field === "approverEmail" ? "input input-error" : "input"}
+                        className="mt-1.5"
+                        aria-invalid={state.field === "approverEmail" ? true : undefined}
                       />
                     </Field>
                     <Field
@@ -147,24 +159,25 @@ export function ApprovalPanel({
                       htmlFor="reason"
                       hint="Optional. It is written into the campaign history and the audit log."
                     >
-                      <input
+                      <Input
                         id="reason"
                         name="reason"
                         placeholder="Dana has left the company"
-                        className="input"
+                        className="mt-1.5"
                       />
                     </Field>
                   </div>
                 )}
               </ActionForm>
             ) : (
-              <button type="button" className="btn-ghost btn-sm" onClick={() => setChanging(true)}>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setChanging(true)}>
                 Change the approver
-              </button>
+              </Button>
             )}
           </div>
         </>
       ) : null}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

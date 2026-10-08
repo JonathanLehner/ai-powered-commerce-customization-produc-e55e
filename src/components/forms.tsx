@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon, CopyIcon } from "lucide-react";
+import * as React from "react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/app/actions/stores";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/sonner";
 import {
   captureValues,
   planRestore,
@@ -176,6 +178,26 @@ export function SubmitButton({
   );
 }
 
+/**
+ * The confirmation that a form has been accepted. The panel already shows the
+ * action's own message inline; the toast is what says so when the form is far
+ * enough down the page to be off screen.
+ *
+ * `toast` is taken from the module that renders the Toaster: imported straight
+ * from "sonner", a page's chunk gets its own copy of sonner's state and the
+ * toast is queued on a store the workspace's Toaster is not watching.
+ */
+export function SuccessToast({ state }: { state: ActionState }) {
+  const previous = useRef(state.status);
+  useEffect(() => {
+    if (state.status === "success" && previous.current !== "success") {
+      toast.success(state.message ?? "Saved.");
+    }
+    previous.current = state.status;
+  }, [state]);
+  return null;
+}
+
 export function FormStatus({ state }: { state: ActionState }) {
   if (state.status === "idle" || !state.message) return null;
   const error = state.status === "error";
@@ -210,7 +232,9 @@ export function ActionForm({
   hidden,
   submitDisabled,
   beforeSubmit,
-}: {
+  actionsClassName,
+  ...rest
+}: Omit<React.ComponentProps<"form">, "action" | "children" | "hidden"> & {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   children: ReactNode | ((state: ActionState) => ReactNode);
   submitLabel: string;
@@ -223,6 +247,12 @@ export function ActionForm({
   submitDisabled?: boolean;
   /** Last chance to add fields the browser has to produce, such as a rendered preview. */
   beforeSubmit?: (formData: FormData) => Promise<void>;
+  /**
+   * Padding for the status line and the submit row. A form rendered as the card
+   * itself (`<Card asChild>`) passes the card's own inset here, because those
+   * two are the only parts of it that sit outside a `CardContent`.
+   */
+  actionsClassName?: string;
 }) {
   const [{ state, attempt }, formAction] = useSubmission<ActionState>(action, { status: "idle" });
   const { formRef, capture } = useValueRestore(state.status, attempt);
@@ -244,6 +274,7 @@ export function ActionForm({
       }}
       className={className}
       noValidate
+      {...rest}
     >
       {hidden
         ? Object.entries(hidden).map(([key, value]) => (
@@ -251,12 +282,15 @@ export function ActionForm({
           ))
         : null}
       {typeof children === "function" ? children(state) : children}
-      <FormStatus state={state} />
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
-          {submitLabel}
-        </SubmitButton>
-        {footer}
+      <SuccessToast state={state} />
+      <div className={actionsClassName}>
+        <FormStatus state={state} />
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
+            {submitLabel}
+          </SubmitButton>
+          {footer}
+        </div>
       </div>
     </form>
   );

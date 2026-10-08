@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { applySuggestion, dismissSuggestion } from "@/app/actions/ai";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
 import { listCatalogProducts, listStoreProducts, listSuggestions, listSuppliers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
@@ -40,7 +42,7 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
   if (suggestion.kind === "price") {
     return (
       <p className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
-        Proposed price: <span className="font-semibold text-ink">{String(payload.priceMajor ?? "")}</span>
+        Proposed price: <span className="font-semibold tabular-nums text-foreground">{String(payload.priceMajor ?? "")}</span>
       </p>
     );
   }
@@ -49,7 +51,7 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
       <div className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
         <p>
           Recommended partner:{" "}
-          <span className="font-semibold text-ink">{String(payload.supplierName ?? "")}</span>
+          <span className="font-semibold text-foreground">{String(payload.supplierName ?? "")}</span>
         </p>
         {payload.risk ? <p className="mt-1.5 text-xs text-muted-foreground">Trade-off: {String(payload.risk)}</p> : null}
       </div>
@@ -96,8 +98,15 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
       />
 
       <section>
-        <h2 className="text-base font-semibold text-ink">
-          Pending review {pending.length > 0 ? <Badge tone="amber">{pending.length}</Badge> : null}
+        <h2 className="text-base font-semibold text-foreground">
+          {/* The count is the Badge's own text, not a span inside it: a child
+              element of the Badge is a flex item, which reads as its own line. */}
+          Pending review{" "}
+          {pending.length > 0 ? (
+            <Badge tone="amber" className="tabular-nums">
+              {pending.length}
+            </Badge>
+          ) : null}
         </h2>
         {pending.length === 0 ? (
           <div className="mt-3">
@@ -111,11 +120,12 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
             {pending.map((suggestion) => {
               const product = products.find((p) => p.id === suggestion.productId);
               return (
-                <li key={suggestion.id} className="card p-5">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
+                <li key={suggestion.id}>
+                  <Card className="h-full">
+                  <CardHeader>
                     <div className="min-w-0">
                       <Badge tone="iris">{KIND_LABELS[suggestion.kind]}</Badge>
-                      <h3 className="mt-2 text-sm font-semibold text-ink">{suggestion.title}</h3>
+                      <h3 className="mt-2 text-sm font-semibold text-foreground">{suggestion.title}</h3>
                       {product ? (
                         <p className="text-xs text-muted-foreground">
                           For{" "}
@@ -129,28 +139,35 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                         </p>
                       ) : null}
                     </div>
-                    <span className="text-xs text-muted-foreground">{relativeTime(suggestion.createdAt)}</span>
-                  </div>
+                    <CardAction>
+                      <span className="text-xs text-muted-foreground">
+                        {relativeTime(suggestion.createdAt)}
+                      </span>
+                    </CardAction>
+                  </CardHeader>
 
-                  <p className="mt-2 text-sm text-inksoft">{suggestion.rationale}</p>
-                  <SuggestionBody suggestion={suggestion} />
+                  <CardContent>
+                    <p className="text-sm text-inksoft">{suggestion.rationale}</p>
+                    <SuggestionBody suggestion={suggestion} />
 
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <form action={applySuggestion}>
-                      <input type="hidden" name="storeId" value={storeId} />
-                      <input type="hidden" name="suggestionId" value={suggestion.id} />
-                      <button type="submit" className="btn-primary btn-sm">
-                        Apply this change
-                      </button>
-                    </form>
-                    <form action={dismissSuggestion}>
-                      <input type="hidden" name="storeId" value={storeId} />
-                      <input type="hidden" name="suggestionId" value={suggestion.id} />
-                      <button type="submit" className="btn-secondary btn-sm">
-                        Dismiss
-                      </button>
-                    </form>
-                  </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <form action={applySuggestion}>
+                        <input type="hidden" name="storeId" value={storeId} />
+                        <input type="hidden" name="suggestionId" value={suggestion.id} />
+                        <Button type="submit" size="sm">
+                          Apply this change
+                        </Button>
+                      </form>
+                      <form action={dismissSuggestion}>
+                        <input type="hidden" name="storeId" value={storeId} />
+                        <input type="hidden" name="suggestionId" value={suggestion.id} />
+                        <Button type="submit" variant="outline" size="sm">
+                          Dismiss
+                        </Button>
+                      </form>
+                    </div>
+                  </CardContent>
+                  </Card>
                 </li>
               );
             })}
@@ -167,12 +184,13 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
 
       {decided.length > 0 ? (
         <section>
-          <h2 className="text-base font-semibold text-ink">Decision history</h2>
-          <ul className="mt-3 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+          <h2 className="text-base font-semibold text-foreground">Decision history</h2>
+          <Card className="mt-3 py-0">
+          <ul className="divide-y divide-border">
             {decided.map((suggestion) => (
               <li key={suggestion.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-ink">{suggestion.title}</p>
+                  <p className="truncate text-sm text-foreground">{suggestion.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {KIND_LABELS[suggestion.kind]} · drafted by {suggestion.createdBy}
                   </p>
@@ -189,6 +207,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
               </li>
             ))}
           </ul>
+          </Card>
         </section>
       ) : null}
     </div>

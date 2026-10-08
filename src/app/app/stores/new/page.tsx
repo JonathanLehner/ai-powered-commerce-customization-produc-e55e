@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, Breadcrumbs, Callout, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { agencyStoreAllowance, getAgency, listAgencies } from "@/lib/data";
 import { planStoreLabel, storeLimitMessage, storeUsageLabel } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
@@ -56,20 +58,26 @@ export default async function NewStorePage() {
                 {storeLimitMessage(allowance, agency.name)}
               </Callout>
 
-              <section className="card p-5">
-                <h2 className="text-base font-semibold text-ink">Archive a store</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+              <Card asChild>
+              <section>
+                <CardHeader>
+                <CardTitle asChild>
+                  <h2>Archive a store</h2>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
                   Archiving takes that storefront offline and stops new orders. Its products, orders and audit
                   history are kept, and it can be restored later — archived stores do not count against the
                   plan.
                 </p>
-                <ul className="mt-4 divide-y divide-line border-y border-line text-sm">
+                </CardHeader>
+                <CardContent>
+                <ul className="divide-y divide-border border-y border-border text-sm">
                   {liveStores.map((store) => (
                     <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                       <span className="min-w-0">
                         <Link
                           href={`/app/stores/${store.id}`}
-                          className="block truncate font-medium text-ink hover:underline"
+                          className="block truncate font-medium text-foreground hover:underline"
                         >
                           {store.name}
                         </Link>
@@ -87,30 +95,40 @@ export default async function NewStorePage() {
                     </li>
                   ) : null}
                 </ul>
+                </CardContent>
               </section>
+              </Card>
 
-              <section className="card p-5">
-                <h2 className="text-base font-semibold text-ink">Move up a plan</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+              <Card asChild>
+              <section>
+                <CardHeader>
+                <CardTitle asChild>
+                  <h2>Move up a plan</h2>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
                   {allowance.nextPlan
                     ? `${allowance.nextPlan.name} runs ${planStoreLabel(allowance.nextPlan).toLowerCase()} on the same workspace — nothing is migrated and no store is interrupted.`
                     : "This is the top plan. Talk to us about running more stores under one agreement."}
                 </p>
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <Link href="/pricing" className="btn-secondary btn-sm">
-                    Compare plans
-                  </Link>
+                </CardHeader>
+                <CardContent>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/pricing">Compare plans</Link>
+                  </Button>
                   {user.platformRole === "platform_admin" ? (
-                    <Link href="/admin/agencies" className="btn-primary btn-sm">
-                      Change this agency&rsquo;s plan
-                    </Link>
+                    <Button asChild size="sm">
+                      <Link href="/admin/agencies">Change this agency&rsquo;s plan</Link>
+                    </Button>
                   ) : (
                     <span className="text-xs text-muted-foreground">
                       A platform administrator applies the change to {agency.name}.
                     </span>
                   )}
                 </div>
+                </CardContent>
               </section>
+              </Card>
             </div>
           ) : (
             <NewStoreForm

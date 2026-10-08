@@ -1,7 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { requestQuote } from "@/app/actions/sourcing";
 import { ActionForm, Field, SubmissionKey } from "@/components/forms";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+/**
+ * What the reference picker carries for "no catalog item". Radix refuses an
+ * empty option value, so the choice is posted through a hidden field that turns
+ * the sentinel back into the blank the action already expects.
+ */
+const NO_REFERENCE = "none";
 
 /**
  * A bulk sourcing enquiry. Opened from a quote-priced listing it is about that
@@ -32,7 +49,8 @@ export function QuoteRequestForm({
   contactName: string;
   contactEmail: string;
 }) {
-  const input = (field: string, error: string | undefined) => (error === field ? "input input-error" : "input");
+  const [reference, setReference] = useState(defaultReference || NO_REFERENCE);
+
   return (
     <ActionForm
       action={requestQuote}
@@ -56,14 +74,24 @@ export function QuoteRequestForm({
                 className="sm:col-span-2"
                 hint="Optional. Pick one to have it made in bulk, or leave this and describe the product below."
               >
-                <select id="catalogId" name="catalogId" defaultValue={defaultReference} className="input">
-                  <option value="">None — I will describe it</option>
-                  {catalogOptions?.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="hidden"
+                  name="catalogId"
+                  value={reference === NO_REFERENCE ? "" : reference}
+                />
+                <Select value={reference} onValueChange={setReference}>
+                  <SelectTrigger id="catalogId" className="mt-1.5 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_REFERENCE}>None — I will describe it</SelectItem>
+                    {catalogOptions?.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
               <Field
                 label="Product"
@@ -71,7 +99,12 @@ export function QuoteRequestForm({
                 error={state.field === "productName"}
                 hint="Needed when no catalog item is picked, e.g. “Recycled canvas tote”."
               >
-                <input id="productName" name="productName" className={input("productName", state.field)} />
+                <Input
+                  id="productName"
+                  name="productName"
+                  className="mt-1.5"
+                  aria-invalid={state.field === "productName" ? true : undefined}
+                />
               </Field>
             </>
           )}
@@ -82,7 +115,13 @@ export function QuoteRequestForm({
             error={state.field === "description"}
             hint={listing ? "Optional. Anything that differs from the listing." : "Material, weight, sizes or capacity."}
           >
-            <textarea id="description" name="description" rows={3} className={input("description", state.field)} />
+            <Textarea
+              id="description"
+              name="description"
+              rows={3}
+              className="mt-1.5"
+              aria-invalid={state.field === "description" ? true : undefined}
+            />
           </Field>
           <Field
             label="Quantity"
@@ -94,27 +133,32 @@ export function QuoteRequestForm({
                 : "Units in the run."
             }
           >
-            <input
+            <Input
               id="quantity"
               name="quantity"
               inputMode="numeric"
               defaultValue={minimumOrderQuantity > 0 ? String(minimumOrderQuantity) : ""}
-              className={input("quantity", state.field)}
+              className="mt-1.5 tabular-nums"
+              aria-invalid={state.field === "quantity" ? true : undefined}
             />
           </Field>
           <Field label="Destination market" htmlFor="destination" error={state.field === "destination"}>
-            <select
-              id="destination"
-              name="destination"
-              defaultValue={defaultDestination}
-              className={input("destination", state.field)}
-            >
-              {regions.map((region) => (
-                <option key={region} value={region}>
-                  {region}
-                </option>
-              ))}
-            </select>
+            <Select name="destination" defaultValue={defaultDestination}>
+              <SelectTrigger
+                id="destination"
+                className="mt-1.5 w-full"
+                aria-invalid={state.field === "destination" ? true : undefined}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {regions.map((region) => (
+                  <SelectItem key={region} value={region}>
+                    {region}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field
             label={`Target unit cost (${currency})`}
@@ -122,12 +166,13 @@ export function QuoteRequestForm({
             error={state.field === "targetUnitCost"}
             hint="Optional. Suppliers quote closer to a number they can work against."
           >
-            <input
+            <Input
               id="targetUnitCost"
               name="targetUnitCost"
               inputMode="decimal"
               placeholder="e.g. 3.80"
-              className={input("targetUnitCost", state.field)}
+              className="mt-1.5 tabular-nums"
+              aria-invalid={state.field === "targetUnitCost" ? true : undefined}
             />
           </Field>
           <Field
@@ -136,7 +181,13 @@ export function QuoteRequestForm({
             error={state.field === "neededBy"}
             hint="Optional. Sea freight adds four to six weeks on top of production."
           >
-            <input id="neededBy" name="neededBy" type="date" className={input("neededBy", state.field)} />
+            <Input
+              id="neededBy"
+              name="neededBy"
+              type="date"
+              className="mt-1.5"
+              aria-invalid={state.field === "neededBy" ? true : undefined}
+            />
           </Field>
           <Field
             label="Decoration needed"
@@ -145,30 +196,33 @@ export function QuoteRequestForm({
             error={state.field === "customisation"}
             hint="Print or embroidery, placement and colours, labels and packaging — or “none, blank stock”."
           >
-            <textarea
+            <Textarea
               id="customisation"
               name="customisation"
               rows={3}
-              className={input("customisation", state.field)}
+              className="mt-1.5"
+              aria-invalid={state.field === "customisation" ? true : undefined}
             />
           </Field>
           <Field label="Reply to" htmlFor="contactName" error={state.field === "contactName"}>
-            <input
+            <Input
               id="contactName"
               name="contactName"
               autoComplete="name"
               defaultValue={contactName}
-              className={input("contactName", state.field)}
+              className="mt-1.5"
+              aria-invalid={state.field === "contactName" ? true : undefined}
             />
           </Field>
           <Field label="Reply email" htmlFor="contactEmail" error={state.field === "contactEmail"}>
-            <input
+            <Input
               id="contactEmail"
               name="contactEmail"
               type="email"
               autoComplete="email"
               defaultValue={contactEmail}
-              className={input("contactEmail", state.field)}
+              className="mt-1.5"
+              aria-invalid={state.field === "contactEmail" ? true : undefined}
             />
           </Field>
         </div>

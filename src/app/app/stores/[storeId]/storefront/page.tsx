@@ -1,5 +1,6 @@
 import { revertStorefront } from "@/app/actions/storefront";
 import { Callout, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import type { StorefrontContext } from "@/components/sections";
 import { getStorefront, listStoreProducts } from "@/lib/data";
 import { storefrontLocale } from "@/lib/i18n";
@@ -54,9 +55,9 @@ export default async function StorefrontEditorPage({
           storefront?.published ? (
             <form action={revertStorefront}>
               <input type="hidden" name="storeId" value={storeId} />
-              <button type="submit" className="btn-secondary">
+              <Button type="submit" variant="outline">
                 Revert draft to published
-              </button>
+              </Button>
             </form>
           ) : null
         }

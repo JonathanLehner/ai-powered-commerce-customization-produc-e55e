@@ -2,38 +2,93 @@
 
 import { requestCopy, requestPrice, requestProductIdeas, requestSupplier } from "@/app/actions/ai";
 import { ActionForm } from "@/components/forms";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { REGION_OPTIONS } from "@/lib/util";
+
+/** Every panel on this page is the same card with one field in it. */
+function Panel({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
+  return (
+    <>
+      <CardHeader>
+        <CardTitle asChild>
+          <h2>{title}</h2>
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </>
+  );
+}
+
+/** The product picker shared by the copy and pricing panels. */
+function ProductPicker({
+  id,
+  options,
+  invalid,
+}: {
+  id: string;
+  options: { id: string; label: string }[];
+  invalid: boolean;
+}) {
+  return (
+    <div className="grid gap-1.5">
+      <Label htmlFor={id}>Product</Label>
+      <Select name="productId" required>
+        <SelectTrigger id={id} className="w-full" aria-invalid={invalid ? true : undefined}>
+          <SelectValue placeholder="Choose a product…" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((p) => (
+            <SelectItem key={p.id} value={p.id}>
+              {p.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
 
 export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: string }) {
   return (
-    <ActionForm
-      action={requestProductIdeas}
-      submitLabel="Draft product ideas"
-      pendingLabel="Drafting…"
-      submitClassName="btn-iris"
-      hidden={{ storeId }}
-      className="card p-5"
-    >
-      <h2 className="text-base font-semibold text-ink">Product ideas</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Three products for {storeName}, each mapped to a real item in the approved supplier catalog.
-      </p>
-      <div className="mt-4">
-        <label htmlFor="brief" className="field-label">
-          Brief (optional)
-        </label>
-        <textarea
-          id="brief"
-          name="brief"
-          rows={3}
-          placeholder="Winter campaign for the field team; budget under $40 per unit; must ship inside the EU."
-          className="input"
-        />
-        <p className="field-hint">
-          Mention the audience, budget or markets. Leave empty for a general range.
-        </p>
-      </div>
-    </ActionForm>
+    <Card asChild>
+      <ActionForm
+        action={requestProductIdeas}
+        submitLabel="Draft product ideas"
+        pendingLabel="Drafting…"
+        submitClassName="btn-iris"
+        hidden={{ storeId }}
+        actionsClassName="px-(--card-spacing)"
+      >
+        <Panel
+          title="Product ideas"
+          description={`Three products for ${storeName}, each mapped to a real item in the approved supplier catalog.`}
+        >
+          <div className="grid gap-1.5">
+            <Label htmlFor="brief">Brief (optional)</Label>
+            <Textarea
+              id="brief"
+              name="brief"
+              rows={3}
+              placeholder="Winter campaign for the field team; budget under $40 per unit; must ship inside the EU."
+              aria-describedby="brief-hint"
+            />
+            <p id="brief-hint" className="text-xs text-muted-foreground">
+              Mention the audience, budget or markets. Leave empty for a general range.
+            </p>
+          </div>
+        </Panel>
+      </ActionForm>
+    </Card>
   );
 }
 
@@ -46,42 +101,25 @@ export function CopyForm({
   products: { id: string; label: string }[];
 }) {
   return (
-    <ActionForm
-      action={requestCopy}
-      submitLabel="Draft description and tags"
-      pendingLabel="Writing…"
-      submitClassName="btn-iris"
-      hidden={{ storeId }}
-      className="card p-5"
-    >
-      {(state) => (
-        <>
-          <h2 className="text-base font-semibold text-ink">Description and tags</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Rewrites storefront copy using the product&rsquo;s real category and configured variants.
-          </p>
-          <div className="mt-4">
-            <label htmlFor="copy-product" className="field-label">
-              Product
-            </label>
-            <select
-              id="copy-product"
-              name="productId"
-              required
-              aria-invalid={state.field === "productId" ? true : undefined}
-              className={state.field === "productId" ? "input input-error" : "input"}
-            >
-              <option value="">Choose a product…</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </>
-      )}
-    </ActionForm>
+    <Card asChild>
+      <ActionForm
+        action={requestCopy}
+        submitLabel="Draft description and tags"
+        pendingLabel="Writing…"
+        submitClassName="btn-iris"
+        hidden={{ storeId }}
+        actionsClassName="px-(--card-spacing)"
+      >
+        {(state) => (
+          <Panel
+            title="Description and tags"
+            description="Rewrites storefront copy using the product’s real category and configured variants."
+          >
+            <ProductPicker id="copy-product" options={products} invalid={state.field === "productId"} />
+          </Panel>
+        )}
+      </ActionForm>
+    </Card>
   );
 }
 
@@ -94,42 +132,25 @@ export function PriceForm({
   products: { id: string; label: string }[];
 }) {
   return (
-    <ActionForm
-      action={requestPrice}
-      submitLabel="Draft a price"
-      pendingLabel="Calculating…"
-      submitClassName="btn-iris"
-      hidden={{ storeId }}
-      className="card p-5"
-    >
-      {(state) => (
-        <>
-          <h2 className="text-base font-semibold text-ink">Pricing</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Suggests a retail price against the product&rsquo;s landed cost and explains the reasoning.
-          </p>
-          <div className="mt-4">
-            <label htmlFor="price-product" className="field-label">
-              Product
-            </label>
-            <select
-              id="price-product"
-              name="productId"
-              required
-              aria-invalid={state.field === "productId" ? true : undefined}
-              className={state.field === "productId" ? "input input-error" : "input"}
-            >
-              <option value="">Choose a product…</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </>
-      )}
-    </ActionForm>
+    <Card asChild>
+      <ActionForm
+        action={requestPrice}
+        submitLabel="Draft a price"
+        pendingLabel="Calculating…"
+        submitClassName="btn-iris"
+        hidden={{ storeId }}
+        actionsClassName="px-(--card-spacing)"
+      >
+        {(state) => (
+          <Panel
+            title="Pricing"
+            description="Suggests a retail price against the product’s landed cost and explains the reasoning."
+          >
+            <ProductPicker id="price-product" options={products} invalid={state.field === "productId"} />
+          </Panel>
+        )}
+      </ActionForm>
+    </Card>
   );
 }
 
@@ -141,56 +162,59 @@ export function SupplierForm({
   catalog: { id: string; name: string }[];
 }) {
   return (
-    <ActionForm
-      action={requestSupplier}
-      submitLabel="Recommend a partner"
-      pendingLabel="Comparing suppliers…"
-      submitClassName="btn-iris"
-      hidden={{ storeId }}
-      className="card p-5"
-    >
-      {(state) => (
-        <>
-          <h2 className="text-base font-semibold text-ink">Supplier comparison</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Compares approved production partners for a destination, weighing lead time, regions and whether
-            they expose an order API.
-          </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="supplier-catalog" className="field-label">
-                Supplier product
-              </label>
-              <select
-                id="supplier-catalog"
-                name="catalogId"
-                required
-                aria-invalid={state.field === "catalogId" ? true : undefined}
-                className={state.field === "catalogId" ? "input input-error" : "input"}
-              >
-                <option value="">Choose a product…</option>
-                {catalog.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+    <Card asChild>
+      <ActionForm
+        action={requestSupplier}
+        submitLabel="Recommend a partner"
+        pendingLabel="Comparing suppliers…"
+        submitClassName="btn-iris"
+        hidden={{ storeId }}
+        actionsClassName="px-(--card-spacing)"
+      >
+        {(state) => (
+          <Panel
+            title="Supplier comparison"
+            description="Compares approved production partners for a destination, weighing lead time, regions and whether they expose an order API."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid content-start gap-1.5">
+                <Label htmlFor="supplier-catalog">Supplier product</Label>
+                <Select name="catalogId" required>
+                  <SelectTrigger
+                    id="supplier-catalog"
+                    className="w-full"
+                    aria-invalid={state.field === "catalogId" ? true : undefined}
+                  >
+                    <SelectValue placeholder="Choose a product…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {catalog.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid content-start gap-1.5">
+                <Label htmlFor="destination">Main destination</Label>
+                <Select name="destination" defaultValue="North America">
+                  <SelectTrigger id="destination" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGION_OPTIONS.map((region) => (
+                      <SelectItem key={region} value={region}>
+                        {region}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <label htmlFor="destination" className="field-label">
-                Main destination
-              </label>
-              <select id="destination" name="destination" defaultValue="North America" className="input">
-                {REGION_OPTIONS.map((region) => (
-                  <option key={region} value={region}>
-                    {region}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </>
-      )}
-    </ActionForm>
+          </Panel>
+        )}
+      </ActionForm>
+    </Card>
   );
 }

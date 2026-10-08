@@ -2,6 +2,16 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs, Callout, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getGiftCampaign, getGiftCatalogue, listOrdersForCampaign } from "@/lib/data";
 import { countryName } from "@/lib/countries";
 import {
@@ -22,6 +32,9 @@ import {
   type OrderStatus,
 } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatDateTime, formatMoney } from "@/lib/util";
+
+/** The column-head style every table in the workspace shares. */
+const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
 
 const CAMPAIGN_TONES: Record<CampaignStatus, "amber" | "brand" | "green" | "rose" | "slate"> = {
   awaiting_approval: "amber",
@@ -107,17 +120,16 @@ export default async function CampaignFulfilmentPage({
             <>
               <Badge tone={CAMPAIGN_TONES[campaign.status]}>{CAMPAIGN_STATUS_LABELS[campaign.status]}</Badge>
               {campaign.status === "ordered" ? (
-                <Link
-                  href={`/app/stores/${storeId}/orders?campaign=${encodeURIComponent(campaign.code)}`}
-                  className="btn-secondary btn-sm"
-                >
-                  Filter the order queue
-                </Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/app/stores/${storeId}/orders?campaign=${encodeURIComponent(campaign.code)}`}>
+                    Filter the order queue
+                  </Link>
+                </Button>
               ) : null}
               {catalogue && !viaPlatform ? (
-                <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`} className="btn-ghost btn-sm">
-                  Gift catalogue
-                </Link>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`}>Gift catalogue</Link>
+                </Button>
               ) : null}
             </>
           }
@@ -160,20 +172,24 @@ export default async function CampaignFulfilmentPage({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <section className="card min-w-0 p-5">
-          <h2 className="text-base font-semibold text-ink">{viaPlatform ? "Gift orders" : "Recipients"}</h2>
+        <Card asChild className="min-w-0">
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>{viaPlatform ? "Gift orders" : "Recipients"}</h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
           {viaPlatform ? (
             // Recipients are named employees of the client. Platform access sees
             // the jobs the campaign raised, not who each one is going to.
             orders.length === 0 ? (
-              <div className="mt-4">
-                <EmptyState
-                  title="No orders raised"
-                  description="Orders appear once the campaign is approved and paid."
-                />
-              </div>
+              <EmptyState
+                title="No orders raised"
+                description="Orders appear once the campaign is approved and paid."
+              />
             ) : (
-              <ul className="mt-4 divide-y divide-line text-sm">
+              <ul className="divide-y divide-border text-sm">
                 {orders.map((order) => (
                   <li key={order.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
                     <span className="min-w-0">
@@ -197,46 +213,47 @@ export default async function CampaignFulfilmentPage({
               </ul>
             )
           ) : campaign.recipients.length === 0 ? (
-            <div className="mt-4">
-              <EmptyState title="No recipients" description="This campaign carries no recipient list." />
-            </div>
+            <EmptyState title="No recipients" description="This campaign carries no recipient list." />
           ) : (
-            <div className="mt-4 relative overflow-x-auto">
-              <table className="w-full min-w-[48rem] text-left text-sm">
-                <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th scope="col" className="py-2 pr-3">Recipient</th>
-                    <th scope="col" className="py-2 pr-3">Gift</th>
-                    <th scope="col" className="py-2 pr-3">Order</th>
-                    <th scope="col" className="py-2 pr-3">Fulfilment</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
+            <div className="relative overflow-x-auto">
+              <Table className="min-w-[48rem]">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className={TH}>Recipient</TableHead>
+                    <TableHead className={TH}>Gift</TableHead>
+                    <TableHead className={TH}>Order</TableHead>
+                    <TableHead className={TH}>Fulfilment</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {campaign.recipients.map((recipient) => {
                     const order = byRecipient.get(recipient.id) ?? null;
                     return (
-                      <tr key={recipient.id} className="align-top">
-                        <td className="py-2.5 pr-3">
-                          <p className="font-medium text-ink">{recipient.name}</p>
+                      <TableRow key={recipient.id} className="hover:bg-transparent">
+                        <TableCell className="px-0 py-2.5 align-top whitespace-normal">
+                          <p className="font-medium text-foreground">{recipient.name}</p>
                           <p className="text-xs text-muted-foreground">
                             {recipient.city}, {countryName(recipient.country)}
                           </p>
                           {recipient.note ? (
                             <p className="mt-1 text-xs text-inksoft">“{recipient.note}”</p>
                           ) : null}
-                        </td>
-                        <td className="py-2.5 pr-3">
-                          <p className="text-ink">{recipient.productName}</p>
+                        </TableCell>
+                        <TableCell className="px-0 py-2.5 align-top whitespace-normal">
+                          <p className="text-foreground">{recipient.productName}</p>
                           <p className="text-xs text-muted-foreground">
-                            {recipient.variantName || recipient.size} × {recipient.quantity} ·{" "}
-                            {formatMoney(recipient.unitPrice * recipient.quantity, campaign.currency)}
+                            {recipient.variantName || recipient.size} ×{" "}
+                            <span className="tabular-nums">{recipient.quantity}</span> ·{" "}
+                            <span className="tabular-nums">
+                              {formatMoney(recipient.unitPrice * recipient.quantity, campaign.currency)}
+                            </span>
                           </p>
-                        </td>
-                        <td className="py-2.5 pr-3">
+                        </TableCell>
+                        <TableCell className="px-0 py-2.5 align-top whitespace-normal">
                           {order ? (
                             <Link
                               href={`/app/stores/${storeId}/orders/${order.id}`}
-                              className="font-medium text-ink hover:underline"
+                              className="font-medium text-foreground hover:underline"
                             >
                               {order.code}
                             </Link>
@@ -245,11 +262,13 @@ export default async function CampaignFulfilmentPage({
                           )}
                           {order ? (
                             <p className="mt-1">
-                              <Badge tone={ORDER_TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                              <Badge tone={ORDER_TONES[order.status]}>
+                                {ORDER_STATUS_LABELS[order.status]}
+                              </Badge>
                             </p>
                           ) : null}
-                        </td>
-                        <td className="py-2.5 pr-3">
+                        </TableCell>
+                        <TableCell className="px-0 py-2.5 align-top whitespace-normal">
                           {order ? (
                             <>
                               <p className="text-xs text-inksoft">
@@ -263,9 +282,10 @@ export default async function CampaignFulfilmentPage({
                                   href={order.fulfillment.trackingUrl ?? "#"}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="text-xs font-medium text-brand-700 hover:underline"
+                                  className="text-xs font-medium text-primary hover:underline"
                                 >
-                                  {CARRIER_LABELS[order.fulfillment.carrier]} {order.fulfillment.trackingNumber} ↗
+                                  {CARRIER_LABELS[order.fulfillment.carrier]}{" "}
+                                  {order.fulfillment.trackingNumber} ↗
                                 </a>
                               ) : null}
                               {order.fulfillment.exception ? (
@@ -275,15 +295,17 @@ export default async function CampaignFulfilmentPage({
                           ) : (
                             <span className="text-xs text-muted-foreground">—</span>
                           )}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
+          </CardContent>
         </section>
+        </Card>
 
         <section className="space-y-6">
           {approval ? (
@@ -303,8 +325,13 @@ export default async function CampaignFulfilmentPage({
             />
           ) : null}
 
-          <div className="card p-5">
-            <h2 className="text-base font-semibold text-ink">Campaign</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Campaign</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
             <DataList
               rows={[
                 { label: "Company", value: catalogue?.companyName ?? "—" },
@@ -345,18 +372,24 @@ export default async function CampaignFulfilmentPage({
               ]}
             />
             {campaign.approval.note && !viaPlatform ? (
-              <p className="mt-3 rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-inksoft">
+              <p className="mt-3 rounded-lg border border-border bg-canvas px-3 py-2 text-sm text-inksoft">
                 “{campaign.approval.note}”
               </p>
             ) : null}
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="card p-5">
-            <h2 className="text-base font-semibold text-ink">History</h2>
-            <ol className="mt-3 divide-y divide-line text-sm">
+          <Card>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>History</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+            <ol className="divide-y divide-border text-sm">
               {campaign.events.map((entry, index) => (
                 <li key={`${entry.at}-${index}`} className="py-2.5">
-                  <p className="font-medium text-ink">{entry.status}</p>
+                  <p className="font-medium text-foreground">{entry.status}</p>
                   {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
                   {/* The buyer and the approver act under their own names, so
                       platform access reads the step and when, not who. */}
@@ -367,7 +400,8 @@ export default async function CampaignFulfilmentPage({
                 </li>
               ))}
             </ol>
-          </div>
+            </CardContent>
+          </Card>
         </section>
       </div>
     </div>

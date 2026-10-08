@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { listAgencies, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
@@ -91,9 +93,9 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
             </>
           }
           actions={
-            <Link href="/app/stores/new" className="btn-primary">
-              Create a client store
-            </Link>
+            <Button asChild>
+              <Link href="/app/stores/new">Create a client store</Link>
+            </Button>
           }
         />
 
@@ -111,9 +113,9 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
               title="No agencies yet"
               description="Agencies and their stores appear here once the first one is set up in the platform admin."
               action={
-                <Link href="/admin/agencies" className="btn-primary">
-                  Open platform admin
-                </Link>
+                <Button asChild>
+                  <Link href="/admin/agencies">Open platform admin</Link>
+                </Button>
               }
             />
           </div>
@@ -121,8 +123,8 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
 
         {grouped.map((group) => (
           <section key={group.key} className="mt-9">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line pb-3">
-              <h2 className="text-base font-semibold text-ink">{group.name}</h2>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border pb-3">
+              <h2 className="text-base font-semibold text-foreground">{group.name}</h2>
               {group.agency ? (
                 <>
                   <Badge tone="neutral">{planFor(group.agency.plan).name} plan</Badge>
@@ -132,7 +134,8 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                 <Badge tone="amber">No agency record</Badge>
               )}
               <p className="text-xs text-muted-foreground">
-                {group.active.length} active {group.active.length === 1 ? "store" : "stores"}
+                <span className="tabular-nums">{group.active.length}</span> active{" "}
+                {group.active.length === 1 ? "store" : "stores"}
                 {group.archived.length ? `, ${group.archived.length} archived` : ""} · counted within this
                 agency only
               </p>
@@ -148,27 +151,30 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                   const progress = setupProgress(store.setup);
                   const theme = THEMES[store.theme];
                   return (
-                    <li key={store.id} className="card flex flex-col p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <Link
-                            href={`/app/stores/${store.id}`}
-                            className="text-base font-semibold text-ink hover:underline"
-                          >
-                            {store.name}
-                          </Link>
-                          <p className="truncate text-sm text-muted-foreground">
-                            {store.clientName} · {group.name}
-                          </p>
-                        </div>
-                        <span
-                          aria-hidden
-                          className="h-8 w-8 shrink-0 rounded-lg border border-line"
-                          style={{ background: theme.accent }}
-                        />
-                      </div>
+                    <li key={store.id} className="flex">
+                      <Card className="flex-1">
+                      <CardHeader>
+                        <CardTitle asChild>
+                          <h3>
+                            <Link href={`/app/stores/${store.id}`} className="hover:underline">
+                              {store.name}
+                            </Link>
+                          </h3>
+                        </CardTitle>
+                        <p className="truncate text-sm text-muted-foreground">
+                          {store.clientName} · {group.name}
+                        </p>
+                        <CardAction>
+                          <span
+                            aria-hidden
+                            className="block h-8 w-8 shrink-0 rounded-lg border border-border"
+                            style={{ background: theme.accent }}
+                          />
+                        </CardAction>
+                      </CardHeader>
 
-                      <div className="mt-3 flex flex-wrap gap-1.5">
+                      <CardContent>
+                      <div className="flex flex-wrap gap-1.5">
                         <Badge tone="iris">{PLATFORM_ACCESS_LABEL}</Badge>
                         <Badge tone={store.stripe.connected ? "green" : "amber"}>
                           {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
@@ -181,29 +187,31 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                       </div>
 
                       {/* Operational status only — no sales figures, no shopper records. */}
-                      <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-line py-3 text-sm">
+                      <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-border py-3 text-sm">
                         <div>
                           <dt className="text-xs text-muted-foreground">Orders</dt>
-                          <dd className="mt-0.5 font-semibold tabular-nums text-ink">{metrics.orderCount}</dd>
+                          <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
+                            {metrics.orderCount}
+                          </dd>
                         </div>
                         <div>
                           <dt className="text-xs text-muted-foreground">Published</dt>
-                          <dd className="mt-0.5 font-semibold tabular-nums text-ink">
+                          <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
                             {metrics.publishedProducts}
                           </dd>
                         </div>
                         <div>
                           <dt className="text-xs text-muted-foreground">Needs attention</dt>
-                          <dd className="mt-0.5 font-semibold tabular-nums text-ink">
+                          <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
                             {metrics.awaitingAction}
                           </dd>
                         </div>
                       </dl>
 
                       <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                        <span className="chip">{metrics.inProduction} in production</span>
-                        <span className="chip">{metrics.shipped} shipped</span>
-                        <span className="chip">{metrics.delivered} delivered</span>
+                        <Badge tone="slate">{metrics.inProduction} in production</Badge>
+                        <Badge tone="slate">{metrics.shipped} shipped</Badge>
+                        <Badge tone="slate">{metrics.delivered} delivered</Badge>
                         {metrics.exceptions > 0 ? (
                           <Badge tone="rose">
                             {metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}
@@ -218,19 +226,19 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                         </div>
                       ) : null}
 
-                      <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                        <Link href={`/app/stores/${store.id}`} className="btn-secondary btn-sm">
-                          Open
-                        </Link>
-                        <Link
-                          href={`/s/${store.slug}`}
-                          className="btn-ghost btn-sm"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Storefront ↗
-                        </Link>
-                      </div>
+                      </CardContent>
+
+                      <CardFooter className="mt-auto flex-wrap gap-2">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/app/stores/${store.id}`}>Open</Link>
+                        </Button>
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
+                            Storefront ↗
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                      </Card>
                     </li>
                   );
                 })}
@@ -238,45 +246,50 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
             ) : null}
 
             {group.archived.length > 0 ? (
-              <ul className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+              <Card asChild className="mt-4 py-0">
+              <ul className="divide-y divide-border">
                 {group.archived.map(({ store, metrics }) => (
                   <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-ink">
+                      <p className="truncate text-sm font-medium text-foreground">
                         {store.name} <span className="font-normal text-muted-foreground">· archived</span>
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {store.clientName} · {metrics.orderCount} historic orders
+                        {store.clientName} · <span className="tabular-nums">{metrics.orderCount}</span>{" "}
+                        historic orders
                       </p>
                     </div>
-                    <Link href={`/app/stores/${store.id}`} className="btn-ghost btn-sm">
-                      Open
-                    </Link>
+                    <Button asChild variant="ghost" size="sm">
+                      <Link href={`/app/stores/${store.id}`}>Open</Link>
+                    </Button>
                   </li>
                 ))}
               </ul>
+              </Card>
             ) : null}
           </section>
         ))}
 
         <section className="mt-9 pb-4">
-          <h2 className="text-base font-semibold text-ink">Recent platform activity</h2>
+          <h2 className="text-base font-semibold text-foreground">Recent platform activity</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Who did what, across every agency. Order and customer records are not part of it.
           </p>
           {activity.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
           ) : (
-            <ol className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+            <Card asChild className="mt-4 py-0">
+            <ol className="divide-y divide-border">
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
-                  <span className="text-sm text-ink">{auditRunSummary(run)}</span>
+                  <span className="text-sm text-foreground">{auditRunSummary(run)}</span>
                   <span className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {relativeTime(run.entry.at)}
                   </span>
                 </li>
               ))}
             </ol>
+            </Card>
           )}
         </section>
       </div>

@@ -7,6 +7,20 @@ import type { ActionState } from "@/app/actions/stores";
 import { FormStatus } from "@/components/forms";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { Badge } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
 import { classNames, formatDateTime } from "@/lib/util";
 
@@ -89,12 +103,17 @@ function Toolbox() {
   }
 
   return (
-    <div className="card p-4">
-      <h2 className="text-sm font-semibold text-ink">Approved sections</h2>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Drag a section onto the canvas, or use Add to append it to the bottom of the page.
-      </p>
-      <ul className="mt-3 space-y-2">
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle asChild className="text-sm font-semibold">
+          <h2>Approved sections</h2>
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Drag a section onto the canvas, or use Add to append it to the bottom of the page.
+        </p>
+      </CardHeader>
+      <CardContent>
+      <ul className="space-y-2">
         {SECTION_ORDER.map((type) => (
           <li
             key={type}
@@ -106,21 +125,22 @@ function Toolbox() {
                 );
               }
             }}
-            className="cursor-grab rounded-lg border border-line bg-white p-3 hover:border-brand-300"
+            className="cursor-grab rounded-lg border border-border bg-background p-3 hover:border-primary/40"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-ink">{SECTION_DEFS[type].name}</p>
+                <p className="text-sm font-medium text-foreground">{SECTION_DEFS[type].name}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{SECTION_DEFS[type].description}</p>
               </div>
-              <button type="button" className="btn-secondary btn-sm shrink-0" onClick={() => append(type)}>
+              <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => append(type)}>
                 Add
-              </button>
+              </Button>
             </div>
           </li>
         ))}
       </ul>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -146,78 +166,89 @@ function SettingsPanel() {
 
   if (!selectedId || selectedId === "ROOT" || !props || !def) {
     return (
-      <div className="card p-4">
-        <h2 className="text-sm font-semibold text-ink">Section settings</h2>
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          Select a section on the canvas — or in the page order list — to edit its copy, imagery and layout.
-        </p>
-      </div>
+      <Card size="sm">
+        <CardHeader>
+          <CardTitle asChild className="text-sm font-semibold">
+            <h2>Section settings</h2>
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Select a section on the canvas — or in the page order list — to edit its copy, imagery and layout.
+          </p>
+        </CardHeader>
+      </Card>
     );
   }
 
   return (
-    <div className="card p-4">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-ink">{def.name}</h2>
-        <div className="flex gap-1">
-          <button
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle asChild className="text-sm font-semibold">
+          <h2>{def.name}</h2>
+        </CardTitle>
+        <CardAction className="flex gap-1">
+          <Button
             type="button"
-            className="btn-ghost btn-sm"
+            variant="ghost"
+            size="sm"
             disabled={!canMoveUp}
             onClick={() => actions.move(selectedId, "ROOT", index - 1)}
             aria-label="Move section up"
           >
             ↑
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="btn-ghost btn-sm"
+            variant="ghost"
+            size="sm"
             disabled={!canMoveDown}
             onClick={() => actions.move(selectedId, "ROOT", index + 2)}
             aria-label="Move section down"
           >
             ↓
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="btn-ghost btn-sm text-rose-700"
+            variant="ghost"
+            size="sm"
+            className="text-rose-700"
             onClick={() => actions.delete(selectedId)}
           >
             Delete
-          </button>
-        </div>
-      </div>
+          </Button>
+        </CardAction>
+      </CardHeader>
 
-      <div className="mt-4 space-y-3.5">
+      <CardContent>
+      <div className="space-y-3.5">
         {def.fields.map((field) => {
           const id = `field-${selectedId}-${field.key}`;
           const value = props[field.key];
           if (field.type === "toggle") {
             return (
-              <label key={field.key} className="flex cursor-pointer items-start gap-2.5">
-                <input
+              <div key={field.key} className="flex items-start gap-2.5">
+                <Switch
                   id={id}
-                  type="checkbox"
                   checked={value !== false}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
+                  onCheckedChange={(checked) =>
                     actions.setProp(selectedId, (p: Record<string, unknown>) => {
                       p[field.key] = checked;
-                    });
-                  }}
-                  className="mt-0.5 h-4 w-4 accent-brand-600"
+                    })
+                  }
+                  className="mt-0.5"
                 />
-                <span className="text-sm text-ink">{field.label}</span>
-              </label>
+                <Label htmlFor={id} className="cursor-pointer text-sm font-normal">
+                  {field.label}
+                </Label>
+              </div>
             );
           }
           return (
-            <div key={field.key}>
-              <label htmlFor={id} className="field-label text-xs">
+            <div key={field.key} className="grid gap-1.5">
+              <Label htmlFor={id} className="text-xs">
                 {field.label}
-              </label>
+              </Label>
               {field.type === "textarea" ? (
-                <textarea
+                <Textarea
                   id={id}
                   rows={3}
                   value={String(value ?? "")}
@@ -227,28 +258,29 @@ function SettingsPanel() {
                       p[field.key] = next;
                     });
                   }}
-                  className="input py-1.5 text-sm"
                 />
               ) : field.type === "select" ? (
-                <select
-                  id={id}
+                <Select
                   value={String(value ?? "")}
-                  onChange={(e) => {
-                    const next = e.target.value;
+                  onValueChange={(next) =>
                     actions.setProp(selectedId, (p: Record<string, unknown>) => {
                       p[field.key] = next;
-                    });
-                  }}
-                  className="input py-1.5 text-sm"
+                    })
+                  }
                 >
-                  {field.options?.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger id={id} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {field.options?.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               ) : (
-                <input
+                <Input
                   id={id}
                   type={field.type === "number" ? "number" : "text"}
                   min={field.min}
@@ -260,15 +292,16 @@ function SettingsPanel() {
                       p[field.key] = field.type === "number" ? Number(raw) : raw;
                     });
                   }}
-                  className="input py-1.5 text-sm"
+                  className={field.type === "number" ? "tabular-nums" : undefined}
                 />
               )}
-              {field.help ? <p className="field-hint">{field.help}</p> : null}
+              {field.help ? <p className="text-xs text-muted-foreground">{field.help}</p> : null}
             </div>
           );
         })}
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -284,12 +317,18 @@ function LayerList() {
   }));
 
   return (
-    <div className="card p-4">
-      <h2 className="text-sm font-semibold text-ink">Page order</h2>
-      {nodes.length === 0 ? (
-        <p className="mt-1.5 text-xs text-muted-foreground">The page is empty. Add a section to begin.</p>
-      ) : (
-        <ol className="mt-3 space-y-1.5">
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle asChild className="text-sm font-semibold">
+          <h2>Page order</h2>
+        </CardTitle>
+        {nodes.length === 0 ? (
+          <p className="text-xs text-muted-foreground">The page is empty. Add a section to begin.</p>
+        ) : null}
+      </CardHeader>
+      {nodes.length === 0 ? null : (
+        <CardContent>
+        <ol className="space-y-1.5">
           {nodes.map((node, i) => (
             <li key={node.id}>
               <button
@@ -297,7 +336,9 @@ function LayerList() {
                 onClick={() => actions.selectNode(node.id)}
                 className={classNames(
                   "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm",
-                  node.id === selectedId ? "bg-brand-50 font-medium text-brand-800" : "text-inksoft hover:bg-canvas",
+                  node.id === selectedId
+                    ? "bg-primary/10 font-medium text-foreground"
+                    : "text-inksoft hover:bg-muted",
                 )}
               >
                 <span className="w-5 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
@@ -306,8 +347,9 @@ function LayerList() {
             </li>
           ))}
         </ol>
+        </CardContent>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -362,46 +404,49 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="card flex flex-wrap items-center justify-between gap-3 p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground">Preview width</span>
-          <div role="group" aria-label="Preview width" className="flex rounded-lg border border-line p-0.5">
-            {WIDTHS.map((option) => (
-              <button
-                key={option.key}
-                type="button"
-                aria-pressed={device === option.key}
-                onClick={() => setDevice(option.key)}
-                className={classNames(
-                  "rounded-md px-3 py-1.5 text-xs font-medium",
-                  device === option.key ? "bg-brand-600 text-white" : "text-inksoft hover:bg-canvas",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
+      <Card size="sm">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Preview width</span>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              spacing={0}
+              aria-label="Preview width"
+              value={device}
+              // One width is always being previewed, so an empty value is
+              // ignored rather than leaving the canvas unconstrained.
+              onValueChange={(next) => next && setDevice(next as (typeof WIDTHS)[number]["key"])}
+            >
+              {WIDTHS.map((option) => (
+                <ToggleGroupItem key={option.key} value={option.key}>
+                  {option.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="version-label" className="sr-only">
-            Version name
-          </label>
-          <input
-            id="version-label"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="Version name, e.g. Autumn range"
-            className="input mt-0 w-56 py-1.5 text-sm"
-          />
-          <button type="button" className="btn-secondary" onClick={() => run("save")} disabled={busy !== null}>
-            {busy === "save" ? "Saving…" : "Save draft"}
-          </button>
-          <button type="button" className="btn-primary" onClick={() => run("publish")} disabled={busy !== null}>
-            {busy === "publish" ? "Publishing…" : "Publish"}
-          </button>
-        </div>
-      </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Label htmlFor="version-label" className="sr-only">
+              Version name
+            </Label>
+            <Input
+              id="version-label"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="Version name, e.g. Autumn range"
+              className="w-56"
+            />
+            <Button type="button" variant="outline" onClick={() => run("save")} disabled={busy !== null}>
+              {busy === "save" ? "Saving…" : "Save draft"}
+            </Button>
+            <Button type="button" onClick={() => run("publish")} disabled={busy !== null}>
+              {busy === "publish" ? "Publishing…" : "Publish"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <FormStatus state={status} />
 
@@ -414,7 +459,7 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
           href={`/s/${props.storeSlug}`}
           target="_blank"
           rel="noreferrer"
-          className="font-medium text-brand-700 hover:underline"
+          className="font-medium text-primary hover:underline"
         >
           Open live storefront ↗
         </a>
@@ -426,9 +471,9 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
           <LayerList />
         </div>
 
-        <div className="relative overflow-x-auto rounded-xl border border-line bg-canvas p-3">
+        <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
           <div
-            className="mx-auto overflow-hidden rounded-lg border border-line bg-white transition-all"
+            className="mx-auto overflow-hidden rounded-lg border border-border bg-background transition-all"
             style={{ maxWidth: width }}
           >
             <Frame data={props.data} />
@@ -438,29 +483,35 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
         <div className="space-y-4">
           <SettingsPanel />
           {props.history.length > 0 ? (
-            <div className="card p-4">
-              <h2 className="text-sm font-semibold text-ink">Version history</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Restoring loads a version into the draft. It only goes live when you publish.
-              </p>
-              <ul className="mt-3 space-y-2 text-sm">
-                {props.history.map((version) => (
-                  <li key={version.id} className="rounded-lg border border-line p-3">
-                    <p className="font-medium text-ink">{version.label}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {version.savedBy} · {formatDateTime(version.savedAt)}
-                    </p>
-                    <form action={restoreVersion} className="mt-2">
-                      <input type="hidden" name="storeId" value={props.storeId} />
-                      <input type="hidden" name="versionId" value={version.id} />
-                      <button type="submit" className="btn-secondary btn-sm">
-                        Restore into draft
-                      </button>
-                    </form>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Card size="sm">
+              <CardHeader>
+                <CardTitle asChild className="text-sm font-semibold">
+                  <h2>Version history</h2>
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Restoring loads a version into the draft. It only goes live when you publish.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  {props.history.map((version) => (
+                    <li key={version.id} className="rounded-lg border border-border p-3">
+                      <p className="font-medium text-foreground">{version.label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {version.savedBy} · {formatDateTime(version.savedAt)}
+                      </p>
+                      <form action={restoreVersion} className="mt-2">
+                        <input type="hidden" name="storeId" value={props.storeId} />
+                        <input type="hidden" name="versionId" value={version.id} />
+                        <Button type="submit" variant="outline" size="sm">
+                          Restore into draft
+                        </Button>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
           ) : null}
         </div>
       </div>

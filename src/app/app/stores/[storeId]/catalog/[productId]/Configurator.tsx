@@ -4,6 +4,11 @@ import { startTransition, useActionState, useMemo, useRef, useState } from "reac
 import { attachArtwork, generateMockups, persistPlacement, removeArtwork } from "@/app/actions/products";
 import { ActionForm, FormStatus, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { ActionState } from "@/app/actions/stores";
 import { placementBox, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
 import { renderMockup, sameOriginAsset } from "@/lib/mockup-render";
@@ -80,40 +85,43 @@ function UploadForm({
   }
 
   return (
-    <div className="card p-4">
-      <label htmlFor="artwork" className="field-label">
-        Artwork for {areaName}
-      </label>
-      <input
-        id="artwork"
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        disabled={busy}
-        onChange={onFileChosen}
-        aria-invalid={invalid ? true : undefined}
-        aria-describedby="artwork-hint"
-        className={classNames(
-          "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-          invalid && "input-error",
-          busy && "opacity-60",
+    <Card size="sm">
+      <CardContent className="grid gap-1.5">
+        <Label htmlFor="artwork">Artwork for {areaName}</Label>
+        <Input
+          id="artwork"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          disabled={busy}
+          onChange={onFileChosen}
+          aria-invalid={invalid ? true : undefined}
+          aria-describedby="artwork-hint"
+          className={classNames(
+            "file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
+            busy && "opacity-60",
+          )}
+        />
+        <p id="artwork-hint" className="text-xs text-muted-foreground">
+          PNG, JPG or WEBP up to {maxFileMb} MB. Uploads as soon as you choose a file.
+          {needsTransparency ? " This product needs a transparent background." : ""}
+        </p>
+        {busy ? (
+          <p role="status" aria-live="polite" className="mt-3 text-sm text-muted-foreground">
+            {uploading ? "Uploading…" : "Saving…"}
+          </p>
+        ) : uploadError ? (
+          <p
+            role="status"
+            aria-live="polite"
+            className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+          >
+            {uploadError}
+          </p>
+        ) : (
+          <FormStatus state={state} />
         )}
-      />
-      <p id="artwork-hint" className="field-hint">
-        PNG, JPG or WEBP up to {maxFileMb} MB. Uploads as soon as you choose a file.
-        {needsTransparency ? " This product needs a transparent background." : ""}
-      </p>
-      {busy ? (
-        <p role="status" aria-live="polite" className="mt-4 text-sm text-muted-foreground">
-          {uploading ? "Uploading…" : "Saving…"}
-        </p>
-      ) : uploadError ? (
-        <p role="status" aria-live="polite" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          {uploadError}
-        </p>
-      ) : (
-        <FormStatus state={state} />
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -289,33 +297,30 @@ export function Configurator({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <div>
-        <div role="tablist" aria-label="Print areas" className="flex flex-wrap gap-2">
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          aria-label="Print areas"
+          value={area.id}
+          // A print area is always being edited, so an empty value is ignored
+          // rather than letting the canvas lose its subject.
+          onValueChange={(next) => next && setActiveAreaId(next)}
+          className="flex-wrap"
+        >
           {catalog.printAreas.map((a) => {
             const hasArt = product.artworks.some((art) => art.printAreaId === a.id);
             return (
-              <button
-                key={a.id}
-                type="button"
-                role="tab"
-                aria-selected={a.id === area.id}
-                onClick={() => setActiveAreaId(a.id)}
-                className={classNames(
-                  "rounded-lg border px-3 py-1.5 text-sm font-medium transition",
-                  a.id === area.id
-                    ? "border-brand-500 bg-brand-50 text-brand-800"
-                    : "border-line bg-white text-inksoft hover:bg-canvas",
-                )}
-              >
+              <ToggleGroupItem key={a.id} value={a.id}>
                 {a.name}
                 {hasArt ? <span className="ml-1.5 text-xs text-emerald-600">●</span> : null}
-              </button>
+              </ToggleGroupItem>
             );
           })}
-        </div>
+        </ToggleGroup>
 
         <div
           ref={canvasRef}
-          className="relative mt-4 overflow-hidden rounded-xl border border-line bg-canvas"
+          className="relative mt-4 overflow-hidden rounded-xl border border-border bg-canvas"
           style={{ aspectRatio: "1 / 1" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -386,13 +391,17 @@ export function Configurator({
       <div className="space-y-5">
         {artwork && placement ? (
           <>
-            <div className="card p-4">
+            <Card size="sm">
+              <CardContent>
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-ink">{artwork.fileName}</p>
+                  <p className="truncate text-sm font-semibold text-foreground">{artwork.fileName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {artwork.pixelWidth} × {artwork.pixelHeight} px ·{" "}
-                    {(artwork.sizeBytes / 1024).toFixed(0)} KB · {artwork.hasAlpha ? "transparent" : "opaque"}
+                    <span className="tabular-nums">
+                      {artwork.pixelWidth} × {artwork.pixelHeight} px
+                    </span>{" "}
+                    · <span className="tabular-nums">{(artwork.sizeBytes / 1024).toFixed(0)} KB</span> ·{" "}
+                    {artwork.hasAlpha ? "transparent" : "opaque"}
                   </p>
                 </div>
                 {!readOnly ? (
@@ -400,21 +409,21 @@ export function Configurator({
                     <input type="hidden" name="storeId" value={product.storeId} />
                     <input type="hidden" name="productId" value={product.id} />
                     <input type="hidden" name="artworkId" value={artwork.id} />
-                    <button type="submit" className="btn-ghost btn-sm text-rose-700">
+                    <Button type="submit" variant="ghost" size="sm" className="text-rose-700">
                       Remove
-                    </button>
+                    </Button>
                   </form>
                 ) : null}
               </div>
 
               <div className="mt-4 space-y-3">
                 <div>
-                  <label htmlFor="scale" className="flex items-center justify-between text-xs font-medium text-ink">
+                  <Label htmlFor="scale" className="flex items-center justify-between text-xs">
                     <span>Size</span>
                     <span className="tabular-nums text-muted-foreground">
                       {box ? `${Math.round(box.printedWidthMm)} × ${Math.round(box.printedHeightMm)} mm` : ""}
                     </span>
-                  </label>
+                  </Label>
                   <input
                     id="scale"
                     type="range"
@@ -428,10 +437,10 @@ export function Configurator({
                   />
                 </div>
                 <div>
-                  <label htmlFor="rotation" className="flex items-center justify-between text-xs font-medium text-ink">
+                  <Label htmlFor="rotation" className="flex items-center justify-between text-xs">
                     <span>Rotation</span>
                     <span className="tabular-nums text-muted-foreground">{placement.rotation}°</span>
-                  </label>
+                  </Label>
                   <input
                     id="rotation"
                     type="range"
@@ -445,11 +454,11 @@ export function Configurator({
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor="pos-x" className="text-xs font-medium text-ink">
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="pos-x" className="text-xs">
                       Horizontal %
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="pos-x"
                       type="number"
                       min={-50}
@@ -458,14 +467,14 @@ export function Configurator({
                       disabled={readOnly}
                       value={Math.round(placement.x * 100)}
                       onChange={(e) => update(artwork.id, { x: Number(e.currentTarget.value) / 100 })}
-                      className="input py-1.5 text-sm"
+                      className="tabular-nums"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="pos-y" className="text-xs font-medium text-ink">
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="pos-y" className="text-xs">
                       Vertical %
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="pos-y"
                       type="number"
                       min={-50}
@@ -474,7 +483,7 @@ export function Configurator({
                       disabled={readOnly}
                       value={Math.round(placement.y * 100)}
                       onChange={(e) => update(artwork.id, { y: Number(e.currentTarget.value) / 100 })}
-                      className="input py-1.5 text-sm"
+                      className="tabular-nums"
                     />
                   </div>
                 </div>
@@ -513,10 +522,16 @@ export function Configurator({
                   </SubmitButton>
                 </form>
               ) : null}
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="card p-4">
-              <h3 className="text-sm font-semibold text-ink">Supplier pre-flight</h3>
+            <Card size="sm">
+              <CardHeader>
+                <CardTitle asChild className="text-sm font-semibold">
+                  <h3>Supplier pre-flight</h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               {errors.length === 0 && warnings.length === 0 ? (
                 <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                   ✓ This placement passes every check for {catalog.name}.
@@ -550,29 +565,34 @@ export function Configurator({
               <dl className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex justify-between gap-2">
                   <dt>Accepted formats</dt>
-                  <dd className="text-ink">{catalog.fileRequirements.formats.join(", ")}</dd>
+                  <dd className="text-foreground">{catalog.fileRequirements.formats.join(", ")}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
                   <dt>Maximum file size</dt>
-                  <dd className="text-ink">{catalog.fileRequirements.maxFileMb} MB</dd>
+                  <dd className="text-foreground">{catalog.fileRequirements.maxFileMb} MB</dd>
                 </div>
                 <div className="flex justify-between gap-2">
                   <dt>Transparent background</dt>
-                  <dd className="text-ink">
+                  <dd className="text-foreground">
                     {catalog.fileRequirements.transparentBackgroundRequired ? "Required" : "Optional"}
                   </dd>
                 </div>
               </dl>
-            </div>
+              </CardContent>
+            </Card>
           </>
         ) : (
-          <div className="card p-4">
-            <h3 className="text-sm font-semibold text-ink">No artwork on {area.name}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Upload the client&rsquo;s logo or a design for this print area. It is placed in the centre and you
-              can move it from there.
-            </p>
-          </div>
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle asChild className="text-sm font-semibold">
+                <h3>No artwork on {area.name}</h3>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Upload the client&rsquo;s logo or a design for this print area. It is placed in the centre and
+                you can move it from there.
+              </p>
+            </CardHeader>
+          </Card>
         )}
 
         {!readOnly ? (
@@ -588,6 +608,7 @@ export function Configurator({
         ) : null}
 
         {!readOnly ? (
+          <Card size="sm" asChild>
           <ActionForm
             action={generateMockups}
             beforeSubmit={renderMockups}
@@ -595,19 +616,26 @@ export function Configurator({
             pendingLabel="Rendering previews…"
             submitClassName="btn-iris w-full"
             hidden={{ storeId: product.storeId, productId: product.id }}
-            className="card p-4"
+            actionsClassName="px-(--card-spacing)"
           >
-            <h3 className="text-sm font-semibold text-ink">Mockups</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Renders the saved placement onto the supplier photography for every decorated view. Approving the
-              result is required before publishing.
-            </p>
-            {dirty ? (
-              <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                You have unsaved placement changes — save them first so the preview matches.
+            <CardHeader>
+              <CardTitle asChild className="text-sm font-semibold">
+                <h3>Mockups</h3>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Renders the saved placement onto the supplier photography for every decorated view. Approving
+                the result is required before publishing.
               </p>
+            </CardHeader>
+            {dirty ? (
+              <CardContent>
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  You have unsaved placement changes — save them first so the preview matches.
+                </p>
+              </CardContent>
             ) : null}
           </ActionForm>
+          </Card>
         ) : null}
       </div>
     </div>

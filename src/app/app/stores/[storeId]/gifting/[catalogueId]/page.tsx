@@ -1,9 +1,11 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
-import { regenerateGiftLink, setGiftCatalogueStatus } from "@/app/actions/gifting";
-import { ConfirmSubmit, CopyField, SubmitButton } from "@/components/forms";
+import { setGiftCatalogueStatus } from "@/app/actions/gifting";
+import { CopyField, SubmitButton } from "@/components/forms";
 import { Badge, Breadcrumbs, Callout, EmptyState, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getGiftCatalogue, listGiftCampaigns, listPublishedProducts } from "@/lib/data";
 import { campaignPath, campaignToken, portalUrl } from "@/lib/gift-access";
 import { approvalWaitLabel, daysAwaitingApproval } from "@/lib/gift-approval";
@@ -15,6 +17,7 @@ import {
   CatalogueDetailsForm,
   CatalogueProductsForm,
 } from "../GiftingForms";
+import { RegenerateAccess } from "./RegenerateAccess";
 
 const CAMPAIGN_TONES: Record<CampaignStatus, "amber" | "brand" | "green" | "rose" | "slate"> = {
   awaiting_approval: "amber",
@@ -106,73 +109,91 @@ export default async function GiftCataloguePage({
         </Callout>
       ) : null}
 
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">The portal</h2>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+      <Card asChild>
+      <section>
+        <CardHeader>
+        <CardTitle asChild>
+          <h2>The portal</h2>
+        </CardTitle>
+        <p className="max-w-2xl text-sm text-muted-foreground">
           This is the whole catalogue for the company: the private address, the products it offers and the bulk
           order screen. It is never linked from the public storefront.{" "}
           {catalogue.access === "invite"
             ? "Anyone opening it is asked for their work email and let in only if it is on the invitation list."
             : "Anyone holding this link can open it, so send it to the buying team rather than a mailing list."}
         </p>
-        <p className="mt-4 break-all rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-xs text-inksoft">
+        </CardHeader>
+        <CardContent>
+        <p className="break-all rounded-lg border border-border bg-canvas px-3 py-2 font-mono text-xs text-inksoft">
           {privateLink}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <a href={privateLink} target="_blank" rel="noreferrer" className="btn-secondary btn-sm">
-            Open the portal ↗
-          </a>
-          <form action={regenerateGiftLink}>
-            <input type="hidden" name="storeId" value={storeId} />
-            <input type="hidden" name="catalogueId" value={catalogue.id} />
-            <ConfirmSubmit
-              className="btn-ghost btn-sm"
-              confirmLabel="Regenerate access"
-              question="Every link already sent stops working and everyone signed in is signed out."
-            >
-              Regenerate access
-            </ConfirmSubmit>
-          </form>
+          <Button asChild variant="outline" size="sm">
+            <a href={privateLink} target="_blank" rel="noreferrer">
+              Open the portal ↗
+            </a>
+          </Button>
+          <RegenerateAccess storeId={storeId} catalogueId={catalogue.id} />
         </div>
+        </CardContent>
       </section>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="card p-5">
-          <h2 className="text-base font-semibold text-ink">Programme rules</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The spend limit is per recipient, not per campaign, and it is enforced when the list is read and again
-            before the card is charged.
-          </p>
-          <div className="mt-5">
-            <CatalogueDetailsForm catalogue={catalogue} />
-          </div>
-        </section>
+        <Card asChild>
+          <section>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Programme rules</h2>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                The spend limit is per recipient, not per campaign, and it is enforced when the list is read
+                and again before the card is charged.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <CatalogueDetailsForm catalogue={catalogue} />
+            </CardContent>
+          </section>
+        </Card>
 
-        <section className="card p-5">
-          <h2 className="text-base font-semibold text-ink">Access</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            A gifting buyer has no Parcelith account: access is the private link, or their work email against the
-            invitation list.
-          </p>
-          <div className="mt-5">
-            <CatalogueAccessForm catalogue={catalogue} />
-          </div>
-        </section>
+        <Card asChild>
+          <section>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Access</h2>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                A gifting buyer has no Parcelith account: access is the private link, or their work email
+                against the invitation list.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <CatalogueAccessForm catalogue={catalogue} />
+            </CardContent>
+          </section>
+        </Card>
       </div>
 
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Products in the catalogue</h2>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Drawn from this store&rsquo;s published products. Anything unpublished later simply drops out of the
-          portal — a recipient list naming it is rejected with the row that has to change.
-        </p>
-        <div className="mt-5">
-          <CatalogueProductsForm catalogue={catalogue} products={published} />
-        </div>
-      </section>
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Products in the catalogue</h2>
+            </CardTitle>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Drawn from this store&rsquo;s published products. Anything unpublished later simply drops out of
+              the portal — a recipient list naming it is rejected with the row that has to change.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <CatalogueProductsForm catalogue={catalogue} products={published} />
+          </CardContent>
+        </section>
+      </Card>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-ink">Campaigns from this catalogue</h2>
+        <h2 className="text-base font-semibold text-foreground">Campaigns from this catalogue</h2>
         {mine.length === 0 ? (
           <EmptyState
             title="No campaigns yet"
@@ -181,31 +202,33 @@ export default async function GiftCataloguePage({
         ) : (
           <ul className="space-y-3">
             {mine.map((campaign) => (
-              <li key={campaign.id} className="card p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+              <li key={campaign.id}>
+                <Card size="sm">
+                <CardHeader>
                   <div className="min-w-0">
                     <Link
                       href={`/app/stores/${storeId}/orders/campaigns/${campaign.id}`}
-                      className="font-medium text-ink hover:underline"
+                      className="font-medium text-foreground hover:underline"
                     >
                       {campaign.code} · {campaign.name}
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      {campaign.buyer.name} ({campaign.buyer.email}) · {campaign.recipients.length} recipients ·{" "}
+                      {campaign.buyer.name} ({campaign.buyer.email}) ·{" "}
+                      <span className="tabular-nums">{campaign.recipients.length}</span> recipients ·{" "}
                       {formatDate(campaign.createdAt)}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <CardAction className="flex shrink-0 items-center gap-2">
                     <Badge tone={CAMPAIGN_TONES[campaign.status]}>
                       {CAMPAIGN_STATUS_LABELS[campaign.status]}
                     </Badge>
-                    <span className="text-sm font-medium tabular-nums text-ink">
+                    <span className="text-sm font-medium tabular-nums text-foreground">
                       {formatMoney(campaign.totals.total, campaign.currency)}
                     </span>
-                  </div>
-                </div>
+                  </CardAction>
+                </CardHeader>
                 {approverLinks.get(campaign.id) ? (
-                  <div className="mt-3">
+                  <CardContent>
                     <p className="text-xs text-muted-foreground">
                       Approval link for{" "}
                       {campaign.approval.approverName || campaign.approval.approverEmail} ·{" "}
@@ -213,7 +236,7 @@ export default async function GiftCataloguePage({
                       to somebody else, are on{" "}
                       <Link
                         href={`/app/stores/${storeId}/orders/campaigns/${campaign.id}`}
-                        className="font-medium text-brand-700 hover:underline"
+                        className="font-medium text-primary hover:underline"
                       >
                         the campaign page
                       </Link>
@@ -222,8 +245,9 @@ export default async function GiftCataloguePage({
                     <div className="mt-2">
                       <CopyField value={approverLinks.get(campaign.id) as string} label="Copy approval link" />
                     </div>
-                  </div>
+                  </CardContent>
                 ) : null}
+                </Card>
               </li>
             ))}
           </ul>

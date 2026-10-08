@@ -33,9 +33,9 @@ export default async function StoreLayout({
   return (
     <>
       <AppHeader user={user} stores={stores} currentStoreId={store.id} />
-      <div className="border-b border-line bg-white">
+      <div className="border-b border-border bg-background">
         <div className="mx-auto flex w-full max-w-[92rem] flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-4 sm:px-6">
-          <h1 className="text-lg font-semibold tracking-tight text-ink">{store.name}</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">{store.name}</h1>
           <span className="text-sm text-muted-foreground">{store.clientName}</span>
           <Badge tone={store.status === "active" ? "green" : "slate"}>
             {store.status === "active" ? "Active" : "Archived"}

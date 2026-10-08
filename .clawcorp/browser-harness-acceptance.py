@@ -75,6 +75,14 @@ def T():
             switch_tab(TAB, activate=True)
         except Exception:
             pass
+    # The workspace pages have `loading.tsx` skeletons, so their content arrives
+    # inside a Suspense boundary. React reveals a boundary on an animation
+    # frame, which a backgrounded tab never gets — so the page would sit on its
+    # skeleton forever. Bringing the window forward is what lets it reveal.
+    try:
+        cdp("Page.bringToFront")
+    except Exception:
+        pass
 
 def _retry(fn, tries=4, pause=2.0):
     """The CDP bridge times out on slow dev-server compiles; retry instead of failing a step."""
@@ -203,11 +211,70 @@ def fill(selector, value):
     J("(()=>{const e=document.querySelector(%r); e.focus(); e.select && e.select();})()" % selector)
     type_text(str(value))
 
+def click_el(selector, nth=0):
+    """A real mouse click at an element's centre.
+
+    Radix listens for pointer events, so a shadcn trigger or option has to be
+    clicked the way a person does rather than with element.click()."""
+    box = J("""(()=>{const e=[...document.querySelectorAll(%r)][%d]; if(!e) return null;
+        e.scrollIntoView({block:'center'});
+        const r=e.getBoundingClientRect();
+        if(r.width===0&&r.height===0) return null;
+        return [Math.round(r.x+r.width/2), Math.round(r.y+r.height/2)];})()""" % (selector, nth))
+    if not box:
+        return False
+    time.sleep(0.25)
+    click_at_xy(box[0], box[1])
+    return True
+
+
+def pick_option(trigger, matcher=None, nth=0):
+    """Open a shadcn Select by its trigger and choose an option.
+
+    `matcher` picks the first option containing that text; without one the nth
+    option is taken. Returns the chosen option's text, or None."""
+    if not J("!!document.querySelector(%r)" % trigger):
+        return None
+    if not click_el(trigger):
+        return None
+    time.sleep(0.6)
+    if matcher is None:
+        index = nth
+    else:
+        index = J("""(()=>[...document.querySelectorAll('[role=option]')]
+            .findIndex(o=>o.textContent.includes(%r)))()""" % matcher)
+        if not isinstance(index, int) or index < 0:
+            press_key("Escape")
+            return None
+    label = J("""(()=>{const o=[...document.querySelectorAll('[role=option]')][%d];
+        return o?o.textContent.trim():null;})()""" % index)
+    if not label:
+        press_key("Escape")
+        return None
+    if not click_el('[role=option]', index):
+        press_key("Escape")
+        return None
+    time.sleep(0.6)
+    return label
+
+
 def set_select(selector, matcher):
-    return J("""(()=>{const s=document.querySelector(%r); if(!s) return null;
+    """A native <select>, or the shadcn Select that replaced one.
+
+    A Radix select posts through an aria-hidden <select> that carries no options
+    until its listbox has been opened, so writing to it does nothing. When the
+    native path finds no option to pick, the choice is made through the trigger
+    the same name's field renders, whose id matches the name.
+    """
+    native = J("""(()=>{const s=document.querySelector(%r);
+      if(!s||s.getAttribute('aria-hidden')==='true') return null;
       const o=[...s.options].find(o=>o.text.includes(%r)||o.value===%r); if(!o) return null;
       s.value=o.value; s.dispatchEvent(new Event('change',{bubbles:true})); return o.value;})()"""
              % (selector, matcher, matcher))
+    if native:
+        return native
+    name = re.search(r"name=([\w-]+)", selector)
+    return pick_option("#" + name.group(1), matcher) if name else None
 
 def artwork_png(path, w=900, h=900, pad=150):
     """Square orange mark on a transparent border — passes the transparency check."""
@@ -379,8 +446,10 @@ try:
 
     G(qa_store_url + "/setup")
     set_select("select[name=defaultLanguage]", "German")
+    # The posting input of a shadcn Checkbox is aria-hidden inside the control's
+    # own button, so the button is what has to be clicked.
     J("""(()=>{const c=[...document.querySelectorAll('input[name=currencies]')].find(i=>i.value==='EUR');
-        if(c&&!c.checked) c.click();})()""")
+        if(c&&!c.checked)(c.closest('button')||c).click();})()""")
     click_text("button", "Save localisation"); time.sleep(3); wait_for_load()
 
     G(qa_store_url + "/setup")
@@ -458,8 +527,12 @@ try:
     reordered = order_before != order_after
     # responsive preview
     click_text("button", "Phone"); time.sleep(1.2)
-    phone_on = J("""(()=>{const b=[...document.querySelectorAll('button[aria-pressed]')].find(b=>b.textContent.trim()=='Phone');
-        return !!b && b.getAttribute('aria-pressed')==='true';})()""")
+    # A shadcn ToggleGroup marks the chosen item with aria-checked and
+    # data-state, not aria-pressed.
+    phone_on = J("""(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()=='Phone');
+        if(!b) return false;
+        return b.getAttribute('aria-pressed')==='true' || b.getAttribute('aria-checked')==='true'
+            || b.getAttribute('data-state')==='on';})()""")
     phone_w = J("""(()=>{const e=[...document.querySelectorAll('[style]')].find(e=>/width:\\s*390px/.test(e.getAttribute('style')||''));
         return e?e.clientWidth:0;})()""")
     click_text("button", "Desktop"); time.sleep(0.8)
@@ -636,10 +709,11 @@ try:
         return int(m.group(1)) if m else 0
 
     before = pending_count()
-    ok = J("""(()=>{const f=[...document.querySelectorAll('form')].find(f=>f.innerText.includes('Draft description and'));
-        if(!f) return false; const s=f.querySelector('select[name=productId]');
-        s.value=s.options[1].value; s.dispatchEvent(new Event('change',{bubbles:true}));
-        f.querySelector('button[type=submit]').click(); return true;})()""")
+    # The product picker is a shadcn Select: its options only exist while the
+    # listbox is open, so the first one is chosen through the trigger.
+    ok = bool(pick_option("#copy-product", nth=0))
+    if ok:
+        click_text("button", "Draft description and tags")
     # A live model call is slow and its timestamps are relative, so the queue
     # length is what proves a new suggestion was drafted.
     generated = False

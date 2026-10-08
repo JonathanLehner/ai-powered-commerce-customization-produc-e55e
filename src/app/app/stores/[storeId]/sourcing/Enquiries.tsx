@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { acceptQuote, copyAcceptedQuote, withdrawQuoteRequest } from "@/app/actions/sourcing";
-import { ConfirmSubmit, SubmitButton } from "@/components/forms";
+import { acceptQuote, copyAcceptedQuote } from "@/app/actions/sourcing";
+import { SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WithdrawEnquiry } from "./WithdrawEnquiry";
 import {
   canAcceptQuote,
   formatQuantity,
@@ -29,9 +32,11 @@ function EnquiryFields({ storeId, request, quote }: { storeId: string; request: 
 export function AcceptedQuoteAction({ storeId, request }: { storeId: string; request: QuoteRequest }) {
   if (request.storeProductId) {
     return (
-      <Link href={`/app/stores/${storeId}/catalog/${request.storeProductId}`} className="btn-secondary btn-sm">
-        Open the catalog product
-      </Link>
+      <Button asChild variant="outline" size="sm">
+        <Link href={`/app/stores/${storeId}/catalog/${request.storeProductId}`}>
+          Open the catalog product
+        </Link>
+      </Button>
     );
   }
   return (
@@ -93,19 +98,20 @@ function QuoteLine({
       className={
         accepted
           ? "rounded-lg border border-emerald-200 bg-emerald-50 p-3"
-          : "rounded-lg border border-line bg-canvas p-3"
+          : "rounded-lg border border-border bg-canvas p-3"
       }
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm text-ink">
+          <p className="text-sm text-foreground">
             <span className="font-semibold">{quote.supplierLabel}</span> ·{" "}
             <span className="font-semibold tabular-nums">{formatMoney(quote.unitCost, request.currency)}</span> a
             unit
             {vsTarget ? <span className="text-muted-foreground"> ({vsTarget})</span> : null}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Minimum {formatQuantity(quote.minimumOrderQuantity)} · {quote.leadTimeDays} days production · built on{" "}
+            Minimum <span className="tabular-nums">{formatQuantity(quote.minimumOrderQuantity)}</span> ·{" "}
+            <span className="tabular-nums">{quote.leadTimeDays} days</span> production · built on{" "}
             {catalogName(quote.baseCatalogProductId)}
             {quote.validUntil ? ` · ${live ? "valid until" : "expired"} ${formatDate(quote.validUntil)}` : ""}
           </p>
@@ -114,9 +120,11 @@ function QuoteLine({
         <div className="flex flex-wrap items-center gap-2">
           {accepted ? <Badge tone="green">Accepted</Badge> : null}
           <AcceptQuoteButton storeId={storeId} request={request} quote={quote} />
-          <Link href={compareHref(quote.id)} className="btn-secondary btn-sm" scroll={false}>
-            {comparing ? "Remove from compare" : "Compare"}
-          </Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href={compareHref(quote.id)} scroll={false}>
+              {comparing ? "Remove from compare" : "Compare"}
+            </Link>
+          </Button>
         </div>
       </div>
     </li>
@@ -147,7 +155,7 @@ function EnquiryRow({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-xs text-muted-foreground">{request.code}</span>
-            <h3 className="text-sm font-semibold text-ink">{request.productName}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{request.productName}</h3>
             <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -161,7 +169,7 @@ function EnquiryRow({
           </p>
           {request.description ? <p className="mt-1 text-xs text-inksoft">{request.description}</p> : null}
           <p className="mt-1 text-xs text-inksoft">
-            <span className="font-medium text-ink">Decoration:</span> {request.customisation}
+            <span className="font-medium text-foreground">Decoration:</span> {request.customisation}
           </p>
           <p className="mt-2 text-sm text-inksoft">{QUOTE_STATUS_NOTES[request.status]}</p>
           {request.status === "declined" && request.declineReason ? (
@@ -171,12 +179,7 @@ function EnquiryRow({
         <div className="flex flex-wrap items-center gap-2">
           {request.status === "accepted" ? <AcceptedQuoteAction storeId={storeId} request={request} /> : null}
           {request.status === "submitted" || request.status === "quoted" ? (
-            <form action={withdrawQuoteRequest}>
-              <EnquiryFields storeId={storeId} request={request} />
-              <ConfirmSubmit className="btn-ghost btn-sm" confirmLabel="Withdraw" question="Withdraw this enquiry?">
-                Withdraw
-              </ConfirmSubmit>
-            </form>
+            <WithdrawEnquiry storeId={storeId} requestId={request.id} code={request.code} />
           ) : null}
         </div>
       </div>
@@ -216,31 +219,41 @@ export function Enquiries({
 }) {
   const open = requests.filter(isOpenEnquiry).length;
   return (
-    <section id="enquiries" className="card scroll-mt-6 p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-ink">Bulk sourcing enquiries</h2>
-          <p className="mt-1 max-w-3xl text-sm text-inksoft">
-            {open} open · {requests.length} in total, newest first. Quotes the sourcing desk records land here
-            and can be compared side by side with the print-on-demand listings above.
+    <Card asChild className="scroll-mt-6">
+      <section id="enquiries">
+        <CardHeader>
+          <CardTitle asChild>
+            <h2>Bulk sourcing enquiries</h2>
+          </CardTitle>
+          <p className="max-w-3xl text-sm text-inksoft">
+            <span className="tabular-nums">{open}</span> open ·{" "}
+            <span className="tabular-nums">{requests.length}</span> in total, newest first. Quotes the
+            sourcing desk records land here and can be compared side by side with the print-on-demand
+            listings above.
           </p>
-        </div>
-        <Link href={startHref} className="btn-secondary btn-sm" scroll={false}>
-          Start a bulk enquiry
-        </Link>
-      </div>
-      <ul className="mt-4 divide-y divide-line">
-        {requests.map((request) => (
-          <EnquiryRow
-            key={request.id}
-            storeId={storeId}
-            request={request}
-            catalogName={catalogName}
-            compareHref={compareHref}
-            compareIds={compareIds}
-          />
-        ))}
-      </ul>
-    </section>
+          <CardAction>
+            <Button asChild variant="outline" size="sm">
+              <Link href={startHref} scroll={false}>
+                Start a bulk enquiry
+              </Link>
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <ul className="divide-y divide-border">
+            {requests.map((request) => (
+              <EnquiryRow
+                key={request.id}
+                storeId={storeId}
+                request={request}
+                catalogName={catalogName}
+                compareHref={compareHref}
+                compareIds={compareIds}
+              />
+            ))}
+          </ul>
+        </CardContent>
+      </section>
+    </Card>
   );
 }

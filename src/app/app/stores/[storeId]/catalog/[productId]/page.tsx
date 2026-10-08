@@ -3,13 +3,14 @@ import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import {
   approveMockups,
-  deleteProduct,
   publishBlockers,
   rejectMockups,
   setProductStatus,
 } from "@/app/actions/products";
 import { SubmitButton } from "@/components/forms";
-import { Badge, Breadcrumbs, Callout, PageHeader } from "@/components/ui";
+import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { hasApprovedPreviews } from "@/lib/artwork";
 import {
   getCatalogProduct,
@@ -24,7 +25,7 @@ import { storeSku } from "@/lib/sku";
 import { VIEW_LABELS } from "@/lib/types";
 import { formatDate, formatDateTime, formatMoney, formatPercent } from "@/lib/util";
 import { Configurator } from "./Configurator";
-import { ProductDetailsForm, VariantsForm } from "./ProductForms";
+import { DeleteProductForm, ProductDetailsForm, VariantsForm } from "./ProductForms";
 
 export default async function ProductEditorPage({
   params,
@@ -73,6 +74,10 @@ export default async function ProductEditorPage({
   const tone = marginTone(costs.marginPct);
   const mockupsApproved = product.mockups.length > 0 && product.mockups.every((m) => m.approved);
   const sku = storeSku(product, store.channelCode);
+  const printAreaCount = new Set(product.artworks.map((a) => a.printAreaId)).size;
+  const unpublished = product.status !== "published";
+  const artworkChanged = product.unpublishedReason === "artwork_changed" && unpublished;
+  const showBlockers = blockers.length > 0 && unpublished;
 
   return (
     <div className="space-y-6">
@@ -101,14 +106,11 @@ export default async function ProductEditorPage({
               {product.status.replace("_", " ")}
             </Badge>
             {product.status === "published" ? (
-              <Link
-                href={`/s/${store.slug}/products/${product.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-secondary btn-sm"
-              >
-                View live ↗
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/s/${store.slug}/products/${product.slug}`} target="_blank" rel="noreferrer">
+                  View live ↗
+                </Link>
+              </Button>
             ) : null}
           </>
         }
@@ -143,20 +145,21 @@ export default async function ProductEditorPage({
       ) : null}
 
       {/* ------------------------------------------------------ publishing */}
-      <section className="card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="text-base font-semibold text-ink">Publication</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Publication</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
               {product.status === "published"
                 ? "This product is live on the storefront."
                 : blockers.length === 0
                   ? "Every pre-flight check passes. This product is ready to sell."
                   : `${blockers.length} thing${blockers.length === 1 ? "" : "s"} must be resolved before this product can be published.`}
             </p>
-          </div>
-          {canEdit ? (
-            <div className="flex flex-wrap gap-2">
+            {canEdit ? (
+              <CardAction className="flex flex-wrap gap-2">
               {product.status !== "published" ? (
                 <form action={setProductStatus}>
                   <input type="hidden" name="storeId" value={storeId} />
@@ -195,65 +198,75 @@ export default async function ProductEditorPage({
                   </SubmitButton>
                 </form>
               )}
-            </div>
+              </CardAction>
+            ) : null}
+          </CardHeader>
+
+          {artworkChanged || showBlockers ? (
+            <CardContent className="space-y-4">
+              {artworkChanged ? (
+                <Callout tone="amber" title="Taken off the storefront">
+                  This product was taken off the storefront because the artwork changed. Regenerate the
+                  previews and approve them to republish.
+                </Callout>
+              ) : null}
+
+              {showBlockers ? (
+                <ul className="space-y-2.5" role="alert">
+                  {blockers.map((blocker, index) => (
+                    <li key={index} className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                      <p className="text-sm font-medium text-amber-900">{blocker.reason}</p>
+                      <p className="mt-1 text-xs text-amber-800">How to fix: {blocker.fix}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </CardContent>
           ) : null}
-        </div>
-
-        {product.unpublishedReason === "artwork_changed" && product.status !== "published" ? (
-          <div className="mt-4">
-            <Callout tone="amber" title="Taken off the storefront">
-              This product was taken off the storefront because the artwork changed. Regenerate the previews
-              and approve them to republish.
-            </Callout>
-          </div>
-        ) : null}
-
-        {blockers.length > 0 && product.status !== "published" ? (
-          <ul className="mt-4 space-y-2.5" role="alert">
-            {blockers.map((blocker, index) => (
-              <li key={index} className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                <p className="text-sm font-medium text-amber-900">{blocker.reason}</p>
-                <p className="mt-1 text-xs text-amber-800">How to fix: {blocker.fix}</p>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </section>
+        </section>
+      </Card>
 
       {/* ---------------------------------------------------- configurator */}
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Artwork and print areas</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Position the design inside the printable rectangle. Every check below reflects the supplier&rsquo;s
-          own file and resolution requirements.
-        </p>
-        <div className="mt-5">
-          {catalog ? (
-            <Configurator product={product} catalog={catalog} readOnly={!canEdit} />
-          ) : (
-            <Callout tone="rose" title="Supplier product retired">
-              The shared catalog entry behind this product no longer exists, so artwork cannot be pre-flighted.
-              Import a replacement from the supplier catalog.
-            </Callout>
-          )}
-        </div>
-      </section>
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Artwork and print areas</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Position the design inside the printable rectangle. Every check below reflects the
+              supplier&rsquo;s own file and resolution requirements.
+            </p>
+          </CardHeader>
+          <CardContent>
+            {catalog ? (
+              <Configurator product={product} catalog={catalog} readOnly={!canEdit} />
+            ) : (
+              <Callout tone="rose" title="Supplier product retired">
+                The shared catalog entry behind this product no longer exists, so artwork cannot be
+                pre-flighted. Import a replacement from the supplier catalog.
+              </Callout>
+            )}
+          </CardContent>
+        </section>
+      </Card>
 
       {/* --------------------------------------------------------- mockups */}
-      <section className="card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-semibold text-ink">Mockup approval</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Mockup approval</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
               {product.mockups.length === 0
                 ? "No previews yet. Generate them from the artwork panel above."
                 : mockupsApproved
                   ? `Approved by ${product.mockups[0].approvedBy} on ${formatDateTime(product.mockups[0].approvedAt ?? product.mockups[0].generatedAt)}.`
                   : "Review each view. Approval is required before the product can be published."}
             </p>
-          </div>
-          {canEdit && product.mockups.length > 0 ? (
-            <div className="flex gap-2">
+            {canEdit && product.mockups.length > 0 ? (
+              <CardAction className="flex gap-2">
               {!mockupsApproved ? (
                 <form action={approveMockups}>
                   <input type="hidden" name="storeId" value={storeId} />
@@ -270,14 +283,15 @@ export default async function ProductEditorPage({
                   Reject and start over
                 </SubmitButton>
               </form>
-            </div>
-          ) : null}
-        </div>
+              </CardAction>
+            ) : null}
+          </CardHeader>
 
-        {product.mockups.length > 0 ? (
-          <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {product.mockups.length > 0 ? (
+            <CardContent>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {product.mockups.map((mockup) => (
-              <li key={mockup.id} className="overflow-hidden rounded-xl border border-line">
+              <li key={mockup.id} className="overflow-hidden rounded-xl border border-border">
                 <Image
                   src={mockup.url}
                   alt={`${product.name}, ${VIEW_LABELS[mockup.view]} view`}
@@ -288,113 +302,126 @@ export default async function ProductEditorPage({
                   className="h-auto w-full bg-canvas object-cover"
                   style={{ aspectRatio: "1 / 1" }}
                 />
-                <div className="flex items-center justify-between gap-2 border-t border-line px-3 py-2">
-                  <span className="text-sm font-medium text-ink">{VIEW_LABELS[mockup.view]}</span>
+                <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
+                  <span className="text-sm font-medium text-foreground">{VIEW_LABELS[mockup.view]}</span>
                   <Badge tone={mockup.approved ? "green" : "amber"}>
                     {mockup.approved ? "Approved" : "Awaiting approval"}
                   </Badge>
                 </div>
               </li>
             ))}
-          </ul>
-        ) : null}
-      </section>
+            </ul>
+            </CardContent>
+          ) : null}
+        </section>
+      </Card>
 
       {/* ------------------------------------------------------------ costs */}
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Cost, tax and margin</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Everything a decision needs before publishing. Margin is measured against net revenue, because the
-          seller remits the tax.
-        </p>
-        <div className="mt-5 grid gap-6 lg:grid-cols-2">
-          <dl className="divide-y divide-line text-sm">
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="text-muted-foreground">Supplier cost (cheapest enabled variant)</dt>
-              <dd className="font-medium tabular-nums text-ink">{formatMoney(costs.supplierCost, product.currency)}</dd>
-            </div>
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="text-muted-foreground">
-                Customisation ({new Set(product.artworks.map((a) => a.printAreaId)).size} print area
-                {new Set(product.artworks.map((a) => a.printAreaId)).size === 1 ? "" : "s"})
-              </dt>
-              <dd className="font-medium tabular-nums text-ink">
-                {formatMoney(costs.customizationCost, product.currency)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="text-muted-foreground">Estimated shipping</dt>
-              <dd className="font-medium tabular-nums text-ink">
-                {formatMoney(costs.shippingEstimate, product.currency)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="font-medium text-ink">Landed cost</dt>
-              <dd className="font-semibold tabular-nums text-ink">{formatMoney(landed, product.currency)}</dd>
-            </div>
-          </dl>
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Cost, tax and margin</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Everything a decision needs before publishing. Margin is measured against net revenue, because
+              the seller remits the tax.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <DataList
+                rows={[
+                  {
+                    label: "Supplier cost (cheapest enabled variant)",
+                    value: (
+                      <span className="tabular-nums">
+                        {formatMoney(costs.supplierCost, product.currency)}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: `Customisation (${printAreaCount} print area${printAreaCount === 1 ? "" : "s"})`,
+                    value: (
+                      <span className="tabular-nums">
+                        {formatMoney(costs.customizationCost, product.currency)}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: "Estimated shipping",
+                    value: (
+                      <span className="tabular-nums">
+                        {formatMoney(costs.shippingEstimate, product.currency)}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: "Landed cost",
+                    value: (
+                      <span className="font-semibold tabular-nums">
+                        {formatMoney(landed, product.currency)}
+                      </span>
+                    ),
+                  },
+                ]}
+              />
 
-          <dl className="divide-y divide-line text-sm">
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="text-muted-foreground">Tax bracket</dt>
-              <dd className="font-medium text-ink">
-                {bracket ? `${bracket.name} · ${bracket.rate}%` : "Not selected"}
-              </dd>
+              <DataList
+                rows={[
+                  {
+                    label: "Tax bracket",
+                    value: bracket ? `${bracket.name} · ${bracket.rate}%` : "Not selected",
+                  },
+                  {
+                    label: `Tax ${store.pricesIncludeTax ? "included in price" : "added at checkout"}`,
+                    value: (
+                      <span className="tabular-nums">{formatMoney(costs.taxAmount, product.currency)}</span>
+                    ),
+                  },
+                  {
+                    label: "Selling price",
+                    value: (
+                      <span className="font-semibold tabular-nums">
+                        {formatMoney(costs.sellingPrice, product.currency)}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: "Margin",
+                    value: (
+                      <span
+                        className={
+                          tone === "healthy"
+                            ? "font-semibold tabular-nums text-emerald-700"
+                            : tone === "thin"
+                              ? "font-semibold tabular-nums text-amber-700"
+                              : "font-semibold tabular-nums text-rose-700"
+                        }
+                      >
+                        {formatMoney(costs.marginAmount, product.currency)} ·{" "}
+                        {formatPercent(costs.marginPct)}
+                      </span>
+                    ),
+                  },
+                ]}
+              />
             </div>
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="text-muted-foreground">
-                Tax {store.pricesIncludeTax ? "included in price" : "added at checkout"}
-              </dt>
-              <dd className="font-medium tabular-nums text-ink">{formatMoney(costs.taxAmount, product.currency)}</dd>
-            </div>
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="text-muted-foreground">Selling price</dt>
-              <dd className="font-semibold tabular-nums text-ink">{formatMoney(costs.sellingPrice, product.currency)}</dd>
-            </div>
-            <div className="flex justify-between gap-4 py-2.5">
-              <dt className="font-medium text-ink">Margin</dt>
-              <dd
-                className={
-                  tone === "healthy"
-                    ? "font-semibold tabular-nums text-emerald-700"
-                    : tone === "thin"
-                      ? "font-semibold tabular-nums text-amber-700"
-                      : "font-semibold tabular-nums text-rose-700"
-                }
-              >
-                {formatMoney(costs.marginAmount, product.currency)} · {formatPercent(costs.marginPct)}
-              </dd>
-            </div>
-          </dl>
-        </div>
-        {tone !== "healthy" ? (
-          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            {tone === "negative"
-              ? "This product would sell at a loss. Raise the price or pick a cheaper supplier product."
-              : "Margin is under 25%. Fine for a loss-leader, thin for a core line."}
-          </p>
-        ) : null}
-      </section>
+            {tone !== "healthy" ? (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                {tone === "negative"
+                  ? "This product would sell at a loss. Raise the price or pick a cheaper supplier product."
+                  : "Margin is under 25%. Fine for a loss-leader, thin for a core line."}
+              </p>
+            ) : null}
+          </CardContent>
+        </section>
+      </Card>
 
       {canEdit ? <ProductDetailsForm product={product} brackets={brackets} /> : null}
       {canEdit ? <VariantsForm product={product} /> : null}
 
-      {canEdit ? (
-        <section className="card border-rose-200 p-5">
-          <h2 className="text-base font-semibold text-ink">Delete this product</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Removes it from this store only. The shared catalog entry and any other client&rsquo;s copy are
-            unaffected. Existing orders keep their own record of what was bought.
-          </p>
-          <form action={deleteProduct} className="mt-4">
-            <input type="hidden" name="storeId" value={storeId} />
-            <input type="hidden" name="productId" value={product.id} />
-            <button type="submit" className="btn-danger btn-sm">
-              Delete permanently
-            </button>
-          </form>
-        </section>
-      ) : null}
+      {canEdit ? <DeleteProductForm product={product} /> : null}
     </div>
   );
 }

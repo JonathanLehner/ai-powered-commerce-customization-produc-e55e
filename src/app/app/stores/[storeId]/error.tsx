@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FallbackPanel } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { storeBasePath } from "@/lib/util";
 
 /** A failure part-way through working on a store, with the store chrome kept. */
@@ -27,12 +28,12 @@ export default function StoreWorkspaceError({
       }
       actions={
         <>
-          <button type="button" onClick={unstable_retry} className="btn-primary">
+          <Button type="button" onClick={unstable_retry}>
             Try again
-          </button>
-          <Link href={base} className="btn-secondary">
-            Back to the store
-          </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={base}>Back to the store</Link>
+          </Button>
         </>
       }
       note={error.digest ? `Reference ${error.digest}` : null}

@@ -2,12 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { setProductStatus } from "@/app/actions/products";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { listStoreProducts } from "@/lib/data";
 import { marginTone } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import type { StoreProduct } from "@/lib/types";
 import { formatDate, formatMoney, formatPercent, relativeTime } from "@/lib/util";
+import { CatalogToolbar } from "./CatalogToolbar";
 
 const STATUS_TONES: Record<StoreProduct["status"], "green" | "amber" | "neutral" | "slate"> = {
   published: "green",
@@ -59,9 +62,9 @@ export default async function StoreCatalogPage({
         description="Price, artwork, tax bracket and publication state are set per store."
         actions={
           canEdit ? (
-            <Link href={`/app/stores/${storeId}/sourcing`} className="btn-primary">
-              Import from supplier catalog
-            </Link>
+            <Button asChild>
+              <Link href={`/app/stores/${storeId}/sourcing`}>Import from supplier catalog</Link>
+            </Button>
           ) : null
         }
       />
@@ -82,34 +85,7 @@ export default async function StoreCatalogPage({
         />
       </div>
 
-      <form method="get" className="card flex flex-wrap items-end gap-3 p-4">
-        <div className="min-w-[12rem] flex-1">
-          <label htmlFor="q" className="field-label text-xs">
-            Search this catalog
-          </label>
-          <input id="q" name="q" defaultValue={q ?? ""} placeholder="Name or tag" className="input py-1.5" />
-        </div>
-        <div>
-          <label htmlFor="status" className="field-label text-xs">
-            Status
-          </label>
-          <select id="status" name="status" defaultValue={status ?? ""} className="input py-1.5">
-            <option value="">All</option>
-            <option value="published">Published</option>
-            <option value="in_review">In review</option>
-            <option value="draft">Draft</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-        <button type="submit" className="btn-secondary">
-          Filter
-        </button>
-        {q || status ? (
-          <Link href={`/app/stores/${storeId}/catalog`} className="btn-ghost">
-            Clear
-          </Link>
-        ) : null}
-      </form>
+      <CatalogToolbar base={`/app/stores/${storeId}/catalog`} q={q ?? ""} status={status ?? ""} />
 
       {filtered.length === 0 ? (
         <EmptyState
@@ -121,9 +97,9 @@ export default async function StoreCatalogPage({
           }
           action={
             canEdit ? (
-              <Link href={`/app/stores/${storeId}/sourcing`} className="btn-primary">
-                Browse the supplier catalog
-              </Link>
+              <Button asChild>
+                <Link href={`/app/stores/${storeId}/sourcing`}>Browse the supplier catalog</Link>
+              </Button>
             ) : null
           }
         />
@@ -133,112 +109,122 @@ export default async function StoreCatalogPage({
             const cover = product.mockups[0];
             const tone = marginTone(product.costs.marginPct);
             return (
-              <li key={product.id} className="card flex flex-col overflow-hidden">
-                <div className="relative border-b border-line bg-canvas">
-                  {cover ? (
-                    <Image
-                      src={cover.url}
-                      alt={`${product.name} mockup`}
-                      width={640}
-                      height={640}
-                      loading="lazy"
-                      sizes="(min-width: 1280px) 380px, (min-width: 768px) 45vw, 90vw"
-                      className="h-auto w-full object-cover"
-                      style={{ aspectRatio: "1 / 1" }}
-                    />
-                  ) : (
-                    <div
-                      className="flex w-full items-center justify-center text-sm text-muted-foreground"
-                      style={{ aspectRatio: "1 / 1" }}
-                    >
-                      No mockup generated yet
-                    </div>
-                  )}
-                  <span className="absolute left-3 top-3">
-                    <Badge tone={STATUS_TONES[product.status]}>{STATUS_LABELS[product.status]}</Badge>
-                  </span>
-                  {product.visibility === "hidden" ? (
-                    <span className="absolute right-3 top-3">
-                      <Badge tone="slate">Hidden</Badge>
-                    </span>
-                  ) : null}
-                </div>
-
-                <div className="flex flex-1 flex-col p-4">
-                  <h3 className="text-sm font-semibold text-ink">
-                    <Link href={`/app/stores/${storeId}/catalog/${product.id}`} className="hover:underline">
-                      {product.name}
-                    </Link>
-                  </h3>
-                  <p className="mt-1 font-mono text-xs text-muted-foreground">{storeSku(product, store.channelCode)}</p>
-                  {product.manualFulfilment ? (
-                    <p className="mt-1.5">
-                      <Badge tone="iris">Manual fulfilment · {product.manualFulfilment.quoteCode}</Badge>
-                    </p>
-                  ) : null}
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {product.variants.filter((v) => v.enabled).length} variants · imported{" "}
-                    {formatDate(product.importedAt)} · updated {relativeTime(product.updatedAt)}
-                  </p>
-
-                  <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-line py-3 text-xs">
-                    <div>
-                      <dt className="text-muted-foreground">Price</dt>
-                      <dd className="font-semibold tabular-nums text-ink">
-                        {formatMoney(product.price, product.currency)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Cost</dt>
-                      <dd className="font-semibold tabular-nums text-ink">
-                        {formatMoney(
-                          product.costs.supplierCost + product.costs.customizationCost + product.costs.shippingEstimate,
-                          product.currency,
-                        )}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Margin</dt>
-                      <dd
-                        className={
-                          tone === "healthy"
-                            ? "font-semibold tabular-nums text-emerald-700"
-                            : tone === "thin"
-                              ? "font-semibold tabular-nums text-amber-700"
-                              : "font-semibold tabular-nums text-rose-700"
-                        }
+              <li key={product.id} className="flex">
+                <Card className="flex-1 gap-0 py-0">
+                  <div className="relative border-b border-border bg-canvas">
+                    {cover ? (
+                      <Image
+                        src={cover.url}
+                        alt={`${product.name} mockup`}
+                        width={640}
+                        height={640}
+                        loading="lazy"
+                        sizes="(min-width: 1280px) 380px, (min-width: 768px) 45vw, 90vw"
+                        className="h-auto w-full object-cover"
+                        style={{ aspectRatio: "1 / 1" }}
+                      />
+                    ) : (
+                      <div
+                        className="flex w-full items-center justify-center text-sm text-muted-foreground"
+                        style={{ aspectRatio: "1 / 1" }}
                       >
-                        {formatPercent(product.costs.marginPct)}
-                      </dd>
-                    </div>
-                  </dl>
+                        No mockup generated yet
+                      </div>
+                    )}
+                    <span className="absolute top-3 left-3">
+                      <Badge tone={STATUS_TONES[product.status]}>{STATUS_LABELS[product.status]}</Badge>
+                    </span>
+                    {product.visibility === "hidden" ? (
+                      <span className="absolute top-3 right-3">
+                        <Badge tone="slate">Hidden</Badge>
+                      </span>
+                    ) : null}
+                  </div>
 
-                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                    <Link href={`/app/stores/${storeId}/catalog/${product.id}`} className="btn-secondary btn-sm">
-                      {canEdit ? "Edit product" : "View product"}
-                    </Link>
+                  <CardContent className="flex flex-1 flex-col py-4">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      <Link href={`/app/stores/${storeId}/catalog/${product.id}`} className="hover:underline">
+                        {product.name}
+                      </Link>
+                    </h3>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">
+                      {storeSku(product, store.channelCode)}
+                    </p>
+                    {product.manualFulfilment ? (
+                      <p className="mt-1.5">
+                        <Badge tone="iris">Manual fulfilment · {product.manualFulfilment.quoteCode}</Badge>
+                      </p>
+                    ) : null}
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      <span className="tabular-nums">{product.variants.filter((v) => v.enabled).length}</span>{" "}
+                      variants · imported {formatDate(product.importedAt)} · updated{" "}
+                      {relativeTime(product.updatedAt)}
+                    </p>
+
+                    <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-border py-3 text-xs">
+                      <div>
+                        <dt className="text-muted-foreground">Price</dt>
+                        <dd className="font-semibold tabular-nums text-foreground">
+                          {formatMoney(product.price, product.currency)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Cost</dt>
+                        <dd className="font-semibold tabular-nums text-foreground">
+                          {formatMoney(
+                            product.costs.supplierCost +
+                              product.costs.customizationCost +
+                              product.costs.shippingEstimate,
+                            product.currency,
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Margin</dt>
+                        <dd
+                          className={
+                            tone === "healthy"
+                              ? "font-semibold tabular-nums text-emerald-700"
+                              : tone === "thin"
+                                ? "font-semibold tabular-nums text-amber-700"
+                                : "font-semibold tabular-nums text-rose-700"
+                          }
+                        >
+                          {formatPercent(product.costs.marginPct)}
+                        </dd>
+                      </div>
+                    </dl>
+                  </CardContent>
+
+                  <CardFooter className="mt-auto flex-wrap gap-2">
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/app/stores/${storeId}/catalog/${product.id}`}>
+                        {canEdit ? "Edit product" : "View product"}
+                      </Link>
+                    </Button>
                     {canEdit && product.status === "published" ? (
                       <form action={setProductStatus}>
                         <input type="hidden" name="storeId" value={storeId} />
                         <input type="hidden" name="productId" value={product.id} />
                         <input type="hidden" name="status" value="in_review" />
-                        <button type="submit" className="btn-ghost btn-sm">
+                        <Button type="submit" variant="ghost" size="sm">
                           Unpublish
-                        </button>
+                        </Button>
                       </form>
                     ) : null}
                     {product.status === "published" ? (
-                      <Link
-                        href={`/s/${store.slug}/products/${product.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn-ghost btn-sm"
-                      >
-                        View live ↗
-                      </Link>
+                      <Button asChild variant="ghost" size="sm">
+                        <Link
+                          href={`/s/${store.slug}/products/${product.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          View live ↗
+                        </Link>
+                      </Button>
                     ) : null}
-                  </div>
-                </div>
+                  </CardFooter>
+                </Card>
               </li>
             );
           })}
