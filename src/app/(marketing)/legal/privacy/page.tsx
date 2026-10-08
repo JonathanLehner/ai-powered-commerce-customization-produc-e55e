@@ -59,16 +59,21 @@ const SECTIONS = [
 export default function PrivacyPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
-      <h1 className="text-3xl font-semibold tracking-tight text-ink">Privacy notice</h1>
-      <p className="mt-3 text-sm text-muted-foreground">
+      <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance text-foreground">
+        Privacy notice
+      </h1>
+      <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-muted-foreground">
         How data moves through an agency workspace, and where the boundary between stores sits.
       </p>
-      <div className="mt-10 space-y-9">
+      <hr className="mt-10 border-t border-border" />
+      <div className="mt-10 space-y-10">
         {SECTIONS.map((section) => (
           <section key={section.heading}>
-            <h2 className="text-lg font-semibold text-ink">{section.heading}</h2>
+            <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+              {section.heading}
+            </h2>
             {section.body.map((paragraph, i) => (
-              <p key={i} className="mt-3 text-sm leading-relaxed text-inksoft">
+              <p key={i} className="mt-3 max-w-[72ch] text-sm leading-relaxed text-muted-foreground">
                 {paragraph}
               </p>
             ))}

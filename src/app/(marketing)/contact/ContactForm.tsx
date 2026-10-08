@@ -7,7 +7,9 @@ import { UNDECIDED } from "@/lib/enquiry";
 import { PLANS } from "@/lib/plans";
 import type { ActionState } from "@/app/actions/stores";
 import { newId } from "@/lib/util";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -137,10 +139,10 @@ export function ContactForm() {
           >
             <Textarea id="message" name="message" rows={5} className="mt-1.5" />
           </Field>
-          <label className="flex items-start gap-2.5 text-sm text-inksoft sm:col-span-2">
-            <input type="checkbox" name="wantsCall" className="mt-0.5" />
+          <Label className="flex cursor-pointer items-center gap-2.5 text-sm font-normal text-muted-foreground sm:col-span-2">
+            <Checkbox name="wantsCall" />
             I would rather have a call than an email
-          </label>
+          </Label>
         </div>
       )}
     </ActionForm>

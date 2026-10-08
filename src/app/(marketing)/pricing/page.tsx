@@ -1,10 +1,12 @@
+import { ArrowRightIcon, CheckIcon, MinusIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui";
-import { PLANS, planAuditLabel, planStoreLabel } from "@/lib/plans";
-import { buttonVariants } from "@/components/ui/button";
+import { PLANS, planAuditLabel, planStoreLabel, type Plan } from "@/lib/plans";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+import { CheckList, Section, SectionHeading } from "../kit";
 
 export const dynamic = "force-static";
 
@@ -88,6 +90,41 @@ const PLAN_CARDS = [
   },
 ];
 
+/** How many live stores a plan's column shows, in the ceiling the workspace enforces. */
+function storeCell(plan: Plan): string {
+  return plan.storeLimit === null ? "Unlimited" : String(plan.storeLimit);
+}
+
+/** Reading the audit history is on every plan; downloading it is not. */
+function auditCell(plan: Plan): string {
+  return plan.auditExport ? "On screen and export" : "On screen";
+}
+
+/**
+ * The same lines the three cards carry, laid out as one row per capability so a
+ * plan can be read across rather than card by card. A cell is either a tick, a
+ * dash, or the value that differs between the plans.
+ */
+const COMPARISON: { feature: string; cells: [string | boolean, string | boolean, string | boolean] }[] = [
+  { feature: "Live client stores", cells: [storeCell(PLANS.starter), storeCell(PLANS.studio), storeCell(PLANS.scale)] },
+  { feature: "Draft stores", cells: ["Unlimited", "Unlimited", "Unlimited"] },
+  { feature: "Shared supplier catalog access", cells: [true, true, true] },
+  { feature: "Artwork configurator and mockup generation", cells: [true, true, true] },
+  { feature: "Stripe checkout in every supported currency", cells: [true, true, true] },
+  { feature: GIFTING_FEATURE, cells: [true, true, true] },
+  { feature: "DHL, FedEx and UPS tracking", cells: [true, true, true] },
+  { feature: "Store-scoped roles and invitations", cells: [false, true, true] },
+  { feature: "Custom domains per store", cells: [false, true, true] },
+  { feature: "Commerce assistant with confirmation flow", cells: [false, true, true] },
+  { feature: "Cross-store agency dashboard", cells: [false, true, true] },
+  { feature: "Audit history", cells: [auditCell(PLANS.starter), auditCell(PLANS.studio), auditCell(PLANS.scale)] },
+  { feature: "Priority supplier onboarding and review", cells: [false, false, true] },
+  { feature: "Custom tax bracket sets per market", cells: [false, false, true] },
+  { feature: "Named production contact at each partner", cells: [false, false, true] },
+  { feature: "Single sign-on and provisioning", cells: [false, false, true] },
+  { feature: "Quarterly commercial review", cells: [false, false, true] },
+];
+
 const INCLUDED = [
   {
     title: "No revenue share",
@@ -103,16 +140,34 @@ const INCLUDED = [
   },
 ];
 
+/** A comparison cell: the value where plans differ, otherwise a tick or a dash. */
+function Cell({ value, plan }: { value: string | boolean; plan: string }) {
+  if (typeof value === "string") {
+    return <span className="text-sm text-foreground">{value}</span>;
+  }
+  return value ? (
+    <>
+      <CheckIcon aria-hidden className="mx-auto size-4 text-primary" />
+      <span className="sr-only">Included on {plan}</span>
+    </>
+  ) : (
+    <>
+      <MinusIcon aria-hidden className="mx-auto size-4 text-muted-foreground/60" />
+      <span className="sr-only">Not on {plan}</span>
+    </>
+  );
+}
+
 export default function PricingPage() {
   return (
     <>
-      <section className="border-b border-line bg-gradient-to-b from-brand-50/60 to-white">
+      <section className="border-b border-border">
         <div className="mx-auto w-full max-w-4xl px-4 py-14 text-center sm:px-6 sm:py-20">
           <Badge tone="brand">Pricing</Badge>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+          <h1 className="font-heading mx-auto mt-4 max-w-[22ch] text-[2rem] leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
             Priced per workspace, not per sale
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-inksoft">
+          <p className="mx-auto mt-5 max-w-[62ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
             Every plan includes the shared supplier catalog, the artwork configurator, mockup generation, the
             corporate gifting portal and order routing. What changes is how many client stores you can run at
             once.
@@ -120,83 +175,152 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
-        <div className="grid gap-5 lg:grid-cols-3">
+      <Section>
+        <div className="grid items-start gap-4 lg:grid-cols-3">
           {PLAN_CARDS.map((plan) => (
             <Card
               key={plan.name}
-              className={
-                plan.highlighted
-                  ? "relative block overflow-visible p-6 ring-2 ring-brand-500"
-                  : "block overflow-visible p-6"
-              }
+              className={cn(
+                "h-full",
+                // The badge sits on the card's top edge, so this one card is
+                // not clipped, and at one column it keeps clear of the card above.
+                plan.highlighted && "relative mt-3 overflow-visible bg-primary/[0.03] ring-2 ring-primary lg:mt-0",
+              )}
             >
               {plan.highlighted ? (
                 <span className="absolute -top-3 left-6">
-                  <Badge tone="brand">Most agencies pick this</Badge>
+                  <Badge tone="brand" className="bg-primary text-primary-foreground border-transparent">
+                    Most agencies pick this
+                  </Badge>
                 </span>
               ) : null}
-              <h2 className="text-lg font-semibold text-ink">{plan.name}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{plan.summary}</p>
-              <p className="mt-5 flex items-baseline gap-2">
-                <span className="text-3xl font-semibold tracking-tight text-ink">{plan.price}</span>
-                <span className="text-sm text-muted-foreground">{plan.cadence}</span>
-              </p>
-              <ul className="mt-6 space-y-2.5">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex gap-2.5 text-sm text-inksoft">
-                    <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                    {feature}
-                  </li>
+              <CardHeader>
+                <h2 className="font-heading text-lg font-semibold text-foreground">{plan.name}</h2>
+                <p className="text-sm text-muted-foreground">{plan.summary}</p>
+              </CardHeader>
+              <CardContent>
+                <p className="flex items-baseline gap-2">
+                  <span className="font-heading text-3xl font-semibold tracking-tight text-foreground">
+                    {plan.price}
+                  </span>
+                  <span className="text-sm text-muted-foreground">{plan.cadence}</span>
+                </p>
+                <CheckList items={plan.features} className="mt-6" />
+              </CardContent>
+              <CardFooter className="bg-transparent border-0 pt-0">
+                <Button
+                  asChild
+                  size="lg"
+                  variant={plan.highlighted ? "default" : "outline"}
+                  className="w-full"
+                >
+                  <Link href={plan.href}>{plan.cta}</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </Section>
+
+      <Section tone="muted">
+        <SectionHeading lead="The three plans side by side. Everything in the row is what the workspace itself enforces.">
+          Compare the plans
+        </SectionHeading>
+        <p className="mt-4 text-xs text-muted-foreground lg:hidden">
+          Scroll the table sideways to reach Studio and Scale.
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-xl bg-card ring-1 ring-foreground/10 lg:mt-8">
+          <table className="w-full min-w-[40rem] text-left text-sm">
+            <caption className="sr-only">Parcelith plans compared feature by feature</caption>
+            <thead className="border-b border-border">
+              <tr>
+                <th scope="col" className="px-4 py-3.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                  Included
+                </th>
+                {PLAN_CARDS.map((plan) => (
+                  <th
+                    key={plan.name}
+                    scope="col"
+                    className={cn(
+                      "px-4 py-3.5 text-center",
+                      plan.highlighted && "bg-primary/[0.04]",
+                    )}
+                  >
+                    <span className="font-heading block text-sm font-semibold text-foreground">
+                      {plan.name}
+                    </span>
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      {plan.price} · {plan.cadence}
+                    </span>
+                  </th>
                 ))}
-              </ul>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON.map((row) => (
+                <tr key={row.feature} className="border-b border-border last:border-0">
+                  <th scope="row" className="px-4 py-3 pr-6 font-normal text-muted-foreground">
+                    {row.feature}
+                  </th>
+                  {row.cells.map((value, index) => (
+                    <td
+                      key={PLAN_CARDS[index].name}
+                      className={cn(
+                        "px-4 py-3 text-center",
+                        PLAN_CARDS[index].highlighted && "bg-primary/[0.04]",
+                      )}
+                    >
+                      <Cell value={value} plan={PLAN_CARDS[index].name} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
+      <Section>
+        <Card className="bg-primary/5 ring-primary/20">
+          <CardContent className="py-2">
+            <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+              Corporate gifting is on Starter, Studio and Scale
+            </h2>
+            <p className="mt-2 max-w-[80ch] text-sm leading-relaxed text-muted-foreground">
+              Any store, on any plan, can open a private gift catalogue for a company it supplies: gated by
+              private link or invited email addresses, drawn from that store&rsquo;s published products, with a
+              spend limit per recipient. Buyers upload a recipient list of up to 100 people, an approver signs it
+              off on a link of their own, and the payment raises one order per recipient under the campaign. What
+              the plan decides is how many client stores can be running one at a time.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Button asChild variant="outline">
+                <Link href="/how-it-works#gifting">How gifting works</Link>
+              </Button>
               <Link
-                href={plan.href}
-                className={cn(
-                  buttonVariants({ variant: plan.highlighted ? "default" : "outline" }),
-                  "mt-7 w-full",
-                )}
+                href="/contact?plan=scale"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                {plan.cta}
+                Talk to us about a gifting programme
+                <ArrowRightIcon aria-hidden className="size-4" />
               </Link>
-            </Card>
-          ))}
-        </div>
-      </section>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 pb-14 sm:px-6">
-        <div className="rounded-2xl border border-brand-200 bg-brand-50 p-6 sm:p-8">
-          <h2 className="text-lg font-semibold tracking-tight text-ink">
-            Corporate gifting is on Starter, Studio and Scale
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-inksoft">
-            Any store, on any plan, can open a private gift catalogue for a company it supplies: gated by
-            private link or invited email addresses, drawn from that store&rsquo;s published products, with a
-            spend limit per recipient. Buyers upload a recipient list of up to 100 people, an approver signs it
-            off on a link of their own, and the payment raises one order per recipient under the campaign. What
-            the plan decides is how many client stores can be running one at a time.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-4">
-            <Link href="/how-it-works#gifting" className={buttonVariants({ variant: "outline", size: "sm" })}>
-              How gifting works
-            </Link>
-            <Link href="/contact?plan=scale" className="text-sm font-medium text-brand-700 hover:underline">
-              Talk to us about a gifting programme →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-line bg-canvas">
-        <div className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-14 sm:px-6 md:grid-cols-3">
+      <Section tone="muted">
+        <div className="grid gap-4 md:grid-cols-3">
           {INCLUDED.map((item) => (
-            <Card key={item.title} className="block overflow-visible p-5">
-              <h2 className="text-base font-semibold text-ink">{item.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-inksoft">{item.body}</p>
+            <Card key={item.title} className="h-full">
+              <CardContent>
+                <h2 className="font-heading text-base font-medium text-foreground">{item.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+              </CardContent>
             </Card>
           ))}
         </div>
-      </section>
+      </Section>
     </>
   );
 }

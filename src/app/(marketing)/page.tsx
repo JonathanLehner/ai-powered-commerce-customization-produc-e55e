@@ -1,22 +1,26 @@
+import { ArrowRightIcon, LayersIcon, LibraryBigIcon, ShieldCheckIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { IMAGES } from "@/lib/images";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckList, Section, SectionHeading } from "./kit";
 
 export const dynamic = "force-static";
 
 const PILLARS = [
   {
+    icon: LayersIcon,
     title: "One workspace, many client stores",
     body: "Every client gets an isolated store with its own catalog, customers, orders, currencies, domain and Stripe account. Switch between them in a keystroke; nothing leaks across the boundary.",
   },
   {
+    icon: LibraryBigIcon,
     title: "A shared catalog you actually control",
     body: "Platform admins curate supplier-backed apparel and drinkware — costs, print areas, availability and fulfilment regions. Store managers copy what they need into their own catalog.",
   },
   {
+    icon: ShieldCheckIcon,
     title: "Nothing publishes without a human",
     body: "Artwork pre-flight, mockup approval, margin review and every AI suggestion require an explicit confirmation before the change is applied.",
   },
@@ -86,6 +90,12 @@ const GIFT_FLOW = [
   },
 ];
 
+const GIFT_POINTS = [
+  "Gated by private link or by invited email address, revocable at any time",
+  "Up to 100 recipients a campaign, validated row by row before submission",
+  "Approval, payment and every per-recipient order kept under one campaign",
+];
+
 const LIFECYCLE = [
   { step: "01", title: "Create the store", body: "Name it, upload the client's logo, pick a theme, choose selling currencies and map a custom domain." },
   { step: "02", title: "Connect money and shipping", body: "The client's own Stripe account, their carrier accounts, and the tax bracket each product falls into." },
@@ -121,94 +131,102 @@ const FAQ = [
   },
 ];
 
+/** A numbered step, used by the gifting flow and the lifecycle. */
+function StepCard({ step, title, body }: { step: string; title: string; body: string }) {
+  return (
+    <Card asChild size="sm" className="h-full">
+      <li>
+        <CardContent>
+          <span className="font-mono text-xs font-semibold text-muted-foreground">{step}</span>
+          <h3 className="mt-2 text-sm font-semibold text-foreground">{title}</h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+        </CardContent>
+      </li>
+    </Card>
+  );
+}
+
 export default function LandingPage() {
   return (
     <>
-      <section className="border-b border-line bg-gradient-to-b from-brand-50/60 to-white">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
+      <section className="border-b border-border">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center lg:gap-14">
           <div>
-            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
-              Launch a branded product store for every client — without a warehouse
+            <h1 className="font-heading max-w-[22ch] text-[2rem] leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
+              Launch a branded product store for every client, without a warehouse
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-inksoft sm:text-lg">
+            <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
               Parcelith gives agencies one workspace for isolated client stores, a curated catalog of
               supplier-backed apparel and mugs, an artwork configurator that pre-flights every design, and
               order routing that ends at a tracked parcel.
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/login" className={buttonVariants()}>
-                Open the workspace
-              </Link>
-              <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
-                See how it works
-              </Link>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg" className="px-4">
+                <Link href="/login">Open the workspace</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="px-4">
+                <Link href="/how-it-works">See how it works</Link>
+              </Button>
             </div>
-            <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-line pt-6 text-sm">
+            <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 text-sm">
               <div>
-                <dt className="text-muted-foreground">Print areas</dt>
-                <dd className="mt-0.5 text-lg font-semibold text-ink">Defined in mm</dd>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Print areas</dt>
+                <dd className="mt-1 font-heading text-base font-semibold text-foreground">Defined in mm</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Payments</dt>
-                <dd className="mt-0.5 text-lg font-semibold text-ink">Seller&rsquo;s Stripe</dd>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Payments</dt>
+                <dd className="mt-1 font-heading text-base font-semibold text-foreground">Seller&rsquo;s Stripe</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Carriers</dt>
-                <dd className="mt-0.5 text-lg font-semibold text-ink">DHL · FedEx · UPS</dd>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Carriers</dt>
+                <dd className="mt-1 font-heading text-base font-semibold text-foreground">DHL · FedEx · UPS</dd>
               </div>
             </dl>
           </div>
-          <div className="relative">
-            <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-              <Image
-                src={IMAGES["marketing-hero"]}
-                alt="A studio desk with folded blank apparel, ceramic mugs and colour swatches"
-                width={1024}
-                height={1024}
-                priority
-                sizes="(min-width: 1024px) 512px, 100vw"
-                className="h-auto w-full object-cover"
-                style={{ aspectRatio: "1 / 1" }}
-              />
-            </div>
+          <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+            <Image
+              src={IMAGES["marketing-hero"]}
+              alt="A studio desk with folded blank apparel, ceramic mugs and colour swatches"
+              width={1024}
+              height={1024}
+              priority
+              sizes="(min-width: 1024px) 512px, 100vw"
+              className="h-auto w-full object-cover"
+              style={{ aspectRatio: "1 / 1" }}
+            />
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-        <h2 className="max-w-2xl text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          Built around how agencies actually work
-        </h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
+      <Section tone="muted">
+        <SectionHeading>Built around how agencies actually work</SectionHeading>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           {PILLARS.map((pillar) => (
-            <Card key={pillar.title} className="block overflow-visible p-5">
-              <h3 className="text-base font-semibold text-ink">{pillar.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-inksoft">{pillar.body}</p>
+            <Card key={pillar.title} className="h-full">
+              <CardHeader>
+                <pillar.icon aria-hidden className="size-5 text-muted-foreground" />
+                <CardTitle asChild className="mt-2">
+                  <h3>{pillar.title}</h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed text-muted-foreground">{pillar.body}</p>
+              </CardContent>
             </Card>
           ))}
         </div>
-      </section>
+      </Section>
 
       {FEATURES.map((feature, index) => (
-        <section
-          key={feature.title}
-          className={index % 2 === 1 ? "border-y border-line bg-canvas" : undefined}
-        >
-          <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-18 lg:grid-cols-2 lg:items-center">
+        <Section key={feature.title} tone={index % 2 === 1 ? "muted" : "plain"}>
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
             <div className={index % 2 === 1 ? "lg:order-2" : undefined}>
-              <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{feature.title}</h2>
-              <p className="mt-4 text-sm leading-relaxed text-inksoft sm:text-base">{feature.body}</p>
-              <ul className="mt-5 space-y-2.5">
-                {feature.points.map((point) => (
-                  <li key={point} className="flex gap-2.5 text-sm text-inksoft">
-                    <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
+              <SectionHeading>{feature.title}</SectionHeading>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">{feature.body}</p>
+              <CheckList items={feature.points} className="mt-6" />
             </div>
             <div className={index % 2 === 1 ? "lg:order-1" : undefined}>
-              <div className="overflow-hidden rounded-2xl border border-line bg-white">
+              <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
                 <Image
                   src={feature.image}
                   alt={feature.alt}
@@ -222,127 +240,98 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
       ))}
 
-      <section id="gifting" className="border-y border-line bg-canvas scroll-mt-20">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">
-                Corporate gifting
-              </span>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-                A gifting portal each company can run on its own
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-inksoft sm:text-base">
-                Every store can open a private gift catalogue for the companies it supplies: its own web
-                address, its own branded product range, a spend limit per recipient and an approver who has to
-                sign the list off before a card is charged. The buyer never sees the workspace, and the store
-                never re-keys a spreadsheet.
-              </p>
-              <ul className="mt-5 space-y-2.5">
-                <li className="flex gap-2.5 text-sm text-inksoft">
-                  <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                  Gated by private link or by invited email address, revocable at any time
-                </li>
-                <li className="flex gap-2.5 text-sm text-inksoft">
-                  <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                  Up to 100 recipients a campaign, validated row by row before submission
-                </li>
-                <li className="flex gap-2.5 text-sm text-inksoft">
-                  <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                  Approval, payment and every per-recipient order kept under one campaign
-                </li>
-              </ul>
-              <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Link href="/how-it-works#gifting" className={buttonVariants({ variant: "outline" })}>
-                  See the gifting walkthrough
-                </Link>
-                <Link href="/pricing" className="text-sm font-medium text-brand-700 hover:underline">
-                  On every plan →
-                </Link>
-              </div>
-            </div>
-            <div>
-              <div className="overflow-hidden rounded-2xl border border-line bg-white">
-                <Image
-                  src={IMAGES["marketing-gifting"]}
-                  alt="Kraft gift boxes tied with ribbon beside a folded navy hoodie and a white ceramic mug"
-                  width={1024}
-                  height={1024}
-                  loading="lazy"
-                  sizes="(min-width: 1024px) 512px, 100vw"
-                  className="h-auto w-full object-cover"
-                  style={{ aspectRatio: "1 / 1" }}
-                />
-              </div>
+      <Section id="gifting" tone="muted">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+          <div>
+            <p className="text-xs font-semibold tracking-wide text-primary uppercase">Corporate gifting</p>
+            <SectionHeading className="mt-3">
+              A gifting portal each company can run on its own
+            </SectionHeading>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Every store can open a private gift catalogue for the companies it supplies: its own web
+              address, its own branded product range, a spend limit per recipient and an approver who has to
+              sign the list off before a card is charged. The buyer never sees the workspace, and the store
+              never re-keys a spreadsheet.
+            </p>
+            <CheckList items={GIFT_POINTS} className="mt-6" />
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button asChild variant="outline" size="lg" className="px-4">
+                <Link href="/how-it-works#gifting">See the gifting walkthrough</Link>
+              </Button>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                On every plan
+                <ArrowRightIcon aria-hidden className="size-4" />
+              </Link>
             </div>
           </div>
-
-          <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {GIFT_FLOW.map((item) => (
-              <Card asChild key={item.step} className="block overflow-visible p-5">
-              <li>
-                <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
-                <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
-              </li>
-              </Card>
-            ))}
-          </ol>
+          <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+            <Image
+              src={IMAGES["marketing-gifting"]}
+              alt="Kraft gift boxes tied with ribbon beside a folded navy hoodie and a white ceramic mug"
+              width={1024}
+              height={1024}
+              loading="lazy"
+              sizes="(min-width: 1024px) 512px, 100vw"
+              className="h-auto w-full object-cover"
+              style={{ aspectRatio: "1 / 1" }}
+            />
+          </div>
         </div>
-      </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-        <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          From brief to delivered parcel
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm text-inksoft sm:text-base">
-          The whole product lifecycle sits in one place, so nothing depends on a spreadsheet handover
-          between the person who designs the range and the person who ships it.
-        </p>
-        <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {LIFECYCLE.map((item) => (
-            <Card asChild key={item.step} className="block overflow-visible p-5">
-            <li>
-              <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
-              <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
-            </li>
-            </Card>
+        <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {GIFT_FLOW.map((item) => (
+            <StepCard key={item.step} {...item} />
           ))}
         </ol>
-      </section>
+      </Section>
 
-      <section className="border-t border-line bg-canvas">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Common questions</h2>
-          <dl className="mt-8 grid gap-5 md:grid-cols-2">
-            {FAQ.map((item) => (
-              <Card key={item.q} className="block overflow-visible p-5">
-                <dt className="text-base font-semibold text-ink">{item.q}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-inksoft">{item.a}</dd>
-              </Card>
-            ))}
-          </dl>
-        </div>
-      </section>
+      <Section>
+        <SectionHeading
+          lead="The whole product lifecycle sits in one place, so nothing depends on a spreadsheet handover between the person who designs the range and the person who ships it."
+        >
+          From brief to delivered parcel
+        </SectionHeading>
+        <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {LIFECYCLE.map((item) => (
+            <StepCard key={item.step} {...item} />
+          ))}
+        </ol>
+      </Section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-brand-200 bg-brand-50 px-6 py-10 text-center sm:px-12">
-          <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+      <Section tone="muted">
+        <SectionHeading>Common questions</SectionHeading>
+        <dl className="mt-8 grid gap-4 md:grid-cols-2">
+          {FAQ.map((item) => (
+            <Card key={item.q} className="h-full">
+              <CardContent>
+                <dt className="font-heading text-base font-medium text-foreground">{item.q}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
+              </CardContent>
+            </Card>
+          ))}
+        </dl>
+      </Section>
+
+      <Section>
+        <div className="rounded-xl bg-primary/5 px-6 py-12 text-center ring-1 ring-primary/20 sm:px-12">
+          <h2 className="font-heading mx-auto max-w-[24ch] text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl">
             Open the workspace with demo data
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-inksoft sm:text-base">
+          <p className="mx-auto mt-3 max-w-[60ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
             Four client stores, a shared supplier catalog, live artwork pre-flight and a full order queue are
             already populated. Sign in as an agency director, a catalog producer or the platform admin.
           </p>
-          <Link href="/login" className={cn(buttonVariants(), "mt-7")}>
-            Sign in to the demo
-          </Link>
+          <Button asChild size="lg" className="mt-8 px-4">
+            <Link href="/login">Sign in to the demo</Link>
+          </Button>
         </div>
-      </section>
+      </Section>
     </>
   );
 }

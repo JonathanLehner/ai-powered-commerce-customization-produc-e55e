@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { CheckList, Section, SectionHeading } from "../kit";
 
 export const dynamic = "force-static";
 
@@ -120,12 +121,12 @@ const STAGES: { id?: string; title: string; body: string; detail: string[] }[] =
 export default function HowItWorksPage() {
   return (
     <>
-      <section className="border-b border-line bg-gradient-to-b from-brand-50/60 to-white">
+      <section className="border-b border-border">
         <div className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
-          <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+          <h1 className="font-heading max-w-[24ch] text-[2rem] leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
             From an empty store to a tracked parcel
           </h1>
-          <p className="mt-5 text-base leading-relaxed text-inksoft">
+          <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
             Parcelith is a headless commerce core wrapped in the workflow an agency needs: a store is a
             separate commerce channel with its own catalog, customers, currencies, tax configuration and
             payment account. Everything below happens inside that boundary.
@@ -133,63 +134,67 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6">
+      <Section width="prose">
         <ol className="space-y-10">
           {STAGES.map((stage) => (
             <li key={stage.title} id={stage.id} className={stage.id ? "scroll-mt-20" : undefined}>
-              <h2 className="text-xl font-semibold tracking-tight text-ink">{stage.title}</h2>
-              <p className="mt-2.5 text-sm leading-relaxed text-inksoft sm:text-base">{stage.body}</p>
-              <ul className="mt-4 space-y-2 rounded-xl border border-line bg-canvas p-5">
-                {stage.detail.map((d) => (
-                  <li key={d} className="flex gap-2.5 text-sm text-inksoft">
-                    <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                    {d}
-                  </li>
-                ))}
-              </ul>
+              <h2 className="font-heading text-xl font-semibold tracking-tight text-balance text-foreground">
+                {stage.title}
+              </h2>
+              <p className="mt-2.5 max-w-[68ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
+                {stage.body}
+              </p>
+              <Card className="mt-5">
+                <CardContent>
+                  <CheckList items={stage.detail} />
+                </CardContent>
+              </Card>
             </li>
           ))}
         </ol>
-      </section>
+      </Section>
 
-      <section className="border-t border-line bg-canvas">
-        <div className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-ink">Who can do what</h2>
-          <div className="mt-6 relative overflow-x-auto rounded-xl border border-line bg-white">
-            <table className="w-full min-w-[36rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-3">Role</th>
-                  <th scope="col" className="px-4 py-3">Owns</th>
-                  <th scope="col" className="px-4 py-3">Boundary</th>
+      <Section tone="muted" width="prose">
+        <SectionHeading>Who can do what</SectionHeading>
+        <p className="mt-4 text-xs text-muted-foreground sm:hidden">
+          Scroll the table sideways to read each role&rsquo;s boundary.
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-xl bg-card ring-1 ring-foreground/10 sm:mt-6">
+          <table className="w-full min-w-[36rem] caption-bottom text-left text-sm">
+            <thead className="border-b border-border text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              <tr>
+                <th scope="col" className="px-4 py-3">Role</th>
+                <th scope="col" className="px-4 py-3">Owns</th>
+                <th scope="col" className="px-4 py-3">Boundary</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ROLES.map((row) => (
+                <tr key={row.role} className="border-b border-border last:border-0">
+                  <th scope="row" className="px-4 py-3 align-top font-semibold text-foreground">{row.role}</th>
+                  <td className="px-4 py-3 align-top text-muted-foreground">{row.owns}</td>
+                  <td className="px-4 py-3 align-top text-muted-foreground">{row.cannot}</td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {ROLES.map((row) => (
-                  <tr key={row.role}>
-                    <th scope="row" className="px-4 py-3 font-semibold text-ink">{row.role}</th>
-                    <td className="px-4 py-3 text-inksoft">{row.owns}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{row.cannot}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
+      </Section>
 
-      <section className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-6">
-        <div className="rounded-2xl border border-line bg-white p-8">
-          <h2 className="text-xl font-semibold tracking-tight text-ink">The assistant</h2>
-          <p className="mt-3 text-sm leading-relaxed text-inksoft">
-            Drafts product ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is
-            a separate, audited step.
-          </p>
-          <Link href="/login" className={cn(buttonVariants(), "mt-6")}>
-            Try it in the workspace
-          </Link>
-        </div>
-      </section>
+      <Section width="prose">
+        <Card>
+          <CardContent className="py-2">
+            <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">The assistant</h2>
+            <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-muted-foreground">
+              Drafts product ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is
+              a separate, audited step.
+            </p>
+            <Button asChild size="lg" className="mt-6 px-4">
+              <Link href="/login">Try it in the workspace</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </Section>
     </>
   );
 }
