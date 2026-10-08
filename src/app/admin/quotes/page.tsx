@@ -1,4 +1,6 @@
 import { Badge, Callout, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { listAllQuoteRequests, listCatalogProducts } from "@/lib/data";
 import { formatQuantity, QUOTE_STATUS_LABELS, QUOTE_STATUS_TONES, quoteIsLive } from "@/lib/sourcing";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/util";
@@ -55,19 +57,24 @@ export default async function AdminQuotesPage() {
         {requests.map((request) => {
           const quotes = request.quotes ?? [];
           return (
-            <li key={request.id} className="card p-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs text-muted-foreground">{request.code}</span>
-                <h2 className="text-base font-semibold text-ink">{request.productName}</h2>
-                <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
-                {request.storeProductId ? <Badge tone="neutral">Copied into the store</Badge> : null}
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {request.storeName} · {request.supplierName} · raised by {request.requestedBy} on{" "}
-                {formatDateTime(request.createdAt)}
-              </p>
+            <Card asChild key={request.id}>
+            <li>
+              <CardHeader>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs text-muted-foreground">{request.code}</span>
+                  <CardTitle asChild>
+                    <h2>{request.productName}</h2>
+                  </CardTitle>
+                  <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
+                  {request.storeProductId ? <Badge tone="neutral">Copied into the store</Badge> : null}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {request.storeName} · {request.supplierName} · raised by {request.requestedBy} on{" "}
+                  {formatDateTime(request.createdAt)}
+                </p>
+              </CardHeader>
 
-              <div className="mt-4">
+              <CardContent>
                 <DataList
                   rows={[
                     {
@@ -89,12 +96,11 @@ export default async function AdminQuotesPage() {
                     { label: "Reply to", value: `${request.contactName} · ${request.contactEmail}` },
                   ]}
                 />
-              </div>
 
               {quotes.length > 0 ? (
                 <ul className="mt-4 space-y-2">
                   {quotes.map((quote) => (
-                    <li key={quote.id} className="rounded-lg border border-line bg-canvas p-3 text-sm text-ink">
+                    <li key={quote.id} className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground">
                       <span className="font-semibold">{quote.supplierLabel}</span> ·{" "}
                       <span className="font-semibold tabular-nums">{formatMoney(quote.unitCost, request.currency)}</span>{" "}
                       a unit · minimum {formatQuantity(quote.minimumOrderQuantity)} · {quote.leadTimeDays} days
@@ -115,7 +121,7 @@ export default async function AdminQuotesPage() {
               ) : null}
 
               {request.status === "declined" && request.declineReason ? (
-                <p className="mt-3 text-sm text-inksoft">Declined: {request.declineReason}</p>
+                <p className="mt-3 text-sm text-muted-foreground">Declined: {request.declineReason}</p>
               ) : null}
 
               {request.status === "withdrawn" ? (
@@ -125,12 +131,17 @@ export default async function AdminQuotesPage() {
                   The store accepted a quote. Raise the purchase order with that supplier when orders arrive.
                 </p>
               ) : (
-                <div className="mt-4 grid gap-5 border-t border-line pt-4 lg:grid-cols-[3fr_2fr]">
-                  <AddQuoteForm request={request} catalogOptions={catalogOptions} />
-                  {request.status === "declined" ? null : <DeclineQuoteForm request={request} />}
-                </div>
+                <>
+                  <Separator className="my-4" />
+                  <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
+                    <AddQuoteForm request={request} catalogOptions={catalogOptions} />
+                    {request.status === "declined" ? null : <DeclineQuoteForm request={request} />}
+                  </div>
+                </>
               )}
+              </CardContent>
             </li>
+            </Card>
           );
         })}
       </ul>

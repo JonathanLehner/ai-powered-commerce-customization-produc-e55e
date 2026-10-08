@@ -10,6 +10,7 @@ import type { FulfillmentSource } from "@/lib/countries";
 import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { CheckoutForm } from "./CheckoutForm";
+import { buttonVariants } from "@/components/ui/button";
 
 export async function generateMetadata({
   params,
@@ -72,7 +73,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
           <Callout tone="rose" title={t.checkout.unavailableTitle}>
             {t.checkout.unavailableBody}
             <p className="mt-3">
-              <Link href={`/s/${store.slug}/cart`} className="btn-secondary btn-sm">
+              <Link href={`/s/${store.slug}/cart`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                 {t.checkout.backToBasket}
               </Link>
             </p>

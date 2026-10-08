@@ -6,6 +6,10 @@ import type { ActionState } from "@/app/actions/stores";
 import { ActionForm, ConfirmSubmit, FormStatus, SubmitButton } from "@/components/forms";
 import { fmt, fmtAround, type StorefrontCopy } from "@/lib/i18n";
 import { TEST_CARDS } from "@/lib/stripe";
+import { buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 /** Stripe's published test numbers, labelled in the store's language. */
 const TEST_CARD_LABELS: Record<string, keyof StorefrontCopy["checkout"]> = {
@@ -45,21 +49,21 @@ export function ApprovalForm({
       <input type="hidden" name="code" value={code} />
       <input type="hidden" name="token" value={token} />
       <p className="text-sm text-muted-foreground">{fmt(t.approvalIntro, { buyer: buyerName })}</p>
-      <label htmlFor="note" className="field-label mt-4">
+      <Label htmlFor="note" className="mt-4">
         {t.noteLabel}
-      </label>
-      <textarea
+      </Label>
+      <Textarea
         id="note"
         name="note"
         rows={3}
         placeholder={t.notePlaceholder}
         aria-invalid={state.field === "note" ? true : undefined}
-        className={state.field === "note" ? "input input-error" : "input"}
+        className="mt-1.5"
       />
       <FormStatus state={state} />
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <SubmitButton
-          className="btn-primary"
+          className={buttonVariants()}
           pendingLabel={t.approvePending}
           name="decision"
           value="approve"
@@ -67,7 +71,7 @@ export function ApprovalForm({
           {fmt(t.approve, { total })}
         </SubmitButton>
         <SubmitButton
-          className="btn-danger"
+          className={buttonVariants({ variant: "destructive" })}
           pendingLabel={t.declinePending}
           name="decision"
           value="decline"
@@ -117,10 +121,10 @@ export function PaymentForm({
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="cardNumber" className="field-label">
+              <Label htmlFor="cardNumber">
                 {card.cardNumber}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="cardNumber"
                 name="cardNumber"
                 inputMode="numeric"
@@ -128,28 +132,28 @@ export function PaymentForm({
                 placeholder="4242 4242 4242 4242"
                 required
                 aria-invalid={state.field === "cardNumber" ? true : undefined}
-                className={state.field === "cardNumber" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="expiry" className="field-label">
+              <Label htmlFor="expiry">
                 {card.expiry}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="expiry"
                 name="expiry"
                 autoComplete="cc-exp"
                 placeholder="04/29"
                 required
                 aria-invalid={state.field === "expiry" ? true : undefined}
-                className={state.field === "expiry" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="cvc" className="field-label">
+              <Label htmlFor="cvc">
                 {card.securityCode}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="cvc"
                 name="cvc"
                 inputMode="numeric"
@@ -157,7 +161,7 @@ export function PaymentForm({
                 placeholder="123"
                 required
                 aria-invalid={state.field === "cvc" ? true : undefined}
-                className={state.field === "cvc" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
           </div>
@@ -195,7 +199,7 @@ export function CancelCampaignForm({
       <input type="hidden" name="code" value={code} />
       <input type="hidden" name="token" value={token} />
       <ConfirmSubmit
-        className="btn-ghost btn-sm"
+        className={buttonVariants({ variant: "ghost", size: "sm" })}
         confirmLabel={t.withdrawConfirm}
         question={t.withdrawQuestion}
         pendingLabel={t.withdrawPending}

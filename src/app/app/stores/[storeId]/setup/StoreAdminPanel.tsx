@@ -42,7 +42,7 @@ export function StoreAdminPanel({ store }: { store: Store }) {
         <ActionForm
           action={renameStore}
           submitLabel="Save name"
-          submitClassName="btn-secondary"
+          submitVariant="outline"
           hidden={{ storeId: store.id }}
         >
           {(state) => (

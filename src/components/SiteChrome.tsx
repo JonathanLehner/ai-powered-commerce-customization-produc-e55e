@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Document } from "@/components/Document";
 import { Logo } from "@/components/ui";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /**
  * The public Parcelith header and footer.
@@ -9,6 +11,9 @@ import { Logo } from "@/components/ui";
  * not-found page is a root layout of its own — an unmatched address never
  * reaches the marketing layout — and it has to look like the same site.
  */
+
+/** The small uppercase heading above a footer column. */
+const SECTION_TITLE = "text-xs font-semibold tracking-wide text-muted-foreground uppercase";
 
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
@@ -35,7 +40,7 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <Link href="/login" className="btn-primary btn-sm ml-1 sm:ml-2 sm:px-4 sm:py-2 sm:text-sm">
+          <Link href="/login" className={cn(buttonVariants({ size: "sm" }), "ml-1 sm:ml-2 sm:px-4 sm:py-2 sm:text-sm")}>
             Sign in
           </Link>
         </nav>
@@ -56,7 +61,7 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <h2 className="section-title">Platform</h2>
+          <h2 className={SECTION_TITLE}>Platform</h2>
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
             <li><Link href="/how-it-works" className="hover:text-ink hover:underline">How it works</Link></li>
             <li><Link href="/pricing" className="hover:text-ink hover:underline">Pricing</Link></li>
@@ -65,7 +70,7 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h2 className="section-title">Legal</h2>
+          <h2 className={SECTION_TITLE}>Legal</h2>
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
             <li><Link href="/legal/terms" className="hover:text-ink hover:underline">Terms of service</Link></li>
             <li><Link href="/legal/privacy" className="hover:text-ink hover:underline">Privacy notice</Link></li>

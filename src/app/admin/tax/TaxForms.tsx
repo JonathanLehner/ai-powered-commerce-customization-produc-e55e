@@ -2,6 +2,10 @@
 
 import { saveTaxBracket } from "@/app/actions/admin";
 import { ActionForm } from "@/components/forms";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { TaxBracket } from "@/lib/types";
 import { REGION_OPTIONS } from "@/lib/util";
 
@@ -17,24 +21,19 @@ function Fields({
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="sm:col-span-2">
-          <label htmlFor={`${prefix}-name`} className="field-label">
-            Bracket name
-          </label>
-          <input
+        <div className="grid content-start gap-1.5 sm:col-span-2">
+          <Label htmlFor={`${prefix}-name`}>Bracket name</Label>
+          <Input
             id={`${prefix}-name`}
             name="name"
             defaultValue={bracket?.name}
             required
             aria-invalid={state.field === "name" ? true : undefined}
-            className={state.field === "name" ? "input input-error" : "input"}
           />
         </div>
-        <div>
-          <label htmlFor={`${prefix}-rate`} className="field-label">
-            Rate (%)
-          </label>
-          <input
+        <div className="grid content-start gap-1.5">
+          <Label htmlFor={`${prefix}-rate`}>Rate (%)</Label>
+          <Input
             id={`${prefix}-rate`}
             name="rate"
             type="number"
@@ -44,58 +43,50 @@ function Fields({
             defaultValue={bracket?.rate ?? 20}
             required
             aria-invalid={state.field === "rate" ? true : undefined}
-            className={state.field === "rate" ? "input input-error" : "input"}
           />
         </div>
-        <div>
-          <label htmlFor={`${prefix}-code`} className="field-label">
-            Code
-          </label>
-          <input
+        <div className="grid content-start gap-1.5">
+          <Label htmlFor={`${prefix}-code`}>Code</Label>
+          <Input
             id={`${prefix}-code`}
             name="code"
             defaultValue={bracket?.code}
             required
             placeholder="STD-20"
             aria-invalid={state.field === "code" ? true : undefined}
-            className={state.field === "code" ? "input input-error" : "input"}
           />
         </div>
-        <div className="sm:col-span-2">
-          <label htmlFor={`${prefix}-description`} className="field-label">
-            Description
-          </label>
-          <input
+        <div className="grid content-start gap-1.5 sm:col-span-2">
+          <Label htmlFor={`${prefix}-description`}>Description</Label>
+          <Input
             id={`${prefix}-description`}
             name="description"
             defaultValue={bracket?.description}
             placeholder="When a store should choose this bracket"
-            className="input"
           />
         </div>
       </div>
 
       <fieldset className="mt-4">
-        <legend className="field-label">Regions</legend>
+        <legend className="text-sm leading-none font-medium text-foreground select-none">Regions</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {REGION_OPTIONS.map((region) => (
-            <label
+            <Label
               key={region}
-              className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs hover:bg-canvas has-[:checked]:border-brand-400 has-[:checked]:bg-brand-50/60"
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-normal hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5"
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 name="regions"
                 value={region}
                 defaultChecked={bracket?.regions.includes(region)}
-                className="h-3.5 w-3.5 accent-brand-600"
+                className="size-3.5"
               />
               {region}
-            </label>
+            </Label>
           ))}
         </div>
         {state.field === "regions" ? (
-          <p className="field-hint text-rose-600">Choose at least one region.</p>
+          <p className="mt-1.5 text-xs text-destructive">Choose at least one region.</p>
         ) : null}
       </fieldset>
     </>
@@ -107,7 +98,8 @@ export function EditBracketForm({ bracket }: { bracket: TaxBracket }) {
     <ActionForm
       action={saveTaxBracket}
       submitLabel="Save bracket"
-      submitClassName="btn-secondary btn-sm"
+      submitVariant="outline"
+      submitSize="sm"
       hidden={{ bracketId: bracket.id }}
     >
       {(state) => <Fields bracket={bracket} state={state} prefix={bracket.id} />}
@@ -117,18 +109,28 @@ export function EditBracketForm({ bracket }: { bracket: TaxBracket }) {
 
 export function NewBracketForm() {
   return (
-    <ActionForm action={saveTaxBracket} submitLabel="Create tax bracket" className="card p-5">
-      {(state) => (
-        <>
-          <h2 className="text-base font-semibold text-ink">Add a tax bracket</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Brackets are global. Store managers pick one per product; they never set a rate themselves.
-          </p>
-          <div className="mt-5">
-            <Fields state={state} prefix="new" />
-          </div>
-        </>
-      )}
+    <Card asChild>
+      <ActionForm
+        action={saveTaxBracket}
+        submitLabel="Create tax bracket"
+        actionsClassName="px-(--card-spacing)"
+      >
+        {(state) => (
+          <>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Add a tax bracket</h2>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Brackets are global. Store managers pick one per product; they never set a rate themselves.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Fields state={state} prefix="new" />
+            </CardContent>
+          </>
+        )}
     </ActionForm>
+    </Card>
   );
 }

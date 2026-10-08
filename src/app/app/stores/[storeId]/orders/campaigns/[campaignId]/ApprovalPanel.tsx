@@ -98,7 +98,7 @@ export function ApprovalPanel({
             hidden={{ storeId, campaignId }}
             submitLabel="Resend approval request"
             pendingLabel="Recording…"
-            submitClassName="btn-secondary btn-sm"
+            submitVariant="outline" submitSize="sm"
             className="mt-5 border-t border-border pt-5"
             footer={
               mailto ? (
@@ -121,7 +121,7 @@ export function ApprovalPanel({
                 hidden={{ storeId, campaignId }}
                 submitLabel="Change the approver"
                 pendingLabel="Saving…"
-                submitClassName="btn-primary btn-sm"
+                submitSize="sm"
                 footer={
                   <Button type="button" variant="ghost" size="sm" onClick={() => setChanging(false)}>
                     Cancel

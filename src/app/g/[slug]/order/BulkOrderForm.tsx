@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui";
 import { RECIPIENT_COLUMNS, RECIPIENT_TEMPLATE } from "@/lib/gift-recipients";
 import { fmt, fmtAround, type StorefrontCopy } from "@/lib/i18n";
 import { formatMoney } from "@/lib/util";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
 
 /** The largest recipient list a browser is asked to read, in KB. */
 const MAX_LIST_KB = 512;
@@ -24,12 +30,12 @@ function Actions({ hasRows, t }: { hasRows: boolean; t: StorefrontCopy["gift"] }
   const { pending } = useFormStatus();
   return (
     <div className="mt-5 flex flex-wrap items-center gap-3">
-      <button type="submit" name="intent" value="check" className="btn-secondary" disabled={pending}>
+      <Button type="submit" name="intent" value="check" variant="outline" disabled={pending}>
         {pending ? t.checkPending : t.checkList}
-      </button>
-      <button type="submit" name="intent" value="submit" className="btn-primary" disabled={pending}>
+      </Button>
+      <Button type="submit" name="intent" value="submit"  disabled={pending}>
         {pending ? t.sendPending : hasRows ? t.sendForApproval : t.checkAndSend}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -133,14 +139,15 @@ export function BulkOrderForm({
     <form action={formAction} className="space-y-6" noValidate>
       <input type="hidden" name="slug" value={slug} />
 
-      <section className="card p-5">
+      <Card asChild className="block overflow-visible p-5">
+      <section>
         <h2 className="text-base font-semibold text-ink">{t.buyerTitle}</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="campaignName" className="field-label">
+            <Label htmlFor="campaignName">
               {t.campaignName}
-            </label>
-            <input
+            </Label>
+            <Input
               id="campaignName"
               name="campaignName"
               value={campaignName}
@@ -148,14 +155,14 @@ export function BulkOrderForm({
               placeholder={t.campaignNamePlaceholder}
               required
               aria-invalid={state.field === "campaignName" ? true : undefined}
-              className={state.field === "campaignName" ? "input input-error" : "input"}
+              className="mt-1.5"
             />
           </div>
           <div>
-            <label htmlFor="buyerName" className="field-label">
+            <Label htmlFor="buyerName">
               {t.buyerName}
-            </label>
-            <input
+            </Label>
+            <Input
               id="buyerName"
               name="buyerName"
               value={buyerName}
@@ -163,7 +170,7 @@ export function BulkOrderForm({
               autoComplete="name"
               required
               aria-invalid={state.field === "buyerName" ? true : undefined}
-              className={state.field === "buyerName" ? "input input-error" : "input"}
+              className="mt-1.5"
             />
           </div>
           {buyerEmail ? (
@@ -176,10 +183,10 @@ export function BulkOrderForm({
             </div>
           ) : (
             <div className="sm:col-span-2">
-              <label htmlFor="buyerEmail" className="field-label">
+              <Label htmlFor="buyerEmail">
                 {t.buyerEmail}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="buyerEmail"
                 name="buyerEmail"
                 type="email"
@@ -189,17 +196,19 @@ export function BulkOrderForm({
                 required
                 aria-invalid={state.field === "buyerEmail" ? true : undefined}
                 aria-describedby="buyerEmail-hint"
-                className={state.field === "buyerEmail" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
-              <p id="buyerEmail-hint" className="field-hint">
+              <p id="buyerEmail-hint" className="mt-1.5 text-xs text-muted-foreground">
                 {t.buyerEmailHint}
               </p>
             </div>
           )}
         </div>
       </section>
+      </Card>
 
-      <section className="card p-5">
+      <Card asChild className="block overflow-visible p-5">
+      <section>
         <h2 className="text-base font-semibold text-ink">{t.giftTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t.giftHint}{" "}
@@ -236,8 +245,10 @@ export function BulkOrderForm({
           ))}
         </div>
       </section>
+      </Card>
 
-      <section className="card p-5">
+      <Card asChild className="block overflow-visible p-5">
+      <section>
         <h2 className="text-base font-semibold text-ink">{t.listTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {fmt(t.listHintLead, { max: maxRecipients })}{" "}
@@ -246,20 +257,20 @@ export function BulkOrderForm({
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label className="btn-secondary btn-sm cursor-pointer">
+          <label className={cn(buttonVariants({ variant: "outline", size: "sm" }), "cursor-pointer")}>
             <input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" onChange={onFile} className="sr-only" />
             {t.uploadCsv}
           </label>
-          <button
+          <Button
             type="button"
-            className="btn-ghost btn-sm"
+            variant="ghost" size="sm"
             onClick={() => {
               setList(RECIPIENT_TEMPLATE);
               setFileName(null);
             }}
           >
             {t.pasteExample}
-          </button>
+          </Button>
           {fileName ? (
             <span className="text-xs text-muted-foreground">{fmt(t.fileLoaded, { file: fileName })}</span>
           ) : null}
@@ -273,7 +284,7 @@ export function BulkOrderForm({
         <label htmlFor="recipients" className="sr-only">
           {t.listLabel}
         </label>
-        <textarea
+        <Textarea
           id="recipients"
           name="recipients"
           value={list}
@@ -282,11 +293,7 @@ export function BulkOrderForm({
           spellCheck={false}
           placeholder={RECIPIENT_TEMPLATE}
           aria-invalid={state.field === "recipients" ? true : undefined}
-          className={
-            state.field === "recipients"
-              ? "input input-error font-mono text-xs"
-              : "input font-mono text-xs"
-          }
+          className="mt-1.5 font-mono text-xs"
         />
 
         <FormStatus state={state} />
@@ -385,6 +392,7 @@ export function BulkOrderForm({
 
         <Actions hasRows={Boolean(preview && preview.withIssues === 0)} t={t} />
       </section>
+      </Card>
     </form>
   );
 }

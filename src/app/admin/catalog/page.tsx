@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
 import { formatQuantity, isQuoteOnly, QUOTE_PRICE_LABEL } from "@/lib/sourcing";
 import { formatMoney } from "@/lib/util";
@@ -15,9 +17,9 @@ export default async function AdminCatalogPage() {
         title="Supplier-backed products"
         description="Apparel and drinkware every store can copy from. Base costs, print areas, availability and fulfilment regions are set here and inherited on import. Bulk-sourcing listings carry a minimum order quantity and are priced by quote instead."
         actions={
-          <Link href="/admin/catalog/new" className="btn-primary btn-sm">
-            Add product
-          </Link>
+          <Button asChild size="sm">
+            <Link href="/admin/catalog/new">Add product</Link>
+          </Button>
         }
       />
 
@@ -37,18 +39,19 @@ export default async function AdminCatalogPage() {
           title="No products in the shared catalog"
           description="Add the first supplier-backed product so stores have something to import."
           action={
-            <Link href="/admin/catalog/new" className="btn-primary">
-              Add product
-            </Link>
+            <Button asChild>
+              <Link href="/admin/catalog/new">Add product</Link>
+            </Button>
           }
         />
       ) : null}
 
       <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {catalog.map((product) => (
-          <li key={product.id} className="card flex flex-col overflow-hidden">
+          <Card asChild key={product.id} className="gap-0 py-0">
+          <li>
             {product.mockups[0] ? (
-              <div className="border-b border-line bg-canvas">
+              <div className="border-b border-border bg-muted">
                 <Image
                   src={product.mockups[0].url}
                   alt={product.name}
@@ -61,24 +64,24 @@ export default async function AdminCatalogPage() {
                 />
               </div>
             ) : null}
-            <div className="flex flex-1 flex-col p-4">
+            <CardContent className="flex flex-1 flex-col py-4">
               <div className="flex items-start justify-between gap-2">
-                <h2 className="text-sm font-semibold text-ink">{product.name}</h2>
+                <h2 className="font-heading text-sm font-medium text-foreground">{product.name}</h2>
                 <Badge tone={product.status === "active" ? "green" : "slate"}>{product.status}</Badge>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {supplierName(product.supplierId)} · {product.productType}
               </p>
-              <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-line py-3 text-xs">
+              <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-border py-3 text-xs">
                 <div>
                   <dt className="text-muted-foreground">Base cost</dt>
-                  <dd className="font-semibold tabular-nums text-ink">
+                  <dd className="font-semibold tabular-nums text-foreground">
                     {isQuoteOnly(product) ? QUOTE_PRICE_LABEL : formatMoney(product.baseCost, product.currency)}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{isQuoteOnly(product) ? "Minimum order" : "Per print area"}</dt>
-                  <dd className="font-semibold tabular-nums text-ink">
+                  <dd className="font-semibold tabular-nums text-foreground">
                     {isQuoteOnly(product)
                       ? formatQuantity(product.bulkSourcing.minimumOrderQuantity)
                       : formatMoney(product.customizationCostPerArea, product.currency)}
@@ -86,23 +89,24 @@ export default async function AdminCatalogPage() {
                 </div>
                 <div>
                   <dt className="text-muted-foreground">Variants</dt>
-                  <dd className="font-semibold text-ink">{product.variants.length}</dd>
+                  <dd className="font-semibold text-foreground">{product.variants.length}</dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">Availability</dt>
-                  <dd className="font-semibold text-ink">{product.availability}</dd>
+                  <dd className="font-semibold text-foreground">{product.availability}</dd>
                 </div>
               </dl>
               <p className="mt-3 text-xs text-muted-foreground">
                 {product.printAreas.map((a) => `${a.name} ${a.widthMm}×${a.heightMm} mm`).join(" · ")}
               </p>
               <div className="mt-auto pt-4">
-                <Link href={`/admin/catalog/${product.id}`} className="btn-secondary btn-sm">
-                  Edit product
-                </Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/admin/catalog/${product.id}`}>Edit product</Link>
+                </Button>
               </div>
-            </div>
+            </CardContent>
           </li>
+          </Card>
         ))}
       </ul>
     </div>

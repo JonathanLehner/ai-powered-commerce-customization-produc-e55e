@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-static";
 
@@ -183,7 +185,7 @@ export default function HowItWorksPage() {
             Drafts product ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is
             a separate, audited step.
           </p>
-          <Link href="/login" className="btn-primary mt-6">
+          <Link href="/login" className={cn(buttonVariants(), "mt-6")}>
             Try it in the workspace
           </Link>
         </div>

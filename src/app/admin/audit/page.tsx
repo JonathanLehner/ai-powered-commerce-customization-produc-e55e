@@ -1,5 +1,14 @@
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   auditActors,
   auditDetail,
@@ -16,6 +25,9 @@ import {
 import { listAllStores, listSuppliers, loadAuditWindow } from "@/lib/data";
 import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE, type AuditLog } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
+
+/** The column-head style every table in the workspace shares. */
+const TH = "px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
 
 export default async function AdminAuditPage({ searchParams }: { searchParams: Promise<AuditParams> }) {
   const filters = parseAuditFilters(await searchParams);
@@ -80,40 +92,42 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
       ) : (
         <div className="space-y-3">
           <AuditPager basePath={base} filters={filters} page={page} />
-          <div className="card relative overflow-x-auto">
-            <table className="w-full min-w-[52rem] text-left text-sm">
-              <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-4 py-3">When</th>
-                  <th scope="col" className="px-4 py-3">Scope</th>
-                  <th scope="col" className="px-4 py-3">Action</th>
-                  <th scope="col" className="px-4 py-3">Actor</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
+          <Card className="py-0">
+            <Table className="min-w-[52rem]">
+              <TableHeader className="bg-muted">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className={TH}>When</TableHead>
+                  <TableHead className={TH}>Scope</TableHead>
+                  <TableHead className={TH}>Action</TableHead>
+                  <TableHead className={TH}>Actor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {page.entries.map((entry) => {
                   const line = auditDetail(entry, detail);
                   return (
-                    <tr key={entry.id} className="align-top">
-                      <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                    <TableRow key={entry.id} className="align-top hover:bg-transparent">
+                      <TableCell className="px-4 py-3 whitespace-nowrap text-muted-foreground">
                         {formatDateTime(entry.at)}
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-normal">
                         <Badge tone="neutral">{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
                         <p className="mt-1 text-xs text-muted-foreground">{storeName(entry.storeId)}</p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-ink">{entry.summary}</p>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-normal">
+                        <p className="text-foreground">{entry.summary}</p>
                         <p className="font-mono text-xs text-muted-foreground">{entry.action}</p>
                         {line ? <p className="text-xs text-muted-foreground">{line}</p> : null}
-                      </td>
-                      <td className="px-4 py-3 text-inksoft">{entry.actorName}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-normal text-muted-foreground">
+                        {entry.actorName}
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </Card>
           <AuditPager basePath={base} filters={filters} page={page} />
         </div>
       )}

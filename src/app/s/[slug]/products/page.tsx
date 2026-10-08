@@ -7,6 +7,9 @@ import { Badge, EmptyState } from "@/components/ui";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export async function generateMetadata({
   params,
@@ -62,23 +65,23 @@ export default async function StorefrontProductsPage({
 
       <form method="get" className="mt-6 flex flex-wrap items-end gap-3">
         <div className="min-w-[12rem] flex-1">
-          <label htmlFor="q" className="field-label text-xs">
+          <Label htmlFor="q" className="text-xs">
             {t.shop.searchLabel}
-          </label>
-          <input
+          </Label>
+          <Input
             id="q"
             name="q"
             defaultValue={q ?? ""}
             placeholder={t.shop.searchPlaceholder}
-            className="input py-1.5"
+            className="mt-1.5 py-1.5"
           />
         </div>
         {tag ? <input type="hidden" name="tag" value={tag} /> : null}
-        <button type="submit" className="btn-secondary">
+        <Button type="submit" variant="outline">
           {t.shop.searchSubmit}
-        </button>
+        </Button>
         {q || tag ? (
-          <Link href={`/s/${store.slug}/products`} className="btn-ghost">
+          <Link href={`/s/${store.slug}/products`} className={buttonVariants({ variant: "ghost" })}>
             {t.shop.clear}
           </Link>
         ) : null}
@@ -90,7 +93,7 @@ export default async function StorefrontProductsPage({
             <Link
               key={item}
               href={`/s/${store.slug}/products?tag=${encodeURIComponent(item)}`}
-              className={item === tag ? "btn-primary btn-sm" : "btn-secondary btn-sm"}
+              className={buttonVariants({ variant: item === tag ? "default" : "outline", size: "sm" })}
             >
               {item}
             </Link>
@@ -105,7 +108,7 @@ export default async function StorefrontProductsPage({
             description={products.length === 0 ? t.shop.emptyBody : t.shop.noMatchBody}
             action={
               products.length > 0 ? (
-                <Link href={`/s/${store.slug}/products`} className="btn-secondary">
+                <Link href={`/s/${store.slug}/products`} className={buttonVariants({ variant: "outline" })}>
                   {t.shop.clearFilters}
                 </Link>
               ) : null

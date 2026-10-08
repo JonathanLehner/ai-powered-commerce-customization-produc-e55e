@@ -3,6 +3,8 @@
 import { applyDiscount, removeDiscount } from "@/app/actions/shop";
 import { FormStatus, SubmitButton, useSubmission } from "@/components/forms";
 import type { ActionState } from "@/app/actions/stores";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { StorefrontCopy } from "@/lib/i18n";
 
 /**
@@ -31,12 +33,12 @@ export function DiscountEntry({
   if (code) {
     return (
       <div className="mt-5 border-t border-line pt-4">
-        <p className="field-label">{t.title}</p>
+        <p className="text-sm leading-none font-medium text-foreground">{t.title}</p>
         <div className="mt-1 flex items-center justify-between gap-2">
           <span className="font-mono text-sm text-ink">{code}</span>
           <form action={removeDiscount}>
             <input type="hidden" name="storeId" value={storeId} />
-            <SubmitButton className="btn-ghost btn-sm" pendingLabel={t.applying}>
+            <SubmitButton variant="ghost" size="sm" pendingLabel={t.applying}>
               {t.remove}
             </SubmitButton>
           </form>
@@ -49,20 +51,18 @@ export function DiscountEntry({
   return (
     <form action={formAction} className="mt-5 border-t border-line pt-4" noValidate>
       <input type="hidden" name="storeId" value={storeId} />
-      <label htmlFor="discount-code" className="field-label">
-        {t.title}
-      </label>
+      <Label htmlFor="discount-code">{t.title}</Label>
       <div className="mt-1 flex items-start gap-2">
-        <input
+        <Input
           id="discount-code"
           name="code"
           autoComplete="off"
           placeholder={t.placeholder}
           aria-invalid={state.field === "code" ? true : undefined}
           aria-label={t.label}
-          className={state.field === "code" ? "input input-error font-mono uppercase" : "input font-mono uppercase"}
+          className="font-mono uppercase"
         />
-        <SubmitButton className="btn-secondary shrink-0" pendingLabel={t.applying}>
+        <SubmitButton variant="outline" className="shrink-0" pendingLabel={t.applying}>
           {t.apply}
         </SubmitButton>
       </div>

@@ -9,6 +9,9 @@ import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
 import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import type { CampaignStatus } from "@/lib/types";
 import { ApprovalForm, CancelCampaignForm, PaymentForm } from "./CampaignForms";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 /** The tab title is the store's too, so it is resolved per catalogue. */
 export async function generateMetadata({
@@ -74,13 +77,13 @@ export default async function CampaignPage({
   if (!isBuyer && !isApprover) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
-        <div className="card p-6">
+        <Card className="block overflow-visible p-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.linkInvalidTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{t.gift.linkInvalidBody}</p>
-          <Link href={`/g/${slug}`} className="btn-secondary btn-sm mt-5 inline-flex">
+          <Link href={`/g/${slug}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-5 inline-flex")}>
             {t.gift.backToCatalogue}
           </Link>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -185,7 +188,7 @@ export default async function CampaignPage({
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="min-w-0">
           <h2 className="text-base font-semibold text-ink">{t.gift.recipientsTitle}</h2>
-          <div className="mt-3 card relative overflow-x-auto">
+          <Card className="relative mt-3 block overflow-x-auto">
             <table className="w-full min-w-[44rem] text-left text-sm">
               <thead className="bg-canvas text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
@@ -230,21 +233,23 @@ export default async function CampaignPage({
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+          </table>
+          </Card>
 
           <h2 className="mt-8 text-base font-semibold text-ink">{t.gift.historyTitle}</h2>
-          <ol className="mt-3 card divide-y divide-line p-5 text-sm">
-            {campaign.events.map((entry, index) => (
-              <li key={`${entry.at}-${index}`} className="py-2.5 first:pt-0 last:pb-0">
-                <p className="font-medium text-ink">{entry.status}</p>
-                <p className="text-inksoft">{entry.note}</p>
-                <p className="text-xs text-muted-foreground">
-                  {entry.actor} · {dateTime(entry.at)}
-                </p>
-              </li>
-            ))}
+          <Card asChild className="mt-3 block overflow-visible p-5 text-sm">
+          <ol className="divide-y divide-line">
+              {campaign.events.map((entry, index) => (
+                <li key={`${entry.at}-${index}`} className="py-2.5 first:pt-0 last:pb-0">
+                  <p className="font-medium text-ink">{entry.status}</p>
+                  <p className="text-inksoft">{entry.note}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {entry.actor} · {dateTime(entry.at)}
+                  </p>
+                </li>
+              ))}
           </ol>
+          </Card>
         </section>
 
         <aside className="space-y-6">
@@ -286,7 +291,7 @@ export default async function CampaignPage({
           </div>
 
           {isApprover && campaign.status === "awaiting_approval" ? (
-            <div className="card p-5">
+            <Card className="block overflow-visible p-5">
               <h2 className="text-base font-semibold text-ink">{t.gift.decisionFormTitle}</h2>
               <div className="mt-3">
                 <ApprovalForm
@@ -297,12 +302,12 @@ export default async function CampaignPage({
                   total={money(campaign.totals.total, campaign.currency)}
                   t={t.gift}
                 />
-              </div>
             </div>
+            </Card>
           ) : null}
 
           {payable ? (
-            <div className="card p-5">
+            <Card className="block overflow-visible p-5">
               <h2 className="text-base font-semibold text-ink">{t.gift.paymentTitle}</h2>
               <div className="mt-3">
                 <PaymentForm
@@ -314,8 +319,8 @@ export default async function CampaignPage({
                   t={t.gift}
                   card={t.checkout}
                 />
-              </div>
             </div>
+            </Card>
           ) : null}
 
           {isBuyer && (campaign.status === "awaiting_approval" || campaign.status === "approved") ? (

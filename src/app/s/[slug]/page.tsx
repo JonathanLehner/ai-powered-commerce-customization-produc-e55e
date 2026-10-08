@@ -7,6 +7,8 @@ import { getStoreBySlug, getStorefront, listPublishedProducts } from "@/lib/data
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { sectionsFromTree } from "@/lib/storefront-schema";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -78,8 +80,8 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
           {t.home.comingSoonBody}{" "}
           {products.length > 0 ? t.home.comingSoonWithProducts : t.home.comingSoonNoProducts}
         </p>
-        {products.length > 0 ? (
-          <Link href={`/s/${store.slug}/products`} className="btn-primary mt-6">
+        {products.length> 0 ? (
+          <Link href={`/s/${store.slug}/products`} className={cn(buttonVariants(), "mt-6")}>
             {fmt(t.home.browseProducts, { count: products.length })}
           </Link>
         ) : null}

@@ -517,7 +517,7 @@ export function Configurator({
                       </span>
                     );
                   })}
-                  <SubmitButton className="btn-primary w-full" pendingLabel="Saving placement…">
+                  <SubmitButton className="w-full" pendingLabel="Saving placement…">
                     {dirty ? "Save placement" : "Placement saved"}
                   </SubmitButton>
                 </form>
@@ -614,7 +614,7 @@ export function Configurator({
             beforeSubmit={renderMockups}
             submitLabel="Generate mockups"
             pendingLabel="Rendering previews…"
-            submitClassName="btn-iris w-full"
+            submitVariant="secondary" submitClassName="w-full"
             hidden={{ storeId: product.storeId, productId: product.id }}
             actionsClassName="px-(--card-spacing)"
           >

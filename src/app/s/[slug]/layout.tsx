@@ -10,6 +10,7 @@ import { fmt, storefrontLocale } from "@/lib/i18n";
 import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { THEMES } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 
 /**
  * A client storefront is white-labelled, so its tab titles, description and
@@ -36,6 +37,9 @@ export async function generateMetadata({
  * what browsers and screen readers announce, and it is the only place the store
  * language can be applied to the whole document.
  */
+/** The small uppercase heading above a footer column. */
+const SECTION_TITLE = "text-xs font-semibold tracking-wide text-muted-foreground uppercase";
+
 export default async function StorefrontLayout({
   children,
   params,
@@ -122,9 +126,9 @@ export default async function StorefrontLayout({
                     </option>
                   ))}
                 </select>
-                <button type="submit" className="btn-ghost btn-sm">
+                <Button type="submit" variant="ghost" size="sm">
                   {t.chrome.currencyApply}
-                </button>
+                </Button>
               </form>
               <Link
                 href={`/s/${store.slug}/cart`}
@@ -164,7 +168,7 @@ export default async function StorefrontLayout({
               </p>
             </div>
             <div>
-              <p className="section-title">{t.chrome.shop}</p>
+              <p className={SECTION_TITLE}>{t.chrome.shop}</p>
               <ul className="mt-2 space-y-1.5 text-sm text-inksoft">
                 <li>
                   <Link href={`/s/${store.slug}/products`} className="hover:underline">
@@ -184,7 +188,7 @@ export default async function StorefrontLayout({
               </ul>
             </div>
             <div>
-              <p className="section-title">{t.chrome.help}</p>
+              <p className={SECTION_TITLE}>{t.chrome.help}</p>
               {support.email || support.phone ? (
                 <ul className="mt-2 space-y-1.5 text-sm text-inksoft">
                   {support.email ? (
@@ -209,7 +213,7 @@ export default async function StorefrontLayout({
               )}
             </div>
             <div>
-              <p className="section-title">{t.chrome.delivery}</p>
+              <p className={SECTION_TITLE}>{t.chrome.delivery}</p>
               <p className="mt-2 text-sm text-muted-foreground">
                 {store.carriers
                   .filter((c) => c.enabled)

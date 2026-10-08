@@ -7,6 +7,9 @@ import { EmptyState } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 export async function generateMetadata({
   params,
@@ -46,7 +49,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
             title={t.basket.emptyTitle}
             description={t.basket.emptyBody}
             action={
-              <Link href={`/s/${store.slug}/products`} className="btn-primary">
+              <Link href={`/s/${store.slug}/products`} className={buttonVariants()}>
                 {t.basket.browseShop}
               </Link>
             }
@@ -90,25 +93,25 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                       <label htmlFor={`qty-${item.id}`} className="text-xs text-muted-foreground">
                         {t.basket.quantity}
                       </label>
-                      <input
+                      <Input
                         id={`qty-${item.id}`}
                         name="quantity"
                         type="number"
                         min={0}
                         max={50}
                         defaultValue={item.quantity}
-                        className="input mt-0 w-20 py-1 text-sm"
+                        className="w-20 py-1 text-sm"
                       />
-                      <button type="submit" className="btn-secondary btn-sm">
+                      <Button type="submit" variant="outline" size="sm">
                         {t.basket.update}
-                      </button>
+                      </Button>
                     </form>
                     <form action={removeCartItem}>
                       <input type="hidden" name="storeId" value={store.id} />
                       <input type="hidden" name="itemId" value={item.id} />
-                      <button type="submit" className="btn-ghost btn-sm text-rose-700">
+                      <Button type="submit" variant="ghost" size="sm" className="text-rose-700">
                         {t.basket.remove}
-                      </button>
+                      </Button>
                     </form>
                   </div>
                 </div>
@@ -162,10 +165,10 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
               }
               t={t.discount}
             />
-            <Link href={`/s/${store.slug}/checkout`} className="btn-primary mt-5 w-full">
+            <Link href={`/s/${store.slug}/checkout`} className={cn(buttonVariants(), "mt-5 w-full")}>
               {t.basket.checkout}
             </Link>
-            <Link href={`/s/${store.slug}/products`} className="btn-ghost mt-2 w-full">
+            <Link href={`/s/${store.slug}/products`} className={cn(buttonVariants({ variant: "ghost" }), "mt-2 w-full")}>
               {t.basket.keepShopping}
             </Link>
           </aside>

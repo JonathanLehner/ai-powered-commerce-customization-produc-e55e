@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { IMAGES } from "@/lib/images";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-static";
 
@@ -133,10 +136,10 @@ export default function LandingPage() {
               order routing that ends at a tracked parcel.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/login" className="btn-primary">
+              <Link href="/login" className={buttonVariants()}>
                 Open the workspace
               </Link>
-              <Link href="/how-it-works" className="btn-secondary">
+              <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
                 See how it works
               </Link>
             </div>
@@ -178,10 +181,10 @@ export default function LandingPage() {
         </h2>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {PILLARS.map((pillar) => (
-            <div key={pillar.title} className="card-pad">
+            <Card key={pillar.title} className="block overflow-visible p-5">
               <h3 className="text-base font-semibold text-ink">{pillar.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-inksoft">{pillar.body}</p>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
@@ -253,7 +256,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Link href="/how-it-works#gifting" className="btn-secondary">
+                <Link href="/how-it-works#gifting" className={buttonVariants({ variant: "outline" })}>
                   See the gifting walkthrough
                 </Link>
                 <Link href="/pricing" className="text-sm font-medium text-brand-700 hover:underline">
@@ -279,11 +282,13 @@ export default function LandingPage() {
 
           <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {GIFT_FLOW.map((item) => (
-              <li key={item.step} className="card p-5">
+              <Card asChild key={item.step} className="block overflow-visible p-5">
+              <li>
                 <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
                 <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
               </li>
+              </Card>
             ))}
           </ol>
         </div>
@@ -299,11 +304,13 @@ export default function LandingPage() {
         </p>
         <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {LIFECYCLE.map((item) => (
-            <li key={item.step} className="card p-5">
+            <Card asChild key={item.step} className="block overflow-visible p-5">
+            <li>
               <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
               <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </li>
+            </Card>
           ))}
         </ol>
       </section>
@@ -313,10 +320,10 @@ export default function LandingPage() {
           <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Common questions</h2>
           <dl className="mt-8 grid gap-5 md:grid-cols-2">
             {FAQ.map((item) => (
-              <div key={item.q} className="card-pad">
+              <Card key={item.q} className="block overflow-visible p-5">
                 <dt className="text-base font-semibold text-ink">{item.q}</dt>
                 <dd className="mt-2 text-sm leading-relaxed text-inksoft">{item.a}</dd>
-              </div>
+              </Card>
             ))}
           </dl>
         </div>
@@ -331,7 +338,7 @@ export default function LandingPage() {
             Four client stores, a shared supplier catalog, live artwork pre-flight and a full order queue are
             already populated. Sign in as an agency director, a catalog producer or the platform admin.
           </p>
-          <Link href="/login" className="btn-primary mt-7">
+          <Link href="/login" className={cn(buttonVariants(), "mt-7")}>
             Sign in to the demo
           </Link>
         </div>

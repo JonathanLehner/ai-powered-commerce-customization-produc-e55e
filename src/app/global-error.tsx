@@ -1,6 +1,7 @@
 "use client";
 
 import "@/app/globals.css";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
  * The last resort: a failure in one of the root layouts, before any header,
@@ -21,7 +22,7 @@ export default function GlobalError({
         <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Parcelith" width={28} height={32} style={{ width: "auto", height: 32 }} />
-          <p className="section-title mt-8">Error</p>
+          <p className="mt-8 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Error</p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
             Something went wrong at our end
           </h1>
@@ -30,12 +31,12 @@ export default function GlobalError({
             minutes.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-2.5">
-            <button type="button" onClick={unstable_retry} className="btn-primary">
+            <Button type="button" onClick={unstable_retry}>
               Try again
-            </button>
+            </Button>
             {/* A full page load, not a client navigation: the router itself is part of what failed. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a href="/" className="btn-secondary">
+            <a href="/" className={buttonVariants({ variant: "outline" })}>
               Go to Parcelith
             </a>
           </div>

@@ -2,7 +2,10 @@
 
 import { lookupOrder } from "@/app/actions/shop";
 import { ActionForm } from "@/components/forms";
+import { Card } from "@/components/ui/card";
 import type { StorefrontCopy } from "@/lib/i18n";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function OrderLookupForm({
   slug,
@@ -14,21 +17,21 @@ export function OrderLookupForm({
   t: StorefrontCopy["order"];
 }) {
   return (
+    <Card asChild className="mt-6 block overflow-visible p-5">
     <ActionForm
       action={lookupOrder}
       submitLabel={t.lookupSubmit}
       pendingLabel={t.lookupPending}
       hidden={{ slug }}
-      className="card mt-6 p-5"
     >
       {(state) => (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="code" className="field-label">
+              <Label htmlFor="code">
                 {t.orderCode}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="code"
                 name="code"
                 defaultValue={code}
@@ -36,30 +39,31 @@ export function OrderLookupForm({
                 required
                 aria-invalid={state.field === "code" ? true : undefined}
                 aria-describedby="code-hint"
-                className={state.field === "code" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
-              <p id="code-hint" className="field-hint">
+              <p id="code-hint" className="mt-1.5 text-xs text-muted-foreground">
                 {t.orderCodeHint}
               </p>
             </div>
             <div>
-              <label htmlFor="email" className="field-label">
+              <Label htmlFor="email">
                 {t.emailOnOrder}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
                 aria-invalid={state.field === "email" ? true : undefined}
-                className={state.field === "email" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
-              <p className="field-hint">{t.emailHint}</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{t.emailHint}</p>
             </div>
           </div>
         </>
       )}
     </ActionForm>
+    </Card>
   );
 }

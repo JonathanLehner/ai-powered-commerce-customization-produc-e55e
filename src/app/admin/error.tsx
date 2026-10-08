@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 
 /** A failure inside platform administration. */
 export default function AdminError({
@@ -23,12 +24,12 @@ export default function AdminError({
       }
       actions={
         <>
-          <button type="button" onClick={unstable_retry} className="btn-primary">
+          <Button type="button" onClick={unstable_retry}>
             Try again
-          </button>
-          <Link href="/admin" className="btn-secondary">
-            Platform overview
-          </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/admin">Platform overview</Link>
+          </Button>
         </>
       }
       note={error.digest ? `Reference ${error.digest}` : null}

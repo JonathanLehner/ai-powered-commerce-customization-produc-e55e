@@ -42,7 +42,7 @@ export function AcceptedQuoteAction({ storeId, request }: { storeId: string; req
   return (
     <form action={copyAcceptedQuote}>
       <EnquiryFields storeId={storeId} request={request} />
-      <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+      <SubmitButton size="sm" pendingLabel="Copying…">
         Copy into catalog
       </SubmitButton>
     </form>
@@ -63,7 +63,7 @@ export function AcceptQuoteButton({
   return (
     <form action={acceptQuote}>
       <EnquiryFields storeId={storeId} request={request} quote={quote} />
-      <SubmitButton className="btn-primary btn-sm" pendingLabel="Accepting…">
+      <SubmitButton size="sm" pendingLabel="Accepting…">
         Accept quote
       </SubmitButton>
     </form>
@@ -220,7 +220,7 @@ export function Enquiries({
   const open = requests.filter(isOpenEnquiry).length;
   return (
     <Card asChild className="scroll-mt-6">
-      <section id="enquiries">
+    <section id="enquiries">
         <CardHeader>
           <CardTitle asChild>
             <h2>Bulk sourcing enquiries</h2>
@@ -253,7 +253,7 @@ export function Enquiries({
             ))}
           </ul>
         </CardContent>
-      </section>
+    </section>
     </Card>
   );
 }

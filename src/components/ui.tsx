@@ -262,7 +262,7 @@ export function FallbackPanel({
 }) {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
-      <p className="section-title">{eyebrow}</p>
+      <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{eyebrow}</p>
       <h1 className="font-heading mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
         {title}
       </h1>

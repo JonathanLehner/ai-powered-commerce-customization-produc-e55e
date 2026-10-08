@@ -108,7 +108,7 @@ function ConfirmCopyAgain({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <form action={importCatalogProduct}>
           <CopyFields storeId={storeId} catalogId={catalogId} filters={filters} confirmed />
-          <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+          <SubmitButton size="sm" pendingLabel="Copying…">
             Copy again anyway
           </SubmitButton>
         </form>
@@ -292,7 +292,7 @@ export default async function SourcingPage({
       return (
         <form action={importCatalogProduct}>
           <CopyFields storeId={storeId} catalogId={c.id} filters={filterString} />
-          <SubmitButton className="btn-primary btn-sm" pendingLabel="Copying…">
+          <SubmitButton size="sm" pendingLabel="Copying…">
             Copy to store
           </SubmitButton>
         </form>

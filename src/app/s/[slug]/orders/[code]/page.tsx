@@ -11,6 +11,8 @@ import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import type { OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS } from "@/lib/util";
 import { OrderLookupForm } from "../OrderLookupForm";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -116,7 +118,7 @@ export default async function OrderStatusPage({
           href={order.fulfillment.trackingUrl ?? "#"}
           target="_blank"
           rel="noreferrer"
-          className="btn-primary mt-4"
+          className={cn(buttonVariants(), "mt-4")}
         >
           {fmt(t.order.trackWith, { carrier: CARRIER_LABELS[order.fulfillment.carrier] })}
         </a>
@@ -263,11 +265,11 @@ export default async function OrderStatusPage({
       </section>
 
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link href={`/s/${store.slug}/products`} className="btn-secondary">
+        <Link href={`/s/${store.slug}/products`} className={buttonVariants({ variant: "outline" })}>
           {t.order.continueShopping}
         </Link>
         {support.email ? (
-          <a href={supportMailto(support.email, contactSubject)} className="btn-ghost">
+          <a href={supportMailto(support.email, contactSubject)} className={buttonVariants({ variant: "ghost" })}>
             {t.order.contactStore}
           </a>
         ) : null}

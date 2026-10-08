@@ -7,6 +7,15 @@ import { UNDECIDED } from "@/lib/enquiry";
 import { PLANS } from "@/lib/plans";
 import type { ActionState } from "@/app/actions/stores";
 import { newId } from "@/lib/util";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 /**
  * The plans the pricing page links from, in the same order and under the same
@@ -45,19 +54,18 @@ function PlanSelect({ error }: { error: boolean }) {
   const [chosen, setChosen] = useState<string | null>(null);
 
   return (
-    <select
-      id="plan"
-      name="plan"
-      value={chosen ?? fromAddress}
-      onChange={(event) => setChosen(event.target.value)}
-      className={error ? "input input-error" : "input"}
-    >
-      {PLAN_OPTIONS.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+    <Select name="plan" value={chosen ?? fromAddress} onValueChange={setChosen}>
+      <SelectTrigger id="plan" className="mt-1.5 w-full" aria-invalid={error ? true : undefined}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {PLAN_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -94,28 +102,28 @@ export function ContactForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <SubmissionKey status={state.status} />
           <Field label="Your name" htmlFor="name" error={state.field === "name"}>
-            <input
+            <Input
               id="name"
               name="name"
               autoComplete="name"
-              className={state.field === "name" ? "input input-error" : "input"}
+              className="mt-1.5"
             />
           </Field>
           <Field label="Work email" htmlFor="email" error={state.field === "email"}>
-            <input
+            <Input
               id="email"
               name="email"
               type="email"
               autoComplete="email"
-              className={state.field === "email" ? "input input-error" : "input"}
+              className="mt-1.5"
             />
           </Field>
           <Field label="Agency or company" htmlFor="company" error={state.field === "company"}>
-            <input
+            <Input
               id="company"
               name="company"
               autoComplete="organization"
-              className={state.field === "company" ? "input input-error" : "input"}
+              className="mt-1.5"
             />
           </Field>
           <Field label="Which plan" htmlFor="plan" hint="You can change plan later; nothing is charged today.">
@@ -127,7 +135,7 @@ export function ContactForm() {
             className="sm:col-span-2"
             hint="How many client stores, which products, and whether you need corporate gifting programmes."
           >
-            <textarea id="message" name="message" rows={5} className="input" />
+            <Textarea id="message" name="message" rows={5} className="mt-1.5" />
           </Field>
           <label className="flex items-start gap-2.5 text-sm text-inksoft sm:col-span-2">
             <input type="checkbox" name="wantsCall" className="mt-0.5" />

@@ -56,7 +56,7 @@ function Step({
 }) {
   return (
     <Card asChild>
-      <section id={`step-${index}`}>
+    <section id={`step-${index}`}>
         <CardHeader>
           <CardTitle asChild>
             <h2 className="flex items-center gap-2">
@@ -79,7 +79,7 @@ function Step({
           </CardAction>
         </CardHeader>
         <CardContent>{children}</CardContent>
-      </section>
+    </section>
     </Card>
   );
 }
@@ -432,7 +432,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
           <input type="hidden" name="storeId" value={store.id} />
           <input type="hidden" name="customDomain" value={store.customDomain ?? ""} />
           <input type="hidden" name="intent" value="verify" />
-          <SubmitButton className="btn-secondary btn-sm" pendingLabel="Checking DNS…" disabled={!store.customDomain}>
+          <SubmitButton variant="outline" size="sm" pendingLabel="Checking DNS…" disabled={!store.customDomain}>
             Run verification
           </SubmitButton>
         </form>
@@ -458,7 +458,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
             <form action={disconnectStripe} className="mt-4">
               <input type="hidden" name="storeId" value={store.id} />
               <input type="hidden" name="intent" value="disconnect" />
-              <SubmitButton className="btn-danger btn-sm" pendingLabel="Disconnecting…">
+              <SubmitButton variant="destructive" size="sm" pendingLabel="Disconnecting…">
                 Disconnect Stripe
               </SubmitButton>
             </form>

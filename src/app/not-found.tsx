@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Document } from "@/components/Document";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { FallbackPanel } from "@/components/ui";
+import { buttonVariants } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Page not found · Parcelith",
@@ -35,13 +36,13 @@ export default function RootNotFound() {
             }
             actions={
               <>
-                <Link href="/" className="btn-primary">
+                <Link href="/" className={buttonVariants()}>
                   Back to the homepage
                 </Link>
-                <Link href="/how-it-works" className="btn-secondary">
+                <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
                   How it works
                 </Link>
-                <Link href="/login" className="btn-secondary">
+                <Link href="/login" className={buttonVariants({ variant: "outline" })}>
                   Sign in
                 </Link>
               </>

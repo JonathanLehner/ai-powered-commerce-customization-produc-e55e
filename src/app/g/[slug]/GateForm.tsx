@@ -3,6 +3,8 @@
 import { unlockGiftCatalogue } from "@/app/actions/gifting";
 import { ActionForm } from "@/components/forms";
 import type { StorefrontCopy } from "@/lib/i18n";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 /** Invite-gated catalogues let somebody in on their work email, nothing else. */
 export function GateForm({ slug, t }: { slug: string; t: StorefrontCopy["gift"] }) {
@@ -15,10 +17,10 @@ export function GateForm({ slug, t }: { slug: string; t: StorefrontCopy["gift"] 
     >
       {(state) => (
         <div>
-          <label htmlFor="email" className="field-label">
+          <Label htmlFor="email">
             {t.gateEmail}
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             name="email"
             type="email"
@@ -26,9 +28,9 @@ export function GateForm({ slug, t }: { slug: string; t: StorefrontCopy["gift"] 
             required
             aria-invalid={state.field === "email" ? true : undefined}
             aria-describedby="email-hint"
-            className={state.field === "email" ? "input input-error" : "input"}
+            className="mt-1.5"
           />
-          <p id="email-hint" className="field-hint">
+          <p id="email-hint" className="mt-1.5 text-xs text-muted-foreground">
             {t.gateEmailHint}
           </p>
         </div>

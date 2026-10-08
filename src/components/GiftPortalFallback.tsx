@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createContext, useContext, type ReactNode } from "react";
 import { FallbackPanel } from "@/components/ui";
 import { fmt, type StorefrontCopy } from "@/lib/i18n";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
  * What a gift portal's not-found and error boundaries need to know about the
@@ -50,7 +51,7 @@ export function GiftPortalNotFound() {
           </p>
         }
         actions={
-          <Link href="/" className="btn-primary">
+          <Link href="/" className={buttonVariants()}>
             Go to Parcelith
           </Link>
         }
@@ -65,7 +66,7 @@ export function GiftPortalNotFound() {
       title={t.notFoundTitle}
       description={<p>{t.notFoundBoundaryBody}</p>}
       actions={
-        <Link href={`/g/${slug}`} className="btn-primary">
+        <Link href={`/g/${slug}`} className={buttonVariants()}>
           {t.backToCatalogue}
         </Link>
       }
@@ -90,10 +91,10 @@ export function GiftPortalError({ digest, retry }: { digest?: string; retry: () 
         }
         actions={
           <>
-            <button type="button" onClick={retry} className="btn-primary">
+            <Button type="button" onClick={retry}>
               Try again
-            </button>
-            <Link href="/" className="btn-secondary">
+            </Button>
+            <Link href="/" className={buttonVariants({ variant: "outline" })}>
               Go to Parcelith
             </Link>
           </>
@@ -111,10 +112,10 @@ export function GiftPortalError({ digest, retry }: { digest?: string; retry: () 
       description={<p>{t.errorBody}</p>}
       actions={
         <>
-          <button type="button" onClick={retry} className="btn-primary">
+          <Button type="button" onClick={retry}>
             {t.errorRetry}
-          </button>
-          <Link href={`/g/${slug}`} className="btn-secondary">
+          </Button>
+          <Link href={`/g/${slug}`} className={buttonVariants({ variant: "outline" })}>
             {t.backToCatalogue}
           </Link>
         </>

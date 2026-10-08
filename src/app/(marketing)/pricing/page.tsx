@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui";
 import { PLANS, planAuditLabel, planStoreLabel } from "@/lib/plans";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-static";
 
@@ -120,12 +123,12 @@ export default function PricingPage() {
       <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-5 lg:grid-cols-3">
           {PLAN_CARDS.map((plan) => (
-            <div
+            <Card
               key={plan.name}
               className={
                 plan.highlighted
-                  ? "card relative p-6 ring-2 ring-brand-500"
-                  : "card p-6"
+                  ? "relative block overflow-visible p-6 ring-2 ring-brand-500"
+                  : "block overflow-visible p-6"
               }
             >
               {plan.highlighted ? (
@@ -149,11 +152,14 @@ export default function PricingPage() {
               </ul>
               <Link
                 href={plan.href}
-                className={plan.highlighted ? "btn-primary mt-7 w-full" : "btn-secondary mt-7 w-full"}
+                className={cn(
+                  buttonVariants({ variant: plan.highlighted ? "default" : "outline" }),
+                  "mt-7 w-full",
+                )}
               >
                 {plan.cta}
               </Link>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
@@ -171,7 +177,7 @@ export default function PricingPage() {
             the plan decides is how many client stores can be running one at a time.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-4">
-            <Link href="/how-it-works#gifting" className="btn-secondary btn-sm">
+            <Link href="/how-it-works#gifting" className={buttonVariants({ variant: "outline", size: "sm" })}>
               How gifting works
             </Link>
             <Link href="/contact?plan=scale" className="text-sm font-medium text-brand-700 hover:underline">
@@ -184,10 +190,10 @@ export default function PricingPage() {
       <section className="border-t border-line bg-canvas">
         <div className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-14 sm:px-6 md:grid-cols-3">
           {INCLUDED.map((item) => (
-            <div key={item.title} className="card-pad">
+            <Card key={item.title} className="block overflow-visible p-5">
               <h2 className="text-base font-semibold text-ink">{item.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-inksoft">{item.body}</p>
-            </div>
+            </Card>
           ))}
         </div>
       </section>

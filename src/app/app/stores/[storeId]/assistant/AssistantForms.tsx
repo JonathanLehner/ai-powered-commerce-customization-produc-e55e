@@ -65,7 +65,7 @@ export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: s
         action={requestProductIdeas}
         submitLabel="Draft product ideas"
         pendingLabel="Drafting…"
-        submitClassName="btn-iris"
+        submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -87,7 +87,7 @@ export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: s
             </p>
           </div>
         </Panel>
-      </ActionForm>
+    </ActionForm>
     </Card>
   );
 }
@@ -106,7 +106,7 @@ export function CopyForm({
         action={requestCopy}
         submitLabel="Draft description and tags"
         pendingLabel="Writing…"
-        submitClassName="btn-iris"
+        submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -118,7 +118,7 @@ export function CopyForm({
             <ProductPicker id="copy-product" options={products} invalid={state.field === "productId"} />
           </Panel>
         )}
-      </ActionForm>
+    </ActionForm>
     </Card>
   );
 }
@@ -137,7 +137,7 @@ export function PriceForm({
         action={requestPrice}
         submitLabel="Draft a price"
         pendingLabel="Calculating…"
-        submitClassName="btn-iris"
+        submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -149,7 +149,7 @@ export function PriceForm({
             <ProductPicker id="price-product" options={products} invalid={state.field === "productId"} />
           </Panel>
         )}
-      </ActionForm>
+    </ActionForm>
     </Card>
   );
 }
@@ -167,7 +167,7 @@ export function SupplierForm({
         action={requestSupplier}
         submitLabel="Recommend a partner"
         pendingLabel="Comparing suppliers…"
-        submitClassName="btn-iris"
+        submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -214,7 +214,7 @@ export function SupplierForm({
             </div>
           </Panel>
         )}
-      </ActionForm>
+    </ActionForm>
     </Card>
   );
 }

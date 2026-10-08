@@ -2,6 +2,8 @@ import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
 import { DEFAULT_LANGUAGE, fmt, storefrontLocale } from "@/lib/i18n";
 import { THEMES, type Store } from "@/lib/types";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /**
  * The bodies of every "we cannot find that" page, as server components.
@@ -35,15 +37,15 @@ export function StorefrontNotFoundView({ store }: { store: Store }) {
         <>
           <Link
             href={`/s/${store.slug}/products`}
-            className="btn text-white"
+            className={cn(buttonVariants(), "text-white")}
             style={{ background: accent }}
           >
             {t.fallback.browseProducts}
           </Link>
-          <Link href={`/s/${store.slug}/cart`} className="btn-secondary">
+          <Link href={`/s/${store.slug}/cart`} className={buttonVariants({ variant: "outline" })}>
             {t.basket.title}
           </Link>
-          <Link href={`/s/${store.slug}/orders`} className="btn-secondary">
+          <Link href={`/s/${store.slug}/orders`} className={buttonVariants({ variant: "outline" })}>
             {t.chrome.orderStatus}
           </Link>
         </>
@@ -80,10 +82,10 @@ export function UnknownStoreView({ slug }: { slug: string }) {
       }
       actions={
         <>
-          <Link href="/" className="btn-primary">
+          <Link href="/" className={buttonVariants()}>
             Go to Parcelith
           </Link>
-          <Link href="/how-it-works" className="btn-secondary">
+          <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
             How Parcelith works
           </Link>
         </>
@@ -112,7 +114,7 @@ export function GiftPortalNotFoundView({
       title={t.gift.notFoundTitle}
       description={<p>{t.gift.notFoundBody}</p>}
       actions={
-        <Link href={`/g/${catalogue.slug}`} className="btn-primary">
+        <Link href={`/g/${catalogue.slug}`} className={buttonVariants()}>
           {t.gift.backToCatalogue}
         </Link>
       }
@@ -140,7 +142,7 @@ export function UnknownGiftPortalView({ slug }: { slug: string }) {
         </>
       }
       actions={
-        <Link href="/" className="btn-primary">
+        <Link href="/" className={buttonVariants()}>
           Go to Parcelith
         </Link>
       }
@@ -162,10 +164,10 @@ export function WorkspaceNotFoundView() {
       }
       actions={
         <>
-          <Link href="/app" className="btn-primary">
+          <Link href="/app" className={buttonVariants()}>
             Go to the dashboard
           </Link>
-          <Link href="/app/stores/new" className="btn-secondary">
+          <Link href="/app/stores/new" className={buttonVariants({ variant: "outline" })}>
             Create a client store
           </Link>
         </>
@@ -188,10 +190,10 @@ export function StoreWorkspaceNotFoundView({ base }: { base: string }) {
       }
       actions={
         <>
-          <Link href={base} className="btn-primary">
+          <Link href={base} className={buttonVariants()}>
             Back to the store
           </Link>
-          <Link href="/app" className="btn-secondary">
+          <Link href="/app" className={buttonVariants({ variant: "outline" })}>
             Go to the dashboard
           </Link>
         </>
@@ -214,10 +216,10 @@ export function AdminNotFoundView() {
       }
       actions={
         <>
-          <Link href="/admin" className="btn-primary">
+          <Link href="/admin" className={buttonVariants()}>
             Platform overview
           </Link>
-          <Link href="/app" className="btn-secondary">
+          <Link href="/app" className={buttonVariants({ variant: "outline" })}>
             Agency workspace
           </Link>
         </>

@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { FallbackPanel } from "@/components/ui";
 import { fmt, type StorefrontCopy } from "@/lib/i18n";
 import { createContext, useContext, type ReactNode } from "react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /**
  * What a storefront's not-found and error boundaries need to know about the shop
@@ -65,10 +67,10 @@ function NoSuchStore() {
       }
       actions={
         <>
-          <Link href="/" className="btn-primary">
+          <Link href="/" className={buttonVariants()}>
             Go to Parcelith
           </Link>
-          <Link href="/how-it-works" className="btn-secondary">
+          <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
             How Parcelith works
           </Link>
         </>
@@ -90,13 +92,13 @@ export function StorefrontNotFound() {
       description={<p>{fmt(t.notFoundBody, { store: storeName })}</p>}
       actions={
         <>
-          <Link href={`/s/${slug}/products`} className="btn text-white" style={{ background: accent }}>
+          <Link href={`/s/${slug}/products`} className={cn(buttonVariants(), "text-white")} style={{ background: accent }}>
             {t.browseProducts}
           </Link>
-          <Link href={`/s/${slug}/cart`} className="btn-secondary">
+          <Link href={`/s/${slug}/cart`} className={buttonVariants({ variant: "outline" })}>
             {basketLabel}
           </Link>
-          <Link href={`/s/${slug}/orders`} className="btn-secondary">
+          <Link href={`/s/${slug}/orders`} className={buttonVariants({ variant: "outline" })}>
             {orderStatusLabel}
           </Link>
         </>
@@ -117,10 +119,10 @@ export function StorefrontError({ digest, retry }: { digest?: string; retry: () 
         description={<p>This page could not be loaded. Try again, or come back in a few minutes.</p>}
         actions={
           <>
-            <button type="button" onClick={retry} className="btn-primary">
+            <Button type="button" onClick={retry}>
               Try again
-            </button>
-            <Link href="/" className="btn-secondary">
+            </Button>
+            <Link href="/" className={buttonVariants({ variant: "outline" })}>
               Go to Parcelith
             </Link>
           </>
@@ -138,10 +140,10 @@ export function StorefrontError({ digest, retry }: { digest?: string; retry: () 
       description={<p>{t.errorBody}</p>}
       actions={
         <>
-          <button type="button" onClick={retry} className="btn text-white" style={{ background: accent }}>
+          <Button type="button" onClick={retry} className="text-white" style={{ background: accent }}>
             {t.errorRetry}
-          </button>
-          <Link href={`/s/${slug}`} className="btn-secondary">
+          </Button>
+          <Link href={`/s/${slug}`} className={buttonVariants({ variant: "outline" })}>
             {fmt(t.errorHome, { store: storeName })}
           </Link>
         </>

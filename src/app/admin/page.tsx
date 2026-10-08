@@ -1,5 +1,15 @@
 import Link from "next/link";
 import { Badge, PageHeader, StatCard } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   listAgencies,
   listAllStores,
@@ -11,6 +21,9 @@ import {
 } from "@/lib/data";
 import { planEnquiryLabel, UNDECIDED } from "@/lib/enquiry";
 import { formatDateTime } from "@/lib/util";
+
+/** The column-head style every table in the workspace shares. */
+const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
 
 export default async function AdminOverviewPage() {
   const [agencies, stores, suppliers, catalog, brackets, audit, enquiries] = await Promise.all([
@@ -45,124 +58,163 @@ export default async function AdminOverviewPage() {
         <StatCard label="Catalog products" value={String(catalog.length)} sub={`${brackets.length} tax brackets`} />
       </div>
 
-      {pendingSuppliers.length > 0 ? (
-        <section className="card p-5">
-          <h2 className="text-base font-semibold text-ink">Suppliers awaiting review</h2>
-          <ul className="mt-3 divide-y divide-line">
-            {pendingSuppliers.map((supplier) => (
-              <li key={supplier.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink">{supplier.name}</p>
-                  <p className="text-xs text-muted-foreground">{supplier.summary}</p>
-                </div>
-                <Link href="/admin/suppliers" className="btn-secondary btn-sm">
-                  Review
-                </Link>
-              </li>
-            ))}
-          </ul>
+      {pendingSuppliers.length> 0 ? (
+        <Card asChild>
+        <section>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Suppliers awaiting review</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="divide-y divide-border">
+                {pendingSuppliers.map((supplier) => (
+                  <li key={supplier.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{supplier.name}</p>
+                      <p className="text-xs text-muted-foreground">{supplier.summary}</p>
+                    </div>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/admin/suppliers">Review</Link>
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
         </section>
+        </Card>
       ) : null}
 
-      <section className="card p-5">
-        <h2 className="text-base font-semibold text-ink">Stores across the platform</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Platform administrators can see that a store exists and who operates it. Order and customer records
-          stay with the store team.
-        </p>
-        <div className="mt-4 relative overflow-x-auto">
-          <table className="w-full min-w-[42rem] text-left text-sm">
-            <thead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th scope="col" className="py-2 pr-3">Store</th>
-                <th scope="col" className="py-2 pr-3">Agency</th>
-                <th scope="col" className="py-2 pr-3">Currencies</th>
-                <th scope="col" className="py-2 pr-3">Payments</th>
-                <th scope="col" className="py-2 pr-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {stores.map((store) => (
-                <tr key={store.id}>
-                  <td className="py-2.5 pr-3">
-                    <Link href={`/app/stores/${store.id}`} className="font-medium text-ink hover:underline">
-                      {store.name}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{store.clientName}</p>
-                  </td>
-                  <td className="py-2.5 pr-3 text-inksoft">
-                    {agencies.find((a) => a.id === store.agencyId)?.name ?? "—"}
-                  </td>
-                  <td className="py-2.5 pr-3 text-inksoft">{store.currencies.join(", ")}</td>
-                  <td className="py-2.5 pr-3">
-                    <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                      {store.stripe.connected ? "Stripe connected" : "Not connected"}
-                    </Badge>
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <Badge tone={store.status === "active" ? "green" : "slate"}>{store.status}</Badge>
-                  </td>
-                </tr>
+      <Card asChild>
+      <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Stores across the platform</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Platform administrators can see that a store exists and who operates it. Order and customer
+              records stay with the store team.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="relative overflow-x-auto">
+              <Table className="min-w-[42rem]">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className={TH}>Store</TableHead>
+                    <TableHead className={TH}>Agency</TableHead>
+                    <TableHead className={TH}>Currencies</TableHead>
+                    <TableHead className={TH}>Payments</TableHead>
+                    <TableHead className={TH}>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stores.map((store) => (
+                    <TableRow key={store.id} className="hover:bg-transparent">
+                      <TableCell className="px-0 py-3 align-top whitespace-normal">
+                        <Link
+                          href={`/app/stores/${store.id}`}
+                          className="font-medium text-foreground hover:underline"
+                        >
+                          {store.name}
+                        </Link>
+                        <p className="text-xs text-muted-foreground">{store.clientName}</p>
+                      </TableCell>
+                      <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
+                        {agencies.find((a) => a.id === store.agencyId)?.name ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
+                        {store.currencies.join(", ")}
+                      </TableCell>
+                      <TableCell className="px-0 py-3 align-top whitespace-normal">
+                        <Badge tone={store.stripe.connected ? "green" : "amber"}>
+                          {store.stripe.connected ? "Stripe connected" : "Not connected"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="px-0 py-3 align-top whitespace-normal">
+                        <Badge tone={store.status === "active" ? "green" : "slate"}>{store.status}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+      </section>
+      </Card>
+
+      {enquiries.length> 0 ? (
+        <Card asChild>
+        <section>
+            <CardHeader>
+              <CardTitle asChild>
+                <h2>Plan enquiries</h2>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Left on the public pricing page. Nothing here creates an agency or a login — someone has to
+                reply and open the workspace.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ul className="divide-y divide-border">
+                {enquiries.map((enquiry) => (
+                  <li key={enquiry.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">
+                        {enquiry.company} · {enquiry.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <a href={`mailto:${enquiry.email}`} className="hover:underline">
+                          {enquiry.email}
+                        </a>
+                        {enquiry.wantsCall ? " · asked for a call" : null}
+                      </p>
+                      {enquiry.message ? (
+                        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{enquiry.message}</p>
+                      ) : null}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge tone={enquiry.plan === UNDECIDED ? "slate" : "brand"}>
+                        {planEnquiryLabel(enquiry.plan)}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateTime(enquiry.createdAt)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+        </section>
+        </Card>
+      ) : null}
+
+      <Card asChild>
+      <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>Recent platform activity</h2>
+            </CardTitle>
+            <CardAction>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/admin/audit">Full audit log</Link>
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <ol className="divide-y divide-border text-sm">
+              {audit.map((entry) => (
+                <li key={entry.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
+                  <span className="text-foreground">{entry.summary}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {entry.actorName} · {formatDateTime(entry.at)}
+                  </span>
+                </li>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </ol>
+          </CardContent>
       </section>
-
-      {enquiries.length > 0 ? (
-        <section className="card p-5">
-          <h2 className="text-base font-semibold text-ink">Plan enquiries</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Left on the public pricing page. Nothing here creates an agency or a login — someone has to reply
-            and open the workspace.
-          </p>
-          <ul className="mt-3 divide-y divide-line">
-            {enquiries.map((enquiry) => (
-              <li key={enquiry.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink">
-                    {enquiry.company} · {enquiry.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    <a href={`mailto:${enquiry.email}`} className="hover:underline">
-                      {enquiry.email}
-                    </a>
-                    {enquiry.wantsCall ? " · asked for a call" : null}
-                  </p>
-                  {enquiry.message ? (
-                    <p className="mt-1 max-w-2xl text-sm text-inksoft">{enquiry.message}</p>
-                  ) : null}
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <Badge tone={enquiry.plan === UNDECIDED ? "slate" : "brand"}>
-                    {planEnquiryLabel(enquiry.plan)}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">{formatDateTime(enquiry.createdAt)}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <section className="card p-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-ink">Recent platform activity</h2>
-          <Link href="/admin/audit" className="text-sm font-medium text-brand-700 hover:underline">
-            Full audit log
-          </Link>
-        </div>
-        <ol className="mt-3 divide-y divide-line text-sm">
-          {audit.map((entry) => (
-            <li key={entry.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
-              <span className="text-ink">{entry.summary}</span>
-              <span className="text-xs text-muted-foreground">
-                {entry.actorName} · {formatDateTime(entry.at)}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
+      </Card>
     </div>
   );
 }

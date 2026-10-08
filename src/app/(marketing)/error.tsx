@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 /** An unexpected failure on the public site. */
 export default function MarketingError({
@@ -23,10 +24,10 @@ export default function MarketingError({
       }
       actions={
         <>
-          <button type="button" onClick={unstable_retry} className="btn-primary">
+          <Button type="button" onClick={unstable_retry}>
             Try again
-          </button>
-          <Link href="/" className="btn-secondary">
+          </Button>
+          <Link href="/" className={buttonVariants({ variant: "outline" })}>
             Back to the homepage
           </Link>
         </>

@@ -91,7 +91,7 @@ export default async function GiftCataloguePage({
                   name="status"
                   value={catalogue.status === "active" ? "paused" : "active"}
                 />
-                <SubmitButton className="btn-secondary btn-sm" pendingLabel="Saving…">
+                <SubmitButton variant="outline" size="sm" pendingLabel="Saving…">
                   {catalogue.status === "active" ? "Pause catalogue" : "Reopen catalogue"}
                 </SubmitButton>
               </form>
@@ -141,7 +141,7 @@ export default async function GiftCataloguePage({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card asChild>
-          <section>
+        <section>
             <CardHeader>
               <CardTitle asChild>
                 <h2>Programme rules</h2>
@@ -154,11 +154,11 @@ export default async function GiftCataloguePage({
             <CardContent>
               <CatalogueDetailsForm catalogue={catalogue} />
             </CardContent>
-          </section>
+        </section>
         </Card>
 
         <Card asChild>
-          <section>
+        <section>
             <CardHeader>
               <CardTitle asChild>
                 <h2>Access</h2>
@@ -171,12 +171,12 @@ export default async function GiftCataloguePage({
             <CardContent>
               <CatalogueAccessForm catalogue={catalogue} />
             </CardContent>
-          </section>
+        </section>
         </Card>
       </div>
 
       <Card asChild>
-        <section>
+      <section>
           <CardHeader>
             <CardTitle asChild>
               <h2>Products in the catalogue</h2>
@@ -189,7 +189,7 @@ export default async function GiftCataloguePage({
           <CardContent>
             <CatalogueProductsForm catalogue={catalogue} products={published} />
           </CardContent>
-        </section>
+      </section>
       </Card>
 
       <section className="space-y-4">

@@ -4,6 +4,8 @@ import { signOut } from "@/app/actions/auth";
 import { Document, siteMetadata } from "@/components/Document";
 import { StoreNav } from "@/components/StoreNav";
 import { Badge, Logo } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { requirePlatformAdmin } from "@/lib/session";
 
 const NAV = [
@@ -24,25 +26,28 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <Document>
-      <div data-surface="workspace" className="flex min-h-full flex-col bg-canvas">
-        <header className="sticky top-0 z-40 border-b border-line bg-white">
-          <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-3 px-4 sm:px-6">
-            <Link href="/admin" aria-label="Parcelith platform administration">
+      <div data-surface="workspace" className="flex min-h-full flex-col bg-muted">
+        <header className="sticky top-0 z-40 border-b border-border bg-background">
+          <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-2 px-4 sm:gap-3 sm:px-6">
+            <Link href="/admin" className="shrink-0" aria-label="Parcelith platform administration">
               <Logo size={26} />
             </Link>
+            <Separator orientation="vertical" className="hidden h-5! sm:block" />
             <span className="hidden sm:inline-flex">
               <Badge tone="green">Platform administration</Badge>
             </span>
             <div className="ml-auto flex items-center gap-1 sm:gap-2">
-              <Link href="/app" className="rounded-lg px-2 py-1.5 text-sm font-medium text-inksoft hover:bg-canvas sm:px-3">
-                <span className="sm:hidden">Workspace</span>
-                <span className="hidden sm:inline">Agency workspace</span>
-              </Link>
+              <Button asChild variant="ghost">
+                <Link href="/app">
+                  <span className="sm:hidden">Workspace</span>
+                  <span className="hidden sm:inline">Agency workspace</span>
+                </Link>
+              </Button>
               <span className="hidden text-sm text-muted-foreground sm:block">{user.name}</span>
               <form action={signOut}>
-                <button type="submit" className="btn-secondary btn-sm">
+                <Button type="submit" variant="outline" size="sm">
                   Sign out
-                </button>
+                </Button>
               </form>
             </div>
           </div>

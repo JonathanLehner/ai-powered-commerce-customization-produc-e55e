@@ -5,6 +5,7 @@ import { placeOrder } from "@/app/actions/shop";
 import { CountrySelect } from "@/components/CountrySelect";
 import { ActionForm } from "@/components/forms";
 import { Callout } from "@/components/ui";
+import { Card } from "@/components/ui/card";
 import {
   isCountryCode,
   localCountryName,
@@ -14,6 +15,15 @@ import {
 } from "@/lib/countries";
 import { fmt, fmtAround, joinList, type StorefrontCopy } from "@/lib/i18n";
 import { TEST_CARDS } from "@/lib/stripe";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /** Stripe's published test numbers, labelled in the storefront's language. */
 const TEST_CARD_LABELS: Record<string, keyof StorefrontCopy["checkout"]> = {
@@ -53,35 +63,35 @@ export function CheckoutForm({
   const [payBefore, payAfter] = fmtAround(t.paymentNote, "account");
 
   return (
+    <Card asChild className="block overflow-visible p-5">
     <ActionForm
       action={placeOrder}
       submitLabel={t.submit}
       pendingLabel={t.pending}
       hidden={{ storeId, idempotencyKey }}
-      className="card p-5"
     >
       {(state) => (
         <>
           <h2 className="text-base font-semibold text-ink">{t.deliveryDetails}</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="name" className="field-label">
+              <Label htmlFor="name">
                 {t.fullName}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="name"
                 name="name"
                 autoComplete="name"
                 required
                 aria-invalid={state.field === "name" ? true : undefined}
-                className={state.field === "name" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="email" className="field-label">
+              <Label htmlFor="email">
                 {t.email}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
@@ -89,55 +99,55 @@ export function CheckoutForm({
                 required
                 aria-invalid={state.field === "email" ? true : undefined}
                 aria-describedby="email-hint"
-                className={state.field === "email" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
-              <p id="email-hint" className="field-hint">
+              <p id="email-hint" className="mt-1.5 text-xs text-muted-foreground">
                 {t.emailHint}
               </p>
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="line1" className="field-label">
+              <Label htmlFor="line1">
                 {t.street}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="line1"
                 name="line1"
                 autoComplete="address-line1"
                 required
                 aria-invalid={state.field === "line1" ? true : undefined}
-                className={state.field === "line1" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="city" className="field-label">
+              <Label htmlFor="city">
                 {t.city}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="city"
                 name="city"
                 autoComplete="address-level2"
                 required
                 aria-invalid={state.field === "city" ? true : undefined}
-                className={state.field === "city" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="postalCode" className="field-label">
+              <Label htmlFor="postalCode">
                 {t.postalCode}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="postalCode"
                 name="postalCode"
                 autoComplete="postal-code"
                 required
                 aria-invalid={state.field === "postalCode" ? true : undefined}
-                className={state.field === "postalCode" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="country" className="field-label">
+              <Label htmlFor="country">
                 {t.country}
-              </label>
+              </Label>
               <CountrySelect
                 id="country"
                 name="country"
@@ -150,27 +160,30 @@ export function CheckoutForm({
                 searchPlaceholder={t.countrySearchPlaceholder}
                 noMatch={t.countryNoMatch}
               />
-              <p id="country-hint" className="field-hint">
+              <p id="country-hint" className="mt-1.5 text-xs text-muted-foreground">
                 {t.countryHint}
               </p>
             </div>
             <div>
-              <label htmlFor="currency" className="field-label">
+              <Label htmlFor="currency">
                 {t.payIn}
-              </label>
-              <select
-                id="currency"
-                name="currency"
-                defaultValue={currency}
-                aria-invalid={state.field === "currency" ? true : undefined}
-                className={state.field === "currency" ? "input input-error" : "input"}
-              >
-                {currencies.map((code) => (
-                  <option key={code} value={code}>
-                    {code}
-                  </option>
-                ))}
-              </select>
+              </Label>
+              <Select name="currency" defaultValue={currency}>
+                <SelectTrigger
+                  id="currency"
+                  className="mt-1.5 w-full"
+                  aria-invalid={state.field === "currency" ? true : undefined}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {unfulfilled.length > 0 ? (
@@ -202,10 +215,10 @@ export function CheckoutForm({
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="cardNumber" className="field-label">
+              <Label htmlFor="cardNumber">
                 {t.cardNumber}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="cardNumber"
                 name="cardNumber"
                 inputMode="numeric"
@@ -213,28 +226,28 @@ export function CheckoutForm({
                 placeholder="4242 4242 4242 4242"
                 required
                 aria-invalid={state.field === "cardNumber" ? true : undefined}
-                className={state.field === "cardNumber" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="expiry" className="field-label">
+              <Label htmlFor="expiry">
                 {t.expiry}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="expiry"
                 name="expiry"
                 autoComplete="cc-exp"
                 placeholder="04/29"
                 required
                 aria-invalid={state.field === "expiry" ? true : undefined}
-                className={state.field === "expiry" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="cvc" className="field-label">
+              <Label htmlFor="cvc">
                 {t.securityCode}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="cvc"
                 name="cvc"
                 inputMode="numeric"
@@ -242,7 +255,7 @@ export function CheckoutForm({
                 placeholder="123"
                 required
                 aria-invalid={state.field === "cvc" ? true : undefined}
-                className={state.field === "cvc" ? "input input-error" : "input"}
+                className="mt-1.5"
               />
             </div>
           </div>
@@ -261,5 +274,6 @@ export function CheckoutForm({
         </>
       )}
     </ActionForm>
+    </Card>
   );
 }

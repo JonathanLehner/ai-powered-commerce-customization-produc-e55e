@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Input } from "@/components/ui/input";
 import { localCountryName, matchCountry, searchCountries } from "@/lib/countries";
 import { fmt } from "@/lib/i18n";
 import { classNames } from "@/lib/util";
@@ -110,7 +111,7 @@ export function CountrySelect({
   return (
     <div className="relative">
       <input type="hidden" name={name} value={value} />
-      <input
+      <Input
         id={id}
         type="text"
         role="combobox"
@@ -133,7 +134,7 @@ export function CountrySelect({
         onClick={() => setOpen(true)}
         onBlur={commit}
         onKeyDown={onKeyDown}
-        className={classNames("input pr-9", invalid && "input-error")}
+        className="mt-1.5 pr-9"
       />
       <span aria-hidden className="pointer-events-none absolute top-1/2 right-3 mt-0.5 -translate-y-1/2 text-muted-foreground">
         ▾
@@ -145,7 +146,7 @@ export function CountrySelect({
           ref={listRef}
           role="listbox"
           aria-label={label ?? "Country"}
-          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-line bg-white py-1 shadow-lg"
+          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-popover py-1 shadow-lg"
         >
           {matches.length === 0 ? (
             <li className="px-3 py-2 text-sm text-muted-foreground">

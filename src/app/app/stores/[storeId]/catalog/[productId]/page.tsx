@@ -146,7 +146,7 @@ export default async function ProductEditorPage({
 
       {/* ------------------------------------------------------ publishing */}
       <Card asChild>
-        <section>
+      <section>
           <CardHeader>
             <CardTitle asChild>
               <h2>Publication</h2>
@@ -165,7 +165,7 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="published" />
-                  <SubmitButton className="btn-primary" pendingLabel="Publishing…" disabled={blockers.length > 0}>
+                  <SubmitButton pendingLabel="Publishing…" disabled={blockers.length> 0}>
                     Publish to storefront
                   </SubmitButton>
                 </form>
@@ -174,7 +174,7 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="in_review" />
-                  <SubmitButton className="btn-secondary" pendingLabel="Unpublishing…">
+                  <SubmitButton variant="outline" pendingLabel="Unpublishing…">
                     Unpublish
                   </SubmitButton>
                 </form>
@@ -184,7 +184,7 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="archived" />
-                  <SubmitButton className="btn-ghost" pendingLabel="Archiving…">
+                  <SubmitButton variant="ghost" pendingLabel="Archiving…">
                     Archive
                   </SubmitButton>
                 </form>
@@ -193,7 +193,7 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="draft" />
-                  <SubmitButton className="btn-secondary" pendingLabel="Restoring…">
+                  <SubmitButton variant="outline" pendingLabel="Restoring…">
                     Restore to draft
                   </SubmitButton>
                 </form>
@@ -223,12 +223,12 @@ export default async function ProductEditorPage({
               ) : null}
             </CardContent>
           ) : null}
-        </section>
+      </section>
       </Card>
 
       {/* ---------------------------------------------------- configurator */}
       <Card asChild>
-        <section>
+      <section>
           <CardHeader>
             <CardTitle asChild>
               <h2>Artwork and print areas</h2>
@@ -248,12 +248,12 @@ export default async function ProductEditorPage({
               </Callout>
             )}
           </CardContent>
-        </section>
+      </section>
       </Card>
 
       {/* --------------------------------------------------------- mockups */}
       <Card asChild>
-        <section>
+      <section>
           <CardHeader>
             <CardTitle asChild>
               <h2>Mockup approval</h2>
@@ -271,7 +271,7 @@ export default async function ProductEditorPage({
                 <form action={approveMockups}>
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
-                  <SubmitButton className="btn-primary btn-sm" pendingLabel="Approving…">
+                  <SubmitButton size="sm" pendingLabel="Approving…">
                     Approve {product.mockups.length} preview{product.mockups.length === 1 ? "" : "s"}
                   </SubmitButton>
                 </form>
@@ -279,7 +279,7 @@ export default async function ProductEditorPage({
               <form action={rejectMockups}>
                 <input type="hidden" name="storeId" value={storeId} />
                 <input type="hidden" name="productId" value={product.id} />
-                <SubmitButton className="btn-ghost btn-sm" pendingLabel="Clearing…">
+                <SubmitButton variant="ghost" size="sm" pendingLabel="Clearing…">
                   Reject and start over
                 </SubmitButton>
               </form>
@@ -313,12 +313,12 @@ export default async function ProductEditorPage({
             </ul>
             </CardContent>
           ) : null}
-        </section>
+      </section>
       </Card>
 
       {/* ------------------------------------------------------------ costs */}
       <Card asChild>
-        <section>
+      <section>
           <CardHeader>
             <CardTitle asChild>
               <h2>Cost, tax and margin</h2>
@@ -415,7 +415,7 @@ export default async function ProductEditorPage({
               </p>
             ) : null}
           </CardContent>
-        </section>
+      </section>
       </Card>
 
       {canEdit ? <ProductDetailsForm product={product} brackets={brackets} /> : null}

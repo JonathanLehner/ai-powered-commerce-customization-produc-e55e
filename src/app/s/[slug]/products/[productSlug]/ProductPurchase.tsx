@@ -28,6 +28,9 @@ import {
   type StoreProduct,
 } from "@/lib/types";
 import { classNames, formatMoney } from "@/lib/util";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export interface PurchaseProduct {
   id: string;
@@ -429,7 +432,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
         submitDisabled={artworkStatus !== "idle" || blocked}
         hidden={{ storeId: product.storeId, productId: product.id }}
         footer={
-          <Link href={`/s/${product.storeSlug}/cart`} className="btn-secondary">
+          <Link href={`/s/${product.storeSlug}/cart`} className={buttonVariants({ variant: "outline" })}>
             {t.viewBasket}
           </Link>
         }
@@ -452,7 +455,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
             {colours.length > 1 ? (
               <fieldset className="mt-5">
-                <legend className="field-label">{t.colour}</legend>
+                <legend className="text-sm leading-none font-medium text-foreground select-none">{t.colour}</legend>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {colours.map((option) => (
                     <button
@@ -480,7 +483,7 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
             ) : null}
 
             <fieldset className="mt-5">
-              <legend className="field-label">
+              <legend className="text-sm leading-none font-medium text-foreground select-none">
                 {sizes.length > 1 ? t.size : t.option}
                 {state.field === "variantId" ? (
                   <span className="ml-2 text-xs text-rose-600">{t.required}</span>
@@ -510,26 +513,26 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
             </fieldset>
 
             <div className="mt-5 max-w-[8rem]">
-              <label htmlFor="quantity" className="field-label">
+              <Label htmlFor="quantity">
                 {t.quantity}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="quantity"
                 name="quantity"
                 type="number"
                 min={1}
                 max={50}
                 defaultValue={1}
-                className="input"
+                className="mt-1.5"
               />
             </div>
 
             {product.shopperCustomization.textLine ? (
               <div className="mt-5">
-                <label htmlFor="text" className="field-label">
+                <Label htmlFor="text">
                   {product.shopperCustomization.textLabel}
-                </label>
-                <input
+                </Label>
+                <Input
                   id="text"
                   name="text"
                   value={text}
@@ -538,9 +541,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   placeholder={t.textPlaceholder}
                   aria-invalid={state.field === "text" ? true : undefined}
                   aria-describedby="text-hint"
-                  className={state.field === "text" ? "input input-error" : "input"}
+                  className="mt-1.5"
                 />
-                <p id="text-hint" className="field-hint">
+                <p id="text-hint" className="mt-1.5 text-xs text-muted-foreground">
                   {fmt(t.textCounter, {
                     count: text.length,
                     max: product.shopperCustomization.maxTextLength,
@@ -551,10 +554,10 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
 
             {product.shopperCustomization.artworkUpload ? (
               <div className="mt-5">
-                <label htmlFor="artwork" className="field-label">
+                <Label htmlFor="artwork">
                   {t.artworkLabel}
-                </label>
-                <input
+                </Label>
+                <Input
                   id="artwork"
                   ref={fileInput}
                   type="file"
@@ -565,12 +568,11 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   }
                   aria-describedby="artwork-hint"
                   className={classNames(
-                    "input file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-                    (state.field === "artwork" || artworkStatus === "error" || blocked) && "input-error",
+                    "mt-1.5 file:mr-3 file:rounded-md file:bg-canvas file:px-3 file:py-1.5",
                     artworkStatus === "uploading" && "opacity-60",
                   )}
                 />
-                <p id="artwork-hint" className="field-hint">
+                <p id="artwork-hint" className="mt-1.5 text-xs text-muted-foreground">
                   {area && rules
                     ? fmt(t.artworkHint, {
                         width: area.widthMm,
@@ -595,9 +597,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                   <div className="mt-4 rounded-xl border border-line p-4">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-sm font-semibold text-ink">{t.artworkPlacementTitle}</h3>
-                      <button type="button" className="btn-ghost btn-sm text-rose-700" onClick={clearArtwork}>
+                      <Button type="button" variant="ghost" size="sm" className="text-rose-700" onClick={clearArtwork}>
                         {t.artworkRemove}
-                      </button>
+                      </Button>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">{t.artworkPlacementHelp}</p>
 
@@ -653,15 +655,15 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                           {Math.round(box.effectiveDpi)} DPI
                         </span>
                       </div>
-                      <button
+                      <Button
                         type="button"
-                        className="btn-ghost btn-sm"
+                        variant="ghost" size="sm"
                         // Position only: a shopper who has found the right size
                         // should not lose it by nudging the artwork back.
                         onClick={() => movePlacement({ x: DEFAULT_PLACEMENT.x, y: DEFAULT_PLACEMENT.y })}
                       >
                         {t.artworkRecentre}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : null}
@@ -681,9 +683,9 @@ export function ProductPurchase({ product }: { product: PurchaseProduct }) {
                     </ul>
                     <p className="mt-2 text-xs text-rose-800">{t.artworkBlocked}</p>
                     {!liveArtwork ? (
-                      <button type="button" className="btn-ghost btn-sm mt-1 text-rose-700" onClick={clearArtwork}>
+                      <Button type="button" variant="ghost" size="sm" className="mt-1 text-rose-700" onClick={clearArtwork}>
                         {t.artworkRemove}
-                      </button>
+                      </Button>
                     ) : null}
                   </div>
                 ) : null}

@@ -32,8 +32,8 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
     return (
       <ul className="mt-3 flex flex-wrap gap-1.5">
         {tags.map((tag) => (
-          <li key={tag} className="chip">
-            {tag}
+          <li key={tag}>
+            <Badge tone="neutral">{tag}</Badge>
           </li>
         ))}
       </ul>

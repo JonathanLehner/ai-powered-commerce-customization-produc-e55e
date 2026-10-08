@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { setSupplierStatus } from "@/app/actions/admin";
 import { Badge, Callout, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
 import { AddSupplierForm, SupplierRegionsForm } from "./SupplierForms";
 
@@ -39,11 +42,14 @@ export default async function AdminSuppliersPage() {
         {suppliers.map((supplier) => {
           const products = catalog.filter((c) => c.supplierId === supplier.id);
           return (
-            <li key={supplier.id} className="card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-4">
+            <Card asChild key={supplier.id}>
+            <li>
+              <CardHeader className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-base font-semibold text-ink">{supplier.name}</h2>
+                    <CardTitle asChild>
+                      <h2>{supplier.name}</h2>
+                    </CardTitle>
                     <Badge
                       tone={
                         supplier.status === "approved" ? "green" : supplier.status === "disabled" ? "rose" : "amber"
@@ -54,7 +60,7 @@ export default async function AdminSuppliersPage() {
                     <Badge tone="neutral">{supplier.integration === "api" ? "Order API" : "Manual orders"}</Badge>
                     <Badge tone="neutral">{supplier.kind.replace(/_/g, " ")}</Badge>
                   </div>
-                  <p className="mt-2 max-w-3xl text-sm text-inksoft">{supplier.summary}</p>
+                  <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{supplier.summary}</p>
                   <p className="mt-2 text-xs text-muted-foreground">
                     <a href={supplier.website} target="_blank" rel="noreferrer" className="hover:underline">
                       {supplier.website.replace("https://", "")} ↗
@@ -66,57 +72,59 @@ export default async function AdminSuppliersPage() {
 
                 <div className="flex flex-wrap gap-2">
                   {supplier.kind === "sourcing_marketplace" ? (
-                    <Link href="/admin/quotes" className="btn-secondary btn-sm">
-                      Quote requests
-                    </Link>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/admin/quotes">Quote requests</Link>
+                    </Button>
                   ) : null}
-                  <Link href={`/admin/catalog/new?supplierId=${supplier.id}`} className="btn-secondary btn-sm">
-                    Add catalog product
-                  </Link>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/admin/catalog/new?supplierId=${supplier.id}`}>Add catalog product</Link>
+                  </Button>
                   {supplier.status !== "approved" ? (
                     <form action={setSupplierStatus}>
                       <input type="hidden" name="supplierId" value={supplier.id} />
                       <input type="hidden" name="status" value="approved" />
-                      <button type="submit" className="btn-primary btn-sm">
+                      <Button type="submit" size="sm">
                         Approve
-                      </button>
+                      </Button>
                     </form>
                   ) : null}
                   {supplier.status !== "pending_review" ? (
                     <form action={setSupplierStatus}>
                       <input type="hidden" name="supplierId" value={supplier.id} />
                       <input type="hidden" name="status" value="pending_review" />
-                      <button type="submit" className="btn-secondary btn-sm">
+                      <Button type="submit" variant="outline" size="sm">
                         Return to review
-                      </button>
+                      </Button>
                     </form>
                   ) : null}
                   {supplier.status !== "disabled" ? (
                     <form action={setSupplierStatus}>
                       <input type="hidden" name="supplierId" value={supplier.id} />
                       <input type="hidden" name="status" value="disabled" />
-                      <button type="submit" className="btn-danger btn-sm">
+                      <Button type="submit" variant="destructive" size="sm">
                         Disable
-                      </button>
+                      </Button>
                     </form>
                   ) : null}
                 </div>
-              </div>
+              </CardHeader>
 
-              <ul className="mt-4 flex flex-wrap gap-1.5">
-                {Object.entries(supplier.capabilities).map(([key, value]) => (
-                  <li key={key}>
-                    <Badge tone={value ? "green" : "slate"}>
-                      {value ? "✓" : "✕"} {CAPABILITY_LABELS[key] ?? key}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
+              <CardContent>
+                <ul className="flex flex-wrap gap-1.5">
+                  {Object.entries(supplier.capabilities).map(([key, value]) => (
+                    <li key={key}>
+                      <Badge tone={value ? "green" : "slate"}>
+                        {value ? "✓" : "✕"} {CAPABILITY_LABELS[key] ?? key}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
 
-              <div className="mt-5 border-t border-line pt-4">
+                <Separator className="my-4" />
                 <SupplierRegionsForm supplier={supplier} />
-              </div>
+              </CardContent>
             </li>
+            </Card>
           );
         })}
       </ul>

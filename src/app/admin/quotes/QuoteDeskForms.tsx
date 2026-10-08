@@ -2,6 +2,15 @@
 
 import { declineQuoteRequest, recordSupplierQuote } from "@/app/actions/sourcing";
 import { ActionForm, Field, SubmissionKey } from "@/components/forms";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { QuoteRequest } from "@/lib/types";
 
 /** One supplier's quote, added to the enquiry the store raised. */
@@ -14,15 +23,14 @@ export function AddQuoteForm({
   catalogOptions: { id: string; label: string }[];
 }) {
   const id = (name: string) => `${name}-${request.id}`;
-  const input = (field: string, error: string | undefined) =>
-    error === field ? "input input-error py-1.5" : "input py-1.5";
+  const invalid = (field: string, error: string | undefined) => (error === field ? true : undefined);
   return (
     <ActionForm
       action={recordSupplierQuote}
       hidden={{ requestId: request.id }}
       submitLabel={(request.quotes ?? []).length > 0 ? "Add another quote" : "Record the quote"}
       pendingLabel="Saving…"
-      submitClassName="btn-primary btn-sm"
+      submitSize="sm"
       footer={
         <span className="text-xs text-muted-foreground">The store sees it beside the print-on-demand options and can accept it.</span>
       }
@@ -37,10 +45,25 @@ export function AddQuoteForm({
             className="sm:col-span-2"
             hint="The factory or seller as named on the marketplace."
           >
-            <input id={id("supplierLabel")} name="supplierLabel" className={input("supplierLabel", state.field)} />
+            <Input
+              id={id("supplierLabel")}
+              name="supplierLabel"
+              className="mt-1.5"
+              aria-invalid={invalid("supplierLabel", state.field)}
+            />
           </Field>
-          <Field label={`Unit cost (${request.currency})`} htmlFor={id("unitCost")} error={state.field === "unitCost"}>
-            <input id={id("unitCost")} name="unitCost" inputMode="decimal" className={input("unitCost", state.field)} />
+          <Field
+            label={`Unit cost (${request.currency})`}
+            htmlFor={id("unitCost")}
+            error={state.field === "unitCost"}
+          >
+            <Input
+              id={id("unitCost")}
+              name="unitCost"
+              inputMode="decimal"
+              className="mt-1.5"
+              aria-invalid={invalid("unitCost", state.field)}
+            />
           </Field>
           <Field
             label="Minimum order"
@@ -48,23 +71,40 @@ export function AddQuoteForm({
             error={state.field === "minimumOrderQuantity"}
             hint={`Blank = the ${request.quantity.toLocaleString("en-US")} asked for.`}
           >
-            <input
+            <Input
               id={id("minimumOrderQuantity")}
               name="minimumOrderQuantity"
               inputMode="numeric"
-              className={input("minimumOrderQuantity", state.field)}
+              className="mt-1.5"
+              aria-invalid={invalid("minimumOrderQuantity", state.field)}
             />
           </Field>
-          <Field label="Production days" htmlFor={id("leadTimeDays")} error={state.field === "leadTimeDays"}>
-            <input
+          <Field
+            label="Production days"
+            htmlFor={id("leadTimeDays")}
+            error={state.field === "leadTimeDays"}
+          >
+            <Input
               id={id("leadTimeDays")}
               name="leadTimeDays"
               inputMode="numeric"
-              className={input("leadTimeDays", state.field)}
+              className="mt-1.5"
+              aria-invalid={invalid("leadTimeDays", state.field)}
             />
           </Field>
-          <Field label="Valid until" htmlFor={id("validUntil")} error={state.field === "validUntil"} hint="Optional.">
-            <input id={id("validUntil")} name="validUntil" type="date" className={input("validUntil", state.field)} />
+          <Field
+            label="Valid until"
+            htmlFor={id("validUntil")}
+            error={state.field === "validUntil"}
+            hint="Optional."
+          >
+            <Input
+              id={id("validUntil")}
+              name="validUntil"
+              type="date"
+              className="mt-1.5"
+              aria-invalid={invalid("validUntil", state.field)}
+            />
           </Field>
           {request.catalogProductId ? null : (
             <Field
@@ -74,19 +114,22 @@ export function AddQuoteForm({
               className="sm:col-span-3"
               hint="The store copy takes its variants, print areas and mockups from this listing."
             >
-              <select
-                id={id("baseCatalogProductId")}
-                name="baseCatalogProductId"
-                defaultValue=""
-                className={input("baseCatalogProductId", state.field)}
-              >
-                <option value="">Choose the closest listing</option>
-                {catalogOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select name="baseCatalogProductId">
+                <SelectTrigger
+                  id={id("baseCatalogProductId")}
+                  className="mt-1.5 w-full"
+                  aria-invalid={invalid("baseCatalogProductId", state.field)}
+                >
+                  <SelectValue placeholder="Choose the closest listing" />
+                </SelectTrigger>
+                <SelectContent>
+                  {catalogOptions.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           )}
           <Field
@@ -95,7 +138,7 @@ export function AddQuoteForm({
             className="sm:col-span-3"
             hint="Trade Assurance terms, sampling cost, freight basis — the store reads this."
           >
-            <textarea id={id("notes")} name="notes" rows={2} className="input py-1.5 text-sm" />
+            <Textarea id={id("notes")} name="notes" rows={2} className="mt-1.5" />
           </Field>
         </div>
       )}
@@ -111,7 +154,8 @@ export function DeclineQuoteForm({ request }: { request: QuoteRequest }) {
       hidden={{ requestId: request.id }}
       submitLabel="Mark declined"
       pendingLabel="Saving…"
-      submitClassName="btn-secondary btn-sm"
+      submitVariant="outline"
+      submitSize="sm"
     >
       {(state) => (
         <Field
@@ -120,11 +164,12 @@ export function DeclineQuoteForm({ request }: { request: QuoteRequest }) {
           error={state.field === "reason"}
           hint="Run too small, specification unclear, no factory covering the destination."
         >
-          <textarea
+          <Textarea
             id={`reason-${request.id}`}
             name="reason"
             rows={2}
-            className={state.field === "reason" ? "input input-error py-1.5 text-sm" : "input py-1.5 text-sm"}
+            className="mt-1.5"
+            aria-invalid={state.field === "reason" ? true : undefined}
           />
         </Field>
       )}

@@ -17,36 +17,8 @@ import {
 import { newId } from "@/lib/util";
 import { cn } from "@/lib/utils";
 
-/**
- * Every caller styles its buttons the way the rest of the app does — with the
- * `btn-primary` / `btn-secondary` / `btn-ghost` / `btn-danger` / `btn-sm`
- * classes. Those names are translated here into the shadcn Button's own variant
- * and size, so the control is a real Button while no caller has to change.
- */
-function asButton(className: string): {
-  variant: "default" | "outline" | "secondary" | "ghost" | "destructive";
-  size: "default" | "sm";
-  className: string;
-} {
-  const has = (name: string) => className.split(/\s+/).includes(name);
-  return {
-    variant: has("btn-danger")
-      ? "destructive"
-      : has("btn-secondary")
-        ? "outline"
-        : has("btn-ghost")
-          ? "ghost"
-          : has("btn-iris")
-            ? "secondary"
-            : "default",
-    size: has("btn-sm") ? "sm" : "default",
-    // Whatever the caller added on top — `w-full`, a margin, a text colour.
-    className: className
-      .split(/\s+/)
-      .filter((name) => name !== "" && !/^btn(-[a-z]+)?$/.test(name))
-      .join(" "),
-  };
-}
+/** The Button's own variant and size unions, so callers name a real variant. */
+type ButtonProps = React.ComponentProps<typeof Button>;
 
 /**
  * One key per filled-in form, posted as `submissionKey`. A double click, a slow
@@ -158,13 +130,17 @@ export function useValueRestore(status: ActionState["status"], attempt: number) 
 export function SubmitButton({
   children,
   pendingLabel,
-  className = "btn-primary",
+  variant,
+  size,
+  className,
   disabled,
   name,
   value,
 }: {
   children: ReactNode;
   pendingLabel?: string;
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
   className?: string;
   disabled?: boolean;
   name?: string;
@@ -172,7 +148,15 @@ export function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" {...asButton(className)} disabled={pending || disabled} name={name} value={value}>
+    <Button
+      type="submit"
+      variant={variant}
+      size={size}
+      className={className}
+      disabled={pending || disabled}
+      name={name}
+      value={value}
+    >
       {pending ? (pendingLabel ?? "Saving…") : children}
     </Button>
   );
@@ -226,7 +210,9 @@ export function ActionForm({
   children,
   submitLabel,
   pendingLabel,
-  submitClassName = "btn-primary",
+  submitVariant,
+  submitSize,
+  submitClassName,
   className,
   footer,
   hidden,
@@ -239,6 +225,8 @@ export function ActionForm({
   children: ReactNode | ((state: ActionState) => ReactNode);
   submitLabel: string;
   pendingLabel?: string;
+  submitVariant?: ButtonProps["variant"];
+  submitSize?: ButtonProps["size"];
   submitClassName?: string;
   className?: string;
   footer?: ReactNode;
@@ -286,7 +274,13 @@ export function ActionForm({
       <div className={actionsClassName}>
         <FormStatus state={state} />
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <SubmitButton className={submitClassName} pendingLabel={pendingLabel} disabled={submitDisabled}>
+          <SubmitButton
+            variant={submitVariant}
+            size={submitSize}
+            className={submitClassName}
+            pendingLabel={pendingLabel}
+            disabled={submitDisabled}
+          >
             {submitLabel}
           </SubmitButton>
           {footer}
@@ -300,13 +294,17 @@ export function ActionForm({
 export function ConfirmSubmit({
   children,
   confirmLabel,
-  className = "btn-danger",
+  variant = "destructive",
+  size,
+  className,
   question = "Are you sure?",
   pendingLabel = "Working…",
   cancelLabel = "Cancel",
 }: {
   children: ReactNode;
   confirmLabel: string;
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
   className?: string;
   question?: string;
   /** Overridden where the control is shopper-facing and has to be translated. */
@@ -318,18 +316,25 @@ export function ConfirmSubmit({
 
   if (!armed) {
     return (
-      <Button type="button" {...asButton(className)} onClick={() => setArmed(true)} disabled={pending}>
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        className={className}
+        onClick={() => setArmed(true)}
+        disabled={pending}
+      >
         {children}
       </Button>
     );
   }
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
-      <span className="text-sm text-inksoft">{question}</span>
-      <Button type="submit" {...asButton(className)} disabled={pending}>
+      <span className="text-sm text-muted-foreground">{question}</span>
+      <Button type="submit" variant={variant} size={size} className={className} disabled={pending}>
         {pending ? pendingLabel : confirmLabel}
       </Button>
-      <Button type="button" variant="ghost" size="sm" onClick={() => setArmed(false)} disabled={pending}>
+      <Button type="button" variant="ghost" size={size} onClick={() => setArmed(false)} disabled={pending}>
         {cancelLabel}
       </Button>
     </span>
@@ -410,7 +415,10 @@ export function Field({
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {hint ? (
-        <p id={`${htmlFor}-hint`} className={cn("field-hint", error && "text-destructive")}>
+        <p
+          id={`${htmlFor}-hint`}
+          className={cn("mt-1.5 text-xs text-muted-foreground", error && "text-destructive")}
+        >
           {hint}
         </p>
       ) : null}

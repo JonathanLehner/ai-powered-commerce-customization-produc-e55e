@@ -8,6 +8,9 @@ import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
 import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { GateForm } from "./GateForm";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 /** The four steps of a campaign, in the store's own language. */
 const steps = (t: StorefrontCopy["gift"]) => [
@@ -32,12 +35,12 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
   if (catalogue.status !== "active" || store.status !== "active") {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
-        <div className="card p-6">
+        <Card className="block overflow-visible p-6">
           <h1 className="text-lg font-semibold tracking-tight text-ink">{t.gift.closedTitle}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {fmt(t.gift.closedBody, { company: catalogue.companyName })}
-          </p>
-        </div>
+        </p>
+        </Card>
       </div>
     );
   }
@@ -45,7 +48,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
   if (!access) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-14 sm:px-6">
-        <div className="card p-6">
+        <Card className="block overflow-visible p-6">
           <Badge tone="brand">{t.gift.privateBadge}</Badge>
           <h1 className="mt-3 text-lg font-semibold tracking-tight text-ink">{catalogue.name}</h1>
           {catalogue.access === "invite" ? (
@@ -62,7 +65,7 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
               {fmt(t.gift.linkOnlyBody, { company: catalogue.companyName })}
             </p>
           )}
-        </div>
+        </Card>
       </div>
     );
   }
@@ -80,8 +83,8 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
             {catalogue.intro || fmt(t.gift.introFallback, { company: catalogue.companyName })}
           </p>
         </div>
-        {available.length > 0 ? (
-          <Link href={`/g/${catalogue.slug}/order`} className="btn-primary">
+        {available.length> 0 ? (
+          <Link href={`/g/${catalogue.slug}/order`} className={buttonVariants()}>
             {t.gift.startOrder}
           </Link>
         ) : null}
@@ -173,8 +176,8 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
 
       {available.some(
         (product) =>
-          catalogue.spendLimitPerRecipient > 0 &&
-          convert(product.price, product.currency, catalogue.currency) > catalogue.spendLimitPerRecipient,
+          catalogue.spendLimitPerRecipient> 0 &&
+          convert(product.price, product.currency, catalogue.currency)> catalogue.spendLimitPerRecipient,
       ) ? (
         <div className="mt-6">
           <Callout tone="amber" title={t.gift.overLimitTitle}>
@@ -196,8 +199,8 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
             </li>
           ))}
         </ol>
-        {available.length > 0 ? (
-          <Link href={`/g/${catalogue.slug}/order`} className="btn-primary mt-6 inline-flex">
+        {available.length> 0 ? (
+          <Link href={`/g/${catalogue.slug}/order`} className={cn(buttonVariants(), "mt-6 inline-flex")}>
             {t.gift.startOrder}
           </Link>
         ) : null}

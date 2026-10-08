@@ -1,5 +1,8 @@
 import { deleteTaxBracket } from "@/app/actions/admin";
 import { Badge, Callout, PageHeader } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { COLLECTIONS, listTaxBrackets } from "@/lib/data";
 import { db } from "@/lib/platform";
 import { EditBracketForm, NewBracketForm } from "./TaxForms";
@@ -30,11 +33,14 @@ export default async function AdminTaxPage() {
         {brackets.map((bracket) => {
           const inUse = usageById.get(bracket.id) ?? 0;
           return (
-            <li key={bracket.id} className="card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+            <Card asChild key={bracket.id}>
+            <li>
+              <CardHeader className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-base font-semibold text-ink">{bracket.name}</h2>
+                    <CardTitle asChild>
+                      <h2>{bracket.name}</h2>
+                    </CardTitle>
                     <Badge tone="brand">{bracket.rate}%</Badge>
                     <Badge tone="neutral">{bracket.code}</Badge>
                   </div>
@@ -46,18 +52,20 @@ export default async function AdminTaxPage() {
                 {inUse === 0 ? (
                   <form action={deleteTaxBracket}>
                     <input type="hidden" name="bracketId" value={bracket.id} />
-                    <button type="submit" className="btn-danger btn-sm">
+                    <Button type="submit" variant="destructive" size="sm">
                       Delete
-                    </button>
+                    </Button>
                   </form>
                 ) : (
                   <Badge tone="amber">In use — cannot delete</Badge>
                 )}
-              </div>
-              <div className="mt-5 border-t border-line pt-4">
+              </CardHeader>
+              <CardContent>
+                <Separator className="mb-4" />
                 <EditBracketForm bracket={bracket} />
-              </div>
+              </CardContent>
             </li>
+            </Card>
           );
         })}
       </ul>

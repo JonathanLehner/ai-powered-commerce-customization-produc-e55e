@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui";
 import { ContactForm } from "./ContactForm";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-static";
 
@@ -48,24 +51,26 @@ export default function ContactPage() {
 
       <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-          <div className="card p-6 sm:p-8">
+          <Card className="block overflow-visible p-6 sm:p-8">
             <h2 className="text-lg font-semibold tracking-tight text-ink">Send us the details</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Nothing is charged today and no card is asked for.
             </p>
             <div className="mt-6">
               <ContactForm />
-            </div>
           </div>
+          </Card>
 
           <div className="space-y-5">
             <ol className="space-y-4">
               {NEXT_STEPS.map((item) => (
-                <li key={item.step} className="card p-5">
+                <Card asChild key={item.step} className="block overflow-visible p-5">
+                <li>
                   <span className="font-mono text-xs font-semibold text-brand-600">{item.step}</span>
                   <h3 className="mt-2 text-sm font-semibold text-ink">{item.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                 </li>
+                </Card>
               ))}
             </ol>
 
@@ -80,16 +85,16 @@ export default function ContactPage() {
               </Link>
             </div>
 
-            <div className="card-pad">
+            <Card className="block overflow-visible p-5">
               <h2 className="text-sm font-semibold text-ink">Want to look around first?</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-inksoft">
                 The demo workspace is populated with four client stores, a supplier catalog, live artwork
                 pre-flight and a full order queue.
               </p>
-              <Link href="/login" className="btn-secondary btn-sm mt-3 inline-flex">
+              <Link href="/login" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-3 inline-flex")}>
                 Open the demo workspace
               </Link>
-            </div>
+            </Card>
           </div>
         </div>
       </section>

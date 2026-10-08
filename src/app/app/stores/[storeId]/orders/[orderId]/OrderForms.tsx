@@ -110,7 +110,7 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
       className="mt-4"
       submitLabel="Send job to supplier"
       pendingLabel="Sending…"
-      submitClassName="btn-primary btn-sm"
+      submitSize="sm"
       submitDisabled={!options.carriersEnabled}
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
@@ -172,7 +172,7 @@ export function ManualSubmissionForm({ order }: { order: Order }) {
     <ActionForm
       action={recordManualSubmission}
       submitLabel="Record supplier reference"
-      submitClassName="btn-primary btn-sm"
+      submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
@@ -201,7 +201,7 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
     <ActionForm
       action={addTracking}
       submitLabel={order.fulfillment.trackingNumber ? "Update tracking" : "Mark shipped"}
-      submitClassName="btn-primary btn-sm"
+      submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
@@ -250,7 +250,7 @@ export function ExceptionForm({ order }: { order: Order }) {
     <ActionForm
       action={raiseException}
       submitLabel="Raise exception"
-      submitClassName="btn-danger btn-sm"
+      submitVariant="destructive" submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
