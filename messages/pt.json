@@ -388,7 +388,19 @@
       "plan": "Escolha um plano."
     },
     "duplicate": "Obrigado, {name}. Já recebemos o seu pedido e respondemos no prazo de um dia útil.",
-    "received": "Obrigado, {name}. Recebemos o seu pedido sobre {plan, select, unsure {o plano mais adequado} other {o plano {planName}}} e {call, select, yes {ligamos-lhe} other {respondemos por email}} no prazo de um dia útil."
+    "received": "Obrigado, {name}. Recebemos o seu pedido sobre {plan, select, unsure {o plano mais adequado} other {o plano {planName}}} e {call, select, yes {ligamos-lhe} other {respondemos por email}} no prazo de um dia útil.",
+    "email": {
+      "subject": "Recebemos o seu pedido",
+      "heading": "Obrigado por contactar a Parcelith",
+      "body": "Recebemos o seu pedido sobre {plan, select, unsure {o plano mais adequado} other {o plano {planName}}} e {call, select, yes {ligamos-lhe} other {respondemos por email}} no prazo de um dia útil.",
+      "companyLabel": "Empresa",
+      "planLabel": "Plano",
+      "replyLabel": "Resposta por",
+      "replyCall": "Telefone",
+      "replyEmail": "Email",
+      "messageLabel": "A sua mensagem",
+      "undecided": "Ainda não sei"
+    }
   },
   "terms": {
     "metaTitle": "Termos de serviço",
@@ -2942,6 +2954,37 @@
       "member": "Membro",
       "planFor": "Plano de {name}",
       "setPlan": "Definir plano"
+    },
+    "enquiryEmail": {
+      "subject": "Novo pedido: {company} ({plan})",
+      "heading": "Novo pedido de plano",
+      "body": "{name} da {company} enviou um pedido pela página de contacto. Responda no prazo de um dia útil.",
+      "nameLabel": "Nome",
+      "emailLabel": "Email",
+      "companyLabel": "Empresa",
+      "planLabel": "Plano",
+      "replyLabel": "Resposta por",
+      "replyCall": "Telefone",
+      "replyEmail": "Email",
+      "languageLabel": "Idioma",
+      "messageLabel": "Mensagem",
+      "cta": "Abrir o pedido",
+      "undecided": "Indeciso"
+    },
+    "enquiry": {
+      "details": "Detalhes",
+      "name": "Nome",
+      "email": "Email",
+      "company": "Empresa",
+      "plan": "Plano",
+      "replyBy": "Resposta por",
+      "replyCall": "Telefone",
+      "replyEmail": "Email",
+      "language": "Idioma",
+      "received": "Recebido",
+      "message": "Mensagem",
+      "noMessage": "Sem mensagem.",
+      "reply": "Responder por email"
     }
   },
   "storefront": {

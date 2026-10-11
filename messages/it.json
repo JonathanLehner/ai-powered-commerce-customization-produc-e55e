@@ -388,7 +388,19 @@
       "plan": "Scegli un piano."
     },
     "duplicate": "Grazie, {name}. Abbiamo già la tua richiesta e ti risponderemo entro un giorno lavorativo.",
-    "received": "Grazie, {name}. Abbiamo ricevuto la tua richiesta su {plan, select, unsure {un piano adatto a te} other {il piano {planName}}} e {call, select, yes {ti chiameremo} other {ti risponderemo via email}} entro un giorno lavorativo."
+    "received": "Grazie, {name}. Abbiamo ricevuto la tua richiesta su {plan, select, unsure {un piano adatto a te} other {il piano {planName}}} e {call, select, yes {ti chiameremo} other {ti risponderemo via email}} entro un giorno lavorativo.",
+    "email": {
+      "subject": "Abbiamo ricevuto la tua richiesta",
+      "heading": "Grazie per aver contattato Parcelith",
+      "body": "Abbiamo ricevuto la tua richiesta su {plan, select, unsure {un piano adatto a te} other {il piano {planName}}} e {call, select, yes {ti chiameremo} other {ti risponderemo via email}} entro un giorno lavorativo.",
+      "companyLabel": "Azienda",
+      "planLabel": "Piano",
+      "replyLabel": "Risposta via",
+      "replyCall": "Telefono",
+      "replyEmail": "Email",
+      "messageLabel": "Il tuo messaggio",
+      "undecided": "Non lo so ancora"
+    }
   },
   "terms": {
     "metaTitle": "Termini di servizio",
@@ -2942,6 +2954,37 @@
       "member": "Membro",
       "planFor": "Piano di {name}",
       "setPlan": "Imposta il piano"
+    },
+    "enquiryEmail": {
+      "subject": "Nuova richiesta: {company} ({plan})",
+      "heading": "Nuova richiesta di piano",
+      "body": "{name} di {company} ha inviato una richiesta dalla pagina contatti. Rispondi entro un giorno lavorativo.",
+      "nameLabel": "Nome",
+      "emailLabel": "Email",
+      "companyLabel": "Azienda",
+      "planLabel": "Piano",
+      "replyLabel": "Risposta via",
+      "replyCall": "Telefono",
+      "replyEmail": "Email",
+      "languageLabel": "Lingua",
+      "messageLabel": "Messaggio",
+      "cta": "Apri la richiesta",
+      "undecided": "Indeciso"
+    },
+    "enquiry": {
+      "details": "Dettagli",
+      "name": "Nome",
+      "email": "Email",
+      "company": "Azienda",
+      "plan": "Piano",
+      "replyBy": "Risposta via",
+      "replyCall": "Telefono",
+      "replyEmail": "Email",
+      "language": "Lingua",
+      "received": "Ricevuta",
+      "message": "Messaggio",
+      "noMessage": "Nessun messaggio.",
+      "reply": "Rispondi via email"
     }
   },
   "storefront": {

@@ -388,7 +388,19 @@
       "plan": "Choisissez une offre."
     },
     "duplicate": "Merci {name}. Nous avons déjà reçu votre demande et vous répondrons sous un jour ouvré.",
-    "received": "Merci {name}. Nous avons bien reçu votre demande concernant {plan, select, unsure {l’offre la plus adaptée} other {l’offre {planName}}} et {call, select, yes {vous appellerons} other {vous répondrons par e-mail}} sous un jour ouvré."
+    "received": "Merci {name}. Nous avons bien reçu votre demande concernant {plan, select, unsure {l’offre la plus adaptée} other {l’offre {planName}}} et {call, select, yes {vous appellerons} other {vous répondrons par e-mail}} sous un jour ouvré.",
+    "email": {
+      "subject": "Nous avons bien reçu votre demande",
+      "heading": "Merci d’avoir contacté Parcelith",
+      "body": "Nous avons bien reçu votre demande concernant {plan, select, unsure {l’offre la plus adaptée} other {l’offre {planName}}} et {call, select, yes {vous appellerons} other {vous répondrons par e-mail}} sous un jour ouvré.",
+      "companyLabel": "Entreprise",
+      "planLabel": "Offre",
+      "replyLabel": "Réponse par",
+      "replyCall": "Téléphone",
+      "replyEmail": "E-mail",
+      "messageLabel": "Votre message",
+      "undecided": "Je ne sais pas encore"
+    }
   },
   "terms": {
     "metaTitle": "Conditions d’utilisation",
@@ -2942,6 +2954,37 @@
       "member": "Membre",
       "planFor": "Offre de {name}",
       "setPlan": "Définir l’offre"
+    },
+    "enquiryEmail": {
+      "subject": "Nouvelle demande : {company} ({plan})",
+      "heading": "Nouvelle demande d’offre",
+      "body": "{name} de {company} a envoyé une demande depuis la page de contact. Répondez sous un jour ouvré.",
+      "nameLabel": "Nom",
+      "emailLabel": "E-mail",
+      "companyLabel": "Entreprise",
+      "planLabel": "Offre",
+      "replyLabel": "Réponse par",
+      "replyCall": "Téléphone",
+      "replyEmail": "E-mail",
+      "languageLabel": "Langue",
+      "messageLabel": "Message",
+      "cta": "Ouvrir la demande",
+      "undecided": "Indécis"
+    },
+    "enquiry": {
+      "details": "Détails",
+      "name": "Nom",
+      "email": "E-mail",
+      "company": "Entreprise",
+      "plan": "Offre",
+      "replyBy": "Réponse par",
+      "replyCall": "Téléphone",
+      "replyEmail": "E-mail",
+      "language": "Langue",
+      "received": "Reçue",
+      "message": "Message",
+      "noMessage": "Aucun message.",
+      "reply": "Répondre par e-mail"
     }
   },
   "storefront": {

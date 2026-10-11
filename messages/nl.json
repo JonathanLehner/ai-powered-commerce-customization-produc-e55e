@@ -388,7 +388,19 @@
       "plan": "Kies een abonnement."
     },
     "duplicate": "Bedankt, {name}. We hebben je aanvraag al en reageren binnen één werkdag.",
-    "received": "Bedankt, {name}. We hebben je aanvraag over {plan, select, unsure {een passend abonnement} other {het abonnement {planName}}} ontvangen en {call, select, yes {bellen je} other {mailen je terug}} binnen één werkdag."
+    "received": "Bedankt, {name}. We hebben je aanvraag over {plan, select, unsure {een passend abonnement} other {het abonnement {planName}}} ontvangen en {call, select, yes {bellen je} other {mailen je terug}} binnen één werkdag.",
+    "email": {
+      "subject": "We hebben je aanvraag ontvangen",
+      "heading": "Bedankt voor je bericht aan Parcelith",
+      "body": "We hebben je aanvraag over {plan, select, unsure {een passend abonnement} other {het abonnement {planName}}} ontvangen en {call, select, yes {bellen je} other {mailen je terug}} binnen één werkdag.",
+      "companyLabel": "Bedrijf",
+      "planLabel": "Abonnement",
+      "replyLabel": "Antwoord via",
+      "replyCall": "Telefoon",
+      "replyEmail": "E-mail",
+      "messageLabel": "Je bericht",
+      "undecided": "Weet ik nog niet"
+    }
   },
   "terms": {
     "metaTitle": "Servicevoorwaarden",
@@ -2942,6 +2954,37 @@
       "member": "Lid",
       "planFor": "Abonnement van {name}",
       "setPlan": "Abonnement instellen"
+    },
+    "enquiryEmail": {
+      "subject": "Nieuwe aanvraag: {company} ({plan})",
+      "heading": "Nieuwe abonnementsaanvraag",
+      "body": "{name} van {company} heeft een aanvraag verstuurd via de contactpagina. Antwoord binnen één werkdag.",
+      "nameLabel": "Naam",
+      "emailLabel": "E-mail",
+      "companyLabel": "Bedrijf",
+      "planLabel": "Abonnement",
+      "replyLabel": "Antwoord via",
+      "replyCall": "Telefoon",
+      "replyEmail": "E-mail",
+      "languageLabel": "Taal",
+      "messageLabel": "Bericht",
+      "cta": "Aanvraag openen",
+      "undecided": "Nog niet besloten"
+    },
+    "enquiry": {
+      "details": "Gegevens",
+      "name": "Naam",
+      "email": "E-mail",
+      "company": "Bedrijf",
+      "plan": "Abonnement",
+      "replyBy": "Antwoord via",
+      "replyCall": "Telefoon",
+      "replyEmail": "E-mail",
+      "language": "Taal",
+      "received": "Ontvangen",
+      "message": "Bericht",
+      "noMessage": "Geen bericht.",
+      "reply": "Antwoorden per e-mail"
     }
   },
   "storefront": {

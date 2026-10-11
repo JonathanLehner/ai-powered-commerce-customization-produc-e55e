@@ -69,7 +69,10 @@ function escape(value: string): string {
 function render(brand: EmailBrand, copy: EmailCopy, subject: string, body: EmailBody): BuiltEmail {
   const { t, locale: lang } = copy;
   const greeting = body.greetingName ? t("greeting", { name: body.greetingName }) : null;
-  const footer = t("footer", { client: brand.clientName, store: brand.storeName });
+  const footer =
+    brand.clientName && brand.clientName !== brand.storeName
+      ? t("footer", { client: brand.clientName, store: brand.storeName })
+      : brand.storeName;
   const support = brand.supportEmail ? t("support", { email: brand.supportEmail }) : null;
 
   const header = brand.logoUrl
@@ -243,7 +246,7 @@ export interface NotificationEmailInput {
   name: string;
   paragraphs: string[];
   rows?: { label: string; value: string }[];
-  action: { label: string; url: string };
+  action?: { label: string; url: string };
 }
 
 /** A notification to someone on the store's team, already written in their language. */
@@ -255,4 +258,11 @@ export function notificationEmail(brand: EmailBrand, copy: EmailCopy, input: Not
     rows: input.rows,
     action: input.action,
   });
+}
+
+/* ---------------------------------------------------------------- platform */
+
+/** Parcelith's own emails, such as the reply to a sales enquiry, carry its name and logo. */
+export function platformBrand(logoUrl: string | null): EmailBrand {
+  return { storeName: "Parcelith", clientName: "Parcelith", logoUrl, supportEmail: null };
 }

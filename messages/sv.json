@@ -388,7 +388,19 @@
       "plan": "Välj ett abonnemang."
     },
     "duplicate": "Tack, {name}. Vi har redan din förfrågan och svarar inom en arbetsdag.",
-    "received": "Tack, {name}. Vi har tagit emot din förfrågan om {plan, select, unsure {ett abonnemang som passar dig} other {abonnemanget {planName}}} och {call, select, yes {ringer dig} other {svarar via e-post}} inom en arbetsdag."
+    "received": "Tack, {name}. Vi har tagit emot din förfrågan om {plan, select, unsure {ett abonnemang som passar dig} other {abonnemanget {planName}}} och {call, select, yes {ringer dig} other {svarar via e-post}} inom en arbetsdag.",
+    "email": {
+      "subject": "Vi har tagit emot din förfrågan",
+      "heading": "Tack för att du kontaktade Parcelith",
+      "body": "Vi har tagit emot din förfrågan om {plan, select, unsure {ett abonnemang som passar dig} other {abonnemanget {planName}}} och {call, select, yes {ringer dig} other {svarar via e-post}} inom en arbetsdag.",
+      "companyLabel": "Företag",
+      "planLabel": "Abonnemang",
+      "replyLabel": "Svar via",
+      "replyCall": "Telefon",
+      "replyEmail": "E-post",
+      "messageLabel": "Ditt meddelande",
+      "undecided": "Vet inte än"
+    }
   },
   "terms": {
     "metaTitle": "Användarvillkor",
@@ -2942,6 +2954,37 @@
       "member": "Medlem",
       "planFor": "Plan för {name}",
       "setPlan": "Ange plan"
+    },
+    "enquiryEmail": {
+      "subject": "Ny förfrågan: {company} ({plan})",
+      "heading": "Ny förfrågan om abonnemang",
+      "body": "{name} från {company} skickade en förfrågan via kontaktsidan. Svara inom en arbetsdag.",
+      "nameLabel": "Namn",
+      "emailLabel": "E-post",
+      "companyLabel": "Företag",
+      "planLabel": "Abonnemang",
+      "replyLabel": "Svar via",
+      "replyCall": "Telefon",
+      "replyEmail": "E-post",
+      "languageLabel": "Språk",
+      "messageLabel": "Meddelande",
+      "cta": "Öppna förfrågan",
+      "undecided": "Inte bestämt"
+    },
+    "enquiry": {
+      "details": "Uppgifter",
+      "name": "Namn",
+      "email": "E-post",
+      "company": "Företag",
+      "plan": "Abonnemang",
+      "replyBy": "Svar via",
+      "replyCall": "Telefon",
+      "replyEmail": "E-post",
+      "language": "Språk",
+      "received": "Mottagen",
+      "message": "Meddelande",
+      "noMessage": "Inget meddelande.",
+      "reply": "Svara via e-post"
     }
   },
   "storefront": {

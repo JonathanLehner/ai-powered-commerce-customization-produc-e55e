@@ -1080,6 +1080,8 @@ export interface PlanEnquiry {
    * submission carries the same one, so the enquiry is recorded once.
    */
   submissionKey: string;
+  /** The language of the page the form was sent from; absent on older enquiries. */
+  locale?: string;
   status: "new";
   createdAt: string;
 }

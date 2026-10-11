@@ -23,6 +23,8 @@ export interface EmailDispatch {
   message: BuiltEmail;
   /** What the email is, for the activity entry: "order confirmation". */
   kind: string;
+  /** Where a reply goes, when that is someone other than the sender. */
+  replyTo?: string | null;
   storeId?: string | null;
   agencyId?: string | null;
   entity?: string | null;
@@ -98,6 +100,7 @@ async function deliver(dispatch: EmailDispatch): Promise<void> {
         subject: dispatch.message.subject,
         html: dispatch.message.html,
         text: dispatch.message.text,
+        ...(dispatch.replyTo && EMAIL.test(dispatch.replyTo) ? { reply_to: dispatch.replyTo } : {}),
       }),
     });
     if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);

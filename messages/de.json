@@ -388,7 +388,19 @@
       "plan": "Wählen Sie einen Tarif."
     },
     "duplicate": "Danke, {name}. Ihre Anfrage liegt uns bereits vor, und wir antworten innerhalb eines Werktags.",
-    "received": "Danke, {name}. Wir haben Ihre Anfrage zu {plan, select, unsure {einem passenden Tarif} other {dem Tarif {planName}}} erhalten und {call, select, yes {rufen Sie innerhalb eines Werktags an} other {antworten Ihnen innerhalb eines Werktags per E-Mail}}."
+    "received": "Danke, {name}. Wir haben Ihre Anfrage zu {plan, select, unsure {einem passenden Tarif} other {dem Tarif {planName}}} erhalten und {call, select, yes {rufen Sie innerhalb eines Werktags an} other {antworten Ihnen innerhalb eines Werktags per E-Mail}}.",
+    "email": {
+      "subject": "Wir haben Ihre Anfrage erhalten",
+      "heading": "Danke für Ihre Nachricht an Parcelith",
+      "body": "Wir haben Ihre Anfrage zu {plan, select, unsure {einem passenden Tarif} other {dem Tarif {planName}}} erhalten und {call, select, yes {rufen Sie innerhalb eines Werktags an} other {antworten Ihnen innerhalb eines Werktags per E-Mail}}.",
+      "companyLabel": "Unternehmen",
+      "planLabel": "Tarif",
+      "replyLabel": "Antwort per",
+      "replyCall": "Telefon",
+      "replyEmail": "E-Mail",
+      "messageLabel": "Ihre Nachricht",
+      "undecided": "Noch nicht sicher"
+    }
   },
   "terms": {
     "metaTitle": "Nutzungsbedingungen",
@@ -2942,6 +2954,37 @@
       "member": "Mitglied",
       "planFor": "Tarif von {name}",
       "setPlan": "Tarif festlegen"
+    },
+    "enquiryEmail": {
+      "subject": "Neue Anfrage: {company} ({plan})",
+      "heading": "Neue Tarifanfrage",
+      "body": "{name} von {company} hat über die Kontaktseite eine Anfrage gesendet. Bitte innerhalb eines Werktags antworten.",
+      "nameLabel": "Name",
+      "emailLabel": "E-Mail",
+      "companyLabel": "Unternehmen",
+      "planLabel": "Tarif",
+      "replyLabel": "Antwort per",
+      "replyCall": "Telefon",
+      "replyEmail": "E-Mail",
+      "languageLabel": "Sprache",
+      "messageLabel": "Nachricht",
+      "cta": "Anfrage öffnen",
+      "undecided": "Unentschieden"
+    },
+    "enquiry": {
+      "details": "Details",
+      "name": "Name",
+      "email": "E-Mail",
+      "company": "Unternehmen",
+      "plan": "Tarif",
+      "replyBy": "Antwort per",
+      "replyCall": "Telefon",
+      "replyEmail": "E-Mail",
+      "language": "Sprache",
+      "received": "Eingegangen",
+      "message": "Nachricht",
+      "noMessage": "Keine Nachricht.",
+      "reply": "Per E-Mail antworten"
     }
   },
   "storefront": {

@@ -4,14 +4,15 @@ import { getTranslations } from "next-intl/server";
 import { asLocale } from "@/i18n/metadata";
 import { createPlanEnquiry, getPlanEnquiryByKey } from "@/lib/data";
 import { UNDECIDED, checkEnquiry, planEnquiryLabel } from "@/lib/enquiry";
+import { sendEnquiryEmails } from "@/lib/enquiry-notify";
 import { PLAN_KEYS } from "@/lib/plans";
 import type { ActionState } from "./stores";
 
 /**
  * The enquiry left by a visitor on the pricing page.
  *
- * It records what someone asked for and nothing else: no account is created and
- * no store is provisioned. The rules that clamp and check the fields live in
+ * It records what someone asked for, confirms it to the visitor by email and
+ * alerts the sales inbox. No account is created and no store is provisioned. The rules that clamp and check the fields live in
  * `lib/enquiry`, which is what `npm run enquiry-check` runs.
  */
 export async function submitPlanEnquiry(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -25,7 +26,8 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
     submissionKey: String(formData.get("submissionKey") ?? ""),
   });
   // The page the form was sent from names its language, so the reply is in it too.
-  const t = await getTranslations({ locale: asLocale(String(formData.get("locale") ?? "")), namespace: "contact" });
+  const locale = asLocale(String(formData.get("locale") ?? ""));
+  const t = await getTranslations({ locale, namespace: "contact" });
   if (!checked.ok) {
     const field = checked.field;
     const message =
@@ -51,7 +53,13 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
     }
   }
 
-  await createPlanEnquiry(enquiry);
+  const record = await createPlanEnquiry({ ...enquiry, locale });
+  try {
+    await sendEnquiryEmails(record);
+  } catch (error) {
+    // The enquiry is saved and shows in platform admin either way.
+    console.error("[contact] enquiry emails could not be queued", error);
+  }
 
   return {
     status: "success",

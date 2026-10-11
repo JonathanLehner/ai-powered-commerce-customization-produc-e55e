@@ -388,7 +388,19 @@
       "plan": "Choose a plan."
     },
     "duplicate": "Thanks {name}. We already have your enquiry and will reply within one business day.",
-    "received": "Thanks {name}. We have your enquiry about {plan, select, unsure {a plan we can recommend} other {the {planName} plan}} and will {call, select, yes {call you} other {email you back}} within one working day."
+    "received": "Thanks {name}. We have your enquiry about {plan, select, unsure {a plan we can recommend} other {the {planName} plan}} and will {call, select, yes {call you} other {email you back}} within one working day.",
+    "email": {
+      "subject": "We received your enquiry",
+      "heading": "Thanks for contacting Parcelith",
+      "body": "We have your enquiry about {plan, select, unsure {a plan we can recommend} other {the {planName} plan}} and will {call, select, yes {call you} other {email you back}} within one business day.",
+      "companyLabel": "Company",
+      "planLabel": "Plan",
+      "replyLabel": "Reply by",
+      "replyCall": "Phone call",
+      "replyEmail": "Email",
+      "messageLabel": "Your message",
+      "undecided": "Not sure yet"
+    }
   },
   "terms": {
     "metaTitle": "Terms of service",
@@ -2942,6 +2954,37 @@
       "member": "Member",
       "planFor": "Plan for {name}",
       "setPlan": "Set plan"
+    },
+    "enquiryEmail": {
+      "subject": "New enquiry: {company} ({plan})",
+      "heading": "New plan enquiry",
+      "body": "{name} from {company} sent an enquiry from the contact page. Reply within one business day.",
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "companyLabel": "Company",
+      "planLabel": "Plan",
+      "replyLabel": "Reply by",
+      "replyCall": "Phone call",
+      "replyEmail": "Email",
+      "languageLabel": "Language",
+      "messageLabel": "Message",
+      "cta": "Open the enquiry",
+      "undecided": "Undecided"
+    },
+    "enquiry": {
+      "details": "Details",
+      "name": "Name",
+      "email": "Email",
+      "company": "Company",
+      "plan": "Plan",
+      "replyBy": "Reply by",
+      "replyCall": "Phone call",
+      "replyEmail": "Email",
+      "language": "Language",
+      "received": "Received",
+      "message": "Message",
+      "noMessage": "No message.",
+      "reply": "Reply by email"
     }
   },
   "storefront": {

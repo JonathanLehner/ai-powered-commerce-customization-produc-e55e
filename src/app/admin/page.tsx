@@ -173,7 +173,9 @@ export default async function AdminOverviewPage() {
                   <li key={enquiry.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground">
-                        {enquiry.company} · {enquiry.name}
+                        <Link href={`/admin/enquiries/${enquiry.id}`} className="hover:underline">
+                          {enquiry.company} · {enquiry.name}
+                        </Link>
                       </p>
                       <p className="text-xs text-muted-foreground">
                         <a href={`mailto:${enquiry.email}`} className="hover:underline">

@@ -368,6 +368,10 @@ export function listPlanEnquiries(limit = 20) {
   return db.find<PlanEnquiry>(COLLECTIONS.planEnquiries, {}, { sort: { createdAt: -1 }, limit });
 }
 
+export function getPlanEnquiry(id: string) {
+  return db.findOne<PlanEnquiry>(COLLECTIONS.planEnquiries, { id });
+}
+
 /** How a resubmitted form finds the enquiry it already created. */
 export function getPlanEnquiryByKey(submissionKey: string) {
   return db.findOne<PlanEnquiry>(COLLECTIONS.planEnquiries, { submissionKey });

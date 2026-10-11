@@ -388,7 +388,19 @@
       "plan": "プランを選択してください。"
     },
     "duplicate": "{name} 様、ありがとうございます。お問い合わせはすでに受け付けています。1 営業日以内にご返信します。",
-    "received": "{name} 様、ありがとうございます。{plan, select, unsure {最適なプラン} other {{planName} プラン}}に関するお問い合わせを受け付けました。1 営業日以内に{call, select, yes {お電話いたします} other {メールでご返信します}}。"
+    "received": "{name} 様、ありがとうございます。{plan, select, unsure {最適なプラン} other {{planName} プラン}}に関するお問い合わせを受け付けました。1 営業日以内に{call, select, yes {お電話いたします} other {メールでご返信します}}。",
+    "email": {
+      "subject": "お問い合わせを受け付けました",
+      "heading": "Parcelith へのお問い合わせありがとうございます",
+      "body": "{plan, select, unsure {最適なプラン} other {{planName} プラン}}に関するお問い合わせを受け付けました。1 営業日以内に{call, select, yes {お電話いたします} other {メールでご返信します}}。",
+      "companyLabel": "会社名",
+      "planLabel": "プラン",
+      "replyLabel": "ご連絡方法",
+      "replyCall": "お電話",
+      "replyEmail": "メール",
+      "messageLabel": "お問い合わせ内容",
+      "undecided": "まだ決めていない"
+    }
   },
   "terms": {
     "metaTitle": "利用規約",
@@ -2942,6 +2954,37 @@
       "member": "メンバー",
       "planFor": "{name} のプラン",
       "setPlan": "プランを設定"
+    },
+    "enquiryEmail": {
+      "subject": "新しいお問い合わせ: {company}（{plan}）",
+      "heading": "新しいプランのお問い合わせ",
+      "body": "{company} の {name} 様からお問い合わせページ経由でお問い合わせがありました。1 営業日以内にご返信ください。",
+      "nameLabel": "お名前",
+      "emailLabel": "メール",
+      "companyLabel": "会社名",
+      "planLabel": "プラン",
+      "replyLabel": "ご連絡方法",
+      "replyCall": "お電話",
+      "replyEmail": "メール",
+      "languageLabel": "言語",
+      "messageLabel": "内容",
+      "cta": "お問い合わせを開く",
+      "undecided": "未定"
+    },
+    "enquiry": {
+      "details": "詳細",
+      "name": "お名前",
+      "email": "メール",
+      "company": "会社名",
+      "plan": "プラン",
+      "replyBy": "ご連絡方法",
+      "replyCall": "お電話",
+      "replyEmail": "メール",
+      "language": "言語",
+      "received": "受信日時",
+      "message": "内容",
+      "noMessage": "メッセージはありません。",
+      "reply": "メールで返信"
     }
   },
   "storefront": {

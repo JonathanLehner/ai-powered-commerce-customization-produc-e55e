@@ -217,7 +217,12 @@ EMAIL_PROVIDER=resend
 EMAIL_API_KEY=…
 EMAIL_FROM="Northwind Supply <orders@northwind.example>"
 APP_ORIGIN=https://…        # optional; otherwise the request's own origin is used
+SALES_INBOX=sales@…         # optional, comma separated; otherwise every platform admin
 ```
+
+A Contact sales enquiry emails the visitor a confirmation in the language of the
+page they used, and alerts `SALES_INBOX` with the details, a reply-to set to the
+visitor and a link to the enquiry at `/admin/enquiries/<id>`.
 
 ### Demo accounts
 
