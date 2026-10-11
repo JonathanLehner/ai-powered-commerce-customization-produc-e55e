@@ -8,6 +8,7 @@ import { Callout } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import type { FulfillmentSource } from "@/lib/countries";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
 import { CheckoutForm } from "./CheckoutForm";
 import { buttonVariants } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export async function generateMetadata({
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Checkout", ...notFoundRobots };
   const t = await shopperTranslator(store, shopperLocale(store, locale));
-  return { title: t("checkout.title") };
+  return shopperPageMetadata(store, shopperLocale(store, locale), "/checkout", { title: t("checkout.title") });
 }
 
 export default async function CheckoutPage({

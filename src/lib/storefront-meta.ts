@@ -5,12 +5,15 @@
  * Both are white-labelled: the shopper is on the client's shop, not on
  * Parcelith, so nothing here names the platform. The store or catalogue is the
  * title suffix, the description talks about that shop, and the share image is
- * the store's own logo. The one place Parcelith is still named is the small
+ * the store's own: drawn in its colours on a storefront, its logo on a portal. The one place Parcelith is still named is the small
  * "powered by" line in the footer, which is a credit rather than branding.
  */
 import type { Metadata } from "next";
+import type { Locale } from "@/i18n/locales";
 import type { ShopperTranslator } from "@/i18n/shopper-copy";
+import { SITE_ORIGIN, storeLanguageUrls, storeUrl } from "./seo";
 import { sectionsFromTree } from "./storefront-schema";
+import type { SiteContent } from "./translations";
 import type { GiftCatalogue, Store } from "./types";
 
 /** Sentence-terminating punctuation, including the CJK full stop. */
@@ -42,9 +45,25 @@ export function storeTagline(publishedTree: unknown): string | null {
   return null;
 }
 
-/** The share image for a shop — its logo, or nothing rather than a stand-in. */
-function shareImages(store: Store) {
-  return store.logoUrl ? [{ url: store.logoUrl, alt: store.name }] : undefined;
+/**
+ * The store's title and description in one language: what the store wrote in
+ * the editor's Search and sharing panel, else the built-in wording.
+ */
+export function storeSeo(
+  store: Store,
+  t: ShopperTranslator<"meta">,
+  tagline: string | null,
+  site: Pick<SiteContent, "metaTitle" | "metaDescription">,
+): { title: string; description: string } {
+  const title = site.metaTitle.trim() || t("homeTitle", { store: store.name });
+  const fallback = tagline
+    ? t("taglineDescription", {
+        tagline: asSentence(tagline),
+        store: store.name,
+        client: store.clientName,
+      })
+    : t("homeDescription", { store: store.name, client: store.clientName });
+  return { title, description: clamp(site.metaDescription.trim() || fallback) };
 }
 
 /**
@@ -52,35 +71,92 @@ function shareImages(store: Store) {
  *
  * `title.template` is what every page below inherits, so a basket reads
  * "Your basket · Northwind Supply Co". `title.default` covers the store home,
- * which sets no title of its own.
+ * which sets no title of its own. The share image is the `opengraph-image`
+ * route beside the layout, drawn in the store's colours.
  */
 export function storefrontMetadata(
   store: Store,
   t: ShopperTranslator<"meta">,
   tagline: string | null,
+  site: Pick<SiteContent, "metaTitle" | "metaDescription"> = { metaTitle: "", metaDescription: "" },
+  locale: Locale = "en",
 ): Metadata {
-  const title = t("homeTitle", { store: store.name });
-  const description = clamp(
-    tagline
-      ? t("taglineDescription", {
-          tagline: asSentence(tagline),
-          store: store.name,
-          client: store.clientName,
-        })
-      : t("homeDescription", { store: store.name, client: store.clientName }),
-  );
-
+  const seo = storeSeo(store, t, tagline, site);
   return {
-    title: { default: title, template: `%s · ${store.name}` },
-    description,
+    // The share images are served from the platform host, custom domain or not.
+    metadataBase: new URL(SITE_ORIGIN),
+    title: { default: seo.title, template: `%s · ${store.name}` },
+    description: seo.description,
     openGraph: {
       type: "website",
       siteName: store.name,
-      title,
-      description,
-      images: shareImages(store),
+      title: seo.title,
+      description: seo.description,
+      locale,
+      url: storeUrl(store, locale),
+    },
+    twitter: { card: "summary_large_image", title: seo.title, description: seo.description },
+  };
+}
+
+/**
+ * A storefront page's canonical address, hreflang alternates and share
+ * preview. `path` is the page below the store, e.g. `/products`. `title` is
+ * the page's own title; the share preview adds the store name the way the tab
+ * title does, unless `absolute` says the title is already complete.
+ */
+export function shopperPageMetadata(
+  store: Store,
+  locale: Locale,
+  path: string,
+  page: {
+    title?: string;
+    description?: string;
+    absolute?: boolean;
+    robots?: Metadata["robots"];
+    /** The page's own share image route, below the store's language root. Defaults to the store's. */
+    imagePath?: string;
+  },
+): Metadata {
+  const languages = storeLanguageUrls(store, path);
+  const shareTitle = page.title ? (page.absolute ? page.title : `${page.title} · ${store.name}`) : store.name;
+  // Named outright: a page's own `openGraph` replaces the layout's, image and all.
+  const image = {
+    url: `/s/${store.slug}/${locale}${page.imagePath ?? ""}/opengraph-image`,
+    width: 1200,
+    height: 630,
+    type: "image/png",
+    alt: shareTitle,
+  };
+  return {
+    ...(page.title ? { title: page.absolute ? { absolute: page.title } : page.title } : {}),
+    ...(page.description ? { description: page.description } : {}),
+    ...(page.robots ? { robots: page.robots } : {}),
+    alternates: {
+      canonical: storeUrl(store, locale, path),
+      ...(Object.keys(languages).length > 0 ? { languages } : {}),
+    },
+    openGraph: {
+      type: "website",
+      siteName: store.name,
+      title: shareTitle,
+      ...(page.description ? { description: page.description } : {}),
+      locale,
+      url: storeUrl(store, locale, path),
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: shareTitle,
+      ...(page.description ? { description: page.description } : {}),
+      images: [image],
     },
   };
+}
+
+/** The share image for a gift portal: the store's logo, or nothing rather than a stand-in. */
+function shareImages(store: Store) {
+  return store.logoUrl ? [{ url: store.logoUrl, alt: store.name }] : undefined;
 }
 
 /**

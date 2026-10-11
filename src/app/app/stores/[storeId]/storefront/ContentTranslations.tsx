@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
-import { saveCatalogueTranslation, saveProductTranslation } from "@/app/actions/translations";
+import { saveCatalogueTranslation, saveProductSeo, saveProductTranslation } from "@/app/actions/translations";
 import { Badge } from "@/components/ui";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
+import { SEO_LIMITS } from "@/lib/seo";
 import {
   localized,
   translationOf,
@@ -36,6 +37,12 @@ export interface TranslatableItem {
   fields: { key: string; source: string; long?: boolean }[];
   translations: FieldTranslations;
 }
+
+/** What a save hands back: new translations, or new source text for some fields. */
+export type ItemUpdate = { translations?: FieldTranslations; sources?: Record<string, string> };
+
+/** The search title and description, edited in the default language here rather than in the catalog. */
+const SEO_KEYS = ["seoTitle", "seoDescription"] as const;
 
 /** The state badge shown beside a field or a row in a language. */
 export function StateBadge({ state }: { state: TranslationState }) {
@@ -74,12 +81,12 @@ export function ContentTranslations({
   languageLabel: string;
   sourceLabel: string;
   items: TranslatableItem[];
-  onSaved: (id: string, translations: FieldTranslations) => void;
+  onSaved: (id: string, update: ItemUpdate) => void;
 }) {
   const t = useTranslations("editor.content");
-  const [editing, setEditing] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ id: string; seo: boolean } | null>(null);
   const isDefault = locale === defaultLocale;
-  const current = items.find((item) => item.id === editing) ?? null;
+  const current = items.find((item) => item.id === editing?.id) ?? null;
 
   if (items.length === 0) {
     return (
@@ -121,11 +128,28 @@ export function ContentTranslations({
                   </TableCell>
                   <TableCell className="pr-4 text-right">
                     {isDefault ? (
-                      <Link href={item.href} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                        {kind === "product" ? t("editSource") : t("editPortal")}
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        {kind === "product" ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditing({ id: item.id, seo: true })}
+                          >
+                            {t("seo")}
+                          </Button>
+                        ) : null}
+                        <Link href={item.href} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                          {kind === "product" ? t("editSource") : t("editPortal")}
+                        </Link>
+                      </div>
                     ) : (
-                      <Button type="button" variant="outline" size="sm" onClick={() => setEditing(item.id)}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditing({ id: item.id, seo: false })}
+                      >
                         {t("edit")}
                       </Button>
                     )}
@@ -139,7 +163,17 @@ export function ContentTranslations({
 
       <Sheet open={current !== null} onOpenChange={(open) => (open ? null : setEditing(null))}>
         <SheetContent side="right" className="w-full data-[side=right]:sm:max-w-lg">
-          {current ? (
+          {current && editing?.seo ? (
+            <SeoForm
+              key={`${current.id}:seo`}
+              storeId={storeId}
+              item={current}
+              onSaved={(sources) => {
+                onSaved(current.id, { sources });
+                setEditing(null);
+              }}
+            />
+          ) : current ? (
             <TranslationForm
               key={`${current.id}:${locale}`}
               kind={kind}
@@ -149,7 +183,7 @@ export function ContentTranslations({
               sourceLabel={sourceLabel}
               item={current}
               onSaved={(translations) => {
-                onSaved(current.id, translations);
+                onSaved(current.id, { translations });
                 setEditing(null);
               }}
             />
@@ -187,7 +221,16 @@ function TranslationForm({
   function label(key: string, source: string) {
     if (key.startsWith("colour:")) return t("fields.colour", { colour: source });
     if (key.startsWith("tag:")) return t("fields.tag", { tag: source });
-    if (key === "name" || key === "description" || key === "textLabel" || key === "intro") return t(`fields.${key}`);
+    if (
+      key === "name" ||
+      key === "description" ||
+      key === "textLabel" ||
+      key === "intro" ||
+      key === "seoTitle" ||
+      key === "seoDescription"
+    ) {
+      return t(`fields.${key}`);
+    }
     return key;
   }
 
@@ -257,6 +300,96 @@ function TranslationForm({
       <SheetFooter className="border-t border-border">
         <Button type="submit" disabled={busy}>
           {busy ? t("saving") : t("save")}
+        </Button>
+      </SheetFooter>
+    </form>
+  );
+}
+
+/** A product's search title and description in the default language. */
+function SeoForm({
+  storeId,
+  item,
+  onSaved,
+}: {
+  storeId: string;
+  item: TranslatableItem;
+  onSaved: (sources: Record<string, string>) => void;
+}) {
+  const t = useTranslations("editor.content");
+  const source = (key: string) => item.fields.find((f) => f.key === key)?.source ?? "";
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(SEO_KEYS.map((key) => [key, source(key)])),
+  );
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fallback: Record<string, string> = {
+    seoTitle: item.name,
+    seoDescription: source("description").split("\n")[0] ?? "",
+  };
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await saveProductSeo({
+        storeId,
+        productId: item.id,
+        seoTitle: values.seoTitle ?? "",
+        seoDescription: values.seoDescription ?? "",
+      });
+      if (result.status === "error") {
+        setError(result.message ?? t("failed"));
+        return;
+      }
+      toast.success(result.message);
+      onSaved({ seoTitle: result.seoTitle ?? "", seoDescription: result.seoDescription ?? "" });
+    } catch {
+      setError(t("failed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
+      <SheetHeader className="border-b border-border">
+        <SheetTitle>{item.name}</SheetTitle>
+        <SheetDescription>{t("seoDescription")}</SheetDescription>
+      </SheetHeader>
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+        {SEO_KEYS.map((key) => {
+          const id = `seo-${item.id}-${key}`;
+          const props = {
+            id,
+            value: values[key] ?? "",
+            maxLength: SEO_LIMITS[key],
+            placeholder: fallback[key],
+            onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+              setValues((v) => ({ ...v, [key]: e.target.value })),
+          };
+          return (
+            <div key={key} className="grid gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor={id} className="text-xs">
+                  {t(`fields.${key}`)}
+                </Label>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  {(values[key] ?? "").length}/{SEO_LIMITS[key]}
+                </span>
+              </div>
+              {key === "seoDescription" ? <Textarea rows={4} {...props} /> : <Input {...props} />}
+            </div>
+          );
+        })}
+        <p className="text-xs text-muted-foreground">{t("seoFallback")}</p>
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      </div>
+      <SheetFooter className="border-t border-border">
+        <Button type="submit" disabled={busy}>
+          {busy ? t("saving") : t("saveSeo")}
         </Button>
       </SheetFooter>
     </form>

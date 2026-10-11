@@ -5,8 +5,9 @@ import { routing } from "@/i18n/routing";
 import { negotiateShopperLocale } from "@/i18n/shopper-negotiation";
 import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing";
 import { isLive } from "@/lib/artwork";
-import { getGiftCatalogueBySlug, getStore, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
+import { getGiftCatalogueBySlug, getStore, getStoreByDomain, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
+import { SITE_ORIGIN } from "@/lib/seo";
 import type { Store } from "@/lib/types";
 
 /**
@@ -35,7 +36,10 @@ export const config = {
   // catch-all, so they are deliberately absent from `@/lib/routes` — which here
   // would read as "no such address" and label a working session or csrf
   // response 404.
-  matcher: ["/((?!_next/static|_next/image|api/auth/|.*\\.[a-zA-Z0-9]+$).*)"],
+  //
+  // `/sitemap.xml` and `/robots.txt` are files on the platform host, but on a
+  // store's custom domain they are the store's own, so proxy sees them too.
+  matcher: ["/((?!_next/static|_next/image|api/auth/|.*\\.[a-zA-Z0-9]+$).*)", "/sitemap.xml", "/robots.txt"],
 };
 
 const localizeMarketing = createMiddleware(routing);
@@ -51,6 +55,17 @@ function isMarketingAddress(pathname: string): boolean {
 }
 
 export async function proxy(request: NextRequest): Promise<NextResponse | undefined> {
+  // A generated share image is requested at its page's internal address, which
+  // already names the language, so it is served as it is.
+  if (isShareImage(request.nextUrl.pathname)) return undefined;
+
+  const domainStore = await customDomainStore(request);
+  if (domainStore) {
+    const served = await serveCustomDomain(request, domainStore);
+    if (served) return served;
+  }
+  if (request.nextUrl.pathname === "/sitemap.xml" || request.nextUrl.pathname === "/robots.txt") return undefined;
+
   // The public pages live under `[locale]`. next-intl serves English at the
   // root by rewriting `/pricing` to `/en/pricing`, and sends `/en/pricing` back
   // to `/pricing`. Server actions post to the page address too, so this runs
@@ -71,6 +86,63 @@ export async function proxy(request: NextRequest): Promise<NextResponse | undefi
   return isMissing(request.nextUrl.pathname) ? NextResponse.next({ status: 404 }) : undefined;
 }
 
+/** `…/opengraph-image-1a2b3c` and `…/twitter-image-1a2b3c`, the routes Next generates share images at. */
+function isShareImage(pathname: string): boolean {
+  return /\/(opengraph|twitter)-image(-[\w]+)?$/.test(pathname);
+}
+
+const PLATFORM_HOST = new URL(SITE_ORIGIN).hostname;
+
+/**
+ * Hosts that are the platform itself, never a store's domain: they skip the
+ * domain lookup, so the marketing site and the workspace pay nothing for it.
+ */
+function isPlatformHost(host: string): boolean {
+  return (
+    host === PLATFORM_HOST ||
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".clawcorp.ai") ||
+    host.endsWith(".workers.dev") ||
+    host.startsWith("[") ||
+    /^\d+(\.\d+){3}$/.test(host)
+  );
+}
+
+/** The store whose custom domain this request was sent to, if any. */
+async function customDomainStore(request: NextRequest): Promise<Store | null> {
+  const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "");
+  if (!host || isPlatformHost(host)) return null;
+  try {
+    return await getStoreByDomain(host);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * A request on a store's custom domain. `/products/field-tee` there is
+ * `/s/<slug>/products/field-tee` here, and `/sitemap.xml` and `/robots.txt`
+ * are the store's own. The platform's internal addresses (`/s/…`, `/_next`,
+ * `/api`) keep working, since the pages link to them; those return null and
+ * are handled as on the platform host.
+ */
+async function serveCustomDomain(request: NextRequest, store: Store): Promise<NextResponse | null> {
+  const { pathname } = request.nextUrl;
+  if (pathname === "/sitemap.xml" || pathname === "/robots.txt") {
+    const url = request.nextUrl.clone();
+    url.pathname = `/s/${store.slug}${pathname}`;
+    return NextResponse.rewrite(url);
+  }
+  const segments = segmentsOf(pathname);
+  if (["s", "g", "api", "_next"].includes(segments[0] ?? "")) return null;
+  return localizeShopper(request, ["s", store.slug, ...segments], { store, publicRoot: "" });
+}
+
 const isRead = (request: NextRequest) => request.method === "GET" || request.method === "HEAD";
 
 /**
@@ -85,19 +157,27 @@ const isRead = (request: NextRequest) => request.method === "GET" || request.met
  * The rewrite also names the language in next-intl's request header, which is
  * how server actions posted from a page read it.
  */
-async function localizeShopper(request: NextRequest, segments: string[]): Promise<NextResponse> {
+async function localizeShopper(
+  request: NextRequest,
+  segments: string[],
+  known?: { store: Store; publicRoot: string },
+): Promise<NextResponse> {
   const [surface, slug, ...after] = segments;
   const requested = isLocale(after[0]) ? after[0] : null;
   const rest = requested ? after.slice(1) : after;
   const root = `/${surface}/${slug}`;
+  // Where redirects point: the surface's own address, or the bare custom domain.
+  const publicRoot = known ? known.publicRoot : root;
   const restPath = rest.length > 0 ? `/${rest.join("/")}` : "";
   const read = isRead(request);
 
-  let store: Store | null | undefined;
-  try {
-    store = await storeFor(surface, decodeSegment(slug));
-  } catch {
-    store = undefined;
+  let store: Store | null | undefined = known?.store;
+  if (!known) {
+    try {
+      store = await storeFor(surface, decodeSegment(slug));
+    } catch {
+      store = undefined;
+    }
   }
   const { locales, defaultLocale } = store
     ? storeLanguages(store)
@@ -107,7 +187,7 @@ async function localizeShopper(request: NextRequest, segments: string[]): Promis
   if (requested) {
     locale = locales.includes(requested) ? requested : defaultLocale;
     if (read && requested === defaultLocale) {
-      return remember(redirectTo(request, `${root}${restPath}`), request, requested);
+      return remember(redirectTo(request, `${publicRoot}${restPath}` || "/"), request, requested);
     }
   } else {
     locale = read
@@ -119,7 +199,7 @@ async function localizeShopper(request: NextRequest, segments: string[]): Promis
           { locales, defaultLocale },
         )
       : defaultLocale;
-    if (locale !== defaultLocale) return redirectTo(request, `${root}/${locale}${restPath}`);
+    if (locale !== defaultLocale) return redirectTo(request, `${publicRoot}/${locale}${restPath}`);
   }
 
   const missing = read && (await shopperMissing(`${root}${restPath}`, store, rest));

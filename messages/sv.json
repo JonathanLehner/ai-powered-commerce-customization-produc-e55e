@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "Använd bara platshållarna från standardtexten.",
       "nothingToTranslate": "Allt är redan översatt.",
       "translated": "{count, plural, one {# fält översatt.} other {# fält översatta.}} Granska innan du publicerar.",
-      "translateFailed": "Översättningen misslyckades. Försök igen."
+      "translateFailed": "Översättningen misslyckades. Försök igen.",
+      "seoSaved": "SEO-uppgifter sparade."
     },
     "admin": {
       "supplierGone": "Leverantören hittades inte.",
@@ -2391,6 +2392,14 @@
         "footerNote": "Notis i sidfoten"
       }
     },
+    "seo": {
+      "title": "Sök och delning",
+      "body": "Visas i sökresultat och länkförhandsvisningar. Lämna tomt för att använda standard.",
+      "fields": {
+        "metaTitle": "Butikens titel",
+        "metaDescription": "Butikens beskrivning"
+      }
+    },
     "content": {
       "product": "Produkt",
       "portal": "Presentportal",
@@ -2410,12 +2419,18 @@
         "textLabel": "Etikett för personlig text",
         "colour": "Färg: {colour}",
         "tag": "Tagg: {tag}",
-        "intro": "Introduktion"
+        "intro": "Introduktion",
+        "seoTitle": "SEO-titel",
+        "seoDescription": "SEO-beskrivning"
       },
       "sheetDescription": "Översättning till {language}. Tomma fält visar texten på {source}.",
       "save": "Spara översättning",
       "saving": "Sparar…",
-      "failed": "Det gick inte att spara. Försök igen."
+      "failed": "Det gick inte att spara. Försök igen.",
+      "seo": "SEO",
+      "seoDescription": "Visas i sökresultat och länkförhandsvisningar.",
+      "seoFallback": "Lämna tomt för att använda produktnamn och beskrivning.",
+      "saveSeo": "Spara"
     },
     "shopText": {
       "open": "Butikstexter",

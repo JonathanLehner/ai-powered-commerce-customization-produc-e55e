@@ -434,11 +434,13 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
     // and only its URL is posted back with the form.
     const rendered = readStoredImage(formData, `mockup_${area.id}`, "mockup");
     if (!rendered) continue;
+    const share = readStoredImage(formData, `mockupShare_${area.id}`, "mockup");
 
     mockups.push({
       id: newId("mck"),
       view: area.view,
       url: rendered.url,
+      shareUrl: share?.url ?? null,
       colour: base.colour,
       generatedAt: new Date().toISOString(),
       approved: false,

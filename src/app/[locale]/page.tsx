@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
-import { alternatesFor, asLocale } from "@/i18n/metadata";
+import { alternatesFor, asLocale, shareFor } from "@/i18n/metadata";
 import { Link as IntlLink } from "@/i18n/navigation";
 import { IMAGES } from "@/lib/images";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,9 @@ const LIFECYCLE = ["create", "payments", "products", "storefront", "sell"] as co
 const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
 
 export async function generateMetadata({ params }: PageProps<"/[locale]">): Promise<Metadata> {
-  return { alternates: alternatesFor("/", asLocale((await params).locale)) };
+  const locale = asLocale((await params).locale);
+  const t = await getTranslations({ locale, namespace: "meta" });
+  return { alternates: alternatesFor("/", locale), ...shareFor("/", locale, t("title"), t("description")) };
 }
 
 /** A numbered step, used by the gifting flow and the lifecycle. */

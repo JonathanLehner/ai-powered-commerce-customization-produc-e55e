@@ -109,11 +109,14 @@ async function composeMockup(baseUrl, area, layer) {
 
   const left = Math.round(areaX + layer.x * areaW - out.info.width / 2);
   const top = Math.round(areaY + layer.y * areaH - out.info.height / 2);
-  const buf = await sharp(baseBuf)
-    .composite([{ input: out.data, left: Math.max(0, left), top: Math.max(0, top) }])
-    .webp({ quality: 82 })
-    .toBuffer();
-  return upload(buf, "image/webp");
+  const composed = sharp(baseBuf).composite([{ input: out.data, left: Math.max(0, left), top: Math.max(0, top) }]);
+  // The JPEG copy is what link previews draw: their renderer cannot read WebP.
+  const [buf, share] = await Promise.all([
+    composed.clone().webp({ quality: 82 }).toBuffer(),
+    composed.clone().flatten({ background: "#ffffff" }).jpeg({ quality: 85 }).toBuffer(),
+  ]);
+  const [url, shareUrl] = await Promise.all([upload(buf, "image/webp"), upload(share, "image/jpeg")]);
+  return { url, shareUrl };
 }
 
 /* ------------------------------------------------------------ static content */
@@ -858,7 +861,7 @@ async function main() {
       for (const colour of colours) {
         const base = cat.mockups.find((m) => m.view === area.view && m.colour === colour)
           ?? cat.mockups.find((m) => m.view === area.view);
-        const url = await composeMockup(base.url, area, {
+        const { url, shareUrl } = await composeMockup(base.url, area, {
           artworkUrl: art.url,
           pixelWidth: art.pixelWidth,
           pixelHeight: art.pixelHeight,
@@ -871,6 +874,7 @@ async function main() {
           id: id("mck"),
           view: area.view,
           url,
+          shareUrl,
           colour,
           generatedAt: iso(plan.importedDaysAgo),
           approved: plan.status !== "draft",

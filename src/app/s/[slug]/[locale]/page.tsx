@@ -3,12 +3,17 @@ import Link from "next/link";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
-import { shopperIntl, shopperLocale, shopperMessages, storefrontAlternates } from "@/i18n/storefront";
+import { getTranslations } from "next-intl/server";
+import { JsonLd } from "@/components/JsonLd";
+import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { getStoreBySlug, getStorefront, listPublishedProducts } from "@/lib/data";
 import { convert } from "@/lib/pricing";
 import { sectionsFromTree } from "@/lib/storefront-schema";
-import { localizeProduct, localizeSectionProps } from "@/lib/translations";
+import { organizationJsonLd, storeUrl } from "@/lib/seo";
+import { shopperPageMetadata, storeSeo, storeTagline } from "@/lib/storefront-meta";
+import { storeSupport } from "@/lib/support";
+import { localizeProduct, localizeSectionProps, siteContent } from "@/lib/translations";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,10 +25,16 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Store not found", ...notFoundRobots };
-  // The storefront layout titles and describes the store itself; the home page
-  // is that store, so it adds only its addresses rather than saying the name
-  // twice in one tab.
-  return { alternates: storefrontAlternates(store, shopperLocale(store, locale)) };
+  // The home page is the store itself, so it carries the store's own title and
+  // description rather than adding a page name to it.
+  const active = shopperLocale(store, locale);
+  const [storefront, t] = await Promise.all([
+    getStorefront(store.id),
+    getTranslations({ locale: active, namespace: "storefront.meta" }),
+  ]);
+  const site = siteContent(storefront?.published, active, storeLanguages(store).defaultLocale);
+  const seo = storeSeo(store, t, storeTagline(storefront?.published), site);
+  return shopperPageMetadata(store, active, "", { title: seo.title, description: seo.description, absolute: true });
 }
 
 export default async function StorefrontHome({
@@ -81,9 +92,23 @@ export default async function StorefrontHome({
     );
   }
 
+  const support = storeSupport(store);
+  const organization = (
+    <JsonLd
+      data={organizationJsonLd({
+        name: store.name,
+        url: storeUrl(store, locale),
+        logo: store.logoUrl,
+        email: support.email,
+        phone: support.phone,
+      })}
+    />
+  );
+
   if (sections.length === 0) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
+        {organization}
         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
           {t("home.comingSoonTitle", { store: store.name })}
         </h1>
@@ -101,6 +126,7 @@ export default async function StorefrontHome({
 
   return (
     <>
+      {organization}
       {sections.map((section) => (
         <RenderSection key={section.id} type={section.type} props={section.props} ctx={ctx} />
       ))}

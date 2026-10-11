@@ -6,6 +6,7 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { EmptyState } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +22,7 @@ export async function generateMetadata({
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Basket", ...notFoundRobots };
   const t = await shopperTranslator(store, shopperLocale(store, locale));
-  return { title: t("basket.title") };
+  return shopperPageMetadata(store, shopperLocale(store, locale), "/cart", { title: t("basket.title") });
 }
 
 export default async function CartPage({ params }: { params: Promise<{ slug: string; locale: string }> }) {

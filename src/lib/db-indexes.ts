@@ -19,6 +19,7 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   stores: [
     byId,
     { key: { slug: 1 }, unique: true },
+    { key: { customDomain: 1 } },
     { key: { agencyId: 1, createdAt: -1 } },
     { key: { agencyId: 1, status: 1 } },
     { key: { createdAt: -1 } },

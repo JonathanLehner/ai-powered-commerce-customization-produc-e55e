@@ -27,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 /**
  * A client storefront is white-labelled, so its tab titles, description and
  * share preview belong to the shop rather than to Parcelith: the title suffix
- * is the store name, and the preview carries the store logo. An address that
+ * is the store name, and the preview is drawn in the store's colours. An address that
  * belongs to no store falls back to the platform's own metadata, because that
  * is the chrome the 404 below renders.
  */
@@ -40,8 +40,10 @@ export async function generateMetadata({
   const store = await getStoreBySlug(slug);
   if (!store) return siteMetadata;
   const storefront = await getStorefront(store.id);
-  const t = await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.meta" });
-  return storefrontMetadata(store, t, storeTagline(storefront?.published));
+  const active = shopperLocale(store, locale);
+  const t = await getTranslations({ locale: active, namespace: "storefront.meta" });
+  const site = siteContent(storefront?.published, active, storeLanguages(store).defaultLocale);
+  return storefrontMetadata(store, t, storeTagline(storefront?.published), site, active);
 }
 
 /**

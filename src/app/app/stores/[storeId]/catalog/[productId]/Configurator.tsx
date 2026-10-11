@@ -13,7 +13,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { ActionState } from "@/app/actions/stores";
 import { artworkIssueText } from "@/i18n/artwork-copy";
 import { placementBox, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
-import { renderMockup, sameOriginAsset } from "@/lib/mockup-render";
+import { renderMockupWithShareCopy, sameOriginAsset } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
 import type { Artwork, CatalogProduct, StoreProduct } from "@/lib/types";
 import { classNames } from "@/lib/util";
@@ -248,7 +248,7 @@ export function Configurator({
     // action reports whichever previews did render.
     const rendered = await Promise.allSettled(
       jobs.map(async ({ artwork, target, photo }) => {
-        const blob = await renderMockup(photo.url, target.rect, [
+        const { preview, share } = await renderMockupWithShareCopy(photo.url, target.rect, [
           {
             artworkUrl: artwork.url,
             pixelWidth: artwork.pixelWidth,
@@ -259,18 +259,24 @@ export function Configurator({
             rotation: artwork.rotation,
           },
         ]);
-        const stored = await uploadImage(
-          new File([blob], `${target.id}.webp`, { type: blob.type || "image/webp" }),
-          "mockup",
-          { storeId: product.storeId, productId: product.id },
-        );
-        return { areaId: target.id, stored };
+        const context = { storeId: product.storeId, productId: product.id };
+        const [stored, shareCopy] = await Promise.all([
+          uploadImage(new File([preview], `${target.id}.webp`, { type: preview.type || "image/webp" }), "mockup", context),
+          // Only link previews read the copy, so a failed upload leaves the preview standing.
+          uploadImage(new File([share], `${target.id}-share.jpg`, { type: "image/jpeg" }), "mockup", context).catch(
+            () => null,
+          ),
+        ]);
+        return { areaId: target.id, stored, shareCopy };
       }),
     );
 
     for (const result of rendered) {
       if (result.status !== "fulfilled") continue;
       appendStoredImage(formData, `mockup_${result.value.areaId}`, result.value.stored);
+      if (result.value.shareCopy) {
+        appendStoredImage(formData, `mockupShare_${result.value.areaId}`, result.value.shareCopy);
+      }
     }
   }
 

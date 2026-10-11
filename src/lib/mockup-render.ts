@@ -40,12 +40,12 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+function toBlob(canvas: HTMLCanvasElement, type = "image/webp", quality = 0.82): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("The preview could not be encoded."))),
-      "image/webp",
-      0.82,
+      type,
+      quality,
     );
   });
 }
@@ -59,6 +59,25 @@ export async function renderMockup(
   rect: Rect,
   layers: MockupLayer[],
 ): Promise<Blob> {
+  return toBlob(await drawMockup(baseUrl, rect, layers));
+}
+
+/**
+ * The same preview, plus a JPEG copy for link previews: the share image
+ * renderer cannot draw WebP, and the server has no image toolchain to convert
+ * one later.
+ */
+export async function renderMockupWithShareCopy(
+  baseUrl: string,
+  rect: Rect,
+  layers: MockupLayer[],
+): Promise<{ preview: Blob; share: Blob }> {
+  const canvas = await drawMockup(baseUrl, rect, layers);
+  const [preview, share] = await Promise.all([toBlob(canvas), toBlob(canvas, "image/jpeg", 0.85)]);
+  return { preview, share };
+}
+
+async function drawMockup(baseUrl: string, rect: Rect, layers: MockupLayer[]): Promise<HTMLCanvasElement> {
   const base = await loadImage(baseUrl);
   const naturalW = base.naturalWidth || MAX_EDGE;
   const naturalH = base.naturalHeight || MAX_EDGE;
@@ -111,5 +130,5 @@ export async function renderMockup(
     }
   }
 
-  return toBlob(canvas);
+  return canvas;
 }

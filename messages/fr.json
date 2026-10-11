@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "Utilisez uniquement les variables du texte par défaut.",
       "nothingToTranslate": "Tout est déjà traduit.",
       "translated": "{count, plural, one {# champ traduit.} other {# champs traduits.}} Vérifiez avant de publier.",
-      "translateFailed": "La traduction a échoué. Réessayez."
+      "translateFailed": "La traduction a échoué. Réessayez.",
+      "seoSaved": "Informations SEO enregistrées."
     },
     "admin": {
       "supplierGone": "Fournisseur introuvable.",
@@ -2391,6 +2392,14 @@
         "footerNote": "Note de pied de page"
       }
     },
+    "seo": {
+      "title": "Recherche et partage",
+      "body": "Affiché dans les résultats de recherche et les aperçus de liens. Laissez vide pour utiliser la valeur par défaut.",
+      "fields": {
+        "metaTitle": "Titre de la boutique",
+        "metaDescription": "Description de la boutique"
+      }
+    },
     "content": {
       "product": "Produit",
       "portal": "Portail cadeaux",
@@ -2410,12 +2419,18 @@
         "textLabel": "Libellé de personnalisation",
         "colour": "Couleur : {colour}",
         "tag": "Étiquette : {tag}",
-        "intro": "Introduction"
+        "intro": "Introduction",
+        "seoTitle": "Titre SEO",
+        "seoDescription": "Description SEO"
       },
       "sheetDescription": "Traduction en {language}. Les champs vides affichent le texte en {source}.",
       "save": "Enregistrer la traduction",
       "saving": "Enregistrement…",
-      "failed": "Enregistrement impossible. Réessayez."
+      "failed": "Enregistrement impossible. Réessayez.",
+      "seo": "SEO",
+      "seoDescription": "Affiché dans les résultats de recherche et les aperçus de liens.",
+      "seoFallback": "Laissez vide pour utiliser le nom et la description du produit.",
+      "saveSeo": "Enregistrer"
     },
     "shopText": {
       "open": "Textes de la boutique",

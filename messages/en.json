@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "Use only the placeholders in the default text.",
       "nothingToTranslate": "Everything is already translated.",
       "translated": "{count, plural, one {Translated # field.} other {Translated # fields.}} Review before publishing.",
-      "translateFailed": "Translation failed. Try again."
+      "translateFailed": "Translation failed. Try again.",
+      "seoSaved": "SEO details saved."
     },
     "admin": {
       "supplierGone": "Supplier not found.",
@@ -2391,6 +2392,14 @@
         "footerNote": "Footer note"
       }
     },
+    "seo": {
+      "title": "Search and sharing",
+      "body": "Shown in search results and link previews. Leave empty to use the default.",
+      "fields": {
+        "metaTitle": "Store title",
+        "metaDescription": "Store description"
+      }
+    },
     "content": {
       "product": "Product",
       "portal": "Gift portal",
@@ -2410,12 +2419,18 @@
         "textLabel": "Personalisation label",
         "colour": "Colour: {colour}",
         "tag": "Tag: {tag}",
-        "intro": "Intro"
+        "intro": "Intro",
+        "seoTitle": "SEO title",
+        "seoDescription": "SEO description"
       },
       "sheetDescription": "{language} translation. Empty fields show the {source} text.",
       "save": "Save translation",
       "saving": "Saving…",
-      "failed": "Could not save. Try again."
+      "failed": "Could not save. Try again.",
+      "seo": "SEO",
+      "seoDescription": "Shown in search results and link previews.",
+      "seoFallback": "Leave empty to use the product name and description.",
+      "saveSeo": "Save"
     },
     "shopText": {
       "open": "Shop text",

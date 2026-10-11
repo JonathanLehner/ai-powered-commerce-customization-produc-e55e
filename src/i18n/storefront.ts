@@ -7,6 +7,7 @@ import { applyShopText } from "@/lib/shop-text";
 import type { Store } from "@/lib/types";
 import { formatMinorUnits } from "./format";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "./locales";
+import { storeLanguageUrls, storeUrl } from "@/lib/seo";
 import { localeBase, storeLanguages } from "./storefront-routing";
 
 type StoreLanguageFields = Pick<Store, "defaultLanguage" | "languages" | "shopText">;
@@ -62,24 +63,17 @@ export async function shopperIntl(store: StoreLanguageFields, requested: string,
 /**
  * The canonical address of a storefront page and its hreflang alternates, one
  * per enabled language. `path` is the page below the store, e.g. `/products`.
+ * Both are absolute, on the store's verified custom domain when it has one.
  */
 export function storefrontAlternates(
-  store: StoreLanguageFields & Pick<Store, "slug">,
+  store: StoreLanguageFields & Pick<Store, "slug" | "customDomain" | "domainStatus">,
   locale: Locale,
   path = "",
 ): Metadata["alternates"] {
-  const { locales, defaultLocale } = storeLanguages(store);
-  const root = `/s/${store.slug}`;
-  const at = (option: Locale) => `${localeBase(root, option, defaultLocale)}${path}`;
+  const languages = storeLanguageUrls(store, path);
   return {
-    canonical: at(locale),
-    languages:
-      locales.length > 1
-        ? {
-            ...Object.fromEntries(locales.map((option) => [option, at(option)])),
-            "x-default": at(defaultLocale),
-          }
-        : undefined,
+    canonical: storeUrl(store, locale, path),
+    languages: Object.keys(languages).length > 0 ? languages : undefined,
   };
 }
 

@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "Gebruik alleen de variabelen uit de standaardtekst.",
       "nothingToTranslate": "Alles is al vertaald.",
       "translated": "{count, plural, one {# veld vertaald.} other {# velden vertaald.}} Controleer voor publicatie.",
-      "translateFailed": "Vertalen mislukt. Probeer het opnieuw."
+      "translateFailed": "Vertalen mislukt. Probeer het opnieuw.",
+      "seoSaved": "SEO-gegevens opgeslagen."
     },
     "admin": {
       "supplierGone": "Leverancier niet gevonden.",
@@ -2391,6 +2392,14 @@
         "footerNote": "Voettekstnotitie"
       }
     },
+    "seo": {
+      "title": "Zoeken en delen",
+      "body": "Wordt getoond in zoekresultaten en linkvoorbeelden. Laat leeg om de standaard te gebruiken.",
+      "fields": {
+        "metaTitle": "Winkeltitel",
+        "metaDescription": "Winkelbeschrijving"
+      }
+    },
     "content": {
       "product": "Product",
       "portal": "Cadeauportaal",
@@ -2410,12 +2419,18 @@
         "textLabel": "Label personalisatie",
         "colour": "Kleur: {colour}",
         "tag": "Tag: {tag}",
-        "intro": "Introductie"
+        "intro": "Introductie",
+        "seoTitle": "SEO-titel",
+        "seoDescription": "SEO-beschrijving"
       },
       "sheetDescription": "Vertaling in het {language}. Lege velden tonen de tekst in het {source}.",
       "save": "Vertaling opslaan",
       "saving": "Opslaan…",
-      "failed": "Opslaan mislukt. Probeer het opnieuw."
+      "failed": "Opslaan mislukt. Probeer het opnieuw.",
+      "seo": "SEO",
+      "seoDescription": "Wordt getoond in zoekresultaten en linkvoorbeelden.",
+      "seoFallback": "Laat leeg om de productnaam en beschrijving te gebruiken.",
+      "saveSeo": "Opslaan"
     },
     "shopText": {
       "open": "Winkelteksten",

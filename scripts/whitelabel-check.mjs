@@ -46,16 +46,24 @@ assert.ok(meta.description.includes("Kit the whole team out."), "the tagline is 
 assert.ok(meta.description.includes("Northwind Supply Co"));
 assert.ok(meta.description.includes("Northwind Ltd"));
 
-// The share preview is the shop's, with the shop's logo.
+// The share preview is the shop's. Its image is the storefront's generated
+// opengraph-image route, so the metadata names none that would override it.
 assert.equal(meta.openGraph.siteName, "Northwind Supply Co");
 assert.equal(meta.openGraph.title, meta.title.default);
 assert.equal(meta.openGraph.description, meta.description);
-assert.deepEqual(meta.openGraph.images, [
-  { url: "https://assets.clawcorp.ai/logos/northwind.png", alt: "Northwind Supply Co" },
-]);
+assert.equal(meta.openGraph.images, undefined);
+assert.equal(meta.twitter.card, "summary_large_image");
+assert.equal(meta.twitter.title, meta.title.default);
 
-// A store without a logo gets no share image rather than a stand-in one.
-assert.equal(storefrontMetadata({ ...store, logoUrl: null }, shopperT("en", "meta"), null).openGraph.images, undefined);
+// The title and description the store wrote in the editor win over the defaults.
+const edited = storefrontMetadata(store, shopperT("en", "meta"), storeTagline(published), {
+  metaTitle: "Northwind team kit",
+  metaDescription: "Hoodies, tees and mugs for the Northwind crew.",
+});
+assert.equal(edited.title.default, "Northwind team kit");
+assert.equal(edited.title.template, "%s · Northwind Supply Co");
+assert.equal(edited.description, "Hoodies, tees and mugs for the Northwind crew.");
+assert.equal(edited.openGraph.title, "Northwind team kit");
 
 // Without a published hero the description still describes this store.
 const plain = storefrontMetadata(store, shopperT("en", "meta"), null);

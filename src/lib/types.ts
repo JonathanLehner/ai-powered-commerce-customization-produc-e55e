@@ -408,6 +408,12 @@ export interface MockupImage {
   id: string;
   view: MockupView;
   url: string;
+  /**
+   * A JPEG copy for link previews, whose renderer cannot draw WebP. Absent on
+   * mockups made before share images existed; `npm run backfill-share-images`
+   * fills those in.
+   */
+  shareUrl?: string | null;
   colour: string;
   generatedAt: string;
   approved: boolean;
@@ -455,6 +461,9 @@ export interface StoreProduct {
    */
   sku?: string;
   description: string;
+  /** Search and share title and description. Empty or absent uses the name and description. */
+  seoTitle?: string;
+  seoDescription?: string;
   tags: string[];
   category: "apparel" | "drinkware";
   status: "draft" | "in_review" | "published" | "archived";

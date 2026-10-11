@@ -66,6 +66,8 @@ assert.deepEqual(siteContent(tree, "de", "en"), {
   navShop: "",
   navOrders: "",
   footerNote: "Made in Leeds",
+  metaTitle: "",
+  metaDescription: "",
 });
 
 // Translate missing: finds only untranslated copy and never overwrites.

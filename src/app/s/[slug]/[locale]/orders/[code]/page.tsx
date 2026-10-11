@@ -6,6 +6,7 @@ import { Badge, Callout, DataList } from "@/components/ui";
 import { localCountryName } from "@/lib/countries";
 import type { ShopperMessages } from "@/i18n/shopper-copy";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
 import { verifyOrderToken } from "@/lib/order-access";
 import { shopperTimeline } from "@/lib/order-timeline";
@@ -20,17 +21,17 @@ import { cn } from "@/lib/utils";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string; locale: string }>;
+  params: Promise<{ slug: string; locale: string; code: string }>;
 }): Promise<Metadata> {
-  const { slug, locale } = await params;
+  const { slug, locale, code } = await params;
   const store = await getStoreBySlug(slug);
-  const t = store
-    ? await shopperTranslator(store, shopperLocale(store, locale))
-    : null;
-  return {
-    title: t ? t("order.title") : "Order status",
-    robots: { index: false, follow: false },
-  };
+  const robots = { index: false, follow: false };
+  if (!store) return { title: "Order status", robots };
+  const t = await shopperTranslator(store, shopperLocale(store, locale));
+  return shopperPageMetadata(store, shopperLocale(store, locale), `/orders/${encodeURIComponent(code)}`, {
+    title: t("order.title"),
+    robots,
+  });
 }
 
 /** What each order state means for the shopper, in the storefront's language. */

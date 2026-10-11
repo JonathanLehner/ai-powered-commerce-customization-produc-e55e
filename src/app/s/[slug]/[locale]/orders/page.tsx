@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { UnknownStoreView } from "@/components/NotFoundViews";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getStoreBySlug } from "@/lib/data";
 import { OrderLookupForm } from "./OrderLookupForm";
 
@@ -11,13 +12,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug, locale } = await params;
   const store = await getStoreBySlug(slug);
-  const t = store
-    ? await shopperTranslator(store, shopperLocale(store, locale))
-    : null;
-  return {
-    title: t ? t("order.title") : "Order status",
-    robots: { index: false, follow: false },
-  };
+  const robots = { index: false, follow: false };
+  if (!store) return { title: "Order status", robots };
+  const t = await shopperTranslator(store, shopperLocale(store, locale));
+  return shopperPageMetadata(store, shopperLocale(store, locale), "/orders", { title: t("order.title"), robots });
 }
 
 export default async function OrderLookupPage({

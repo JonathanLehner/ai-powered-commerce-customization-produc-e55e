@@ -114,7 +114,20 @@ export const SITE_FIELDS = [
   { key: "footerNote", type: "textarea" },
 ] as const;
 
-export type SiteFieldKey = (typeof SITE_FIELDS)[number]["key"];
+/**
+ * The store's title and description for search results and share previews.
+ * Kept on the root node beside the site copy, so they are translated, drafted
+ * and published the same way. Empty means the built-in default.
+ */
+export const SEO_FIELDS = [
+  { key: "metaTitle", type: "text" },
+  { key: "metaDescription", type: "textarea" },
+] as const;
+
+/** Every copy field on the root node. */
+const ROOT_FIELDS = [...SITE_FIELDS, ...SEO_FIELDS];
+
+export type SiteFieldKey = (typeof ROOT_FIELDS)[number]["key"];
 export type SiteContent = Record<SiteFieldKey, string>;
 
 function rootProps(tree: unknown): Record<string, unknown> {
@@ -128,7 +141,7 @@ export function siteContent(tree: unknown, locale: string, defaultLocale: string
   const props = rootProps(tree);
   const translations = props[I18N_PROP] as FieldTranslations | undefined;
   const out = {} as SiteContent;
-  for (const { key } of SITE_FIELDS) {
+  for (const { key } of ROOT_FIELDS) {
     out[key] = localized(String(props[key] ?? ""), translations, locale, defaultLocale, key);
   }
   return out;
@@ -139,6 +152,8 @@ export function siteContent(tree: unknown, locale: string, defaultLocale: string
 interface TranslatableProduct {
   name: string;
   description: string;
+  seoTitle?: string;
+  seoDescription?: string;
   shopperCustomization: { textLine: boolean; textLabel: string };
   tags?: string[];
   variants: { colour: string; name: string }[];
@@ -161,6 +176,9 @@ export function productFields(product: TranslatableProduct): { key: string; sour
   const fields: { key: string; source: string; long?: boolean }[] = [
     { key: "name", source: product.name },
     { key: "description", source: product.description, long: true },
+    // Offered even with no source: a language can have its own search title.
+    { key: "seoTitle", source: product.seoTitle ?? "" },
+    { key: "seoDescription", source: product.seoDescription ?? "", long: true },
   ];
   if (product.shopperCustomization.textLine && product.shopperCustomization.textLabel) {
     fields.push({ key: "textLabel", source: product.shopperCustomization.textLabel });
@@ -187,6 +205,8 @@ export function localizeProduct<P extends TranslatableProduct>(product: P, local
     ...product,
     name: localized(product.name, tr, locale, defaultLocale, "name"),
     description: localized(product.description, tr, locale, defaultLocale, "description"),
+    seoTitle: localized(product.seoTitle ?? "", tr, locale, defaultLocale, "seoTitle"),
+    seoDescription: localized(product.seoDescription ?? "", tr, locale, defaultLocale, "seoDescription"),
     shopperCustomization: {
       ...product.shopperCustomization,
       textLabel: localized(product.shopperCustomization.textLabel, tr, locale, defaultLocale, "textLabel"),
@@ -232,7 +252,7 @@ export function missingTreeFields(tree: unknown, locale: string): Record<string,
       if (source.trim() !== "" && !translationOf(translations, locale, key)) out[`${prefix}${key}`] = source;
     }
   };
-  visit("site:", nodes.ROOT?.props ?? {}, SITE_FIELDS.map((f) => f.key));
+  visit("site:", nodes.ROOT?.props ?? {}, ROOT_FIELDS.map((f) => f.key));
   for (const id of nodes.ROOT?.nodes ?? []) {
     const type = nodes[id]?.type?.resolvedName;
     if (type && type in SECTION_DEFS) {

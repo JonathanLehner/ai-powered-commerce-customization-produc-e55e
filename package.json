@@ -37,7 +37,9 @@
     "analytics-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/analytics-check.mjs",
     "customers-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/customers-check.mjs",
     "create-indexes": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/create-indexes.mjs",
-    "backfill-customers": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/backfill-customers.mjs"
+    "backfill-customers": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/backfill-customers.mjs",
+    "seo-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/seo-check.mjs",
+    "backfill-share-images": "node --env-file-if-exists=.env.local scripts/backfill-share-images.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

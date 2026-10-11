@@ -5,13 +5,19 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
 import { Badge, Breadcrumbs } from "@/components/ui";
 import { isLive } from "@/lib/artwork";
-import { shopperIntl, shopperLocale, storefrontAlternates } from "@/i18n/storefront";
+import { JsonLd } from "@/components/JsonLd";
+import { shopperIntl, shopperLocale } from "@/i18n/storefront";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
 import { convert } from "@/lib/pricing";
+import { breadcrumbJsonLd, metaDescription, productJsonLd, storeUrl } from "@/lib/seo";
+import { storeSku } from "@/lib/sku";
+import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { localizeProduct } from "@/lib/translations";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductPurchase, type PurchaseProduct } from "./ProductPurchase";
+
+const productPath = (slug: string) => `/products/${encodeURIComponent(slug)}`;
 
 export async function generateMetadata({
   params,
@@ -22,13 +28,18 @@ export async function generateMetadata({
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Not found", ...notFoundRobots };
   const stored = await getStoreProductBySlug(store.id, productSlug);
-  if (!stored) return { title: "Not found", ...notFoundRobots };
-  const product = localizeProduct(stored, shopperLocale(store, locale), storeLanguages(store).defaultLocale);
-  return {
-    title: product.name,
-    description: product.description.split("\n")[0].slice(0, 155),
-    alternates: storefrontAlternates(store, shopperLocale(store, locale), `/products/${product.slug}`),
-  };
+  if (!stored || !isLive(stored)) return { title: "Not found", ...notFoundRobots };
+  const active = shopperLocale(store, locale);
+  const product = localizeProduct(stored, active, storeLanguages(store).defaultLocale);
+  // The SEO title the store wrote is used as written; the product name gets
+  // the store name after it like every other page.
+  const seoTitle = product.seoTitle?.trim();
+  return shopperPageMetadata(store, active, productPath(product.slug), {
+    title: seoTitle || product.name,
+    absolute: Boolean(seoTitle),
+    description: product.seoDescription?.trim() || metaDescription(product.description),
+    imagePath: productPath(product.slug),
+  });
 }
 
 export default async function StorefrontProductPage({
@@ -80,8 +91,29 @@ export default async function StorefrontProductPage({
     fileRules: catalog?.fileRequirements ?? null,
   };
 
+  const url = storeUrl(store, locale, productPath(product.slug));
+  const enabled = product.variants.filter((v) => v.enabled);
+  const structured = [
+    productJsonLd({
+      name: product.name,
+      description: product.description.trim(),
+      url,
+      sku: storeSku(product, store.channelCode),
+      brand: store.name,
+      images: product.mockups.map((m) => m.url),
+      currency: product.currency,
+      variants: enabled.length > 0 ? enabled : [{ price: product.price, availability: "out_of_stock" as const }],
+    }),
+    breadcrumbJsonLd([
+      { name: store.name, url: storeUrl(store, locale) },
+      { name: t("product.breadcrumbShop"), url: storeUrl(store, locale, "/products") },
+      { name: product.name, url },
+    ]),
+  ];
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 max-lg:pb-28 sm:px-6">
+      <JsonLd data={structured} />
       <Breadcrumbs
         label={t("product.breadcrumb")}
         items={[

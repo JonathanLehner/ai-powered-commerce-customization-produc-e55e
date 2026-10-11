@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { BaseIntlProvider } from "@/components/BaseIntlProvider";
+import { SITE_ORIGIN } from "@/lib/seo";
 import en from "../../messages/en.json";
 
 /**
@@ -27,7 +28,7 @@ const geistMono = Geist_Mono({
 /** Shared by every root layout, so the title template is identical across them. */
 export const siteMetadata: Metadata = {
   // Absolute addresses for the canonical and hreflang links.
-  metadataBase: new URL("https://ai-powered-commerce-customization-produc-e55e.clawcorp.ai"),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: "Parcelith: branded merchandise stores for agencies",
     template: "%s · Parcelith",

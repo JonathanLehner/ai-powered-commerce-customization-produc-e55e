@@ -6,7 +6,10 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
 import { Badge, EmptyState } from "@/components/ui";
 import { getTranslations } from "next-intl/server";
-import { shopperIntl, shopperLocale, storefrontAlternates } from "@/i18n/storefront";
+import { JsonLd } from "@/components/JsonLd";
+import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { breadcrumbJsonLd, storeUrl } from "@/lib/seo";
+import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { localizeProduct } from "@/lib/translations";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
@@ -27,11 +30,10 @@ export async function generateMetadata({
   const t = await getTranslations({ locale: active, namespace: "storefront.meta" });
   // The store name is the title suffix the layout adds, so the tab reads
   // "Shop · Northwind Supply Co" rather than naming the store twice.
-  return {
+  return shopperPageMetadata(store, active, "/products", {
     title: t("shopTitle"),
     description: t("shopDescription", { store: store.name }),
-    alternates: storefrontAlternates(store, active, "/products"),
-  };
+  });
 }
 
 export default async function StorefrontProductsPage({
@@ -62,6 +64,12 @@ export default async function StorefrontProductsPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: store.name, url: storeUrl(store, locale) },
+          { name: t("shop.title"), url: storeUrl(store, locale, "/products") },
+        ])}
+      />
       <header className="max-w-2xl">
         <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {t("shop.title")}

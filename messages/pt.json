@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "Use apenas as variáveis do texto predefinido.",
       "nothingToTranslate": "Já está tudo traduzido.",
       "translated": "{count, plural, one {# campo traduzido.} other {# campos traduzidos.}} Reveja antes de publicar.",
-      "translateFailed": "A tradução falhou. Tente novamente."
+      "translateFailed": "A tradução falhou. Tente novamente.",
+      "seoSaved": "Dados de SEO guardados."
     },
     "admin": {
       "supplierGone": "Fornecedor não encontrado.",
@@ -2391,6 +2392,14 @@
         "footerNote": "Nota de rodapé"
       }
     },
+    "seo": {
+      "title": "Pesquisa e partilha",
+      "body": "Aparece nos resultados de pesquisa e nas pré-visualizações de links. Deixe vazio para usar o padrão.",
+      "fields": {
+        "metaTitle": "Título da loja",
+        "metaDescription": "Descrição da loja"
+      }
+    },
     "content": {
       "product": "Produto",
       "portal": "Portal de presentes",
@@ -2410,12 +2419,18 @@
         "textLabel": "Etiqueta de personalização",
         "colour": "Cor: {colour}",
         "tag": "Etiqueta: {tag}",
-        "intro": "Introdução"
+        "intro": "Introdução",
+        "seoTitle": "Título SEO",
+        "seoDescription": "Descrição SEO"
       },
       "sheetDescription": "Tradução em {language}. Os campos vazios mostram o texto em {source}.",
       "save": "Guardar tradução",
       "saving": "A guardar…",
-      "failed": "Não foi possível guardar. Tente novamente."
+      "failed": "Não foi possível guardar. Tente novamente.",
+      "seo": "SEO",
+      "seoDescription": "Aparece nos resultados de pesquisa e nas pré-visualizações de links.",
+      "seoFallback": "Deixe vazio para usar o nome e a descrição do produto.",
+      "saveSeo": "Guardar"
     },
     "shopText": {
       "open": "Textos da loja",

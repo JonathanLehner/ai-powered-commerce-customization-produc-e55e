@@ -96,6 +96,16 @@ export function getStoreBySlug(slug: string) {
   return db.findOne<Store>(COLLECTIONS.stores, { slug });
 }
 
+/**
+ * The store a custom domain belongs to. A domain typed into more than one store
+ * goes to the verified, active one first.
+ */
+export async function getStoreByDomain(domain: string): Promise<Store | null> {
+  const stores = await db.find<Store>(COLLECTIONS.stores, { customDomain: domain }, { limit: 10 });
+  const rank = (store: Store) => (store.domainStatus === "verified" ? 0 : 2) + (store.status === "active" ? 0 : 1);
+  return stores.sort((a, b) => rank(a) - rank(b))[0] ?? null;
+}
+
 /** Several stores by id, in one read. The store switcher resolves a membership list this way. */
 export async function getStoresByIds(ids: string[]): Promise<Map<string, Store>> {
   const rows = await db.findIn<Store>(COLLECTIONS.stores, "id", ids);

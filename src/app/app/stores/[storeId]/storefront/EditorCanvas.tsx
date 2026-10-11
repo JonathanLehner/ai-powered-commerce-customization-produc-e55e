@@ -34,6 +34,7 @@ import {
   localizeSectionProps,
   missingTreeFields,
   siteContent,
+  SEO_FIELDS,
   SITE_FIELDS,
   translationOf,
   translationState,
@@ -41,7 +42,7 @@ import {
   type FieldTranslations,
 } from "@/lib/translations";
 import { classNames, formatDateTime } from "@/lib/util";
-import { ContentTranslations, StateBadge, type TranslatableItem } from "./ContentTranslations";
+import { ContentTranslations, StateBadge, type ItemUpdate, type TranslatableItem } from "./ContentTranslations";
 import { ShopTextSheet, type ShopTextData } from "./ShopTextSheet";
 
 const Ctx = createContext<StorefrontContext | null>(null);
@@ -404,6 +405,46 @@ function CopyField({
         />
       )}
     </div>
+  );
+}
+
+/** A product or portal row after a save in the sheet. */
+function applyUpdate(item: TranslatableItem, update: ItemUpdate): TranslatableItem {
+  return {
+    ...item,
+    translations: update.translations ?? item.translations,
+    fields: update.sources
+      ? item.fields.map((f) => (f.key in update.sources! ? { ...f, source: update.sources![f.key] } : f))
+      : item.fields,
+  };
+}
+
+/** The store's search title and description, kept on the page's root node. */
+function SeoPanel() {
+  const props = useEditor((state) => ({ props: (state.nodes.ROOT?.data.props ?? {}) as Record<string, unknown> })).props;
+  const t = useTranslations("editor.seo");
+
+  return (
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle asChild className="text-sm font-semibold">
+          <h2>{t("title")}</h2>
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">{t("body")}</p>
+      </CardHeader>
+      <CardContent className="space-y-3.5">
+        {SEO_FIELDS.map((field) => (
+          <CopyField
+            key={field.key}
+            nodeId="ROOT"
+            fieldKey={field.key}
+            label={t(`fields.${field.key}`)}
+            long={field.type === "textarea"}
+            props={props}
+          />
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -783,6 +824,7 @@ function EditorShell(props: ShellProps) {
               <Toolbox />
               <LayerList />
               <SiteContentPanel />
+              <SeoPanel />
             </div>
 
             <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
@@ -848,8 +890,8 @@ function EditorShell(props: ShellProps) {
             languageLabel={languageLabel(locale)}
             sourceLabel={languageLabel(props.defaultLocale)}
             items={products}
-            onSaved={(id, translations) =>
-              setProducts((list) => list.map((p) => (p.id === id ? { ...p, translations } : p)))
+            onSaved={(id, update) =>
+              setProducts((list) => list.map((p) => (p.id === id ? applyUpdate(p, update) : p)))
             }
           />
         </TabsContent>
@@ -862,8 +904,8 @@ function EditorShell(props: ShellProps) {
             languageLabel={languageLabel(locale)}
             sourceLabel={languageLabel(props.defaultLocale)}
             items={portals}
-            onSaved={(id, translations) =>
-              setPortals((list) => list.map((p) => (p.id === id ? { ...p, translations } : p)))
+            onSaved={(id, update) =>
+              setPortals((list) => list.map((p) => (p.id === id ? applyUpdate(p, update) : p)))
             }
           />
         </TabsContent>

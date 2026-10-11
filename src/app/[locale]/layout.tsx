@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
     ...siteMetadata,
     title: { default: t("title"), template: "%s · Parcelith" },
     description: t("description"),
-    openGraph: { title: t("title"), description: t("description"), type: "website", locale },
+    openGraph: { title: t("title"), description: t("description"), type: "website", siteName: "Parcelith", locale },
+    twitter: { card: "summary_large_image", title: t("title"), description: t("description") },
   };
 }
 

@@ -17,6 +17,7 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { db } from "@/lib/mongo";
+import { SEO_LIMITS } from "@/lib/seo";
 import { assertStoreAccess } from "@/lib/session";
 import { isShopTextKey } from "@/lib/shop-text";
 import { overrideProblem } from "@/lib/shop-text-validate";
@@ -108,6 +109,37 @@ export async function saveProductTranslation(input: {
   );
   refresh(store);
   return { status: "success", message: t("translationSaved"), translations };
+}
+
+export interface ProductSeoResult extends ActionState {
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+/**
+ * Saves a product's search title and description in the store's default
+ * language. Other languages are translations, saved with the rest of the
+ * product's fields. Empty uses the product name and description.
+ */
+export async function saveProductSeo(input: {
+  storeId: string;
+  productId: string;
+  seoTitle: string;
+  seoDescription: string;
+}): Promise<ProductSeoResult> {
+  const [{ user, store }, product] = await Promise.all([
+    assertStoreAccess(input.storeId, "store.storefront"),
+    getStoreProduct(input.productId),
+  ]);
+  const t = await getTranslations("actions.storefront");
+  if (!product || product.storeId !== store.id) return { status: "error", message: t("notFound") };
+
+  const seoTitle = String(input.seoTitle ?? "").trim().slice(0, SEO_LIMITS.seoTitle);
+  const seoDescription = String(input.seoDescription ?? "").trim().slice(0, SEO_LIMITS.seoDescription);
+  await updateStoreProduct(product.id, { seoTitle, seoDescription });
+  audit(store, user, "storefront.product_seo", `Updated the search title and description of “${product.name}”`, "product", product.id, {});
+  refresh(store);
+  return { status: "success", message: t("seoSaved"), seoTitle, seoDescription };
 }
 
 export async function saveCatalogueTranslation(input: {

@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "デフォルトのテキストにあるプレースホルダーのみ使用できます。",
       "nothingToTranslate": "すべて翻訳済みです。",
       "translated": "{count, plural, other {# 件を翻訳しました。}}公開前に確認してください。",
-      "translateFailed": "翻訳に失敗しました。もう一度お試しください。"
+      "translateFailed": "翻訳に失敗しました。もう一度お試しください。",
+      "seoSaved": "SEO 情報を保存しました。"
     },
     "admin": {
       "supplierGone": "サプライヤーが見つかりません。",
@@ -2391,6 +2392,14 @@
         "footerNote": "フッターの注記"
       }
     },
+    "seo": {
+      "title": "検索と共有",
+      "body": "検索結果とリンクプレビューに表示されます。空欄の場合は既定値を使用します。",
+      "fields": {
+        "metaTitle": "ストアのタイトル",
+        "metaDescription": "ストアの説明"
+      }
+    },
     "content": {
       "product": "商品",
       "portal": "ギフトポータル",
@@ -2410,12 +2419,18 @@
         "textLabel": "名入れのラベル",
         "colour": "カラー: {colour}",
         "tag": "タグ: {tag}",
-        "intro": "紹介文"
+        "intro": "紹介文",
+        "seoTitle": "SEO タイトル",
+        "seoDescription": "SEO 説明"
       },
       "sheetDescription": "{language}の翻訳。空欄には{source}のテキストが表示されます。",
       "save": "翻訳を保存",
       "saving": "保存中…",
-      "failed": "保存できませんでした。もう一度お試しください。"
+      "failed": "保存できませんでした。もう一度お試しください。",
+      "seo": "SEO",
+      "seoDescription": "検索結果とリンクプレビューに表示されます。",
+      "seoFallback": "空欄の場合は商品名と説明を使用します。",
+      "saveSeo": "保存"
     },
     "shopText": {
       "open": "ショップのテキスト",

@@ -1120,7 +1120,8 @@
       "shopTextPlaceholder": "Verwenden Sie nur die Platzhalter aus dem Standardtext.",
       "nothingToTranslate": "Alles ist bereits übersetzt.",
       "translated": "{count, plural, one {# Feld übersetzt.} other {# Felder übersetzt.}} Vor dem Veröffentlichen prüfen.",
-      "translateFailed": "Übersetzung fehlgeschlagen. Bitte erneut versuchen."
+      "translateFailed": "Übersetzung fehlgeschlagen. Bitte erneut versuchen.",
+      "seoSaved": "SEO-Angaben gespeichert."
     },
     "admin": {
       "supplierGone": "Lieferant nicht gefunden.",
@@ -2391,6 +2392,14 @@
         "footerNote": "Hinweis in der Fußzeile"
       }
     },
+    "seo": {
+      "title": "Suche und Teilen",
+      "body": "Wird in Suchergebnissen und Linkvorschauen angezeigt. Leer lassen, um den Standard zu verwenden.",
+      "fields": {
+        "metaTitle": "Shop-Titel",
+        "metaDescription": "Shop-Beschreibung"
+      }
+    },
     "content": {
       "product": "Produkt",
       "portal": "Geschenkportal",
@@ -2410,12 +2419,18 @@
         "textLabel": "Bezeichnung der Personalisierung",
         "colour": "Farbe: {colour}",
         "tag": "Tag: {tag}",
-        "intro": "Einleitung"
+        "intro": "Einleitung",
+        "seoTitle": "SEO-Titel",
+        "seoDescription": "SEO-Beschreibung"
       },
       "sheetDescription": "Übersetzung auf {language}. Leere Felder zeigen den Text auf {source}.",
       "save": "Übersetzung speichern",
       "saving": "Wird gespeichert…",
-      "failed": "Speichern fehlgeschlagen. Bitte erneut versuchen."
+      "failed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+      "seo": "SEO",
+      "seoDescription": "Wird in Suchergebnissen und Linkvorschauen angezeigt.",
+      "seoFallback": "Leer lassen, um Produktname und Beschreibung zu verwenden.",
+      "saveSeo": "Speichern"
     },
     "shopText": {
       "open": "Shop-Texte",

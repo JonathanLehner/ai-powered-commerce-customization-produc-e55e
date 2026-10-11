@@ -71,6 +71,8 @@ export const ROUTES = [
   "/g/[slug]/[locale]/enter",
   "/g/[slug]/[locale]/order",
 
+  "/s/[slug]/robots.txt",
+  "/s/[slug]/sitemap.xml",
   "/s/[slug]/[locale]",
   "/s/[slug]/[locale]/cart",
   "/s/[slug]/[locale]/checkout",
