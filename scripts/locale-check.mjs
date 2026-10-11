@@ -19,6 +19,7 @@ import { negotiateShopperLocale } from "../src/i18n/shopper-negotiation.ts";
 import { localeBase, storeLanguages, switchLocalePath } from "../src/i18n/storefront-routing.ts";
 import { localCountries, localCountryName, matchCountry, searchCountries } from "../src/lib/countries.ts";
 import { read, shopperFormat, shopperT } from "./shopper-intl.mjs";
+import { productContent } from "./store-content.mjs";
 
 /* -------------------------------------------- the hand-rolled layer is gone */
 
@@ -309,7 +310,8 @@ assert.match(storeBlock("str_lumen"), /languages: \["en", "fr"\],/);
 
 // Seeded copy, not just a seeded setting: the shopper-facing strings the store
 // owns — product names, descriptions and the personalisation label — have to be
-// written in that language rather than left in English.
+// written in that language rather than left in English. The seed takes them
+// from store-content.mjs by slug.
 const ferroPlans = seed
   .split(/\n  \{\n/)
   .filter((block) => block.startsWith('    storeId: "str_ferro", catalogId:'));
@@ -318,14 +320,12 @@ assert.ok(
   "the German demo store needs published products, or its storefront is empty",
 );
 for (const block of ferroPlans) {
-  const description = block.match(/description:\s*\n?\s*"([\s\S]*?)",\n/);
-  assert.ok(description, "a Ferro product has no description");
-  assert.match(
-    description[1],
-    /[äöüßÄÖÜ]/,
-    "Ferro product descriptions must be written in German, not English",
-  );
-  assert.match(block, /textLabel: "[^"]*[äöüÄÖÜ]?[^"]*"/, "a Ferro product has no personalisation label");
+  const slug = block.match(/slug: "([^"]+)"/)?.[1];
+  const copy = productContent(slug);
+  assert.ok(copy?.description, `Ferro product ${slug} has no description`);
+  assert.match(copy.description, /[äöüßÄÖÜ]/, "Ferro product descriptions must be written in German, not English");
+  assert.ok(copy.textLabel, `Ferro product ${slug} has no personalisation label`);
+  assert.ok(copy.i18n?.en?.description, `Ferro product ${slug} has no English description`);
 }
 
 console.log("locale-check: OK");

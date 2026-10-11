@@ -2271,6 +2271,7 @@
         "description": "Beschreibung",
         "textLabel": "Bezeichnung der Personalisierung",
         "colour": "Farbe: {colour}",
+        "tag": "Tag: {tag}",
         "intro": "Einleitung"
       },
       "sheetDescription": "Übersetzung auf {language}. Leere Felder zeigen den Text auf {source}.",

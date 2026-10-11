@@ -2271,6 +2271,7 @@
         "description": "Description",
         "textLabel": "Personalisation label",
         "colour": "Colour: {colour}",
+        "tag": "Tag: {tag}",
         "intro": "Intro"
       },
       "sheetDescription": "{language} translation. Empty fields show the {source} text.",

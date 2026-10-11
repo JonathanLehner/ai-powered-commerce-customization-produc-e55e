@@ -2271,6 +2271,7 @@
         "description": "Beskrivning",
         "textLabel": "Etikett för personlig text",
         "colour": "Färg: {colour}",
+        "tag": "Tagg: {tag}",
         "intro": "Introduktion"
       },
       "sheetDescription": "Översättning till {language}. Tomma fält visar texten på {source}.",

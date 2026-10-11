@@ -116,7 +116,9 @@ export default async function StorefrontProductPage({
           <h2 className="font-heading text-lg font-semibold text-foreground">{t("product.about")}</h2>
           <div className="mt-4 space-y-3 text-sm leading-relaxed text-inksoft">
             {product.description.split("\n\n").map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
+              <p key={index} className="whitespace-pre-line">
+                {paragraph}
+              </p>
             ))}
           </div>
         </div>

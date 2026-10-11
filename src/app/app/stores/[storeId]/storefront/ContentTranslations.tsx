@@ -186,6 +186,7 @@ function TranslationForm({
 
   function label(key: string, source: string) {
     if (key.startsWith("colour:")) return t("fields.colour", { colour: source });
+    if (key.startsWith("tag:")) return t("fields.tag", { tag: source });
     if (key === "name" || key === "description" || key === "textLabel" || key === "intro") return t(`fields.${key}`);
     return key;
   }

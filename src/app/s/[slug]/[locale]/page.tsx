@@ -66,7 +66,7 @@ export default async function StorefrontHome({
       slug: p.slug,
       price: money(convert(p.price, p.currency, currency), currency),
       imageUrl: p.mockups[0]?.url ?? null,
-      tagline: p.description.split("\n")[0].slice(0, 110),
+      tagline: p.description.split("\n")[0],
     })),
   };
 

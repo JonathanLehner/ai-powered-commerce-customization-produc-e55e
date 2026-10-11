@@ -140,6 +140,7 @@ interface TranslatableProduct {
   name: string;
   description: string;
   shopperCustomization: { textLine: boolean; textLabel: string };
+  tags?: string[];
   variants: { colour: string; name: string }[];
   mockups?: { colour?: string | null }[];
   translations?: FieldTranslations;
@@ -148,6 +149,11 @@ interface TranslatableProduct {
 /** The key a colour's label is translated under. */
 export function colourKey(colour: string): string {
   return `colour:${colour.replace(/\./g, "_")}`;
+}
+
+/** The key a tag's label is translated under. */
+export function tagKey(tag: string): string {
+  return `tag:${tag.replace(/\./g, "_")}`;
 }
 
 /** Every field of a product a shopper reads, with its source text. */
@@ -161,6 +167,9 @@ export function productFields(product: TranslatableProduct): { key: string; sour
   }
   for (const colour of [...new Set(product.variants.map((v) => v.colour))]) {
     if (colour) fields.push({ key: colourKey(colour), source: colour });
+  }
+  for (const tag of product.tags ?? []) {
+    if (tag) fields.push({ key: tagKey(tag), source: tag });
   }
   return fields;
 }
@@ -188,6 +197,8 @@ export function localizeProduct<P extends TranslatableProduct>(product: P, local
       name: v.colour ? v.name.replace(v.colour, colour(v.colour)) : v.name,
     })),
     mockups: product.mockups?.map((m) => (m.colour ? { ...m, colour: colour(m.colour) } : m)),
+    // The shop's tag filter reads and links the translated label, so it still matches.
+    tags: product.tags?.map((tag) => localized(tag, tr, locale, defaultLocale, tagKey(tag))),
   };
 }
 

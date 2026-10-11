@@ -2271,6 +2271,7 @@
         "description": "説明",
         "textLabel": "名入れのラベル",
         "colour": "カラー: {colour}",
+        "tag": "タグ: {tag}",
         "intro": "紹介文"
       },
       "sheetDescription": "{language}の翻訳。空欄には{source}のテキストが表示されます。",

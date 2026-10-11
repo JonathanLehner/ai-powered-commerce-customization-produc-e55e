@@ -24,6 +24,7 @@ import {
   translationState,
   withTranslation,
   colourKey,
+  tagKey,
 } from "../src/lib/translations.ts";
 import { read } from "./shopper-intl.mjs";
 
@@ -111,6 +112,11 @@ assert.deepEqual(german.variants.map((v) => [v.colour, v.name]), [["Schwarz", "S
 assert.deepEqual(german.mockups.map((m) => m.colour), ["Schwarz", "Sand"]);
 assert.equal(localizeProduct(product, "fr", "en"), product, "no French translations: unchanged");
 assert.deepEqual(Object.keys(missingProductFields(product, "de")).sort(), ["colour:Sand", "description", "textLabel"]);
+
+// Tags are the shop's filter labels: translated ones replace the source, the rest fall back.
+const tagged = { ...product, tags: ["hoodies", "fleece"], translations: { de: { [tagKey("hoodies")]: { value: "Kapuzenpullis" } } } };
+assert.deepEqual(localizeProduct(tagged, "de", "en").tags, ["Kapuzenpullis", "fleece"]);
+assert.deepEqual(Object.keys(missingProductFields(tagged, "de")).filter((k) => k.startsWith("tag:")), ["tag:fleece"]);
 
 assert.equal(localizedIntro({ intro: "Welcome", translations: { sv: { intro: { value: "Välkommen" } } } }, "sv", "en"), "Välkommen");
 assert.equal(localizedIntro({ intro: "Welcome" }, "sv", "en"), "Welcome");

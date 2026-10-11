@@ -2271,6 +2271,7 @@
         "description": "Beschrijving",
         "textLabel": "Label personalisatie",
         "colour": "Kleur: {colour}",
+        "tag": "Tag: {tag}",
         "intro": "Introductie"
       },
       "sheetDescription": "Vertaling in het {language}. Lege velden tonen de tekst in het {source}.",

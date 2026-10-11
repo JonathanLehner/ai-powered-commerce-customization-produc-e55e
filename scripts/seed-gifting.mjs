@@ -12,6 +12,7 @@
  */
 
 import { openDatabase } from "./mongo.mjs";
+import { giftContent, storedTranslations } from "./store-content.mjs";
 
 let counter = 0;
 function id(prefix) {
@@ -137,8 +138,8 @@ export async function seedGifting(call) {
     name: "Northwind employee gifting",
     slug: CATALOGUE_SLUG,
     companyName: "Northwind Technologies",
-    intro:
-      "Gifts for new starters, long-service milestones and client thank-yous. Orders close on the 20th of each month; anything over the limit needs Dana's sign-off in writing first.",
+    intro: giftContent(CATALOGUE_SLUG).intro,
+    translations: storedTranslations(giftContent(CATALOGUE_SLUG).i18n),
     status: "active",
     access: "invite",
     accessSecret: id("sec"),

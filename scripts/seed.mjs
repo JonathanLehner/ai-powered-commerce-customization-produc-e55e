@@ -17,6 +17,7 @@ import sharp from "sharp";
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
 import { openDatabase } from "./mongo.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
+import { productContent, productFieldsFor, storeContent, withStoreContent } from "./store-content.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
 if (!KEY) {
@@ -539,6 +540,7 @@ const stores = [
     // de-DE, so the contrast with the English stores under the same agency is
     // visible without changing a single setting.
     defaultLanguage: FERRO_LANGUAGE,
+    languages: storeContent("str_ferro").languages,
     currencies: ["EUR"],
     defaultCurrency: "EUR",
     customDomain: null,
@@ -678,13 +680,11 @@ function breakdown({ supplierCost, customizationCost, shippingEstimate, sellingP
   };
 }
 
+// Names, descriptions, tags and personalisation labels come from store-content.mjs.
 const PRODUCT_PLAN = [
   {
     storeId: "str_northwind", catalogId: "cat_tee_heavy", artwork: "northwind",
     name: "Northwind Field Tee", slug: "northwind-field-tee", price: 3200, currency: "USD", taxBracketId: "tax_us825", status: "published",
-    tags: ["tee", "cotton", "onboarding", "unisex", "everyday"],
-    description:
-      "The tee we hand to every new starter on day one. Heavyweight ring-spun cotton, printed on the chest and shoulder blade so it reads from both sides of the room.\n\nRuns true to size from S to 2XL and keeps its shape after repeated washing. Printed to order — nothing sits in a warehouse waiting to be thrown away.",
     areas: [
       { areaId: "pa_tee_front", scale: 0.55, x: 0.5, y: 0.34, rotation: 0 },
       { areaId: "pa_tee_back", scale: 0.82, x: 0.5, y: 0.42, rotation: 0 },
@@ -698,18 +698,12 @@ const PRODUCT_PLAN = [
   {
     storeId: "str_northwind", catalogId: "cat_hoodie_premium", artwork: "northwind",
     name: "Northwind Ridge Hoodie", slug: "northwind-ridge-hoodie", price: 6400, currency: "USD", taxBracketId: "tax_us825", status: "published",
-    tags: ["hoodie", "fleece", "winter", "premium"],
-    description:
-      "A 320 gsm brushed fleece hoodie for the winter kit drop. The chest print sits above the pocket seam so it stays flat when the pocket is in use.\n\nDouble-layer hood, ribbed cuffs and a straight body cut. Ordered by the field team three seasons running.",
     areas: [{ areaId: "pa_hood_front", scale: 0.62, x: 0.5, y: 0.45, rotation: 0 }],
     colourForMockup: "Navy", importedBy: "Sam Okafor", importedDaysAgo: 74, publishedDaysAgo: 72,
   },
   {
     storeId: "str_northwind", catalogId: "cat_mug_classic", artwork: "northwind",
     name: "Northwind Desk Mug", slug: "northwind-desk-mug", price: 1800, currency: "USD", taxBracketId: "tax_us825", status: "published",
-    tags: ["mug", "ceramic", "desk", "gifting"],
-    description:
-      "An 11oz white ceramic mug with a full wrap print on both sides, so it reads the same whether it is held in the left or right hand.\n\nDishwasher and microwave safe. The default thank-you gift for customer workshops.",
     areas: [
       { areaId: "pa_mug_left", scale: 0.78, x: 0.5, y: 0.5, rotation: 0 },
       { areaId: "pa_mug_right", scale: 0.78, x: 0.5, y: 0.5, rotation: 0 },
@@ -720,95 +714,67 @@ const PRODUCT_PLAN = [
     storeId: "str_northwind", catalogId: "cat_tee_organic", artwork: "northwind",
     // Fixed ids: the acceptance replay opens this draft and the exception order below by address.
     id: "prd_01awz4l6j", name: "Northwind Organic Tee", slug: "northwind-organic-tee", price: 3600, currency: "USD", taxBracketId: "tax_us825", status: "draft",
-    tags: ["tee", "organic", "gots"],
-    description:
-      "GOTS-certified organic cotton, produced inside the destination market. Under review as the replacement for the heavy cotton tee in EU orders.",
     areas: [{ areaId: "pa_tee_front", scale: 0.5, x: 0.5, y: 0.34, rotation: 0 }],
     colourForMockup: "White", importedBy: "Sam Okafor", importedDaysAgo: 5, publishedDaysAgo: null,
   },
   {
     storeId: "str_lumen", catalogId: "cat_tee_heavy", artwork: "lumen",
     name: "Lumen Studio Tee", slug: "lumen-studio-tee", price: 2900, currency: "EUR", taxBracketId: "tax_std20", status: "published",
-    tags: ["tee", "studio", "cotton", "unisex"],
-    description:
-      "The house tee, printed on the chest in the studio's signature magenta. Cut for everyday wear rather than event swag.\n\nPrices include VAT at the standard rate. Shipped from inside the EU, so there is nothing to pay on delivery.",
     areas: [{ areaId: "pa_tee_front", scale: 0.52, x: 0.5, y: 0.35, rotation: 0 }],
     colourForMockup: "Black", importedBy: "Sam Okafor", importedDaysAgo: 55, publishedDaysAgo: 54,
   },
   {
     storeId: "str_lumen", catalogId: "cat_mug_matte", artwork: "lumen",
     name: "Lumen Matte Mug", slug: "lumen-matte-mug", price: 2400, currency: "EUR", taxBracketId: "tax_std20", status: "published",
-    tags: ["mug", "matte", "15oz", "gifting"],
-    description:
-      "A 15oz matte black mug for the studio's client gift boxes. Light artwork prints cleanly against the dark body; anything below 300 DPI is rejected before it reaches production.\n\nHand wash recommended to protect the matte finish.",
     areas: [{ areaId: "pa_mug_left", scale: 0.72, x: 0.5, y: 0.5, rotation: 0 }],
     colourForMockup: "Black", importedBy: "Sam Okafor", importedDaysAgo: 40, publishedDaysAgo: 38,
   },
   {
     storeId: "str_lumen", catalogId: "cat_hoodie_eco", artwork: "lumen",
     name: "Lumen Eco Hoodie", slug: "lumen-eco-hoodie", price: 5400, currency: "EUR", taxBracketId: "tax_std20", status: "in_review",
-    tags: ["hoodie", "recycled", "winter"],
-    description:
-      "Recycled cotton and polyester blend at a lower unit cost than the premium hoodie. Waiting on a sample from the assigned print provider before it goes live.",
     areas: [{ areaId: "pa_hood_front", scale: 0.58, x: 0.5, y: 0.45, rotation: 0 }],
     colourForMockup: "Heather grey", importedBy: "Sam Okafor", importedDaysAgo: 6, publishedDaysAgo: null,
   },
-  // Ferro sells in German: the names, descriptions, tags and the personalisation
-  // label a shopper types into are all written in the store's own language, so
-  // nothing on the storefront falls back to English.
+  // Ferro sells in German: its names, descriptions, tags and personalisation
+  // labels in store-content.mjs are German, with English translations.
   {
     storeId: "str_ferro", catalogId: "cat_mug_classic", artwork: "ferro",
     name: "Ferro Rösterei-Tasse", slug: "ferro-roesterei-tasse", price: 1900, currency: "EUR", taxBracketId: "tax_de19", status: "published",
-    tags: ["tasse", "keramik", "frühstück", "geschenk"],
-    description:
-      "Die Tasse aus unserem Röstraum: 330 ml weiße Keramik, rundum bedruckt, damit das Logo von beiden Seiten zu sehen ist.\n\nSpülmaschinen- und mikrowellengeeignet. Alle Preise verstehen sich inklusive 19 % Mehrwertsteuer.",
     areas: [
       { areaId: "pa_mug_left", scale: 0.76, x: 0.5, y: 0.5, rotation: 0 },
       { areaId: "pa_mug_right", scale: 0.76, x: 0.5, y: 0.5, rotation: 0 },
     ],
-    textLabel: "Name auf der Tasse",
     colourForMockup: "White", importedBy: "Sam Okafor", importedDaysAgo: 8, publishedDaysAgo: 7,
   },
   {
     storeId: "str_ferro", catalogId: "cat_tee_heavy", artwork: "ferro",
     name: "Ferro Clubshirt", slug: "ferro-clubshirt", price: 3200, currency: "EUR", taxBracketId: "tax_de19", status: "published",
-    tags: ["shirt", "baumwolle", "unisex", "alltag"],
-    description:
-      "Schweres Ringgarn aus Baumwolle, vorn mit dem Ferro-Schriftzug bedruckt. Unisex geschnitten und von S bis 2XL größengetreu.\n\nWird erst nach der Bestellung innerhalb der EU produziert — kein Lager, keine Zollgebühren bei der Lieferung.",
     areas: [{ areaId: "pa_tee_front", scale: 0.5, x: 0.5, y: 0.34, rotation: 0 }],
-    textLabel: "Name auf dem Ärmel",
     colourForMockup: "Black", importedBy: "Sam Okafor", importedDaysAgo: 8, publishedDaysAgo: 7,
   },
   {
     storeId: "str_ferro", catalogId: "cat_hoodie_premium", artwork: "ferro",
     name: "Ferro Röstwerk-Hoodie", slug: "ferro-roestwerk-hoodie", price: 6400, currency: "EUR", taxBracketId: "tax_de19", status: "published",
-    tags: ["hoodie", "fleece", "winter", "röstwerk"],
-    description:
-      "Angerauter Fleece-Hoodie mit 320 g/m² für die kalten Schichten in der Rösterei. Der Brustdruck sitzt über der Tasche und bleibt auch dann flach, wenn die Tasche benutzt wird.\n\nDoppellagige Kapuze, gerippte Bündchen, gerader Schnitt.",
     areas: [{ areaId: "pa_hood_front", scale: 0.6, x: 0.5, y: 0.45, rotation: 0 }],
-    textLabel: "Name auf dem Ärmel",
     colourForMockup: "Navy", importedBy: "Sam Okafor", importedDaysAgo: 8, publishedDaysAgo: 6,
   },
   {
     storeId: "str_ferro", catalogId: "cat_mug_matte", artwork: "ferro",
     name: "Ferro Filterbecher matt", slug: "ferro-filterbecher-matt", price: 2400, currency: "EUR", taxBracketId: "tax_de19", status: "in_review",
-    tags: ["becher", "matt", "filterkaffee"],
-    description:
-      "Mattschwarzer Becher mit 440 ml für die Filterkaffee-Reihe. Wartet noch auf das Andruckmuster der Druckerei, bevor er in den Shop geht.",
     areas: [{ areaId: "pa_mug_left", scale: 0.7, x: 0.5, y: 0.5, rotation: 0 }],
-    textLabel: "Name auf dem Becher",
     colourForMockup: "Black", importedBy: "Sam Okafor", importedDaysAgo: 3, publishedDaysAgo: null,
   },
   {
     storeId: "str_rivet", catalogId: "cat_tee_heavy", artwork: "northwind",
     name: "Rivet Crew Tee", slug: "rivet-crew-tee", price: 3000, currency: "USD", taxBracketId: "tax_us825", status: "published",
-    tags: ["tee", "crew", "workwear"],
-    description:
-      "Heavy cotton crew tee for the Rivet trade counter team. Printed front only.\n\nOrdered in bulk twice a year and topped up on demand.",
     areas: [{ areaId: "pa_tee_front", scale: 0.48, x: 0.5, y: 0.34, rotation: 0 }],
     colourForMockup: "Black", importedBy: "Mira Sokolov", importedDaysAgo: 30, publishedDaysAgo: 29,
   },
-];
+].map((plan) => {
+  const { name, description, tags, textLabel, translations } = productFieldsFor(productContent(plan.slug));
+  if (name !== plan.name) throw new Error(`store-content.mjs names ${plan.slug} "${name}"`);
+  return { ...plan, description, tags, textLabel, translations };
+});
 
 /* ----------------------------------------------------------- discount codes */
 
@@ -960,6 +926,7 @@ async function main() {
         maxTextLength: 18,
       },
       costs,
+      translations: plan.translations,
       importedBy: plan.importedBy,
       importedAt: iso(plan.importedDaysAgo),
       updatedAt: iso(plan.publishedDaysAgo ?? plan.importedDaysAgo),
@@ -1003,39 +970,48 @@ async function main() {
     return out;
   }
 
-  const northwindTree = tree([
-    { type: "PromoBanner", props: { text: "Free US shipping on orders over $75", ctaLabel: "Shop the range", ctaHref: "products", tone: "accent" } },
-    { type: "HeroSection", props: { eyebrow: "Northwind Supply Co", headline: "Kit that survives the field", body: "Printed to order for Northwind teams and partners. Heavy cotton, brushed fleece and ceramics — no minimums, no warehouse, tracked worldwide.", ctaLabel: "Shop the collection", ctaHref: "products", imageUrl: IMAGES["storefront-northwind"], align: "left", tone: "light" } },
-    { type: "ValueProps", props: { title: "Why the field team orders here", itemOneTitle: "Made after you order", itemOneBody: "Every item is produced on demand, so nothing sits in a stockroom going out of date.", itemTwoTitle: "Tracked to the door", itemTwoBody: "DHL and UPS tracking on every parcel, in more than 190 countries.", itemThreeTitle: "Sized for everyone", itemThreeBody: "Unisex cuts from S to 2XL, with the same print position on every size." } },
-    { type: "ProductGrid", props: { title: "Current range", subtitle: "Four staples, restocked automatically because they are printed on demand.", columns: "3", limit: 6, showPrice: true } },
-    { type: "ImageWithText", props: { heading: "Your logo, printed properly", body: "Artwork is checked against the supplier's print area, resolution and file rules before anything reaches production. If a design will not print cleanly, it never leaves the studio.", imageUrl: IMAGES["marketing-mockup"], imageSide: "right" } },
-    { type: "Testimonial", props: { quote: "We ordered 240 hoodies for onboarding week and every single one arrived before the first session.", author: "Dana Whitfield", role: "People Operations, Northwind Technologies" } },
-    { type: "RichText", props: { heading: "Sizing and care", body: "All apparel is unisex and true to size. Wash inside out at 30°C and hang dry to keep prints sharp. Mugs are dishwasher and microwave safe.", align: "left" } },
+  // Layout only: the copy comes from store-content.mjs, matched by section
+  // type and position.
+  const withCopy = (storeId, sections) => {
+    const { tree: filled, unmatched } = withStoreContent(tree(sections), storeContent(storeId));
+    if (unmatched.length) throw new Error(`store-content.mjs has no copy for ${storeId} sections ${unmatched.join(", ")}`);
+    return filled;
+  };
+
+  const northwindTree = withCopy("str_northwind", [
+    { type: "PromoBanner", props: { ctaHref: "products", tone: "accent" } },
+    { type: "HeroSection", props: { ctaHref: "products", imageUrl: "", align: "left", tone: "light" } },
+    { type: "HeroSection", props: { ctaHref: "products", imageUrl: IMAGES["storefront-northwind"], align: "left", tone: "light" } },
+    { type: "ValueProps", props: {} },
+    { type: "ProductGrid", props: { columns: "3", limit: 6, showPrice: true } },
+    { type: "ImageWithText", props: { imageUrl: IMAGES["marketing-mockup"], imageSide: "right" } },
+    { type: "Testimonial", props: {} },
+    { type: "RichText", props: { align: "left" } },
   ]);
 
-  const lumenTree = tree([
-    { type: "HeroSection", props: { eyebrow: "Lumen Creative", headline: "Studio goods, made to order", body: "A small range of everyday pieces in the studio's colours. Printed inside the EU and shipped with VAT included.", ctaLabel: "Browse the shop", ctaHref: "products", imageUrl: IMAGES["storefront-lumen"], align: "center", tone: "light" } },
-    { type: "ProductGrid", props: { title: "In the shop", subtitle: "Everything is printed after you order it.", columns: "2", limit: 4, showPrice: true } },
-    { type: "ValueProps", props: { title: "How it works", itemOneTitle: "Printed in the EU", itemOneBody: "Production happens inside the destination market, so there is no customs charge on delivery.", itemTwoTitle: "VAT included", itemTwoBody: "Prices shown include VAT at the standard rate — the price you see is the price you pay.", itemThreeTitle: "Personalise it", itemThreeBody: "Add a name to selected pieces before checkout and see the preview before you buy." } },
-    { type: "NewsletterSignup", props: { heading: "Hear about new drops first", body: "One email per launch. No spam, unsubscribe any time.", buttonLabel: "Notify me" } },
+  const lumenTree = withCopy("str_lumen", [
+    { type: "HeroSection", props: { ctaHref: "products", imageUrl: IMAGES["storefront-lumen"], align: "center", tone: "light" } },
+    { type: "ProductGrid", props: { columns: "2", limit: 4, showPrice: true } },
+    { type: "ValueProps", props: {} },
+    { type: "NewsletterSignup", props: {} },
   ]);
 
-  const rivetTree = tree([
-    { type: "HeroSection", props: { eyebrow: "Rivet Hardware", headline: "Trade counter merch", body: "Workwear-weight cotton for the counter team and the customers who ask where we got it.", ctaLabel: "Shop", ctaHref: "products", imageUrl: "", align: "left", tone: "dark" } },
-    { type: "ProductGrid", props: { title: "Available now", subtitle: "Printed on demand and shipped with FedEx.", columns: "3", limit: 6, showPrice: true } },
+  const rivetTree = withCopy("str_rivet", [
+    { type: "HeroSection", props: { ctaHref: "products", imageUrl: "", align: "left", tone: "dark" } },
+    { type: "ProductGrid", props: { columns: "3", limit: 6, showPrice: true } },
   ]);
 
-  // Ferro's layout is authored in German, like the rest of its shopper-facing
-  // content. The built-in chrome around it (basket, checkout, order status)
-  // comes from the `de` dictionary because the store's language says so.
-  const ferroTree = tree([
-    { type: "PromoBanner", props: { text: "Versandkostenfrei innerhalb Deutschlands ab 60 €", ctaLabel: "Zum Shop", ctaHref: "products", tone: "accent" } },
-    { type: "HeroSection", props: { eyebrow: "Ferro Kaffeerösterei", headline: "Ausstattung aus dem Röstraum", body: "Tassen, Shirts und Hoodies für den Ferro Coffee Club. Auf Bestellung in der EU produziert — alle Preise inklusive Mehrwertsteuer.", ctaLabel: "Kollektion ansehen", ctaHref: "products", imageUrl: IMAGES["storefront-ferro"], align: "left", tone: "light" } },
-    { type: "ValueProps", props: { title: "Warum bei uns bestellen", itemOneTitle: "Erst bestellt, dann gedruckt", itemOneBody: "Jedes Stück entsteht nach Ihrer Bestellung. Nichts liegt im Lager und nichts wird weggeworfen.", itemTwoTitle: "Versand mit DHL", itemTwoBody: "Sendungsverfolgung für jedes Paket, innerhalb Deutschlands meist in zwei Werktagen.", itemThreeTitle: "Preise inklusive MwSt.", itemThreeBody: "Der angezeigte Preis ist der Preis an der Kasse — 19 % Mehrwertsteuer sind bereits enthalten." } },
-    { type: "ProductGrid", props: { title: "Aktuelle Kollektion", subtitle: "Drei Stücke aus der Rösterei, jedes auf Bestellung gefertigt.", columns: "3", limit: 6, showPrice: true } },
-    { type: "ImageWithText", props: { heading: "Ihr Name auf der Tasse", body: "Tassen und Shirts lassen sich vor dem Kauf mit einem Namen versehen. Die Vorschau zeigt genau das, was gedruckt wird.", imageUrl: IMAGES["marketing-mockup"], imageSide: "right" } },
-    { type: "Testimonial", props: { quote: "Die Tassen lagen pünktlich zur Eröffnung unserer zweiten Filiale auf dem Tresen.", author: "Marit Ferro", role: "Inhaberin, Ferro Kaffeerösterei" } },
-    { type: "RichText", props: { heading: "Größen und Pflege", body: "Alle Textilien sind unisex geschnitten und fallen größengetreu aus. Bei 30 °C auf links waschen und an der Luft trocknen, damit der Druck scharf bleibt. Tassen sind spülmaschinenfest.", align: "left" } },
+  // Ferro's copy is German, with English translations. The built-in chrome
+  // around it (basket, checkout, order status) comes from the `de` dictionary
+  // because the store's language says so.
+  const ferroTree = withCopy("str_ferro", [
+    { type: "PromoBanner", props: { ctaHref: "products", tone: "accent" } },
+    { type: "HeroSection", props: { ctaHref: "products", imageUrl: IMAGES["storefront-ferro"], align: "left", tone: "light" } },
+    { type: "ValueProps", props: {} },
+    { type: "ProductGrid", props: { columns: "3", limit: 6, showPrice: true } },
+    { type: "ImageWithText", props: { imageUrl: IMAGES["marketing-mockup"], imageSide: "right" } },
+    { type: "Testimonial", props: {} },
+    { type: "RichText", props: { align: "left" } },
   ]);
 
   const storefronts = [

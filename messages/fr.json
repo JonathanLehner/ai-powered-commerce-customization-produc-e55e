@@ -2271,6 +2271,7 @@
         "description": "Description",
         "textLabel": "Libellé de personnalisation",
         "colour": "Couleur : {colour}",
+        "tag": "Étiquette : {tag}",
         "intro": "Introduction"
       },
       "sheetDescription": "Traduction en {language}. Les champs vides affichent le texte en {source}.",
