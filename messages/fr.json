@@ -1489,6 +1489,7 @@
     "downloadCsv": "Télécharger le CSV",
     "downloadDenied": "Seule l’équipe de la boutique qui traite les commandes peut télécharger les données clients.",
     "fileName": "Commandes {store}",
+    "selectedFileName": "{store} commandes sélectionnées",
     "columns": {
       "order": "Commande",
       "placed": "Passée le (UTC)",
@@ -1506,7 +1507,44 @@
       "carrier": "Transporteur",
       "tracking": "Numéro de suivi"
     },
-    "deletedCustomer": "Client supprimé"
+    "deletedCustomer": "Client supprimé",
+    "bulk": {
+      "selectAll": "Sélectionner toutes les commandes de cette page",
+      "selectOrder": "Sélectionner {code}",
+      "toolbar": "Actions groupées",
+      "selected": "{count} sélectionnée(s)",
+      "markShipped": "Marquer comme expédiée",
+      "advance": "Changer le statut",
+      "eligible": "{count} sur {total}",
+      "route": "Envoyer au fournisseur",
+      "routeTitle": "Envoyer {count, plural, one {# commande payée} other {# commandes payées}} aux fournisseurs ?",
+      "routeBody": "Chaque commande part en production chez son fournisseur.",
+      "routeSkipped": "{count, plural, one {# commande sélectionnée n'est pas payée et sera ignorée.} other {# commandes sélectionnées ne sont pas payées et seront ignorées.}}",
+      "shipTitle": "Marquer {count, plural, one {# commande} other {# commandes}} comme expédiée(s)",
+      "shipBody": "Saisissez un transporteur et un numéro de suivi pour chaque commande. Les clients reçoivent leur suivi par e-mail.",
+      "shipSubmit": "Marquer {count, plural, one {# commande} other {# commandes}} comme expédiée(s)",
+      "carrierForAll": "Transporteur pour toutes",
+      "chooseCarrier": "Choisir un transporteur",
+      "carrierFor": "Transporteur pour {code}",
+      "trackingFor": "Numéro de suivi pour {code}",
+      "working": "En cours…",
+      "dismiss": "Fermer",
+      "noneSelected": "Sélectionnez au moins une commande.",
+      "notFound": "Introuvable dans cette boutique.",
+      "failedGeneric": "Une erreur s'est produite. Réessayez.",
+      "blocked": {
+        "alreadyStatus": "Déjà {status}.",
+        "cannotMove": "Impossible de changer le statut {status}.",
+        "notInProduction": "Pas en production. Statut : {status}.",
+        "notPaid": "N'attend pas de fournisseur. Statut : {status}."
+      },
+      "result": {
+        "shipped": "{count, plural, =0 {Aucune commande marquée comme expédiée.} one {# commande marquée comme expédiée.} other {# commandes marquées comme expédiées.}}",
+        "advanced": "{count, plural, =0 {Aucune commande passée à {status}.} one {# commande passée à {status}.} other {# commandes passées à {status}.}}",
+        "routed": "{count, plural, =0 {Aucune commande envoyée aux fournisseurs.} one {# commande envoyée à un fournisseur.} other {# commandes envoyées aux fournisseurs.}}",
+        "failed": "{count, plural, one {# commande en échec :} other {# commandes en échec :}}"
+      }
+    }
   },
   "orderDetail": {
     "orders": "Commandes",

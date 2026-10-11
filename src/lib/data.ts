@@ -323,6 +323,12 @@ export function getOrder(id: string) {
   return db.findOne<Order>(COLLECTIONS.orders, { id });
 }
 
+/** The named orders that belong to the store; ids from another store are dropped. */
+export function getStoreOrders(storeId: string, ids: string[]) {
+  if (ids.length === 0) return Promise.resolve([] as Order[]);
+  return db.find<Order>(COLLECTIONS.orders, { storeId, id: { $in: ids } }, { sort: { createdAt: -1 } });
+}
+
 export function getOrderByCode(storeId: string, code: string) {
   return db.findOne<Order>(COLLECTIONS.orders, { storeId, code });
 }

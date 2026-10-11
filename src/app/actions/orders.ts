@@ -3,7 +3,16 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { refreshCustomers } from "@/lib/customer-data";
-import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
+import {
+  BULK_STATUSES,
+  moveBlock,
+  parseOrderIds,
+  routeBlock,
+  shipBlock,
+  type BulkBlock,
+  type BulkStatus,
+} from "@/lib/bulk-orders";
+import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, shippingNotificationEmail } from "@/lib/email-templates";
 import { emailCopy, shopperLocale } from "@/i18n/storefront";
@@ -36,12 +45,10 @@ function refresh(storeId: string, orderId: string) {
   revalidatePath(`/app/stores/${storeId}/orders/${orderId}`);
 }
 
-/** Re-runs supplier routing, e.g. after a carrier or supplier problem is fixed. */
-export async function routeToSupplier(formData: FormData): Promise<void> {
-  const storeId = String(formData.get("storeId") ?? "");
-  const orderId = String(formData.get("orderId") ?? "");
-  const { user, store, order } = await load(storeId, orderId);
+type Access = Awaited<ReturnType<typeof assertStoreAccess>>;
 
+/** Runs automatic routing for one order and records whatever it decided. */
+async function routeOne({ user, store }: Access, order: Order) {
   const decision = await routeOrder(order, store);
   const events = [...order.events, event(
     decision.routing === "submitted" ? "Sent to supplier" : "Manual handling required",
@@ -49,7 +56,7 @@ export async function routeToSupplier(formData: FormData): Promise<void> {
     user.name,
   )];
 
-  await updateOrder(orderId, {
+  await updateOrder(order.id, {
     status: decision.routing === "submitted" ? "in_production" : order.status === "paid" ? "paid" : order.status,
     fulfillment: {
       ...order.fulfillment,
@@ -70,7 +77,7 @@ export async function routeToSupplier(formData: FormData): Promise<void> {
       decision.routing === "submitted"
         ? `Routed ${order.code} to ${decision.supplierName}`
         : `${order.code} flagged for manual supplier handling`,
-    storeId,
+    storeId: store.id,
     agencyId: store.agencyId,
     actorId: user.id,
     actorName: user.name,
@@ -78,7 +85,16 @@ export async function routeToSupplier(formData: FormData): Promise<void> {
     entityId: order.code,
     meta: { routing: decision.routing },
   });
-  refresh(storeId, orderId);
+  refresh(store.id, order.id);
+  return decision;
+}
+
+/** Re-runs supplier routing, e.g. after a carrier or supplier problem is fixed. */
+export async function routeToSupplier(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const orderId = String(formData.get("orderId") ?? "");
+  const { order, ...access } = await load(storeId, orderId);
+  await routeOne(access, order);
 }
 
 /**
@@ -226,33 +242,32 @@ export async function recordManualSubmission(_prev: ActionState, formData: FormD
   return { status: "success", message: t("inProduction", { code: order.code, reference }) };
 }
 
-export async function addTracking(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const storeId = String(formData.get("storeId") ?? "");
-  const orderId = String(formData.get("orderId") ?? "");
-  const carrier = String(formData.get("carrier") ?? "") as "dhl" | "fedex" | "ups";
-  let trackingNumber = String(formData.get("trackingNumber") ?? "").trim();
+type Carrier = "dhl" | "fedex" | "ups";
+const CARRIERS: Carrier[] = ["dhl", "fedex", "ups"];
+
+/**
+ * Hands one order to the carrier: records the tracking, the audit entry and
+ * the shopper's shipping email. Returns the reason when it cannot.
+ */
+async function shipOne(
+  { user, store }: Access,
+  order: Order,
+  carrier: Carrier,
+  entered: string,
+): Promise<{ message: string; field: string } | null> {
   const t = await getTranslations("actions.orders");
-
-  if (!["dhl", "fedex", "ups"].includes(carrier)) {
-    return { status: "error", message: t("chooseCarrier"), field: "carrier" };
-  }
-
-  const { user, store, order } = await load(storeId, orderId);
   const enabled = store.carriers.find((c) => c.carrier === carrier && c.enabled);
   if (!enabled) {
-    return {
-      status: "error",
-      message: t("carrierDisabled", { carrier: CARRIER_LABELS[carrier] }),
-      field: "carrier",
-    };
+    return { message: t("carrierDisabled", { carrier: CARRIER_LABELS[carrier] }), field: "carrier" };
   }
-  if (!trackingNumber) trackingNumber = trackingNumberFor(carrier, order.code);
+  const trackingNumber = entered || trackingNumberFor(carrier, order.code);
   if (trackingNumber.length < 6) {
-    return { status: "error", message: t("trackingTooShort"), field: "trackingNumber" };
+    return { message: t("trackingTooShort"), field: "trackingNumber" };
   }
 
+  const storeId = store.id;
   const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
-  await updateOrder(orderId, {
+  await updateOrder(order.id, {
     status: "shipped",
     fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
     events: [
@@ -300,19 +315,30 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
     console.error("Shipping notification could not be queued", error);
   }
 
-  refresh(storeId, orderId);
+  refresh(storeId, order.id);
+  return null;
+}
+
+export async function addTracking(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const orderId = String(formData.get("orderId") ?? "");
+  const carrier = String(formData.get("carrier") ?? "") as Carrier;
+  const trackingNumber = String(formData.get("trackingNumber") ?? "").trim();
+  const t = await getTranslations("actions.orders");
+
+  if (!CARRIERS.includes(carrier)) {
+    return { status: "error", message: t("chooseCarrier"), field: "carrier" };
+  }
+
+  const { order, ...access } = await load(storeId, orderId);
+  const failure = await shipOne(access, order, carrier, trackingNumber);
+  if (failure) return { status: "error", ...failure };
   return { status: "success", message: t("trackingAdded") };
 }
 
-export async function advanceStatus(formData: FormData): Promise<void> {
-  const storeId = String(formData.get("storeId") ?? "");
-  const orderId = String(formData.get("orderId") ?? "");
-  const status = String(formData.get("status") ?? "") as OrderStatus;
-  const allowed: OrderStatus[] = ["in_production", "shipped", "delivered", "cancelled", "exception", "paid"];
-  if (!allowed.includes(status)) return;
-
-  const { user, store, order } = await load(storeId, orderId);
-  if (!canMoveOrder(order, status)) return;
+/** Moves one order to the status asked for; false when the status rules do not allow it. */
+async function moveOne({ user, store }: Access, order: Order, status: OrderStatus): Promise<boolean> {
+  if (!canMoveOrder(order, status)) return false;
   const notes: Partial<Record<OrderStatus, string>> = {
     in_production: "Production started at the supplier.",
     shipped: "Parcel handed to the carrier.",
@@ -330,12 +356,12 @@ export async function advanceStatus(formData: FormData): Promise<void> {
     patch.fulfillment = { ...order.fulfillment, exception: null };
   }
 
-  await updateOrder(orderId, patch);
+  await updateOrder(order.id, patch);
   recordAudit({
     category: "order_routing",
     action: `order.${status}`,
     summary: `Set ${order.code} to ${status.replace("_", " ")}`,
-    storeId,
+    storeId: store.id,
     agencyId: store.agencyId,
     actorId: user.id,
     actorName: user.name,
@@ -344,7 +370,19 @@ export async function advanceStatus(formData: FormData): Promise<void> {
     meta: { status },
   });
   if (status === "cancelled") refreshCustomers(store, [order.customer.email]);
-  refresh(storeId, orderId);
+  refresh(store.id, order.id);
+  return true;
+}
+
+export async function advanceStatus(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const orderId = String(formData.get("orderId") ?? "");
+  const status = String(formData.get("status") ?? "") as OrderStatus;
+  const allowed: OrderStatus[] = ["in_production", "shipped", "delivered", "cancelled", "exception", "paid"];
+  if (!allowed.includes(status)) return;
+
+  const { order, ...access } = await load(storeId, orderId);
+  await moveOne(access, order, status);
 }
 
 export async function raiseException(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -519,4 +557,116 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
       reference: gateway.refundId ?? "",
     }),
   };
+}
+
+/* ------------------------------------------------------------ bulk actions */
+
+/** What a bulk action did to each selected order. */
+export interface BulkOutcome {
+  /** Set when the whole request was refused, e.g. a signed-out session. */
+  error?: string;
+  succeeded: { id: string; code: string }[];
+  failed: { id: string; code: string; reason: string }[];
+}
+
+/**
+ * Runs `work` over the selected orders of one store, a few at a time, and
+ * reports each one. Every order goes through the same helper its own page
+ * uses, so each gets its own events, audit entry and shopper email. `work`
+ * returns null when the order was handled, or the reason it was not.
+ */
+async function forEachOrder(
+  storeId: string,
+  orderIds: unknown,
+  work: (access: Access, order: Order, blocked: (reason: BulkBlock) => string) => Promise<string | null>,
+): Promise<BulkOutcome> {
+  const [t, labels] = await Promise.all([getTranslations("orders.bulk"), getTranslations("labels")]);
+  let access: Access;
+  try {
+    access = await assertStoreAccess(storeId, "store.orders");
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : t("failedGeneric"), succeeded: [], failed: [] };
+  }
+  const ids = parseOrderIds(orderIds);
+  if (ids.length === 0) return { error: t("noneSelected"), succeeded: [], failed: [] };
+
+  const orders = await getStoreOrders(storeId, ids);
+  const outcome: BulkOutcome = { succeeded: [], failed: [] };
+  const found = new Set(orders.map((order) => order.id));
+  for (const id of ids) {
+    if (!found.has(id)) outcome.failed.push({ id, code: id, reason: t("notFound") });
+  }
+
+  // Five at a time keeps the database pool and the supplier APIs unhurried.
+  for (let i = 0; i < orders.length; i += 5) {
+    await Promise.all(
+      orders.slice(i, i + 5).map(async (order) => {
+        const blocked = (reason: BulkBlock) =>
+          t(`blocked.${reason}`, { status: labels(`orderStatus.${order.status}`) });
+        let reason: string | null;
+        try {
+          reason = await work(access, order, blocked);
+        } catch (error) {
+          console.error(`Bulk action failed on ${order.code}`, error);
+          reason = t("failedGeneric");
+        }
+        if (reason) outcome.failed.push({ id: order.id, code: order.code, reason });
+        else outcome.succeeded.push({ id: order.id, code: order.code });
+      }),
+    );
+  }
+  return outcome;
+}
+
+/** Marks the selected orders shipped, each with its own carrier and tracking number. */
+export async function bulkShipOrders(
+  storeId: string,
+  shipments: { orderId: string; carrier: string; trackingNumber: string }[],
+): Promise<BulkOutcome> {
+  const list = Array.isArray(shipments) ? shipments : [];
+  const byId = new Map(list.map((entry) => [String(entry?.orderId ?? ""), entry]));
+  const t = await getTranslations("actions.orders");
+
+  return forEachOrder(storeId, [...byId.keys()], async (access, order, blocked) => {
+    const entry = byId.get(order.id)!;
+    const carrier = String(entry.carrier ?? "") as Carrier;
+    const trackingNumber = String(entry.trackingNumber ?? "").trim();
+    const block = shipBlock(order);
+    if (block) return blocked(block);
+    if (!CARRIERS.includes(carrier)) return t("chooseCarrier");
+    // A retried request finds the same tracking already recorded and leaves
+    // it, so the shopper is not emailed twice.
+    if (
+      order.status === "shipped" &&
+      order.fulfillment.carrier === carrier &&
+      (!trackingNumber || order.fulfillment.trackingNumber === trackingNumber)
+    ) {
+      return null;
+    }
+    const failure = await shipOne(access, order, carrier, trackingNumber);
+    return failure?.message ?? null;
+  });
+}
+
+/** Moves the selected orders on to one status, where the status rules allow it. */
+export async function bulkAdvanceOrders(storeId: string, orderIds: string[], status: BulkStatus): Promise<BulkOutcome> {
+  if (!BULK_STATUSES.includes(status)) {
+    const t = await getTranslations("orders.bulk");
+    return { error: t("failedGeneric"), succeeded: [], failed: [] };
+  }
+  return forEachOrder(storeId, orderIds, async (access, order, blocked) => {
+    const block = moveBlock(order, status);
+    if (block) return blocked(block);
+    return (await moveOne(access, order, status)) ? null : blocked("cannotMove");
+  });
+}
+
+/** Sends the selected paid orders to their suppliers through automatic routing. */
+export async function bulkRouteOrders(storeId: string, orderIds: string[]): Promise<BulkOutcome> {
+  return forEachOrder(storeId, orderIds, async (access, order, blocked) => {
+    const block = routeBlock(order);
+    if (block) return blocked(block);
+    const decision = await routeOne(access, order);
+    return decision.routing === "submitted" ? null : decision.message;
+  });
 }

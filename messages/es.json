@@ -1489,6 +1489,7 @@
     "downloadCsv": "Descargar CSV",
     "downloadDenied": "Solo el equipo de la tienda que gestiona los pedidos puede descargar los datos de los compradores.",
     "fileName": "Pedidos de {store}",
+    "selectedFileName": "{store} pedidos seleccionados",
     "columns": {
       "order": "Pedido",
       "placed": "Fecha (UTC)",
@@ -1506,7 +1507,44 @@
       "carrier": "Transportista",
       "tracking": "Número de seguimiento"
     },
-    "deletedCustomer": "Cliente eliminado"
+    "deletedCustomer": "Cliente eliminado",
+    "bulk": {
+      "selectAll": "Seleccionar todos los pedidos de esta página",
+      "selectOrder": "Seleccionar {code}",
+      "toolbar": "Acciones masivas",
+      "selected": "{count} seleccionados",
+      "markShipped": "Marcar como enviado",
+      "advance": "Cambiar estado",
+      "eligible": "{count} de {total}",
+      "route": "Enviar al proveedor",
+      "routeTitle": "¿Enviar {count, plural, one {# pedido pagado} other {# pedidos pagados}} a los proveedores?",
+      "routeBody": "Cada pedido pasa a producción con su proveedor.",
+      "routeSkipped": "{count, plural, one {# pedido seleccionado no está pagado y se omitirá.} other {# pedidos seleccionados no están pagados y se omitirán.}}",
+      "shipTitle": "Marcar {count, plural, one {# pedido} other {# pedidos}} como enviado(s)",
+      "shipBody": "Introduce un transportista y un número de seguimiento para cada pedido. Los clientes reciben el seguimiento por correo.",
+      "shipSubmit": "Marcar {count, plural, one {# pedido} other {# pedidos}} como enviado(s)",
+      "carrierForAll": "Transportista para todos",
+      "chooseCarrier": "Elegir transportista",
+      "carrierFor": "Transportista para {code}",
+      "trackingFor": "Número de seguimiento para {code}",
+      "working": "Procesando…",
+      "dismiss": "Cerrar",
+      "noneSelected": "Selecciona al menos un pedido.",
+      "notFound": "No se encuentra en esta tienda.",
+      "failedGeneric": "Algo ha fallado. Inténtalo de nuevo.",
+      "blocked": {
+        "alreadyStatus": "Ya está en {status}.",
+        "cannotMove": "No se puede cambiar el estado {status}.",
+        "notInProduction": "No está en producción. Estado: {status}.",
+        "notPaid": "No está pendiente de proveedor. Estado: {status}."
+      },
+      "result": {
+        "shipped": "{count, plural, =0 {Ningún pedido marcado como enviado.} one {# pedido marcado como enviado.} other {# pedidos marcados como enviados.}}",
+        "advanced": "{count, plural, =0 {Ningún pedido pasado a {status}.} one {# pedido pasado a {status}.} other {# pedidos pasados a {status}.}}",
+        "routed": "{count, plural, =0 {Ningún pedido enviado a proveedores.} one {# pedido enviado a un proveedor.} other {# pedidos enviados a proveedores.}}",
+        "failed": "{count, plural, one {# pedido falló:} other {# pedidos fallaron:}}"
+      }
+    }
   },
   "orderDetail": {
     "orders": "Pedidos",

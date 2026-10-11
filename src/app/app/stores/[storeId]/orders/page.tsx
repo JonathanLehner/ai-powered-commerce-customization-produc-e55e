@@ -28,6 +28,7 @@ import { countryName } from "@/i18n/display";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import type { OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
+import { BulkActionBar, OrderSelection, RowCheckbox, SelectAllCheckbox, SelectableRow } from "./OrderSelection";
 import { OrdersToolbar } from "./OrdersToolbar";
 
 const TONES: Record<OrderStatus, "green" | "amber" | "rose" | "brand" | "slate"> = {
@@ -80,9 +81,8 @@ export default async function OrdersPage({
   const base = `/app/stores/${storeId}/orders`;
   // Shopper records and order values are in the spreadsheet, so it is handed to
   // the people who work the queue rather than to platform oversight.
-  const exportHref = roleCan(role, "store.orders")
-    ? `${base}/export${orderListQuery(filters, { page: 1 })}`
-    : null;
+  const canManage = roleCan(role, "store.orders");
+  const exportHref = canManage ? `${base}/export${orderListQuery(filters, { page: 1 })}` : null;
 
   const [pages, roles, t, labels, locale] = await Promise.all([
     getTranslations("pages.store"),
@@ -215,14 +215,38 @@ export default async function OrdersPage({
           description={orders.length === 0 ? undefined : t("tryFilters")}
         />
       ) : (
+        // Keyed on the query string, so another page or filter starts with
+        // nothing ticked.
+        <OrderSelection
+          key={orderListQuery(filters)}
+          orders={page.orders.map((order) => ({
+            id: order.id,
+            code: order.code,
+            status: order.status,
+            payment: { status: order.payment.status },
+            fulfillment: { carrier: order.fulfillment.carrier, trackingNumber: order.fulfillment.trackingNumber },
+          }))}
+        >
         <div className="space-y-3">
           <OrdersPager basePath={base} filters={filters} page={page} />
+          {canManage ? (
+            <BulkActionBar
+              storeId={storeId}
+              exportBase={`${base}/export`}
+              carriers={store.carriers.filter((c) => c.enabled).map((c) => c.carrier)}
+            />
+          ) : null}
           {/* The scroll lives on the table container, so the header can stick to
               the top of it while the queue is read downwards. */}
           <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10 *:max-h-[34rem]">
             <Table className="min-w-[52rem]">
               <TableHeader className="sticky top-0 z-10 bg-muted">
                 <TableRow className="hover:bg-transparent">
+                  {canManage ? (
+                    <TableHead className="w-10 pr-0 pl-4">
+                      <SelectAllCheckbox />
+                    </TableHead>
+                  ) : null}
                   <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                     {t("colOrder")}
                   </TableHead>
@@ -248,7 +272,12 @@ export default async function OrdersPage({
                 {page.orders.map((order) => (
                   // The row itself opens the order: the code's link is stretched
                   // across it, and the links inside the row stay above it.
-                  <TableRow key={order.id} className="relative">
+                  <SelectableRow key={order.id} id={order.id} className="relative">
+                    {canManage ? (
+                      <TableCell className="w-10 py-3 pr-0 pl-4 align-top">
+                        <RowCheckbox id={order.id} code={order.code} />
+                      </TableCell>
+                    ) : null}
                     <TableCell className="px-4 py-3 align-top">
                       <Link
                         href={`/app/stores/${storeId}/orders/${order.id}`}
@@ -321,13 +350,14 @@ export default async function OrdersPage({
                         {formatMoney(order.total, order.currency, locale)}
                       </TableCell>
                     )}
-                  </TableRow>
+                  </SelectableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
           <OrdersPager basePath={base} filters={filters} page={page} />
         </div>
+        </OrderSelection>
       )}
     </div>
   );

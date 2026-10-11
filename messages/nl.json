@@ -1489,6 +1489,7 @@
     "downloadCsv": "CSV downloaden",
     "downloadDenied": "Alleen het winkelteam dat de bestellingen afhandelt, kan de klantgegevens downloaden.",
     "fileName": "Bestellingen {store}",
+    "selectedFileName": "{store} geselecteerde bestellingen",
     "columns": {
       "order": "Bestelling",
       "placed": "Geplaatst (UTC)",
@@ -1506,7 +1507,44 @@
       "carrier": "Vervoerder",
       "tracking": "Trackingnummer"
     },
-    "deletedCustomer": "Verwijderde klant"
+    "deletedCustomer": "Verwijderde klant",
+    "bulk": {
+      "selectAll": "Alle bestellingen op deze pagina selecteren",
+      "selectOrder": "{code} selecteren",
+      "toolbar": "Bulkacties",
+      "selected": "{count} geselecteerd",
+      "markShipped": "Markeren als verzonden",
+      "advance": "Status wijzigen",
+      "eligible": "{count} van {total}",
+      "route": "Naar leverancier sturen",
+      "routeTitle": "{count, plural, one {# betaalde bestelling} other {# betaalde bestellingen}} naar leveranciers sturen?",
+      "routeBody": "Elke bestelling gaat in productie bij de eigen leverancier.",
+      "routeSkipped": "{count, plural, one {# geselecteerde bestelling is niet betaald en wordt overgeslagen.} other {# geselecteerde bestellingen zijn niet betaald en worden overgeslagen.}}",
+      "shipTitle": "{count, plural, one {# bestelling} other {# bestellingen}} markeren als verzonden",
+      "shipBody": "Vul per bestelling een vervoerder en trackingnummer in. Klanten krijgen hun trackinggegevens per e-mail.",
+      "shipSubmit": "{count, plural, one {# bestelling} other {# bestellingen}} markeren als verzonden",
+      "carrierForAll": "Vervoerder voor alle",
+      "chooseCarrier": "Kies vervoerder",
+      "carrierFor": "Vervoerder voor {code}",
+      "trackingFor": "Trackingnummer voor {code}",
+      "working": "Bezig…",
+      "dismiss": "Sluiten",
+      "noneSelected": "Selecteer minstens één bestelling.",
+      "notFound": "Niet gevonden in deze winkel.",
+      "failedGeneric": "Er ging iets mis. Probeer het opnieuw.",
+      "blocked": {
+        "alreadyStatus": "Al {status}.",
+        "cannotMove": "Status {status} kan niet worden gewijzigd.",
+        "notInProduction": "Niet in productie. Status: {status}.",
+        "notPaid": "Wacht niet op een leverancier. Status: {status}."
+      },
+      "result": {
+        "shipped": "{count, plural, =0 {Geen bestellingen gemarkeerd als verzonden.} one {# bestelling gemarkeerd als verzonden.} other {# bestellingen gemarkeerd als verzonden.}}",
+        "advanced": "{count, plural, =0 {Geen bestellingen naar {status} gezet.} one {# bestelling naar {status} gezet.} other {# bestellingen naar {status} gezet.}}",
+        "routed": "{count, plural, =0 {Geen bestellingen naar leveranciers gestuurd.} one {# bestelling naar een leverancier gestuurd.} other {# bestellingen naar leveranciers gestuurd.}}",
+        "failed": "{count, plural, one {# bestelling mislukt:} other {# bestellingen mislukt:}}"
+      }
+    }
   },
   "orderDetail": {
     "orders": "Bestellingen",

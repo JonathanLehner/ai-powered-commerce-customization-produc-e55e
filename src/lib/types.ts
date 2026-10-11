@@ -593,7 +593,10 @@ const ORDER_STATUS_NEXT: Record<OrderStatus, OrderStatus[]> = {
 };
 
 /** A captured payment is only cancelled through the refund form, so the money goes back too. */
-export function canMoveOrder(order: Pick<Order, "status" | "payment">, to: OrderStatus): boolean {
+export function canMoveOrder(
+  order: Pick<Order, "status"> & { payment: Pick<Order["payment"], "status"> },
+  to: OrderStatus,
+): boolean {
   if (to === "cancelled" && order.payment.status === "succeeded") return false;
   return ORDER_STATUS_NEXT[order.status].includes(to);
 }
