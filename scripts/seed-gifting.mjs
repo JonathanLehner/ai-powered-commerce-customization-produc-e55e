@@ -11,20 +11,7 @@
  * Run: node --env-file=.env.local scripts/seed-gifting.mjs
  */
 
-const BASE = "https://www.clawcorp.ai/api/platform";
-
-async function call(body, key) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/db`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return (await res.json()).result;
-    if (attempt === 4) throw new Error(`${body.action} ${body.collection}: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
+import { openDatabase } from "./mongo.mjs";
 
 let counter = 0;
 function id(prefix) {
@@ -114,8 +101,8 @@ function orderCode() {
   return `ORD-${Math.floor(10000000 + Math.random() * 89999999)}`;
 }
 
-export async function seedGifting(key) {
-  const stores = await call({ collection: "stores", action: "find", filter: { slug: "northwind-supply" } }, key);
+export async function seedGifting(call) {
+  const stores = await call({ collection: "stores", action: "find", filter: { slug: "northwind-supply" } });
   const store = stores?.[0];
   if (!store) {
     console.log("gifting seed skipped — the Northwind demo store is not in this database");
@@ -123,18 +110,14 @@ export async function seedGifting(key) {
   }
 
   const existing = await call(
-    { collection: "gift_catalogues", action: "findOne", filter: { slug: CATALOGUE_SLUG } },
-    key,
-  );
+    { collection: "gift_catalogues", action: "findOne", filter: { slug: CATALOGUE_SLUG } });
   if (existing) {
     console.log("gifting seed skipped — the demo catalogue already exists");
     return;
   }
 
   const products = await call(
-    { collection: "store_products", action: "find", filter: { storeId: store.id, status: "published" } },
-    key,
-  );
+    { collection: "store_products", action: "find", filter: { storeId: store.id, status: "published" } });
   const byKind = {
     tee: products.find((p) => /tee/i.test(p.name)),
     hoodie: products.find((p) => /hoodie/i.test(p.name)),
@@ -145,7 +128,7 @@ export async function seedGifting(key) {
     console.log("gifting seed skipped — the Northwind store has no published products");
     return;
   }
-  const suppliers = await call({ collection: "suppliers", action: "find", filter: {} }, key);
+  const suppliers = await call({ collection: "suppliers", action: "find", filter: {} });
   const supplierName = (supplierId) => suppliers.find((s) => s.id === supplierId)?.name ?? "the supplier";
 
   const catalogue = {
@@ -440,13 +423,11 @@ export async function seedGifting(key) {
     },
   ];
 
-  await call({ collection: "gift_catalogues", action: "insertOne", document: catalogue }, key);
+  await call({ collection: "gift_catalogues", action: "insertOne", document: catalogue });
   await call(
-    { collection: "gift_campaigns", action: "insertMany", documents: [orderedCampaign, pendingCampaign] },
-    key,
-  );
-  await call({ collection: "orders", action: "insertMany", documents: orders }, key);
-  await call({ collection: "audit_logs", action: "insertMany", documents: audit }, key);
+    { collection: "gift_campaigns", action: "insertMany", documents: [orderedCampaign, pendingCampaign] });
+  await call({ collection: "orders", action: "insertMany", documents: orders });
+  await call({ collection: "audit_logs", action: "insertMany", documents: audit });
 
   console.log(
     `gifting seed done — 1 catalogue, 2 campaigns, ${orders.length} gift orders on ${store.name}`,
@@ -454,10 +435,7 @@ export async function seedGifting(key) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const key = process.env.CLAWCORP_API_KEY;
-  if (!key) {
-    console.error("CLAWCORP_API_KEY missing");
-    process.exit(1);
-  }
-  await seedGifting(key);
+  const { client, dbCall } = await openDatabase({ devOnly: true });
+  await seedGifting(dbCall);
+  await client.close();
 }

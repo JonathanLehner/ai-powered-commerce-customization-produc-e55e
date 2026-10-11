@@ -13,7 +13,7 @@ import {
   updateStore,
 } from "@/lib/data";
 import { languageLabel, resolveLanguage } from "@/lib/i18n";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { storeAllowance, storeLimitMessage } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";

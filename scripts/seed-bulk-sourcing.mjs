@@ -10,26 +10,9 @@
  * Run: node --env-file=.env.local scripts/seed-bulk-sourcing.mjs
  */
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
+import { openDatabase } from "./mongo.mjs";
 
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
-const BASE = "https://www.clawcorp.ai/api/platform";
-
-async function dbCall(body) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/db`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return (await res.json()).result;
-    if (attempt === 4) throw new Error(`${body.action} ${body.collection}: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
+const { client, dbCall } = await openDatabase({ devOnly: true });
 
 const supplier = await dbCall({ collection: "suppliers", action: "findOne", filter: { id: "sup_alibaba" } });
 if (!supplier) {
@@ -65,3 +48,4 @@ const total = await dbCall({
   filter: { supplierId: "sup_alibaba" },
 });
 console.log(`bulk sourcing: ${JSON.stringify(total)} listing(s) under ${supplier.name}`);
+await client.close();

@@ -12,7 +12,7 @@ import {
   recordAudit,
 } from "@/lib/data";
 import { FILE_REQUIREMENTS, parsePrintAreas, parseVariants } from "@/lib/catalog-rows";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { assertPlatformAdmin } from "@/lib/session";
 import { isQuoteOnly } from "@/lib/sourcing";
 import type { CatalogProduct, Supplier, TaxBracket } from "@/lib/types";

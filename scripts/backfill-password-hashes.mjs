@@ -13,26 +13,9 @@
  * Run: node --env-file=.env.local scripts/backfill-password-hashes.mjs
  */
 import { hashSync } from "bcryptjs";
+import { openDatabase } from "./mongo.mjs";
 
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
-const BASE = "https://www.clawcorp.ai/api/platform";
-
-async function dbCall(body) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/db`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return (await res.json()).result;
-    if (attempt === 4) throw new Error(`${body.action} ${body.collection}: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
+const { client, dbCall } = await openDatabase();
 
 const users = await dbCall({ collection: "users", action: "find", filter: {} });
 
@@ -55,3 +38,4 @@ for (const user of users) {
 }
 
 console.log(`done — ${hashed} hashed, ${skipped} already hashed`);
+await client.close();

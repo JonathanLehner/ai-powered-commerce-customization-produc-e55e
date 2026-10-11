@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { COLLECTIONS, listTaxBrackets } from "@/lib/data";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { EditBracketForm, NewBracketForm } from "./TaxForms";
 
 export default async function AdminTaxPage() {

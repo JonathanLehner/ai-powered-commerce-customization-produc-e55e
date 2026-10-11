@@ -41,7 +41,7 @@ import {
   giftProductOptions,
   quoteCampaign,
 } from "@/lib/gifting";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { assertStoreAccess } from "@/lib/session";
 import { chargeCard } from "@/lib/stripe";
 import type {

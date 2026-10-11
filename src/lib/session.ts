@@ -66,8 +66,7 @@ type AccessDenial = "signed_out" | "no_store" | "not_a_member" | "capability";
  * and every page in a store paid it twice because the layout checks access too.
  * The membership list is only needed for invited users, but asking for it up
  * front costs nothing in wall-clock time and saves a second round trip when it
- * is needed. Repeat reads inside the same request are served from the memo in
- * `lib/platform.ts`.
+ * is needed.
  */
 async function loadStoreAccess(
   storeId: string,

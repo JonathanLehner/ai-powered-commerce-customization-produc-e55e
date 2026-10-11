@@ -1,8 +1,8 @@
 import "server-only";
 import { after } from "next/server";
 import { hasApprovedPreviews } from "./artwork";
-import { auditMonthBuckets, sortAuditEntries, type AuditReadWindow } from "./audit-log";
-import { db } from "./platform";
+import type { AuditReadWindow } from "./audit-log";
+import { db } from "./mongo";
 import { storeAllowance, type StoreAllowance } from "./plans";
 import { quoteCode } from "./sourcing";
 import { newId } from "./util";
@@ -91,11 +91,7 @@ export function getStoreBySlug(slug: string) {
   return db.findOne<Store>(COLLECTIONS.stores, { slug });
 }
 
-/**
- * Several stores by id, in one read. The store switcher resolves a membership
- * list this way: a read per membership put one fetch per store in flight, and
- * the platform runs only a handful at a time, so they queued behind each other.
- */
+/** Several stores by id, in one read. The store switcher resolves a membership list this way. */
 export async function getStoresByIds(ids: string[]): Promise<Map<string, Store>> {
   const rows = await db.findIn<Store>(COLLECTIONS.stores, "id", ids);
   return new Map(rows.map((row) => [row.id, row]));
@@ -106,10 +102,8 @@ export async function updateStore(id: string, patch: Partial<Store>) {
 }
 
 /**
- * Live stores an agency runs. Counted in the database rather than from a listing
- * because a list is capped at 100 documents, and an agency past that cap would
- * otherwise look as though it had room to spare. Archived stores are excluded:
- * they are the plan's unlimited drafts.
+ * Live stores an agency runs. Archived stores are excluded: they are the plan's
+ * unlimited drafts.
  */
 export function countActiveStoresForAgency(agencyId: string) {
   return db.count(COLLECTIONS.stores, { agencyId, status: "active" });
@@ -139,40 +133,15 @@ export function getMembershipByToken(inviteToken: string) {
 }
 
 /**
- * Suppliers, the shared catalog and tax brackets are small global lists that
- * almost every screen needs. Reading the whole collection is one round trip and
- * it is cached (see `lib/platform.ts`), so resolving a single record out of it
- * is free where a `findOne` would have been another half-second wait. The
- * direct lookup stays as a fallback, because the API caps a list at 100
- * documents and a record past that cap would otherwise look deleted.
- */
-async function fromCollection<T extends { id: string }>(
-  rows: Promise<T[]>,
-  id: string,
-  lookup: () => Promise<T | null>,
-): Promise<T | null> {
-  if (!id) return null;
-  const all = await rows;
-  return all.find((row) => row.id === id) ?? (all.length < 100 ? null : await lookup());
-}
-
-/**
  * Groups rows read in one batched `{$in: [...]}` call under the ids they were
- * asked for, newest first by `stamp`.
+ * asked for, keeping the order the database returned them in.
  *
  * Every id asked for gets an entry, so a store with no records of its own reads
- * as an empty list rather than as a missing one — the callers below stand in
- * for a round trip per id and have to behave the same way.
+ * as an empty list rather than as a missing one.
  */
-function groupById<T>(
-  ids: string[],
-  rows: T[],
-  key: (row: T) => string,
-  stamp: (row: T) => string,
-): Map<string, T[]> {
+function groupById<T>(ids: string[], rows: T[], key: (row: T) => string): Map<string, T[]> {
   const out = new Map<string, T[]>(ids.map((id) => [id, []]));
   for (const row of rows) out.get(key(row))?.push(row);
-  for (const list of out.values()) list.sort((a, b) => stamp(b).localeCompare(stamp(a)));
   return out;
 }
 
@@ -183,7 +152,7 @@ export function listSuppliers() {
 }
 
 export function getSupplier(id: string) {
-  return fromCollection(listSuppliers(), id, () => db.findOne<Supplier>(COLLECTIONS.suppliers, { id }));
+  return db.findOne<Supplier>(COLLECTIONS.suppliers, { id });
 }
 
 /* ---------------------------------------------------------- shared catalog */
@@ -193,7 +162,7 @@ export function listCatalogProducts() {
 }
 
 export function getCatalogProduct(id: string) {
-  return fromCollection(listCatalogProducts(), id, () => db.findOne<CatalogProduct>(COLLECTIONS.catalog, { id }));
+  return db.findOne<CatalogProduct>(COLLECTIONS.catalog, { id });
 }
 
 /* ---------------------------------------------------------- store products */
@@ -208,8 +177,10 @@ export function listStoreProducts(storeId: string) {
  * than one per store.
  */
 export async function listStoreProductsByStore(storeIds: string[]): Promise<Map<string, StoreProduct[]>> {
-  const rows = await db.findIn<StoreProduct>(COLLECTIONS.storeProducts, "storeId", storeIds);
-  return groupById(storeIds, rows, (row) => row.storeId, (row) => row.updatedAt);
+  const rows = await db.findIn<StoreProduct>(COLLECTIONS.storeProducts, "storeId", storeIds, {
+    sort: { updatedAt: -1 },
+  });
+  return groupById(storeIds, rows, (row) => row.storeId);
 }
 
 /**
@@ -239,11 +210,8 @@ export function getStoreProductBySlug(storeId: string, slug: string) {
 }
 
 /**
- * Applies a patch to a store product.
- *
- * Pass the record the patch was built from and the result is handed to the
- * per-request memo, so the page that re-renders after the mutation does not
- * spend another round trip re-reading a document this request just wrote.
+ * Applies a patch to a store product. Pass the record the patch was built from
+ * to spare the guard below a re-read.
  *
  * Uploading, moving or removing artwork clears the generated mockups, and
  * regenerating them resets every preview to unapproved. A published product in
@@ -259,15 +227,11 @@ export async function updateStoreProduct(id: string, patch: Partial<StoreProduct
       patch = { ...patch, status: "in_review", unpublishedReason: "artwork_changed" };
     }
   }
-  const updatedAt = new Date().toISOString();
   await db.updateOne(
     COLLECTIONS.storeProducts,
     { id },
-    { $set: { ...(patch as Record<string, unknown>), updatedAt } },
+    { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
   );
-  if (current && current.id === id) {
-    db.primeOne<StoreProduct>(COLLECTIONS.storeProducts, { id }, { ...current, ...patch, updatedAt });
-  }
 }
 
 /* ------------------------------------------------------------ tax brackets */
@@ -277,7 +241,7 @@ export function listTaxBrackets() {
 }
 
 export function getTaxBracket(id: string) {
-  return fromCollection(listTaxBrackets(), id, () => db.findOne<TaxBracket>(COLLECTIONS.taxBrackets, { id }));
+  return db.findOne<TaxBracket>(COLLECTIONS.taxBrackets, { id });
 }
 
 /* ------------------------------------------------------------------ orders */
@@ -291,8 +255,8 @@ export function listOrders(storeId: string) {
  * `listOrders` returns them in.
  */
 export async function listOrdersByStore(storeIds: string[]): Promise<Map<string, Order[]>> {
-  const rows = await db.findIn<Order>(COLLECTIONS.orders, "storeId", storeIds);
-  return groupById(storeIds, rows, (row) => row.storeId, (row) => row.createdAt);
+  const rows = await db.findIn<Order>(COLLECTIONS.orders, "storeId", storeIds, { sort: { createdAt: -1 } });
+  return groupById(storeIds, rows, (row) => row.storeId);
 }
 
 export function getOrder(id: string) {
@@ -560,15 +524,15 @@ export function getCart(storeId: string, sessionId: string) {
  * that matters: decided suggestions accumulate forever, so a single window
  * sorted by date eventually fills with them and pushes pending ones out of
  * sight — and a pending suggestion nobody can see is one nobody can apply or
- * dismiss. Pending is therefore read whole (100 is the data API's own ceiling)
- * and only the decided history is trimmed.
+ * dismiss. Pending is therefore read whole and only the decided history is
+ * trimmed.
  */
 export async function listSuggestions(storeId: string) {
   const [pending, decided] = await Promise.all([
     db.find<AiSuggestion>(
       COLLECTIONS.suggestions,
       { storeId, status: "pending" },
-      { sort: { createdAt: -1 }, limit: 100 },
+      { sort: { createdAt: -1 } },
     ),
     db.find<AiSuggestion>(
       COLLECTIONS.suggestions,
@@ -643,92 +607,37 @@ export function listAudit(filter: Record<string, unknown>, limit = 60) {
   return db.find<AuditLog>(COLLECTIONS.audit, filter, { sort: { at: -1 }, limit });
 }
 
-/**
- * The platform API answers a `find` with at most this many documents, and it
- * applies neither `sort` nor `skip`. A collection with more history than this
- * therefore cannot be read newest-first in one call, and asking for it plainly
- * returned an arbitrary slice of it — which is what made the audit list show
- * whatever it happened to get rather than the latest changes.
- */
-const AUDIT_FIND_CAP = 50;
-/** Reads of one slice of time, so a dense month cannot loop. */
-const AUDIT_SLICE_READS = 16;
-/** Buckets read together. Enough to overlap the latency, few enough to stop early. */
-const AUDIT_BUCKET_BATCH = 8;
-/** Older than any record the platform holds. */
-const AUDIT_BEGINNING = "1970-01-01T00:00:00.000Z";
-
 export interface AuditWindow {
   entries: AuditLog[];
   /**
    * The oldest instant this result is complete from. Equal to the window's own
-   * start unless reading stopped early, in which case older entries exist and
-   * the view says so.
+   * start unless reading stopped at the cap, in which case older entries exist
+   * and the view says so.
    */
   coveredFrom: string;
   truncated: boolean;
 }
 
 /**
- * Every audit entry in an instant window, newest first.
- *
- * The window is walked one month at a time from the newest end, so stopping
- * early drops the oldest history rather than an arbitrary scattering of it, and
- * what is returned is complete from `coveredFrom` onwards. Months are read
- * several at a time, and a month holding more entries than the API returns at
- * once is read again with what is already in hand excluded.
+ * The newest `cap` audit entries in an instant window, newest first. With no
+ * start date asked for, everything before `to` belongs in the window — an entry
+ * written before the scope's oldest store, a platform-wide change say, is still
+ * in the history.
  */
 export async function loadAuditWindow(
   scope: Record<string, unknown>,
   window: AuditReadWindow,
   cap: number,
 ): Promise<AuditWindow> {
-  const buckets = auditMonthBuckets(window.from, window.to);
-  // With no start date asked for, the months only say where reading begins:
-  // anything older is swept up last, so an entry written before the scope's
-  // oldest store — a platform-wide change, say — is still in the history.
-  if (window.openStart) buckets.push({ from: AUDIT_BEGINNING, to: window.from });
-  const entries: AuditLog[] = [];
-  let coveredFrom = window.from;
-  let truncated = false;
-
-  for (let index = 0; index < buckets.length; index += AUDIT_BUCKET_BATCH) {
-    const batch = buckets.slice(index, index + AUDIT_BUCKET_BATCH);
-    const reads = await Promise.all(batch.map((bucket) => readAuditSlice(scope, bucket)));
-    for (const rows of reads) entries.push(...rows);
-    const remaining = index + AUDIT_BUCKET_BATCH < buckets.length;
-    if (entries.length >= cap && remaining) {
-      coveredFrom = batch[batch.length - 1].from;
-      truncated = true;
-      break;
-    }
-  }
-
-  return { entries: sortAuditEntries(entries), coveredFrom, truncated };
-}
-
-/**
- * Every entry in one slice of time.
- *
- * A read that comes back full means the cap was hit and there is more behind it,
- * so the documents already in hand are excluded and the slice is read again.
- * Halving the slice and reading both halves at once was tried instead and was
- * three times slower: it spends a whole round trip per level to discover a
- * boundary the exclusion already knows.
- */
-async function readAuditSlice(
-  scope: Record<string, unknown>,
-  slice: { from: string; to: string },
-): Promise<AuditLog[]> {
-  const rows: AuditLog[] = [];
-  const seen: string[] = [];
-  for (let read = 0; read < AUDIT_SLICE_READS; read++) {
-    const filter: Record<string, unknown> = { ...scope, at: { $gte: slice.from, $lt: slice.to } };
-    if (seen.length > 0) filter.id = { $nin: seen };
-    const page = await db.find<AuditLog>(COLLECTIONS.audit, filter);
-    rows.push(...page);
-    if (page.length < AUDIT_FIND_CAP) break;
-    for (const row of page) seen.push(row.id);
-  }
-  return rows;
+  const at: Record<string, string> = { $lt: window.to };
+  if (!window.openStart) at.$gte = window.from;
+  // One past the cap says whether anything older was left behind.
+  const rows = await db.find<AuditLog>(
+    COLLECTIONS.audit,
+    { ...scope, at },
+    { sort: { at: -1, id: -1 }, limit: cap + 1 },
+  );
+  if (rows.length <= cap) return { entries: rows, coveredFrom: window.from, truncated: false };
+  const entries = rows.slice(0, cap);
+  return { entries, coveredFrom: entries[entries.length - 1].at, truncated: true };
 }

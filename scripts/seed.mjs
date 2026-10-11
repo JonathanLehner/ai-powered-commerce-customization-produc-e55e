@@ -1,8 +1,11 @@
 /**
- * Seeds the ClawCorp project database with the Parcelith demo tenancy:
+ * Seeds the development database with the Parcelith demo tenancy:
  * agencies, users, suppliers, the shared supplier catalog, four client stores,
  * their imported/customised products (with real composited mockups), published
  * storefront layouts, orders across every fulfilment state, and audit history.
+ *
+ * It clears every collection first, so it only runs against a database named
+ * by MONGODB_DB and refuses production (see `scripts/mongo.mjs`).
  *
  * Run: node --env-file=.env.local scripts/seed.mjs
  */
@@ -12,6 +15,7 @@ import path from "node:path";
 import { hashSync } from "bcryptjs";
 import sharp from "sharp";
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
+import { openDatabase } from "./mongo.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
@@ -23,18 +27,7 @@ const BASE = "https://www.clawcorp.ai/api/platform";
 
 /* ------------------------------------------------------------------ helpers */
 
-async function dbCall(body) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/db`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return (await res.json()).result;
-    if (attempt === 4) throw new Error(`${body.action} ${body.collection}: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
+const { client, dbCall } = await openDatabase({ devOnly: true });
 
 const insertMany = (collection, documents) =>
   documents.length ? dbCall({ collection, action: "insertMany", documents }) : Promise.resolve();
@@ -723,7 +716,8 @@ const PRODUCT_PLAN = [
   },
   {
     storeId: "str_northwind", catalogId: "cat_tee_organic", artwork: "northwind",
-    name: "Northwind Organic Tee", slug: "northwind-organic-tee", price: 3600, currency: "USD", taxBracketId: "tax_us825", status: "draft",
+    // Fixed ids: the acceptance replay opens this draft and the exception order below by address.
+    id: "prd_01awz4l6j", name: "Northwind Organic Tee", slug: "northwind-organic-tee", price: 3600, currency: "USD", taxBracketId: "tax_us825", status: "draft",
     tags: ["tee", "organic", "gots"],
     description:
       "GOTS-certified organic cotton, produced inside the destination market. Under review as the replacement for the heavy cotton tee in EU orders.",
@@ -932,7 +926,7 @@ async function main() {
     });
 
     storeProducts.push({
-      id: id("prd"),
+      id: plan.id ?? id("prd"),
       storeId: plan.storeId,
       catalogProductId: cat.id,
       supplierId: cat.supplierId,
@@ -1060,7 +1054,7 @@ async function main() {
     { store: "str_northwind", daysAgo: 19, status: "shipped", carrier: "ups", country: "US", name: "Tomas Beck", email: "tomas.beck@example.com", city: "Austin", line1: "902 East 6th Street", postal: "78702", qty: 3, text: null },
     { store: "str_northwind", daysAgo: 12, status: "in_production", carrier: null, country: "US", name: "Aleah Sanders", email: "aleah.sanders@example.com", city: "Portland", line1: "77 NW Glisan Street", postal: "97209", qty: 1, text: "ALEAH" },
     { store: "str_northwind", daysAgo: 6, status: "paid", carrier: null, country: "GB", name: "Rowan Clarke", email: "rowan.clarke@example.com", city: "Bristol", line1: "14 Park Row", postal: "BS1 5LJ", qty: 2, text: null },
-    { store: "str_northwind", daysAgo: 3, status: "exception", carrier: null, country: "ZA", name: "Nomsa Dlamini", email: "nomsa.dlamini@example.com", city: "Cape Town", line1: "31 Bree Street", postal: "8001", qty: 1, text: null },
+    { id: "ord_03vbvfure", store: "str_northwind", daysAgo: 3, status: "exception", carrier: null, country: "ZA", name: "Nomsa Dlamini", email: "nomsa.dlamini@example.com", city: "Cape Town", line1: "31 Bree Street", postal: "8001", qty: 1, text: null },
     { store: "str_northwind", daysAgo: 2, status: "cancelled", carrier: null, country: "US", name: "Peter Nowak", email: "peter.nowak@example.com", city: "Chicago", line1: "220 North Green Street", postal: "60607", qty: 1, text: null },
     { store: "str_northwind", daysAgo: 1, status: "paid", carrier: null, country: "US", name: "Grace Amoah", email: "grace.amoah@example.com", city: "Seattle", line1: "1201 Pine Street", postal: "98101", qty: 4, text: null },
     { store: "str_lumen", daysAgo: 30, status: "delivered", carrier: "dhl", country: "NL", name: "Sanne de Vries", email: "sanne.devries@example.com", city: "Utrecht", line1: "Oudegracht 205", postal: "3511 NK", qty: 1, text: "SANNE" },
@@ -1189,7 +1183,7 @@ async function main() {
     const tracking = carrier ? trackingNumber(carrier, code) : null;
 
     orders.push({
-      id: id("ord"),
+      id: plan.id ?? id("ord"),
       storeId: plan.store,
       code,
       status: plan.status,
@@ -1329,14 +1323,16 @@ async function main() {
 
   // The gifting demo reads the store and its published products back out of the
   // database, so it runs once everything above has been written.
-  await seedGifting(KEY);
+  await seedGifting(dbCall);
 
   console.log(
     `done — ${stores.length} stores, ${storeProducts.length} store products, ${orders.length} orders, ${auditLogs.length} audit entries`,
   );
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+main()
+  .then(() => client.close())
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

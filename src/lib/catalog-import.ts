@@ -1,6 +1,6 @@
 import "server-only";
 import { COLLECTIONS, getCatalogProduct, getTaxBracket, listStoreProducts, recordAudit } from "./data";
-import { db } from "./platform";
+import { db } from "./mongo";
 import { breakdownFor } from "./pricing";
 import { baseStoreSku, nextFreeName, nextFreeSku, storeSku } from "./sku";
 import type { Store, StoreProduct, StoreVariant, User } from "./types";

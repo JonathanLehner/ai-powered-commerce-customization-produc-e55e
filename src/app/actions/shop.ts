@@ -32,7 +32,7 @@ import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { checkDiscount, normalizeDiscountCode } from "@/lib/discounts";
 import { routeOrder } from "@/lib/fulfillment";
 import { readStoredImage } from "@/lib/uploads";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { SHOPPER_COOKIE } from "@/lib/session";
 import { chargeCard } from "@/lib/stripe";
 import {

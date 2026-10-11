@@ -13,7 +13,7 @@ import {
 } from "@/lib/data";
 import { blockingIssues, validateArtwork } from "@/lib/artwork";
 import { readStoredImage } from "@/lib/uploads";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
 import { isQuoteOnly } from "@/lib/sourcing";

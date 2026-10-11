@@ -14,14 +14,12 @@ import { matchesRoute, segmentsOf } from "@/lib/routes";
  * workspace address all looked like working pages.
  *
  * A status can only be set before the response starts streaming, so the check
- * has to run before the render — which is what middleware is. It decides the
- * status only; the body is still the page's own render of live data, so a stale
- * answer here can never show the wrong page, only briefly label the right one
- * wrongly.
+ * has to run before the render — which is what proxy is. It decides the
+ * status only; the body is still the page's own render of live data.
  *
- * This is `middleware.ts` on the edge runtime rather than Next 16's `proxy.ts`
- * on purpose: proxy is always Node.js, which the OpenNext Cloudflare adapter
- * the app deploys through does not support.
+ * It is Next 16's `proxy.ts`, which runs on Node.js, because the MongoDB driver
+ * needs sockets and the edge runtime's bundle stubs them out. OpenNext bundles
+ * a Node.js proxy for workerd, where `nodejs_compat` provides them.
  */
 export const config = {
   // Everything but the framework's own assets and the files in `public/`, which
@@ -34,7 +32,7 @@ export const config = {
   matcher: ["/((?!_next/static|_next/image|api/auth/|.*\\.[a-zA-Z0-9]+$).*)"],
 };
 
-export async function middleware(request: NextRequest): Promise<NextResponse | undefined> {
+export async function proxy(request: NextRequest): Promise<NextResponse | undefined> {
   // Reads only. A server action posts to the address the page is on, and its
   // response is a payload the browser is waiting on rather than a page anyone
   // navigated to; a status of 404 there would say something about the action,
@@ -55,9 +53,9 @@ async function isMissing(pathname: string): Promise<boolean> {
   const [surface, slug, ...rest] = segmentsOf(pathname).map(decodeSegment);
   try {
     if (surface === "s") return await storefrontMissing(slug, rest);
-    if (surface === "g") return !(await remember(`g:${slug}`, () => exists(getGiftCatalogueBySlug(slug))));
+    if (surface === "g") return !(await exists(getGiftCatalogueBySlug(slug)));
   } catch {
-    // The platform API is down or slow. The page is about to run the same reads
+    // The database is unreachable. The page is about to run the same reads
     // and will say so in its own words; a status is not worth failing over.
     return false;
   }
@@ -66,13 +64,11 @@ async function isMissing(pathname: string): Promise<boolean> {
 
 /** A shop address: the slug has to belong to a store, and a product page to a product on sale. */
 async function storefrontMissing(slug: string, rest: string[]): Promise<boolean> {
-  const store = await remember(`s:${slug}`, async () => (await getStoreBySlug(slug))?.id ?? null);
+  const store = await getStoreBySlug(slug);
   if (!store) return true;
   if (rest[0] !== "products" || rest.length !== 2) return false;
-  return !(await remember(`p:${store}:${rest[1]}`, async () => {
-    const product = await getStoreProductBySlug(store, rest[1]);
-    return product != null && isLive(product);
-  }));
+  const product = await getStoreProductBySlug(store.id, rest[1]);
+  return !(product != null && isLive(product));
 }
 
 /** A lookup that answers with the record, or with nothing when there is none. */
@@ -86,43 +82,4 @@ function decodeSegment(segment: string): string {
   } catch {
     return segment;
   }
-}
-
-/* ------------------------------------------------------------------ caching */
-
-/**
- * Proxy runs on every request, and these are reads the page is about to make
- * again — a round trip to the platform API costs around half a second, so
- * paying it twice per shop page would be felt. The answers are kept for ten
- * seconds, the same window the data layer keeps stores in, and they are only
- * ever used to choose the status code: a product published in the last ten
- * seconds is served as a 404 for the rest of that window, with its own page in
- * the body.
- */
-const TTL_MS = 10_000;
-const MAX_ENTRIES = 500;
-const answers = new Map<string, { until: number; value: Promise<unknown> }>();
-
-function remember<T>(key: string, lookup: () => Promise<T>): Promise<T> {
-  const now = Date.now();
-  const hit = answers.get(key);
-  if (hit && hit.until > now) return hit.value as Promise<T>;
-
-  const value = lookup().catch((error: unknown) => {
-    answers.delete(key);
-    throw error;
-  });
-  if (answers.size >= MAX_ENTRIES) {
-    for (const [existing, entry] of answers) {
-      if (entry.until <= now) answers.delete(existing);
-    }
-    // Still full: the oldest insertions go, Map iteration being insertion-ordered.
-    while (answers.size >= MAX_ENTRIES) {
-      const oldest = answers.keys().next();
-      if (oldest.done) break;
-      answers.delete(oldest.value);
-    }
-  }
-  answers.set(key, { until: now + TTL_MS, value });
-  return value;
 }

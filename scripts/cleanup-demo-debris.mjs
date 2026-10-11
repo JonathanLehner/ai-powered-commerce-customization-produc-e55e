@@ -15,25 +15,8 @@
  *
  * Run: node --env-file=.env.local scripts/cleanup-demo-debris.mjs
  */
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
-const BASE = "https://www.clawcorp.ai/api/platform";
-
-async function dbCall(body) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/db`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return (await res.json()).result;
-    if (attempt === 4) throw new Error(`${body.action} ${body.collection}: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
+import { openDatabase } from "./mongo.mjs";
+const { client, dbCall } = await openDatabase();
 
 const find = (collection, filter) => dbCall({ collection, action: "find", filter });
 const deleteMany = (collection, filter) => dbCall({ collection, action: "deleteMany", filter });
@@ -88,3 +71,4 @@ async function removeDuplicateProducts() {
 await removeTestStores();
 await removeDuplicateProducts();
 console.log("cleanup-demo-debris ok");
+await client.close();

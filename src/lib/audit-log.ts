@@ -5,8 +5,7 @@
  *
  * Everything here is pure, so `npm run audit-check` exercises the filtering, the
  * paging, the collapsing and the CSV without a database. The fetching itself
- * lives in `lib/data.ts`, which is where the platform API's document cap has to
- * be worked around.
+ * lives in `lib/data.ts`.
  */
 import {
   AUDIT_CATEGORY_LABELS,
@@ -124,34 +123,6 @@ export function auditWindow(filters: AuditFilters, earliest: string, now: string
     to: range.to ?? shiftDays(now, 1),
     openStart: range.from === null,
   };
-}
-
-/**
- * The window split into UTC calendar months, newest first.
- *
- * The platform API caps a `find` and applies neither sort nor skip, so the only
- * way to read history newest-first is to ask for one slice of time at a time.
- * Months are the unit: coarse enough that an ordinary range is a handful of
- * reads, fine enough that stopping early still leaves a whole month covered.
- */
-export function auditMonthBuckets(from: string, to: string): { from: string; to: string }[] {
-  const start = new Date(from);
-  const buckets: { from: string; to: string }[] = [];
-  let end = new Date(to);
-  // Ten years of months is far past any real range, and stops a bad input
-  // (an unparsable date, a reversed window) from looping.
-  while (end.getTime() > start.getTime() && buckets.length < 120) {
-    const monthStart = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1);
-    // An end exactly on a month boundary belongs to the month before it.
-    const boundary =
-      monthStart === end.getTime()
-        ? new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() - 1, 1))
-        : new Date(monthStart);
-    const bucketFrom = boundary.getTime() < start.getTime() ? start : boundary;
-    buckets.push({ from: bucketFrom.toISOString(), to: end.toISOString() });
-    end = boundary;
-  }
-  return buckets;
 }
 
 /* --------------------------------------------- the detail line, in plain words */
@@ -562,7 +533,7 @@ export function recentAuditRuns(entries: AuditLog[], rows: number): AuditRun[] {
 
 /**
  * How many entries a panel reads to fill `rows` collapsed rows. Generous rather
- * than exact: reading is one round trip either way.
+ * than exact: reading is one query either way.
  */
 export function recentAuditReadSize(rows: number): number {
   return rows * 5;

@@ -10,6 +10,7 @@
  */
 import { randomBytes } from "node:crypto";
 import sharp from "sharp";
+import { openDatabase } from "./mongo.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
 if (!KEY) {
@@ -18,18 +19,7 @@ if (!KEY) {
 }
 const BASE = "https://www.clawcorp.ai/api/platform";
 
-async function dbCall(body) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/db`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return (await res.json()).result;
-    if (attempt === 4) throw new Error(`${body.action} ${body.collection}: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
+const { client, dbCall } = await openDatabase();
 
 async function upload(bytes, mimeType) {
   const res = await fetch(`${BASE}/upload`, {
@@ -134,3 +124,4 @@ if (Object.keys(patch).length === 0) {
   await dbCall({ collection: "store_products", action: "updateOne", filter: { id: product.id }, update: { $set: patch } });
   console.log(`done — Northwind Field Tee updated: ${Object.keys(patch).join(", ")}`);
 }
+await client.close();

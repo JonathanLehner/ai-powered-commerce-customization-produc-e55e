@@ -9,7 +9,6 @@ import {
   auditCsv,
   auditDetail,
   auditFileName,
-  auditMonthBuckets,
   auditQuery,
   auditRange,
   auditRunSummary,
@@ -272,35 +271,6 @@ assert.deepEqual(narrow, {
   openStart: false,
 });
 assert.equal(auditWindow(parseAuditFilters({ to: "2026-07-31" }), "2026-04-23T07:48:08.535Z", "2026-08-05T12:00:00.000Z").openStart, true);
-
-/* ----------------------------------------------------------- month buckets */
-
-// The platform API caps a read and applies no sort, so history is read one month
-// at a time from the newest end. The buckets have to cover the window exactly:
-// newest first, no gaps, no overlaps, nothing outside it.
-const buckets = auditMonthBuckets("2026-04-23T07:48:08.535Z", "2026-08-05T12:00:00.000Z");
-assert.ok(buckets.length >= 4);
-assert.equal(buckets[0].to, "2026-08-05T12:00:00.000Z");
-assert.equal(buckets[buckets.length - 1].from, "2026-04-23T07:48:08.535Z");
-for (let i = 0; i < buckets.length; i++) {
-  assert.ok(buckets[i].from < buckets[i].to, "a bucket covers time");
-  if (i > 0) assert.equal(buckets[i].to, buckets[i - 1].from, "buckets meet exactly");
-}
-
-// A window that is already inside one month is one bucket.
-assert.deepEqual(auditMonthBuckets("2026-07-02T00:00:00.000Z", "2026-07-09T00:00:00.000Z"), [
-  { from: "2026-07-02T00:00:00.000Z", to: "2026-07-09T00:00:00.000Z" },
-]);
-// A window ending exactly on a month boundary does not produce an empty bucket.
-const boundary = auditMonthBuckets("2026-06-01T00:00:00.000Z", "2026-08-01T00:00:00.000Z");
-assert.deepEqual(boundary, [
-  { from: "2026-07-01T00:00:00.000Z", to: "2026-08-01T00:00:00.000Z" },
-  { from: "2026-06-01T00:00:00.000Z", to: "2026-07-01T00:00:00.000Z" },
-]);
-assert.deepEqual(auditMonthBuckets("2026-08-01T00:00:00.000Z", "2026-08-01T00:00:00.000Z"), []);
-// Years are crossed the same way, and the walk is always bounded.
-assert.equal(auditMonthBuckets("2025-11-15T00:00:00.000Z", "2026-01-10T00:00:00.000Z").length, 3);
-assert.ok(auditMonthBuckets("1990-01-01T00:00:00.000Z", "2026-08-05T00:00:00.000Z").length <= 120);
 
 /* ------------------------------------------------------- the detail line */
 

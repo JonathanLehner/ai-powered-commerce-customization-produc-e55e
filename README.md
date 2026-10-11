@@ -141,11 +141,24 @@ npm run build && npm run start
 ```
 CLAWCORP_API_KEY=…
 AUTH_SECRET=…
+MONGODB_URI=mongodb+srv://…
+MONGODB_DB=parcelith_dev    # .env.local only — never on the deployment
 ```
 
+`MONGODB_URI` is the app's own MongoDB, reached with the official driver
+(`src/lib/mongo.ts`; a Worker secret in the deployment). The database is named
+by `MONGODB_DB`, and production — where it is never set — uses `parcelith`.
+Local development, the `*-check` scripts, the seeds and the acceptance replay
+all work on `parcelith_dev`, so a test run never writes into live data. On
+Workers the name is read from the Worker's own bindings rather than
+`process.env`, because OpenNext copies the build machine's `.env*` files into
+the bundle. A client lives for one request (a Worker socket cannot be shared
+between requests), and the indexes in `src/lib/db-indexes.ts` are created on
+an isolate's first connection or with `npm run create-indexes`.
+
 `CLAWCORP_API_KEY` authenticates the ClawCorp platform services used from server
-code only: the project-scoped MongoDB, text generation, and the asset upload
-endpoint that stores logos, artwork and rendered mockups.
+code only: text generation, and the asset upload endpoint that stores logos,
+artwork and rendered mockups.
 
 `AUTH_SECRET` is the key Auth.js signs and encrypts the staff session cookie
 with (`npx auth secret` generates one; it is a Worker secret in the deployment).
@@ -196,8 +209,13 @@ asset URLs in `scripts/image-manifest.json`, so no image is generated at request
 time.
 
 ```bash
-node scripts/seed.mjs         # requires CLAWCORP_API_KEY in the environment
+node --env-file=.env.local scripts/seed.mjs   # clears and reseeds MONGODB_DB; refuses production
 ```
+
+`scripts/migrate-to-mongodb.mjs` copied production off the ClawCorp platform
+database API into `parcelith`, keeping every `id` and `_id`. It pages past the
+API's per-read cap and upserts by `id`, so it is safe to re-run:
+`MONGODB_DB=parcelith node --env-file=.env.local --experimental-strip-types scripts/migrate-to-mongodb.mjs`.
 
 `scripts/seed-gifting.mjs` adds the corporate gifting demo — a private catalogue
 for Northwind, a paid campaign with one order per recipient (including an
@@ -265,7 +283,7 @@ alone, so it is safe to re-run.
   password with bcrypt, and `persona` takes an email alone to back the demo
   buttons on `/login` and the "accepted an invitation" box — email-only on
   purpose for this demo workspace, and still a signed session rather than a
-  cookie anyone can type. `/api/auth/*` is the one path `src/middleware.ts`
+  cookie anyone can type. `/api/auth/*` is the one path `src/proxy.ts`
   skips, since Auth.js owns it through a catch-all and it is deliberately absent
   from the route table.
 - All platform calls live in `src/lib/platform.ts` and are server-only. The

@@ -13,7 +13,7 @@ import {
 } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, teamInviteEmail } from "@/lib/email-templates";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { assertStoreAccess } from "@/lib/session";
 import { STORE_ROLE_LABELS, type Membership, type Store, type StoreRole, type User } from "@/lib/types";
 import { newId } from "@/lib/util";

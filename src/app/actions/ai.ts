@@ -15,7 +15,7 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
-import { db } from "@/lib/platform";
+import { db } from "@/lib/mongo";
 import { breakdownFor } from "@/lib/pricing";
 import { assertStoreAccess } from "@/lib/session";
 import type { AiSuggestion, StoreProduct } from "@/lib/types";

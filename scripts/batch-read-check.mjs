@@ -1,156 +1,97 @@
 // Self-check for batched reads: npm run batch-read-check
 //
-// The dashboard loads every store's orders and products in one query each
-// instead of a pair of round trips per store. The platform API answers a `find`
-// with at most 100 documents and applies no skip, so the batched read has to
-// notice a truncated page and go back for the rest — a batch that quietly
-// stopped at 100 would under-report sales and order counts and look like a
-// data-loss bug rather than a slow page.
+// The dashboard loads every store's orders and products in one `$in` query each
+// instead of a pair of reads per store. A batched read that dropped rows would
+// under-report sales and order counts and look like a data-loss bug rather than
+// a slow page, so this writes a known dataset into the development database and
+// asserts that every read returns exactly the documents that match, in order.
 //
-// The platform API is replaced here by a fake holding a known dataset, so every
-// assertion is "the batched read returned exactly the documents that match".
+// It needs MONGODB_URI and MONGODB_DB from `.env.local`, and refuses to run
+// against production.
 import assert from "node:assert/strict";
+import { PRODUCTION_DB } from "./mongo.mjs";
 
-process.env.CLAWCORP_API_KEY = process.env.CLAWCORP_API_KEY ?? "batch-read-check";
-
-/** Documents the real endpoint returns from one `find`, however many match. */
-const FIND_CAP = 100;
-
-let dataset = [];
-let calls = [];
-
-/** The subset of Mongo filters `findIn` builds: equality, `$in`, `$nin`, `$and`. */
-function matches(doc, filter) {
-  return Object.entries(filter).every(([key, condition]) => {
-    if (key === "$and") return condition.every((part) => matches(doc, part));
-    if (condition && typeof condition === "object") {
-      if ("$in" in condition && !condition.$in.includes(doc[key])) return false;
-      if ("$nin" in condition && condition.$nin.includes(doc[key])) return false;
-      return true;
-    }
-    return doc[key] === condition;
-  });
+if (!process.env.MONGODB_DB || process.env.MONGODB_DB === PRODUCTION_DB) {
+  console.error("batch-read-check writes test data: set MONGODB_DB to the development database (see .env.local).");
+  process.exit(1);
 }
 
-globalThis.fetch = async (url, init) => {
-  const body = JSON.parse(init.body);
-  assert.equal(body.action, "find", "the check only fakes reads");
-  calls.push(body);
-  const rows = dataset.filter((doc) => doc.collection === body.collection && matches(doc, body.filter));
-  return new Response(JSON.stringify({ result: rows.slice(0, FIND_CAP) }), {
-    headers: { "content-type": "application/json" },
-  });
-};
+const { db } = await import("../src/lib/mongo.ts");
+const { listOrdersByStore, listStoreProductsByStore } = await import("../src/lib/data.ts");
 
-const { db } = await import("../src/lib/platform.ts");
+// Every id carries this run's prefix, so concurrent or aborted runs never collide.
+const RUN = `chk${Date.now().toString(36)}`;
+const store = (name) => `${RUN}_${name}`;
 
 function order(storeId, index) {
   return {
-    collection: "orders",
     id: `ord_${storeId}_${String(index).padStart(4, "0")}`,
+    code: `${storeId}-${index}`,
     storeId,
-    createdAt: new Date(Date.UTC(2026, 0, 1 + (index % 28))).toISOString(),
+    createdAt: new Date(Date.UTC(2026, 0, 1, 0, index)).toISOString(),
   };
-}
-
-function load(docs) {
-  dataset = docs;
-  calls = [];
 }
 
 function ids(rows) {
   return [...rows.map((row) => row.id)].sort();
 }
 
-function expected(storeIds) {
-  return ids(dataset.filter((doc) => storeIds.includes(doc.storeId)));
-}
+try {
+  const storeIds = ["a", "b", "c", "d"].map(store);
+  // Past the old platform API's 100-document ceiling, which a `$in` read used to stop at.
+  const orders = storeIds.flatMap((storeId) => Array.from({ length: 60 }, (_, i) => order(storeId, i + 1)));
+  const big = Array.from({ length: 237 }, (_, i) => order(store("big"), i + 1));
+  await db.insertMany("orders", [...orders, ...big]);
 
-/* --------------------------------------- one read stands in for one per store */
+  /* ------------------------------------- one read returns every match, once */
 
-{
-  const storeIds = ["str_a", "str_b", "str_c"];
-  load(storeIds.flatMap((storeId) => [1, 2, 3].map((i) => order(storeId, i))));
-  const rows = await db.findIn("orders", "storeId", storeIds);
-  assert.deepEqual(ids(rows), expected(storeIds));
-  assert.equal(calls.length, 1, "three stores are one read, not three");
-  assert.deepEqual(calls[0].filter, { storeId: { $in: storeIds } });
-}
-
-/* ----------------------------------- a store with no records is still asked for */
-
-{
-  load([order("str_a", 1)]);
-  const rows = await db.findIn("orders", "storeId", ["str_a", "str_empty"]);
-  assert.deepEqual(ids(rows), ["ord_str_a_0001"]);
-}
-
-/* ------------------------------------------------- nothing asked for, no read */
-
-{
-  load([order("str_a", 1)]);
-  assert.deepEqual(await db.findIn("orders", "storeId", []), []);
-  assert.deepEqual(await db.findIn("orders", "storeId", ["", ""]), []);
-  assert.equal(calls.length, 0, "an empty id list must not reach the API");
-}
-
-/* --------------- a batch that fills the cap is split, and nothing is dropped */
-
-{
-  // Four stores, 60 orders each: every read covering more than one store comes
-  // back truncated, so the batch has to halve until each read fits.
-  const storeIds = ["str_a", "str_b", "str_c", "str_d"];
-  load(storeIds.flatMap((storeId) => Array.from({ length: 60 }, (_, i) => order(storeId, i + 1))));
   const rows = await db.findIn("orders", "storeId", storeIds);
   assert.equal(rows.length, 240, "every order is returned, not the first hundred");
-  assert.deepEqual(ids(rows), expected(storeIds));
+  assert.deepEqual(ids(rows), ids(orders));
   assert.equal(new Set(rows.map((r) => r.id)).size, rows.length, "no document twice");
-  assert.ok(calls.length > 1, "a truncated read has to be followed by more");
-}
+  assert.ok(rows.every((row) => !("_id" in row)), "Mongo's _id never leaves the data layer");
 
-/* ----------- a single store past the cap is paged with what is already in hand */
+  const single = await db.findIn("orders", "storeId", [store("big")]);
+  assert.equal(single.length, 237);
 
-{
-  load(Array.from({ length: 237 }, (_, i) => order("str_big", i + 1)));
-  const rows = await db.findIn("orders", "storeId", ["str_big"]);
-  assert.deepEqual(ids(rows), expected(["str_big"]));
-  assert.equal(rows.length, 237);
-  assert.ok(
-    calls.slice(1).every((call) => "$and" in call.filter),
-    "the follow-up reads exclude the documents already read",
-  );
-}
+  /* -------------------------- a store with no records is still asked for */
 
-/* ------------------------------- a long id list is split into several batches */
+  const sparse = await db.findIn("orders", "storeId", [storeIds[0], store("empty")]);
+  assert.equal(sparse.length, 60);
 
-{
-  const storeIds = Array.from({ length: 60 }, (_, i) => `str_${i}`);
-  load(storeIds.map((storeId) => order(storeId, 1)));
-  const rows = await db.findIn("orders", "storeId", storeIds);
-  assert.deepEqual(ids(rows), expected(storeIds));
-  assert.equal(calls.length, 3, "sixty ids are read twenty-five at a time");
-}
+  /* ---------------------------------------------- nothing asked for, nothing read */
 
-/* ----------------------------- grouping keeps each store's own order, newest first */
+  assert.deepEqual(await db.findIn("orders", "storeId", []), []);
+  assert.deepEqual(await db.findIn("orders", "storeId", ["", ""]), []);
 
-{
-  const { listOrdersByStore, listStoreProductsByStore } = await import("../src/lib/data.ts");
-  load([order("str_a", 3), order("str_a", 1), order("str_b", 2)]);
-  const byStore = await listOrdersByStore(["str_a", "str_b", "str_none"]);
+  /* -------------------- sort, limit and skip are applied by the database */
+
+  const page = await db.find("orders", { storeId: store("big") }, { sort: { createdAt: -1 }, skip: 10, limit: 5 });
   assert.deepEqual(
-    byStore.get("str_a").map((o) => o.id),
-    ["ord_str_a_0003", "ord_str_a_0001"],
-    "newest first, as listOrders returns them",
+    page.map((o) => o.id),
+    [227, 226, 225, 224, 223].map((i) => order(store("big"), i).id),
   );
-  assert.deepEqual(byStore.get("str_b").map((o) => o.id), ["ord_str_b_0002"]);
-  assert.deepEqual(byStore.get("str_none"), [], "a store with no orders reads as empty, not missing");
+  assert.equal(await db.count("orders", { storeId: store("big") }), 237);
 
-  load([
-    { collection: "store_products", id: "prd_1", storeId: "str_a", updatedAt: "2026-02-01T00:00:00.000Z" },
-    { collection: "store_products", id: "prd_2", storeId: "str_a", updatedAt: "2026-03-01T00:00:00.000Z" },
+  /* ---------------------- grouping keeps each store's own order, newest first */
+
+  const byStore = await listOrdersByStore([storeIds[0], storeIds[1], store("none")]);
+  assert.equal(byStore.get(storeIds[0]).length, 60);
+  assert.equal(byStore.get(storeIds[0])[0].id, order(storeIds[0], 60).id, "newest first, as listOrders returns them");
+  assert.equal(byStore.get(storeIds[0])[59].id, order(storeIds[0], 1).id);
+  assert.deepEqual(byStore.get(store("none")), [], "a store with no orders reads as empty, not missing");
+
+  await db.insertMany("store_products", [
+    { id: `${RUN}_prd_1`, storeId: storeIds[0], updatedAt: "2026-02-01T00:00:00.000Z" },
+    { id: `${RUN}_prd_2`, storeId: storeIds[0], updatedAt: "2026-03-01T00:00:00.000Z" },
   ]);
-  const products = await listStoreProductsByStore(["str_a"]);
-  assert.deepEqual(products.get("str_a").map((p) => p.id), ["prd_2", "prd_1"]);
+  const products = await listStoreProductsByStore([storeIds[0]]);
+  assert.deepEqual(products.get(storeIds[0]).map((p) => p.id), [`${RUN}_prd_2`, `${RUN}_prd_1`]);
+} finally {
+  const mine = { id: { $regex: `^(ord_)?${RUN}_` } };
+  await db.deleteMany("orders", mine);
+  await db.deleteMany("store_products", mine);
 }
 
 console.log("batch-read-check: ok");
+process.exit(0);
