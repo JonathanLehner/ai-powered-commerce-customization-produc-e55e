@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Document } from "@/components/Document";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteMenu } from "@/components/SiteMenu";
 import { Logo } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
 import { getPathname } from "@/i18n/navigation";
@@ -25,35 +26,54 @@ const SECTION_TITLE = "text-xs font-semibold tracking-wide text-muted-foreground
  * site-wide 404 renders this header too and must not read the request. Sign-in
  * has no localized address.
  */
-export async function SiteHeader({ locale }: { locale: Locale }) {
+export async function SiteHeader({
+  locale,
+  languageSwitcher = true,
+}: {
+  locale: Locale;
+  /** Off on the site-wide 404, whose address has no translation to switch to. */
+  languageSwitcher?: boolean;
+}) {
   const t = await getTranslations({ locale, namespace: "site" });
   const nav = [
-    { href: "/how-it-works", label: t("howItWorks") },
-    { href: "/pricing", label: t("pricing") },
+    { href: getPathname({ href: "/how-it-works", locale }), label: t("howItWorks") },
+    { href: getPathname({ href: "/pricing", locale }), label: t("pricing") },
+    { href: getPathname({ href: "/contact", locale }), label: t("contact") },
   ];
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link
           href={getPathname({ href: "/", locale })}
-          className="rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
+          className="shrink-0 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
         >
           <Logo />
         </Link>
-        <nav aria-label={t("mainNav")} className="flex items-center gap-1 sm:gap-2">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={getPathname({ href: item.href, locale })}
-              className="rounded-lg px-2.5 py-2 text-sm font-medium whitespace-nowrap text-inksoft hover:bg-canvas hover:text-ink sm:px-3"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link href="/login" className={cn(buttonVariants({ size: "sm" }), "ml-1 sm:ml-2 sm:px-4 sm:py-2 sm:text-sm")}>
+        <div className="flex min-w-0 items-center gap-1 md:gap-2">
+          {/* Below md the page links move into the menu; sign-in stays in view. */}
+          <nav aria-label={t("mainNav")} className="hidden items-center gap-2 md:flex">
+            {nav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-inksoft hover:bg-canvas hover:text-ink"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <Link
+            href="/login"
+            className={cn(buttonVariants({ size: "sm" }), "whitespace-nowrap md:ml-2 md:px-4 md:py-2 md:text-sm")}
+          >
             {t("signIn")}
           </Link>
-        </nav>
+          <SiteMenu
+            labels={{ menu: t("menu"), close: t("closeMenu"), language: t("language") }}
+            links={nav}
+            languages={languageSwitcher}
+          />
+        </div>
       </div>
     </header>
   );

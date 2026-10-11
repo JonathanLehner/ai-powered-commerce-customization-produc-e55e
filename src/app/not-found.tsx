@@ -34,7 +34,7 @@ export default async function RootNotFound() {
   return (
     <Document>
       <div className="flex min-h-full flex-col">
-        <SiteHeader locale={DEFAULT_LOCALE} />
+        <SiteHeader locale={DEFAULT_LOCALE} languageSwitcher={false} />
         <main className="flex-1">
           <FallbackPanel
             eyebrow="404"

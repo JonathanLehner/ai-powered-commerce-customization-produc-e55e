@@ -78,15 +78,15 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 text-sm">
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">{t("factsProducts")}</dt>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide hyphens-auto wrap-break-word">{t("factsProducts")}</dt>
                 <dd className="mt-1 font-heading text-base font-semibold text-foreground">{t("factsProductsValue")}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">{t("factsLanguages")}</dt>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide hyphens-auto wrap-break-word">{t("factsLanguages")}</dt>
                 <dd className="mt-1 font-heading text-base font-semibold text-foreground">9</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">{t("factsCarriers")}</dt>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide hyphens-auto wrap-break-word">{t("factsCarriers")}</dt>
                 <dd className="mt-1 font-heading text-base font-semibold text-foreground">DHL · FedEx · UPS</dd>
               </div>
             </dl>

@@ -111,7 +111,7 @@ export default async function PricingPage({ params }: PageProps<"/[locale]/prici
 
       <Section tone="muted">
         <SectionHeading>{t("compareTitle")}</SectionHeading>
-        <div className="mt-8 overflow-x-auto rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="relative mt-8 overflow-x-auto rounded-xl bg-card ring-1 ring-foreground/10">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <caption className="sr-only">{t("compareCaption")}</caption>
             <thead className="border-b border-border">
