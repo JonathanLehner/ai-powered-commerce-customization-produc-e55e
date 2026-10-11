@@ -329,7 +329,34 @@
     "liveStoresRow": "Tiendas activas",
     "draftStoresRow": "Tiendas en borrador",
     "includedOn": "Incluido en {plan}",
-    "notOn": "No incluido en {plan}"
+    "notOn": "No incluido en {plan}",
+    "faqTitle": "Preguntas frecuentes",
+    "faq": [
+      {
+        "question": "¿Hay una prueba gratuita?",
+        "answer": "Sí. Starter y Studio incluyen 14 días de prueba gratuita y no necesitas tarjeta para empezar. También puedes explorar el espacio de demostración cuando quieras."
+      },
+      {
+        "question": "¿Puedo cancelar o cambiar de plan?",
+        "answer": "Sí. Las mejoras de plan se aplican al momento. Las bajadas de plan y las cancelaciones se aplican al final del periodo de facturación actual. Scale funciona con contrato anual."
+      },
+      {
+        "question": "¿Hay comisiones por pedido o por transacción?",
+        "answer": "No. Solo pagas el precio del plan. Se aplican las comisiones habituales de Stripe a los pagos en la cuenta de Stripe de cada tienda."
+      },
+      {
+        "question": "¿Quién paga el coste del proveedor y de impresión, y cuándo?",
+        "answer": "El comprador paga a la tienda en el checkout. El socio de producción cobra a la tienda los costes de proveedor, impresión y envío cuando el pedido entra en producción. Con proveedores de marketplace como Alibaba.com, pagas directamente al proveedor según sus condiciones."
+      },
+      {
+        "question": "¿En qué moneda se factura y se añade el IVA?",
+        "answer": "Los planes se facturan en dólares estadounidenses. Los precios no incluyen impuestos. El IVA o el impuesto sobre ventas se añade según tu país de facturación, y las empresas de la UE con un número de IVA válido se facturan con inversión del sujeto pasivo."
+      },
+      {
+        "question": "¿Qué pasa con las tiendas de mis clientes si bajo de plan?",
+        "answer": "No se elimina nada. Si tienes más tiendas activas de las que incluye el nuevo plan, archiva las que sobren. Las tiendas archivadas conservan productos, pedidos e historial, y puedes restaurarlas cuando quieras."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Contactar con ventas",
@@ -3541,5 +3568,48 @@
     "colReason": "Motivo",
     "colTotal": "Total",
     "back": "Panel"
+  },
+  "trust": {
+    "title": "Agencias que confían en Parcelith",
+    "quotes": [
+      {
+        "quote": "Gestionamos once tiendas de clientes desde un solo espacio. Lanzar una tienda de merchandising nueva nos lleva una tarde.",
+        "name": "Marta Lindqvist",
+        "role": "Fundadora",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Los clientes aprueban los mockups antes de imprimir, y las reimpresiones casi han desaparecido.",
+        "name": "Daniel Okafor",
+        "role": "Director de Operaciones",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Las campañas de regalos con aprobación y límites de gasto nos dieron nuestra mayor cuenta corporativa.",
+        "name": "Léa Fontaine",
+        "role": "Directora General",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Seguridad",
+    "securityLead": "Pensado para agencias que trabajan con muchos clientes a la vez.",
+    "security": {
+      "payments": {
+        "title": "Pagos con Stripe",
+        "body": "Stripe gestiona los pagos con tarjeta, que se abonan en la cuenta de Stripe de cada tienda. Los datos de la tarjeta nunca llegan a Parcelith."
+      },
+      "separation": {
+        "title": "Tiendas de clientes separadas",
+        "body": "Cada tienda tiene su propio catálogo, clientes y pedidos. Los datos de los compradores nunca se comparten entre tiendas."
+      },
+      "roles": {
+        "title": "Acceso del equipo por roles",
+        "body": "Invita a tu equipo a tiendas concretas con un rol que define qué puede ver y cambiar."
+      },
+      "audit": {
+        "title": "Registro de auditoría",
+        "body": "Los cambios de configuración y de precios, las aprobaciones, las publicaciones y el enrutamiento de pedidos quedan registrados con quién y cuándo."
+      }
+    }
   }
 }

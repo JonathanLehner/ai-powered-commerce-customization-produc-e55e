@@ -329,7 +329,34 @@
     "liveStoresRow": "Lojas ativas",
     "draftStoresRow": "Lojas em rascunho",
     "includedOn": "Incluído no {plan}",
-    "notOn": "Não incluído no {plan}"
+    "notOn": "Não incluído no {plan}",
+    "faqTitle": "Perguntas frequentes",
+    "faq": [
+      {
+        "question": "Existe um teste gratuito?",
+        "answer": "Sim. Starter e Studio incluem 14 dias de teste gratuito, sem cartão. Você também pode explorar o espaço de demonstração a qualquer momento."
+      },
+      {
+        "question": "Posso cancelar ou mudar de plano?",
+        "answer": "Sim. Upgrades valem na hora. Downgrades e cancelamentos valem no fim do período de cobrança atual. O Scale tem contrato anual."
+      },
+      {
+        "question": "Há taxas por pedido ou por transação?",
+        "answer": "Não. Você paga apenas o preço do plano. As taxas padrão da Stripe se aplicam aos pagamentos na conta Stripe de cada loja."
+      },
+      {
+        "question": "Quem paga o fornecedor e a impressão, e quando?",
+        "answer": "O comprador paga a loja no checkout. O parceiro de produção cobra da loja os custos de fornecedor, impressão e envio quando o pedido entra em produção. Com fornecedores de marketplace como o Alibaba.com, você paga o fornecedor diretamente, nas condições dele."
+      },
+      {
+        "question": "Em que moeda sou cobrado, e há IVA?",
+        "answer": "Os planos são cobrados em dólares americanos. Os preços não incluem impostos. IVA ou imposto sobre vendas é adicionado conforme o país de cobrança, e empresas da UE com número de IVA válido são cobradas com autoliquidação."
+      },
+      {
+        "question": "O que acontece com as lojas dos clientes se eu fizer downgrade?",
+        "answer": "Nada é excluído. Se você tiver mais lojas ativas do que o novo plano inclui, arquive as excedentes. Lojas arquivadas mantêm produtos, pedidos e histórico, e podem ser restauradas a qualquer momento."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Contactar vendas",
@@ -3541,5 +3568,48 @@
     "colReason": "Motivo",
     "colTotal": "Total",
     "back": "Painel"
+  },
+  "trust": {
+    "title": "Agências que confiam na Parcelith",
+    "quotes": [
+      {
+        "quote": "Operamos onze lojas de clientes em um só espaço. Lançar uma nova loja de merch agora leva uma tarde.",
+        "name": "Marta Lindqvist",
+        "role": "Fundadora",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Os clientes aprovam os mockups antes da impressão, e as reimpressões quase acabaram.",
+        "name": "Daniel Okafor",
+        "role": "Head de Operações",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Campanhas de presentes com aprovação e limite de gastos nos trouxeram nossa maior conta corporativa.",
+        "name": "Léa Fontaine",
+        "role": "Diretora-geral",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Segurança",
+    "securityLead": "Feito para agências que atendem muitos clientes ao mesmo tempo.",
+    "security": {
+      "payments": {
+        "title": "Pagamentos pela Stripe",
+        "body": "Pagamentos com cartão são processados pela Stripe e caem na conta Stripe de cada loja. Os dados do cartão nunca chegam à Parcelith."
+      },
+      "separation": {
+        "title": "Lojas de clientes separadas",
+        "body": "Cada loja tem seu próprio catálogo, clientes e pedidos. Dados de compradores nunca são compartilhados entre lojas."
+      },
+      "roles": {
+        "title": "Acesso da equipe por função",
+        "body": "Convide pessoas da equipe para lojas específicas, com uma função que define o que podem ver e alterar."
+      },
+      "audit": {
+        "title": "Log de auditoria",
+        "body": "Alterações de configuração e preço, aprovações, publicações e roteamento de pedidos são registrados com quem fez e quando."
+      }
+    }
   }
 }

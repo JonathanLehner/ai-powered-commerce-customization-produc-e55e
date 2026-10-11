@@ -329,7 +329,34 @@
     "liveStoresRow": "Aktiva butiker",
     "draftStoresRow": "Utkastbutiker",
     "includedOn": "Ingår i {plan}",
-    "notOn": "Ingår inte i {plan}"
+    "notOn": "Ingår inte i {plan}",
+    "faqTitle": "Vanliga frågor",
+    "faq": [
+      {
+        "question": "Finns det en gratis provperiod?",
+        "answer": "Ja. Starter och Studio har 14 dagars gratis provperiod, utan kort. Du kan också utforska demoarbetsytan när du vill."
+      },
+      {
+        "question": "Kan jag säga upp eller byta plan?",
+        "answer": "Ja. Uppgraderingar gäller direkt. Nedgraderingar och uppsägningar gäller från slutet av den aktuella faktureringsperioden. Scale har ett årsavtal."
+      },
+      {
+        "question": "Finns det avgifter per order eller transaktion?",
+        "answer": "Nej. Du betalar bara planens pris. Stripes vanliga avgifter gäller för betalningar till varje butiks Stripe-konto."
+      },
+      {
+        "question": "Vem betalar leverantör och tryck, och när?",
+        "answer": "Kunden betalar butiken i kassan. Produktionspartnern debiterar butiken för leverantörs-, tryck- och fraktkostnad när ordern går i produktion. För marknadsplatsleverantörer som Alibaba.com betalar du leverantören direkt enligt deras villkor."
+      },
+      {
+        "question": "Vilken valuta faktureras jag i, och tillkommer moms?",
+        "answer": "Planerna faktureras i amerikanska dollar. Priserna är exklusive skatt. Moms eller försäljningsskatt läggs till utifrån ditt faktureringsland, och EU-företag med giltigt momsnummer faktureras med omvänd skattskyldighet."
+      },
+      {
+        "question": "Vad händer med kundbutikerna om jag nedgraderar?",
+        "answer": "Inget raderas. Om du har fler aktiva butiker än den nya planen omfattar arkiverar du de som blir över. Arkiverade butiker behåller produkter, ordrar och historik, och du kan återställa dem när som helst."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Kontakta sälj",
@@ -3541,5 +3568,48 @@
     "colReason": "Orsak",
     "colTotal": "Summa",
     "back": "Översikt"
+  },
+  "trust": {
+    "title": "Byråer som litar på Parcelith",
+    "quotes": [
+      {
+        "quote": "Vi driver elva kundbutiker från en arbetsyta. En ny merchbutik är nu igång på en eftermiddag.",
+        "name": "Marta Lindqvist",
+        "role": "Grundare",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Kunderna godkänner mockups innan något trycks, så omtryck har nästan försvunnit.",
+        "name": "Daniel Okafor",
+        "role": "Driftchef",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Gåvokampanjer med godkännande och beloppsgränser gav oss vår största företagskund.",
+        "name": "Léa Fontaine",
+        "role": "Vd",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Säkerhet",
+    "securityLead": "Byggt för byråer som hanterar många kunder samtidigt.",
+    "security": {
+      "payments": {
+        "title": "Betalningar via Stripe",
+        "body": "Kortbetalningar hanteras av Stripe och betalas in till varje butiks eget Stripe-konto. Kortuppgifter når aldrig Parcelith."
+      },
+      "separation": {
+        "title": "Separata kundbutiker",
+        "body": "Varje butik har egen katalog, egna kunder och ordrar. Kunddata delas aldrig mellan butiker."
+      },
+      "roles": {
+        "title": "Rollbaserad teamåtkomst",
+        "body": "Bjud in teammedlemmar till specifika butiker med en roll som styr vad de kan se och ändra."
+      },
+      "audit": {
+        "title": "Granskningslogg",
+        "body": "Inställningar, prisändringar, godkännanden, publiceringar och orderdirigering loggas med vem och när."
+      }
+    }
   }
 }

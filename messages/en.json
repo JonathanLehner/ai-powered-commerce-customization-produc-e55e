@@ -329,7 +329,34 @@
     "liveStoresRow": "Live stores",
     "draftStoresRow": "Draft stores",
     "includedOn": "Included on {plan}",
-    "notOn": "Not on {plan}"
+    "notOn": "Not on {plan}",
+    "faqTitle": "Frequently asked questions",
+    "faq": [
+      {
+        "question": "Is there a free trial?",
+        "answer": "Yes. Starter and Studio include a 14-day free trial, and no card is needed to start. You can also explore the demo workspace at any time."
+      },
+      {
+        "question": "Can I cancel or switch plans?",
+        "answer": "Yes. Upgrades apply straight away. Downgrades and cancellations take effect at the end of the current billing period. Scale runs on an annual contract."
+      },
+      {
+        "question": "Are there per-order or transaction fees?",
+        "answer": "No. You pay the plan price only. Stripe's standard processing fees apply to payments in each store's Stripe account."
+      },
+      {
+        "question": "Who pays the supplier and print cost, and when?",
+        "answer": "Shoppers pay the store at checkout. The production partner charges the store for supplier, print and shipping costs when the order goes into production. For marketplace suppliers such as Alibaba.com, you pay the supplier directly on their terms."
+      },
+      {
+        "question": "Which currency am I billed in, and is VAT added?",
+        "answer": "Plans are billed in US dollars. Prices exclude tax. VAT or sales tax is added based on your billing country, and EU businesses with a valid VAT number are billed under the reverse charge."
+      },
+      {
+        "question": "What happens to client stores if I downgrade?",
+        "answer": "Nothing is deleted. If you have more live stores than the new plan includes, archive the extra stores. Archived stores keep their products, orders and history, and you can restore them at any time."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Contact sales",
@@ -3541,5 +3568,48 @@
     "colReason": "Reason",
     "colTotal": "Total",
     "back": "Dashboard"
+  },
+  "trust": {
+    "title": "Trusted by agencies",
+    "quotes": [
+      {
+        "quote": "We run eleven client stores from one workspace. Launching a new merch store now takes an afternoon.",
+        "name": "Marta Lindqvist",
+        "role": "Founder",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Clients approve mockups before anything is printed, so reprints have almost disappeared.",
+        "name": "Daniel Okafor",
+        "role": "Head of Operations",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Gift campaigns with approval and spend limits closed our biggest corporate account.",
+        "name": "Léa Fontaine",
+        "role": "Managing Director",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Security",
+    "securityLead": "Built for agencies that handle many clients at once.",
+    "security": {
+      "payments": {
+        "title": "Payments by Stripe",
+        "body": "Card payments are handled by Stripe and paid into each store's own Stripe account. Card details never reach Parcelith."
+      },
+      "separation": {
+        "title": "Separate client stores",
+        "body": "Each store has its own catalog, customers and orders. Shopper records are never shared between stores."
+      },
+      "roles": {
+        "title": "Role-based team access",
+        "body": "Invite teammates to specific stores with a role that controls what they can see and change."
+      },
+      "audit": {
+        "title": "Audit log",
+        "body": "Setup changes, price changes, approvals, publishing and order routing are recorded with who did what and when."
+      }
+    }
   }
 }

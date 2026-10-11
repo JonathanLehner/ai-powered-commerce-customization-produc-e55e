@@ -329,7 +329,34 @@
     "liveStoresRow": "Boutiques en ligne",
     "draftStoresRow": "Boutiques en brouillon",
     "includedOn": "Inclus dans {plan}",
-    "notOn": "Non inclus dans {plan}"
+    "notOn": "Non inclus dans {plan}",
+    "faqTitle": "Questions fréquentes",
+    "faq": [
+      {
+        "question": "Y a-t-il un essai gratuit ?",
+        "answer": "Oui. Starter et Studio incluent un essai gratuit de 14 jours, sans carte bancaire. Vous pouvez aussi explorer l'espace de démonstration à tout moment."
+      },
+      {
+        "question": "Puis-je résilier ou changer de formule ?",
+        "answer": "Oui. Les passages à une formule supérieure s'appliquent immédiatement. Les rétrogradations et résiliations prennent effet à la fin de la période de facturation en cours. Scale fonctionne avec un contrat annuel."
+      },
+      {
+        "question": "Y a-t-il des frais par commande ou par transaction ?",
+        "answer": "Non. Vous payez uniquement le prix de la formule. Les frais Stripe habituels s'appliquent aux paiements sur le compte Stripe de chaque boutique."
+      },
+      {
+        "question": "Qui paie le fournisseur et l'impression, et quand ?",
+        "answer": "Le client paie la boutique au moment du paiement. Le partenaire de production facture à la boutique les coûts fournisseur, d'impression et de livraison lorsque la commande passe en production. Pour les fournisseurs de places de marché comme Alibaba.com, vous payez directement le fournisseur selon ses conditions."
+      },
+      {
+        "question": "Dans quelle devise suis-je facturé, et la TVA est-elle ajoutée ?",
+        "answer": "Les formules sont facturées en dollars américains. Les prix s'entendent hors taxes. La TVA ou la taxe de vente est ajoutée selon votre pays de facturation, et les entreprises de l'UE disposant d'un numéro de TVA valide sont facturées en autoliquidation."
+      },
+      {
+        "question": "Que deviennent les boutiques clientes si je rétrograde ?",
+        "answer": "Rien n'est supprimé. Si vous avez plus de boutiques en ligne que la nouvelle formule n'en inclut, archivez celles en trop. Les boutiques archivées conservent produits, commandes et historique, et vous pouvez les restaurer à tout moment."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Contacter les ventes",
@@ -3541,5 +3568,48 @@
     "colReason": "Motif",
     "colTotal": "Total",
     "back": "Tableau de bord"
+  },
+  "trust": {
+    "title": "Ils font confiance à Parcelith",
+    "quotes": [
+      {
+        "quote": "Nous gérons onze boutiques clientes depuis un seul espace. Lancer une nouvelle boutique de merch prend un après-midi.",
+        "name": "Marta Lindqvist",
+        "role": "Fondatrice",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Les clients valident les mockups avant l'impression, et les réimpressions ont presque disparu.",
+        "name": "Daniel Okafor",
+        "role": "Directeur des opérations",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Les campagnes cadeaux avec validation et plafonds de dépense nous ont fait signer notre plus gros client entreprise.",
+        "name": "Léa Fontaine",
+        "role": "Directrice générale",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Sécurité",
+    "securityLead": "Conçu pour les agences qui gèrent de nombreux clients.",
+    "security": {
+      "payments": {
+        "title": "Paiements par Stripe",
+        "body": "Les paiements par carte sont traités par Stripe et versés sur le compte Stripe de chaque boutique. Les données de carte ne parviennent jamais à Parcelith."
+      },
+      "separation": {
+        "title": "Boutiques clientes séparées",
+        "body": "Chaque boutique a son propre catalogue, ses clients et ses commandes. Les données des acheteurs ne sont jamais partagées entre boutiques."
+      },
+      "roles": {
+        "title": "Accès d'équipe par rôle",
+        "body": "Invitez vos collaborateurs sur des boutiques précises, avec un rôle qui définit ce qu'ils peuvent voir et modifier."
+      },
+      "audit": {
+        "title": "Journal d'audit",
+        "body": "Configuration, changements de prix, validations, publications et routage des commandes sont enregistrés avec l'auteur et la date."
+      }
+    }
   }
 }

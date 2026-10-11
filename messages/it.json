@@ -329,7 +329,34 @@
     "liveStoresRow": "Negozi attivi",
     "draftStoresRow": "Negozi in bozza",
     "includedOn": "Incluso in {plan}",
-    "notOn": "Non incluso in {plan}"
+    "notOn": "Non incluso in {plan}",
+    "faqTitle": "Domande frequenti",
+    "faq": [
+      {
+        "question": "C'è una prova gratuita?",
+        "answer": "Sì. Starter e Studio includono una prova gratuita di 14 giorni, senza carta di credito. Puoi anche esplorare lo spazio demo in qualsiasi momento."
+      },
+      {
+        "question": "Posso disdire o cambiare piano?",
+        "answer": "Sì. Gli upgrade si applicano subito. Downgrade e disdette hanno effetto alla fine del periodo di fatturazione in corso. Scale prevede un contratto annuale."
+      },
+      {
+        "question": "Ci sono commissioni per ordine o per transazione?",
+        "answer": "No. Paghi solo il prezzo del piano. Ai pagamenti sull'account Stripe di ogni negozio si applicano le normali commissioni Stripe."
+      },
+      {
+        "question": "Chi paga fornitore e stampa, e quando?",
+        "answer": "Il cliente paga il negozio al checkout. Il partner di produzione addebita al negozio i costi di fornitore, stampa e spedizione quando l'ordine entra in produzione. Con fornitori di marketplace come Alibaba.com, paghi direttamente il fornitore secondo le sue condizioni."
+      },
+      {
+        "question": "In quale valuta vengo fatturato e si aggiunge l'IVA?",
+        "answer": "I piani sono fatturati in dollari statunitensi. I prezzi sono al netto delle imposte. L'IVA o l'imposta sulle vendite si aggiunge in base al paese di fatturazione, e le aziende UE con partita IVA valida sono fatturate in reverse charge."
+      },
+      {
+        "question": "Cosa succede ai negozi dei clienti se passo a un piano inferiore?",
+        "answer": "Non viene eliminato nulla. Se hai più negozi attivi di quelli inclusi nel nuovo piano, archivia quelli in eccesso. I negozi archiviati conservano prodotti, ordini e cronologia, e puoi ripristinarli in qualsiasi momento."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Contatta il team vendite",
@@ -3541,5 +3568,48 @@
     "colReason": "Motivo",
     "colTotal": "Totale",
     "back": "Dashboard"
+  },
+  "trust": {
+    "title": "Le agenzie si affidano a Parcelith",
+    "quotes": [
+      {
+        "quote": "Gestiamo undici negozi clienti da un unico spazio. Aprire un nuovo negozio di merch ora richiede un pomeriggio.",
+        "name": "Marta Lindqvist",
+        "role": "Fondatrice",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "I clienti approvano i mockup prima della stampa, e le ristampe sono quasi sparite.",
+        "name": "Daniel Okafor",
+        "role": "Responsabile operativo",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Le campagne regalo con approvazione e limiti di spesa ci hanno fatto chiudere il nostro cliente aziendale più grande.",
+        "name": "Léa Fontaine",
+        "role": "Amministratrice delegata",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Sicurezza",
+    "securityLead": "Pensato per agenzie che seguono molti clienti insieme.",
+    "security": {
+      "payments": {
+        "title": "Pagamenti con Stripe",
+        "body": "I pagamenti con carta sono gestiti da Stripe e accreditati sull'account Stripe di ogni negozio. I dati della carta non arrivano mai a Parcelith."
+      },
+      "separation": {
+        "title": "Negozi clienti separati",
+        "body": "Ogni negozio ha il proprio catalogo, i propri clienti e ordini. I dati degli acquirenti non vengono mai condivisi tra negozi."
+      },
+      "roles": {
+        "title": "Accesso del team per ruoli",
+        "body": "Invita i colleghi su negozi specifici con un ruolo che stabilisce cosa possono vedere e modificare."
+      },
+      "audit": {
+        "title": "Registro attività",
+        "body": "Configurazione, modifiche di prezzo, approvazioni, pubblicazioni e instradamento degli ordini vengono registrati con chi e quando."
+      }
+    }
   }
 }

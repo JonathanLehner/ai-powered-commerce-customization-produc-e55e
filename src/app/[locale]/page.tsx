@@ -10,6 +10,7 @@ import { PLANS } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckList, Section, SectionHeading } from "./kit";
+import { SecurityBlock, TrustStrip } from "./trust";
 
 export const dynamic = "force-static";
 
@@ -108,6 +109,8 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
           </div>
         </div>
       </section>
+
+      <TrustStrip />
 
       <Section tone="muted">
         <SectionHeading>{t("pillarsTitle")}</SectionHeading>
@@ -217,6 +220,8 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
           ))}
         </ol>
       </Section>
+
+      <SecurityBlock tone="muted" />
 
       <Section>
         <div className="rounded-xl bg-primary/5 px-6 py-12 text-center ring-1 ring-primary/20 sm:px-12">

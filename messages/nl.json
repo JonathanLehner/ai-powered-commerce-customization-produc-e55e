@@ -329,7 +329,34 @@
     "liveStoresRow": "Live winkels",
     "draftStoresRow": "Conceptwinkels",
     "includedOn": "Inbegrepen in {plan}",
-    "notOn": "Niet in {plan}"
+    "notOn": "Niet in {plan}",
+    "faqTitle": "Veelgestelde vragen",
+    "faq": [
+      {
+        "question": "Is er een gratis proefperiode?",
+        "answer": "Ja. Starter en Studio hebben een gratis proefperiode van 14 dagen, zonder creditcard. Je kunt ook altijd de demowerkruimte bekijken."
+      },
+      {
+        "question": "Kan ik opzeggen of van abonnement wisselen?",
+        "answer": "Ja. Upgrades gaan direct in. Downgrades en opzeggingen gaan in aan het einde van de lopende factuurperiode. Scale heeft een jaarcontract."
+      },
+      {
+        "question": "Zijn er kosten per bestelling of transactie?",
+        "answer": "Nee. Je betaalt alleen de abonnementsprijs. Voor betalingen op het Stripe-account van elke winkel gelden de standaardkosten van Stripe."
+      },
+      {
+        "question": "Wie betaalt de leverancier en het drukwerk, en wanneer?",
+        "answer": "Klanten betalen de winkel bij het afrekenen. De productiepartner brengt de winkel de kosten voor leverancier, drukwerk en verzending in rekening zodra de bestelling in productie gaat. Bij marktplaatsleveranciers zoals Alibaba.com betaal je de leverancier rechtstreeks volgens hun voorwaarden."
+      },
+      {
+        "question": "In welke valuta word ik gefactureerd, en komt er btw bij?",
+        "answer": "Abonnementen worden gefactureerd in Amerikaanse dollars. Prijzen zijn exclusief belasting. Btw of omzetbelasting wordt toegevoegd op basis van je factuurland. EU-bedrijven met een geldig btw-nummer worden gefactureerd met btw verlegd."
+      },
+      {
+        "question": "Wat gebeurt er met klantwinkels als ik downgrade?",
+        "answer": "Er wordt niets verwijderd. Heb je meer live winkels dan het nieuwe abonnement toestaat, archiveer dan de extra winkels. Gearchiveerde winkels behouden producten, bestellingen en geschiedenis, en je kunt ze altijd herstellen."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Contact met sales",
@@ -3541,5 +3568,48 @@
     "colReason": "Reden",
     "colTotal": "Totaal",
     "back": "Dashboard"
+  },
+  "trust": {
+    "title": "Bureaus vertrouwen op Parcelith",
+    "quotes": [
+      {
+        "quote": "We beheren elf klantwinkels vanuit één werkruimte. Een nieuwe merchwinkel staat nu binnen een middag live.",
+        "name": "Marta Lindqvist",
+        "role": "Oprichter",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Klanten keuren mockups goed voordat er gedrukt wordt, dus herdrukken komen bijna niet meer voor.",
+        "name": "Daniel Okafor",
+        "role": "Hoofd Operations",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Cadeaucampagnes met goedkeuring en bestedingslimieten leverden ons onze grootste zakelijke klant op.",
+        "name": "Léa Fontaine",
+        "role": "Directeur",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Beveiliging",
+    "securityLead": "Gemaakt voor bureaus die veel klanten tegelijk bedienen.",
+    "security": {
+      "payments": {
+        "title": "Betalingen via Stripe",
+        "body": "Kaartbetalingen worden verwerkt door Stripe en komen binnen op het eigen Stripe-account van elke winkel. Kaartgegevens bereiken Parcelith nooit."
+      },
+      "separation": {
+        "title": "Gescheiden klantwinkels",
+        "body": "Elke winkel heeft een eigen catalogus, klanten en bestellingen. Klantgegevens worden nooit tussen winkels gedeeld."
+      },
+      "roles": {
+        "title": "Teamtoegang per rol",
+        "body": "Nodig teamleden uit voor specifieke winkels, met een rol die bepaalt wat ze kunnen zien en wijzigen."
+      },
+      "audit": {
+        "title": "Auditlog",
+        "body": "Instellingen, prijswijzigingen, goedkeuringen, publicaties en orderroutering worden vastgelegd met wie en wanneer."
+      }
+    }
   }
 }

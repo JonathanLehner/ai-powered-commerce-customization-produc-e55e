@@ -329,7 +329,34 @@
     "liveStoresRow": "Aktive Shops",
     "draftStoresRow": "Entwurfs-Shops",
     "includedOn": "In {plan} enthalten",
-    "notOn": "Nicht in {plan}"
+    "notOn": "Nicht in {plan}",
+    "faqTitle": "Häufige Fragen",
+    "faq": [
+      {
+        "question": "Gibt es eine kostenlose Testphase?",
+        "answer": "Ja. Starter und Studio können 14 Tage kostenlos getestet werden, ohne Kreditkarte. Den Demo-Arbeitsbereich können Sie jederzeit ausprobieren."
+      },
+      {
+        "question": "Kann ich kündigen oder den Plan wechseln?",
+        "answer": "Ja. Upgrades gelten sofort. Downgrades und Kündigungen werden zum Ende des laufenden Abrechnungszeitraums wirksam. Scale läuft mit einem Jahresvertrag."
+      },
+      {
+        "question": "Gibt es Gebühren pro Bestellung oder Transaktion?",
+        "answer": "Nein. Sie zahlen nur den Planpreis. Für Zahlungen im Stripe-Konto des jeweiligen Shops gelten die üblichen Stripe-Gebühren."
+      },
+      {
+        "question": "Wer zahlt Lieferanten- und Druckkosten, und wann?",
+        "answer": "Kunden bezahlen den Shop beim Checkout. Der Produktionspartner berechnet dem Shop Lieferanten-, Druck- und Versandkosten, sobald die Bestellung in Produktion geht. Bei Marktplatz-Lieferanten wie Alibaba.com zahlen Sie direkt zu deren Bedingungen."
+      },
+      {
+        "question": "In welcher Währung wird abgerechnet, und kommt MwSt. hinzu?",
+        "answer": "Pläne werden in US-Dollar abgerechnet. Die Preise verstehen sich ohne Steuern. MwSt. oder Umsatzsteuer wird je nach Rechnungsland berechnet. Unternehmen in der EU mit gültiger USt-IdNr. werden im Reverse-Charge-Verfahren abgerechnet."
+      },
+      {
+        "question": "Was passiert mit Kunden-Shops bei einem Downgrade?",
+        "answer": "Es wird nichts gelöscht. Haben Sie mehr Live-Shops, als der neue Plan umfasst, archivieren Sie die überzähligen Shops. Archivierte Shops behalten Produkte, Bestellungen und Verlauf und lassen sich jederzeit wiederherstellen."
+      }
+    ]
   },
   "contact": {
     "metaTitle": "Vertrieb kontaktieren",
@@ -3541,5 +3568,48 @@
     "colReason": "Grund",
     "colTotal": "Summe",
     "back": "Dashboard"
+  },
+  "trust": {
+    "title": "Agenturen vertrauen Parcelith",
+    "quotes": [
+      {
+        "quote": "Wir betreiben elf Kunden-Shops in einem Arbeitsbereich. Ein neuer Merch-Shop steht jetzt an einem Nachmittag.",
+        "name": "Marta Lindqvist",
+        "role": "Gründerin",
+        "agency": "Northpine Studio"
+      },
+      {
+        "quote": "Kunden geben Mockups frei, bevor gedruckt wird. Nachdrucke gibt es kaum noch.",
+        "name": "Daniel Okafor",
+        "role": "Leiter Operations",
+        "agency": "Brightfold Agency"
+      },
+      {
+        "quote": "Geschenkkampagnen mit Freigabe und Budgetgrenzen haben uns unseren größten Firmenkunden gebracht.",
+        "name": "Léa Fontaine",
+        "role": "Geschäftsführerin",
+        "agency": "Atelier Moreau"
+      }
+    ],
+    "securityTitle": "Sicherheit",
+    "securityLead": "Für Agenturen, die viele Kunden gleichzeitig betreuen.",
+    "security": {
+      "payments": {
+        "title": "Zahlungen über Stripe",
+        "body": "Kartenzahlungen werden von Stripe abgewickelt und gehen auf das eigene Stripe-Konto des Shops. Kartendaten erreichen Parcelith nie."
+      },
+      "separation": {
+        "title": "Getrennte Kunden-Shops",
+        "body": "Jeder Shop hat eigenen Katalog, eigene Kunden und Bestellungen. Kundendaten werden nie zwischen Shops geteilt."
+      },
+      "roles": {
+        "title": "Rollenbasierter Teamzugriff",
+        "body": "Laden Sie Teammitglieder zu bestimmten Shops ein, mit einer Rolle, die festlegt, was sie sehen und ändern dürfen."
+      },
+      "audit": {
+        "title": "Audit-Log",
+        "body": "Einrichtung, Preisänderungen, Freigaben, Veröffentlichungen und Auftragsrouting werden mit Person und Zeitpunkt protokolliert."
+      }
+    }
   }
 }

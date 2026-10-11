@@ -1,4 +1,4 @@
-import { CheckIcon, MinusIcon } from "lucide-react";
+import { CheckIcon, MinusIcon, PlusIcon } from "lucide-react";
 import type { Metadata } from "next";
 import type { Messages } from "next-intl";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
@@ -6,6 +6,7 @@ import { asLocale, pageMetadata } from "@/i18n/metadata";
 import { PLAN_KEYS, PLANS, YEARLY_DISCOUNT, planPrice, type Plan, type PlanKey } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { Section, SectionHeading } from "../kit";
+import { SecurityBlock, TrustStrip } from "../trust";
 import { PlanCards, type PlanCard } from "./PlanCards";
 
 export const dynamic = "force-static";
@@ -154,6 +155,25 @@ export default async function PricingPage({ params }: PageProps<"/[locale]/prici
           </table>
         </div>
       </Section>
+
+      <Section width="prose">
+        <SectionHeading>{t("faqTitle")}</SectionHeading>
+        <div className="mt-8 divide-y divide-border border-y border-border">
+          {(t.raw("faq") as { question: string; answer: string }[]).map((item) => (
+            <details key={item.question} className="group py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading text-base font-semibold text-foreground [&::-webkit-details-marker]:hidden">
+                {item.question}
+                <PlusIcon aria-hidden className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-45" />
+              </summary>
+              <p className="mt-3 max-w-[65ch] text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </Section>
+
+      <SecurityBlock tone="muted" />
+
+      <TrustStrip />
     </>
   );
 }
