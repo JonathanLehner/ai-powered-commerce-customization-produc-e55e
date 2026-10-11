@@ -1107,7 +1107,17 @@
       "draftSaved": "Entwurf gespeichert.",
       "sectionRequired": "Fügen Sie vor dem Veröffentlichen mindestens einen Abschnitt hinzu.",
       "archived": "Stellen Sie diesen Shop vor dem Veröffentlichen wieder her.",
-      "published": "Veröffentlicht."
+      "published": "Veröffentlicht.",
+      "languageUnavailable": "Diese Sprache ist für den Shop nicht aktiviert.",
+      "notFound": "Dieser Eintrag existiert nicht mehr.",
+      "translationSaved": "Übersetzung gespeichert.",
+      "shopTextSaved": "Shop-Text gespeichert.",
+      "shopTextReset": "Auf Standard zurückgesetzt.",
+      "shopTextInvalid": "Prüfen Sie die geschweiften Klammern in diesem Text.",
+      "shopTextPlaceholder": "Verwenden Sie nur die Platzhalter aus dem Standardtext.",
+      "nothingToTranslate": "Alles ist bereits übersetzt.",
+      "translated": "{count, plural, one {# Feld übersetzt.} other {# Felder übersetzt.}} Vor dem Veröffentlichen prüfen.",
+      "translateFailed": "Übersetzung fehlgeschlagen. Bitte erneut versuchen."
     },
     "admin": {
       "supplierGone": "Lieferant nicht gefunden.",
@@ -2219,7 +2229,76 @@
     "openLive": "Live-Storefront öffnen ↗",
     "history": "Versionsverlauf",
     "historyBody": "Wiederhergestellte Versionen werden in den Entwurf geladen.",
-    "restore": "In den Entwurf wiederherstellen"
+    "restore": "In den Entwurf wiederherstellen",
+    "language": "Sprache",
+    "defaultLanguage": "{language} (Standard)",
+    "sharedSettings": "Layout-Einstellungen gelten für alle Sprachen.",
+    "translateMissing": "Fehlende übersetzen",
+    "translating": "Wird übersetzt…",
+    "translateFailed": "Übersetzung fehlgeschlagen. Bitte erneut versuchen.",
+    "missingCount": "{count, plural, one {# nicht übersetzt} other {# nicht übersetzt}}",
+    "allTranslated": "Alles übersetzt",
+    "tabs": {
+      "page": "Seite",
+      "products": "Produkte",
+      "portals": "Geschenkportale"
+    },
+    "site": {
+      "title": "Kopf- und Fußzeile",
+      "body": "Leer lassen, um die Standardbezeichnung zu verwenden.",
+      "fields": {
+        "announcement": "Ankündigungsleiste",
+        "navShop": "Bezeichnung Shop-Link",
+        "navOrders": "Bezeichnung Bestellstatus-Link",
+        "footerNote": "Hinweis in der Fußzeile"
+      }
+    },
+    "content": {
+      "product": "Produkt",
+      "portal": "Geschenkportal",
+      "status": "Status",
+      "notTranslated": "Nicht übersetzt",
+      "machine": "Maschinell übersetzt",
+      "translated": "Übersetzt",
+      "edit": "Bearbeiten",
+      "editSource": "Im Katalog bearbeiten",
+      "editPortal": "Unter Geschenke bearbeiten",
+      "defaultNote": "Wählen Sie eine andere Sprache zum Übersetzen.",
+      "noProducts": "Noch keine Produkte.",
+      "noPortals": "Noch keine Geschenkportale.",
+      "fields": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "textLabel": "Bezeichnung der Personalisierung",
+        "colour": "Farbe: {colour}",
+        "intro": "Einleitung"
+      },
+      "sheetDescription": "Übersetzung auf {language}. Leere Felder zeigen den Text auf {source}.",
+      "save": "Übersetzung speichern",
+      "saving": "Wird gespeichert…",
+      "failed": "Speichern fehlgeschlagen. Bitte erneut versuchen."
+    },
+    "shopText": {
+      "open": "Shop-Texte",
+      "title": "Shop-Texte",
+      "description": "Texte, die Kunden auf {language} sehen.",
+      "search": "Shop-Texte durchsuchen",
+      "pages": {
+        "product": "Produkt",
+        "basket": "Warenkorb",
+        "checkout": "Kasse",
+        "orderStatus": "Bestellstatus",
+        "giftPortal": "Geschenkportal"
+      },
+      "builtIn": "Standardtext",
+      "yours": "Ihr Text",
+      "edited": "Geändert",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "reset": "Auf Standard zurücksetzen",
+      "noMatch": "Kein Text entspricht Ihrer Suche.",
+      "failed": "Speichern fehlgeschlagen. Bitte erneut versuchen."
+    }
   },
   "admin": {
     "overview": {

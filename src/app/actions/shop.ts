@@ -28,7 +28,8 @@ import { sendEmail, siteOrigin } from "@/lib/email";
 import { localCountryName } from "@/lib/countries";
 import { formatMinorUnits } from "@/i18n/format";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
-import { emailCopy, shopperLocale } from "@/i18n/storefront";
+import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { localizeProduct } from "@/lib/translations";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
@@ -166,7 +167,7 @@ function refreshBasket(slug: string) {
 async function shopperCopy(store: Store | null) {
   const locale = store ? shopperLocale(store, await getLocale()) : DEFAULT_LOCALE;
   const [t, format] = await Promise.all([
-    getTranslations({ locale, namespace: "storefront" }),
+    store ? shopperTranslator(store, locale) : getTranslations({ locale, namespace: "storefront" }),
     getFormatter({ locale }),
   ]);
   const base = store ? localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale) : "";
@@ -183,7 +184,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const text = String(formData.get("text") ?? "").trim();
 
   const [store, product] = await Promise.all([getStore(storeId), getStoreProduct(productId)]);
-  const { t } = await shopperCopy(store);
+  const { t, locale } = await shopperCopy(store);
   if (!store || store.status !== "active") {
     return { status: "error", message: t("actions.storeClosed") };
   }
@@ -275,12 +276,14 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const cart = await loadCart(storeId, true);
   if (!cart) return { status: "error", message: t("actions.basketUnavailable") };
 
+  // The basket line keeps the names the shopper saw, in their language.
+  const shown = localizeProduct(product, locale, storeLanguages(store).defaultLocale);
   const item: CartItem = {
     id: newId("cit"),
     storeProductId: product.id,
     variantId: variant.id,
-    productName: product.name,
-    variantName: variant.name,
+    productName: shown.name,
+    variantName: shown.variants.find((v) => v.id === variant.id)?.name ?? variant.name,
     quantity,
     unitPrice: variant.price,
     artworkUrl,
@@ -300,7 +303,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   await saveCart(cart, items);
   refreshBasket(store.slug);
-  return { status: "success", message: t("actions.addedToBasket", { product: product.name }) };
+  return { status: "success", message: t("actions.addedToBasket", { product: shown.name }) };
 }
 
 export async function updateCartItem(formData: FormData): Promise<void> {

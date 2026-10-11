@@ -5,8 +5,7 @@ import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { EmptyState } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
-import { getTranslations } from "next-intl/server";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { getCart, getStoreBySlug } from "@/lib/data";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,8 +20,8 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Basket", ...notFoundRobots };
-  const t = await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.basket" });
-  return { title: t("title") };
+  const t = await shopperTranslator(store, shopperLocale(store, locale));
+  return { title: t("basket.title") };
 }
 
 export default async function CartPage({ params }: { params: Promise<{ slug: string; locale: string }> }) {

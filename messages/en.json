@@ -1107,7 +1107,17 @@
       "draftSaved": "Draft saved.",
       "sectionRequired": "Add at least one section before publishing.",
       "archived": "Restore this store before publishing.",
-      "published": "Published."
+      "published": "Published.",
+      "languageUnavailable": "This language is not enabled for the store.",
+      "notFound": "This item no longer exists.",
+      "translationSaved": "Translation saved.",
+      "shopTextSaved": "Shop text saved.",
+      "shopTextReset": "Reset to default.",
+      "shopTextInvalid": "Check the curly braces in this text.",
+      "shopTextPlaceholder": "Use only the placeholders in the default text.",
+      "nothingToTranslate": "Everything is already translated.",
+      "translated": "{count, plural, one {Translated # field.} other {Translated # fields.}} Review before publishing.",
+      "translateFailed": "Translation failed. Try again."
     },
     "admin": {
       "supplierGone": "Supplier not found.",
@@ -2219,7 +2229,76 @@
     "openLive": "Open live storefront ↗",
     "history": "Version history",
     "historyBody": "Restored versions load into the draft.",
-    "restore": "Restore into draft"
+    "restore": "Restore into draft",
+    "language": "Language",
+    "defaultLanguage": "{language} (default)",
+    "sharedSettings": "Layout settings apply to every language.",
+    "translateMissing": "Translate missing",
+    "translating": "Translating…",
+    "translateFailed": "Translation failed. Try again.",
+    "missingCount": "{count, plural, one {# not translated} other {# not translated}}",
+    "allTranslated": "All translated",
+    "tabs": {
+      "page": "Page",
+      "products": "Products",
+      "portals": "Gift portals"
+    },
+    "site": {
+      "title": "Header and footer",
+      "body": "Leave a label empty to use the default.",
+      "fields": {
+        "announcement": "Announcement bar",
+        "navShop": "Shop link label",
+        "navOrders": "Order status link label",
+        "footerNote": "Footer note"
+      }
+    },
+    "content": {
+      "product": "Product",
+      "portal": "Gift portal",
+      "status": "Status",
+      "notTranslated": "Not translated",
+      "machine": "Machine translated",
+      "translated": "Translated",
+      "edit": "Edit",
+      "editSource": "Edit in catalog",
+      "editPortal": "Edit in gifting",
+      "defaultNote": "Choose another language to translate.",
+      "noProducts": "No products yet.",
+      "noPortals": "No gift portals yet.",
+      "fields": {
+        "name": "Name",
+        "description": "Description",
+        "textLabel": "Personalisation label",
+        "colour": "Colour: {colour}",
+        "intro": "Intro"
+      },
+      "sheetDescription": "{language} translation. Empty fields show the {source} text.",
+      "save": "Save translation",
+      "saving": "Saving…",
+      "failed": "Could not save. Try again."
+    },
+    "shopText": {
+      "open": "Shop text",
+      "title": "Shop text",
+      "description": "Text shoppers see in {language}.",
+      "search": "Search shop text",
+      "pages": {
+        "product": "Product",
+        "basket": "Basket",
+        "checkout": "Checkout",
+        "orderStatus": "Order status",
+        "giftPortal": "Gift portal"
+      },
+      "builtIn": "Default text",
+      "yours": "Your text",
+      "edited": "Edited",
+      "save": "Save",
+      "saving": "Saving…",
+      "reset": "Reset to default",
+      "noMatch": "No text matches your search.",
+      "failed": "Could not save. Try again."
+    }
   },
   "admin": {
     "overview": {

@@ -6,6 +6,8 @@ import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/d
 import { readGiftAccess } from "@/lib/gift-access";
 import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
 import { shopperIntl } from "@/i18n/storefront";
+import { storeLanguages } from "@/i18n/storefront-routing";
+import { localizedIntro, localizeProduct } from "@/lib/translations";
 import { convert } from "@/lib/pricing";
 import { GateForm } from "./GateForm";
 import { buttonVariants } from "@/components/ui/button";
@@ -25,7 +27,8 @@ export default async function GiftCataloguePage({
   if (!store) return <UnknownGiftPortalView slug={slug} />;
 
   const access = await readGiftAccess(catalogue);
-  const { t, money, base } = await shopperIntl(store, locale, `/g/${catalogue.slug}`);
+  const { locale: active, t, money, base } = await shopperIntl(store, locale, `/g/${catalogue.slug}`);
+  const { defaultLocale } = storeLanguages(store);
 
   if (catalogue.status !== "active" || store.status !== "active") {
     return (
@@ -65,7 +68,7 @@ export default async function GiftCataloguePage({
     );
   }
 
-  const published = await listPublishedProducts(store.id);
+  const published = (await listPublishedProducts(store.id)).map((p) => localizeProduct(p, active, defaultLocale));
   const products = giftProductOptions(catalogue, published, store.channelCode);
   const available = published.filter((product) => products.some((option) => option.id === product.id));
 
@@ -75,7 +78,7 @@ export default async function GiftCataloguePage({
         <div className="min-w-0">
           <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{catalogue.name}</h1>
           <p className="mt-2 max-w-2xl text-sm text-inksoft">
-            {catalogue.intro || t("gift.introFallback", { company: catalogue.companyName })}
+            {localizedIntro(catalogue, active, defaultLocale) || t("gift.introFallback", { company: catalogue.companyName })}
           </p>
         </div>
         {available.length> 0 ? (

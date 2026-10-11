@@ -7,6 +7,8 @@ import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
 import { Badge, EmptyState } from "@/components/ui";
 import { getTranslations } from "next-intl/server";
 import { shopperIntl, shopperLocale, storefrontAlternates } from "@/i18n/storefront";
+import { storeLanguages } from "@/i18n/storefront-routing";
+import { localizeProduct } from "@/lib/translations";
 import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
 import { convert } from "@/lib/pricing";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -46,9 +48,10 @@ export default async function StorefrontProductsPage({
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;
 
-  const products = await listPublishedProducts(store.id);
+  const stored = await listPublishedProducts(store.id);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
+  const products = stored.map((p) => localizeProduct(p, locale, storeLanguages(store).defaultLocale));
   const tags = [...new Set(products.flatMap((p) => p.tags))].sort((a, b) => a.localeCompare(b, locale));
 
   const visible = products

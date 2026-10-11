@@ -1107,7 +1107,17 @@
       "draftSaved": "Concept opgeslagen.",
       "sectionRequired": "Voeg minstens één sectie toe voordat je publiceert.",
       "archived": "Herstel deze winkel voordat je publiceert.",
-      "published": "Gepubliceerd."
+      "published": "Gepubliceerd.",
+      "languageUnavailable": "Deze taal is niet ingeschakeld voor de winkel.",
+      "notFound": "Dit item bestaat niet meer.",
+      "translationSaved": "Vertaling opgeslagen.",
+      "shopTextSaved": "Winkeltekst opgeslagen.",
+      "shopTextReset": "Standaardtekst hersteld.",
+      "shopTextInvalid": "Controleer de accolades in deze tekst.",
+      "shopTextPlaceholder": "Gebruik alleen de variabelen uit de standaardtekst.",
+      "nothingToTranslate": "Alles is al vertaald.",
+      "translated": "{count, plural, one {# veld vertaald.} other {# velden vertaald.}} Controleer voor publicatie.",
+      "translateFailed": "Vertalen mislukt. Probeer het opnieuw."
     },
     "admin": {
       "supplierGone": "Leverancier niet gevonden.",
@@ -2219,7 +2229,76 @@
     "openLive": "Live etalage openen ↗",
     "history": "Versiegeschiedenis",
     "historyBody": "Herstelde versies worden in het concept geladen.",
-    "restore": "Herstellen in concept"
+    "restore": "Herstellen in concept",
+    "language": "Taal",
+    "defaultLanguage": "{language} (standaard)",
+    "sharedSettings": "Lay-outinstellingen gelden voor alle talen.",
+    "translateMissing": "Ontbrekende vertalen",
+    "translating": "Bezig met vertalen…",
+    "translateFailed": "Vertalen mislukt. Probeer het opnieuw.",
+    "missingCount": "{count, plural, one {# niet vertaald} other {# niet vertaald}}",
+    "allTranslated": "Alles vertaald",
+    "tabs": {
+      "page": "Pagina",
+      "products": "Producten",
+      "portals": "Cadeauportalen"
+    },
+    "site": {
+      "title": "Koptekst en voettekst",
+      "body": "Laat een label leeg om de standaardtekst te gebruiken.",
+      "fields": {
+        "announcement": "Aankondigingsbalk",
+        "navShop": "Label winkellink",
+        "navOrders": "Label bestelstatuslink",
+        "footerNote": "Voettekstnotitie"
+      }
+    },
+    "content": {
+      "product": "Product",
+      "portal": "Cadeauportaal",
+      "status": "Status",
+      "notTranslated": "Niet vertaald",
+      "machine": "Automatisch vertaald",
+      "translated": "Vertaald",
+      "edit": "Bewerken",
+      "editSource": "Bewerken in catalogus",
+      "editPortal": "Bewerken in Cadeaus",
+      "defaultNote": "Kies een andere taal om te vertalen.",
+      "noProducts": "Nog geen producten.",
+      "noPortals": "Nog geen cadeauportalen.",
+      "fields": {
+        "name": "Naam",
+        "description": "Beschrijving",
+        "textLabel": "Label personalisatie",
+        "colour": "Kleur: {colour}",
+        "intro": "Introductie"
+      },
+      "sheetDescription": "Vertaling in het {language}. Lege velden tonen de tekst in het {source}.",
+      "save": "Vertaling opslaan",
+      "saving": "Opslaan…",
+      "failed": "Opslaan mislukt. Probeer het opnieuw."
+    },
+    "shopText": {
+      "open": "Winkelteksten",
+      "title": "Winkelteksten",
+      "description": "Teksten die klanten zien in het {language}.",
+      "search": "Winkelteksten zoeken",
+      "pages": {
+        "product": "Product",
+        "basket": "Winkelmand",
+        "checkout": "Afrekenen",
+        "orderStatus": "Bestelstatus",
+        "giftPortal": "Cadeauportaal"
+      },
+      "builtIn": "Standaardtekst",
+      "yours": "Jouw tekst",
+      "edited": "Aangepast",
+      "save": "Opslaan",
+      "saving": "Opslaan…",
+      "reset": "Standaard herstellen",
+      "noMatch": "Geen tekst komt overeen met je zoekopdracht.",
+      "failed": "Opslaan mislukt. Probeer het opnieuw."
+    }
   },
   "admin": {
     "overview": {

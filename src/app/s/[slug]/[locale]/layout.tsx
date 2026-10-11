@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { readCurrency, readShopperSession, setCurrency } from "@/app/actions/shop";
 import { BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
@@ -12,12 +12,13 @@ import { StoreMark } from "@/components/StoreMark";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { localizedPath } from "@/i18n/locales";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { getCart, getStorefront, getStoreBySlug } from "@/lib/data";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
+import { siteContent } from "@/lib/translations";
 import { THEMES } from "@/lib/types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -83,7 +84,10 @@ export default async function StorefrontLayout({
   const theme = THEMES[store.theme];
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { locales, defaultLocale } = storeLanguages(store);
-  const messages = await getMessages({ locale });
+  const [messages, storefront] = await Promise.all([shopperMessages(store, locale), getStorefront(store.id)]);
+  // The announcement, navigation labels and footer note the store published,
+  // in the shopper's language. An empty label keeps the built-in one.
+  const site = siteContent(storefront?.published, locale, defaultLocale);
   const support = storeSupport(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const session = await readShopperSession();
@@ -112,6 +116,11 @@ export default async function StorefrontLayout({
         messages={{ common: messages.common, storefront: messages.storefront }}
       >
         <div className="flex min-h-full flex-col bg-background">
+          {site.announcement ? (
+            <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">
+              {site.announcement}
+            </div>
+          ) : null}
           <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">
             <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-6">
               <Link href={base} className="flex min-w-0 items-center gap-2.5">
@@ -126,7 +135,13 @@ export default async function StorefrontLayout({
                   href={`${base}/products`}
                   className={buttonVariants({ variant: "ghost", size: "lg" })}
                 >
-                  {t("chrome.shop")}
+                  {site.navShop || t("chrome.shop")}
+                </Link>
+                <Link
+                  href={`${base}/orders`}
+                  className={buttonVariants({ variant: "ghost", size: "lg" })}
+                >
+                  {site.navOrders || t("chrome.orderStatus")}
                 </Link>
               </nav>
 
@@ -198,6 +213,9 @@ export default async function StorefrontLayout({
             <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6">
               <div>
                 <p className="font-heading text-sm font-semibold text-foreground">{store.name}</p>
+                {site.footerNote ? (
+                  <p className="mt-2 text-sm whitespace-pre-line text-muted-foreground">{site.footerNote}</p>
+                ) : null}
               </div>
               <div>
                 <p className={SECTION_TITLE}>{t("chrome.shop")}</p>

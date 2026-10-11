@@ -3,11 +3,12 @@ import Link from "next/link";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
-import { getMessages } from "next-intl/server";
-import { shopperIntl, shopperLocale, storefrontAlternates } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperMessages, storefrontAlternates } from "@/i18n/storefront";
+import { storeLanguages } from "@/i18n/storefront-routing";
 import { getStoreBySlug, getStorefront, listPublishedProducts } from "@/lib/data";
 import { convert } from "@/lib/pricing";
 import { sectionsFromTree } from "@/lib/storefront-schema";
+import { localizeProduct, localizeSectionProps } from "@/lib/translations";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -41,9 +42,15 @@ export default async function StorefrontHome({
     listPublishedProducts(store.id),
   ]);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const sections = sectionsFromTree(storefront?.published);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
-  const messages = await getMessages({ locale });
+  const { defaultLocale } = storeLanguages(store);
+  // Section copy and product names in the shopper's language, falling back to
+  // the store's default language wherever a translation is missing.
+  const sections = sectionsFromTree(storefront?.published).map((section) => ({
+    ...section,
+    props: localizeSectionProps(section.type, section.props, locale, defaultLocale),
+  }));
+  const messages = await shopperMessages(store, locale);
 
   const ctx: StorefrontContext = {
     storeName: store.name,
@@ -53,7 +60,7 @@ export default async function StorefrontHome({
     theme: store.theme,
     preview: false,
     t: messages.storefront.sections,
-    products: products.map((p) => ({
+    products: products.map((product) => localizeProduct(product, locale, defaultLocale)).map((p) => ({
       id: p.id,
       name: p.name,
       slug: p.slug,

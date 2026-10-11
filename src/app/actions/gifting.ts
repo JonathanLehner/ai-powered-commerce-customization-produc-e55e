@@ -18,7 +18,7 @@ import {
   getUserByEmail,
 } from "@/lib/data";
 import { isLocale } from "@/i18n/locales";
-import { emailCopy, shopperLocale } from "@/i18n/storefront";
+import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, giftApprovalEmail } from "@/lib/email-templates";
@@ -950,6 +950,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
     );
   }
 
+  const shopper = await shopperTranslator(store, shopperLocale(store, await getLocale()));
   const charge = await chargeCard({
     store,
     amount: quote.total,
@@ -959,7 +960,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
     cvc: String(formData.get("cvc") ?? ""),
     name: campaign.buyer.name,
     idempotencyKey: key,
-    t: await getTranslations("storefront.payment"),
+    t: (name, values) => shopper(`payment.${name}`, values),
   });
   if (!charge.ok) {
     return {

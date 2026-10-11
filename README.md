@@ -53,9 +53,11 @@ gifting, orders, team, guided setup, activity.
   English, German, French, Spanish, Italian, Dutch, Portuguese, Japanese and
   Swedish, one dictionary each in `src/lib/copy/`. The dropdown is generated from
   that table, so it can only ever offer a language that is fully supported
-  (`npm run locale-check`). What a store's own people wrote — product names and
-  descriptions, storefront section copy, order timeline notes — is shown as they
-  wrote it.
+  (`npm run locale-check`). What a store's own people wrote (section copy, the
+  announcement bar, navigation labels, the footer note, product names,
+  descriptions and option labels, gift portal intros) is kept in the default
+  language with a translation per enabled language beside it; a missing
+  translation falls back to the default language (`src/lib/translations.ts`).
 - **Parcelith in nine languages.** The public site, sign-in, every workspace
   and platform-admin screen, server action messages and toasts use next-intl
   with one message file per language in `messages/` (English is the source).
@@ -69,7 +71,14 @@ gifting, orders, team, guided setup, activity.
 - **Craft.js storefront editor.** Eight approved section types with generated
   settings panels, page reordering, desktop/tablet/phone preview, version history,
   publish, and revert-draft-to-published. The published tree is rendered
-  server-side on the storefront.
+  server-side on the storefront. A language switcher edits the shop in any
+  enabled language: fields without a translation show a "Not translated" badge,
+  "Translate missing" fills them with the platform text model (marked machine
+  translated until a person saves them, never overwriting a translation), and
+  the Products and Gift portals tabs translate those records. The "Shop text"
+  panel overrides any built-in shopper string per store and language; overrides
+  are merged over the next-intl messages at request time (`src/lib/shop-text.ts`,
+  `npm run translation-check`).
 - **Shared supplier catalog.** Platform admins curate supplier-backed apparel and
   mugs: variants, base costs, print areas in millimetres, minimum DPI, file rules,
   availability and fulfilment regions. Store managers search, filter, compare

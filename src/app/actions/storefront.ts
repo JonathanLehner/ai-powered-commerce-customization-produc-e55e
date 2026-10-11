@@ -2,6 +2,9 @@
 
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
+import { languageName } from "@/i18n/display";
+import { isLocale } from "@/i18n/locales";
+import { storeLanguages } from "@/i18n/storefront-routing";
 import { getStorefront, recordAudit, updateStorefront } from "@/lib/data";
 import { assertStoreAccess } from "@/lib/session";
 import { sectionsFromTree } from "@/lib/storefront-schema";
@@ -28,18 +31,24 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
   const tree = parseTree(raw);
   if (!tree) return { status: "error", message: t("unreadable") };
 
+  // The language the draft was edited in, when it was not the default, so
+  // the history says whose copy changed.
+  const locale = String(formData.get("locale") ?? "");
+  const inLanguage =
+    isLocale(locale) && locale !== storeLanguages(store).defaultLocale ? ` in ${languageName("en", locale)}` : "";
+
   await updateStorefront(storeId, { draft: tree, draftUpdatedAt: new Date().toISOString() });
   recordAudit({
     category: "publishing",
     action: "storefront.draft_saved",
-    summary: `Saved a storefront draft with ${sectionsFromTree(tree).length} sections`,
+    summary: `Saved a storefront draft with ${sectionsFromTree(tree).length} sections${inLanguage}`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
     actorName: user.name,
     entity: "storefront",
     entityId: storeId,
-    meta: {},
+    meta: inLanguage ? { locale } : {},
   });
   revalidatePath(`/app/stores/${storeId}/storefront`);
   return { status: "success", message: t("draftSaved") };

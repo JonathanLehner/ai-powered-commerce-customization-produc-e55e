@@ -1107,7 +1107,17 @@
       "draftSaved": "Rascunho guardado.",
       "sectionRequired": "Adicione pelo menos uma secção antes de publicar.",
       "archived": "Restaure esta loja antes de publicar.",
-      "published": "Publicado."
+      "published": "Publicado.",
+      "languageUnavailable": "Este idioma não está ativo na loja.",
+      "notFound": "Este item já não existe.",
+      "translationSaved": "Tradução guardada.",
+      "shopTextSaved": "Texto guardado.",
+      "shopTextReset": "Texto predefinido reposto.",
+      "shopTextInvalid": "Verifique as chavetas neste texto.",
+      "shopTextPlaceholder": "Use apenas as variáveis do texto predefinido.",
+      "nothingToTranslate": "Já está tudo traduzido.",
+      "translated": "{count, plural, one {# campo traduzido.} other {# campos traduzidos.}} Reveja antes de publicar.",
+      "translateFailed": "A tradução falhou. Tente novamente."
     },
     "admin": {
       "supplierGone": "Fornecedor não encontrado.",
@@ -2219,7 +2229,76 @@
     "openLive": "Abrir a montra publicada ↗",
     "history": "Histórico de versões",
     "historyBody": "As versões restauradas são carregadas no rascunho.",
-    "restore": "Restaurar no rascunho"
+    "restore": "Restaurar no rascunho",
+    "language": "Idioma",
+    "defaultLanguage": "{language} (predefinido)",
+    "sharedSettings": "As definições de layout aplicam-se a todos os idiomas.",
+    "translateMissing": "Traduzir em falta",
+    "translating": "A traduzir…",
+    "translateFailed": "A tradução falhou. Tente novamente.",
+    "missingCount": "{count, plural, one {# por traduzir} other {# por traduzir}}",
+    "allTranslated": "Tudo traduzido",
+    "tabs": {
+      "page": "Página",
+      "products": "Produtos",
+      "portals": "Portais de presentes"
+    },
+    "site": {
+      "title": "Cabeçalho e rodapé",
+      "body": "Deixe uma etiqueta vazia para usar a predefinida.",
+      "fields": {
+        "announcement": "Barra de anúncios",
+        "navShop": "Etiqueta da ligação Loja",
+        "navOrders": "Etiqueta da ligação Estado da encomenda",
+        "footerNote": "Nota de rodapé"
+      }
+    },
+    "content": {
+      "product": "Produto",
+      "portal": "Portal de presentes",
+      "status": "Estado",
+      "notTranslated": "Por traduzir",
+      "machine": "Tradução automática",
+      "translated": "Traduzido",
+      "edit": "Editar",
+      "editSource": "Editar no catálogo",
+      "editPortal": "Editar em Presentes",
+      "defaultNote": "Escolha outro idioma para traduzir.",
+      "noProducts": "Ainda não há produtos.",
+      "noPortals": "Ainda não há portais de presentes.",
+      "fields": {
+        "name": "Nome",
+        "description": "Descrição",
+        "textLabel": "Etiqueta de personalização",
+        "colour": "Cor: {colour}",
+        "intro": "Introdução"
+      },
+      "sheetDescription": "Tradução em {language}. Os campos vazios mostram o texto em {source}.",
+      "save": "Guardar tradução",
+      "saving": "A guardar…",
+      "failed": "Não foi possível guardar. Tente novamente."
+    },
+    "shopText": {
+      "open": "Textos da loja",
+      "title": "Textos da loja",
+      "description": "Textos que os clientes veem em {language}.",
+      "search": "Pesquisar textos",
+      "pages": {
+        "product": "Produto",
+        "basket": "Cesto",
+        "checkout": "Pagamento",
+        "orderStatus": "Estado da encomenda",
+        "giftPortal": "Portal de presentes"
+      },
+      "builtIn": "Texto predefinido",
+      "yours": "O seu texto",
+      "edited": "Editado",
+      "save": "Guardar",
+      "saving": "A guardar…",
+      "reset": "Repor predefinição",
+      "noMatch": "Nenhum texto corresponde à pesquisa.",
+      "failed": "Não foi possível guardar. Tente novamente."
+    }
   },
   "admin": {
     "overview": {

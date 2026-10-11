@@ -6,9 +6,8 @@ import { Badge, Callout } from "@/components/ui";
 import { localCountryName } from "@/lib/countries";
 import { getGiftCampaignByCode, getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { verifyCampaignToken } from "@/lib/gift-access";
-import { getTranslations } from "next-intl/server";
 import type { ShopperMessages } from "@/i18n/shopper-copy";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import type { CampaignStatus } from "@/lib/types";
@@ -35,10 +34,10 @@ export async function generateMetadata({
   const catalogue = await getGiftCatalogueBySlug(slug);
   const store = catalogue ? await getStore(catalogue.storeId) : null;
   const t = store
-    ? await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.gift" })
+    ? await shopperTranslator(store, shopperLocale(store, locale))
     : null;
   return {
-    title: t ? t("campaignTitle") : "Gift campaign",
+    title: t ? t("gift.campaignTitle") : "Gift campaign",
     robots: { index: false, follow: false },
   };
 }

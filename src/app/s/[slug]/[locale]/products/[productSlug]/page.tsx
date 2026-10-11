@@ -8,6 +8,8 @@ import { isLive } from "@/lib/artwork";
 import { shopperIntl, shopperLocale, storefrontAlternates } from "@/i18n/storefront";
 import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
 import { convert } from "@/lib/pricing";
+import { localizeProduct } from "@/lib/translations";
+import { storeLanguages } from "@/i18n/storefront-routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductPurchase, type PurchaseProduct } from "./ProductPurchase";
 
@@ -19,8 +21,9 @@ export async function generateMetadata({
   const { slug, locale, productSlug } = await params;
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Not found", ...notFoundRobots };
-  const product = await getStoreProductBySlug(store.id, productSlug);
-  if (!product) return { title: "Not found", ...notFoundRobots };
+  const stored = await getStoreProductBySlug(store.id, productSlug);
+  if (!stored) return { title: "Not found", ...notFoundRobots };
+  const product = localizeProduct(stored, shopperLocale(store, locale), storeLanguages(store).defaultLocale);
   return {
     title: product.name,
     description: product.description.split("\n")[0].slice(0, 155),
@@ -39,14 +42,16 @@ export default async function StorefrontProductPage({
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;
 
-  const product = await getStoreProductBySlug(store.id, productSlug);
+  const stored = await getStoreProductBySlug(store.id, productSlug);
   // Taken off sale, or never existed: the store's own not-found page, in the
   // store's language and inside its header and footer.
-  if (!product || !isLive(product)) return <StorefrontNotFoundView store={store} locale={requested} />;
+  if (!stored || !isLive(stored)) return <StorefrontNotFoundView store={store} locale={requested} />;
 
-  const catalog = await getCatalogProduct(product.catalogProductId);
+  const catalog = await getCatalogProduct(stored.catalogProductId);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const { t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
+  const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
+  // Name, description, colours and the personalisation label in the shopper's language.
+  const product = localizeProduct(stored, locale, storeLanguages(store).defaultLocale);
   const area = catalog?.printAreas[0] ?? null;
 
   const purchase: PurchaseProduct = {

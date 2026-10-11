@@ -4,9 +4,8 @@ import { UnknownStoreView } from "@/components/NotFoundViews";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
 import { Badge, Callout, DataList } from "@/components/ui";
 import { localCountryName } from "@/lib/countries";
-import { getTranslations } from "next-intl/server";
 import type { ShopperMessages } from "@/i18n/shopper-copy";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
 import { verifyOrderToken } from "@/lib/order-access";
 import { shopperTimeline } from "@/lib/order-timeline";
@@ -26,10 +25,10 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const store = await getStoreBySlug(slug);
   const t = store
-    ? await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.order" })
+    ? await shopperTranslator(store, shopperLocale(store, locale))
     : null;
   return {
-    title: t ? t("title") : "Order status",
+    title: t ? t("order.title") : "Order status",
     robots: { index: false, follow: false },
   };
 }

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import React, { createContext, useContext, useMemo, useState } from "react";
 import { publishStorefront, restoreVersion, saveStorefrontDraft } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
+import { translateMissing } from "@/app/actions/translations";
 import { FormStatus } from "@/components/forms";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { Badge } from "@/components/ui";
@@ -20,11 +21,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { languageName } from "@/i18n/display";
+import { localeBase } from "@/i18n/storefront-routing";
+import type { Locale } from "@/i18n/locales";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
+import {
+  I18N_PROP,
+  localizeSectionProps,
+  missingTreeFields,
+  siteContent,
+  SITE_FIELDS,
+  translationOf,
+  translationState,
+  withTranslation,
+  type FieldTranslations,
+} from "@/lib/translations";
 import { classNames, formatDateTime } from "@/lib/util";
+import { ContentTranslations, StateBadge, type TranslatableItem } from "./ContentTranslations";
+import { ShopTextSheet, type ShopTextData } from "./ShopTextSheet";
 
 const Ctx = createContext<StorefrontContext | null>(null);
 function useCtx() {
@@ -33,11 +51,16 @@ function useCtx() {
   return value;
 }
 
+/** The language the editor is showing, and the store's default it falls back to. */
+const LocaleCtx = createContext<{ locale: string; defaultLocale: string }>({ locale: "en", defaultLocale: "en" });
+const useEditLocale = () => useContext(LocaleCtx);
+
 /* ------------------------------------------------ craft-aware components */
 
 function makeSection(type: SectionType) {
   const Component = (props: Record<string, unknown>) => {
     const ctx = useCtx();
+    const { locale, defaultLocale } = useEditLocale();
     const {
       connectors: { connect, drag },
       selected,
@@ -59,7 +82,7 @@ function makeSection(type: SectionType) {
             {SECTION_DEFS[type].name}
           </span>
         ) : null}
-        <RenderSection type={type} props={props} ctx={ctx} />
+        <RenderSection type={type} props={localizeSectionProps(type, props, locale, defaultLocale)} ctx={ctx} />
       </div>
     );
   };
@@ -167,6 +190,8 @@ function SettingsPanel() {
 
   const def = sectionType && sectionType in SECTION_DEFS ? SECTION_DEFS[sectionType] : null;
   const t = useTranslations("editor");
+  const { locale, defaultLocale } = useEditLocale();
+  const isDefault = locale === defaultLocale;
   // Field and option labels in the reader's language; the schema's English is the fallback.
   const label = (key: string, fallback: string) =>
     t.has(key as "add") ? t(key as "add") : fallback;
@@ -226,15 +251,29 @@ function SettingsPanel() {
       </CardHeader>
 
       <CardContent>
+      {isDefault ? null : <p className="mb-3.5 text-xs text-muted-foreground">{t("sharedSettings")}</p>}
       <div className="space-y-3.5">
         {def.fields.map((field) => {
           const id = `field-${selectedId}-${field.key}`;
           const value = props[field.key];
+          if (field.type === "text" || field.type === "textarea") {
+            return (
+              <CopyField
+                key={field.key}
+                nodeId={selectedId}
+                fieldKey={field.key}
+                label={label(`sections.${def.type}.fields.${field.key}`, field.label)}
+                long={field.type === "textarea"}
+                props={props}
+              />
+            );
+          }
           if (field.type === "toggle") {
             return (
               <div key={field.key} className="flex items-start gap-2.5">
                 <Switch
                   id={id}
+                  disabled={!isDefault}
                   checked={value !== false}
                   onCheckedChange={(checked) =>
                     actions.setProp(selectedId, (p: Record<string, unknown>) => {
@@ -254,20 +293,9 @@ function SettingsPanel() {
               <Label htmlFor={id} className="text-xs">
                 {label(`sections.${def.type}.fields.${field.key}`, field.label)}
               </Label>
-              {field.type === "textarea" ? (
-                <Textarea
-                  id={id}
-                  rows={3}
-                  value={String(value ?? "")}
-                  onChange={(e) => {
-                    const next = e.target.value;
-                    actions.setProp(selectedId, (p: Record<string, unknown>) => {
-                      p[field.key] = next;
-                    });
-                  }}
-                />
-              ) : field.type === "select" ? (
+              {field.type === "select" ? (
                 <Select
+                  disabled={!isDefault}
                   value={String(value ?? "")}
                   onValueChange={(next) =>
                     actions.setProp(selectedId, (p: Record<string, unknown>) => {
@@ -289,6 +317,7 @@ function SettingsPanel() {
               ) : (
                 <Input
                   id={id}
+                  disabled={!isDefault}
                   type={field.type === "number" ? "number" : "text"}
                   min={field.min}
                   max={field.max}
@@ -316,15 +345,121 @@ function SettingsPanel() {
   );
 }
 
+/**
+ * One piece of copy on a node. In the default language it edits the source;
+ * in any other it edits that language's translation, with the source as the
+ * placeholder and a badge while it is missing or machine-translated. Typing
+ * is a person saving it, so the machine mark goes.
+ */
+function CopyField({
+  nodeId,
+  fieldKey,
+  label,
+  long,
+  props,
+}: {
+  nodeId: string;
+  fieldKey: string;
+  label: string;
+  long: boolean;
+  props: Record<string, unknown>;
+}) {
+  const { actions } = useEditor();
+  const { locale, defaultLocale } = useEditLocale();
+  const isDefault = locale === defaultLocale;
+  const source = String(props[fieldKey] ?? "");
+  const translations = props[I18N_PROP] as FieldTranslations | undefined;
+  const value = isDefault ? source : (translationOf(translations, locale, fieldKey)?.value ?? "");
+  const id = `field-${nodeId}-${fieldKey}`;
+
+  function change(next: string) {
+    actions.setProp(nodeId, (p: Record<string, unknown>) => {
+      if (isDefault) p[fieldKey] = next;
+      else p[I18N_PROP] = withTranslation(p[I18N_PROP] as FieldTranslations | undefined, locale, fieldKey, next);
+    });
+  }
+
+  return (
+    <div className="grid gap-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <Label htmlFor={id} className="text-xs">
+          {label}
+        </Label>
+        <StateBadge state={translationState(source, translations, locale, defaultLocale, fieldKey)} />
+      </div>
+      {long ? (
+        <Textarea
+          id={id}
+          rows={3}
+          value={value}
+          placeholder={isDefault ? undefined : source}
+          onChange={(e) => change(e.target.value)}
+        />
+      ) : (
+        <Input
+          id={id}
+          value={value}
+          placeholder={isDefault ? undefined : source}
+          onChange={(e) => change(e.target.value)}
+        />
+      )}
+    </div>
+  );
+}
+
+/** The announcement bar, navigation labels and footer note, kept on the page's root node. */
+function SiteContentPanel() {
+  const props = useEditor((state) => ({ props: (state.nodes.ROOT?.data.props ?? {}) as Record<string, unknown> })).props;
+  const t = useTranslations("editor.site");
+
+  return (
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle asChild className="text-sm font-semibold">
+          <h2>{t("title")}</h2>
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">{t("body")}</p>
+      </CardHeader>
+      <CardContent className="space-y-3.5">
+        {SITE_FIELDS.map((field) => (
+          <CopyField
+            key={field.key}
+            nodeId="ROOT"
+            fieldKey={field.key}
+            label={t(`fields.${field.key}`)}
+            long={field.type === "textarea"}
+            props={props}
+          />
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 /* --------------------------------------------------------------- layers */
 
 function LayerList() {
-  const { nodes, actions, selectedId } = useEditor((state) => ({
-    nodes: (state.nodes.ROOT?.data.nodes ?? []).map((id) => ({
+  const { locale, defaultLocale } = useEditLocale();
+  // The collector only gathers the nodes: Craft keeps the first collector it
+  // is given, so anything that depends on the selected language is worked
+  // out below, on every render.
+  const { collected, actions, selectedId } = useEditor((state) => ({
+    collected: (state.nodes.ROOT?.data.nodes ?? []).map((id) => ({
       id,
       type: state.nodes[id]?.data.name as SectionType | undefined,
+      props: state.nodes[id]?.data.props as Record<string, unknown>,
     })),
     selectedId: [...state.events.selected][0],
+  }));
+  const nodes = collected.map(({ id, type, props }) => ({
+    id,
+    type,
+    missing:
+      locale !== defaultLocale && type && type in SECTION_DEFS
+        ? Object.keys(
+            missingTreeFields({ ROOT: { nodes: [id] }, [id]: { type: { resolvedName: type }, props } }, locale),
+          ).length > 0
+        : false,
   }));
   const t = useTranslations("editor");
 
@@ -355,6 +490,11 @@ function LayerList() {
               >
                 <span className="w-5 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
                 {node.type && node.type in SECTION_DEFS ? t(`sections.${node.type}.name`) : t("section")}
+                {node.missing ? (
+                  <span className="ml-auto">
+                    <StateBadge state="missing" />
+                  </span>
+                ) : null}
               </button>
             </li>
           ))}
@@ -376,22 +516,92 @@ const WIDTHS = [
 export interface EditorCanvasProps {
   storeId: string;
   storeSlug: string;
+  storeName: string;
   tree: Record<string, unknown>;
-  context: StorefrontContext;
+  /** The enabled languages, default first among equals in the store's order. */
+  languages: Locale[];
+  defaultLocale: Locale;
+  initialLocale: Locale;
+  /** The preview context per language: built-in section copy and product cards. */
+  contexts: Record<string, StorefrontContext>;
+  /** The built-in header labels per language, shown when a store leaves its own empty. */
+  chrome: Record<string, { shop: string; orderStatus: string }>;
+  products: TranslatableItem[];
+  portals: TranslatableItem[];
+  shopText: ShopTextData;
   publishedAt: string | null;
   publishedBy: string | null;
   draftUpdatedAt: string;
   history: { id: string; label: string; savedAt: string; savedBy: string }[];
 }
 
-function EditorShell(props: EditorCanvasProps & { data: string }) {
-  const { query } = useEditor();
+type ShellProps = EditorCanvasProps & {
+  data: string;
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+};
+
+/** The canvas's header and footer, drawn from the root node's copy in the selected language. */
+function SitePreview({ storeName, chrome, children }: { storeName: string; chrome: { shop: string; orderStatus: string }; children: React.ReactNode }) {
+  const { locale, defaultLocale } = useEditLocale();
+  const tree = useEditor((state) => ({ props: state.nodes.ROOT?.data.props ?? {} })).props;
+  const site = siteContent({ ROOT: { props: tree } }, locale, defaultLocale);
+  return (
+    <>
+      {site.announcement ? (
+        <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">{site.announcement}</div>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-b border-border px-4 py-3">
+        <span className="font-heading text-base font-semibold tracking-tight text-foreground">{storeName}</span>
+        <span className="text-sm font-medium text-foreground">{site.navShop || chrome.shop}</span>
+        <span className="text-sm font-medium text-foreground">{site.navOrders || chrome.orderStatus}</span>
+      </div>
+      {children}
+      <div className="border-t border-border bg-muted/60 px-4 py-6">
+        <p className="font-heading text-sm font-semibold text-foreground">{storeName}</p>
+        {site.footerNote ? (
+          <p className="mt-2 text-sm whitespace-pre-line text-muted-foreground">{site.footerNote}</p>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+function EditorShell(props: ShellProps) {
+  const { query, actions, pageTree } = useEditor((state) => ({
+    pageTree: Object.fromEntries(
+      Object.entries(state.nodes).map(([id, node]) => [
+        id,
+        { type: { resolvedName: node.data.name }, props: node.data.props, nodes: node.data.nodes },
+      ]),
+    ),
+  }));
+  // How much of the page has no translation in the selected language.
+  const missingOnPage =
+    props.locale === props.defaultLocale ? 0 : Object.keys(missingTreeFields(pageTree, props.locale)).length;
   const [device, setDevice] = useState<(typeof WIDTHS)[number]["key"]>("desktop");
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
-  const [busy, setBusy] = useState<"save" | "publish" | null>(null);
+  const [busy, setBusy] = useState<"save" | "publish" | "translate" | null>(null);
   const [label, setLabel] = useState("");
+  const [products, setProducts] = useState(props.products);
+  const [portals, setPortals] = useState(props.portals);
   const t = useTranslations("editor");
-  const locale = useLocale();
+  const uiLocale = useLocale();
+  const locale = props.locale;
+  const isDefault = locale === props.defaultLocale;
+  const languageLabel = (code: string) => languageName(uiLocale, code);
+
+  const missingElsewhere = isDefault
+    ? 0
+    : [...products, ...portals].reduce(
+        (sum, item) =>
+          sum +
+          item.fields.filter(
+            (f) => f.source.trim() !== "" && !translationOf(item.translations, locale, f.key),
+          ).length,
+        0,
+      );
+  const missing = missingOnPage + missingElsewhere;
 
   async function run(kind: "save" | "publish") {
     if (busy) return;
@@ -401,6 +611,7 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
       const data = new FormData();
       data.set("storeId", props.storeId);
       data.set("tree", query.serialize());
+      data.set("locale", locale);
       if (kind === "publish") data.set("label", label || t("untitled"));
       const result =
         kind === "save"
@@ -414,31 +625,81 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
     }
   }
 
+  async function translate() {
+    if (busy) return;
+    setBusy("translate");
+    setStatus({ status: "idle" });
+    try {
+      const before = query.serialize();
+      const result = await translateMissing({ storeId: props.storeId, locale, tree: before });
+      if (result.tree) {
+        const after = JSON.stringify(result.tree);
+        if (after !== before) actions.deserialize(after);
+      }
+      if (result.products) {
+        const updated = result.products;
+        setProducts((list) => list.map((p) => (updated[p.id] ? { ...p, translations: updated[p.id] } : p)));
+      }
+      if (result.catalogues) {
+        const updated = result.catalogues;
+        setPortals((list) => list.map((p) => (updated[p.id] ? { ...p, translations: updated[p.id] } : p)));
+      }
+      setStatus({ status: result.status, message: result.message });
+    } catch {
+      setStatus({ status: "error", message: t("translateFailed") });
+    } finally {
+      setBusy(null);
+    }
+  }
+
   const width = WIDTHS.find((w) => w.key === device)?.width ?? "100%";
+  const context = props.contexts[locale] ?? props.contexts[props.defaultLocale];
 
   return (
+    <Ctx.Provider value={context}>
     <div className="space-y-4">
       <Card size="sm">
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">{t("previewWidth")}</span>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              size="sm"
-              spacing={0}
-              aria-label={t("previewWidth")}
-              value={device}
-              // One width is always being previewed, so an empty value is
-              // ignored rather than leaving the canvas unconstrained.
-              onValueChange={(next) => next && setDevice(next as (typeof WIDTHS)[number]["key"])}
-            >
-              {WIDTHS.map((option) => (
-                <ToggleGroupItem key={option.key} value={option.key}>
-                  {t(option.label)}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="editor-language" className="text-xs font-medium text-muted-foreground">
+                {t("language")}
+              </Label>
+              <Select value={locale} onValueChange={(next) => props.setLocale(next as Locale)} disabled={busy !== null}>
+                <SelectTrigger id="editor-language" className="min-w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {props.languages.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {code === props.defaultLocale
+                        ? t("defaultLanguage", { language: languageLabel(code) })
+                        : languageLabel(code)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-muted-foreground">{t("previewWidth")}</span>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
+                spacing={0}
+                aria-label={t("previewWidth")}
+                value={device}
+                // One width is always being previewed, so an empty value is
+                // ignored rather than leaving the canvas unconstrained.
+                onValueChange={(next) => next && setDevice(next as (typeof WIDTHS)[number]["key"])}
+              >
+                {WIDTHS.map((option) => (
+                  <ToggleGroupItem key={option.key} value={option.key}>
+                    {t(option.label)}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -468,9 +729,9 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
         <Badge tone={props.publishedAt ? "green" : "amber"}>
           {props.publishedAt ? t("publishedBy", { name: props.publishedBy ?? "" }) : t("neverPublished")}
         </Badge>
-        <span>{t("draftSaved", { date: formatDateTime(props.draftUpdatedAt, locale) })}</span>
+        <span>{t("draftSaved", { date: formatDateTime(props.draftUpdatedAt, uiLocale) })}</span>
         <a
-          href={`/s/${props.storeSlug}`}
+          href={localeBase(`/s/${props.storeSlug}`, locale, props.defaultLocale)}
           target="_blank"
           rel="noreferrer"
           className="font-medium text-primary hover:underline"
@@ -479,73 +740,158 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
         </a>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)_20rem]">
-        <div className="space-y-4">
-          <Toolbox />
-          <LayerList />
-        </div>
-
-        <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
-          {/* The canvas carries the store's own theme, mapped onto the same
-              shadcn variables the live storefront maps them onto, so what is
-              arranged here is drawn in the client's brand rather than in
-              Parcelith's. The base font size is reset too: the workspace reads
-              at 14px and a storefront at the browser's 16px. */}
-          <div
-            className="font-sans mx-auto overflow-hidden rounded-lg border border-border bg-background text-base transition-all"
-            style={{ maxWidth: width, ...storeThemeStyle(props.context.theme) }}
-          >
-            <Frame data={props.data} />
+      <Tabs defaultValue="page" className="gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList>
+            <TabsTrigger value="page" className="px-3">
+              {t("tabs.page")}
+            </TabsTrigger>
+            <TabsTrigger value="products" className="px-3">
+              {t("tabs.products")}
+            </TabsTrigger>
+            <TabsTrigger value="portals" className="px-3">
+              {t("tabs.portals")}
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex flex-wrap items-center gap-2">
+            {isDefault ? null : missing > 0 ? (
+              <Badge tone="amber">{t("missingCount", { count: missing })}</Badge>
+            ) : (
+              <Badge tone="green">{t("allTranslated")}</Badge>
+            )}
+            {isDefault ? null : (
+              <Button type="button" variant="outline" onClick={translate} disabled={busy !== null || missing === 0}>
+                {busy === "translate" ? t("translating") : t("translateMissing")}
+              </Button>
+            )}
+            <ShopTextSheet
+              key={locale}
+              storeId={props.storeId}
+              locale={locale}
+              defaultLocale={props.defaultLocale}
+              languageLabel={languageLabel(locale)}
+              data={props.shopText}
+            />
           </div>
         </div>
 
-        <div className="space-y-4">
-          <SettingsPanel />
-          {props.history.length > 0 ? (
-            <Card size="sm">
-              <CardHeader>
-                <CardTitle asChild className="text-sm font-semibold">
-                  <h2>{t("history")}</h2>
-                </CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  {t("historyBody")}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  {props.history.map((version) => (
-                    <li key={version.id} className="rounded-lg border border-border p-3">
-                      <p className="font-medium text-foreground">{version.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {version.savedBy} · {formatDateTime(version.savedAt, locale)}
-                      </p>
-                      <form action={restoreVersion} className="mt-2">
-                        <input type="hidden" name="storeId" value={props.storeId} />
-                        <input type="hidden" name="versionId" value={version.id} />
-                        <Button type="submit" variant="outline" size="sm">
-                          {t("restore")}
-                        </Button>
-                      </form>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ) : null}
-        </div>
-      </div>
+        {/* The page stays mounted while another tab is open: the canvas holds
+            the unsaved draft, and unmounting it would throw that away. */}
+        <TabsContent value="page" forceMount className="data-[state=inactive]:hidden">
+          <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)_20rem]">
+            <div className="space-y-4">
+              <Toolbox />
+              <LayerList />
+              <SiteContentPanel />
+            </div>
+
+            <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
+              {/* The canvas carries the store's own theme, mapped onto the same
+                  shadcn variables the live storefront maps them onto, so what is
+                  arranged here is drawn in the client's brand rather than in
+                  Parcelith's. The base font size is reset too: the workspace reads
+                  at 14px and a storefront at the browser's 16px. */}
+              <div
+                lang={locale}
+                className="font-sans mx-auto overflow-hidden rounded-lg border border-border bg-background text-base transition-all"
+                style={{ maxWidth: width, ...storeThemeStyle(context.theme) }}
+              >
+                <SitePreview storeName={props.storeName} chrome={props.chrome[locale] ?? props.chrome[props.defaultLocale]}>
+                  <Frame data={props.data} />
+                </SitePreview>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <SettingsPanel />
+              {props.history.length > 0 ? (
+                <Card size="sm">
+                  <CardHeader>
+                    <CardTitle asChild className="text-sm font-semibold">
+                      <h2>{t("history")}</h2>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      {t("historyBody")}
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2 text-sm">
+                      {props.history.map((version) => (
+                        <li key={version.id} className="rounded-lg border border-border p-3">
+                          <p className="font-medium text-foreground">{version.label}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {version.savedBy} · {formatDateTime(version.savedAt, uiLocale)}
+                          </p>
+                          <form action={restoreVersion} className="mt-2">
+                            <input type="hidden" name="storeId" value={props.storeId} />
+                            <input type="hidden" name="versionId" value={version.id} />
+                            <Button type="submit" variant="outline" size="sm">
+                              {t("restore")}
+                            </Button>
+                          </form>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="products">
+          <ContentTranslations
+            kind="product"
+            storeId={props.storeId}
+            locale={locale}
+            defaultLocale={props.defaultLocale}
+            languageLabel={languageLabel(locale)}
+            sourceLabel={languageLabel(props.defaultLocale)}
+            items={products}
+            onSaved={(id, translations) =>
+              setProducts((list) => list.map((p) => (p.id === id ? { ...p, translations } : p)))
+            }
+          />
+        </TabsContent>
+        <TabsContent value="portals">
+          <ContentTranslations
+            kind="portal"
+            storeId={props.storeId}
+            locale={locale}
+            defaultLocale={props.defaultLocale}
+            languageLabel={languageLabel(locale)}
+            sourceLabel={languageLabel(props.defaultLocale)}
+            items={portals}
+            onSaved={(id, translations) =>
+              setPortals((list) => list.map((p) => (p.id === id ? { ...p, translations } : p)))
+            }
+          />
+        </TabsContent>
+      </Tabs>
     </div>
+    </Ctx.Provider>
   );
 }
 
 export default function EditorCanvas(props: EditorCanvasProps) {
   const data = useMemo(() => JSON.stringify(props.tree), [props.tree]);
+  const [locale, setLocaleState] = useState<Locale>(props.initialLocale);
+
+  // The address keeps the language, so a reload or a shared link opens the
+  // editor where it was left.
+  function setLocale(next: Locale) {
+    setLocaleState(next);
+    const url = new URL(window.location.href);
+    if (next === props.defaultLocale) url.searchParams.delete("lang");
+    else url.searchParams.set("lang", next);
+    window.history.replaceState(window.history.state, "", url);
+  }
 
   return (
-    <Ctx.Provider value={props.context}>
+    <LocaleCtx.Provider value={{ locale, defaultLocale: props.defaultLocale }}>
       <Editor resolver={RESOLVER} enabled>
-        <EditorShell {...props} data={data} />
+        <EditorShell {...props} data={data} locale={locale} setLocale={setLocale} />
       </Editor>
-    </Ctx.Provider>
+    </LocaleCtx.Provider>
   );
 }

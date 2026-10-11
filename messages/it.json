@@ -1107,7 +1107,17 @@
       "draftSaved": "Bozza salvata.",
       "sectionRequired": "Aggiungi almeno una sezione prima di pubblicare.",
       "archived": "Ripristina questo negozio prima di pubblicare.",
-      "published": "Pubblicato."
+      "published": "Pubblicato.",
+      "languageUnavailable": "Questa lingua non è attiva per il negozio.",
+      "notFound": "Questo elemento non esiste più.",
+      "translationSaved": "Traduzione salvata.",
+      "shopTextSaved": "Testo salvato.",
+      "shopTextReset": "Testo predefinito ripristinato.",
+      "shopTextInvalid": "Controlla le parentesi graffe in questo testo.",
+      "shopTextPlaceholder": "Usa solo i segnaposto del testo predefinito.",
+      "nothingToTranslate": "È già tutto tradotto.",
+      "translated": "{count, plural, one {# campo tradotto.} other {# campi tradotti.}} Controlla prima di pubblicare.",
+      "translateFailed": "Traduzione non riuscita. Riprova."
     },
     "admin": {
       "supplierGone": "Fornitore non trovato.",
@@ -2219,7 +2229,76 @@
     "openLive": "Apri la vetrina online ↗",
     "history": "Cronologia delle versioni",
     "historyBody": "Le versioni ripristinate vengono caricate nella bozza.",
-    "restore": "Ripristina nella bozza"
+    "restore": "Ripristina nella bozza",
+    "language": "Lingua",
+    "defaultLanguage": "{language} (predefinita)",
+    "sharedSettings": "Le impostazioni di layout valgono per tutte le lingue.",
+    "translateMissing": "Traduci mancanti",
+    "translating": "Traduzione…",
+    "translateFailed": "Traduzione non riuscita. Riprova.",
+    "missingCount": "{count, plural, one {# non tradotto} other {# non tradotti}}",
+    "allTranslated": "Tutto tradotto",
+    "tabs": {
+      "page": "Pagina",
+      "products": "Prodotti",
+      "portals": "Portali regalo"
+    },
+    "site": {
+      "title": "Intestazione e piè di pagina",
+      "body": "Lascia vuota un’etichetta per usare quella predefinita.",
+      "fields": {
+        "announcement": "Barra degli annunci",
+        "navShop": "Etichetta link Negozio",
+        "navOrders": "Etichetta link Stato ordine",
+        "footerNote": "Nota a piè di pagina"
+      }
+    },
+    "content": {
+      "product": "Prodotto",
+      "portal": "Portale regalo",
+      "status": "Stato",
+      "notTranslated": "Non tradotto",
+      "machine": "Traduzione automatica",
+      "translated": "Tradotto",
+      "edit": "Modifica",
+      "editSource": "Modifica nel catalogo",
+      "editPortal": "Modifica in Regali",
+      "defaultNote": "Scegli un’altra lingua per tradurre.",
+      "noProducts": "Ancora nessun prodotto.",
+      "noPortals": "Ancora nessun portale regalo.",
+      "fields": {
+        "name": "Nome",
+        "description": "Descrizione",
+        "textLabel": "Etichetta di personalizzazione",
+        "colour": "Colore: {colour}",
+        "intro": "Introduzione"
+      },
+      "sheetDescription": "Traduzione in {language}. I campi vuoti mostrano il testo in {source}.",
+      "save": "Salva traduzione",
+      "saving": "Salvataggio…",
+      "failed": "Impossibile salvare. Riprova."
+    },
+    "shopText": {
+      "open": "Testi del negozio",
+      "title": "Testi del negozio",
+      "description": "Testi che i clienti vedono in {language}.",
+      "search": "Cerca nei testi",
+      "pages": {
+        "product": "Prodotto",
+        "basket": "Carrello",
+        "checkout": "Cassa",
+        "orderStatus": "Stato ordine",
+        "giftPortal": "Portale regalo"
+      },
+      "builtIn": "Testo predefinito",
+      "yours": "Il tuo testo",
+      "edited": "Modificato",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "reset": "Ripristina predefinito",
+      "noMatch": "Nessun testo corrisponde alla ricerca.",
+      "failed": "Impossibile salvare. Riprova."
+    }
   },
   "admin": {
     "overview": {

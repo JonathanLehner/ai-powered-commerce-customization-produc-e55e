@@ -7,8 +7,7 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { Callout } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import type { FulfillmentSource } from "@/lib/countries";
-import { getTranslations } from "next-intl/server";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
 import { CheckoutForm } from "./CheckoutForm";
 import { buttonVariants } from "@/components/ui/button";
@@ -23,8 +22,8 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const store = await getStoreBySlug(slug);
   if (!store) return { title: "Checkout", ...notFoundRobots };
-  const t = await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.checkout" });
-  return { title: t("title") };
+  const t = await shopperTranslator(store, shopperLocale(store, locale));
+  return { title: t("checkout.title") };
 }
 
 export default async function CheckoutPage({

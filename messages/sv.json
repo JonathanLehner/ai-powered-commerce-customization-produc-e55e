@@ -1107,7 +1107,17 @@
       "draftSaved": "Utkastet har sparats.",
       "sectionRequired": "Lägg till minst en sektion innan du publicerar.",
       "archived": "Återställ butiken innan du publicerar.",
-      "published": "Publicerad."
+      "published": "Publicerad.",
+      "languageUnavailable": "Språket är inte aktiverat för butiken.",
+      "notFound": "Objektet finns inte längre.",
+      "translationSaved": "Översättningen har sparats.",
+      "shopTextSaved": "Butikstexten har sparats.",
+      "shopTextReset": "Standardtexten har återställts.",
+      "shopTextInvalid": "Kontrollera klammerparenteserna i texten.",
+      "shopTextPlaceholder": "Använd bara platshållarna från standardtexten.",
+      "nothingToTranslate": "Allt är redan översatt.",
+      "translated": "{count, plural, one {# fält översatt.} other {# fält översatta.}} Granska innan du publicerar.",
+      "translateFailed": "Översättningen misslyckades. Försök igen."
     },
     "admin": {
       "supplierGone": "Leverantören hittades inte.",
@@ -2219,7 +2229,76 @@
     "openLive": "Öppna butiksfronten live ↗",
     "history": "Versionshistorik",
     "historyBody": "Återställda versioner läses in i utkastet.",
-    "restore": "Återställ till utkast"
+    "restore": "Återställ till utkast",
+    "language": "Språk",
+    "defaultLanguage": "{language} (standard)",
+    "sharedSettings": "Layoutinställningar gäller alla språk.",
+    "translateMissing": "Översätt saknade",
+    "translating": "Översätter…",
+    "translateFailed": "Översättningen misslyckades. Försök igen.",
+    "missingCount": "{count, plural, one {# inte översatt} other {# inte översatta}}",
+    "allTranslated": "Allt översatt",
+    "tabs": {
+      "page": "Sida",
+      "products": "Produkter",
+      "portals": "Presentportaler"
+    },
+    "site": {
+      "title": "Sidhuvud och sidfot",
+      "body": "Lämna en etikett tom för att använda standardtexten.",
+      "fields": {
+        "announcement": "Meddelandefält",
+        "navShop": "Etikett för butikslänk",
+        "navOrders": "Etikett för orderstatuslänk",
+        "footerNote": "Notis i sidfoten"
+      }
+    },
+    "content": {
+      "product": "Produkt",
+      "portal": "Presentportal",
+      "status": "Status",
+      "notTranslated": "Inte översatt",
+      "machine": "Maskinöversatt",
+      "translated": "Översatt",
+      "edit": "Redigera",
+      "editSource": "Redigera i katalogen",
+      "editPortal": "Redigera i Presenter",
+      "defaultNote": "Välj ett annat språk för att översätta.",
+      "noProducts": "Inga produkter ännu.",
+      "noPortals": "Inga presentportaler ännu.",
+      "fields": {
+        "name": "Namn",
+        "description": "Beskrivning",
+        "textLabel": "Etikett för personlig text",
+        "colour": "Färg: {colour}",
+        "intro": "Introduktion"
+      },
+      "sheetDescription": "Översättning till {language}. Tomma fält visar texten på {source}.",
+      "save": "Spara översättning",
+      "saving": "Sparar…",
+      "failed": "Det gick inte att spara. Försök igen."
+    },
+    "shopText": {
+      "open": "Butikstexter",
+      "title": "Butikstexter",
+      "description": "Texter kunder ser på {language}.",
+      "search": "Sök butikstexter",
+      "pages": {
+        "product": "Produkt",
+        "basket": "Varukorg",
+        "checkout": "Kassa",
+        "orderStatus": "Orderstatus",
+        "giftPortal": "Presentportal"
+      },
+      "builtIn": "Standardtext",
+      "yours": "Din text",
+      "edited": "Ändrad",
+      "save": "Spara",
+      "saving": "Sparar…",
+      "reset": "Återställ standard",
+      "noMatch": "Ingen text matchar din sökning.",
+      "failed": "Det gick inte att spara. Försök igen."
+    }
   },
   "admin": {
     "overview": {

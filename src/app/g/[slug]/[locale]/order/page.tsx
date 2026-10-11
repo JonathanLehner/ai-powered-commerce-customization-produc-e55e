@@ -3,8 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { UnknownGiftPortalView } from "@/components/NotFoundViews";
 import { Callout } from "@/components/ui";
-import { getTranslations } from "next-intl/server";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { storeLanguages } from "@/i18n/storefront-routing";
+import { localizeProduct } from "@/lib/translations";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess, GIFT_LINK_HOLDER } from "@/lib/gift-access";
 import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
@@ -22,10 +23,10 @@ export async function generateMetadata({
   const catalogue = await getGiftCatalogueBySlug(slug);
   const store = catalogue ? await getStore(catalogue.storeId) : null;
   const t = store
-    ? await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.gift" })
+    ? await shopperTranslator(store, shopperLocale(store, locale))
     : null;
   return {
-    title: t ? t("orderTitle") : "Bulk gift order",
+    title: t ? t("gift.orderTitle") : "Bulk gift order",
     robots: { index: false, follow: false },
   };
 }
@@ -43,7 +44,7 @@ export default async function BulkOrderPage({
   const store = await getStore(catalogue.storeId);
   if (!store) return <UnknownGiftPortalView slug={slug} />;
 
-  const { t, base } = await shopperIntl(store, locale, `/g/${catalogue.slug}`);
+  const { locale: active, t, base } = await shopperIntl(store, locale, `/g/${catalogue.slug}`);
   const access = await readGiftAccess(catalogue);
   if (!access || catalogue.status !== "active" || store.status !== "active") redirect(base);
 
@@ -51,9 +52,13 @@ export default async function BulkOrderPage({
   const options = giftProductOptions(catalogue, published, store.channelCode);
   if (options.length === 0) redirect(base);
 
+  // Product names in the buyer's language; the recipient list still matches on SKU and size.
+  const names = new Map(
+    published.map((p) => [p.id, localizeProduct(p, active, storeLanguages(store).defaultLocale).name]),
+  );
   const products = options.map((option) => ({
     id: option.id,
-    name: option.name,
+    name: names.get(option.id) ?? option.name,
     price: convert(
       Math.min(...option.variants.filter((v) => v.enabled).map((v) => v.price)),
       option.currency,

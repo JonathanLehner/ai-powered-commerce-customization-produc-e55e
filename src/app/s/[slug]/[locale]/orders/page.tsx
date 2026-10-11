@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { UnknownStoreView } from "@/components/NotFoundViews";
-import { getTranslations } from "next-intl/server";
-import { shopperIntl, shopperLocale } from "@/i18n/storefront";
+import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { getStoreBySlug } from "@/lib/data";
 import { OrderLookupForm } from "./OrderLookupForm";
 
@@ -13,10 +12,10 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const store = await getStoreBySlug(slug);
   const t = store
-    ? await getTranslations({ locale: shopperLocale(store, locale), namespace: "storefront.order" })
+    ? await shopperTranslator(store, shopperLocale(store, locale))
     : null;
   return {
-    title: t ? t("title") : "Order status",
+    title: t ? t("order.title") : "Order status",
     robots: { index: false, follow: false },
   };
 }

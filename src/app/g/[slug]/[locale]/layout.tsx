@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
 import Link from "next/link";
 import { Document, siteMetadata } from "@/components/Document";
 import { GiftPortalFallbackProvider } from "@/components/GiftPortalFallback";
@@ -8,7 +7,7 @@ import { LanguageSelect } from "@/components/LanguageSelect";
 import { PlainDocument } from "@/components/SiteChrome";
 import { StoreMark } from "@/components/StoreMark";
 import { localizedPath } from "@/i18n/locales";
-import { shopperIntl } from "@/i18n/storefront";
+import { shopperIntl, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
@@ -67,7 +66,7 @@ export default async function GiftPortalLayout({
   const root = `/g/${catalogue.slug}`;
   const { locale, t, base } = await shopperIntl(store, requested, root);
   const { locales, defaultLocale } = storeLanguages(store);
-  const messages = await getMessages({ locale });
+  const messages = await shopperMessages(store, locale);
   // The same contacts the storefront publishes: a gifting buyer with a problem
   // has no other route to the seller either, and nothing here is invented from
   // the client's name.

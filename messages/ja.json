@@ -1107,7 +1107,17 @@
       "draftSaved": "下書きを保存しました。",
       "sectionRequired": "公開する前にセクションを 1 つ以上追加してください。",
       "archived": "公開する前にこのストアを復元してください。",
-      "published": "公開しました。"
+      "published": "公開しました。",
+      "languageUnavailable": "この言語はストアで有効になっていません。",
+      "notFound": "この項目は存在しません。",
+      "translationSaved": "翻訳を保存しました。",
+      "shopTextSaved": "テキストを保存しました。",
+      "shopTextReset": "デフォルトに戻しました。",
+      "shopTextInvalid": "このテキストの波括弧を確認してください。",
+      "shopTextPlaceholder": "デフォルトのテキストにあるプレースホルダーのみ使用できます。",
+      "nothingToTranslate": "すべて翻訳済みです。",
+      "translated": "{count, plural, other {# 件を翻訳しました。}}公開前に確認してください。",
+      "translateFailed": "翻訳に失敗しました。もう一度お試しください。"
     },
     "admin": {
       "supplierGone": "サプライヤーが見つかりません。",
@@ -2219,7 +2229,76 @@
     "openLive": "公開中のストアフロントを開く ↗",
     "history": "バージョン履歴",
     "historyBody": "復元したバージョンは下書きに読み込まれます。",
-    "restore": "下書きに復元"
+    "restore": "下書きに復元",
+    "language": "言語",
+    "defaultLanguage": "{language}（デフォルト）",
+    "sharedSettings": "レイアウト設定はすべての言語に適用されます。",
+    "translateMissing": "未翻訳を翻訳",
+    "translating": "翻訳中…",
+    "translateFailed": "翻訳に失敗しました。もう一度お試しください。",
+    "missingCount": "{count, plural, other {# 件未翻訳}}",
+    "allTranslated": "すべて翻訳済み",
+    "tabs": {
+      "page": "ページ",
+      "products": "商品",
+      "portals": "ギフトポータル"
+    },
+    "site": {
+      "title": "ヘッダーとフッター",
+      "body": "空欄にするとデフォルトのラベルが使われます。",
+      "fields": {
+        "announcement": "お知らせバー",
+        "navShop": "ショップリンクのラベル",
+        "navOrders": "注文状況リンクのラベル",
+        "footerNote": "フッターの注記"
+      }
+    },
+    "content": {
+      "product": "商品",
+      "portal": "ギフトポータル",
+      "status": "状態",
+      "notTranslated": "未翻訳",
+      "machine": "機械翻訳",
+      "translated": "翻訳済み",
+      "edit": "編集",
+      "editSource": "カタログで編集",
+      "editPortal": "ギフトで編集",
+      "defaultNote": "翻訳するには別の言語を選択してください。",
+      "noProducts": "商品はまだありません。",
+      "noPortals": "ギフトポータルはまだありません。",
+      "fields": {
+        "name": "名前",
+        "description": "説明",
+        "textLabel": "名入れのラベル",
+        "colour": "カラー: {colour}",
+        "intro": "紹介文"
+      },
+      "sheetDescription": "{language}の翻訳。空欄には{source}のテキストが表示されます。",
+      "save": "翻訳を保存",
+      "saving": "保存中…",
+      "failed": "保存できませんでした。もう一度お試しください。"
+    },
+    "shopText": {
+      "open": "ショップのテキスト",
+      "title": "ショップのテキスト",
+      "description": "お客様に{language}で表示されるテキスト。",
+      "search": "テキストを検索",
+      "pages": {
+        "product": "商品",
+        "basket": "カート",
+        "checkout": "チェックアウト",
+        "orderStatus": "注文状況",
+        "giftPortal": "ギフトポータル"
+      },
+      "builtIn": "デフォルトのテキスト",
+      "yours": "独自のテキスト",
+      "edited": "変更済み",
+      "save": "保存",
+      "saving": "保存中…",
+      "reset": "デフォルトに戻す",
+      "noMatch": "検索に一致するテキストはありません。",
+      "failed": "保存できませんでした。もう一度お試しください。"
+    }
   },
   "admin": {
     "overview": {

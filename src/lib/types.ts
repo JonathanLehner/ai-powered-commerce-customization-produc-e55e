@@ -5,6 +5,9 @@
  * rate definitions that a store product simply points at.
  */
 
+import type { ShopTextOverrides } from "./shop-text";
+import type { FieldTranslations } from "./translations";
+
 export type StoreRole = "store_admin" | "catalog_manager" | "order_manager" | "viewer";
 export type PlatformRole = "platform_admin" | "agency_admin" | "agency_member";
 
@@ -127,6 +130,12 @@ export interface Store {
    * `storeLanguages()`, which always includes the default.
    */
   languages?: string[];
+  /**
+   * The store's own wording of the built-in shopper text, per language, shaped
+   * like the `storefront` messages. Merged over them at request time; see
+   * `src/lib/shop-text.ts`.
+   */
+  shopText?: Partial<Record<string, ShopTextOverrides>>;
   currencies: string[];
   defaultCurrency: string;
   customDomain: string | null;
@@ -465,6 +474,8 @@ export interface StoreProduct {
     maxTextLength: number;
   };
   costs: CostBreakdown;
+  /** Name, description, option labels and colours in the store's other languages. */
+  translations?: FieldTranslations;
   importedBy: string;
   importedAt: string;
   /**
@@ -678,6 +689,8 @@ export interface GiftCatalogue {
   slug: string;
   companyName: string;
   intro: string;
+  /** The intro in the store's other languages. */
+  translations?: FieldTranslations;
   status: "active" | "paused";
   /** `link` opens for anyone holding the private link; `invite` for listed addresses. */
   access: "link" | "invite";
