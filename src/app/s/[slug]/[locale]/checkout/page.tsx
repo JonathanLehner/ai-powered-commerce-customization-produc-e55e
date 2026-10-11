@@ -4,12 +4,14 @@ import { redirect } from "next/navigation";
 import { readCurrency, readShopperSession } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
+import { LineThumbnail } from "@/components/LineThumbnail";
 import { Callout } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import type { FulfillmentSource } from "@/lib/countries";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
+import { variantPhoto } from "@/lib/line-preview";
 import { CheckoutForm } from "./CheckoutForm";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,9 +99,18 @@ export default async function CheckoutPage({
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 text-sm">
-                  {lines.map(({ item, unit }) => (
-                    <li key={item.id} className="flex justify-between gap-3">
-                      <span className="min-w-0">
+                  {lines.map(({ item, unit }, index) => (
+                    <li key={item.id} className="flex items-center gap-3">
+                      <LineThumbnail
+                        previewUrl={item.previewUrl ?? variantPhoto(products[index], item.variantId)}
+                        previewOverlay={item.previewOverlay}
+                        text={item.text}
+                        artworkUrl={item.artworkUrl}
+                        artworkPlacement={item.artworkPlacement}
+                        alt={t("basket.previewAlt", { name: item.productName })}
+                        className="size-14"
+                      />
+                      <span className="min-w-0 flex-1">
                         <span className="block truncate text-foreground">{item.productName}</span>
                         <span className="block text-xs text-muted-foreground">
                           {item.variantName} × {item.quantity}

@@ -18,6 +18,7 @@ import {
   type ShopperArtworkIssue,
 } from "@/lib/artwork-shopper";
 import { formatMinorUnits } from "@/i18n/format";
+import { personalisationTextColour, variantPhoto } from "@/lib/line-preview";
 import { renderMockup, type MockupLayer } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
 import {
@@ -313,15 +314,22 @@ export function ProductPurchase({
       variantName: variant.name,
       quantity,
       amount: variant.price * quantity,
-      previewUrl: (personalised ? activeMockup : product.mockups[0]?.url) ?? null,
+      previewUrl: (personalised ? activeMockup : variantPhoto(product, variant.id)) ?? null,
+      // Drawn over the photo until the composite is ready, and kept if it never is.
+      previewOverlay:
+        personalised && area
+          ? { rect: area.rect, textColour: personalisationTextColour(variant.colourHex) }
+          : null,
       text: text.trim() || null,
+      artworkUrl: artwork ? artworkPreview : null,
+      artworkPlacement: artwork ? placement : null,
       plainVariantId: personalised ? null : variant.id,
       pending: true,
     };
     basket.addLine(line);
     await renderPreview(formData, (previewUrl) =>
       // Past an await, so the update has to join the add's transition again.
-      startTransition(() => basket.addLine({ ...line, previewUrl })),
+      startTransition(() => basket.addLine({ ...line, previewUrl, previewOverlay: null })),
     );
   }
 
@@ -344,7 +352,7 @@ export function ProductPurchase({
         scale: 0.8,
         rotation: 0,
         text,
-        textColour: variant?.colourHex === "#ffffff" ? "#111827" : "#f8fafc",
+        textColour: personalisationTextColour(variant?.colourHex),
       });
     }
     const blob = await renderMockup(activeMockup, area.rect, layers);

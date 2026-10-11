@@ -17,6 +17,7 @@ import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { collectionProducts, localizeCollection, navCollectionIds } from "@/lib/collections";
 import { getCart, getStorefront, getStoreBySlug, listProductCollections } from "@/lib/data";
+import { variantPhoto } from "@/lib/line-preview";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
@@ -110,15 +111,18 @@ export default async function StorefrontLayout({
   // The drawer shows the same prices the basket page does, so they are worked
   // out in the same place rather than re-derived from the stored line.
   const discountCode = await cartDiscountCode(store.id, cart);
-  const { lines, subtotal } = await basketTotals(store, items, currency, discountCode);
-  const basketLines: BasketSheetLine[] = lines.map(({ item, unit }) => ({
+  const { products, lines, subtotal } = await basketTotals(store, items, currency, discountCode);
+  const basketLines: BasketSheetLine[] = lines.map(({ item, unit }, index) => ({
     id: item.id,
     productName: item.productName,
     variantName: item.variantName,
     quantity: item.quantity,
     amount: unit * item.quantity,
-    previewUrl: item.previewUrl,
+    previewUrl: item.previewUrl ?? variantPhoto(products[index], item.variantId),
+    previewOverlay: item.previewOverlay ?? null,
     text: item.text,
+    artworkUrl: item.artworkUrl,
+    artworkPlacement: item.artworkPlacement ?? null,
     plainVariantId: item.text || item.artworkUrl ? null : item.variantId,
   }));
 

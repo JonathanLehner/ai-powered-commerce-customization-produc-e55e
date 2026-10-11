@@ -3,11 +3,13 @@ import Link from "next/link";
 import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
+import { LineThumbnail } from "@/components/LineThumbnail";
 import { EmptyState } from "@/components/ui";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getCart, getStoreBySlug } from "@/lib/data";
+import { variantPhoto } from "@/lib/line-preview";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,7 +41,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   const items = cart?.items ?? [];
 
   const discountCode = await cartDiscountCode(store.id, cart);
-  const { lines, subtotal, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
+  const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
     await basketTotals(store, items, currency, discountCode);
 
   return (
@@ -60,19 +62,17 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
       ) : (
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <ul className="divide-y divide-border">
-            {lines.map(({ item, unit }) => (
+            {lines.map(({ item, unit }, index) => (
               <li key={item.id} className="flex flex-wrap gap-4 py-5">
-                {item.previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.previewUrl}
-                    alt={t("basket.previewAlt", { name: item.productName })}
-                    width={112}
-                    height={112}
-                    loading="lazy"
-                    className="h-28 w-[5.6rem] shrink-0 rounded-lg border border-border bg-muted object-cover"
-                  />
-                ) : null}
+                <LineThumbnail
+                  previewUrl={item.previewUrl ?? variantPhoto(products[index], item.variantId)}
+                  previewOverlay={item.previewOverlay}
+                  text={item.text}
+                  artworkUrl={item.artworkUrl}
+                  artworkPlacement={item.artworkPlacement}
+                  alt={t("basket.previewAlt", { name: item.productName })}
+                  className="size-24 rounded-lg"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">{item.productName}</p>
                   <p className="text-xs text-muted-foreground">{item.variantName}</p>

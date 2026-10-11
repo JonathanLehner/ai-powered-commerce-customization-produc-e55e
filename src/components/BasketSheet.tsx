@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createContext, use, useCallback, useMemo, useOptimistic, useRef, useState } from "react";
 import { removeCartItem } from "@/app/actions/shop";
 import { formatMinorUnits } from "@/i18n/format";
+import { LineThumbnail } from "@/components/LineThumbnail";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -17,6 +18,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import type { ArtworkPlacement, PreviewOverlay } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export interface BasketSheetLine {
@@ -27,7 +29,10 @@ export interface BasketSheetLine {
   /** The line total in minor units of the basket's display currency. */
   amount: number;
   previewUrl: string | null;
+  previewOverlay: PreviewOverlay | null;
   text: string | null;
+  artworkUrl: string | null;
+  artworkPlacement: ArtworkPlacement | null;
   /**
    * The variant, for a line with no personalisation: the server folds a second
    * plain add of the same variant into it, so the basket shown while it saves
@@ -234,16 +239,15 @@ export function BasketSheet({ storeId }: { storeId: string }) {
           <ul className="flex-1 divide-y divide-border overflow-y-auto px-4">
             {lines.map((line) => (
               <li key={line.id} className="flex gap-3 py-4">
-                {line.previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={line.previewUrl}
-                    alt=""
-                    width={64}
-                    height={80}
-                    className="h-20 w-16 shrink-0 rounded-md border border-border bg-muted object-cover"
-                  />
-                ) : null}
+                <LineThumbnail
+                  previewUrl={line.previewUrl}
+                  previewOverlay={line.previewOverlay}
+                  text={line.text}
+                  artworkUrl={line.artworkUrl}
+                  artworkPlacement={line.artworkPlacement}
+                  alt=""
+                  className="size-16"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{line.productName}</p>
                   <p className="text-xs text-muted-foreground">

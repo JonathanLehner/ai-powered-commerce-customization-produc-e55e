@@ -37,6 +37,7 @@ import { isLive } from "@/lib/artwork";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { checkDiscount, normalizeDiscountCode } from "@/lib/discounts";
 import { routeOrder } from "@/lib/fulfillment";
+import { personalisationTextColour, variantPhoto } from "@/lib/line-preview";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/mongo";
 import { SHOPPER_COOKIE } from "@/lib/session";
@@ -48,6 +49,7 @@ import {
   type Cart,
   type CartItem,
   type Order,
+  type PreviewOverlay,
   type Store,
 } from "@/lib/types";
 import { formatMoney, newId, orderCode } from "@/lib/util";
@@ -298,11 +300,20 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   // The browser composites the personalisation onto the product photography,
   // stores it the same way and posts back the URL, so the basket shows what
-  // will be printed.
-  let previewUrl = product.mockups[0]?.url ?? null;
+  // will be printed. When it could not, the line keeps the photo in the chosen
+  // colour and the print area, and thumbnails draw the personalisation over it.
+  let previewUrl = variantPhoto(product, variant.id);
+  let previewOverlay: PreviewOverlay | null = null;
   if (shopperArtwork || text) {
     const rendered = readStoredImage(formData, "preview", "shopperPreview");
     if (rendered) previewUrl = rendered.url;
+    else {
+      const area = (await getCatalogProduct(product.catalogProductId))?.printAreas[0];
+      if (area) {
+        previewUrl = variantPhoto(product, variant.id, area.view);
+        previewOverlay = { rect: area.rect, textColour: personalisationTextColour(variant.colourHex) };
+      }
+    }
   }
 
   if (!cart) return { status: "error", message: t("actions.basketUnavailable") };
@@ -324,6 +335,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     artworkPlacement: placement,
     text: text || null,
     previewUrl,
+    previewOverlay,
   };
 
   // Identical un-personalised lines merge instead of stacking.
@@ -575,6 +587,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
         artworkPlacement: item.artworkPlacement ?? null,
         text: item.text,
         previewUrl: item.previewUrl,
+        previewOverlay: item.previewOverlay ?? null,
       },
       supplierId: products[index]?.supplierId ?? "",
     })),

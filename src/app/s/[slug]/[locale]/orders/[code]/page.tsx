@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LineThumbnail } from "@/components/LineThumbnail";
 import { UnknownStoreView } from "@/components/NotFoundViews";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
 import { Badge, Callout, DataList } from "@/components/ui";
@@ -138,17 +139,15 @@ export default async function OrderStatusPage({
         <ul className="mt-3 divide-y divide-border">
           {order.items.map((item) => (
             <li key={item.id} className="flex flex-wrap gap-4 py-4">
-              {item.customization.previewUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={item.customization.previewUrl}
-                  alt={t("order.previewAlt", { name: item.productName })}
-                  width={96}
-                  height={96}
-                  loading="lazy"
-                  className="h-24 w-24 shrink-0 rounded-lg border border-border bg-muted object-cover"
-                />
-              ) : null}
+              <LineThumbnail
+                previewUrl={item.customization.previewUrl}
+                previewOverlay={item.customization.previewOverlay}
+                text={item.customization.text}
+                artworkUrl={item.customization.artworkUrl}
+                artworkPlacement={item.customization.artworkPlacement}
+                alt={t("order.previewAlt", { name: item.productName })}
+                className="size-24 rounded-lg"
+              />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-foreground">{item.productName}</p>
                 <p className="text-xs text-muted-foreground">

@@ -608,6 +608,7 @@ export interface OrderItem {
     artworkPlacement?: ArtworkPlacement | null;
     text: string | null;
     previewUrl: string | null;
+    previewOverlay?: PreviewOverlay | null;
   };
   supplierId: string;
 }
@@ -903,6 +904,17 @@ export interface CartItem {
   artworkPlacement?: ArtworkPlacement | null;
   text: string | null;
   previewUrl: string | null;
+  previewOverlay?: PreviewOverlay | null;
+}
+
+/**
+ * Set on a personalised line whose composited preview could not be drawn, so
+ * `previewUrl` is the plain photo of the chosen colour. Thumbnails draw the
+ * shopper's text and artwork over it inside this print area instead.
+ */
+export interface PreviewOverlay {
+  rect: Rect;
+  textColour: string;
 }
 
 export interface Cart {
