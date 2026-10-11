@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { removeCartItem } from "@/app/actions/shop";
@@ -13,7 +14,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import type { StorefrontCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export interface BasketSheetLine {
@@ -35,20 +35,20 @@ export interface BasketSheetLine {
  */
 export function BasketSheet({
   storeId,
-  slug,
+  base,
   triggerLabel,
   lines,
   subtotal,
-  t,
 }: {
   storeId: string;
-  slug: string;
+  /** The storefront in the shopper's language: `/s/<slug>` or `/s/<slug>/de`. */
+  base: string;
   /** The same label the header has always shown, count and all. */
   triggerLabel: string;
   lines: BasketSheetLine[];
   subtotal: string;
-  t: StorefrontCopy["basket"];
 }) {
+  const t = useTranslations("storefront.basket");
   const [open, setOpen] = useState(false);
 
   return (
@@ -63,19 +63,19 @@ export function BasketSheet({
         className="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md"
       >
         <SheetHeader>
-          <SheetTitle>{t.title}</SheetTitle>
+          <SheetTitle>{t("title")}</SheetTitle>
         </SheetHeader>
         <Separator />
 
         {lines.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-            <p className="font-heading text-base text-foreground">{t.emptyTitle}</p>
+            <p className="font-heading text-base text-foreground">{t("emptyTitle")}</p>
             <Link
-              href={`/s/${slug}/products`}
+              href={`${base}/products`}
               onClick={() => setOpen(false)}
               className={buttonVariants({ size: "lg" })}
             >
-              {t.browseShop}
+              {t("browseShop")}
             </Link>
           </div>
         ) : (
@@ -100,14 +100,14 @@ export function BasketSheet({
                   </p>
                   {line.text ? (
                     <p className="mt-0.5 truncate text-xs text-inksoft">
-                      {t.personalisation} {line.text}
+                      {t("personalisation")} {line.text}
                     </p>
                   ) : null}
                   <form action={removeCartItem} className="mt-1">
                     <input type="hidden" name="storeId" value={storeId} />
                     <input type="hidden" name="itemId" value={line.id} />
                     <Button type="submit" variant="ghost" size="xs" className="text-destructive">
-                      {t.remove}
+                      {t("remove")}
                     </Button>
                   </form>
                 </div>
@@ -122,22 +122,22 @@ export function BasketSheet({
         {lines.length > 0 ? (
           <SheetFooter className="border-t border-border">
             <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">{t.subtotal}</span>
+              <span className="text-muted-foreground">{t("subtotal")}</span>
               <span className="font-medium tabular-nums text-foreground">{subtotal}</span>
             </div>
             <Link
-              href={`/s/${slug}/checkout`}
+              href={`${base}/checkout`}
               onClick={() => setOpen(false)}
               className={cn(buttonVariants({ size: "lg" }), "w-full")}
             >
-              {t.checkout}
+              {t("checkout")}
             </Link>
             <Link
-              href={`/s/${slug}/cart`}
+              href={`${base}/cart`}
               onClick={() => setOpen(false)}
               className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full")}
             >
-              {t.viewBasket}
+              {t("viewBasket")}
             </Link>
           </SheetFooter>
         ) : null}

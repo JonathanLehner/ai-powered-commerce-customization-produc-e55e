@@ -1,7 +1,8 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
-import { DEFAULT_LANGUAGE, fmt, storefrontLocale } from "@/lib/i18n";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { shopperIntl } from "@/i18n/storefront";
 import { THEMES, type Store } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,30 +25,30 @@ import { cn } from "@/lib/utils";
  * a not-found page whose HTTP status cannot be a 404.
  */
 
-/** The way back for a mistyped or retired shopper URL, in the store's own language. */
-export function StorefrontNotFoundView({ store }: { store: Store }) {
-  const { t } = storefrontLocale(store);
+/** The way back for a mistyped or retired shopper URL, in the shopper's language. */
+export async function StorefrontNotFoundView({ store, locale }: { store: Store; locale: string }) {
+  const { t, base } = await shopperIntl(store, locale, `/s/${store.slug}`);
   const accent = THEMES[store.theme].accent;
 
   return (
     <FallbackPanel
       eyebrow={store.name}
-      title={t.fallback.notFoundTitle}
-      description={<p>{fmt(t.fallback.notFoundBody, { store: store.name })}</p>}
+      title={t("fallback.notFoundTitle")}
+      description={<p>{t("fallback.notFoundBody")}</p>}
       actions={
         <>
           <Link
-            href={`/s/${store.slug}/products`}
+            href={`${base}/products`}
             className={cn(buttonVariants(), "text-white")}
             style={{ background: accent }}
           >
-            {t.fallback.browseProducts}
+            {t("fallback.browseProducts")}
           </Link>
-          <Link href={`/s/${store.slug}/cart`} className={buttonVariants({ variant: "outline" })}>
-            {t.basket.title}
+          <Link href={`${base}/cart`} className={buttonVariants({ variant: "outline" })}>
+            {t("basket.title")}
           </Link>
-          <Link href={`/s/${store.slug}/orders`} className={buttonVariants({ variant: "outline" })}>
-            {t.chrome.orderStatus}
+          <Link href={`${base}/orders`} className={buttonVariants({ variant: "outline" })}>
+            {t("chrome.orderStatus")}
           </Link>
         </>
       }
@@ -89,26 +90,28 @@ export function UnknownStoreView({ slug }: { slug: string }) {
 
 /**
  * A mistyped address inside a gift portal that does resolve. The portal runs in
- * the store's own storefront language, so this reads in it too; a catalogue
- * whose store could not be loaded falls back to English.
+ * the shopper's language, so this reads in it too; a catalogue whose store
+ * could not be loaded falls back to English.
  */
-export function GiftPortalNotFoundView({
+export async function GiftPortalNotFoundView({
   catalogue,
   store,
+  locale,
 }: {
   catalogue: { slug: string; name: string };
   store: Store | null;
+  locale: string;
 }) {
-  const { t } = storefrontLocale(store ?? { defaultLanguage: DEFAULT_LANGUAGE });
+  const { t, base } = await shopperIntl(store ?? { defaultLanguage: DEFAULT_LOCALE }, locale, `/g/${catalogue.slug}`);
 
   return (
     <FallbackPanel
       eyebrow={catalogue.name}
-      title={t.gift.notFoundTitle}
-      description={<p>{t.gift.notFoundBody}</p>}
+      title={t("gift.notFoundTitle")}
+      description={<p>{t("gift.notFoundBody")}</p>}
       actions={
-        <Link href={`/g/${catalogue.slug}`} className={buttonVariants()}>
-          {t.gift.backToCatalogue}
+        <Link href={base} className={buttonVariants()}>
+          {t("gift.backToCatalogue")}
         </Link>
       }
     />

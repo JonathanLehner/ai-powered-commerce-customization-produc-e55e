@@ -1,4 +1,4 @@
-import { copyFor, fmt } from "./i18n";
+import type { ShopperTranslator } from "@/i18n/shopper-copy";
 import type { Store } from "./types";
 
 /**
@@ -9,8 +9,9 @@ import type { Store } from "./types";
  * Stripe's published test card numbers locally, which keeps the full checkout →
  * payment → fulfilment path exercisable end to end.
  *
- * Every refusal a shopper can see is written in the store's own storefront
- * language; `message` on a success is an internal note for the order timeline.
+ * Every refusal a shopper can see is written in the shopper's language, through
+ * the `t` the caller passes; `message` on a success is an internal note for the
+ * order timeline.
  */
 
 export interface ChargeInput {
@@ -22,6 +23,8 @@ export interface ChargeInput {
   cvc: string;
   name: string;
   idempotencyKey: string;
+  /** The shopper's payment copy: `storefront.payment` in the page's language. */
+  t: ShopperTranslator<"payment">;
 }
 
 export interface ChargeResult {
@@ -72,14 +75,13 @@ function gatewayId(prefix: string, seed: string): string {
 }
 
 export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
-  const { store } = input;
-  const t = copyFor(store.defaultLanguage).payment;
+  const { store, t } = input;
   if (!store.stripe.connected || !store.stripe.chargesEnabled) {
     return {
       ok: false,
       paymentIntentId: null,
       last4: null,
-      message: t.accountNotReady,
+      message: t("accountNotReady"),
       code: "account_not_ready",
     };
   }
@@ -88,7 +90,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: null,
-      message: fmt(t.currencyUnsupported, { currency: input.currency }),
+      message: t("currencyUnsupported", { currency: input.currency }),
       code: "currency_unsupported",
     };
   }
@@ -99,7 +101,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: null,
-      message: t.invalidNumber,
+      message: t("invalidNumber"),
       code: "invalid_number",
     };
   }
@@ -108,7 +110,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: digits.slice(-4),
-      message: t.invalidExpiry,
+      message: t("invalidExpiry"),
       code: "invalid_expiry",
     };
   }
@@ -117,7 +119,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: digits.slice(-4),
-      message: t.invalidCvc,
+      message: t("invalidCvc"),
       code: "invalid_cvc",
     };
   }
@@ -128,7 +130,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       ok: false,
       paymentIntentId: null,
       last4: digits.slice(-4),
-      message: t[decline],
+      message: t(decline),
       code: "card_declined",
     };
   }
@@ -188,7 +190,7 @@ export async function refundCharge(input: RefundInput): Promise<RefundResult> {
     return {
       ok: false,
       refundId: null,
-      message: fmt(copyFor(store.defaultLanguage).payment.currencyUnsupported, { currency: input.currency }),
+      message: `${input.currency} is not one of this store's selling currencies.`,
       code: "currency_unsupported",
     };
   }

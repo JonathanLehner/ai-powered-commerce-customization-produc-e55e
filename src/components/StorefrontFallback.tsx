@@ -1,9 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FallbackPanel } from "@/components/ui";
-import { fmt, type StorefrontCopy } from "@/lib/i18n";
 import { createContext, useContext, type ReactNode } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,19 +13,17 @@ import { cn } from "@/lib/utils";
  * they are standing in.
  *
  * Boundary files are handed no params, so the layout — which has already
- * resolved the store, its theme and its language — passes it down through
- * context instead. No provider therefore means exactly one thing: the address
+ * resolved the store and its theme — passes it down through context instead.
+ * The copy comes from the layout's next-intl provider, in the shopper's language. No provider therefore means exactly one thing: the address
  * does not belong to a store at all, and the shopper is told that rather than
  * being offered links into a shop that does not exist.
  */
 export interface StorefrontFallbackValue {
-  slug: string;
+  /** The storefront in the shopper's language: `/s/<slug>` or `/s/<slug>/de`. */
+  base: string;
   storeName: string;
   /** The store theme's accent, used for the primary action as elsewhere on the storefront. */
   accent: string;
-  basketLabel: string;
-  orderStatusLabel: string;
-  t: StorefrontCopy["fallback"];
 }
 
 const StorefrontFallbackContext = createContext<StorefrontFallbackValue | null>(null);
@@ -75,23 +73,26 @@ function NoSuchStore() {
 export function StorefrontNotFound() {
   const store = useContext(StorefrontFallbackContext);
   if (!store) return <NoSuchStore />;
+  return <StoreNotFound {...store} />;
+}
 
-  const { slug, storeName, accent, basketLabel, orderStatusLabel, t } = store;
+function StoreNotFound({ base, storeName, accent }: StorefrontFallbackValue) {
+  const t = useTranslations("storefront");
   return (
     <FallbackPanel
       eyebrow={storeName}
-      title={t.notFoundTitle}
-      description={<p>{fmt(t.notFoundBody, { store: storeName })}</p>}
+      title={t("fallback.notFoundTitle")}
+      description={<p>{t("fallback.notFoundBody")}</p>}
       actions={
         <>
-          <Link href={`/s/${slug}/products`} className={cn(buttonVariants(), "text-white")} style={{ background: accent }}>
-            {t.browseProducts}
+          <Link href={`${base}/products`} className={cn(buttonVariants(), "text-white")} style={{ background: accent }}>
+            {t("fallback.browseProducts")}
           </Link>
-          <Link href={`/s/${slug}/cart`} className={buttonVariants({ variant: "outline" })}>
-            {basketLabel}
+          <Link href={`${base}/cart`} className={buttonVariants({ variant: "outline" })}>
+            {t("basket.title")}
           </Link>
-          <Link href={`/s/${slug}/orders`} className={buttonVariants({ variant: "outline" })}>
-            {orderStatusLabel}
+          <Link href={`${base}/orders`} className={buttonVariants({ variant: "outline" })}>
+            {t("chrome.orderStatus")}
           </Link>
         </>
       }
@@ -124,23 +125,33 @@ export function StorefrontError({ digest, retry }: { digest?: string; retry: () 
     );
   }
 
-  const { slug, storeName, accent, t } = store;
+  return <StoreError {...store} digest={digest} retry={retry} />;
+}
+
+function StoreError({
+  base,
+  storeName,
+  accent,
+  digest,
+  retry,
+}: StorefrontFallbackValue & { digest?: string; retry: () => void }) {
+  const t = useTranslations("storefront.fallback");
   return (
     <FallbackPanel
       eyebrow={storeName}
-      title={t.errorTitle}
-      description={<p>{t.errorBody}</p>}
+      title={t("errorTitle")}
+      description={<p>{t("errorBody")}</p>}
       actions={
         <>
           <Button type="button" onClick={retry} className="text-white" style={{ background: accent }}>
-            {t.errorRetry}
+            {t("errorRetry")}
           </Button>
-          <Link href={`/s/${slug}`} className={buttonVariants({ variant: "outline" })}>
-            {fmt(t.errorHome, { store: storeName })}
+          <Link href={base} className={buttonVariants({ variant: "outline" })}>
+            {t("errorHome", { store: storeName })}
           </Link>
         </>
       }
-      note={digest ? fmt(t.errorReference, { digest }) : null}
+      note={digest ? t("errorReference", { digest }) : null}
     />
   );
 }

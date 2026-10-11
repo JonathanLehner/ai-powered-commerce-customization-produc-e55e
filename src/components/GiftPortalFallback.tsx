@@ -1,9 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { createContext, useContext, type ReactNode } from "react";
 import { FallbackPanel } from "@/components/ui";
-import { fmt, type StorefrontCopy } from "@/lib/i18n";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
@@ -11,14 +11,15 @@ import { Button, buttonVariants } from "@/components/ui/button";
  * catalogue they are standing in.
  *
  * Boundary files are handed no params, so the layout — which has already
- * resolved the catalogue, its store and that store's language — passes it down
- * through context, exactly as the storefront does. No provider therefore means
+ * resolved the catalogue and its store — passes it down through context,
+ * exactly as the storefront does. The copy comes from the layout's next-intl
+ * provider, in the shopper's language. No provider therefore means
  * the address belongs to no catalogue at all: there is no store language to
  * translate into, so that case stays in English and points back at Parcelith.
  */
 export interface GiftPortalFallbackValue {
-  slug: string;
-  t: StorefrontCopy["gift"];
+  /** The portal in the shopper's language: `/g/<slug>` or `/g/<slug>/de`. */
+  base: string;
 }
 
 const GiftPortalFallbackContext = createContext<GiftPortalFallbackValue | null>(null);
@@ -58,15 +59,19 @@ export function GiftPortalNotFound() {
     );
   }
 
-  const { slug, t } = portal;
+  return <PortalNotFound base={portal.base} />;
+}
+
+function PortalNotFound({ base }: GiftPortalFallbackValue) {
+  const t = useTranslations("storefront.gift");
   return (
     <FallbackPanel
-      eyebrow={t.eyebrow}
-      title={t.notFoundTitle}
-      description={<p>{t.notFoundBoundaryBody}</p>}
+      eyebrow={t("eyebrow")}
+      title={t("notFoundTitle")}
+      description={<p>{t("notFoundBoundaryBody")}</p>}
       actions={
-        <Link href={`/g/${slug}`} className={buttonVariants()}>
-          {t.backToCatalogue}
+        <Link href={base} className={buttonVariants()}>
+          {t("backToCatalogue")}
         </Link>
       }
     />
@@ -102,23 +107,31 @@ export function GiftPortalError({ digest, retry }: { digest?: string; retry: () 
     );
   }
 
-  const { slug, t } = portal;
+  return <PortalError base={portal.base} digest={digest} retry={retry} />;
+}
+
+function PortalError({
+  base,
+  digest,
+  retry,
+}: GiftPortalFallbackValue & { digest?: string; retry: () => void }) {
+  const t = useTranslations("storefront.gift");
   return (
     <FallbackPanel
-      eyebrow={t.eyebrow}
-      title={t.errorTitle}
-      description={<p>{t.errorBody}</p>}
+      eyebrow={t("eyebrow")}
+      title={t("errorTitle")}
+      description={<p>{t("errorBody")}</p>}
       actions={
         <>
           <Button type="button" onClick={retry}>
-            {t.errorRetry}
+            {t("errorRetry")}
           </Button>
-          <Link href={`/g/${slug}`} className={buttonVariants({ variant: "outline" })}>
-            {t.backToCatalogue}
+          <Link href={base} className={buttonVariants({ variant: "outline" })}>
+            {t("backToCatalogue")}
           </Link>
         </>
       }
-      note={digest ? fmt(t.errorReference, { digest }) : null}
+      note={digest ? t("errorReference", { digest }) : null}
     />
   );
 }

@@ -1,10 +1,14 @@
+import { match } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
-import { MARKETING_PATHS, isLocale } from "@/i18n/locales";
+import { DEFAULT_LOCALE, MARKETING_PATHS, isLocale, type Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
+import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing";
 import { isLive } from "@/lib/artwork";
-import { getGiftCatalogueBySlug, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
+import { getGiftCatalogueBySlug, getStore, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
+import type { Store } from "@/lib/types";
 
 /**
  * Gives the branded "we cannot find that" screens a 404 status.
@@ -54,47 +58,146 @@ export async function proxy(request: NextRequest): Promise<NextResponse | undefi
   // for every method.
   if (isMarketingAddress(request.nextUrl.pathname)) return localizeMarketing(request);
 
+  const segments = segmentsOf(request.nextUrl.pathname);
+  if ((segments[0] === "s" || segments[0] === "g") && segments.length >= 2) {
+    return localizeShopper(request, segments);
+  }
+
   // Reads only. A server action posts to the address the page is on, and its
   // response is a payload the browser is waiting on rather than a page anyone
   // navigated to; a status of 404 there would say something about the action,
   // which is not what is being judged here.
   if (request.method !== "GET" && request.method !== "HEAD") return undefined;
 
-  return (await isMissing(request.nextUrl.pathname))
-    ? NextResponse.next({ status: 404 })
-    : undefined;
+  return isMissing(request.nextUrl.pathname) ? NextResponse.next({ status: 404 }) : undefined;
 }
 
-async function isMissing(pathname: string): Promise<boolean> {
-  // An address that matches no page at all: a `[...rest]` catch-all answers it
-  // with the not-found body of the surface it was aimed at, or — outside every
-  // surface — the site-wide not-found page does.
-  if (!matchesRoute(pathname)) return true;
+const isRead = (request: NextRequest) => request.method === "GET" || request.method === "HEAD";
 
-  const [surface, slug, ...rest] = segmentsOf(pathname).map(decodeSegment);
+/**
+ * A storefront or gift portal address. The pages live under `[locale]`, so the
+ * address is rewritten to carry the language: the one in the path when the
+ * store has enabled it, otherwise the shopper's cookie, then their browser's
+ * languages, then the store default. A language other than the default is
+ * always shown in the address, so a negotiated one redirects to its prefix and
+ * a prefixed default redirects back to the plain address. A language the store
+ * has not enabled serves the default-language page.
+ *
+ * The rewrite also names the language in next-intl's request header, which is
+ * how server actions posted from a page read it.
+ */
+async function localizeShopper(request: NextRequest, segments: string[]): Promise<NextResponse> {
+  const [surface, slug, ...after] = segments;
+  const requested = isLocale(after[0]) ? after[0] : null;
+  const rest = requested ? after.slice(1) : after;
+  const root = `/${surface}/${slug}`;
+  const restPath = rest.length > 0 ? `/${rest.join("/")}` : "";
+  const read = isRead(request);
+
+  let store: Store | null | undefined;
   try {
-    if (surface === "s") return await storefrontMissing(slug, rest);
-    if (surface === "g") return !(await exists(getGiftCatalogueBySlug(slug)));
+    store = await storeFor(surface, decodeSegment(slug));
   } catch {
-    // The database is unreachable. The page is about to run the same reads
-    // and will say so in its own words; a status is not worth failing over.
+    store = undefined;
+  }
+  const { locales, defaultLocale } = store
+    ? storeLanguages(store)
+    : { locales: [DEFAULT_LOCALE], defaultLocale: DEFAULT_LOCALE };
+
+  let locale: Locale;
+  if (requested) {
+    locale = locales.includes(requested) ? requested : defaultLocale;
+    if (read && requested === defaultLocale) {
+      return remember(redirectTo(request, `${root}${restPath}`), request, requested);
+    }
+  } else {
+    locale = read ? negotiate(request, locales, defaultLocale) : defaultLocale;
+    if (locale !== defaultLocale) return redirectTo(request, `${root}/${locale}${restPath}`);
+  }
+
+  const missing = read && (await shopperMissing(`${root}${restPath}`, store, rest));
+  const url = request.nextUrl.clone();
+  url.pathname = `${root}/${locale}${restPath}`;
+  const headers = new Headers(request.headers);
+  headers.set("X-NEXT-INTL-LOCALE", locale);
+  const response = NextResponse.rewrite(url, { request: { headers }, ...(missing ? { status: 404 } : {}) });
+  return read && requested && locales.includes(requested) ? remember(response, request, requested) : response;
+}
+
+/** The store a storefront or gift portal address belongs to. */
+async function storeFor(surface: string, slug: string): Promise<Store | null> {
+  if (surface === "s") return getStoreBySlug(slug);
+  const catalogue = await getGiftCatalogueBySlug(slug);
+  return catalogue ? getStore(catalogue.storeId) : null;
+}
+
+/** The cookie, then Accept-Language, each held to the store's languages, then the default. */
+function negotiate(request: NextRequest, locales: Locale[], defaultLocale: Locale): Locale {
+  const cookie = request.cookies.get(SHOPPER_LOCALE_COOKIE)?.value;
+  if (isLocale(cookie) && locales.includes(cookie)) return cookie;
+  if (locales.length === 1) return defaultLocale;
+  const requested = new Negotiator({
+    headers: { "accept-language": request.headers.get("accept-language") ?? "" },
+  })
+    .languages()
+    .filter((tag) => tag !== "*");
+  try {
+    const matched = match(requested, locales, defaultLocale);
+    return isLocale(matched) && locales.includes(matched) ? matched : defaultLocale;
+  } catch {
+    // A malformed tag in the header.
+    return defaultLocale;
+  }
+}
+
+function redirectTo(request: NextRequest, pathname: string): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  return NextResponse.redirect(url);
+}
+
+/** Keeps the language a shopper opened, so the plain address serves it next time. */
+function remember(response: NextResponse, request: NextRequest, locale: Locale): NextResponse {
+  if (request.cookies.get(SHOPPER_LOCALE_COOKIE)?.value !== locale) {
+    response.cookies.set(SHOPPER_LOCALE_COOKIE, locale, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+  return response;
+}
+
+/**
+ * An address that matches no page at all: a `[...rest]` catch-all answers it
+ * with the not-found body of the surface it was aimed at, or (outside every
+ * surface) the site-wide not-found page does.
+ */
+function isMissing(pathname: string): boolean {
+  return !matchesRoute(pathname);
+}
+
+/**
+ * A shop or gift portal address: the slug has to belong to a store, and a
+ * product page to a product on sale. `store` is undefined when the database
+ * could not be reached; the page is about to run the same reads and will say
+ * so in its own words, so a status is not worth failing over.
+ */
+async function shopperMissing(
+  pathname: string,
+  store: Store | null | undefined,
+  rest: string[],
+): Promise<boolean> {
+  if (isMissing(pathname)) return true;
+  if (store === undefined) return false;
+  if (!store) return true;
+  if (!pathname.startsWith("/s/") || rest[0] !== "products" || rest.length !== 2) return false;
+  try {
+    const product = await getStoreProductBySlug(store.id, decodeSegment(rest[1]));
+    return !(product != null && isLive(product));
+  } catch {
     return false;
   }
-  return false;
-}
-
-/** A shop address: the slug has to belong to a store, and a product page to a product on sale. */
-async function storefrontMissing(slug: string, rest: string[]): Promise<boolean> {
-  const store = await getStoreBySlug(slug);
-  if (!store) return true;
-  if (rest[0] !== "products" || rest.length !== 2) return false;
-  const product = await getStoreProductBySlug(store.id, rest[1]);
-  return !(product != null && isLive(product));
-}
-
-/** A lookup that answers with the record, or with nothing when there is none. */
-async function exists(lookup: Promise<unknown>): Promise<boolean> {
-  return (await lookup) != null;
 }
 
 function decodeSegment(segment: string): string {

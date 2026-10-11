@@ -121,6 +121,12 @@ export interface Store {
   logoUrl: string | null;
   theme: ThemeKey;
   defaultLanguage: string;
+  /**
+   * The languages the storefront and gift portals are available in. Absent on
+   * stores saved before more than one could be chosen, so read it through
+   * `storeLanguages()`, which always includes the default.
+   */
+  languages?: string[];
   currencies: string[];
   defaultCurrency: string;
   customDomain: string | null;
@@ -572,6 +578,8 @@ export interface Order {
   code: string;
   status: OrderStatus;
   currency: string;
+  /** The language the shopper checked out in. Emails about the order use it. */
+  locale?: string;
   customer: {
     name: string;
     email: string;

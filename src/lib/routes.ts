@@ -15,8 +15,9 @@ import { isLocale } from "@/i18n/locales";
  * without adding it here is caught rather than silently served as a 404.
  */
 export const ROUTES = [
-  // The public site. English is served at the root, every other language under
-  // its prefix, so `[locale]` matches a supported language or nothing at all.
+  // The public site, the storefronts and the gift portals. The default language
+  // is served without a prefix and every other one under it, so `[locale]`
+  // matches a supported language or nothing at all.
   "/[locale]",
   "/[locale]/contact",
   "/[locale]/how-it-works",
@@ -59,18 +60,18 @@ export const ROUTES = [
   "/app/stores/[storeId]/storefront",
   "/app/stores/[storeId]/team",
 
-  "/g/[slug]",
-  "/g/[slug]/c/[code]",
-  "/g/[slug]/enter",
-  "/g/[slug]/order",
+  "/g/[slug]/[locale]",
+  "/g/[slug]/[locale]/c/[code]",
+  "/g/[slug]/[locale]/enter",
+  "/g/[slug]/[locale]/order",
 
-  "/s/[slug]",
-  "/s/[slug]/cart",
-  "/s/[slug]/checkout",
-  "/s/[slug]/orders",
-  "/s/[slug]/orders/[code]",
-  "/s/[slug]/products",
-  "/s/[slug]/products/[productSlug]",
+  "/s/[slug]/[locale]",
+  "/s/[slug]/[locale]/cart",
+  "/s/[slug]/[locale]/checkout",
+  "/s/[slug]/[locale]/orders",
+  "/s/[slug]/[locale]/orders/[code]",
+  "/s/[slug]/[locale]/products",
+  "/s/[slug]/[locale]/products/[productSlug]",
 ] as const;
 
 const LOCALE_SEGMENT = "[locale]";
@@ -85,9 +86,10 @@ export function matchesRoute(pathname: string): boolean {
   const segments = segmentsOf(pathname);
   return ROUTES.some((route) => {
     const pattern = segmentsOf(route);
-    // A public page answers with or without its language prefix.
-    if (pattern[0] === LOCALE_SEGMENT) return fits(pattern, segments) || fits(pattern.slice(1), segments);
-    return fits(pattern, segments);
+    // A localised page answers with or without its language prefix.
+    const prefix = pattern.indexOf(LOCALE_SEGMENT);
+    if (prefix === -1) return fits(pattern, segments);
+    return fits(pattern, segments) || fits(pattern.toSpliced(prefix, 1), segments);
   });
 }
 

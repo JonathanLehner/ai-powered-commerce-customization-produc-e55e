@@ -22,6 +22,7 @@ export default getRequestConfig(async ({ locale, requestLocale }) => {
     formats: {
       dateTime: {
         date: { year: "numeric", month: "short", day: "numeric" },
+        dateTime: { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" },
       },
     },
   };
