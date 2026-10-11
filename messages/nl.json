@@ -940,7 +940,10 @@
       "carrierRequired": "Schakel minstens één vervoerder in zodat betaalde bestellingen verzonden kunnen worden.",
       "carriersSaved": "Vervoerdersinstellingen opgeslagen.",
       "taxRequired": "Kies het standaard btw-tarief voor deze winkel.",
-      "taxSaved": "Belastinginstellingen opgeslagen."
+      "taxSaved": "Belastinginstellingen opgeslagen.",
+      "policyLanguageInvalid": "Kies een van de talen van de winkel.",
+      "policyTooLong": "Houd elk beleid onder {max} tekens.",
+      "policiesSaved": "Beleid opgeslagen."
     },
     "team": {
       "emailInvalid": "Vul een geldig e-mailadres in.",
@@ -1271,7 +1274,13 @@
     "pricesIncludeTaxHint": "Gebruikelijk in het Verenigd Koninkrijk en de EU.",
     "colBracket": "Tarief",
     "colRate": "Percentage",
-    "colAppliesTo": "Geldt voor"
+    "colAppliesTo": "Geldt voor",
+    "policies": "Winkelbeleid",
+    "policiesDescription": "Pagina’s over retouren, verzending, verkoopvoorwaarden en privacy, gelinkt in de footer van de winkel en bij het afrekenen.",
+    "policyLanguage": "Taal",
+    "policiesHint": "Begin een regel met ## voor een kop. Maak een beleid leeg om de standaardtekst terug te zetten.",
+    "savePolicies": "Beleid opslaan",
+    "viewPolicy": "Bekijken"
   },
   "team": {
     "agencyAdmins": "Bureaubeheerders",
@@ -2752,9 +2761,7 @@
       "help": "Hulp",
       "supportEmailLabel": "E-mail",
       "supportPhoneLabel": "Telefoon",
-      "legal": "© {year} {client}",
-      "terms": "Voorwaarden",
-      "privacy": "Privacy"
+      "legal": "© {year} {client}"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3212,6 +3219,15 @@
       "errorRetry": "Opnieuw proberen",
       "errorHome": "Terug naar {store}",
       "errorReference": "Referentie {digest}"
+    },
+    "policies": {
+      "title": "Beleid",
+      "refunds": "Retourbeleid",
+      "shipping": "Verzendbeleid",
+      "terms": "Verkoopvoorwaarden",
+      "privacy": "Privacybeleid",
+      "agreement": "Door te bestellen ga je akkoord met de <terms>verkoopvoorwaarden</terms> en het <refunds>retourbeleid</refunds>.",
+      "questions": "Vragen over dit beleid?"
     }
   },
   "collections": {
@@ -3323,5 +3339,11 @@
       "digestHeading": "{count, plural, one {# nieuwe bestelling} other {# nieuwe bestellingen}}",
       "digestCta": "Bestellingen bekijken"
     }
+  },
+  "storePolicies": {
+    "refunds": "## Gepersonaliseerde en op bestelling gemaakte artikelen\nElk artikel van {store} wordt op bestelling gemaakt, en veel artikelen dragen je naam, tekst of ontwerp. Omdat ze voor jou worden gemaakt, kunnen we geen retouren of ruilingen accepteren als je van gedachten verandert, of voor een maat of kleur die je zelf hebt gekozen. Controleer je ontwerp, spelling en maat voordat je bestelt.\n\n## Beschadigde, defecte of verkeerde artikelen\nKomt je bestelling beschadigd, defect of anders dan besteld aan? Neem dan binnen 30 dagen na levering contact met ons op met je bestelnummer en een foto. We sturen kosteloos een vervanging of betalen het volledige bedrag terug.\n\n## Artikelen zonder personalisatie\nOngebruikte artikelen zonder personalisatie kun je binnen 14 dagen na levering retourneren. Neem contact met ons op voordat je iets terugstuurt. De retourkosten zijn voor jou, tenzij het artikel defect is.\n\n## Annuleren\nJe kunt kosteloos annuleren tot je bestelling in productie gaat. Neem zo snel mogelijk contact met ons op met je bestelnummer.\n\n## Terugbetalingen\nGoedgekeurde terugbetalingen gaan binnen 10 werkdagen terug naar de oorspronkelijke betaalmethode.\n\n## Je wettelijke rechten\nDit beleid doet geen afbreuk aan je wettelijke rechten als consument.",
+    "shipping": "## Productie\nElk artikel wordt gemaakt nadat je hebt besteld. De productie duurt meestal 2 tot 5 werkdagen. Grote bestellingen kunnen langer duren; we laten het je weten als dat zo is.\n\n## Levering\nNa verzending duurt de levering meestal 3 tot 7 werkdagen, afhankelijk van de bestemming. Het totaalbedrag, inclusief eventuele verzendkosten, zie je bij het afrekenen voordat je betaalt.\n\n## Volgen\nJe kunt je bestelling altijd volgen op de pagina met de bestelstatus, met je bestelnummer en e-mailadres.\n\n## Douane en invoerrechten\nVoor bestellingen naar een ander land kunnen bij aankomst invoerrechten of belastingen worden geheven. Die zitten niet in de prijs en worden door de ontvanger betaald.\n\n## Vertraagde of verloren pakketten\nIs je pakket 10 werkdagen na verzending nog niet aangekomen? Neem contact met ons op met je bestelnummer, dan zoeken we het samen met de vervoerder uit.\n\n## Bezorgadres\nControleer je bezorgadres voordat je betaalt. Na verzending kunnen we een bestelling niet meer omleiden.",
+    "terms": "## Over deze voorwaarden\nDeze voorwaarden gelden voor elke bestelling bij {store}. Door te bestellen ga je ermee akkoord.\n\n## Bestellingen\nJe bestelling is bevestigd zodra de betaling is geaccepteerd en je een bestelnummer ontvangt. Kunnen we een bestelling niet leveren, dan annuleren we die en betalen we het volledige bedrag terug.\n\n## Prijzen en betaling\nPrijzen worden getoond in de valuta die je kiest, belasting bij het afrekenen. De betaling vindt plaats wanneer je bestelt.\n\n## Personalisatie\nJe bent verantwoordelijk voor de tekst en ontwerpen die je aan een product toevoegt en bevestigt dat je ze mag gebruiken. We kunnen een bestelling annuleren als de inhoud onrechtmatig of aanstootgevend is of inbreuk maakt op rechten van anderen. Gedrukte kleuren kunnen iets afwijken van het scherm.\n\n## Levering, retouren en terugbetalingen\nLevering valt onder ons verzendbeleid, retouren en terugbetalingen onder ons retourbeleid.\n\n## Aansprakelijkheid\nNiets in deze voorwaarden beperkt aansprakelijkheid die wettelijk niet beperkt kan worden. Verder is onze aansprakelijkheid voor een bestelling beperkt tot het bedrag dat je ervoor hebt betaald.\n\n## Wijzigingen\nWe kunnen deze voorwaarden bijwerken. Op een bestelling zijn de voorwaarden van toepassing die golden toen je bestelde.",
+    "privacy": "## Wat we verzamelen\nAls je bij {store} bestelt, verzamelen we je naam, e-mailadres, bezorgadres, telefoonnummer als je dat opgeeft, de bestelde artikelen en de tekst of ontwerpen die je toevoegt.\n\n## Hoe we het gebruiken\nWe gebruiken deze gegevens om je bestelling te maken en te leveren, je op de hoogte te houden en je vragen te beantwoorden. We verkopen je persoonsgegevens niet.\n\n## Betalingen\nKaartbetalingen worden verwerkt door onze betaalprovider. We bewaren je volledige kaartnummer niet.\n\n## Met wie we het delen\nWe delen alleen wat nodig is met de partners die je bestelling maken en leveren, zoals productiepartners en vervoerders.\n\n## Hoe lang we het bewaren\nWe bewaren bestelgegevens zo lang als nodig is om je bestelling af te ronden en aan onze wettelijke en boekhoudkundige verplichtingen te voldoen.\n\n## Je rechten\nJe kunt vragen om de persoonsgegevens die we over je hebben in te zien, te corrigeren of te verwijderen. Neem contact met ons op vanaf het e-mailadres waarmee je hebt besteld.\n\n## Cookies\nDeze winkel gebruikt cookies om je winkelmand, taal en valuta te onthouden."
   }
 }

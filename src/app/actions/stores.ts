@@ -16,6 +16,7 @@ import {
 import { DEFAULT_LOCALE, LOCALES, isLocale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { db } from "@/lib/mongo";
+import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type StorePolicies } from "@/lib/policies";
 import { storeLimitText } from "@/i18n/plan-copy";
 import { storeAllowance } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
@@ -391,6 +392,54 @@ export async function saveSupport(_prev: ActionState, formData: FormData): Promi
       ? t("supportBothSaved")
       : t("supportEmailSaved"),
   );
+}
+
+/**
+ * Saves the store's policies in one language. A policy left empty, or matching
+ * what shoppers would read without it, is not stored, so the store keeps
+ * following the default text.
+ */
+export async function savePolicies(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
+
+  const { locales, defaultLocale } = storeLanguages(store);
+  const language = String(formData.get("language") ?? "");
+  if (!isLocale(language) || !locales.includes(language)) {
+    return fail(t("policyLanguageInvalid"), "language");
+  }
+
+  const builtIn = await getTranslations({ locale: language, namespace: "storePolicies" });
+  const own: Partial<Record<(typeof POLICY_KEYS)[number], string>> = {};
+  for (const key of POLICY_KEYS) {
+    const text = normalizePolicy(String(formData.get(key) ?? ""));
+    if (text.length > POLICY_MAX_LENGTH) {
+      return fail(t("policyTooLong", { max: POLICY_MAX_LENGTH }), key);
+    }
+    const fallback =
+      (language !== defaultLocale ? store.policies?.[defaultLocale]?.[key] : null) ||
+      builtIn(key, { store: store.name });
+    if (text && text !== normalizePolicy(fallback)) own[key] = text;
+  }
+
+  const policies: StorePolicies = { ...(store.policies ?? {}), [language]: own };
+  await updateStore(storeId, { policies });
+  recordAudit({
+    category: "store_setup",
+    action: "store.policies_updated",
+    summary: `Store policies updated (${language})`,
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "store",
+    entityId: storeId,
+    meta: { language, edited: Object.keys(own).join(", ") },
+  });
+  revalidatePath(`/app/stores/${storeId}/setup`);
+  revalidatePath(`/s/${store.slug}`, "layout");
+  return ok(t("policiesSaved"));
 }
 
 export async function saveDomain(_prev: ActionState, formData: FormData): Promise<ActionState> {

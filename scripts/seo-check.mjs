@@ -145,15 +145,16 @@ const products = [
 // A verified custom domain: every store page is at the domain's root, the
 // default language without a prefix and German under /de.
 const onDomain = storeSitemap(northwind, products);
-assert.equal(onDomain.length, (2 + products.length + 2) * 2, "home, shop, each product and two legal pages, per language");
+assert.equal(onDomain.length, (2 + products.length + 4) * 2, "home, shop, each product and four policies, per language");
+// Every entry is the store's own, policies included: none points at the platform's terms.
 const storePages = onDomain.filter((e) => !e.url.startsWith(SITE_ORIGIN));
+assert.equal(storePages.length, onDomain.length, "the sitemap lists no platform pages");
 checkSitemap(storePages, {
   host: "shop.northwind.example",
   languages: ["en", "de"],
   toRoute: (url) => `/s/northwind-supply${url.pathname === "/" ? "" : url.pathname}`,
 });
-const legal = onDomain.filter((e) => e.url.startsWith(SITE_ORIGIN));
-checkSitemap(legal, { host: new URL(SITE_ORIGIN).host, languages: ["en", "de"], toRoute: (url) => url.pathname });
+assert.ok(storePages.some((e) => e.url === "https://shop.northwind.example/de/policies/refunds"));
 assert.deepEqual(
   storePages.map((e) => e.url).slice(0, 4),
   [

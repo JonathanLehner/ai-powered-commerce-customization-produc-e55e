@@ -6,10 +6,10 @@ import { GiftPortalFallbackProvider } from "@/components/GiftPortalFallback";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { PlainDocument } from "@/components/SiteChrome";
 import { StoreMark } from "@/components/StoreMark";
-import { localizedPath } from "@/i18n/locales";
 import { shopperIntl, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
+import { POLICY_KEYS, policyPath } from "@/lib/policies";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
@@ -132,13 +132,12 @@ export default async function GiftPortalLayout({
             <Separator />
             <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-muted-foreground sm:px-6">
               <p>{t("gift.legal", { year: String(new Date().getFullYear()), client: store.clientName })}</p>
-              <div className="flex gap-4">
-                <Link href={localizedPath("/legal/terms", locale)} className="hover:text-foreground hover:underline">
-                  {t("chrome.terms")}
-                </Link>
-                <Link href={localizedPath("/legal/privacy", locale)} className="hover:text-foreground hover:underline">
-                  {t("chrome.privacy")}
-                </Link>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                {POLICY_KEYS.map((key) => (
+                  <Link key={key} href={policyPath(base, key)} className="hover:text-foreground hover:underline">
+                    {t(`policies.${key}`)}
+                  </Link>
+                ))}
               </div>
             </div>
           </footer>

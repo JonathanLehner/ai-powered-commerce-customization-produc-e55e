@@ -940,7 +940,10 @@
       "carrierRequired": "Aktivieren Sie mindestens einen Versanddienstleister, damit bezahlte Bestellungen versendet werden können.",
       "carriersSaved": "Versandeinstellungen gespeichert.",
       "taxRequired": "Wählen Sie die Standard-Steuerklasse für diesen Shop.",
-      "taxSaved": "Steuereinstellungen gespeichert."
+      "taxSaved": "Steuereinstellungen gespeichert.",
+      "policyLanguageInvalid": "Wählen Sie eine der Sprachen des Shops.",
+      "policyTooLong": "Jede Richtlinie darf höchstens {max} Zeichen lang sein.",
+      "policiesSaved": "Richtlinien gespeichert."
     },
     "team": {
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
@@ -1271,7 +1274,13 @@
     "pricesIncludeTaxHint": "Üblich im Vereinigten Königreich und in der EU.",
     "colBracket": "Steuerklasse",
     "colRate": "Satz",
-    "colAppliesTo": "Gilt für"
+    "colAppliesTo": "Gilt für",
+    "policies": "Shop-Richtlinien",
+    "policiesDescription": "Seiten zu Rückerstattung, Versand, Verkaufsbedingungen und Datenschutz, verlinkt im Footer des Shops und an der Kasse.",
+    "policyLanguage": "Sprache",
+    "policiesHint": "Beginnen Sie eine Zeile mit ## für eine Überschrift. Leeren Sie eine Richtlinie, um den Standardtext wiederherzustellen.",
+    "savePolicies": "Richtlinien speichern",
+    "viewPolicy": "Ansehen"
   },
   "team": {
     "agencyAdmins": "Agenturadministratoren",
@@ -2752,9 +2761,7 @@
       "help": "Hilfe",
       "supportEmailLabel": "E-Mail",
       "supportPhoneLabel": "Telefon",
-      "legal": "© {year} {client}",
-      "terms": "AGB",
-      "privacy": "Datenschutz"
+      "legal": "© {year} {client}"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3212,6 +3219,15 @@
       "errorRetry": "Erneut versuchen",
       "errorHome": "Zurück zu {store}",
       "errorReference": "Referenz {digest}"
+    },
+    "policies": {
+      "title": "Richtlinien",
+      "refunds": "Rückerstattungsrichtlinie",
+      "shipping": "Versandrichtlinie",
+      "terms": "Verkaufsbedingungen",
+      "privacy": "Datenschutzerklärung",
+      "agreement": "Mit Ihrer Bestellung stimmen Sie den <terms>Verkaufsbedingungen</terms> und der <refunds>Rückerstattungsrichtlinie</refunds> zu.",
+      "questions": "Fragen zu dieser Richtlinie?"
     }
   },
   "collections": {
@@ -3323,5 +3339,11 @@
       "digestHeading": "{count, plural, one {# neue Bestellung} other {# neue Bestellungen}}",
       "digestCta": "Bestellungen ansehen"
     }
+  },
+  "storePolicies": {
+    "refunds": "## Personalisierte und auf Bestellung gefertigte Artikel\nJeder Artikel von {store} wird auf Bestellung gefertigt, und viele tragen Ihren Namen, Text oder Ihr Motiv. Da sie für Sie angefertigt werden, können wir Rückgaben oder Umtausch bei Nichtgefallen oder bei einer von Ihnen gewählten Größe oder Farbe nicht annehmen. Bitte prüfen Sie Design, Schreibweise und Größe, bevor Sie bestellen.\n\n## Beschädigte, fehlerhafte oder falsche Artikel\nKommt Ihre Bestellung beschädigt, fehlerhaft oder abweichend von Ihrer Bestellung an, kontaktieren Sie uns innerhalb von 30 Tagen nach Lieferung mit Ihrer Bestellnummer und einem Foto. Wir senden Ihnen kostenlos Ersatz oder erstatten den vollen Betrag.\n\n## Artikel ohne Personalisierung\nUnbenutzte Artikel ohne Personalisierung können innerhalb von 14 Tagen nach Lieferung zurückgegeben werden. Bitte kontaktieren Sie uns, bevor Sie etwas zurücksenden. Die Rücksendekosten tragen Sie, außer der Artikel ist fehlerhaft.\n\n## Stornierung\nSie können kostenlos stornieren, bis Ihre Bestellung in Produktion geht. Kontaktieren Sie uns so bald wie möglich mit Ihrer Bestellnummer.\n\n## Erstattungen\nGenehmigte Erstattungen gehen innerhalb von 10 Werktagen an die ursprüngliche Zahlungsmethode zurück.\n\n## Ihre gesetzlichen Rechte\nDiese Richtlinie berührt Ihre gesetzlichen Rechte als Verbraucher nicht.",
+    "shipping": "## Produktion\nJeder Artikel wird nach Ihrer Bestellung gefertigt. Die Produktion dauert in der Regel 2 bis 5 Werktage. Große Bestellungen können länger dauern; wir informieren Sie in diesem Fall.\n\n## Lieferung\nNach dem Versand dauert die Lieferung je nach Ziel in der Regel 3 bis 7 Werktage. Der Gesamtbetrag einschließlich Versand wird an der Kasse angezeigt, bevor Sie bezahlen.\n\n## Sendungsverfolgung\nAuf der Seite zum Bestellstatus können Sie Ihre Bestellung jederzeit mit Bestellnummer und E-Mail-Adresse verfolgen.\n\n## Zoll und Einfuhrabgaben\nBei Lieferungen in ein anderes Land können bei Ankunft Zölle oder Steuern anfallen. Diese sind nicht im Preis enthalten und werden vom Empfänger bezahlt.\n\n## Verspätete oder verlorene Pakete\nIst Ihr Paket 10 Werktage nach dem Versand noch nicht angekommen, kontaktieren Sie uns mit Ihrer Bestellnummer. Wir klären den Verbleib mit dem Versanddienstleister.\n\n## Lieferadresse\nBitte prüfen Sie Ihre Lieferadresse, bevor Sie bezahlen. Nach dem Versand können wir eine Bestellung nicht mehr umleiten.",
+    "terms": "## Über diese Bedingungen\nDiese Bedingungen gelten für jede Bestellung bei {store}. Mit Ihrer Bestellung stimmen Sie ihnen zu.\n\n## Bestellungen\nIhre Bestellung ist bestätigt, sobald die Zahlung akzeptiert wurde und Sie eine Bestellnummer erhalten. Können wir eine Bestellung nicht ausführen, stornieren wir sie und erstatten den vollen Betrag.\n\n## Preise und Zahlung\nPreise werden in der von Ihnen gewählten Währung angezeigt, Steuern an der Kasse. Die Zahlung erfolgt bei Aufgabe der Bestellung.\n\n## Personalisierung\nSie sind für die Texte und Motive verantwortlich, die Sie einem Produkt hinzufügen, und bestätigen, dass Sie diese verwenden dürfen. Wir können Bestellungen stornieren, deren Inhalte rechtswidrig oder anstößig sind oder Rechte Dritter verletzen. Gedruckte Farben können leicht von der Darstellung am Bildschirm abweichen.\n\n## Lieferung, Rückgabe und Erstattung\nFür die Lieferung gilt unsere Versandrichtlinie, für Rückgaben und Erstattungen unsere Rückerstattungsrichtlinie.\n\n## Haftung\nDiese Bedingungen schränken keine Haftung ein, die gesetzlich nicht eingeschränkt werden kann. Im Übrigen ist unsere Haftung für eine Bestellung auf den dafür gezahlten Betrag begrenzt.\n\n## Änderungen\nWir können diese Bedingungen aktualisieren. Für eine Bestellung gelten die Bedingungen, die bei ihrer Aufgabe angezeigt wurden.",
+    "privacy": "## Welche Daten wir erheben\nWenn Sie bei {store} bestellen, erheben wir Ihren Namen, Ihre E-Mail-Adresse, Ihre Lieferadresse, Ihre Telefonnummer, falls angegeben, die bestellten Artikel sowie Texte oder Motive, die Sie hinzufügen.\n\n## Wofür wir sie verwenden\nWir verwenden diese Daten, um Ihre Bestellung zu fertigen und zu liefern, Sie über den Status zu informieren und Ihre Fragen zu beantworten. Wir verkaufen Ihre personenbezogenen Daten nicht.\n\n## Zahlungen\nKartenzahlungen werden von unserem Zahlungsanbieter abgewickelt. Wir speichern Ihre vollständige Kartennummer nicht.\n\n## An wen wir sie weitergeben\nWir geben nur die nötigen Daten an die Partner weiter, die Ihre Bestellung fertigen und liefern, etwa Produktionspartner und Versanddienstleister.\n\n## Wie lange wir sie aufbewahren\nWir bewahren Bestelldaten so lange auf, wie es für die Abwicklung Ihrer Bestellung und unsere gesetzlichen und buchhalterischen Pflichten nötig ist.\n\n## Ihre Rechte\nSie können Auskunft über Ihre bei uns gespeicherten Daten verlangen und sie berichtigen oder löschen lassen. Kontaktieren Sie uns dazu von der E-Mail-Adresse, mit der Sie bestellt haben.\n\n## Cookies\nDieser Shop verwendet Cookies, um Ihren Warenkorb, Ihre Sprache und Ihre Währung zu speichern."
   }
 }

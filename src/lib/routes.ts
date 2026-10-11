@@ -72,6 +72,7 @@ export const ROUTES = [
   "/g/[slug]/[locale]/c/[code]",
   "/g/[slug]/[locale]/enter",
   "/g/[slug]/[locale]/order",
+  "/g/[slug]/[locale]/policies/[policy]",
 
   "/s/[slug]/robots.txt",
   "/s/[slug]/sitemap.xml",
@@ -81,6 +82,7 @@ export const ROUTES = [
   "/s/[slug]/[locale]/collections/[handle]",
   "/s/[slug]/[locale]/orders",
   "/s/[slug]/[locale]/orders/[code]",
+  "/s/[slug]/[locale]/policies/[policy]",
   "/s/[slug]/[locale]/products",
   "/s/[slug]/[locale]/products/[productSlug]",
 ] as const;

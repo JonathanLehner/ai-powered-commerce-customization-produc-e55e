@@ -6,6 +6,7 @@
  */
 
 import type { NotificationPrefs } from "./notifications";
+import type { StorePolicies } from "./policies";
 import type { ShopTextOverrides } from "./shop-text";
 import type { FieldTranslations } from "./translations";
 
@@ -150,6 +151,11 @@ export interface Store {
    */
   supportEmail?: string | null;
   supportPhone?: string | null;
+  /**
+   * The refund, shipping, terms of sale and privacy text the store wrote, per
+   * language. Absent until one is edited; read it through `storePolicyText()`.
+   */
+  policies?: StorePolicies;
   stripe: {
     connected: boolean;
     accountId: string | null;

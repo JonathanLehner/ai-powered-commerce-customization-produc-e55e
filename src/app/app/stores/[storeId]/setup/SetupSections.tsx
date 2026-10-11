@@ -10,6 +10,7 @@ import {
   saveDomain,
   saveLanguages,
   saveLocalisation,
+  savePolicies,
   saveStripe,
   saveSupport,
   saveTaxSettings,
@@ -30,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -39,8 +41,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { countryName, currencyName, languageOption } from "@/i18n/display";
-import { LOCALES, LOCALE_NAMES } from "@/i18n/locales";
+import { LOCALES, LOCALE_NAMES, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
+import { POLICY_KEYS, POLICY_MAX_LENGTH, storePolicyText, type PolicyKey } from "@/lib/policies";
+import { storeUrl } from "@/lib/seo";
 import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
 import { CARRIER_LABELS, CURRENCY_OPTIONS, STRIPE_COUNTRIES } from "@/lib/util";
@@ -198,7 +202,16 @@ function StoredImageFields({ prefix, image }: { prefix: string; image: StoredIma
   );
 }
 
-export function SetupSections({ store, brackets }: { store: Store; brackets: TaxBracket[] }) {
+export function SetupSections({
+  store,
+  brackets,
+  policyDefaults,
+}: {
+  store: Store;
+  brackets: TaxBracket[];
+  /** The built-in policy text per store language. */
+  policyDefaults: Record<string, Record<PolicyKey, string>>;
+}) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
   const [languages, setLanguages] = useState<string[]>(() => storeLanguages(store).locales);
   const [defaultLanguage, setDefaultLanguage] = useState<string>(() => storeLanguages(store).defaultLocale);
@@ -207,9 +220,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
     Object.fromEntries(store.carriers.map((c) => [c.carrier, c.enabled])),
   );
   const [bracket, setBracket] = useState(store.defaultTaxBracketId ?? NO_BRACKET);
+  const [policyLanguage, setPolicyLanguage] = useState<string>(() => storeLanguages(store).defaultLocale);
   const hidden = { storeId: store.id };
   const t = useTranslations("settings");
   const labels = useTranslations("labels");
+  const policyTitles = useTranslations("storefront.policies");
   const locale = useLocale();
 
   function toggleLanguage(code: string, on: boolean) {
@@ -686,6 +701,75 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
             </>
           )}
         </ActionForm>
+      </Step>
+      <Step
+        index={9}
+        title={t("policies")}
+        description={t("policiesDescription")}
+        done
+      >
+        {(() => {
+          const { locales: storeLocales, defaultLocale: storeDefault } = storeLanguages(store);
+          return (
+            <ActionForm
+              key={policyLanguage}
+              action={savePolicies}
+              submitLabel={t("savePolicies")}
+              hidden={{ ...hidden, language: policyLanguage }}
+            >
+              {(state) => (
+                <div className="grid max-w-3xl gap-5">
+                  {storeLocales.length > 1 ? (
+                    <div className="grid max-w-xs gap-1.5">
+                      <Label htmlFor="policyLanguage">{t("policyLanguage")}</Label>
+                      <Select value={policyLanguage} onValueChange={setPolicyLanguage}>
+                        <SelectTrigger id="policyLanguage" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {storeLocales.map((code) => (
+                            <SelectItem key={code} value={code}>
+                              {languageOption(locale, code, LOCALE_NAMES[code])}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : null}
+                  <p className="text-xs text-muted-foreground">{t("policiesHint")}</p>
+                  {POLICY_KEYS.map((key) => (
+                    <div key={key} className="grid gap-1.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor={`policy-${key}`}>{policyTitles(key)}</Label>
+                        <a
+                          href={storeUrl(store, policyLanguage as Locale, `/policies/${key}`)}
+                          target="_blank"
+                          rel="noopener"
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          {t("viewPolicy")}
+                        </a>
+                      </div>
+                      <Textarea
+                        id={`policy-${key}`}
+                        name={key}
+                        rows={8}
+                        maxLength={POLICY_MAX_LENGTH}
+                        defaultValue={
+                          storePolicyText(store, key, policyLanguage, storeDefault) ??
+                          policyDefaults[policyLanguage]?.[key] ??
+                          ""
+                        }
+                        aria-invalid={state.field === key ? true : undefined}
+                        className="max-h-96 min-h-40 font-mono text-xs leading-relaxed md:text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ActionForm>
+          );
+        })()}
       </Step>
     </div>
   );

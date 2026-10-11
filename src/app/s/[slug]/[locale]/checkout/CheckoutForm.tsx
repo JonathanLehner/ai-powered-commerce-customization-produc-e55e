@@ -15,6 +15,7 @@ import {
   suppliersOutsideRegion,
   type FulfillmentSource,
 } from "@/lib/countries";
+import { policyPath } from "@/lib/policies";
 import { TEST_CARDS } from "@/lib/stripe";
 import type { ShopperMessages } from "@/i18n/shopper-copy";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ export function CheckoutForm({
   currency,
   defaultCountry,
   fulfillmentSources,
+  base,
 }: {
   storeId: string;
   currencies: string[];
@@ -53,8 +55,11 @@ export function CheckoutForm({
   /** The store's Stripe account country — where most of its shoppers are. */
   defaultCountry: string;
   fulfillmentSources: FulfillmentSource[];
+  /** The storefront's address in the shopper's language, for the policy links. */
+  base: string;
 }) {
   const t = useTranslations("storefront.checkout");
+  const policies = useTranslations("storefront.policies");
   const format = useFormatter();
   const localeTag = useLocale();
   // Generated once per page load so a double submit cannot create two orders.
@@ -75,6 +80,14 @@ export function CheckoutForm({
       submitSize="lg"
       submitClassName="w-full sm:w-auto"
       hidden={{ storeId, idempotencyKey }}
+      footer={
+        <p className="w-full text-xs text-muted-foreground">
+          {policies.rich("agreement", {
+            terms: (chunks) => <PolicyLink href={policyPath(base, "terms")}>{chunks}</PolicyLink>,
+            refunds: (chunks) => <PolicyLink href={policyPath(base, "refunds")}>{chunks}</PolicyLink>,
+          })}
+        </p>
+      }
     >
       {(state) => (
         <>
@@ -300,5 +313,14 @@ export function CheckoutForm({
       )}
     </ActionForm>
     </Card>
+  );
+}
+
+/** Opens in a new tab so the details typed into the form are not lost. */
+function PolicyLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a href={href} target="_blank" rel="noopener" className="text-foreground underline underline-offset-2 hover:no-underline">
+      {children}
+    </a>
   );
 }

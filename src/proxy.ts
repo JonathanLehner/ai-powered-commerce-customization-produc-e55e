@@ -13,6 +13,7 @@ import {
   getStoreBySlug,
   getStoreProductBySlug,
 } from "@/lib/data";
+import { isPolicyKey } from "@/lib/policies";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
 import { SITE_ORIGIN } from "@/lib/seo";
 import type { Store } from "@/lib/types";
@@ -266,6 +267,7 @@ async function shopperMissing(
   if (isMissing(pathname)) return true;
   if (store === undefined) return false;
   if (!store) return true;
+  if (rest.length === 2 && rest[0] === "policies") return !isPolicyKey(rest[1]);
   if (!pathname.startsWith("/s/") || rest.length !== 2) return false;
   try {
     if (rest[0] === "products") {

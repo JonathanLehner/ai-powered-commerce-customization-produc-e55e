@@ -13,6 +13,7 @@
  */
 import { DEFAULT_LOCALE, LOCALES, MARKETING_PATHS, localizedPath, type Locale } from "@/i18n/locales";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
+import { POLICY_KEYS } from "./policies";
 import { currencyDecimals } from "./util";
 
 /** The platform's own address. Relative metadata resolves against it. */
@@ -77,9 +78,6 @@ export interface SitemapEntry {
   images?: string[];
 }
 
-/** The marketing pages linked from a storefront footer. */
-export const LEGAL_PATHS = ["/legal/terms", "/legal/privacy"] as const;
-
 /** One entry per language for a page, each listing all of them as alternates. */
 function perLanguage(
   locales: readonly Locale[],
@@ -109,8 +107,8 @@ type SitemapCollection = { handle: string; updatedAt: string; imageUrl: string |
 
 /**
  * A storefront's pages in every enabled language: the home page, the shop,
- * each collection, each product on sale and the legal pages the footer links
- * to. An archived store lists nothing.
+ * each collection, each product on sale and the store's policies. An archived
+ * store lists nothing.
  */
 export function storeSitemap(
   store: StoreAddress & { status: "active" | "archived" },
@@ -122,17 +120,6 @@ export function storeSitemap(
   const page = (path: string, extra: Omit<SitemapEntry, "url" | "languages"> = {}) =>
     perLanguage(locales, (locale) => storeUrl(store, locale, path), storeLanguageUrls(store, path), extra);
   const latest = products.map((p) => p.updatedAt).sort().at(-1);
-
-  const legal = LEGAL_PATHS.flatMap((path) => {
-    const languages =
-      locales.length > 1
-        ? {
-            ...Object.fromEntries(locales.map((locale) => [locale, siteUrl(path, locale)])),
-            "x-default": siteUrl(path, storeLanguages(store).defaultLocale),
-          }
-        : {};
-    return perLanguage(locales, (locale) => siteUrl(path, locale), languages);
-  });
 
   return [
     ...page("", latest ? { lastModified: latest } : {}),
@@ -149,7 +136,7 @@ export function storeSitemap(
         images: product.mockups.slice(0, 4).map((m) => m.url),
       }),
     ),
-    ...legal,
+    ...POLICY_KEYS.flatMap((key) => page(`/policies/${key}`)),
   ];
 }
 

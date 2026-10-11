@@ -940,7 +940,10 @@
       "carrierRequired": "Activez au moins un transporteur pour expédier les commandes payées.",
       "carriersSaved": "Paramètres des transporteurs enregistrés.",
       "taxRequired": "Choisissez le taux de taxe par défaut de cette boutique.",
-      "taxSaved": "Configuration des taxes enregistrée."
+      "taxSaved": "Configuration des taxes enregistrée.",
+      "policyLanguageInvalid": "Choisissez l’une des langues de la boutique.",
+      "policyTooLong": "Chaque politique doit faire moins de {max} caractères.",
+      "policiesSaved": "Politiques enregistrées."
     },
     "team": {
       "emailInvalid": "Saisissez une adresse e-mail valide.",
@@ -1271,7 +1274,13 @@
     "pricesIncludeTaxHint": "Courant au Royaume-Uni et dans l’UE.",
     "colBracket": "Taux",
     "colRate": "Pourcentage",
-    "colAppliesTo": "S’applique à"
+    "colAppliesTo": "S’applique à",
+    "policies": "Politiques de la boutique",
+    "policiesDescription": "Pages de remboursement, d’expédition, de conditions de vente et de confidentialité, liées dans le pied de page de la boutique et au paiement.",
+    "policyLanguage": "Langue",
+    "policiesHint": "Commencez une ligne par ## pour un titre. Videz une politique pour rétablir le texte par défaut.",
+    "savePolicies": "Enregistrer les politiques",
+    "viewPolicy": "Voir"
   },
   "team": {
     "agencyAdmins": "Administrateurs de l’agence",
@@ -2752,9 +2761,7 @@
       "help": "Aide",
       "supportEmailLabel": "E-mail",
       "supportPhoneLabel": "Téléphone",
-      "legal": "© {year} {client}",
-      "terms": "Conditions",
-      "privacy": "Confidentialité"
+      "legal": "© {year} {client}"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3212,6 +3219,15 @@
       "errorRetry": "Réessayer",
       "errorHome": "Retour à {store}",
       "errorReference": "Référence {digest}"
+    },
+    "policies": {
+      "title": "Politiques",
+      "refunds": "Politique de remboursement",
+      "shipping": "Politique d’expédition",
+      "terms": "Conditions de vente",
+      "privacy": "Politique de confidentialité",
+      "agreement": "En passant commande, vous acceptez les <terms>conditions de vente</terms> et la <refunds>politique de remboursement</refunds>.",
+      "questions": "Des questions sur cette politique ?"
     }
   },
   "collections": {
@@ -3323,5 +3339,11 @@
       "digestHeading": "{count, plural, one {# nouvelle commande} other {# nouvelles commandes}}",
       "digestCta": "Voir les commandes"
     }
+  },
+  "storePolicies": {
+    "refunds": "## Articles personnalisés et fabriqués à la commande\nChaque article de {store} est fabriqué à la commande, et beaucoup portent votre nom, votre texte ou votre visuel. Comme ils sont fabriqués pour vous, nous ne pouvons pas accepter de retour ni d’échange en cas de changement d’avis, ou pour une taille ou une couleur que vous avez choisie. Vérifiez votre création, l’orthographe et la taille avant de passer commande.\n\n## Articles endommagés, défectueux ou erronés\nSi votre commande arrive endommagée, défectueuse ou différente de ce que vous avez commandé, contactez-nous dans les 30 jours suivant la livraison avec votre numéro de commande et une photo. Nous vous enverrons un remplacement ou vous rembourserons intégralement, sans frais.\n\n## Articles sans personnalisation\nLes articles non utilisés et sans personnalisation peuvent être retournés dans les 14 jours suivant la livraison. Contactez-nous avant tout renvoi. Les frais de retour sont à votre charge, sauf si l’article est défectueux.\n\n## Annulations\nVous pouvez annuler gratuitement tant que votre commande n’est pas entrée en production. Contactez-nous au plus vite avec votre numéro de commande.\n\n## Remboursements\nLes remboursements acceptés sont versés sur le moyen de paiement d’origine sous 10 jours ouvrés.\n\n## Vos droits légaux\nCette politique ne porte pas atteinte à vos droits légaux de consommateur.",
+    "shipping": "## Production\nChaque article est fabriqué après votre commande. La production prend généralement 2 à 5 jours ouvrés. Les grosses commandes peuvent prendre plus de temps ; nous vous préviendrons le cas échéant.\n\n## Livraison\nUne fois votre commande expédiée, la livraison prend généralement 3 à 7 jours ouvrés selon la destination. Le montant total, frais de livraison compris, est affiché au paiement avant que vous ne payiez.\n\n## Suivi\nVous pouvez suivre votre commande à tout moment sur la page de suivi de commande, avec votre numéro de commande et votre adresse e-mail.\n\n## Douane et droits d’importation\nLes commandes envoyées dans un autre pays peuvent être soumises à des droits ou taxes à l’arrivée. Ils ne sont pas inclus dans le prix et sont à la charge du destinataire.\n\n## Colis en retard ou perdus\nSi votre colis n’est pas arrivé 10 jours ouvrés après son expédition, contactez-nous avec votre numéro de commande et nous ouvrirons une enquête auprès du transporteur.\n\n## Adresse de livraison\nVérifiez votre adresse de livraison avant de payer. Nous ne pouvons plus rediriger une commande une fois expédiée.",
+    "terms": "## À propos de ces conditions\nCes conditions s’appliquent à toute commande passée auprès de {store}. En passant commande, vous les acceptez.\n\n## Commandes\nVotre commande est confirmée dès que le paiement est accepté et que vous recevez un numéro de commande. Si nous ne pouvons pas honorer une commande, nous l’annulons et vous remboursons intégralement.\n\n## Prix et paiement\nLes prix sont affichés dans la devise de votre choix et les taxes au moment du paiement. Le paiement est prélevé lorsque vous passez commande.\n\n## Personnalisation\nVous êtes responsable des textes et visuels que vous ajoutez à un produit et confirmez avoir le droit de les utiliser. Nous pouvons annuler une commande dont le contenu est illégal, offensant ou porte atteinte aux droits d’autrui. Les couleurs imprimées peuvent légèrement différer de leur rendu à l’écran.\n\n## Livraison, retours et remboursements\nLa livraison est régie par notre politique d’expédition, les retours et remboursements par notre politique de remboursement.\n\n## Responsabilité\nCes conditions ne limitent aucune responsabilité qui ne peut être limitée par la loi. Pour le reste, notre responsabilité pour une commande est limitée au montant que vous avez payé.\n\n## Modifications\nNous pouvons mettre à jour ces conditions. Les conditions affichées au moment de votre commande s’appliquent à celle-ci.",
+    "privacy": "## Ce que nous collectons\nLorsque vous commandez chez {store}, nous collectons votre nom, votre adresse e-mail, votre adresse de livraison, votre numéro de téléphone si vous le fournissez, les articles commandés et les textes ou visuels que vous y ajoutez.\n\n## Comment nous les utilisons\nNous utilisons ces informations pour fabriquer et livrer votre commande, vous en informer et répondre à vos questions. Nous ne vendons pas vos données personnelles.\n\n## Paiements\nLes paiements par carte sont traités par notre prestataire de paiement. Nous ne conservons pas votre numéro de carte complet.\n\n## Avec qui nous les partageons\nNous ne partageons que le nécessaire avec les partenaires qui fabriquent et livrent votre commande, comme les partenaires de production et les transporteurs.\n\n## Durée de conservation\nNous conservons les données de commande aussi longtemps que nécessaire pour traiter votre commande et respecter nos obligations légales et comptables.\n\n## Vos droits\nVous pouvez demander à consulter, corriger ou supprimer les données personnelles que nous détenons sur vous. Contactez-nous depuis l’adresse e-mail utilisée pour commander.\n\n## Cookies\nCette boutique utilise des cookies pour mémoriser votre panier, votre langue et votre devise."
   }
 }

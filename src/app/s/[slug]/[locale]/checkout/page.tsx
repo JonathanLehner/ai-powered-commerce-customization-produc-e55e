@@ -170,6 +170,7 @@ export default async function CheckoutPage({
             currency={currency}
             defaultCountry={store.stripe.country}
             fulfillmentSources={[...sources.values()]}
+            base={base}
           />
         </div>
       )}

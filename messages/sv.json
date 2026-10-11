@@ -940,7 +940,10 @@
       "carrierRequired": "Aktivera minst ett fraktbolag så att betalda ordrar kan skickas.",
       "carriersSaved": "Fraktinställningarna har sparats.",
       "taxRequired": "Välj butikens standardmomssats.",
-      "taxSaved": "Momsinställningarna har sparats."
+      "taxSaved": "Momsinställningarna har sparats.",
+      "policyLanguageInvalid": "Välj ett av butikens språk.",
+      "policyTooLong": "Varje policy får vara högst {max} tecken.",
+      "policiesSaved": "Policyerna har sparats."
     },
     "team": {
       "emailInvalid": "Ange en giltig e-postadress.",
@@ -1271,7 +1274,13 @@
     "pricesIncludeTaxHint": "Vanligt i Storbritannien och EU.",
     "colBracket": "Momssats",
     "colRate": "Sats",
-    "colAppliesTo": "Gäller för"
+    "colAppliesTo": "Gäller för",
+    "policies": "Butikens policyer",
+    "policiesDescription": "Sidor om returer, frakt, försäljningsvillkor och integritet, länkade i butikens sidfot och i kassan.",
+    "policyLanguage": "Språk",
+    "policiesHint": "Börja en rad med ## för en rubrik. Töm en policy för att återställa standardtexten.",
+    "savePolicies": "Spara policyer",
+    "viewPolicy": "Visa"
   },
   "team": {
     "agencyAdmins": "Byråadministratörer",
@@ -2752,9 +2761,7 @@
       "help": "Hjälp",
       "supportEmailLabel": "E-post",
       "supportPhoneLabel": "Telefon",
-      "legal": "© {year} {client}",
-      "terms": "Villkor",
-      "privacy": "Integritet"
+      "legal": "© {year} {client}"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3212,6 +3219,15 @@
       "errorRetry": "Försök igen",
       "errorHome": "Tillbaka till {store}",
       "errorReference": "Referens {digest}"
+    },
+    "policies": {
+      "title": "Villkor och policyer",
+      "refunds": "Returpolicy",
+      "shipping": "Fraktpolicy",
+      "terms": "Försäljningsvillkor",
+      "privacy": "Integritetspolicy",
+      "agreement": "Genom att beställa godkänner du <terms>försäljningsvillkoren</terms> och <refunds>returpolicyn</refunds>.",
+      "questions": "Frågor om denna policy?"
     }
   },
   "collections": {
@@ -3323,5 +3339,11 @@
       "digestHeading": "{count, plural, one {# ny order} other {# nya ordrar}}",
       "digestCta": "Visa ordrar"
     }
+  },
+  "storePolicies": {
+    "refunds": "## Personliga och specialtillverkade varor\nVarje vara från {store} tillverkas på beställning, och många bär ditt namn, din text eller ditt motiv. Eftersom de tillverkas åt dig kan vi inte ta emot returer eller byten om du ångrar dig, eller för en storlek eller färg du själv valt. Kontrollera design, stavning och storlek innan du beställer.\n\n## Skadade, felaktiga eller fel varor\nOm din beställning kommer fram skadad, felaktig eller inte stämmer med det du beställde, kontakta oss inom 30 dagar från leverans med ditt ordernummer och ett foto. Vi skickar en ersättningsvara eller återbetalar hela beloppet utan kostnad för dig.\n\n## Varor utan personlig utformning\nOanvända varor utan personlig utformning kan returneras inom 14 dagar från leverans. Kontakta oss innan du skickar tillbaka något. Returfrakten betalar du, om inte varan är felaktig.\n\n## Avbeställning\nDu kan avbeställa kostnadsfritt tills din beställning går i produktion. Kontakta oss så snart som möjligt med ditt ordernummer.\n\n## Återbetalningar\nGodkända återbetalningar sätts in på den ursprungliga betalningsmetoden inom 10 arbetsdagar.\n\n## Dina lagstadgade rättigheter\nDenna policy påverkar inte dina lagstadgade rättigheter som konsument.",
+    "shipping": "## Produktion\nVarje vara tillverkas efter att du beställt. Produktionen tar vanligtvis 2 till 5 arbetsdagar. Stora beställningar kan ta längre tid, och då meddelar vi dig.\n\n## Leverans\nNär beställningen har skickats tar leveransen vanligtvis 3 till 7 arbetsdagar beroende på destination. Totalbeloppet, inklusive eventuell frakt, visas i kassan innan du betalar.\n\n## Spårning\nDu kan när som helst följa din beställning på sidan för orderstatus med ditt ordernummer och din e-postadress.\n\n## Tull och importavgifter\nBeställningar som skickas till ett annat land kan beläggas med tull eller skatt vid ankomst. Dessa ingår inte i priset och betalas av mottagaren.\n\n## Försenade eller borttappade paket\nOm ditt paket inte har kommit fram 10 arbetsdagar efter att det skickades, kontakta oss med ditt ordernummer så spårar vi det hos transportören.\n\n## Leveransadress\nKontrollera leveransadressen innan du betalar. Vi kan inte omdirigera en beställning när den har skickats.",
+    "terms": "## Om dessa villkor\nDessa villkor gäller för alla beställningar hos {store}. Genom att beställa godkänner du dem.\n\n## Beställningar\nDin beställning är bekräftad när betalningen har godkänts och du har fått ett ordernummer. Om vi inte kan leverera en beställning avbryter vi den och återbetalar hela beloppet.\n\n## Priser och betalning\nPriser visas i den valuta du väljer och skatt visas i kassan. Betalningen dras när du lägger beställningen.\n\n## Personlig utformning\nDu ansvarar för text och motiv som du lägger till på en produkt och bekräftar att du har rätt att använda dem. Vi kan avbryta en beställning vars innehåll är olagligt, stötande eller gör intrång i någon annans rättigheter. Tryckta färger kan skilja sig något från hur de ser ut på skärmen.\n\n## Leverans, returer och återbetalningar\nLeverans omfattas av vår fraktpolicy och returer och återbetalningar av vår returpolicy.\n\n## Ansvar\nIngenting i dessa villkor begränsar ansvar som inte kan begränsas enligt lag. I övrigt är vårt ansvar för en beställning begränsat till det belopp du betalat för den.\n\n## Ändringar\nVi kan uppdatera dessa villkor. För en beställning gäller de villkor som visades när du beställde.",
+    "privacy": "## Vad vi samlar in\nNär du beställer från {store} samlar vi in ditt namn, din e-postadress, leveransadress, telefonnummer om du anger det, de varor du beställer och text eller motiv du lägger till.\n\n## Hur vi använder uppgifterna\nVi använder uppgifterna för att tillverka och leverera din beställning, skicka uppdateringar och svara på dina frågor. Vi säljer inte dina personuppgifter.\n\n## Betalningar\nKortbetalningar hanteras av vår betalleverantör. Vi sparar inte ditt fullständiga kortnummer.\n\n## Vem vi delar med\nVi delar bara det som behövs med de partner som tillverkar och levererar din beställning, till exempel produktionspartner och transportörer.\n\n## Hur länge vi sparar uppgifterna\nVi sparar orderuppgifter så länge det behövs för att slutföra din beställning och uppfylla våra rättsliga och bokföringsmässiga skyldigheter.\n\n## Dina rättigheter\nDu kan begära att få se, rätta eller radera de personuppgifter vi har om dig. Kontakta oss från den e-postadress du beställde med.\n\n## Cookies\nDen här butiken använder cookies för att komma ihåg din varukorg, ditt språk och din valuta."
   }
 }

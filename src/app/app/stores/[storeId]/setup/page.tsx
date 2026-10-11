@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { Callout, PageHeader, ProgressBar } from "@/components/ui";
 import { Card, CardContent } from "@/components/ui/card";
+import { storeLanguages } from "@/i18n/storefront-routing";
 import { listTaxBrackets } from "@/lib/data";
+import { POLICY_KEYS } from "@/lib/policies";
 import { setupProgress } from "@/lib/metrics";
 import { requireStoreAccess } from "@/lib/session";
 import { SetupSections } from "./SetupSections";
@@ -19,6 +21,16 @@ export default async function StoreSetupPage({
   const { store } = await requireStoreAccess(storeId, "store.settings");
   const brackets = await listTaxBrackets();
   const progress = setupProgress(store.setup);
+  // The built-in policy text in each of the store's languages, so the editor
+  // starts from what shoppers read today.
+  const policyDefaults = Object.fromEntries(
+    await Promise.all(
+      storeLanguages(store).locales.map(async (locale) => {
+        const builtIn = await getTranslations({ locale, namespace: "storePolicies" });
+        return [locale, Object.fromEntries(POLICY_KEYS.map((key) => [key, builtIn(key, { store: store.name })]))];
+      }),
+    ),
+  );
 
   const [pages, t] = await Promise.all([getTranslations("pages.store"), getTranslations("settings")]);
   return (
@@ -56,7 +68,7 @@ export default async function StoreSetupPage({
           </CardContent>
         </Card>
 
-        <SetupSections store={store} brackets={brackets} />
+        <SetupSections store={store} brackets={brackets} policyDefaults={policyDefaults} />
       </section>
     </div>
   );

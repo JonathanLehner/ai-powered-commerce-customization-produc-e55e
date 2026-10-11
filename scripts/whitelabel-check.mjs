@@ -6,7 +6,9 @@
 // platform instead of the shop the shopper is standing in.
 import assert from "node:assert/strict";
 import { LOCALES } from "../src/i18n/locales.ts";
-import { shopperT } from "./shopper-intl.mjs";
+import { createTranslator } from "next-intl";
+import { read, shopperT } from "./shopper-intl.mjs";
+import { POLICY_KEYS, isPolicyKey, policyBlocks, policyPath, storePolicyText } from "../src/lib/policies.ts";
 import { giftPortalMetadata, storeTagline, storefrontMetadata } from "../src/lib/storefront-meta.ts";
 import { treeFromSections } from "../src/lib/storefront-schema.ts";
 
@@ -114,10 +116,19 @@ for (const code of LOCALES) {
     assert.ok(value, `${code} produced an empty metadata field`);
     assert.ok(!value.includes("Parcelith"), `${code} storefront metadata still names the platform: ${value}`);
   }
-  // Store footers carry the store's own name, support and legal links only.
-  for (const key of ["legal", "terms", "privacy"]) {
-    assert.ok(!shopperT(code, "chrome")(key).includes("Parcelith"), `${code} footer still names the platform`);
+  // Store footers carry the store's own name, support and policy links only.
+  assert.ok(!shopperT(code, "chrome")("legal").includes("Parcelith"), `${code} footer still names the platform`);
+  for (const key of POLICY_KEYS) {
+    assert.ok(!shopperT(code, "policies")(key).includes("Parcelith"), `${code} ${key} link names the platform`);
   }
+  // The built-in policy text is the store's, in the shopper's language.
+  const builtIn = createTranslator({ locale: code, messages: read(code), namespace: "storePolicies" });
+  for (const key of POLICY_KEYS) {
+    const text = builtIn(key, { store: store.name });
+    assert.ok(!text.includes("Parcelith"), `${code} ${key} policy names the platform`);
+    assert.ok(policyBlocks(text).some((b) => b.type === "heading"), `${code} ${key} policy has headings`);
+  }
+  assert.ok(builtIn("refunds", { store: store.name }).includes(store.name), `${code} refund policy names the store`);
   assert.ok(!shopperT(code, "gift")("legal").includes("Parcelith"), `${code} gift portal footer still names the platform`);
 }
 
@@ -129,3 +140,21 @@ for (const value of strings(gift)) {
 for (const m of [meta, plain, gift, bare]) assert.ok(m.description.length <= 200);
 
 console.log("whitelabel-check: OK");
+
+/* ------------------------------------------------- the store's own policies */
+
+// Shoppers are sent to the store's own pages, never to the platform's terms.
+assert.equal(policyPath("/s/northwind-supply/de", "refunds"), "/s/northwind-supply/de/policies/refunds");
+assert.ok(isPolicyKey("shipping") && !isPolicyKey("legal"));
+const withPolicies = {
+  policies: { en: { refunds: "## Returns\n\nNo returns on named items." }, de: { terms: "Unsere AGB." } },
+};
+assert.equal(storePolicyText(withPolicies, "terms", "de", "en"), "Unsere AGB.");
+assert.equal(storePolicyText(withPolicies, "refunds", "de", "en"), withPolicies.policies.en.refunds, "a language without its own text reads the store's default-language text");
+assert.equal(storePolicyText(withPolicies, "shipping", "de", "en"), null, "unwithPolicies policies use the built-in text");
+assert.equal(storePolicyText({ policies: { en: { privacy: "   " } } }, "privacy", "en", "en"), null);
+assert.deepEqual(policyBlocks("## Returns\r\nWithin 14 days.\n\n\nSecond paragraph"), [
+  { type: "heading", text: "Returns" },
+  { type: "paragraph", text: "Within 14 days." },
+  { type: "paragraph", text: "Second paragraph" },
+]);
