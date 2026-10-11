@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Merchandise-Shops für jeden Ihrer Kunden",
-    "lead": "Print-on-Demand-Produkte beschaffen, gestalten und verkaufen, alles aus einem Agentur-Arbeitsbereich.",
-    "openWorkspace": "Arbeitsbereich öffnen",
-    "howItWorks": "So funktioniert’s",
-    "factsProducts": "Produkte",
-    "factsProductsValue": "Bekleidung und Tassen",
-    "factsLanguages": "Sprachen",
-    "factsCarriers": "Versanddienste",
+    "lead": "Starten Sie für jeden Kunden einen eigenen Merch-Shop und verdienen Sie an jeder Bestellung mit. Produkte werden erst bei Bestellung gedruckt und versendet, Sie halten also kein Lager.",
+    "getStarted": "Jetzt starten",
+    "tryDemo": "Demo ausprobieren",
+    "benefits": [
+      "Shop in einem Tag live",
+      "Kein Lager, keine Vorabkosten",
+      "Sie legen die Marge fest"
+    ],
+    "plansFrom": "Tarife ab {price}/Monat",
     "heroAlt": "Ein Studiotisch mit gefalteter Blanko-Kleidung, Keramiktassen und Farbmustern",
     "pillarsTitle": "Für Agenturen gemacht",
     "pillars": {

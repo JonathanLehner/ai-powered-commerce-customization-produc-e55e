@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Profilbutiker för varje kund",
-    "lead": "Hitta leverantörer, anpassa och sälj print on demand-produkter från en och samma byråarbetsyta.",
-    "openWorkspace": "Öppna arbetsytan",
-    "howItWorks": "Så fungerar det",
-    "factsProducts": "Produkter",
-    "factsProductsValue": "Kläder och muggar",
-    "factsLanguages": "Språk",
-    "factsCarriers": "Transportörer",
+    "lead": "Starta en egen merchbutik för varje kund och tjäna marginal på varje order. Produkterna trycks och skickas när beställningarna kommer in, så du behöver inget lager.",
+    "getStarted": "Kom igång",
+    "tryDemo": "Testa demon",
+    "benefits": [
+      "Butiken live på en dag",
+      "Inget lager eller startkostnad",
+      "Du sätter marginalen"
+    ],
+    "plansFrom": "Planer från {price}/månad",
     "heroAlt": "Ett studiobord med vikta blanka plagg, keramikmuggar och färgprover",
     "pillarsTitle": "Byggt för byråer",
     "pillars": {

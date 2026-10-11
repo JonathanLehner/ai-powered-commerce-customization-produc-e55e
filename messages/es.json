@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Tiendas de productos de marca para cada cliente",
-    "lead": "Encuentra proveedores, personaliza y vende productos de impresión bajo demanda desde un único espacio de agencia.",
-    "openWorkspace": "Abrir el espacio de trabajo",
-    "howItWorks": "Cómo funciona",
-    "factsProducts": "Productos",
-    "factsProductsValue": "Ropa y tazas",
-    "factsLanguages": "Idiomas",
-    "factsCarriers": "Transportistas",
+    "lead": "Lanza una tienda de merchandising con la marca de cada cliente y gana un margen en cada pedido. Los productos se imprimen y envían cuando llegan los pedidos, sin stock que almacenar.",
+    "getStarted": "Empezar",
+    "tryDemo": "Probar la demo",
+    "benefits": [
+      "Tienda activa en un día",
+      "Sin stock ni costes iniciales",
+      "Tú fijas el margen"
+    ],
+    "plansFrom": "Planes desde {price}/mes",
     "heroAlt": "Una mesa de estudio con prendas lisas dobladas, tazas de cerámica y muestras de color",
     "pillarsTitle": "Pensado para agencias",
     "pillars": {

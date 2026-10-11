@@ -1,11 +1,12 @@
-import { ArrowRightIcon, LayersIcon, LibraryBigIcon, ShieldCheckIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, LayersIcon, LibraryBigIcon, ShieldCheckIcon } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { alternatesFor, asLocale, shareFor } from "@/i18n/metadata";
 import { Link as IntlLink } from "@/i18n/navigation";
 import { IMAGES } from "@/lib/images";
+import { PLANS } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckList, Section, SectionHeading } from "./kit";
@@ -56,6 +57,7 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
   const locale = asLocale((await params).locale);
   setRequestLocale(locale);
   const t = await getTranslations("home");
+  const format = await getFormatter();
 
   return (
     <>
@@ -70,26 +72,27 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="px-4">
-                <Link href="/login">{t("openWorkspace")}</Link>
+                <IntlLink href="/contact?plan=starter">{t("getStarted")}</IntlLink>
               </Button>
               <Button asChild size="lg" variant="outline" className="px-4">
-                <IntlLink href="/how-it-works">{t("howItWorks")}</IntlLink>
+                <Link href="/login">{t("tryDemo")}</Link>
               </Button>
             </div>
-            <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 text-sm">
-              <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide hyphens-auto wrap-break-word">{t("factsProducts")}</dt>
-                <dd className="mt-1 font-heading text-base font-semibold text-foreground">{t("factsProductsValue")}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide hyphens-auto wrap-break-word">{t("factsLanguages")}</dt>
-                <dd className="mt-1 font-heading text-base font-semibold text-foreground">9</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide hyphens-auto wrap-break-word">{t("factsCarriers")}</dt>
-                <dd className="mt-1 font-heading text-base font-semibold text-foreground">DHL · FedEx · UPS</dd>
-              </div>
-            </dl>
+            <ul className="mt-10 grid gap-3 border-t border-border pt-6 sm:grid-cols-3 sm:gap-4">
+              {(t.raw("benefits") as string[]).map((benefit) => (
+                <li key={benefit} className="flex items-start gap-2 font-heading text-base font-semibold text-foreground">
+                  <CheckIcon aria-hidden className="mt-1 size-4 shrink-0 text-primary" />
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-sm text-muted-foreground">
+              <IntlLink href="/pricing" className="font-medium text-foreground underline-offset-4 hover:underline">
+                {t("plansFrom", {
+                  price: format.number(PLANS.starter.monthlyPrice ?? 0, { style: "currency", currency: "USD", maximumFractionDigits: 0 }),
+                })}
+              </IntlLink>
+            </p>
           </div>
           <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
             <Image

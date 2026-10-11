@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Negozi di merchandising personalizzato per ogni cliente",
-    "lead": "Trova fornitori, personalizza e vendi prodotti in stampa su richiesta da un unico spazio di lavoro per agenzie.",
-    "openWorkspace": "Apri lo spazio di lavoro",
-    "howItWorks": "Come funziona",
-    "factsProducts": "Prodotti",
-    "factsProductsValue": "Abbigliamento e tazze",
-    "factsLanguages": "Lingue",
-    "factsCarriers": "Corrieri",
+    "lead": "Lancia uno store di merchandising con il marchio di ogni cliente e guadagna un margine su ogni ordine. I prodotti vengono stampati e spediti all’arrivo degli ordini, senza magazzino.",
+    "getStarted": "Inizia ora",
+    "tryDemo": "Prova la demo",
+    "benefits": [
+      "Store online in un giorno",
+      "Nessun magazzino né costi iniziali",
+      "Il margine lo decidi tu"
+    ],
+    "plansFrom": "Piani da {price}/mese",
     "heroAlt": "Una scrivania da studio con capi neutri piegati, tazze in ceramica e campioni di colore",
     "pillarsTitle": "Pensato per le agenzie",
     "pillars": {

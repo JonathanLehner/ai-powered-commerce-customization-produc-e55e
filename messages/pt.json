@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Lojas de merchandising para cada cliente",
-    "lead": "Encontre fornecedores, personalize e venda produtos com impressão a pedido a partir de um único espaço de agência.",
-    "openWorkspace": "Abrir o espaço de trabalho",
-    "howItWorks": "Como funciona",
-    "factsProducts": "Produtos",
-    "factsProductsValue": "Vestuário e canecas",
-    "factsLanguages": "Idiomas",
-    "factsCarriers": "Transportadoras",
+    "lead": "Lance uma loja de merchandising com a marca de cada cliente e ganhe margem em cada pedido. Os produtos são impressos e enviados à medida que os pedidos chegam, sem estoque.",
+    "getStarted": "Começar",
+    "tryDemo": "Experimentar a demo",
+    "benefits": [
+      "Loja no ar em um dia",
+      "Sem estoque nem custo inicial",
+      "Você define a margem"
+    ],
+    "plansFrom": "Planos a partir de {price}/mês",
     "heroAlt": "Uma secretária de estúdio com vestuário liso dobrado, canecas de cerâmica e amostras de cor",
     "pillarsTitle": "Feito para agências",
     "pillars": {

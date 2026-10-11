@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Une boutique de produits personnalisés pour chaque client",
-    "lead": "Sourcez, personnalisez et vendez des produits à la demande depuis un seul espace agence.",
-    "openWorkspace": "Ouvrir l’espace de travail",
-    "howItWorks": "Fonctionnement",
-    "factsProducts": "Produits",
-    "factsProductsValue": "Textile et mugs",
-    "factsLanguages": "Langues",
-    "factsCarriers": "Transporteurs",
+    "lead": "Lancez une boutique de merch à l’image de chaque client et gagnez une marge sur chaque commande. Les produits sont imprimés et expédiés à la commande, sans stock à gérer.",
+    "getStarted": "Commencer",
+    "tryDemo": "Essayer la démo",
+    "benefits": [
+      "Boutique en ligne en un jour",
+      "Ni stock ni frais initiaux",
+      "Vous fixez la marge"
+    ],
+    "plansFrom": "Forfaits à partir de {price}/mois",
     "heroAlt": "Un bureau de studio avec des vêtements vierges pliés, des mugs en céramique et des nuanciers",
     "pillarsTitle": "Pensé pour les agences",
     "pillars": {

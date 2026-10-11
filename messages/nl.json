@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Merchandisewinkels voor elke klant",
-    "lead": "Vind leveranciers, personaliseer en verkoop print-on-demandproducten vanuit één bureauomgeving.",
-    "openWorkspace": "Open de werkomgeving",
-    "howItWorks": "Zo werkt het",
-    "factsProducts": "Producten",
-    "factsProductsValue": "Kleding en mokken",
-    "factsLanguages": "Talen",
-    "factsCarriers": "Vervoerders",
+    "lead": "Lanceer voor elke klant een eigen merchwinkel en verdien marge op elke bestelling. Producten worden pas bij bestelling bedrukt en verzonden, dus u houdt geen voorraad aan.",
+    "getStarted": "Aan de slag",
+    "tryDemo": "Probeer de demo",
+    "benefits": [
+      "Winkel binnen een dag live",
+      "Geen voorraad of kosten vooraf",
+      "U bepaalt de marge"
+    ],
+    "plansFrom": "Abonnementen vanaf {price}/maand",
     "heroAlt": "Een studiobureau met opgevouwen blanco kleding, keramische mokken en kleurstalen",
     "pillarsTitle": "Gemaakt voor bureaus",
     "pillars": {

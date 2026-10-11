@@ -51,13 +51,15 @@
   },
   "home": {
     "title": "Branded merchandise stores for every client",
-    "lead": "Source, customise and sell print-on-demand products from one agency workspace.",
-    "openWorkspace": "Open the workspace",
-    "howItWorks": "How it works",
-    "factsProducts": "Products",
-    "factsProductsValue": "Apparel and mugs",
-    "factsLanguages": "Languages",
-    "factsCarriers": "Carriers",
+    "lead": "Launch a branded merch store for each client and earn a margin on every order. Products are printed and shipped as orders come in, so there is no stock to hold.",
+    "getStarted": "Get started",
+    "tryDemo": "Try the demo",
+    "benefits": [
+      "Store live in a day",
+      "No stock or upfront cost",
+      "You set the margin"
+    ],
+    "plansFrom": "Plans from {price}/month",
     "heroAlt": "A studio desk with folded blank apparel, ceramic mugs and colour swatches",
     "pillarsTitle": "Built for agencies",
     "pillars": {
