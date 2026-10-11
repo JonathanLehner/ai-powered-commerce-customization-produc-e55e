@@ -1,0 +1,691 @@
+{
+  "meta": {
+    "title": "Parcelith: branded merchandise stores for agencies",
+    "description": "Source, customise and sell print-on-demand products for every client from one agency workspace."
+  },
+  "common": {
+    "saving": "Saving…",
+    "working": "Working…",
+    "cancel": "Cancel",
+    "areYouSure": "Are you sure?",
+    "saved": "Saved.",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the text and copy it manually.",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "previousPage": "Go to previous page",
+    "nextPage": "Go to next page",
+    "morePages": "More pages",
+    "pages": "Pages",
+    "pageOf": "Page {page} of {pages}",
+    "breadcrumb": "Breadcrumb",
+    "error": "Error",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This page could not be loaded. Please try again.",
+    "tryAgain": "Try again",
+    "reference": "Reference {digest}",
+    "notFoundTitle": "Page not found",
+    "backToHomepage": "Back to the homepage"
+  },
+  "site": {
+    "mainNav": "Main",
+    "howItWorks": "How it works",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "tagline": "Branded merchandise stores for agencies and their clients.",
+    "platform": "Platform",
+    "contactSales": "Contact sales",
+    "legal": "Legal",
+    "terms": "Terms of service",
+    "privacy": "Privacy policy",
+    "language": "Language",
+    "copyright": "© {year} Parcelith"
+  },
+  "notFound": {
+    "body": "Check the address and try again."
+  },
+  "home": {
+    "title": "Branded merchandise stores for every client",
+    "lead": "Source, customise and sell print-on-demand products from one agency workspace.",
+    "openWorkspace": "Open the workspace",
+    "howItWorks": "How it works",
+    "factsProducts": "Products",
+    "factsProductsValue": "Apparel and mugs",
+    "factsLanguages": "Languages",
+    "factsCarriers": "Carriers",
+    "heroAlt": "A studio desk with folded blank apparel, ceramic mugs and colour swatches",
+    "pillarsTitle": "Built for agencies",
+    "pillars": {
+      "stores": {
+        "title": "Separate client stores",
+        "body": "Each client gets its own catalog, customers, orders, currencies, domain and payments."
+      },
+      "catalog": {
+        "title": "Shared supplier catalog",
+        "body": "Supplier-backed apparel and mugs with costs, print areas and fulfilment regions. Copy what you need into any store."
+      },
+      "approval": {
+        "title": "Approval before publishing",
+        "body": "Artwork, mockups, margins and AI suggestions all need sign-off before they go live."
+      }
+    },
+    "features": {
+      "sourcing": {
+        "title": "Compare suppliers side by side",
+        "body": "Filter the shared catalog by category, supplier, cost and region, then compare the options.",
+        "points": [
+          "Base cost, print cost and lead time",
+          "Fulfilment region coverage",
+          "Copy into a store catalog"
+        ],
+        "alt": "Blank merchandise samples and fabric swatches arranged on a pale surface"
+      },
+      "artwork": {
+        "title": "Artwork checked before production",
+        "body": "Place a logo in the print area, then scale and rotate it while the print resolution updates.",
+        "points": [
+          "Print areas in millimetres",
+          "Resolution, bounds and file checks",
+          "Front, back and side mockups"
+        ],
+        "alt": "Hands positioning a transfer sheet over a folded blank t-shirt"
+      },
+      "fulfilment": {
+        "title": "Paid orders go to production",
+        "body": "Each order is sent to its supplier. Orders that need attention are flagged in the order queue.",
+        "points": [
+          "DHL, FedEx and UPS tracking",
+          "Refunds, cancellations and exceptions",
+          "Full audit log"
+        ],
+        "alt": "Kraft parcel boxes, packing tape and a barcode scanner on a workbench"
+      }
+    },
+    "giftingEyebrow": "Corporate gifting",
+    "giftingTitle": "Private gift portals for companies",
+    "giftingBody": "Give each company its own gift catalogue with bulk recipient lists and approval before payment.",
+    "giftingPoints": [
+      "Private link or invite-only access",
+      "Up to 100 recipients per campaign",
+      "Spend limit per recipient"
+    ],
+    "giftingHow": "How gifting works",
+    "giftingIncluded": "Included on every plan",
+    "giftingAlt": "Kraft gift boxes tied with ribbon beside a folded navy hoodie and a white ceramic mug",
+    "giftFlow": {
+      "publish": {
+        "title": "Publish a catalogue",
+        "body": "Choose gifts from the store's published products."
+      },
+      "recipients": {
+        "title": "Add recipients",
+        "body": "Paste a list or upload a CSV."
+      },
+      "approve": {
+        "title": "Approve",
+        "body": "An approver reviews the list and the total."
+      },
+      "pay": {
+        "title": "Pay once",
+        "body": "Each recipient gets their own order and tracking."
+      }
+    },
+    "lifecycleTitle": "From brief to delivery",
+    "lifecycle": {
+      "create": {
+        "title": "Create the store",
+        "body": "Logo, theme, currencies and domain."
+      },
+      "payments": {
+        "title": "Connect payments",
+        "body": "Stripe, carriers and tax."
+      },
+      "products": {
+        "title": "Add products",
+        "body": "Import, place artwork and approve mockups."
+      },
+      "storefront": {
+        "title": "Build the storefront",
+        "body": "Arrange sections, preview and publish."
+      },
+      "sell": {
+        "title": "Sell and fulfil",
+        "body": "Orders go to production with tracking."
+      }
+    },
+    "demoTitle": "Try the demo workspace",
+    "demoBody": "Four sample client stores with products, orders and gift campaigns.",
+    "demoCta": "Sign in to the demo"
+  },
+  "howItWorks": {
+    "metaTitle": "How it works",
+    "metaDescription": "Store setup, supplier sourcing, artwork checks, mockups, storefronts, checkout, fulfilment and corporate gifting in Parcelith.",
+    "title": "How it works",
+    "lead": "From setting up a client store to delivering the first order.",
+    "stages": {
+      "setup": {
+        "title": "1. Store setup",
+        "body": "A six-step setup covers branding, language, domain, payments, carriers and tax.",
+        "detail": [
+          "Logo, theme and default language",
+          "Selling currencies",
+          "Custom domain",
+          "Stripe account",
+          "DHL, FedEx and UPS accounts",
+          "Tax bracket and tax-inclusive prices"
+        ]
+      },
+      "sourcing": {
+        "title": "2. Sourcing",
+        "body": "Search the shared supplier catalog and copy products into a store.",
+        "detail": [
+          "Filter by category, supplier, availability and region",
+          "Compare up to three products",
+          "Set the store's own price and status"
+        ]
+      },
+      "artwork": {
+        "title": "3. Artwork",
+        "body": "Place artwork inside each print area. Problems are flagged with a fix.",
+        "detail": [
+          "Move, scale, rotate and remove artwork",
+          "Print area, resolution, format, file size and transparency checks"
+        ]
+      },
+      "mockups": {
+        "title": "4. Mockups and margin",
+        "body": "Approve the mockups and review the margin before publishing.",
+        "detail": [
+          "Front, back and side previews",
+          "Supplier cost, print cost, shipping and tax",
+          "Selling price and margin"
+        ]
+      },
+      "storefront": {
+        "title": "5. Storefront",
+        "body": "Arrange sections, preview on any screen size and publish.",
+        "detail": [
+          "Eight section types",
+          "Desktop, tablet and phone preview",
+          "Publish, revert and version history"
+        ]
+      },
+      "checkout": {
+        "title": "6. Checkout and fulfilment",
+        "body": "Shoppers pay in their currency. Orders go to the supplier automatically.",
+        "detail": [
+          "Order confirmation and status page",
+          "Production, shipping and delivery updates",
+          "Carrier tracking links"
+        ]
+      },
+      "gifting": {
+        "title": "7. Corporate gifting",
+        "body": "Open a private gift catalogue for a company. Their buyer adds recipients, an approver signs off, and each recipient gets an order.",
+        "detail": [
+          "Private link or invite-only access",
+          "Spend limit per recipient",
+          "CSV or pasted recipient lists",
+          "Approval before payment",
+          "Orders grouped by campaign"
+        ]
+      }
+    },
+    "rolesTitle": "Roles",
+    "roleColumn": "Role",
+    "managesColumn": "Manages",
+    "noAccessColumn": "No access to",
+    "roles": {
+      "platform": {
+        "role": "Platform admin",
+        "owns": "Suppliers, shared catalog, tax brackets, agencies and store access",
+        "cannot": "Store copy and prices"
+      },
+      "agency": {
+        "role": "Agency team",
+        "owns": "Stores, branding, domains, payments, carriers and team members",
+        "cannot": "Other agencies' stores"
+      },
+      "manager": {
+        "role": "Store manager",
+        "owns": "Catalog, artwork, mockups, pricing and publishing",
+        "cannot": "Anything outside their role"
+      },
+      "shopper": {
+        "role": "Shopper",
+        "owns": "Browsing, personalising, paying and tracking orders",
+        "cannot": "Other stores"
+      },
+      "buyer": {
+        "role": "Gift buyer",
+        "owns": "Recipient lists, approval requests and campaign payment",
+        "cannot": "Paying before approval"
+      },
+      "approver": {
+        "role": "Gift approver",
+        "owns": "Approving or declining a campaign",
+        "cannot": "Editing or paying for the list"
+      }
+    },
+    "assistantTitle": "AI assistant",
+    "assistantBody": "Suggests products, suppliers, descriptions, tags and prices. You review each one before it is applied.",
+    "assistantCta": "Try it in the workspace"
+  },
+  "pricing": {
+    "metaTitle": "Pricing",
+    "metaDescription": "Parcelith plans for agencies of every size, billed monthly or yearly.",
+    "title": "Pricing",
+    "lead": "Simple plans for agencies of every size.",
+    "billingPeriod": "Billing period",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save {percent}",
+    "mostPopular": "Most popular",
+    "custom": "Custom",
+    "perMonth": "/month",
+    "billedYearly": "Billed {amount} yearly",
+    "billedMonthly": "Billed monthly",
+    "annualContract": "Annual contract",
+    "getStarted": "Get started",
+    "contactSales": "Contact sales",
+    "liveStores": "{count, plural, one {# live store} other {# live stores}}",
+    "unlimitedLiveStores": "Unlimited live stores",
+    "unlimited": "Unlimited",
+    "summaries": {
+      "starter": "For small agencies getting started.",
+      "studio": "For agencies running several client stores.",
+      "scale": "For large networks selling in many markets."
+    },
+    "features": {
+      "draftStores": "Unlimited draft stores",
+      "catalog": "Shared supplier catalog",
+      "configurator": "Artwork configurator and mockups",
+      "checkout": "Multi-currency checkout",
+      "gifting": "Corporate gifting",
+      "tracking": "DHL, FedEx and UPS tracking",
+      "emailSupport": "Email support",
+      "everythingStarter": "Everything in Starter",
+      "everythingStudio": "Everything in Studio",
+      "team": "Team roles and invitations",
+      "domains": "Custom domains",
+      "assistant": "AI commerce assistant",
+      "dashboard": "Agency dashboard",
+      "auditExport": "Audit log export",
+      "onboarding": "Priority supplier onboarding",
+      "taxMarkets": "Tax brackets per market",
+      "productionContact": "Dedicated production contact",
+      "sso": "Single sign-on"
+    },
+    "compareTitle": "Compare plans",
+    "compareCaption": "Parcelith plans compared",
+    "featuresColumn": "Features",
+    "liveStoresRow": "Live stores",
+    "draftStoresRow": "Draft stores",
+    "includedOn": "Included on {plan}",
+    "notOn": "Not on {plan}"
+  },
+  "contact": {
+    "metaTitle": "Contact sales",
+    "metaDescription": "Get started with Parcelith or talk to sales about the Scale plan.",
+    "title": "Contact sales",
+    "lead": "Tell us about your agency and we will set up your workspace.",
+    "demoTitle": "Explore the demo",
+    "demoBody": "Four sample client stores with products and orders.",
+    "demoCta": "Open the demo",
+    "form": {
+      "name": "Your name",
+      "email": "Work email",
+      "company": "Agency or company",
+      "plan": "Plan",
+      "planOption": "{plan}, {price}/month",
+      "planCustom": "{plan}, custom pricing",
+      "notSure": "Not sure yet",
+      "message": "Message",
+      "messageHint": "Number of client stores, products and gifting needs.",
+      "wantsCall": "I prefer a call",
+      "submit": "Send enquiry",
+      "sending": "Sending…",
+      "replyTime": "We reply within one business day."
+    },
+    "errors": {
+      "name": "Enter your name.",
+      "email": "Enter your email address.",
+      "company": "Enter your company name.",
+      "plan": "Choose a plan."
+    },
+    "duplicate": "Thanks {name}. We already have your enquiry and will reply within one business day.",
+    "received": "Thanks {name}. We have your enquiry about {plan, select, unsure {a plan we can recommend} other {the {planName} plan}} and will {call, select, yes {call you} other {email you back}} within one working day."
+  },
+  "terms": {
+    "metaTitle": "Terms of service",
+    "metaDescription": "The terms covering agency workspaces, client stores, supplier orders and merchant-of-record responsibilities on Parcelith.",
+    "title": "Terms of service",
+    "lead": "These terms govern agency workspaces and the client stores operated inside them.",
+    "sections": [
+      {
+        "heading": "1. The service",
+        "body": [
+          "Parcelith provides a multi-store commerce workspace. An agency creates and operates stores on behalf of its clients. Each store is an isolated commerce channel with its own catalog, customers, orders, currencies, tax configuration, storefront and payment account.",
+          "Parcelith supplies the software, the shared supplier catalog and the routing between a paid order and a production partner. It does not manufacture goods, hold stock or take custody of shopper funds."
+        ]
+      },
+      {
+        "heading": "2. Merchant of record",
+        "body": [
+          "The seller operating each store is the merchant of record for that store. Payments settle into the store's own connected Stripe account. The seller is responsible for pricing, tax collection and remittance, refunds, chargebacks, consumer rights obligations and any liability arising from goods sold.",
+          "Tax brackets configured by the platform administrator are a convenience for calculating tax on a product. Selecting a bracket does not transfer any tax obligation to Parcelith or make Parcelith a party to the sale."
+        ]
+      },
+      {
+        "heading": "3. Supplier orders",
+        "body": [
+          "Production partners are independent third parties. Where a partner exposes an order submission API, paid orders may be routed automatically. Where no such API exists, including sourcing marketplaces such as Alibaba.com, the order is flagged for manual handling and the seller raises the purchase order directly with the supplier under that supplier's own terms.",
+          "Lead times, availability and fulfilment regions shown in the shared catalog are supplied by the partner and may change without notice. Parcelith does not warrant them."
+        ]
+      },
+      {
+        "heading": "4. Artwork and intellectual property",
+        "body": [
+          "You retain ownership of artwork you upload. You warrant that you hold the rights to reproduce it on physical goods, and you indemnify Parcelith and its production partners against claims arising from artwork you supply.",
+          "Pre-flight checks (print area bounds, effective resolution, file format, file size and transparency) are automated quality controls. Passing pre-flight is not an assessment of whether you are entitled to print the design."
+        ]
+      },
+      {
+        "heading": "5. AI-generated suggestions",
+        "body": [
+          "The commerce assistant produces drafts: product ideas, supplier recommendations, descriptions, tags and prices. Every suggestion is stored in a pending state and applied only after a named user confirms it. You remain responsible for the accuracy of any copy or price you choose to publish."
+        ]
+      },
+      {
+        "heading": "6. Data isolation and access",
+        "body": [
+          "Store data is scoped to the store. Agency staff reach a store either through agency ownership or through an explicit invitation with a role attached. Shopper records are never combined across stores, including in agency-level reporting.",
+          "Administrative actions, store setup changes, product imports, price changes, AI approvals, publishing actions and order routing are written to an audit history retained for the life of the workspace."
+        ]
+      },
+      {
+        "heading": "7. Suspension and termination",
+        "body": [
+          "Either party may end the agreement with 30 days' notice. Archiving a store keeps its records readable for reporting and audit but removes it from day-to-day operation and takes its storefront offline.",
+          "Parcelith may suspend a workspace that is used to infringe third-party rights or to sell goods prohibited by a production partner."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Privacy notice",
+    "metaDescription": "What Parcelith stores about agency staff, store teams and shoppers, why it is stored, and how store data is kept isolated.",
+    "title": "Privacy notice",
+    "lead": "How data moves through an agency workspace, and where the boundary between stores sits.",
+    "sections": [
+      {
+        "heading": "Who controls what",
+        "body": [
+          "For agency and store team accounts, Parcelith is the controller of the account record: name, work email, role and the actions attributed to that person in the audit history.",
+          "For shopper data (order contact details, delivery address, artwork uploaded at checkout and personalisation text), the store operating the sale is the controller. Parcelith processes that data on the store's instruction so the order can be produced and delivered."
+        ]
+      },
+      {
+        "heading": "What is stored",
+        "body": [
+          "Account records: name, email, role, agency, and store memberships.",
+          "Store configuration: branding, currencies, domain, connected payment account identifier, carrier account numbers and tax settings. Payment credentials go directly to Stripe.",
+          "Commerce records: products, artwork files and their placement, generated mockups, orders, fulfilment events, tracking numbers and refunds.",
+          "Audit history: who changed what and when, across store setup, imports, pricing, AI approvals, publishing, order routing and administration."
+        ]
+      },
+      {
+        "heading": "How isolation works",
+        "body": [
+          "Every commerce record carries the store it belongs to, and every read is scoped to a store the signed-in person has been granted access to. Agency-level reporting aggregates order totals per store; it never merges shopper identities between stores.",
+          "A shopper who buys from two stores operated by the same agency exists as two separate customer records, because the two stores are separate controllers."
+        ]
+      },
+      {
+        "heading": "Third parties",
+        "body": [
+          "Stripe processes payments on behalf of each store under that store's own account.",
+          "Production partners (Printful, Gelato and Printify) receive the delivery address, the item specification and the artwork file needed to make and ship the order. Sourcing enquiries raised through Alibaba.com are made by the seller directly.",
+          "DHL, FedEx and UPS receive the delivery address to carry the parcel and return tracking events.",
+          "The commerce assistant sends product and catalog context to a third-party AI provider to draft suggestions. Shopper personal data is not included in those prompts."
+        ]
+      },
+      {
+        "heading": "Retention",
+        "body": [
+          "Order and fulfilment records are retained for as long as the store operates plus the period the seller must keep them for tax purposes. Archiving a store keeps its records readable for audit and reporting but takes its storefront offline.",
+          "Artwork uploaded by a shopper is retained while the order can still be reproduced or disputed, then removed with the order record."
+        ]
+      },
+      {
+        "heading": "Your rights",
+        "body": [
+          "Team members can ask their agency administrator to correct or remove their account. Shoppers should contact the store they bought from. The store team can export or erase an order record and its artwork from the order screen."
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "metaTitle": "Sign in",
+    "metaDescription": "Sign in to the Parcelith agency workspace.",
+    "howItWorks": "How it works",
+    "title": "Sign in",
+    "lead": "Choose a demo account.",
+    "personas": {
+      "alex": {
+        "title": "Agency director, Northlight Studio",
+        "blurb": "Full access to four client stores."
+      },
+      "sam": {
+        "title": "Catalog producer",
+        "blurb": "Catalog manager on Northwind and Lumen, store admin on Ferro."
+      },
+      "ines": {
+        "title": "Fulfilment lead",
+        "blurb": "Order manager on Northwind."
+      },
+      "dana": {
+        "title": "Client stakeholder",
+        "blurb": "Read-only access to Northwind Supply Co."
+      },
+      "priya": {
+        "title": "Platform operations",
+        "blurb": "Suppliers, shared catalog, tax brackets and agencies."
+      }
+    },
+    "continueAs": "Continue as {name}",
+    "passwordTitle": "Sign in with a password",
+    "passwordHint": "Every demo account uses the password <code>parcelith</code>.",
+    "email": "Email address",
+    "emailPlaceholder": "name@company.com",
+    "password": "Password",
+    "signIn": "Sign in",
+    "invitedEmail": "Sign in with an invited email address",
+    "continue": "Continue",
+    "failed": "Sign-in failed",
+    "errors": {
+      "unknownUser": "No account uses that email address.",
+      "badCredentials": "That email address and password do not match an account."
+    }
+  },
+  "invite": {
+    "metaTitle": "Accept your invitation",
+    "metaDescription": "Accept an invitation to work on a Parcelith store.",
+    "invalidTitle": "This link is no longer valid",
+    "invalidBody": "This link may have been used already. Sign in, or ask for a new invitation.",
+    "goToSignIn": "Go to sign in",
+    "title": "{inviter} invited you to {store}",
+    "creates": "Accepting creates a Parcelith account for {email} and signs you in.",
+    "invited": "Invited {date}.",
+    "accept": "Accept invitation",
+    "accepting": "Setting up your account…"
+  },
+  "roles": {
+    "store_admin": "Store administrator",
+    "catalog_manager": "Catalog manager",
+    "order_manager": "Order manager",
+    "viewer": "Viewer",
+    "platformAccess": "Platform access",
+    "platformAccessNote": "Customer details and order values are hidden with platform access.",
+    "descriptions": {
+      "store_admin": "Full access, including settings and team.",
+      "catalog_manager": "Products, pricing, publishing and gift catalogues.",
+      "order_manager": "Orders, fulfilment, refunds and supplier exceptions.",
+      "viewer": "Read-only access."
+    },
+    "platform": {
+      "platform_admin": "Platform admin",
+      "agency_admin": "Agency admin",
+      "agency_member": "Agency member"
+    }
+  },
+  "shell": {
+    "workspaceHome": "Parcelith agency workspace",
+    "adminHome": "Parcelith platform administration",
+    "switchStore": "Switch store",
+    "allStores": "All stores",
+    "noActiveStores": "No active stores yet.",
+    "createStore": "Create a client store",
+    "platformAdmin": "Platform admin",
+    "platformAdministration": "Platform administration",
+    "workspace": "Workspace",
+    "agencyWorkspace": "Agency workspace",
+    "signOut": "Sign out",
+    "language": "Language",
+    "languageSaved": "Language updated.",
+    "languageFailed": "Could not change the language. Try again.",
+    "storeSections": "Store sections",
+    "active": "Active",
+    "archived": "Archived",
+    "tabs": {
+      "overview": "Overview",
+      "catalog": "Catalog",
+      "sourcing": "Sourcing",
+      "assistant": "AI assistant",
+      "storefront": "Storefront",
+      "gifting": "Gifting",
+      "orders": "Orders",
+      "discounts": "Discounts",
+      "team": "Team",
+      "settings": "Settings",
+      "activity": "Activity"
+    },
+    "adminTabs": {
+      "overview": "Overview",
+      "suppliers": "Suppliers",
+      "catalog": "Shared catalog",
+      "quotes": "Quote requests",
+      "tax": "Tax brackets",
+      "agencies": "Agencies and access",
+      "audit": "Audit log"
+    }
+  },
+  "pages": {
+    "admin": {
+      "overviewTitle": "Operations overview",
+      "overviewDescription": "Suppliers, the shared catalog, global tax rates and agency access.",
+      "suppliersTitle": "Suppliers",
+      "suppliersDescription": "Only approved suppliers are available to stores.",
+      "catalogTitle": "Shared catalog",
+      "catalogDescription": "Products every store can import.",
+      "newCatalogTitle": "Add a catalog product",
+      "quotesTitle": "Quote requests",
+      "quotesDescription": "Record supplier quotes for store requests.",
+      "taxTitle": "Tax brackets",
+      "taxDescription": "Platform-wide rates. Stores choose a default bracket.",
+      "agenciesTitle": "Agencies",
+      "auditTitle": "Platform audit log",
+      "auditDescription": "Every recorded change across the platform."
+    },
+    "store": {
+      "newStoreTitle": "Create a client store",
+      "productsTitle": "Products",
+      "ordersTitle": "Orders",
+      "assistantTitle": "Assistant",
+      "assistantDescription": "Suggestions stay pending until you apply one.",
+      "editorTitle": "Page editor",
+      "editorDescription": "Changes go live when you publish.",
+      "giftingTitle": "Corporate gifting",
+      "giftingDescription": "Private gift catalogues for corporate clients.",
+      "discountsTitle": "Discount codes",
+      "teamTitle": "Team",
+      "settingsTitle": "Settings",
+      "activityTitle": "Audit history"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "activeStores": "{count, plural, one {# active store} other {# active stores}}",
+    "archivedSuffix": ", {count} archived",
+    "planUsage": "{plan} plan · {usage}",
+    "limitReached": " · limit reached",
+    "usageLimited": "{used} of {limit} live stores",
+    "usageUnlimited": "{used, plural, one {# live store} other {# live stores}}, no limit",
+    "deniedStore": "You do not have access to that store.",
+    "deniedPage": "You do not have permission to view that page.",
+    "statActiveStores": "Active stores",
+    "statArchived": "{count} archived",
+    "statOrders": "Orders",
+    "statPublished": "Published products",
+    "statAttention": "Needs attention",
+    "statAttentionSub": "Exceptions and manual routing",
+    "clientStores": "Client stores",
+    "emptyTitle": "No stores yet",
+    "emptyBody": "Create your first client store to get started.",
+    "stripeConnected": "Stripe connected",
+    "stripePending": "Stripe pending",
+    "sales30": "Sales, 30 days",
+    "orders": "Orders",
+    "products": "Products",
+    "inProduction": "{count} in production",
+    "shipped": "{count} shipped",
+    "delivered": "{count} delivered",
+    "exceptions": "{count, plural, one {# exception} other {# exceptions}}",
+    "manual": "{count} manual",
+    "setup": "Setup {done}/{total}",
+    "open": "Open",
+    "storefront": "Storefront ↗",
+    "archivedStores": "Archived stores",
+    "showArchived": "{count, plural, one {Show # archived store} other {Show # archived stores}}",
+    "hideArchived": "{count, plural, one {Hide # archived store} other {Hide # archived stores}}",
+    "archivedRow": "{client} · {count, plural, one {# historic order} other {# historic orders}} · {amount} lifetime",
+    "viewRecords": "View records",
+    "restore": "Restore",
+    "recentActivity": "Recent activity",
+    "nothingYet": "Nothing recorded yet.",
+    "repeated": "{summary} ({count} times)",
+    "platform": {
+      "agencies": "{count, plural, one {# agency} other {# agencies}}",
+      "deniedStore": "That store no longer exists.",
+      "deniedPage": "Platform access does not include that screen. It stays with the store team.",
+      "emptyTitle": "No agencies yet",
+      "emptyBody": "Add an agency in platform admin to get started.",
+      "openAdmin": "Open platform admin",
+      "missingAgency": "Agency record missing",
+      "plan": "{plan} plan",
+      "suspended": "Suspended",
+      "noAgencyRecord": "No agency record",
+      "noStores": "No stores yet.",
+      "published": "Published",
+      "archivedLabel": "· archived",
+      "historicOrders": "{count, plural, one {# historic order} other {# historic orders}}",
+      "recentActivity": "Recent platform activity"
+    }
+  },
+  "pager": {
+    "orders": "Showing {first}–{last} of {total} orders",
+    "audit": "Showing {first}–{last} of {total} entries",
+    "auditCoverage": "Showing activity since {date}. Set a date range to see older entries."
+  },
+  "fallback": {
+    "goToDashboard": "Go to the dashboard",
+    "createStore": "Create a client store",
+    "pageMissing": "This page does not exist or was removed.",
+    "recordMissing": "This record does not exist or was removed.",
+    "backToStore": "Back to the store",
+    "platformOverview": "Platform overview",
+    "agencyWorkspace": "Agency workspace"
+  }
+}

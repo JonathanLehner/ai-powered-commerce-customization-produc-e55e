@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
+import { BaseIntlProvider } from "@/components/BaseIntlProvider";
+import en from "../../messages/en.json";
 
 /**
  * The shared `<html>`/`<body>` shell.
@@ -24,6 +26,8 @@ const geistMono = Geist_Mono({
 
 /** Shared by every root layout, so the title template is identical across them. */
 export const siteMetadata: Metadata = {
+  // Absolute addresses for the canonical and hreflang links.
+  metadataBase: new URL("https://ai-powered-commerce-customization-produc-e55e.clawcorp.ai"),
   title: {
     default: "Parcelith: branded merchandise stores for agencies",
     template: "%s · Parcelith",
@@ -60,7 +64,9 @@ export function Document({
       style={style}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-ink">{children}</body>
+      <body className="min-h-full flex flex-col bg-white text-ink">
+        <BaseIntlProvider messages={{ common: en.common }}>{children}</BaseIntlProvider>
+      </body>
     </html>
   );
 }

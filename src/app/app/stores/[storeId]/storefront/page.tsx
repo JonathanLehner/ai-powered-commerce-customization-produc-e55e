@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { revertStorefront } from "@/app/actions/storefront";
 import { Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -46,11 +47,12 @@ export default async function StorefrontEditorPage({
       ? (storefront.draft as Record<string, unknown>)
       : (treeFromSections([{ type: "HeroSection" }, { type: "ProductGrid" }]) as unknown as Record<string, unknown>);
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Page editor"
-        description="Changes go live when you publish."
+        title={pages("editorTitle")}
+        description={pages("editorDescription")}
         actions={
           storefront?.published ? (
             <form action={revertStorefront}>

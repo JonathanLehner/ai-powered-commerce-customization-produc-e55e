@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "title": "Parcelith: profilbutiker för byråer",
+    "description": "Hitta leverantörer, anpassa och sälj print on demand-produkter för varje kund från en och samma byråarbetsyta."
+  },
+  "common": {
+    "saving": "Sparar…",
+    "working": "Bearbetar…",
+    "cancel": "Avbryt",
+    "areYouSure": "Är du säker?",
+    "saved": "Sparat.",
+    "copyLink": "Kopiera länk",
+    "copied": "Kopierat",
+    "copyFailed": "Det gick inte att kopiera. Markera texten och kopiera den manuellt.",
+    "close": "Stäng",
+    "previous": "Föregående",
+    "next": "Nästa",
+    "previousPage": "Till föregående sida",
+    "nextPage": "Till nästa sida",
+    "morePages": "Fler sidor",
+    "pages": "Sidor",
+    "pageOf": "Sida {page} av {pages}",
+    "breadcrumb": "Brödsmulor",
+    "error": "Fel",
+    "errorTitle": "Något gick fel",
+    "errorBody": "Sidan kunde inte laddas. Försök igen.",
+    "tryAgain": "Försök igen",
+    "reference": "Referens {digest}",
+    "notFoundTitle": "Sidan hittades inte",
+    "backToHomepage": "Tillbaka till startsidan"
+  },
+  "site": {
+    "mainNav": "Huvudmeny",
+    "howItWorks": "Så fungerar det",
+    "pricing": "Priser",
+    "signIn": "Logga in",
+    "tagline": "Profilbutiker för byråer och deras kunder.",
+    "platform": "Plattform",
+    "contactSales": "Kontakta sälj",
+    "legal": "Juridiskt",
+    "terms": "Användarvillkor",
+    "privacy": "Integritetspolicy",
+    "language": "Språk",
+    "copyright": "© {year} Parcelith"
+  },
+  "notFound": {
+    "body": "Kontrollera adressen och försök igen."
+  },
+  "home": {
+    "title": "Profilbutiker för varje kund",
+    "lead": "Hitta leverantörer, anpassa och sälj print on demand-produkter från en och samma byråarbetsyta.",
+    "openWorkspace": "Öppna arbetsytan",
+    "howItWorks": "Så fungerar det",
+    "factsProducts": "Produkter",
+    "factsProductsValue": "Kläder och muggar",
+    "factsLanguages": "Språk",
+    "factsCarriers": "Transportörer",
+    "heroAlt": "Ett studiobord med vikta blanka plagg, keramikmuggar och färgprover",
+    "pillarsTitle": "Byggt för byråer",
+    "pillars": {
+      "stores": {
+        "title": "Separata kundbutiker",
+        "body": "Varje kund får egen katalog, egna kunder, ordrar, valutor, domän och betalningar."
+      },
+      "catalog": {
+        "title": "Gemensam leverantörskatalog",
+        "body": "Kläder och muggar från leverantörer, med kostnader, tryckytor och leveransregioner. Kopiera det du behöver till valfri butik."
+      },
+      "approval": {
+        "title": "Godkännande före publicering",
+        "body": "Original, mockups, marginaler och AI-förslag måste godkännas innan de publiceras."
+      }
+    },
+    "features": {
+      "sourcing": {
+        "title": "Jämför leverantörer sida vid sida",
+        "body": "Filtrera den gemensamma katalogen efter kategori, leverantör, kostnad och region och jämför alternativen.",
+        "points": ["Grundpris, tryckkostnad och ledtid", "Täckta leveransregioner", "Kopiera till en butikskatalog"],
+        "alt": "Blanka profilprodukter och tygprover på en ljus yta"
+      },
+      "artwork": {
+        "title": "Original kontrolleras före produktion",
+        "body": "Placera en logotyp i tryckytan och skala och rotera den medan tryckupplösningen uppdateras.",
+        "points": ["Tryckytor i millimeter", "Kontroll av upplösning, gränser och fil", "Mockups framifrån, bakifrån och från sidan"],
+        "alt": "Händer som placerar ett transferark på en vikt blank t-shirt"
+      },
+      "fulfilment": {
+        "title": "Betalda ordrar går till produktion",
+        "body": "Varje order skickas till sin leverantör. Ordrar som behöver åtgärdas flaggas i orderlistan.",
+        "points": ["Spårning för DHL, FedEx och UPS", "Återbetalningar, avbokningar och avvikelser", "Fullständig granskningslogg"],
+        "alt": "Kartonger, packtejp och en streckkodsläsare på en arbetsbänk"
+      }
+    },
+    "giftingEyebrow": "Företagsgåvor",
+    "giftingTitle": "Privata gåvoportaler för företag",
+    "giftingBody": "Ge varje företag en egen gåvokatalog med mottagarlistor och godkännande före betalning.",
+    "giftingPoints": ["Privat länk eller åtkomst endast via inbjudan", "Upp till 100 mottagare per kampanj", "Budget per mottagare"],
+    "giftingHow": "Så fungerar företagsgåvor",
+    "giftingIncluded": "Ingår i alla abonnemang",
+    "giftingAlt": "Presentaskar i kraftpapper med band bredvid en vikt marinblå huvtröja och en vit keramikmugg",
+    "giftFlow": {
+      "publish": { "title": "Publicera en katalog", "body": "Välj gåvor bland butikens publicerade produkter." },
+      "recipients": { "title": "Lägg till mottagare", "body": "Klistra in en lista eller ladda upp en CSV-fil." },
+      "approve": { "title": "Godkänn", "body": "En godkännare granskar listan och totalbeloppet." },
+      "pay": { "title": "Betala en gång", "body": "Varje mottagare får en egen order med spårning." }
+    },
+    "lifecycleTitle": "Från brief till leverans",
+    "lifecycle": {
+      "create": { "title": "Skapa butiken", "body": "Logotyp, tema, valutor och domän." },
+      "payments": { "title": "Koppla betalningar", "body": "Stripe, transportörer och moms." },
+      "products": { "title": "Lägg till produkter", "body": "Importera, placera original och godkänn mockups." },
+      "storefront": { "title": "Bygg butiksfronten", "body": "Ordna sektioner, förhandsgranska och publicera." },
+      "sell": { "title": "Sälj och leverera", "body": "Ordrar går till produktion med spårning." }
+    },
+    "demoTitle": "Prova demoarbetsytan",
+    "demoBody": "Fyra exempelbutiker med produkter, ordrar och gåvokampanjer.",
+    "demoCta": "Logga in i demon"
+  },
+  "howItWorks": {
+    "metaTitle": "Så fungerar det",
+    "metaDescription": "Butiksinställning, leverantörer, kontroll av original, mockups, butiksfronter, kassa, orderhantering och företagsgåvor i Parcelith.",
+    "title": "Så fungerar det",
+    "lead": "Från att sätta upp en kundbutik till att leverera den första ordern.",
+    "stages": {
+      "setup": {
+        "title": "1. Butiksinställning",
+        "body": "Sex steg för varumärke, språk, domän, betalningar, transportörer och moms.",
+        "detail": ["Logotyp, tema och standardspråk", "Försäljningsvalutor", "Egen domän", "Stripe-konto", "Konton hos DHL, FedEx och UPS", "Momssats och priser inklusive moms"]
+      },
+      "sourcing": {
+        "title": "2. Leverantörer",
+        "body": "Sök i den gemensamma leverantörskatalogen och kopiera produkter till en butik.",
+        "detail": ["Filtrera efter kategori, leverantör, tillgänglighet och region", "Jämför upp till tre produkter", "Ange butikens eget pris och status"]
+      },
+      "artwork": {
+        "title": "3. Original",
+        "body": "Placera original inom varje tryckyta. Problem flaggas tillsammans med en lösning.",
+        "detail": ["Flytta, skala, rotera och ta bort original", "Kontroll av tryckyta, upplösning, format, filstorlek och transparens"]
+      },
+      "mockups": {
+        "title": "4. Mockups och marginal",
+        "body": "Godkänn mockuperna och kontrollera marginalen innan du publicerar.",
+        "detail": ["Förhandsvisning framifrån, bakifrån och från sidan", "Leverantörskostnad, tryckkostnad, frakt och moms", "Försäljningspris och marginal"]
+      },
+      "storefront": {
+        "title": "5. Butiksfront",
+        "body": "Ordna sektioner, förhandsgranska på alla skärmstorlekar och publicera.",
+        "detail": ["Åtta sektionstyper", "Förhandsvisning för dator, surfplatta och mobil", "Publicera, återställ och versionshistorik"]
+      },
+      "checkout": {
+        "title": "6. Kassa och orderhantering",
+        "body": "Kunderna betalar i sin egen valuta. Ordrar går automatiskt till leverantören.",
+        "detail": ["Orderbekräftelse och statussida", "Uppdateringar om produktion, frakt och leverans", "Spårningslänkar från transportören"]
+      },
+      "gifting": {
+        "title": "7. Företagsgåvor",
+        "body": "Öppna en privat gåvokatalog för ett företag. Företagets inköpare lägger till mottagare, en godkännare godkänner och varje mottagare får en order.",
+        "detail": ["Privat länk eller åtkomst endast via inbjudan", "Budget per mottagare", "Mottagarlistor via CSV eller inklistring", "Godkännande före betalning", "Ordrar grupperade per kampanj"]
+      }
+    },
+    "rolesTitle": "Roller",
+    "roleColumn": "Roll",
+    "managesColumn": "Hanterar",
+    "noAccessColumn": "Ingen åtkomst till",
+    "roles": {
+      "platform": { "role": "Plattformsadministratör", "owns": "Leverantörer, gemensam katalog, momssatser, byråer och butiksåtkomst", "cannot": "Butikstexter och priser" },
+      "agency": { "role": "Byråteam", "owns": "Butiker, varumärke, domäner, betalningar, transportörer och teammedlemmar", "cannot": "Andra byråers butiker" },
+      "manager": { "role": "Butiksansvarig", "owns": "Katalog, original, mockups, priser och publicering", "cannot": "Allt utanför den egna rollen" },
+      "shopper": { "role": "Kund", "owns": "Bläddra, anpassa, betala och följa ordrar", "cannot": "Andra butiker" },
+      "buyer": { "role": "Gåvoinköpare", "owns": "Mottagarlistor, begäranden om godkännande och betalning av kampanjen", "cannot": "Betala före godkännande" },
+      "approver": { "role": "Gåvogodkännare", "owns": "Godkänna eller avslå en kampanj", "cannot": "Redigera eller betala listan" }
+    },
+    "assistantTitle": "AI-assistent",
+    "assistantBody": "Föreslår produkter, leverantörer, beskrivningar, taggar och priser. Du granskar varje förslag innan det tillämpas.",
+    "assistantCta": "Prova i arbetsytan"
+  },
+  "pricing": {
+    "metaTitle": "Priser",
+    "metaDescription": "Parcelith-abonnemang för byråer i alla storlekar, med månads- eller årsfakturering.",
+    "title": "Priser",
+    "lead": "Enkla abonnemang för byråer i alla storlekar.",
+    "billingPeriod": "Faktureringsperiod",
+    "monthly": "Månadsvis",
+    "yearly": "Årsvis",
+    "save": "Spara {percent}",
+    "mostPopular": "Mest populär",
+    "custom": "Offert",
+    "perMonth": "/mån",
+    "billedYearly": "{amount} faktureras per år",
+    "billedMonthly": "Faktureras månadsvis",
+    "annualContract": "Årsavtal",
+    "getStarted": "Kom igång",
+    "contactSales": "Kontakta sälj",
+    "liveStores": "{count, plural, one {# aktiv butik} other {# aktiva butiker}}",
+    "unlimitedLiveStores": "Obegränsat antal aktiva butiker",
+    "unlimited": "Obegränsat",
+    "summaries": {
+      "starter": "För små byråer som är i startgroparna.",
+      "studio": "För byråer med flera kundbutiker.",
+      "scale": "För stora nätverk som säljer på många marknader."
+    },
+    "features": {
+      "draftStores": "Obegränsat antal utkastbutiker",
+      "catalog": "Gemensam leverantörskatalog",
+      "configurator": "Konfigurator för original och mockups",
+      "checkout": "Kassa i flera valutor",
+      "gifting": "Företagsgåvor",
+      "tracking": "Spårning för DHL, FedEx och UPS",
+      "emailSupport": "Support via e-post",
+      "everythingStarter": "Allt i Starter",
+      "everythingStudio": "Allt i Studio",
+      "team": "Teamroller och inbjudningar",
+      "domains": "Egna domäner",
+      "assistant": "AI-assistent för handel",
+      "dashboard": "Byråöversikt",
+      "auditExport": "Export av granskningsloggen",
+      "onboarding": "Prioriterad onboarding av leverantörer",
+      "taxMarkets": "Momssatser per marknad",
+      "productionContact": "Dedikerad produktionskontakt",
+      "sso": "Enkel inloggning (SSO)"
+    },
+    "compareTitle": "Jämför abonnemang",
+    "compareCaption": "Parcelith-abonnemang jämförda",
+    "featuresColumn": "Funktioner",
+    "liveStoresRow": "Aktiva butiker",
+    "draftStoresRow": "Utkastbutiker",
+    "includedOn": "Ingår i {plan}",
+    "notOn": "Ingår inte i {plan}"
+  },
+  "contact": {
+    "metaTitle": "Kontakta sälj",
+    "metaDescription": "Kom igång med Parcelith eller prata med sälj om Scale-abonnemanget.",
+    "title": "Kontakta sälj",
+    "lead": "Berätta om din byrå så sätter vi upp din arbetsyta.",
+    "demoTitle": "Utforska demon",
+    "demoBody": "Fyra exempelbutiker med produkter och ordrar.",
+    "demoCta": "Öppna demon",
+    "form": {
+      "name": "Ditt namn",
+      "email": "E-post i tjänsten",
+      "company": "Byrå eller företag",
+      "plan": "Abonnemang",
+      "planOption": "{plan}, {price}/mån",
+      "planCustom": "{plan}, pris enligt offert",
+      "notSure": "Vet inte än",
+      "message": "Meddelande",
+      "messageHint": "Antal kundbutiker, produkter och behov av företagsgåvor.",
+      "wantsCall": "Jag vill hellre bli uppringd",
+      "submit": "Skicka förfrågan",
+      "sending": "Skickar…",
+      "replyTime": "Vi svarar inom en arbetsdag."
+    },
+    "errors": {
+      "name": "Ange ditt namn.",
+      "email": "Ange din e-postadress.",
+      "company": "Ange ditt företagsnamn.",
+      "plan": "Välj ett abonnemang."
+    },
+    "duplicate": "Tack, {name}. Vi har redan din förfrågan och svarar inom en arbetsdag.",
+    "received": "Tack, {name}. Vi har tagit emot din förfrågan om {plan, select, unsure {ett abonnemang som passar dig} other {abonnemanget {planName}}} och {call, select, yes {ringer dig} other {svarar via e-post}} inom en arbetsdag."
+  },
+  "terms": {
+    "metaTitle": "Användarvillkor",
+    "metaDescription": "Villkoren för byråarbetsytor, kundbutiker, leverantörsordrar och säljarens ansvar på Parcelith.",
+    "title": "Användarvillkor",
+    "lead": "Dessa villkor gäller byråarbetsytor och de kundbutiker som drivs i dem.",
+    "sections": [
+      {
+        "heading": "1. Tjänsten",
+        "body": [
+          "Parcelith tillhandahåller en handelsarbetsyta för flera butiker. En byrå skapar och driver butiker för sina kunders räkning. Varje butik är en fristående försäljningskanal med egen katalog, egna kunder, ordrar, valutor, momsinställningar, butiksfront och betalkonto.",
+          "Parcelith står för programvaran, den gemensamma leverantörskatalogen och vidarebefordran av en betald order till en produktionspartner. Parcelith tillverkar inga varor, håller inget lager och förvaltar inga kunders pengar."
+        ]
+      },
+      {
+        "heading": "2. Säljare",
+        "body": [
+          "Den handlare som driver en butik är säljare i den butiken. Betalningar går till butikens eget anslutna Stripe-konto. Säljaren ansvarar för priser, uppbörd och inbetalning av skatter, återbetalningar, återkrav, konsumenträttsliga skyldigheter och allt ansvar som uppstår för sålda varor.",
+          "Momssatser som plattformsadministratören lägger upp används för att beräkna momsen på en produkt. Att välja en momssats överför inga skatteskyldigheter till Parcelith och gör inte Parcelith till part i köpet."
+        ]
+      },
+      {
+        "heading": "3. Leverantörsordrar",
+        "body": [
+          "Produktionspartner är oberoende tredje parter. Om en partner erbjuder ett gränssnitt för ordrar kan betalda ordrar skickas vidare automatiskt. Finns inget sådant gränssnitt, till exempel på inköpsplattformar som Alibaba.com, flaggas ordern för manuell hantering och säljaren lägger beställningen direkt hos leverantören enligt dennes villkor.",
+          "Ledtider, tillgänglighet och leveransregioner i den gemensamma katalogen kommer från partnern och kan ändras utan förvarning. Parcelith lämnar inga garantier för dem."
+        ]
+      },
+      {
+        "heading": "4. Original och immateriella rättigheter",
+        "body": [
+          "Du behåller äganderätten till original som du laddar upp. Du garanterar att du har rätt att återge dem på fysiska varor och håller Parcelith och dess produktionspartner skadeslösa mot anspråk som uppstår ur original som du tillhandahåller.",
+          "Tryckkontrollerna (tryckytans gränser, effektiv upplösning, filformat, filstorlek och transparens) är automatiska kvalitetskontroller. Att klara kontrollerna innebär inte att du har rätt att trycka motivet."
+        ]
+      },
+      {
+        "heading": "5. AI-genererade förslag",
+        "body": [
+          "Handelsassistenten tar fram utkast: produktidéer, leverantörsrekommendationer, beskrivningar, taggar och priser. Varje förslag sparas som väntande och tillämpas först när en namngiven användare bekräftar det. Du ansvarar fortsatt för att texter och priser du publicerar är korrekta."
+        ]
+      },
+      {
+        "heading": "6. Dataseparation och åtkomst",
+        "body": [
+          "Butiksdata hör till butiken. Byråpersonal får åtkomst till en butik antingen för att byrån äger den eller genom en uttrycklig inbjudan med en tilldelad roll. Kunddata kombineras aldrig mellan butiker, inte heller i rapporter på byrånivå.",
+          "Administrativa åtgärder, ändringar i butiksinställningar, produktimporter, prisändringar, AI-godkännanden, publiceringar och vidarebefordran av ordrar registreras i en historik som sparas så länge arbetsytan finns."
+        ]
+      },
+      {
+        "heading": "7. Avstängning och uppsägning",
+        "body": [
+          "Båda parter kan säga upp avtalet med 30 dagars uppsägningstid. En arkiverad butik förblir läsbar för rapporter och granskning, men tas ur den dagliga driften och dess butiksfront går offline.",
+          "Parcelith kan stänga av en arbetsyta som används för att göra intrång i tredje parts rättigheter eller för att sälja varor som en produktionspartner inte tillåter."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Integritetsmeddelande",
+    "metaDescription": "Vilka uppgifter Parcelith sparar om byråpersonal, butiksteam och kunder, varför, och hur butiksdata hålls åtskilda.",
+    "title": "Integritetsmeddelande",
+    "lead": "Hur data rör sig genom en byråarbetsyta och var gränsen mellan butiker går.",
+    "sections": [
+      {
+        "heading": "Vem som ansvarar för vad",
+        "body": [
+          "För konton i byrå- och butiksteam är Parcelith personuppgiftsansvarig för kontouppgifterna: namn, e-post i tjänsten, roll och de åtgärder som tillskrivs personen i historiken.",
+          "För kunddata (kontaktuppgifter för ordern, leveransadress, original som laddats upp i kassan och personaliseringstext) är det butiken som genomför försäljningen som är personuppgiftsansvarig. Parcelith behandlar uppgifterna på butikens uppdrag så att ordern kan tillverkas och levereras."
+        ]
+      },
+      {
+        "heading": "Vad som sparas",
+        "body": [
+          "Konton: namn, e-post, roll, byrå och butiksåtkomst.",
+          "Butiksinställningar: varumärke, valutor, domän, id för det anslutna betalkontot, kundnummer hos transportörer och momsinställningar. Betaluppgifter går direkt till Stripe.",
+          "Handelsdata: produkter, originalfiler och deras placering, genererade mockups, ordrar, leveranshändelser, spårningsnummer och återbetalningar.",
+          "Historik: vem som ändrade vad och när, för butiksinställningar, importer, priser, AI-godkännanden, publiceringar, vidarebefordran av ordrar och administration."
+        ]
+      },
+      {
+        "heading": "Hur separationen fungerar",
+        "body": [
+          "Varje handelspost är kopplad till sin butik och varje läsning begränsas till butiker som den inloggade personen har åtkomst till. Rapporter på byrånivå summerar ordervärden per butik men slår aldrig ihop kunders identiteter mellan butiker.",
+          "En kund som handlar i två butiker som drivs av samma byrå finns som två separata kundposter, eftersom de två butikerna är separata personuppgiftsansvariga."
+        ]
+      },
+      {
+        "heading": "Tredje parter",
+        "body": [
+          "Stripe hanterar betalningar för varje butik via butikens eget konto.",
+          "Produktionspartner (Printful, Gelato och Printify) får leveransadressen, artikelspecifikationen och originalfilen som behövs för att tillverka och skicka ordern. Inköpsförfrågningar via Alibaba.com görs direkt av säljaren.",
+          "DHL, FedEx och UPS får leveransadressen för att leverera paketet och rapportera spårningshändelser.",
+          "Handelsassistenten skickar produkt- och kataloginformation till en extern AI-leverantör för att ta fram förslag. Kunders personuppgifter ingår inte."
+        ]
+      },
+      {
+        "heading": "Lagring",
+        "body": [
+          "Order- och leveransuppgifter sparas så länge butiken drivs, plus den tid säljaren måste spara dem av skatteskäl. En arkiverad butik förblir läsbar för granskning och rapporter, men dess butiksfront går offline.",
+          "Original som en kund laddar upp sparas så länge ordern kan tillverkas om eller reklameras och raderas sedan tillsammans med ordern."
+        ]
+      },
+      {
+        "heading": "Dina rättigheter",
+        "body": [
+          "Teammedlemmar kan be sin byråadministratör att rätta eller ta bort deras konto. Kunder kontaktar butiken där de handlade. Butiksteamet kan exportera eller radera en order och dess original från ordervyn."
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "metaTitle": "Logga in",
+    "metaDescription": "Logga in på Parcelith-byråarbetsytan.",
+    "howItWorks": "Så fungerar det",
+    "title": "Logga in",
+    "lead": "Välj ett demokonto.",
+    "personas": {
+      "alex": { "title": "Byråchef, Northlight Studio", "blurb": "Full åtkomst till fyra kundbutiker." },
+      "sam": { "title": "Katalogproducent", "blurb": "Katalogansvarig för Northwind och Lumen, butiksadministratör för Ferro." },
+      "ines": { "title": "Ansvarig för orderhantering", "blurb": "Orderansvarig för Northwind." },
+      "dana": { "title": "Kontaktperson hos kunden", "blurb": "Läsbehörighet till Northwind Supply Co." },
+      "priya": { "title": "Plattformsdrift", "blurb": "Leverantörer, gemensam katalog, momssatser och byråer." }
+    },
+    "continueAs": "Fortsätt som {name}",
+    "passwordTitle": "Logga in med lösenord",
+    "passwordHint": "Alla demokonton använder lösenordet <code>parcelith</code>.",
+    "email": "E-postadress",
+    "emailPlaceholder": "namn@foretag.se",
+    "password": "Lösenord",
+    "signIn": "Logga in",
+    "invitedEmail": "Logga in med en inbjuden e-postadress",
+    "continue": "Fortsätt",
+    "failed": "Inloggningen misslyckades",
+    "errors": {
+      "unknownUser": "Det finns inget konto med den e-postadressen.",
+      "badCredentials": "E-postadressen och lösenordet matchar inget konto."
+    }
+  },
+  "invite": {
+    "metaTitle": "Acceptera inbjudan",
+    "metaDescription": "Acceptera en inbjudan att arbeta i en Parcelith-butik.",
+    "invalidTitle": "Länken är inte längre giltig",
+    "invalidBody": "Länken kan redan ha använts. Logga in eller be om en ny inbjudan.",
+    "goToSignIn": "Till inloggningen",
+    "title": "{inviter} har bjudit in dig till {store}",
+    "creates": "När du accepterar skapas ett Parcelith-konto för {email} och du loggas in.",
+    "invited": "Inbjuden {date}.",
+    "accept": "Acceptera inbjudan",
+    "accepting": "Ditt konto skapas…"
+  },
+  "roles": {
+    "store_admin": "Butiksadministratör",
+    "catalog_manager": "Katalogansvarig",
+    "order_manager": "Orderansvarig",
+    "viewer": "Läsare",
+    "platformAccess": "Plattformsåtkomst",
+    "platformAccessNote": "Med plattformsåtkomst döljs kunduppgifter och ordervärden.",
+    "descriptions": {
+      "store_admin": "Full åtkomst, inklusive inställningar och team.",
+      "catalog_manager": "Produkter, priser, publicering och gåvokataloger.",
+      "order_manager": "Ordrar, orderhantering, återbetalningar och leverantörsavvikelser.",
+      "viewer": "Endast läsbehörighet."
+    },
+    "platform": {
+      "platform_admin": "Plattformsadmin",
+      "agency_admin": "Byråadmin",
+      "agency_member": "Byråmedlem"
+    }
+  },
+  "shell": {
+    "workspaceHome": "Parcelith byråarbetsyta",
+    "adminHome": "Parcelith plattformsadministration",
+    "switchStore": "Byt butik",
+    "allStores": "Alla butiker",
+    "noActiveStores": "Inga aktiva butiker än.",
+    "createStore": "Skapa en kundbutik",
+    "platformAdmin": "Plattformsadmin",
+    "platformAdministration": "Plattformsadministration",
+    "workspace": "Arbetsyta",
+    "agencyWorkspace": "Byråarbetsyta",
+    "signOut": "Logga ut",
+    "language": "Språk",
+    "languageSaved": "Språket har ändrats.",
+    "languageFailed": "Det gick inte att byta språk. Försök igen.",
+    "storeSections": "Butikens avsnitt",
+    "active": "Aktiv",
+    "archived": "Arkiverad",
+    "tabs": {
+      "overview": "Översikt",
+      "catalog": "Katalog",
+      "sourcing": "Leverantörer",
+      "assistant": "AI-assistent",
+      "storefront": "Butiksfront",
+      "gifting": "Gåvor",
+      "orders": "Ordrar",
+      "discounts": "Rabatter",
+      "team": "Team",
+      "settings": "Inställningar",
+      "activity": "Aktivitet"
+    },
+    "adminTabs": {
+      "overview": "Översikt",
+      "suppliers": "Leverantörer",
+      "catalog": "Gemensam katalog",
+      "quotes": "Offertförfrågningar",
+      "tax": "Momssatser",
+      "agencies": "Byråer och åtkomst",
+      "audit": "Granskningslogg"
+    }
+  },
+  "pages": {
+    "admin": {
+      "overviewTitle": "Driftöversikt",
+      "overviewDescription": "Leverantörer, den gemensamma katalogen, globala momssatser och byråernas åtkomst.",
+      "suppliersTitle": "Leverantörer",
+      "suppliersDescription": "Endast godkända leverantörer är tillgängliga för butikerna.",
+      "catalogTitle": "Gemensam katalog",
+      "catalogDescription": "Produkter som alla butiker kan importera.",
+      "newCatalogTitle": "Lägg till en katalogprodukt",
+      "quotesTitle": "Offertförfrågningar",
+      "quotesDescription": "Registrera leverantörsofferter för butikernas förfrågningar.",
+      "taxTitle": "Momssatser",
+      "taxDescription": "Satser för hela plattformen. Butikerna väljer en standardsats.",
+      "agenciesTitle": "Byråer",
+      "auditTitle": "Plattformens granskningslogg",
+      "auditDescription": "Alla registrerade ändringar på plattformen."
+    },
+    "store": {
+      "newStoreTitle": "Skapa en kundbutik",
+      "productsTitle": "Produkter",
+      "ordersTitle": "Ordrar",
+      "assistantTitle": "Assistent",
+      "assistantDescription": "Förslagen väntar tills du tillämpar dem.",
+      "editorTitle": "Sidredigerare",
+      "editorDescription": "Ändringarna går live när du publicerar.",
+      "giftingTitle": "Företagsgåvor",
+      "giftingDescription": "Privata gåvokataloger för företagskunder.",
+      "discountsTitle": "Rabattkoder",
+      "teamTitle": "Team",
+      "settingsTitle": "Inställningar",
+      "activityTitle": "Granskningshistorik"
+    }
+  },
+  "dashboard": {
+    "title": "Översikt",
+    "activeStores": "{count, plural, one {# aktiv butik} other {# aktiva butiker}}",
+    "archivedSuffix": ", {count} arkiverade",
+    "planUsage": "Abonnemang {plan} · {usage}",
+    "limitReached": " · gränsen nådd",
+    "usageLimited": "{used} av {limit} aktiva butiker",
+    "usageUnlimited": "{used, plural, one {# aktiv butik} other {# aktiva butiker}}, ingen gräns",
+    "deniedStore": "Du har inte åtkomst till den butiken.",
+    "deniedPage": "Du har inte behörighet att visa den sidan.",
+    "statActiveStores": "Aktiva butiker",
+    "statArchived": "{count} arkiverade",
+    "statOrders": "Ordrar",
+    "statPublished": "Publicerade produkter",
+    "statAttention": "Kräver åtgärd",
+    "statAttentionSub": "Avvikelser och manuell vidarebefordran",
+    "clientStores": "Kundbutiker",
+    "emptyTitle": "Inga butiker än",
+    "emptyBody": "Skapa din första kundbutik för att komma igång.",
+    "stripeConnected": "Stripe anslutet",
+    "stripePending": "Stripe väntar",
+    "sales30": "Försäljning, 30 dagar",
+    "orders": "Ordrar",
+    "products": "Produkter",
+    "inProduction": "{count} i produktion",
+    "shipped": "{count} skickade",
+    "delivered": "{count} levererade",
+    "exceptions": "{count, plural, one {# avvikelse} other {# avvikelser}}",
+    "manual": "{count} manuella",
+    "setup": "Inställning {done}/{total}",
+    "open": "Öppna",
+    "storefront": "Butiksfront ↗",
+    "archivedStores": "Arkiverade butiker",
+    "showArchived": "{count, plural, one {Visa # arkiverad butik} other {Visa # arkiverade butiker}}",
+    "hideArchived": "{count, plural, one {Dölj # arkiverad butik} other {Dölj # arkiverade butiker}}",
+    "archivedRow": "{client} · {count, plural, one {# tidigare order} other {# tidigare ordrar}} · {amount} totalt",
+    "viewRecords": "Visa uppgifter",
+    "restore": "Återställ",
+    "recentActivity": "Senaste aktivitet",
+    "nothingYet": "Inget registrerat än.",
+    "repeated": "{summary} ({count} gånger)",
+    "platform": {
+      "agencies": "{count, plural, one {# byrå} other {# byråer}}",
+      "deniedStore": "Den butiken finns inte längre.",
+      "deniedPage": "Plattformsåtkomst omfattar inte den vyn. Den är förbehållen butiksteamet.",
+      "emptyTitle": "Inga byråer än",
+      "emptyBody": "Lägg till en byrå i plattformsadministrationen för att komma igång.",
+      "openAdmin": "Öppna plattformsadministrationen",
+      "missingAgency": "Byråposten saknas",
+      "plan": "Abonnemang {plan}",
+      "suspended": "Avstängd",
+      "noAgencyRecord": "Ingen byråpost",
+      "noStores": "Inga butiker än.",
+      "published": "Publicerade",
+      "archivedLabel": "· arkiverad",
+      "historicOrders": "{count, plural, one {# tidigare order} other {# tidigare ordrar}}",
+      "recentActivity": "Senaste aktivitet på plattformen"
+    }
+  },
+  "pager": {
+    "orders": "{first}–{last} av {total} ordrar",
+    "audit": "{first}–{last} av {total} poster",
+    "auditCoverage": "Aktivitet sedan {date}. Ange ett datumintervall för att se äldre poster."
+  },
+  "fallback": {
+    "goToDashboard": "Till översikten",
+    "createStore": "Skapa en kundbutik",
+    "pageMissing": "Sidan finns inte eller har tagits bort.",
+    "recordMissing": "Posten finns inte eller har tagits bort.",
+    "backToStore": "Tillbaka till butiken",
+    "platformOverview": "Plattformsöversikt",
+    "agencyWorkspace": "Byråarbetsyta"
+  }
+}

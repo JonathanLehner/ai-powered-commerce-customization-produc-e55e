@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "title": "Parcelith: tiendas de productos de marca para agencias",
+    "description": "Encuentra proveedores, personaliza y vende productos de impresión bajo demanda para cada cliente desde un único espacio de agencia."
+  },
+  "common": {
+    "saving": "Guardando…",
+    "working": "Procesando…",
+    "cancel": "Cancelar",
+    "areYouSure": "¿Seguro?",
+    "saved": "Guardado.",
+    "copyLink": "Copiar enlace",
+    "copied": "Copiado",
+    "copyFailed": "No se ha podido copiar. Selecciona el texto y cópialo manualmente.",
+    "close": "Cerrar",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "previousPage": "Ir a la página anterior",
+    "nextPage": "Ir a la página siguiente",
+    "morePages": "Más páginas",
+    "pages": "Páginas",
+    "pageOf": "Página {page} de {pages}",
+    "breadcrumb": "Ruta de navegación",
+    "error": "Error",
+    "errorTitle": "Algo ha salido mal",
+    "errorBody": "No se ha podido cargar esta página. Inténtalo de nuevo.",
+    "tryAgain": "Reintentar",
+    "reference": "Referencia {digest}",
+    "notFoundTitle": "Página no encontrada",
+    "backToHomepage": "Volver al inicio"
+  },
+  "site": {
+    "mainNav": "Navegación principal",
+    "howItWorks": "Cómo funciona",
+    "pricing": "Precios",
+    "signIn": "Iniciar sesión",
+    "tagline": "Tiendas de productos de marca para agencias y sus clientes.",
+    "platform": "Plataforma",
+    "contactSales": "Contactar con ventas",
+    "legal": "Legal",
+    "terms": "Condiciones del servicio",
+    "privacy": "Política de privacidad",
+    "language": "Idioma",
+    "copyright": "© {year} Parcelith"
+  },
+  "notFound": {
+    "body": "Comprueba la dirección e inténtalo de nuevo."
+  },
+  "home": {
+    "title": "Tiendas de productos de marca para cada cliente",
+    "lead": "Encuentra proveedores, personaliza y vende productos de impresión bajo demanda desde un único espacio de agencia.",
+    "openWorkspace": "Abrir el espacio de trabajo",
+    "howItWorks": "Cómo funciona",
+    "factsProducts": "Productos",
+    "factsProductsValue": "Ropa y tazas",
+    "factsLanguages": "Idiomas",
+    "factsCarriers": "Transportistas",
+    "heroAlt": "Una mesa de estudio con prendas lisas dobladas, tazas de cerámica y muestras de color",
+    "pillarsTitle": "Pensado para agencias",
+    "pillars": {
+      "stores": {
+        "title": "Tiendas separadas por cliente",
+        "body": "Cada cliente tiene su propio catálogo, clientes, pedidos, monedas, dominio y pagos."
+      },
+      "catalog": {
+        "title": "Catálogo de proveedores compartido",
+        "body": "Ropa y tazas de proveedores, con costes, áreas de impresión y regiones de envío. Copia lo que necesites en cualquier tienda."
+      },
+      "approval": {
+        "title": "Aprobación antes de publicar",
+        "body": "Diseños, mockups, márgenes y sugerencias de IA necesitan aprobación antes de publicarse."
+      }
+    },
+    "features": {
+      "sourcing": {
+        "title": "Compara proveedores en paralelo",
+        "body": "Filtra el catálogo compartido por categoría, proveedor, coste y región, y compara las opciones.",
+        "points": ["Coste base, coste de impresión y plazo de entrega", "Regiones de envío cubiertas", "Copia al catálogo de una tienda"],
+        "alt": "Muestras de productos lisos y retales de tela sobre una superficie clara"
+      },
+      "artwork": {
+        "title": "Diseños revisados antes de producción",
+        "body": "Coloca un logotipo en el área de impresión y ajusta su tamaño y rotación mientras la resolución de impresión se actualiza.",
+        "points": ["Áreas de impresión en milímetros", "Comprobación de resolución, límites y archivo", "Mockups frontal, trasero y lateral"],
+        "alt": "Unas manos colocan una lámina de transferencia sobre una camiseta lisa doblada"
+      },
+      "fulfilment": {
+        "title": "Los pedidos pagados pasan a producción",
+        "body": "Cada pedido se envía a su proveedor. Los pedidos que requieren atención se marcan en la lista de pedidos.",
+        "points": ["Seguimiento de DHL, FedEx y UPS", "Reembolsos, cancelaciones e incidencias", "Registro de auditoría completo"],
+        "alt": "Cajas de cartón kraft, cinta de embalar y un lector de códigos de barras en un banco de trabajo"
+      }
+    },
+    "giftingEyebrow": "Regalos de empresa",
+    "giftingTitle": "Portales de regalos privados para empresas",
+    "giftingBody": "Ofrece a cada empresa su propio catálogo de regalos con listas de destinatarios y aprobación antes del pago.",
+    "giftingPoints": ["Enlace privado o acceso solo por invitación", "Hasta 100 destinatarios por campaña", "Límite de gasto por destinatario"],
+    "giftingHow": "Cómo funcionan los regalos",
+    "giftingIncluded": "Incluido en todos los planes",
+    "giftingAlt": "Cajas de regalo de kraft con lazo junto a una sudadera azul marino doblada y una taza de cerámica blanca",
+    "giftFlow": {
+      "publish": { "title": "Publica un catálogo", "body": "Elige regalos entre los productos publicados de la tienda." },
+      "recipients": { "title": "Añade destinatarios", "body": "Pega una lista o sube un CSV." },
+      "approve": { "title": "Aprueba", "body": "Un aprobador revisa la lista y el total." },
+      "pay": { "title": "Paga una vez", "body": "Cada destinatario recibe su propio pedido con seguimiento." }
+    },
+    "lifecycleTitle": "Del encargo a la entrega",
+    "lifecycle": {
+      "create": { "title": "Crea la tienda", "body": "Logotipo, tema, monedas y dominio." },
+      "payments": { "title": "Conecta los pagos", "body": "Stripe, transportistas e impuestos." },
+      "products": { "title": "Añade productos", "body": "Importa, coloca los diseños y aprueba los mockups." },
+      "storefront": { "title": "Diseña el escaparate", "body": "Ordena secciones, previsualiza y publica." },
+      "sell": { "title": "Vende y entrega", "body": "Los pedidos pasan a producción con seguimiento." }
+    },
+    "demoTitle": "Prueba el espacio de demostración",
+    "demoBody": "Cuatro tiendas de clientes de ejemplo con productos, pedidos y campañas de regalos.",
+    "demoCta": "Iniciar sesión en la demo"
+  },
+  "howItWorks": {
+    "metaTitle": "Cómo funciona",
+    "metaDescription": "Configuración de tiendas, búsqueda de proveedores, revisión de diseños, mockups, escaparates, pago, gestión de pedidos y regalos de empresa en Parcelith.",
+    "title": "Cómo funciona",
+    "lead": "Desde la configuración de una tienda hasta la entrega del primer pedido.",
+    "stages": {
+      "setup": {
+        "title": "1. Configuración de la tienda",
+        "body": "Seis pasos cubren la marca, el idioma, el dominio, los pagos, los transportistas y los impuestos.",
+        "detail": ["Logotipo, tema e idioma predeterminado", "Monedas de venta", "Dominio propio", "Cuenta de Stripe", "Cuentas de DHL, FedEx y UPS", "Tipo impositivo y precios con impuestos incluidos"]
+      },
+      "sourcing": {
+        "title": "2. Proveedores",
+        "body": "Busca en el catálogo de proveedores compartido y copia productos a una tienda.",
+        "detail": ["Filtra por categoría, proveedor, disponibilidad y región", "Compara hasta tres productos", "Define el precio y el estado propios de la tienda"]
+      },
+      "artwork": {
+        "title": "3. Diseños",
+        "body": "Coloca los diseños dentro de cada área de impresión. Cada problema se señala con su solución.",
+        "detail": ["Mueve, escala, gira y elimina diseños", "Comprobación de área de impresión, resolución, formato, tamaño de archivo y transparencia"]
+      },
+      "mockups": {
+        "title": "4. Mockups y margen",
+        "body": "Aprueba los mockups y revisa el margen antes de publicar.",
+        "detail": ["Vistas previas frontal, trasera y lateral", "Coste del proveedor, impresión, envío e impuestos", "Precio de venta y margen"]
+      },
+      "storefront": {
+        "title": "5. Escaparate",
+        "body": "Ordena las secciones, previsualiza en cualquier pantalla y publica.",
+        "detail": ["Ocho tipos de sección", "Vista previa en escritorio, tableta y móvil", "Publicar, revertir e historial de versiones"]
+      },
+      "checkout": {
+        "title": "6. Pago y gestión de pedidos",
+        "body": "Los compradores pagan en su moneda. Los pedidos llegan al proveedor automáticamente.",
+        "detail": ["Confirmación del pedido y página de estado", "Novedades de producción, envío y entrega", "Enlaces de seguimiento del transportista"]
+      },
+      "gifting": {
+        "title": "7. Regalos de empresa",
+        "body": "Abre un catálogo de regalos privado para una empresa. Su comprador añade destinatarios, un aprobador da el visto bueno y cada destinatario recibe un pedido.",
+        "detail": ["Enlace privado o acceso solo por invitación", "Límite de gasto por destinatario", "Listas de destinatarios en CSV o pegadas", "Aprobación antes del pago", "Pedidos agrupados por campaña"]
+      }
+    },
+    "rolesTitle": "Roles",
+    "roleColumn": "Rol",
+    "managesColumn": "Gestiona",
+    "noAccessColumn": "Sin acceso a",
+    "roles": {
+      "platform": { "role": "Administrador de la plataforma", "owns": "Proveedores, catálogo compartido, tipos impositivos, agencias y acceso a tiendas", "cannot": "Textos y precios de las tiendas" },
+      "agency": { "role": "Equipo de la agencia", "owns": "Tiendas, marca, dominios, pagos, transportistas y miembros del equipo", "cannot": "Tiendas de otras agencias" },
+      "manager": { "role": "Responsable de tienda", "owns": "Catálogo, diseños, mockups, precios y publicación", "cannot": "Nada fuera de su rol" },
+      "shopper": { "role": "Comprador", "owns": "Explorar, personalizar, pagar y seguir pedidos", "cannot": "Otras tiendas" },
+      "buyer": { "role": "Comprador de regalos", "owns": "Listas de destinatarios, solicitudes de aprobación y pago de la campaña", "cannot": "Pagar antes de la aprobación" },
+      "approver": { "role": "Aprobador de regalos", "owns": "Aprobar o rechazar una campaña", "cannot": "Editar o pagar la lista" }
+    },
+    "assistantTitle": "Asistente de IA",
+    "assistantBody": "Sugiere productos, proveedores, descripciones, etiquetas y precios. Revisas cada sugerencia antes de aplicarla.",
+    "assistantCta": "Pruébalo en el espacio de trabajo"
+  },
+  "pricing": {
+    "metaTitle": "Precios",
+    "metaDescription": "Planes de Parcelith para agencias de cualquier tamaño, con facturación mensual o anual.",
+    "title": "Precios",
+    "lead": "Planes sencillos para agencias de cualquier tamaño.",
+    "billingPeriod": "Periodo de facturación",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "save": "Ahorra un {percent}",
+    "mostPopular": "El más elegido",
+    "custom": "A medida",
+    "perMonth": "/mes",
+    "billedYearly": "{amount} facturados al año",
+    "billedMonthly": "Facturación mensual",
+    "annualContract": "Contrato anual",
+    "getStarted": "Empezar",
+    "contactSales": "Contactar con ventas",
+    "liveStores": "{count, plural, one {# tienda activa} other {# tiendas activas}}",
+    "unlimitedLiveStores": "Tiendas activas ilimitadas",
+    "unlimited": "Ilimitadas",
+    "summaries": {
+      "starter": "Para agencias pequeñas que empiezan.",
+      "studio": "Para agencias con varias tiendas de clientes.",
+      "scale": "Para grandes redes que venden en muchos mercados."
+    },
+    "features": {
+      "draftStores": "Tiendas en borrador ilimitadas",
+      "catalog": "Catálogo de proveedores compartido",
+      "configurator": "Configurador de diseños y mockups",
+      "checkout": "Pago en varias monedas",
+      "gifting": "Regalos de empresa",
+      "tracking": "Seguimiento de DHL, FedEx y UPS",
+      "emailSupport": "Soporte por correo electrónico",
+      "everythingStarter": "Todo lo de Starter",
+      "everythingStudio": "Todo lo de Studio",
+      "team": "Roles de equipo e invitaciones",
+      "domains": "Dominios propios",
+      "assistant": "Asistente de comercio con IA",
+      "dashboard": "Panel de la agencia",
+      "auditExport": "Exportación del registro de auditoría",
+      "onboarding": "Alta prioritaria de proveedores",
+      "taxMarkets": "Tipos impositivos por mercado",
+      "productionContact": "Contacto de producción dedicado",
+      "sso": "Inicio de sesión único (SSO)"
+    },
+    "compareTitle": "Compara los planes",
+    "compareCaption": "Comparativa de planes de Parcelith",
+    "featuresColumn": "Funciones",
+    "liveStoresRow": "Tiendas activas",
+    "draftStoresRow": "Tiendas en borrador",
+    "includedOn": "Incluido en {plan}",
+    "notOn": "No incluido en {plan}"
+  },
+  "contact": {
+    "metaTitle": "Contactar con ventas",
+    "metaDescription": "Empieza con Parcelith o habla con ventas sobre el plan Scale.",
+    "title": "Contactar con ventas",
+    "lead": "Cuéntanos sobre tu agencia y configuraremos tu espacio de trabajo.",
+    "demoTitle": "Explora la demo",
+    "demoBody": "Cuatro tiendas de clientes de ejemplo con productos y pedidos.",
+    "demoCta": "Abrir la demo",
+    "form": {
+      "name": "Tu nombre",
+      "email": "Correo electrónico de trabajo",
+      "company": "Agencia o empresa",
+      "plan": "Plan",
+      "planOption": "{plan}, {price}/mes",
+      "planCustom": "{plan}, precio a medida",
+      "notSure": "Aún no lo sé",
+      "message": "Mensaje",
+      "messageHint": "Número de tiendas de clientes, productos y necesidades de regalos.",
+      "wantsCall": "Prefiero una llamada",
+      "submit": "Enviar consulta",
+      "sending": "Enviando…",
+      "replyTime": "Respondemos en un día laborable."
+    },
+    "errors": {
+      "name": "Introduce tu nombre.",
+      "email": "Introduce tu correo electrónico.",
+      "company": "Introduce el nombre de tu empresa.",
+      "plan": "Elige un plan."
+    },
+    "duplicate": "Gracias, {name}. Ya tenemos tu consulta y te responderemos en un día laborable.",
+    "received": "Gracias, {name}. Hemos recibido tu consulta sobre {plan, select, unsure {el plan que mejor te encaje} other {el plan {planName}}} y {call, select, yes {te llamaremos} other {te responderemos por correo}} en un día laborable."
+  },
+  "terms": {
+    "metaTitle": "Condiciones del servicio",
+    "metaDescription": "Las condiciones que rigen los espacios de agencia, las tiendas de clientes, los pedidos a proveedores y las responsabilidades del vendedor en Parcelith.",
+    "title": "Condiciones del servicio",
+    "lead": "Estas condiciones rigen los espacios de agencia y las tiendas de clientes que se gestionan en ellos.",
+    "sections": [
+      {
+        "heading": "1. El servicio",
+        "body": [
+          "Parcelith ofrece un espacio de comercio para varias tiendas. Una agencia crea y gestiona tiendas en nombre de sus clientes. Cada tienda es un canal de venta independiente con su propio catálogo, clientes, pedidos, monedas, configuración fiscal, escaparate y cuenta de pago.",
+          "Parcelith aporta el software, el catálogo de proveedores compartido y el envío de cada pedido pagado a un socio de producción. No fabrica productos, no mantiene existencias ni custodia fondos de los compradores."
+        ]
+      },
+      {
+        "heading": "2. Vendedor",
+        "body": [
+          "El comerciante que gestiona cada tienda es el vendedor de esa tienda. Los pagos se abonan en la cuenta de Stripe conectada de la propia tienda. El vendedor es responsable de los precios, del cobro e ingreso de impuestos, de los reembolsos, de las devoluciones de cargo, de las obligaciones con los consumidores y de cualquier responsabilidad derivada de los productos vendidos.",
+          "Los tipos impositivos configurados por el administrador de la plataforma sirven para calcular el impuesto de un producto. Elegir un tipo no traslada ninguna obligación fiscal a Parcelith ni convierte a Parcelith en parte de la venta."
+        ]
+      },
+      {
+        "heading": "3. Pedidos a proveedores",
+        "body": [
+          "Los socios de producción son terceros independientes. Cuando un socio ofrece una interfaz para recibir pedidos, los pedidos pagados pueden enviarse automáticamente. Cuando no existe, como en plataformas de aprovisionamiento como Alibaba.com, el pedido se marca para gestión manual y el vendedor realiza la orden de compra directamente al proveedor según las condiciones de este.",
+          "Los plazos, la disponibilidad y las regiones de envío que muestra el catálogo compartido los facilita el socio y pueden cambiar sin previo aviso. Parcelith no los garantiza."
+        ]
+      },
+      {
+        "heading": "4. Diseños y propiedad intelectual",
+        "body": [
+          "Conservas la propiedad de los diseños que subes. Garantizas que tienes derecho a reproducirlos en productos físicos y eximes a Parcelith y a sus socios de producción de cualquier reclamación derivada de los diseños que aportes.",
+          "Las comprobaciones previas a la impresión (límites del área de impresión, resolución efectiva, formato, tamaño de archivo y transparencia) son controles de calidad automáticos. Superarlas no implica que tengas derecho a imprimir el diseño."
+        ]
+      },
+      {
+        "heading": "5. Sugerencias generadas por IA",
+        "body": [
+          "El asistente de comercio genera borradores: ideas de producto, recomendaciones de proveedores, descripciones, etiquetas y precios. Cada sugerencia se guarda como pendiente y solo se aplica cuando un usuario identificado la confirma. Sigues siendo responsable de la exactitud de los textos y precios que decidas publicar."
+        ]
+      },
+      {
+        "heading": "6. Aislamiento de datos y acceso",
+        "body": [
+          "Los datos de una tienda pertenecen a esa tienda. El personal de la agencia accede a una tienda porque es de la agencia o mediante una invitación explícita con un rol asignado. Los datos de compradores nunca se combinan entre tiendas, tampoco en los informes de la agencia.",
+          "Las acciones administrativas, los cambios de configuración, las importaciones de productos, los cambios de precio, las aprobaciones de IA, las publicaciones y el envío de pedidos quedan registrados en un historial que se conserva durante toda la vida del espacio de trabajo."
+        ]
+      },
+      {
+        "heading": "7. Suspensión y resolución",
+        "body": [
+          "Cualquiera de las partes puede poner fin al acuerdo con un preaviso de 30 días. Al archivar una tienda, sus datos siguen disponibles para informes y auditoría, pero la tienda deja de operar y su escaparate se desconecta.",
+          "Parcelith puede suspender un espacio de trabajo que se utilice para infringir derechos de terceros o para vender productos prohibidos por un socio de producción."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Aviso de privacidad",
+    "metaDescription": "Qué datos guarda Parcelith sobre el personal de las agencias, los equipos de las tiendas y los compradores, por qué y cómo se mantienen separados los datos de cada tienda.",
+    "title": "Aviso de privacidad",
+    "lead": "Cómo circulan los datos en un espacio de agencia y dónde está el límite entre tiendas.",
+    "sections": [
+      {
+        "heading": "Quién es responsable de qué",
+        "body": [
+          "En las cuentas de los equipos de agencia y de tienda, Parcelith es el responsable del registro de la cuenta: nombre, correo de trabajo, rol y las acciones atribuidas a esa persona en el historial.",
+          "En los datos de los compradores (datos de contacto del pedido, dirección de entrega, diseños subidos al pagar y texto de personalización), el responsable es la tienda que realiza la venta. Parcelith trata esos datos siguiendo las instrucciones de la tienda para que el pedido pueda producirse y entregarse."
+        ]
+      },
+      {
+        "heading": "Qué se guarda",
+        "body": [
+          "Cuentas: nombre, correo electrónico, rol, agencia y acceso a tiendas.",
+          "Configuración de la tienda: marca, monedas, dominio, identificador de la cuenta de pago conectada, números de cuenta de transportistas y configuración fiscal. Los datos de pago van directamente a Stripe.",
+          "Datos comerciales: productos, archivos de diseño y su colocación, mockups generados, pedidos, eventos de envío, números de seguimiento y reembolsos.",
+          "Historial: quién cambió qué y cuándo, en la configuración de tiendas, importaciones, precios, aprobaciones de IA, publicaciones, envío de pedidos y administración."
+        ]
+      },
+      {
+        "heading": "Cómo funciona el aislamiento",
+        "body": [
+          "Cada registro comercial está vinculado a su tienda, y cada consulta se limita a las tiendas a las que la persona con sesión iniciada tiene acceso. Los informes de la agencia suman los totales de pedidos por tienda, pero nunca unen identidades de compradores entre tiendas.",
+          "Un comprador que compra en dos tiendas de la misma agencia figura como dos registros de cliente distintos, porque cada tienda es un responsable independiente."
+        ]
+      },
+      {
+        "heading": "Terceros",
+        "body": [
+          "Stripe procesa los pagos de cada tienda a través de la cuenta propia de esa tienda.",
+          "Los socios de producción (Printful, Gelato y Printify) reciben la dirección de entrega, las especificaciones del artículo y el archivo de diseño necesarios para fabricar y enviar el pedido. Las consultas a Alibaba.com las realiza directamente el vendedor.",
+          "DHL, FedEx y UPS reciben la dirección de entrega para transportar el paquete y devolver los eventos de seguimiento.",
+          "El asistente de comercio envía información de productos y catálogo a un proveedor de IA externo para redactar sugerencias. Esos mensajes no incluyen datos personales de compradores."
+        ]
+      },
+      {
+        "heading": "Conservación",
+        "body": [
+          "Los registros de pedidos y envíos se conservan mientras la tienda esté activa y durante el plazo que el vendedor deba guardarlos por motivos fiscales. Al archivar una tienda, sus datos siguen disponibles para auditoría e informes, pero su escaparate se desconecta.",
+          "Los diseños que sube un comprador se conservan mientras el pedido pueda volver a producirse o reclamarse, y después se eliminan junto con el pedido."
+        ]
+      },
+      {
+        "heading": "Tus derechos",
+        "body": [
+          "Los miembros de un equipo pueden pedir al administrador de su agencia que corrija o elimine su cuenta. Los compradores deben dirigirse a la tienda donde compraron. El equipo de la tienda puede exportar o borrar un pedido y sus diseños desde la ficha del pedido."
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "metaTitle": "Iniciar sesión",
+    "metaDescription": "Inicia sesión en el espacio de agencia de Parcelith.",
+    "howItWorks": "Cómo funciona",
+    "title": "Iniciar sesión",
+    "lead": "Elige una cuenta de demostración.",
+    "personas": {
+      "alex": { "title": "Director de agencia, Northlight Studio", "blurb": "Acceso completo a cuatro tiendas de clientes." },
+      "sam": { "title": "Responsable de catálogo", "blurb": "Gestor de catálogo en Northwind y Lumen, administrador en Ferro." },
+      "ines": { "title": "Responsable de logística", "blurb": "Gestora de pedidos en Northwind." },
+      "dana": { "title": "Interlocutora del cliente", "blurb": "Acceso de solo lectura a Northwind Supply Co." },
+      "priya": { "title": "Operaciones de la plataforma", "blurb": "Proveedores, catálogo compartido, tipos impositivos y agencias." }
+    },
+    "continueAs": "Continuar como {name}",
+    "passwordTitle": "Iniciar sesión con contraseña",
+    "passwordHint": "Todas las cuentas de demostración usan la contraseña <code>parcelith</code>.",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "nombre@empresa.com",
+    "password": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "invitedEmail": "Iniciar sesión con un correo invitado",
+    "continue": "Continuar",
+    "failed": "No se ha podido iniciar sesión",
+    "errors": {
+      "unknownUser": "No hay ninguna cuenta con ese correo electrónico.",
+      "badCredentials": "Ese correo y esa contraseña no coinciden con ninguna cuenta."
+    }
+  },
+  "invite": {
+    "metaTitle": "Acepta tu invitación",
+    "metaDescription": "Acepta una invitación para trabajar en una tienda de Parcelith.",
+    "invalidTitle": "Este enlace ya no es válido",
+    "invalidBody": "Puede que el enlace ya se haya usado. Inicia sesión o pide una nueva invitación.",
+    "goToSignIn": "Ir a iniciar sesión",
+    "title": "{inviter} te ha invitado a {store}",
+    "creates": "Al aceptar, se crea una cuenta de Parcelith para {email} y se inicia tu sesión.",
+    "invited": "Invitación del {date}.",
+    "accept": "Aceptar invitación",
+    "accepting": "Configurando tu cuenta…"
+  },
+  "roles": {
+    "store_admin": "Administrador de tienda",
+    "catalog_manager": "Gestor de catálogo",
+    "order_manager": "Gestor de pedidos",
+    "viewer": "Lector",
+    "platformAccess": "Acceso de plataforma",
+    "platformAccessNote": "Con acceso de plataforma, los datos de clientes y los importes de los pedidos están ocultos.",
+    "descriptions": {
+      "store_admin": "Acceso completo, incluidos ajustes y equipo.",
+      "catalog_manager": "Productos, precios, publicación y catálogos de regalos.",
+      "order_manager": "Pedidos, logística, reembolsos e incidencias de proveedores.",
+      "viewer": "Acceso de solo lectura."
+    },
+    "platform": {
+      "platform_admin": "Admin de plataforma",
+      "agency_admin": "Admin de agencia",
+      "agency_member": "Miembro de la agencia"
+    }
+  },
+  "shell": {
+    "workspaceHome": "Espacio de agencia de Parcelith",
+    "adminHome": "Administración de la plataforma Parcelith",
+    "switchStore": "Cambiar de tienda",
+    "allStores": "Todas las tiendas",
+    "noActiveStores": "Aún no hay tiendas activas.",
+    "createStore": "Crear una tienda de cliente",
+    "platformAdmin": "Admin de plataforma",
+    "platformAdministration": "Administración de la plataforma",
+    "workspace": "Espacio",
+    "agencyWorkspace": "Espacio de agencia",
+    "signOut": "Cerrar sesión",
+    "language": "Idioma",
+    "languageSaved": "Idioma actualizado.",
+    "languageFailed": "No se ha podido cambiar el idioma. Inténtalo de nuevo.",
+    "storeSections": "Secciones de la tienda",
+    "active": "Activa",
+    "archived": "Archivada",
+    "tabs": {
+      "overview": "Resumen",
+      "catalog": "Catálogo",
+      "sourcing": "Proveedores",
+      "assistant": "Asistente de IA",
+      "storefront": "Escaparate",
+      "gifting": "Regalos",
+      "orders": "Pedidos",
+      "discounts": "Descuentos",
+      "team": "Equipo",
+      "settings": "Ajustes",
+      "activity": "Actividad"
+    },
+    "adminTabs": {
+      "overview": "Resumen",
+      "suppliers": "Proveedores",
+      "catalog": "Catálogo compartido",
+      "quotes": "Solicitudes de presupuesto",
+      "tax": "Tipos impositivos",
+      "agencies": "Agencias y acceso",
+      "audit": "Registro de auditoría"
+    }
+  },
+  "pages": {
+    "admin": {
+      "overviewTitle": "Resumen de operaciones",
+      "overviewDescription": "Proveedores, catálogo compartido, tipos impositivos globales y acceso de agencias.",
+      "suppliersTitle": "Proveedores",
+      "suppliersDescription": "Solo los proveedores aprobados están disponibles para las tiendas.",
+      "catalogTitle": "Catálogo compartido",
+      "catalogDescription": "Productos que cualquier tienda puede importar.",
+      "newCatalogTitle": "Añadir un producto al catálogo",
+      "quotesTitle": "Solicitudes de presupuesto",
+      "quotesDescription": "Registra los presupuestos de proveedores para las solicitudes de las tiendas.",
+      "taxTitle": "Tipos impositivos",
+      "taxDescription": "Tipos comunes a toda la plataforma. Cada tienda elige uno predeterminado.",
+      "agenciesTitle": "Agencias",
+      "auditTitle": "Registro de auditoría de la plataforma",
+      "auditDescription": "Todos los cambios registrados en la plataforma."
+    },
+    "store": {
+      "newStoreTitle": "Crear una tienda de cliente",
+      "productsTitle": "Productos",
+      "ordersTitle": "Pedidos",
+      "assistantTitle": "Asistente",
+      "assistantDescription": "Las sugerencias quedan pendientes hasta que las apliques.",
+      "editorTitle": "Editor de páginas",
+      "editorDescription": "Los cambios se publican cuando pulsas Publicar.",
+      "giftingTitle": "Regalos de empresa",
+      "giftingDescription": "Catálogos de regalos privados para clientes corporativos.",
+      "discountsTitle": "Códigos de descuento",
+      "teamTitle": "Equipo",
+      "settingsTitle": "Ajustes",
+      "activityTitle": "Historial de auditoría"
+    }
+  },
+  "dashboard": {
+    "title": "Panel",
+    "activeStores": "{count, plural, one {# tienda activa} other {# tiendas activas}}",
+    "archivedSuffix": ", {count} archivadas",
+    "planUsage": "Plan {plan} · {usage}",
+    "limitReached": " · límite alcanzado",
+    "usageLimited": "{used} de {limit} tiendas activas",
+    "usageUnlimited": "{used, plural, one {# tienda activa} other {# tiendas activas}}, sin límite",
+    "deniedStore": "No tienes acceso a esa tienda.",
+    "deniedPage": "No tienes permiso para ver esa página.",
+    "statActiveStores": "Tiendas activas",
+    "statArchived": "{count} archivadas",
+    "statOrders": "Pedidos",
+    "statPublished": "Productos publicados",
+    "statAttention": "Requieren atención",
+    "statAttentionSub": "Incidencias y envío manual",
+    "clientStores": "Tiendas de clientes",
+    "emptyTitle": "Aún no hay tiendas",
+    "emptyBody": "Crea tu primera tienda de cliente para empezar.",
+    "stripeConnected": "Stripe conectado",
+    "stripePending": "Stripe pendiente",
+    "sales30": "Ventas, 30 días",
+    "orders": "Pedidos",
+    "products": "Productos",
+    "inProduction": "{count} en producción",
+    "shipped": "{count} enviados",
+    "delivered": "{count} entregados",
+    "exceptions": "{count, plural, one {# incidencia} other {# incidencias}}",
+    "manual": "{count} manuales",
+    "setup": "Configuración {done}/{total}",
+    "open": "Abrir",
+    "storefront": "Escaparate ↗",
+    "archivedStores": "Tiendas archivadas",
+    "showArchived": "{count, plural, one {Mostrar # tienda archivada} other {Mostrar # tiendas archivadas}}",
+    "hideArchived": "{count, plural, one {Ocultar # tienda archivada} other {Ocultar # tiendas archivadas}}",
+    "archivedRow": "{client} · {count, plural, one {# pedido anterior} other {# pedidos anteriores}} · {amount} en total",
+    "viewRecords": "Ver registros",
+    "restore": "Restaurar",
+    "recentActivity": "Actividad reciente",
+    "nothingYet": "Aún no hay nada registrado.",
+    "repeated": "{summary} ({count} veces)",
+    "platform": {
+      "agencies": "{count, plural, one {# agencia} other {# agencias}}",
+      "deniedStore": "Esa tienda ya no existe.",
+      "deniedPage": "El acceso de plataforma no incluye esa pantalla. Queda reservada al equipo de la tienda.",
+      "emptyTitle": "Aún no hay agencias",
+      "emptyBody": "Añade una agencia en la administración de la plataforma para empezar.",
+      "openAdmin": "Abrir la administración",
+      "missingAgency": "Falta el registro de la agencia",
+      "plan": "Plan {plan}",
+      "suspended": "Suspendida",
+      "noAgencyRecord": "Sin registro de agencia",
+      "noStores": "Aún no hay tiendas.",
+      "published": "Publicados",
+      "archivedLabel": "· archivada",
+      "historicOrders": "{count, plural, one {# pedido anterior} other {# pedidos anteriores}}",
+      "recentActivity": "Actividad reciente de la plataforma"
+    }
+  },
+  "pager": {
+    "orders": "{first}–{last} de {total} pedidos",
+    "audit": "{first}–{last} de {total} entradas",
+    "auditCoverage": "Actividad desde el {date}. Define un intervalo de fechas para ver entradas anteriores."
+  },
+  "fallback": {
+    "goToDashboard": "Ir al panel",
+    "createStore": "Crear una tienda de cliente",
+    "pageMissing": "Esta página no existe o se ha eliminado.",
+    "recordMissing": "Este registro no existe o se ha eliminado.",
+    "backToStore": "Volver a la tienda",
+    "platformOverview": "Resumen de la plataforma",
+    "agencyWorkspace": "Espacio de agencia"
+  }
+}

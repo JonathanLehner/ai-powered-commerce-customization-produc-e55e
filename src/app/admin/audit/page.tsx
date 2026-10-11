@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { Card } from "@/components/ui/card";
@@ -23,7 +24,7 @@ import {
   type AuditParams,
 } from "@/lib/audit-log";
 import { listAllStores, listSuppliers, loadAuditWindow } from "@/lib/data";
-import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE, type AuditLog } from "@/lib/types";
+import { AUDIT_CATEGORY_LABELS, type AuditLog } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 /** The column-head style every table in the workspace shares. */
@@ -66,11 +67,13 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
   const page = pageAuditEntries(matched, filters.page);
   const base = "/admin/audit";
 
+  const pages = await getTranslations("pages.admin");
+  const roles = await getTranslations("roles");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Platform audit log"
-        description={`Every recorded change across the platform. ${PLATFORM_ACCESS_NOTE}`}
+        title={pages("auditTitle")}
+        description={`${pages("auditDescription")} ${roles("platformAccessNote")}`}
       />
 
       <AuditFilterBar

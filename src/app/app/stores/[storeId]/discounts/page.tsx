@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { listDiscountCodes } from "@/lib/data";
@@ -31,10 +32,11 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
   const live = codes.filter((code) => codeState(code).label === "Live");
   const redemptions = codes.reduce((sum, code) => sum + (code.timesUsed ?? 0), 0);
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Discount codes"
+        title={pages("discountsTitle")}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">

@@ -1,7 +1,10 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
+import { asLocale } from "@/i18n/metadata";
 import { createPlanEnquiry, getPlanEnquiryByKey } from "@/lib/data";
-import { checkEnquiry, planEnquirySentence } from "@/lib/enquiry";
+import { UNDECIDED, checkEnquiry, planEnquiryLabel } from "@/lib/enquiry";
+import { PLAN_KEYS } from "@/lib/plans";
 import type { ActionState } from "./stores";
 
 /**
@@ -21,7 +24,16 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
     wantsCall: formData.get("wantsCall") === "on",
     submissionKey: String(formData.get("submissionKey") ?? ""),
   });
-  if (!checked.ok) return { status: "error", message: checked.message, field: checked.field };
+  // The page the form was sent from names its language, so the reply is in it too.
+  const t = await getTranslations({ locale: asLocale(String(formData.get("locale") ?? "")), namespace: "contact" });
+  if (!checked.ok) {
+    const field = checked.field;
+    const message =
+      field === "name" || field === "email" || field === "company" || field === "plan"
+        ? t(`errors.${field}`)
+        : checked.message;
+    return { status: "error", message, field };
+  }
 
   const enquiry = checked.value;
   const firstName = enquiry.name.split(" ")[0];
@@ -34,7 +46,7 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
     if (existing) {
       return {
         status: "success",
-        message: `Thanks ${firstName}. We already have your enquiry and will reply within one business day.`,
+        message: t("duplicate", { name: firstName }),
       };
     }
   }
@@ -43,8 +55,11 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
 
   return {
     status: "success",
-    message: `Thanks ${firstName}. We have your enquiry about ${planEnquirySentence(enquiry.plan)} and will ${
-      enquiry.wantsCall ? "call you" : "email you back"
-    } within one working day.`,
+    message: t("received", {
+      name: firstName,
+      plan: (PLAN_KEYS as readonly string[]).includes(enquiry.plan) ? enquiry.plan : UNDECIDED,
+      planName: planEnquiryLabel(enquiry.plan),
+      call: enquiry.wantsCall ? "yes" : "no",
+    }),
   };
 }

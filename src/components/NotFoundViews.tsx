@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
 import { DEFAULT_LANGUAGE, fmt, storefrontLocale } from "@/lib/i18n";
@@ -142,22 +143,20 @@ export function UnknownGiftPortalView({ slug }: { slug: string }) {
 
 /** A workspace address that does not exist. The header is rendered by the route above this. */
 export function WorkspaceNotFoundView() {
+  const t = useTranslations("common");
+  const fallback = useTranslations("fallback");
   return (
     <FallbackPanel
       eyebrow="404"
-      title="Page not found"
-      description={
-        <p>
-          This page does not exist or was removed.
-        </p>
-      }
+      title={t("notFoundTitle")}
+      description={<p>{fallback("pageMissing")}</p>}
       actions={
         <>
           <Link href="/app" className={buttonVariants()}>
-            Go to the dashboard
+            {fallback("goToDashboard")}
           </Link>
           <Link href="/app/stores/new" className={buttonVariants({ variant: "outline" })}>
-            Create a client store
+            {fallback("createStore")}
           </Link>
         </>
       }
@@ -167,22 +166,20 @@ export function WorkspaceNotFoundView() {
 
 /** A record that no longer exists inside a store's workspace. `base` is that store's overview. */
 export function StoreWorkspaceNotFoundView({ base }: { base: string }) {
+  const t = useTranslations("common");
+  const fallback = useTranslations("fallback");
   return (
     <FallbackPanel
       eyebrow="404"
-      title="Page not found"
-      description={
-        <p>
-          This record does not exist or was removed.
-        </p>
-      }
+      title={t("notFoundTitle")}
+      description={<p>{fallback("recordMissing")}</p>}
       actions={
         <>
           <Link href={base} className={buttonVariants()}>
-            Back to the store
+            {fallback("backToStore")}
           </Link>
           <Link href="/app" className={buttonVariants({ variant: "outline" })}>
-            Go to the dashboard
+            {fallback("goToDashboard")}
           </Link>
         </>
       }
@@ -192,22 +189,20 @@ export function StoreWorkspaceNotFoundView({ base }: { base: string }) {
 
 /** A platform administration address that does not exist. The admin layout keeps its header and nav. */
 export function AdminNotFoundView() {
+  const t = useTranslations("common");
+  const fallback = useTranslations("fallback");
   return (
     <FallbackPanel
       eyebrow="404"
-      title="Page not found"
-      description={
-        <p>
-          This page does not exist or was removed.
-        </p>
-      }
+      title={t("notFoundTitle")}
+      description={<p>{fallback("pageMissing")}</p>}
       actions={
         <>
           <Link href="/admin" className={buttonVariants()}>
-            Platform overview
+            {fallback("platformOverview")}
           </Link>
           <Link href="/app" className={buttonVariants({ variant: "outline" })}>
-            Agency workspace
+            {fallback("agencyWorkspace")}
           </Link>
         </>
       }

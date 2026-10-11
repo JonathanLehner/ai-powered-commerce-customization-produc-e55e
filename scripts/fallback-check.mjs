@@ -54,7 +54,7 @@ for (const surface of SURFACES) {
 // that matches nothing arrives as finished HTML rather than an empty document.
 assert.ok(exists("not-found.tsx"), "there is no site-wide not-found page");
 assert.ok(exists("global-error.tsx"), "there is no global-error page");
-assert.ok(exists("(marketing)/error.tsx"), "the public site has no error page");
+assert.ok(exists("[locale]/error.tsx"), "the public site has no error page");
 
 /* ------------------------------------------ nothing may raise notFound() */
 
@@ -148,6 +148,15 @@ assert.equal(matchesRoute("/s/northwind-supply/products/a-tee"), true);
 assert.equal(matchesRoute("/app/stores/str_1/orders/campaigns/cmp_1"), true);
 assert.equal(matchesRoute("/admin/catalog/new"), true);
 assert.equal(matchesRoute("/"), true);
+// The public site answers in English at the root and in every other language
+// under its prefix, and nowhere else.
+assert.equal(matchesRoute("/pricing"), true);
+assert.equal(matchesRoute("/de/pricing"), true);
+assert.equal(matchesRoute("/ja"), true);
+assert.equal(matchesRoute("/legal/terms"), true);
+assert.equal(matchesRoute("/sv/legal/privacy"), true);
+assert.equal(matchesRoute("/xx/pricing"), false, "an unsupported language is not a page");
+assert.equal(matchesRoute("/nope"), false);
 
 /* ------------------------------------- the way back into a store's workspace */
 

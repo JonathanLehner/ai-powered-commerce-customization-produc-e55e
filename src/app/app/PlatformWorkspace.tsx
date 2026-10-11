@@ -1,15 +1,16 @@
+import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge, EmptyState, PageHeader, ProgressBar } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
+import { formatAgo } from "@/i18n/format";
+import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { listAgencies, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
 import { planFor } from "@/lib/plans";
 import { accessibleStores } from "@/lib/session";
-import { PLATFORM_ACCESS_LABEL, PLATFORM_ACCESS_NOTE, THEMES, type Agency, type Store, type User } from "@/lib/types";
-import { relativeTime } from "@/lib/util";
+import { THEMES, type Agency, type Store, type User } from "@/lib/types";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 12;
@@ -36,11 +37,16 @@ interface Group {
  * in `page.tsx` is the view for people who actually run the stores.
  */
 export async function PlatformWorkspace({ user, denied }: { user: User; denied?: string }) {
-  const [stores, agencies, audit] = await Promise.all([
+  const [stores, agencies, audit, t, shell, roles, format] = await Promise.all([
     accessibleStores(user),
     listAgencies(),
     listAudit({}, recentAuditReadSize(ACTIVITY_ROWS)),
+    getTranslations("dashboard"),
+    getTranslations("shell"),
+    getTranslations("roles"),
+    getFormatter(),
   ]);
+  const now = new Date();
 
   // Read as platform access: no shopper names, no order values.
   const activity = recentAuditRuns(platformAuditEntries(audit), ACTIVITY_ROWS);
@@ -72,7 +78,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
   for (const row of rows) {
     let group = groups.get(row.store.agencyId);
     if (!group) {
-      group = { key: row.store.agencyId, name: "Agency record missing", agency: null, active: [], archived: [] };
+      group = { key: row.store.agencyId, name: t("platform.missingAgency"), agency: null, active: [], archived: [] };
       groups.set(row.store.agencyId, group);
     }
     (row.store.status === "active" ? group.active : group.archived).push(row);
@@ -84,36 +90,34 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
-          title="Dashboard"
+          title={t("title")}
           description={
             <>
-              {agencies.length} {agencies.length === 1 ? "agency" : "agencies"}
-              <span className="mt-0.5 block">{PLATFORM_ACCESS_NOTE}</span>
+              {t("platform.agencies", { count: agencies.length })}
+              <span className="mt-0.5 block">{roles("platformAccessNote")}</span>
             </>
           }
           actions={
             <Button asChild>
-              <Link href="/app/stores/new">Create a client store</Link>
+              <Link href="/app/stores/new">{shell("createStore")}</Link>
             </Button>
           }
         />
 
         {denied ? (
           <p role="alert" className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            {denied === "1"
-              ? "That store no longer exists."
-              : "Platform access does not include that screen. It stays with the store team."}
+            {denied === "1" ? t("platform.deniedStore") : t("platform.deniedPage")}
           </p>
         ) : null}
 
         {grouped.length === 0 ? (
           <div className="mt-6">
             <EmptyState
-              title="No agencies yet"
-              description="Add an agency in platform admin to get started."
+              title={t("platform.emptyTitle")}
+              description={t("platform.emptyBody")}
               action={
                 <Button asChild>
-                  <Link href="/admin/agencies">Open platform admin</Link>
+                  <Link href="/admin/agencies">{t("platform.openAdmin")}</Link>
                 </Button>
               }
             />
@@ -126,21 +130,20 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
               <h2 className="text-base font-semibold text-foreground">{group.name}</h2>
               {group.agency ? (
                 <>
-                  <Badge tone="neutral">{planFor(group.agency.plan).name} plan</Badge>
-                  {group.agency.status === "suspended" ? <Badge tone="rose">Suspended</Badge> : null}
+                  <Badge tone="neutral">{t("platform.plan", { plan: planFor(group.agency.plan).name })}</Badge>
+                  {group.agency.status === "suspended" ? <Badge tone="rose">{t("platform.suspended")}</Badge> : null}
                 </>
               ) : (
-                <Badge tone="amber">No agency record</Badge>
+                <Badge tone="amber">{t("platform.noAgencyRecord")}</Badge>
               )}
               <p className="text-xs text-muted-foreground">
-                <span className="tabular-nums">{group.active.length}</span> active{" "}
-                {group.active.length === 1 ? "store" : "stores"}
-                {group.archived.length ? `, ${group.archived.length} archived` : ""}
+                {t("activeStores", { count: group.active.length })}
+                {group.archived.length ? t("archivedSuffix", { count: group.archived.length }) : ""}
               </p>
             </div>
 
             {group.active.length === 0 && group.archived.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">No stores yet.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("platform.noStores")}</p>
             ) : null}
 
             {group.active.length > 0 ? (
@@ -173,9 +176,9 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
 
                       <CardContent>
                       <div className="flex flex-wrap gap-1.5">
-                        <Badge tone="iris">{PLATFORM_ACCESS_LABEL}</Badge>
+                        <Badge tone="iris">{roles("platformAccess")}</Badge>
                         <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                          {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
+                          {store.stripe.connected ? t("stripeConnected") : t("stripePending")}
                         </Badge>
                         {store.customDomain ? (
                           <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>
@@ -187,40 +190,40 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                       {/* Operational status only — no sales figures, no shopper records. */}
                       <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-border py-3 text-sm">
                         <div>
-                          <dt className="text-xs text-muted-foreground">Orders</dt>
+                          <dt className="text-xs text-muted-foreground">{t("orders")}</dt>
                           <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                            {metrics.orderCount}
+                            {format.number(metrics.orderCount)}
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted-foreground">Published</dt>
+                          <dt className="text-xs text-muted-foreground">{t("platform.published")}</dt>
                           <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                            {metrics.publishedProducts}
+                            {format.number(metrics.publishedProducts)}
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted-foreground">Needs attention</dt>
+                          <dt className="text-xs text-muted-foreground">{t("statAttention")}</dt>
                           <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                            {metrics.awaitingAction}
+                            {format.number(metrics.awaitingAction)}
                           </dd>
                         </div>
                       </dl>
 
                       <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                        <Badge tone="slate">{metrics.inProduction} in production</Badge>
-                        <Badge tone="slate">{metrics.shipped} shipped</Badge>
-                        <Badge tone="slate">{metrics.delivered} delivered</Badge>
+                        <Badge tone="slate">{t("inProduction", { count: metrics.inProduction })}</Badge>
+                        <Badge tone="slate">{t("shipped", { count: metrics.shipped })}</Badge>
+                        <Badge tone="slate">{t("delivered", { count: metrics.delivered })}</Badge>
                         {metrics.exceptions > 0 ? (
-                          <Badge tone="rose">
-                            {metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}
-                          </Badge>
+                          <Badge tone="rose">{t("exceptions", { count: metrics.exceptions })}</Badge>
                         ) : null}
-                        {metrics.manualRouting > 0 ? <Badge tone="amber">{metrics.manualRouting} manual</Badge> : null}
+                        {metrics.manualRouting > 0 ? (
+                          <Badge tone="amber">{t("manual", { count: metrics.manualRouting })}</Badge>
+                        ) : null}
                       </div>
 
                       {progress.pct < 100 ? (
                         <div className="mt-4">
-                          <ProgressBar value={progress.pct} label={`Setup ${progress.done}/${progress.total}`} />
+                          <ProgressBar value={progress.pct} label={t("setup", { done: progress.done, total: progress.total })} />
                         </div>
                       ) : null}
 
@@ -232,7 +235,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                         </Button>
                         <Button asChild variant="ghost" size="sm">
                           <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
-                            Storefront ↗
+                            {t("storefront")}
                           </Link>
                         </Button>
                       </CardFooter>
@@ -250,11 +253,10 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                   <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">
-                        {store.name} <span className="font-normal text-muted-foreground">· archived</span>
+                        {store.name} <span className="font-normal text-muted-foreground">{t("platform.archivedLabel")}</span>
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {store.clientName} · <span className="tabular-nums">{metrics.orderCount}</span>{" "}
-                        historic orders
+                        {store.clientName} · {t("platform.historicOrders", { count: metrics.orderCount })}
                       </p>
                     </div>
                     <Button asChild variant="ghost" size="sm">
@@ -269,17 +271,19 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
         ))}
 
         <section className="mt-9 pb-4">
-          <h2 className="text-base font-semibold text-foreground">Recent platform activity</h2>
+          <h2 className="text-base font-semibold text-foreground">{t("platform.recentActivity")}</h2>
           {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("nothingYet")}</p>
           ) : (
             <Card asChild className="mt-4 py-0">
             <ol className="divide-y divide-border">
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
-                  <span className="text-sm text-foreground">{auditRunSummary(run)}</span>
+                  <span className="text-sm text-foreground">
+                    {run.count > 1 ? t("repeated", { summary: run.entry.summary, count: run.count }) : run.entry.summary}
+                  </span>
                   <span className="text-xs text-muted-foreground">
-                    {run.entry.actorName} · {relativeTime(run.entry.at)}
+                    {run.entry.actorName} · {formatAgo(format, run.entry.at, now)}
                   </span>
                 </li>
               ))}

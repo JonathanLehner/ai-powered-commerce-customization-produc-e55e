@@ -59,7 +59,7 @@ function WithdrawDialog({ formId, code }: { formId: string; code: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
             Withdraw
           </AlertDialogAction>

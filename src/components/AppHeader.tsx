@@ -1,10 +1,12 @@
 "use client";
 
-import { ChevronsUpDownIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react";
+import { ChevronsUpDownIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { signOut } from "@/app/actions/auth";
+import { setUiLanguage } from "@/app/actions/preferences";
 import { Badge, Logo } from "@/components/ui";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,13 +23,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/sonner";
+import { LOCALES, LOCALE_NAMES } from "@/i18n/locales";
 import type { AccessibleStore } from "@/lib/session";
-import { storeAccessLabel, type User } from "@/lib/types";
+import type { User } from "@/lib/types";
 
 function initials(name: string): string {
   return name
@@ -37,12 +46,46 @@ function initials(name: string): string {
     .join("");
 }
 
-function platformRoleLabel(role: User["platformRole"]): string {
-  return role === "platform_admin"
-    ? "Platform admin"
-    : role === "agency_admin"
-      ? "Agency admin"
-      : "Agency member";
+/**
+ * The user's language, saved on their record. The page is then fetched again,
+ * so everything the server rendered is in the new language too.
+ */
+function LanguageMenu() {
+  const t = useTranslations("shell");
+  const locale = useLocale();
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  function choose(next: string) {
+    if (next === locale || pending) return;
+    startTransition(async () => {
+      const { ok } = await setUiLanguage(next);
+      if (!ok) {
+        toast.error(t("languageFailed"));
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger disabled={pending}>
+        <LanguagesIcon />
+        <span className="flex-1">{t("language")}</span>
+        <span className="text-xs text-muted-foreground">{LOCALE_NAMES[locale]}</span>
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent className="w-44">
+        <DropdownMenuRadioGroup value={locale} onValueChange={choose}>
+          {LOCALES.map((option) => (
+            <DropdownMenuRadioItem key={option} value={option} lang={option} disabled={pending}>
+              {LOCALE_NAMES[option]}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  );
 }
 
 export function AppHeader({
@@ -55,6 +98,8 @@ export function AppHeader({
   currentStoreId?: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("shell");
+  const roles = useTranslations("roles");
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const active = stores.filter((s) => s.store.status === "active");
   const current = stores.find((s) => s.store.id === currentStoreId);
@@ -67,7 +112,7 @@ export function AppHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
       <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-2 px-3 sm:gap-3 sm:px-6">
-        <Link href="/app" className="shrink-0" aria-label="Parcelith agency workspace">
+        <Link href="/app" className="shrink-0" aria-label={t("workspaceHome")}>
           <Logo size={24} />
         </Link>
 
@@ -78,18 +123,18 @@ export function AppHeader({
             <Button
               variant="outline"
               role="combobox"
-              aria-label="Switch store"
+              aria-label={t("switchStore")}
               className="min-w-0 flex-1 justify-between font-normal sm:w-56 sm:flex-none"
             >
-              <span className="truncate">{current ? current.store.name : "All stores"}</span>
+              <span className="truncate">{current ? current.store.name : t("allStores")}</span>
               <ChevronsUpDownIcon className="shrink-0 text-muted-foreground" />
             </Button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-[min(18rem,calc(100vw-1.5rem))] p-0">
             <Command>
-              <CommandInput placeholder="Switch store" />
+              <CommandInput placeholder={t("switchStore")} />
               <CommandList>
-                <CommandEmpty>No active stores yet.</CommandEmpty>
+                <CommandEmpty>{t("noActiveStores")}</CommandEmpty>
                 <CommandGroup>
                   {active.map(({ store, role, viaPlatform }) => (
                     <CommandItem
@@ -106,7 +151,7 @@ export function AppHeader({
                       </span>
                       {store.id === currentStoreId ? null : (
                         <span className="shrink-0 text-[11px] text-muted-foreground">
-                          {storeAccessLabel(role, viaPlatform).split(" ")[0]}
+                          {(viaPlatform ? roles("platformAccess") : roles(role)).split(" ")[0]}
                         </span>
                       )}
                     </CommandItem>
@@ -114,15 +159,15 @@ export function AppHeader({
                 </CommandGroup>
                 <CommandSeparator />
                 <CommandGroup>
-                  <CommandItem value="All stores" onSelect={() => go("/app")}>
-                    All stores
+                  <CommandItem value={t("allStores")} onSelect={() => go("/app")}>
+                    {t("allStores")}
                   </CommandItem>
                   <CommandItem
-                    value="Create a client store"
+                    value={t("createStore")}
                     onSelect={() => go("/app/stores/new")}
                     className="text-primary"
                   >
-                    + Create a client store
+                    + {t("createStore")}
                   </CommandItem>
                 </CommandGroup>
               </CommandList>
@@ -133,7 +178,7 @@ export function AppHeader({
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           {user.platformRole === "platform_admin" ? (
             <Button asChild variant="ghost" className="hidden sm:inline-flex">
-              <Link href="/admin">Platform admin</Link>
+              <Link href="/admin">{t("platformAdmin")}</Link>
             </Button>
           ) : null}
           <DropdownMenu>
@@ -153,17 +198,18 @@ export function AppHeader({
                 <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                 <p className="mt-2">
                   <Badge tone={user.platformRole === "platform_admin" ? "green" : "brand"}>
-                    {platformRoleLabel(user.platformRole)}
+                    {roles(`platform.${user.platformRole}`)}
                   </Badge>
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">{user.title}</p>
               </div>
               <DropdownMenuSeparator />
+              <LanguageMenu />
               {user.platformRole === "platform_admin" ? (
                 <DropdownMenuItem asChild className="sm:hidden">
                   <Link href="/admin">
                     <ShieldCheckIcon />
-                    Platform admin
+                    {t("platformAdmin")}
                   </Link>
                 </DropdownMenuItem>
               ) : null}
@@ -174,7 +220,7 @@ export function AppHeader({
                 <DropdownMenuItem asChild onSelect={(event) => event.preventDefault()}>
                   <button type="submit" className="w-full">
                     <LogOutIcon />
-                    Sign out
+                    {t("signOut")}
                   </button>
                 </DropdownMenuItem>
               </form>

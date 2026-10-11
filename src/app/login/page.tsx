@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Suspense } from "react";
 import { signInAs, signInWithPassword } from "@/app/actions/auth";
@@ -9,52 +10,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SignInError } from "./SignInError";
 
-export const dynamic = "force-static";
-
-export const metadata: Metadata = {
-  title: "Sign in",
-  description: "Sign in to the Parcelith agency workspace.",
-};
+/**
+ * Rendered per request: the screen is in the visitor's language, which comes
+ * from their browser until they have chosen one in the workspace.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return { title: t("metaTitle"), description: t("metaDescription") };
+}
 
 const PERSONAS = [
-  {
-    email: "alex@northlight.studio",
-    name: "Alex Moreau",
-    title: "Agency director, Northlight Studio",
-    blurb: "Full access to four client stores.",
-    tone: "brand" as const,
-  },
-  {
-    email: "sam@northlight.studio",
-    name: "Sam Okafor",
-    title: "Catalog producer",
-    blurb: "Catalog manager on Northwind and Lumen, store admin on Ferro.",
-    tone: "iris" as const,
-  },
-  {
-    email: "ines@northlight.studio",
-    name: "Inés Duarte",
-    title: "Fulfilment lead",
-    blurb: "Order manager on Northwind.",
-    tone: "amber" as const,
-  },
-  {
-    email: "dana@northwind.example",
-    name: "Dana Whitfield",
-    title: "Client stakeholder",
-    blurb: "Read-only access to Northwind Supply Co.",
-    tone: "slate" as const,
-  },
-  {
-    email: "ops@parcelith.com",
-    name: "Priya Raman",
-    title: "Platform operations",
-    blurb: "Suppliers, shared catalog, tax brackets and agencies.",
-    tone: "green" as const,
-  },
-];
+  { key: "alex", email: "alex@northlight.studio", name: "Alex Moreau", tone: "brand" },
+  { key: "sam", email: "sam@northlight.studio", name: "Sam Okafor", tone: "iris" },
+  { key: "ines", email: "ines@northlight.studio", name: "Inés Duarte", tone: "amber" },
+  { key: "dana", email: "dana@northwind.example", name: "Dana Whitfield", tone: "slate" },
+  { key: "priya", email: "ops@parcelith.com", name: "Priya Raman", tone: "green" },
+] as const;
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("auth");
+
   return (
     <div className="flex min-h-screen flex-col bg-muted">
       <header className="border-b border-border bg-background">
@@ -63,7 +38,7 @@ export default function LoginPage() {
             <Logo />
           </Link>
           <Button asChild variant="ghost">
-            <Link href="/how-it-works">How it works</Link>
+            <Link href="/how-it-works">{t("howItWorks")}</Link>
           </Button>
         </div>
       </header>
@@ -71,9 +46,9 @@ export default function LoginPage() {
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
         <section>
           <h1 className="font-heading text-xl font-semibold tracking-tight text-foreground">
-            Sign in
+            {t("title")}
           </h1>
-                    <p className="mt-1.5 text-sm text-muted-foreground">Choose a demo account.</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">{t("lead")}</p>
           <Suspense fallback={null}>
             <SignInError />
           </Suspense>
@@ -87,13 +62,13 @@ export default function LoginPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-foreground">{persona.name}</p>
-                          <p className="truncate text-xs text-muted-foreground">{persona.title}</p>
+                          <p className="truncate text-xs text-muted-foreground">{t(`personas.${persona.key}.title`)}</p>
                         </div>
                         <Badge tone={persona.tone}>{persona.email.split("@")[1]}</Badge>
                       </div>
-                      <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{persona.blurb}</p>
+                      <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{t(`personas.${persona.key}.blurb`)}</p>
                       <Button type="submit" variant="outline" size="sm" className="mt-4 w-full">
-                        Continue as {persona.name.split(" ")[0]}
+                        {t("continueAs", { name: persona.name.split(" ")[0] })}
                       </Button>
                     </CardContent>
                 </form>
@@ -104,26 +79,26 @@ export default function LoginPage() {
           <Card asChild size="sm" className="mt-6">
           <form action={signInWithPassword}>
               <CardHeader>
-                <p className="text-sm font-semibold text-foreground">Sign in with a password</p>
+                <p className="text-sm font-semibold text-foreground">{t("passwordTitle")}</p>
                 <p className="text-xs text-muted-foreground">
-                  Every demo account uses the password <code className="font-mono">parcelith</code>.
+                  {t.rich("passwordHint", { code: (chunks) => <code className="font-mono">{chunks}</code> })}
                 </p>
               </CardHeader>
               <CardContent className="flex flex-wrap items-end gap-2">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="password-email">Email address</Label>
+                  <Label htmlFor="password-email">{t("email")}</Label>
                   <Input
                     id="password-email"
                     name="email"
                     type="email"
                     autoComplete="username"
                     required
-                    placeholder="name@company.com"
+                    placeholder={t("emailPlaceholder")}
                     className="w-full sm:w-64"
                   />
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="password-password">Password</Label>
+                  <Label htmlFor="password-password">{t("password")}</Label>
                   <Input
                     id="password-password"
                     name="password"
@@ -134,7 +109,7 @@ export default function LoginPage() {
                   />
                 </div>
                 <Button type="submit" variant="outline" size="sm">
-                  Sign in
+                  {t("signIn")}
                 </Button>
               </CardContent>
           </form>
@@ -144,7 +119,7 @@ export default function LoginPage() {
           <form action={signInAs}>
               <CardContent>
                 <Label htmlFor="signin-email">
-                  Sign in with an invited email address
+                  {t("invitedEmail")}
                 </Label>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Input
@@ -152,11 +127,11 @@ export default function LoginPage() {
                     name="email"
                     type="email"
                     required
-                    placeholder="name@company.com"
+                    placeholder={t("emailPlaceholder")}
                     className="w-full sm:w-72"
                   />
                   <Button type="submit" variant="outline" size="sm">
-                    Continue
+                    {t("continue")}
                   </Button>
                 </div>
               </CardContent>

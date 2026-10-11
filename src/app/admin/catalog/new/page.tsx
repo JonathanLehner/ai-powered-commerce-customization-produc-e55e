@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Breadcrumbs, Callout, PageHeader } from "@/components/ui";
 import { listSuppliers } from "@/lib/data";
 import { CatalogProductForm } from "../CatalogProductForm";
@@ -10,6 +11,7 @@ export default async function AdminCatalogNewPage({
   const [{ supplierId }, suppliers] = await Promise.all([searchParams, listSuppliers()]);
   const preselected = suppliers.find((s) => s.id === supplierId);
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-6">
       <Breadcrumbs
@@ -19,7 +21,7 @@ export default async function AdminCatalogNewPage({
         ]}
       />
       <PageHeader
-        title="Add a catalog product"
+        title={pages("newCatalogTitle")}
       />
 
       {preselected ? (

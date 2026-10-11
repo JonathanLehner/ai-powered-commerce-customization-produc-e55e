@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { acceptInvitation } from "@/app/actions/team";
 import { SubmitButton } from "@/components/forms";
@@ -6,15 +7,14 @@ import { Badge, Logo } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getMembershipByToken, getStore } from "@/lib/data";
-import { STORE_ROLE_DESCRIPTIONS, STORE_ROLE_LABELS } from "@/lib/types";
-import { formatDate } from "@/lib/util";
 
-export const metadata: Metadata = {
-  title: "Accept your invitation",
-  description: "Accept an invitation to work on a Parcelith store.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("invite");
+  return { title: t("metaTitle"), description: t("metaDescription") };
+}
 
-function Shell({ children }: { children: React.ReactNode }) {
+async function Shell({ children }: { children: React.ReactNode }) {
+  const t = await getTranslations("site");
   return (
     <div className="flex min-h-screen flex-col bg-muted">
       <header className="border-b border-border bg-background">
@@ -23,7 +23,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             <Logo />
           </Link>
           <Button asChild variant="ghost">
-            <Link href="/how-it-works">How it works</Link>
+            <Link href="/how-it-works">{t("howItWorks")}</Link>
           </Button>
         </div>
       </header>
@@ -36,6 +36,11 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   const { token } = await params;
   const membership = await getMembershipByToken(token);
   const store = membership ? await getStore(membership.storeId) : null;
+  const [t, roles, format] = await Promise.all([
+    getTranslations("invite"),
+    getTranslations("roles"),
+    getFormatter(),
+  ]);
 
   if (!membership || membership.status !== "invited" || !store) {
     return (
@@ -44,13 +49,13 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         <section>
           <CardContent>
             <h1 className="font-heading text-lg font-semibold tracking-tight text-foreground">
-              This link is no longer valid
+              {t("invalidTitle")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              This link may have been used already. Sign in, or ask for a new invitation.
+              {t("invalidBody")}
             </p>
             <Button asChild variant="outline" size="sm" className="mt-5">
-              <Link href="/login">Go to sign in</Link>
+              <Link href="/login">{t("goToSignIn")}</Link>
             </Button>
           </CardContent>
         </section>
@@ -64,23 +69,25 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       <Card asChild>
       <section>
         <CardContent>
-          <Badge tone="brand">{STORE_ROLE_LABELS[membership.role]}</Badge>
+          <Badge tone="brand">{roles(membership.role)}</Badge>
           <h1 className="font-heading mt-3 text-lg font-semibold tracking-tight text-foreground">
-            {membership.invitedBy} invited you to {store.name}
+            {t("title", { inviter: membership.invitedBy, store: store.name })}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Accepting creates a Parcelith account for {membership.email} and signs you in.
+            {t("creates", { email: membership.email })}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{STORE_ROLE_LABELS[membership.role]}</span> ·{" "}
-            {STORE_ROLE_DESCRIPTIONS[membership.role]}
+            <span className="font-medium text-foreground">{roles(membership.role)}</span> ·{" "}
+            {roles(`descriptions.${membership.role}`)}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">Invited {formatDate(membership.invitedAt)}.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("invited", { date: format.dateTime(new Date(membership.invitedAt), "date") })}
+          </p>
 
           <form action={acceptInvitation} className="mt-6">
             <input type="hidden" name="token" value={token} />
-            <SubmitButton pendingLabel="Setting up your account…" className="w-full">
-              Accept invitation
+            <SubmitButton pendingLabel={t("accepting")} className="w-full">
+              {t("accept")}
             </SubmitButton>
           </form>
         </CardContent>

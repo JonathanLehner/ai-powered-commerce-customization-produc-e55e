@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { OrdersPager } from "@/components/OrdersPager";
 import { Dot, EmptyState, PageHeader, StatCard } from "@/components/ui";
@@ -23,7 +24,7 @@ import {
   type OrderListParams,
 } from "@/lib/order-list";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { ORDER_STATUS_LABELS, PLATFORM_ACCESS_NOTE, type OrderStatus } from "@/lib/types";
+import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
 import { OrdersToolbar } from "./OrdersToolbar";
 
@@ -81,15 +82,17 @@ export default async function OrdersPage({
     ? `${base}/export${orderListQuery(filters, { page: 1 })}`
     : null;
 
+  const pages = await getTranslations("pages.store");
+  const roles = await getTranslations("roles");
   return (
     <div className="space-y-6">
       <PageHeader
-                title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : "Orders"}
+                title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : pages("ordersTitle")}
         description={
           activeCampaign
             ? `${activeCampaign.recipients.length} recipients`
             : viaPlatform
-              ? PLATFORM_ACCESS_NOTE
+              ? roles("platformAccessNote")
               : undefined
         }
         actions={

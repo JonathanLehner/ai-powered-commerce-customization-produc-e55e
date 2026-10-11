@@ -56,6 +56,8 @@ export interface User {
   agencyId: string | null;
   title: string;
   createdAt: string;
+  /** The language the workspace is shown in. Unset follows the browser. */
+  uiLanguage?: string;
 }
 
 export interface Membership {

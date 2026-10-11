@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FallbackPanel } from "@/components/ui";
@@ -14,28 +15,28 @@ export default function StoreWorkspaceError({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  const t = useTranslations("common");
+  const fallback = useTranslations("fallback");
   const base = storeBasePath(usePathname());
 
   return (
     <FallbackPanel
-      eyebrow="Error"
-      title="Something went wrong"
+      eyebrow={t("error")}
+      title={t("errorTitle")}
       description={
-        <p>
-          This page could not be loaded. Please try again.
-        </p>
+        <p>{t("errorBody")}</p>
       }
       actions={
         <>
           <Button type="button" onClick={unstable_retry}>
-            Try again
+            {t("tryAgain")}
           </Button>
           <Button asChild variant="outline">
-            <Link href={base}>Back to the store</Link>
+            <Link href={base}>{fallback("backToStore")}</Link>
           </Button>
         </>
       }
-      note={error.digest ? `Reference ${error.digest}` : null}
+      note={error.digest ? t("reference", { digest: error.digest }) : null}
     />
   );
 }

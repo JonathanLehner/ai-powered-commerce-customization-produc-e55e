@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { FallbackPanel } from "@/components/ui";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 
 /** An unexpected failure on the public site. */
 export default function MarketingError({
@@ -12,26 +13,23 @@ export default function MarketingError({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  const t = useTranslations("common");
   return (
     <FallbackPanel
-      eyebrow="Error"
-      title="Something went wrong"
-      description={
-        <p>
-          This page could not be loaded. Please try again.
-        </p>
-      }
+      eyebrow={t("error")}
+      title={t("errorTitle")}
+      description={<p>{t("errorBody")}</p>}
       actions={
         <>
           <Button type="button" onClick={unstable_retry}>
-            Try again
+            {t("tryAgain")}
           </Button>
           <Link href="/" className={buttonVariants({ variant: "outline" })}>
-            Back to the homepage
+            {t("backToHomepage")}
           </Link>
         </>
       }
-      note={error.digest ? `Reference ${error.digest}` : null}
+      note={error.digest ? t("reference", { digest: error.digest }) : null}
     />
   );
 }

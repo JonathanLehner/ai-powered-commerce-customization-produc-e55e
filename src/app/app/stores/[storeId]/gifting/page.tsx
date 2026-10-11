@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Badge, Callout, EmptyState, PageHeader, StatCard } from "@/components/ui";
@@ -52,11 +53,12 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
   const ordered = campaigns.filter((c) => c.status === "ordered");
   const gifted = ordered.reduce((sum, c) => sum + c.recipients.length, 0);
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Corporate gifting"
-        description="Private gift catalogues for corporate clients."
+        title={pages("giftingTitle")}
+        description={pages("giftingDescription")}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

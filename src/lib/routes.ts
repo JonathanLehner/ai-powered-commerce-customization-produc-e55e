@@ -1,3 +1,5 @@
+import { isLocale } from "@/i18n/locales";
+
 /**
  * The app's route table, written out as patterns.
  *
@@ -13,13 +15,15 @@
  * without adding it here is caught rather than silently served as a 404.
  */
 export const ROUTES = [
-  "/",
-  "/contact",
-  "/how-it-works",
-  "/legal/privacy",
-  "/legal/terms",
+  // The public site. English is served at the root, every other language under
+  // its prefix, so `[locale]` matches a supported language or nothing at all.
+  "/[locale]",
+  "/[locale]/contact",
+  "/[locale]/how-it-works",
+  "/[locale]/legal/privacy",
+  "/[locale]/legal/terms",
+  "/[locale]/pricing",
   "/login",
-  "/pricing",
   "/invite/[token]",
   "/api/asset",
   "/api/uploads",
@@ -69,6 +73,8 @@ export const ROUTES = [
   "/s/[slug]/products/[productSlug]",
 ] as const;
 
+const LOCALE_SEGMENT = "[locale]";
+
 /** The segments of a pathname, with the empty strings around the slashes dropped. */
 export function segmentsOf(pathname: string): string[] {
   return pathname.split("/").filter(Boolean);
@@ -79,10 +85,19 @@ export function matchesRoute(pathname: string): boolean {
   const segments = segmentsOf(pathname);
   return ROUTES.some((route) => {
     const pattern = segmentsOf(route);
-    if (pattern.length !== segments.length) return false;
-    // A dynamic segment stands for any one non-empty segment; a static one has
-    // to match exactly. Static routes are listed alongside the dynamic ones
-    // they shadow, so either matching is a real page.
-    return pattern.every((part, i) => (part.startsWith("[") ? true : part === segments[i]));
+    // A public page answers with or without its language prefix.
+    if (pattern[0] === LOCALE_SEGMENT) return fits(pattern, segments) || fits(pattern.slice(1), segments);
+    return fits(pattern, segments);
+  });
+}
+
+function fits(pattern: string[], segments: string[]): boolean {
+  if (pattern.length !== segments.length) return false;
+  // A dynamic segment stands for any one non-empty segment; a static one has
+  // to match exactly. Static routes are listed alongside the dynamic ones
+  // they shadow, so either matching is a real page.
+  return pattern.every((part, i) => {
+    if (part === LOCALE_SEGMENT) return isLocale(segments[i]);
+    return part.startsWith("[") ? true : part === segments[i];
   });
 }

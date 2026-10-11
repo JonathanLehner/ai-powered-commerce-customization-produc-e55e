@@ -56,6 +56,13 @@ gifting, orders, team, guided setup, activity.
   (`npm run locale-check`). What a store's own people wrote — product names and
   descriptions, storefront section copy, order timeline notes — is shown as they
   wrote it.
+- **Parcelith in nine languages.** The public site, sign-in and the workspace
+  shell use next-intl with one message file per language in `messages/`
+  (English is the source). Marketing pages are prerendered per language, with
+  English at the root and `/de/pricing` and so on for the rest, hreflang
+  alternates and a footer language switcher. Signed-in users pick their language
+  in the user menu; otherwise the browser's language is used, then English.
+  `npm run messages-check` fails on a missing or empty translation.
 - **Craft.js storefront editor.** Eight approved section types with generated
   settings panels, page reordering, desktop/tablet/phone preview, version history,
   publish, and revert-draft-to-published. The published tree is rendered

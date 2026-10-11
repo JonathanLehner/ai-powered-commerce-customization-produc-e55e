@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { setAgencyStatus } from "@/app/actions/admin";
 import { Badge, PageHeader } from "@/components/ui";
@@ -14,10 +15,11 @@ const SECTION_TITLE = "text-xs font-semibold tracking-wide text-muted-foreground
 export default async function AdminAgenciesPage() {
   const [agencies, stores, users] = await Promise.all([listAgencies(), listAllStores(), listUsers()]);
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Agencies"
+        title={pages("agenciesTitle")}
       />
 
       <ul className="space-y-5">

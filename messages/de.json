@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "title": "Parcelith: Merchandise-Shops für Agenturen",
+    "description": "Print-on-Demand-Produkte für jeden Kunden beschaffen, gestalten und verkaufen, alles aus einem Agentur-Arbeitsbereich."
+  },
+  "common": {
+    "saving": "Wird gespeichert…",
+    "working": "Wird ausgeführt…",
+    "cancel": "Abbrechen",
+    "areYouSure": "Sind Sie sicher?",
+    "saved": "Gespeichert.",
+    "copyLink": "Link kopieren",
+    "copied": "Kopiert",
+    "copyFailed": "Kopieren nicht möglich. Markieren Sie den Text und kopieren Sie ihn manuell.",
+    "close": "Schließen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "previousPage": "Zur vorherigen Seite",
+    "nextPage": "Zur nächsten Seite",
+    "morePages": "Weitere Seiten",
+    "pages": "Seiten",
+    "pageOf": "Seite {page} von {pages}",
+    "breadcrumb": "Navigationspfad",
+    "error": "Fehler",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorBody": "Diese Seite konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "tryAgain": "Erneut versuchen",
+    "reference": "Referenz {digest}",
+    "notFoundTitle": "Seite nicht gefunden",
+    "backToHomepage": "Zur Startseite"
+  },
+  "site": {
+    "mainNav": "Hauptnavigation",
+    "howItWorks": "So funktioniert’s",
+    "pricing": "Preise",
+    "signIn": "Anmelden",
+    "tagline": "Merchandise-Shops für Agenturen und ihre Kunden.",
+    "platform": "Plattform",
+    "contactSales": "Vertrieb kontaktieren",
+    "legal": "Rechtliches",
+    "terms": "Nutzungsbedingungen",
+    "privacy": "Datenschutzerklärung",
+    "language": "Sprache",
+    "copyright": "© {year} Parcelith"
+  },
+  "notFound": {
+    "body": "Prüfen Sie die Adresse und versuchen Sie es erneut."
+  },
+  "home": {
+    "title": "Merchandise-Shops für jeden Ihrer Kunden",
+    "lead": "Print-on-Demand-Produkte beschaffen, gestalten und verkaufen, alles aus einem Agentur-Arbeitsbereich.",
+    "openWorkspace": "Arbeitsbereich öffnen",
+    "howItWorks": "So funktioniert’s",
+    "factsProducts": "Produkte",
+    "factsProductsValue": "Bekleidung und Tassen",
+    "factsLanguages": "Sprachen",
+    "factsCarriers": "Versanddienste",
+    "heroAlt": "Ein Studiotisch mit gefalteter Blanko-Kleidung, Keramiktassen und Farbmustern",
+    "pillarsTitle": "Für Agenturen gemacht",
+    "pillars": {
+      "stores": {
+        "title": "Getrennte Kundenshops",
+        "body": "Jeder Kunde erhält einen eigenen Katalog, eigene Kunden, Bestellungen, Währungen, Domain und Zahlungen."
+      },
+      "catalog": {
+        "title": "Gemeinsamer Lieferantenkatalog",
+        "body": "Bekleidung und Tassen von Lieferanten, mit Kosten, Druckbereichen und Lieferregionen. Übernehmen Sie, was Sie brauchen, in jeden Shop."
+      },
+      "approval": {
+        "title": "Freigabe vor der Veröffentlichung",
+        "body": "Artwork, Mockups, Margen und KI-Vorschläge werden erst nach Freigabe live geschaltet."
+      }
+    },
+    "features": {
+      "sourcing": {
+        "title": "Lieferanten direkt vergleichen",
+        "body": "Filtern Sie den gemeinsamen Katalog nach Kategorie, Lieferant, Kosten und Region und vergleichen Sie die Optionen.",
+        "points": ["Grundpreis, Druckkosten und Lieferzeit", "Abgedeckte Lieferregionen", "In einen Shop-Katalog übernehmen"],
+        "alt": "Blanko-Merchandise-Muster und Stoffproben auf einer hellen Fläche"
+      },
+      "artwork": {
+        "title": "Artwork vor der Produktion geprüft",
+        "body": "Platzieren Sie ein Logo im Druckbereich und skalieren und drehen Sie es, während die Druckauflösung mitläuft.",
+        "points": ["Druckbereiche in Millimetern", "Prüfung von Auflösung, Grenzen und Datei", "Mockups von vorne, hinten und seitlich"],
+        "alt": "Hände legen ein Transferblatt auf ein gefaltetes Blanko-T-Shirt"
+      },
+      "fulfilment": {
+        "title": "Bezahlte Bestellungen gehen in Produktion",
+        "body": "Jede Bestellung wird an ihren Lieferanten übermittelt. Bestellungen, die Aufmerksamkeit brauchen, werden in der Bestellliste markiert.",
+        "points": ["Sendungsverfolgung für DHL, FedEx und UPS", "Erstattungen, Stornierungen und Ausnahmen", "Vollständiges Audit-Log"],
+        "alt": "Versandkartons, Packband und ein Barcodescanner auf einer Werkbank"
+      }
+    },
+    "giftingEyebrow": "Firmengeschenke",
+    "giftingTitle": "Private Geschenkportale für Unternehmen",
+    "giftingBody": "Geben Sie jedem Unternehmen einen eigenen Geschenkkatalog mit Empfängerlisten und Freigabe vor der Zahlung.",
+    "giftingPoints": ["Privater Link oder Zugang nur auf Einladung", "Bis zu 100 Empfänger pro Kampagne", "Budget pro Empfänger"],
+    "giftingHow": "So funktionieren Firmengeschenke",
+    "giftingIncluded": "In jedem Tarif enthalten",
+    "giftingAlt": "Geschenkboxen aus Kraftpapier mit Schleife neben einem gefalteten marineblauen Hoodie und einer weißen Keramiktasse",
+    "giftFlow": {
+      "publish": { "title": "Katalog veröffentlichen", "body": "Geschenke aus den veröffentlichten Produkten des Shops auswählen." },
+      "recipients": { "title": "Empfänger hinzufügen", "body": "Liste einfügen oder CSV-Datei hochladen." },
+      "approve": { "title": "Freigeben", "body": "Eine freigebende Person prüft Liste und Gesamtbetrag." },
+      "pay": { "title": "Einmal bezahlen", "body": "Jeder Empfänger erhält eine eigene Bestellung mit Sendungsverfolgung." }
+    },
+    "lifecycleTitle": "Vom Briefing bis zur Lieferung",
+    "lifecycle": {
+      "create": { "title": "Shop anlegen", "body": "Logo, Design, Währungen und Domain." },
+      "payments": { "title": "Zahlungen verbinden", "body": "Stripe, Versanddienste und Steuern." },
+      "products": { "title": "Produkte hinzufügen", "body": "Importieren, Artwork platzieren und Mockups freigeben." },
+      "storefront": { "title": "Storefront gestalten", "body": "Abschnitte anordnen, Vorschau ansehen und veröffentlichen." },
+      "sell": { "title": "Verkaufen und liefern", "body": "Bestellungen gehen mit Sendungsverfolgung in Produktion." }
+    },
+    "demoTitle": "Demo-Arbeitsbereich ausprobieren",
+    "demoBody": "Vier Beispiel-Kundenshops mit Produkten, Bestellungen und Geschenkkampagnen.",
+    "demoCta": "Bei der Demo anmelden"
+  },
+  "howItWorks": {
+    "metaTitle": "So funktioniert’s",
+    "metaDescription": "Shop-Einrichtung, Beschaffung, Artwork-Prüfung, Mockups, Storefronts, Checkout, Auftragsabwicklung und Firmengeschenke in Parcelith.",
+    "title": "So funktioniert’s",
+    "lead": "Von der Einrichtung eines Kundenshops bis zur ersten Lieferung.",
+    "stages": {
+      "setup": {
+        "title": "1. Shop-Einrichtung",
+        "body": "Sechs Schritte für Branding, Sprache, Domain, Zahlungen, Versanddienste und Steuern.",
+        "detail": ["Logo, Design und Standardsprache", "Verkaufswährungen", "Eigene Domain", "Stripe-Konto", "Konten bei DHL, FedEx und UPS", "Steuerklasse und Bruttopreise"]
+      },
+      "sourcing": {
+        "title": "2. Beschaffung",
+        "body": "Durchsuchen Sie den gemeinsamen Lieferantenkatalog und übernehmen Sie Produkte in einen Shop.",
+        "detail": ["Nach Kategorie, Lieferant, Verfügbarkeit und Region filtern", "Bis zu drei Produkte vergleichen", "Eigenen Preis und Status des Shops festlegen"]
+      },
+      "artwork": {
+        "title": "3. Artwork",
+        "body": "Platzieren Sie Artwork in jedem Druckbereich. Probleme werden mit einer Lösung angezeigt.",
+        "detail": ["Artwork verschieben, skalieren, drehen und entfernen", "Prüfung von Druckbereich, Auflösung, Format, Dateigröße und Transparenz"]
+      },
+      "mockups": {
+        "title": "4. Mockups und Marge",
+        "body": "Geben Sie die Mockups frei und prüfen Sie die Marge vor der Veröffentlichung.",
+        "detail": ["Vorschau von vorne, hinten und seitlich", "Lieferantenkosten, Druckkosten, Versand und Steuern", "Verkaufspreis und Marge"]
+      },
+      "storefront": {
+        "title": "5. Storefront",
+        "body": "Abschnitte anordnen, auf jeder Bildschirmgröße prüfen und veröffentlichen.",
+        "detail": ["Acht Abschnittstypen", "Vorschau für Desktop, Tablet und Smartphone", "Veröffentlichen, zurücksetzen und Versionsverlauf"]
+      },
+      "checkout": {
+        "title": "6. Checkout und Auftragsabwicklung",
+        "body": "Kunden bezahlen in ihrer Währung. Bestellungen gehen automatisch an den Lieferanten.",
+        "detail": ["Bestellbestätigung und Statusseite", "Updates zu Produktion, Versand und Zustellung", "Links zur Sendungsverfolgung"]
+      },
+      "gifting": {
+        "title": "7. Firmengeschenke",
+        "body": "Eröffnen Sie einen privaten Geschenkkatalog für ein Unternehmen. Dessen Einkäufer fügt Empfänger hinzu, eine freigebende Person bestätigt, und jeder Empfänger erhält eine Bestellung.",
+        "detail": ["Privater Link oder Zugang nur auf Einladung", "Budget pro Empfänger", "Empfängerlisten per CSV oder Einfügen", "Freigabe vor der Zahlung", "Bestellungen nach Kampagne gruppiert"]
+      }
+    },
+    "rolesTitle": "Rollen",
+    "roleColumn": "Rolle",
+    "managesColumn": "Verwaltet",
+    "noAccessColumn": "Kein Zugriff auf",
+    "roles": {
+      "platform": { "role": "Plattform-Admin", "owns": "Lieferanten, gemeinsamer Katalog, Steuerklassen, Agenturen und Shop-Zugriff", "cannot": "Shop-Texte und Preise" },
+      "agency": { "role": "Agenturteam", "owns": "Shops, Branding, Domains, Zahlungen, Versanddienste und Teammitglieder", "cannot": "Shops anderer Agenturen" },
+      "manager": { "role": "Shop-Manager", "owns": "Katalog, Artwork, Mockups, Preise und Veröffentlichung", "cannot": "Alles außerhalb der eigenen Rolle" },
+      "shopper": { "role": "Kunde", "owns": "Stöbern, Personalisieren, Bezahlen und Bestellungen verfolgen", "cannot": "Andere Shops" },
+      "buyer": { "role": "Geschenk-Einkäufer", "owns": "Empfängerlisten, Freigabeanfragen und Zahlung der Kampagne", "cannot": "Zahlung vor der Freigabe" },
+      "approver": { "role": "Freigebende Person", "owns": "Kampagnen freigeben oder ablehnen", "cannot": "Liste bearbeiten oder bezahlen" }
+    },
+    "assistantTitle": "KI-Assistent",
+    "assistantBody": "Schlägt Produkte, Lieferanten, Beschreibungen, Tags und Preise vor. Sie prüfen jeden Vorschlag, bevor er übernommen wird.",
+    "assistantCta": "Im Arbeitsbereich ausprobieren"
+  },
+  "pricing": {
+    "metaTitle": "Preise",
+    "metaDescription": "Parcelith-Tarife für Agenturen jeder Größe, monatlich oder jährlich abgerechnet.",
+    "title": "Preise",
+    "lead": "Einfache Tarife für Agenturen jeder Größe.",
+    "billingPeriod": "Abrechnungszeitraum",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "save": "{percent} sparen",
+    "mostPopular": "Am beliebtesten",
+    "custom": "Individuell",
+    "perMonth": "/Monat",
+    "billedYearly": "{amount} jährlich abgerechnet",
+    "billedMonthly": "Monatlich abgerechnet",
+    "annualContract": "Jahresvertrag",
+    "getStarted": "Jetzt starten",
+    "contactSales": "Vertrieb kontaktieren",
+    "liveStores": "{count, plural, one {# aktiver Shop} other {# aktive Shops}}",
+    "unlimitedLiveStores": "Unbegrenzt aktive Shops",
+    "unlimited": "Unbegrenzt",
+    "summaries": {
+      "starter": "Für kleine Agenturen, die gerade starten.",
+      "studio": "Für Agenturen mit mehreren Kundenshops.",
+      "scale": "Für große Netzwerke, die in vielen Märkten verkaufen."
+    },
+    "features": {
+      "draftStores": "Unbegrenzt Entwurfs-Shops",
+      "catalog": "Gemeinsamer Lieferantenkatalog",
+      "configurator": "Artwork-Konfigurator und Mockups",
+      "checkout": "Checkout in mehreren Währungen",
+      "gifting": "Firmengeschenke",
+      "tracking": "Sendungsverfolgung für DHL, FedEx und UPS",
+      "emailSupport": "Support per E-Mail",
+      "everythingStarter": "Alles aus Starter",
+      "everythingStudio": "Alles aus Studio",
+      "team": "Teamrollen und Einladungen",
+      "domains": "Eigene Domains",
+      "assistant": "KI-Commerce-Assistent",
+      "dashboard": "Agentur-Dashboard",
+      "auditExport": "Export des Audit-Logs",
+      "onboarding": "Bevorzugtes Lieferanten-Onboarding",
+      "taxMarkets": "Steuerklassen pro Markt",
+      "productionContact": "Fester Ansprechpartner für die Produktion",
+      "sso": "Single Sign-on"
+    },
+    "compareTitle": "Tarife vergleichen",
+    "compareCaption": "Parcelith-Tarife im Vergleich",
+    "featuresColumn": "Funktionen",
+    "liveStoresRow": "Aktive Shops",
+    "draftStoresRow": "Entwurfs-Shops",
+    "includedOn": "In {plan} enthalten",
+    "notOn": "Nicht in {plan}"
+  },
+  "contact": {
+    "metaTitle": "Vertrieb kontaktieren",
+    "metaDescription": "Starten Sie mit Parcelith oder sprechen Sie mit dem Vertrieb über den Scale-Tarif.",
+    "title": "Vertrieb kontaktieren",
+    "lead": "Erzählen Sie uns von Ihrer Agentur, und wir richten Ihren Arbeitsbereich ein.",
+    "demoTitle": "Demo erkunden",
+    "demoBody": "Vier Beispiel-Kundenshops mit Produkten und Bestellungen.",
+    "demoCta": "Demo öffnen",
+    "form": {
+      "name": "Ihr Name",
+      "email": "Geschäftliche E-Mail-Adresse",
+      "company": "Agentur oder Unternehmen",
+      "plan": "Tarif",
+      "planOption": "{plan}, {price}/Monat",
+      "planCustom": "{plan}, individueller Preis",
+      "notSure": "Noch nicht sicher",
+      "message": "Nachricht",
+      "messageHint": "Anzahl der Kundenshops, Produkte und Bedarf an Firmengeschenken.",
+      "wantsCall": "Ich bevorzuge einen Anruf",
+      "submit": "Anfrage senden",
+      "sending": "Wird gesendet…",
+      "replyTime": "Wir antworten innerhalb eines Werktags."
+    },
+    "errors": {
+      "name": "Geben Sie Ihren Namen ein.",
+      "email": "Geben Sie Ihre E-Mail-Adresse ein.",
+      "company": "Geben Sie den Namen Ihres Unternehmens ein.",
+      "plan": "Wählen Sie einen Tarif."
+    },
+    "duplicate": "Danke, {name}. Ihre Anfrage liegt uns bereits vor, und wir antworten innerhalb eines Werktags.",
+    "received": "Danke, {name}. Wir haben Ihre Anfrage zu {plan, select, unsure {einem passenden Tarif} other {dem Tarif {planName}}} erhalten und {call, select, yes {rufen Sie innerhalb eines Werktags an} other {antworten Ihnen innerhalb eines Werktags per E-Mail}}."
+  },
+  "terms": {
+    "metaTitle": "Nutzungsbedingungen",
+    "metaDescription": "Die Bedingungen für Agentur-Arbeitsbereiche, Kundenshops, Lieferantenbestellungen und die Verantwortung als Verkäufer auf Parcelith.",
+    "title": "Nutzungsbedingungen",
+    "lead": "Diese Bedingungen gelten für Agentur-Arbeitsbereiche und die darin betriebenen Kundenshops.",
+    "sections": [
+      {
+        "heading": "1. Der Dienst",
+        "body": [
+          "Parcelith stellt einen Commerce-Arbeitsbereich für mehrere Shops bereit. Eine Agentur legt Shops im Auftrag ihrer Kunden an und betreibt sie. Jeder Shop ist ein eigenständiger Verkaufskanal mit eigenem Katalog, eigenen Kunden, Bestellungen, Währungen, Steuereinstellungen, eigener Storefront und eigenem Zahlungskonto.",
+          "Parcelith liefert die Software, den gemeinsamen Lieferantenkatalog und die Weiterleitung einer bezahlten Bestellung an einen Produktionspartner. Parcelith stellt keine Waren her, hält keinen Lagerbestand und verwahrt keine Gelder von Kunden."
+        ]
+      },
+      {
+        "heading": "2. Verkäufer",
+        "body": [
+          "Der Händler, der einen Shop betreibt, ist der Verkäufer in diesem Shop. Zahlungen gehen auf das eigene, verbundene Stripe-Konto des Shops. Der Verkäufer ist verantwortlich für Preise, die Erhebung und Abführung von Steuern, Erstattungen, Rückbuchungen, Verbraucherrechte und jede Haftung aus verkauften Waren.",
+          "Vom Plattform-Administrator eingerichtete Steuerklassen dienen der Berechnung der Steuer auf ein Produkt. Die Auswahl einer Steuerklasse überträgt keine steuerlichen Pflichten auf Parcelith und macht Parcelith nicht zur Vertragspartei des Verkaufs."
+        ]
+      },
+      {
+        "heading": "3. Lieferantenbestellungen",
+        "body": [
+          "Produktionspartner sind unabhängige Dritte. Bietet ein Partner eine Schnittstelle für Bestellungen an, können bezahlte Bestellungen automatisch weitergeleitet werden. Gibt es keine solche Schnittstelle, etwa bei Beschaffungsplattformen wie Alibaba.com, wird die Bestellung zur manuellen Bearbeitung markiert, und der Verkäufer bestellt direkt beim Lieferanten zu dessen eigenen Bedingungen.",
+          "Lieferzeiten, Verfügbarkeit und Lieferregionen im gemeinsamen Katalog stammen vom Partner und können sich ohne Vorankündigung ändern. Parcelith übernimmt dafür keine Gewähr."
+        ]
+      },
+      {
+        "heading": "4. Artwork und geistiges Eigentum",
+        "body": [
+          "Hochgeladenes Artwork bleibt Ihr Eigentum. Sie sichern zu, dass Sie die Rechte besitzen, es auf physischen Waren zu vervielfältigen, und stellen Parcelith und seine Produktionspartner von Ansprüchen frei, die aus dem von Ihnen gelieferten Artwork entstehen.",
+          "Die Druckvorprüfung (Grenzen des Druckbereichs, effektive Auflösung, Dateiformat, Dateigröße und Transparenz) ist eine automatische Qualitätskontrolle. Eine bestandene Prüfung sagt nichts darüber aus, ob Sie berechtigt sind, das Motiv zu drucken."
+        ]
+      },
+      {
+        "heading": "5. KI-generierte Vorschläge",
+        "body": [
+          "Der Commerce-Assistent erstellt Entwürfe: Produktideen, Lieferantenempfehlungen, Beschreibungen, Tags und Preise. Jeder Vorschlag wird als ausstehend gespeichert und erst übernommen, wenn ein namentlich bekannter Nutzer ihn bestätigt. Sie bleiben verantwortlich für die Richtigkeit aller Texte und Preise, die Sie veröffentlichen."
+        ]
+      },
+      {
+        "heading": "6. Datentrennung und Zugriff",
+        "body": [
+          "Shopdaten gehören zu ihrem Shop. Agenturmitarbeiter erhalten Zugriff auf einen Shop entweder über die Agentur, der er gehört, oder über eine ausdrückliche Einladung mit zugewiesener Rolle. Kundendaten werden nie shopübergreifend zusammengeführt, auch nicht in Auswertungen auf Agenturebene.",
+          "Administrative Aktionen, Änderungen an der Shop-Einrichtung, Produktimporte, Preisänderungen, KI-Freigaben, Veröffentlichungen und die Weiterleitung von Bestellungen werden in einem Änderungsverlauf festgehalten, der für die gesamte Lebensdauer des Arbeitsbereichs aufbewahrt wird."
+        ]
+      },
+      {
+        "heading": "7. Sperrung und Kündigung",
+        "body": [
+          "Beide Parteien können die Vereinbarung mit einer Frist von 30 Tagen kündigen. Ein archivierter Shop bleibt für Auswertung und Prüfung lesbar, wird aber aus dem laufenden Betrieb genommen, und seine Storefront geht offline.",
+          "Parcelith kann einen Arbeitsbereich sperren, der zur Verletzung von Rechten Dritter oder zum Verkauf von Waren genutzt wird, die ein Produktionspartner untersagt."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Datenschutzerklärung",
+    "metaDescription": "Welche Daten Parcelith über Agenturmitarbeiter, Shop-Teams und Kunden speichert, warum, und wie Shopdaten getrennt bleiben.",
+    "title": "Datenschutzerklärung",
+    "lead": "Wie Daten durch einen Agentur-Arbeitsbereich fließen und wo die Grenze zwischen Shops verläuft.",
+    "sections": [
+      {
+        "heading": "Wer verantwortlich ist",
+        "body": [
+          "Für Konten von Agentur- und Shop-Teams ist Parcelith Verantwortlicher für den Kontodatensatz: Name, geschäftliche E-Mail-Adresse, Rolle und die Aktionen, die dieser Person im Änderungsverlauf zugeordnet sind.",
+          "Für Kundendaten (Kontaktdaten zur Bestellung, Lieferadresse, beim Checkout hochgeladenes Artwork und Personalisierungstext) ist der Shop verantwortlich, der den Verkauf tätigt. Parcelith verarbeitet diese Daten im Auftrag des Shops, damit die Bestellung produziert und geliefert werden kann."
+        ]
+      },
+      {
+        "heading": "Was gespeichert wird",
+        "body": [
+          "Kontodaten: Name, E-Mail-Adresse, Rolle, Agentur und Shop-Mitgliedschaften.",
+          "Shop-Einstellungen: Branding, Währungen, Domain, Kennung des verbundenen Zahlungskontos, Kundennummern bei Versanddiensten und Steuereinstellungen. Zahlungsdaten gehen direkt an Stripe.",
+          "Verkaufsdaten: Produkte, Artwork-Dateien und ihre Platzierung, erstellte Mockups, Bestellungen, Versandereignisse, Sendungsnummern und Erstattungen.",
+          "Änderungsverlauf: wer wann was geändert hat, bei Shop-Einrichtung, Importen, Preisen, KI-Freigaben, Veröffentlichungen, Weiterleitung von Bestellungen und Verwaltung."
+        ]
+      },
+      {
+        "heading": "Wie die Trennung funktioniert",
+        "body": [
+          "Jeder Verkaufsdatensatz ist dem Shop zugeordnet, zu dem er gehört, und jeder Lesezugriff ist auf Shops beschränkt, für die die angemeldete Person freigeschaltet ist. Auswertungen auf Agenturebene fassen Bestellsummen pro Shop zusammen, führen aber nie Kundenidentitäten verschiedener Shops zusammen.",
+          "Wer in zwei Shops derselben Agentur kauft, ist als zwei getrennte Kundendatensätze erfasst, da die beiden Shops getrennte Verantwortliche sind."
+        ]
+      },
+      {
+        "heading": "Dritte",
+        "body": [
+          "Stripe wickelt Zahlungen für jeden Shop über dessen eigenes Konto ab.",
+          "Produktionspartner (Printful, Gelato und Printify) erhalten die Lieferadresse, die Artikelangaben und die Artwork-Datei, die zur Herstellung und zum Versand nötig sind. Beschaffungsanfragen über Alibaba.com stellt der Verkäufer selbst.",
+          "DHL, FedEx und UPS erhalten die Lieferadresse, um das Paket zuzustellen und Trackingereignisse zu melden.",
+          "Der Commerce-Assistent sendet Produkt- und Kataloginformationen an einen externen KI-Anbieter, um Vorschläge zu erstellen. Personenbezogene Kundendaten sind darin nicht enthalten."
+        ]
+      },
+      {
+        "heading": "Aufbewahrung",
+        "body": [
+          "Bestell- und Versanddaten werden so lange aufbewahrt, wie der Shop betrieben wird, zuzüglich der Frist, die der Verkäufer aus steuerlichen Gründen einhalten muss. Ein archivierter Shop bleibt für Prüfung und Auswertung lesbar, seine Storefront geht jedoch offline.",
+          "Von Kunden hochgeladenes Artwork wird aufbewahrt, solange die Bestellung noch nachproduziert oder beanstandet werden kann, und danach mit dem Bestelldatensatz gelöscht."
+        ]
+      },
+      {
+        "heading": "Ihre Rechte",
+        "body": [
+          "Teammitglieder können ihren Agentur-Administrator bitten, ihr Konto zu berichtigen oder zu löschen. Kunden wenden sich an den Shop, in dem sie gekauft haben. Das Shop-Team kann einen Bestelldatensatz samt Artwork in der Bestellansicht exportieren oder löschen."
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "metaTitle": "Anmelden",
+    "metaDescription": "Melden Sie sich im Parcelith-Agentur-Arbeitsbereich an.",
+    "howItWorks": "So funktioniert’s",
+    "title": "Anmelden",
+    "lead": "Wählen Sie ein Demo-Konto.",
+    "personas": {
+      "alex": { "title": "Agenturleitung, Northlight Studio", "blurb": "Vollzugriff auf vier Kundenshops." },
+      "sam": { "title": "Katalogproduktion", "blurb": "Katalogmanager für Northwind und Lumen, Shop-Administrator für Ferro." },
+      "ines": { "title": "Leitung Auftragsabwicklung", "blurb": "Bestellmanagerin für Northwind." },
+      "dana": { "title": "Ansprechpartnerin beim Kunden", "blurb": "Lesezugriff auf Northwind Supply Co." },
+      "priya": { "title": "Plattformbetrieb", "blurb": "Lieferanten, gemeinsamer Katalog, Steuerklassen und Agenturen." }
+    },
+    "continueAs": "Weiter als {name}",
+    "passwordTitle": "Mit Passwort anmelden",
+    "passwordHint": "Alle Demo-Konten nutzen das Passwort <code>parcelith</code>.",
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "name@firma.de",
+    "password": "Passwort",
+    "signIn": "Anmelden",
+    "invitedEmail": "Mit einer eingeladenen E-Mail-Adresse anmelden",
+    "continue": "Weiter",
+    "failed": "Anmeldung fehlgeschlagen",
+    "errors": {
+      "unknownUser": "Zu dieser E-Mail-Adresse gibt es kein Konto.",
+      "badCredentials": "E-Mail-Adresse und Passwort passen zu keinem Konto."
+    }
+  },
+  "invite": {
+    "metaTitle": "Einladung annehmen",
+    "metaDescription": "Nehmen Sie eine Einladung zur Mitarbeit an einem Parcelith-Shop an.",
+    "invalidTitle": "Dieser Link ist nicht mehr gültig",
+    "invalidBody": "Der Link wurde möglicherweise bereits verwendet. Melden Sie sich an oder bitten Sie um eine neue Einladung.",
+    "goToSignIn": "Zur Anmeldung",
+    "title": "{inviter} hat Sie zu {store} eingeladen",
+    "creates": "Mit der Annahme wird ein Parcelith-Konto für {email} angelegt und Sie werden angemeldet.",
+    "invited": "Eingeladen am {date}.",
+    "accept": "Einladung annehmen",
+    "accepting": "Ihr Konto wird eingerichtet…"
+  },
+  "roles": {
+    "store_admin": "Shop-Administrator",
+    "catalog_manager": "Katalogmanager",
+    "order_manager": "Bestellmanager",
+    "viewer": "Betrachter",
+    "platformAccess": "Plattformzugriff",
+    "platformAccessNote": "Mit Plattformzugriff sind Kundendaten und Bestellwerte ausgeblendet.",
+    "descriptions": {
+      "store_admin": "Vollzugriff, einschließlich Einstellungen und Team.",
+      "catalog_manager": "Produkte, Preise, Veröffentlichung und Geschenkkataloge.",
+      "order_manager": "Bestellungen, Auftragsabwicklung, Erstattungen und Lieferantenausnahmen.",
+      "viewer": "Nur Lesezugriff."
+    },
+    "platform": {
+      "platform_admin": "Plattform-Admin",
+      "agency_admin": "Agentur-Admin",
+      "agency_member": "Agenturmitglied"
+    }
+  },
+  "shell": {
+    "workspaceHome": "Parcelith-Agentur-Arbeitsbereich",
+    "adminHome": "Parcelith-Plattformverwaltung",
+    "switchStore": "Shop wechseln",
+    "allStores": "Alle Shops",
+    "noActiveStores": "Noch keine aktiven Shops.",
+    "createStore": "Kundenshop anlegen",
+    "platformAdmin": "Plattform-Admin",
+    "platformAdministration": "Plattformverwaltung",
+    "workspace": "Arbeitsbereich",
+    "agencyWorkspace": "Agentur-Arbeitsbereich",
+    "signOut": "Abmelden",
+    "language": "Sprache",
+    "languageSaved": "Sprache geändert.",
+    "languageFailed": "Die Sprache konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+    "storeSections": "Shop-Bereiche",
+    "active": "Aktiv",
+    "archived": "Archiviert",
+    "tabs": {
+      "overview": "Übersicht",
+      "catalog": "Katalog",
+      "sourcing": "Beschaffung",
+      "assistant": "KI-Assistent",
+      "storefront": "Storefront",
+      "gifting": "Geschenke",
+      "orders": "Bestellungen",
+      "discounts": "Rabatte",
+      "team": "Team",
+      "settings": "Einstellungen",
+      "activity": "Aktivität"
+    },
+    "adminTabs": {
+      "overview": "Übersicht",
+      "suppliers": "Lieferanten",
+      "catalog": "Gemeinsamer Katalog",
+      "quotes": "Angebotsanfragen",
+      "tax": "Steuerklassen",
+      "agencies": "Agenturen und Zugriff",
+      "audit": "Audit-Log"
+    }
+  },
+  "pages": {
+    "admin": {
+      "overviewTitle": "Betriebsübersicht",
+      "overviewDescription": "Lieferanten, gemeinsamer Katalog, globale Steuersätze und Agenturzugriff.",
+      "suppliersTitle": "Lieferanten",
+      "suppliersDescription": "Nur freigegebene Lieferanten stehen den Shops zur Verfügung.",
+      "catalogTitle": "Gemeinsamer Katalog",
+      "catalogDescription": "Produkte, die jeder Shop importieren kann.",
+      "newCatalogTitle": "Katalogprodukt hinzufügen",
+      "quotesTitle": "Angebotsanfragen",
+      "quotesDescription": "Lieferantenangebote zu Anfragen der Shops erfassen.",
+      "taxTitle": "Steuerklassen",
+      "taxDescription": "Plattformweite Sätze. Shops wählen eine Standardklasse.",
+      "agenciesTitle": "Agenturen",
+      "auditTitle": "Audit-Log der Plattform",
+      "auditDescription": "Jede erfasste Änderung auf der Plattform."
+    },
+    "store": {
+      "newStoreTitle": "Kundenshop anlegen",
+      "productsTitle": "Produkte",
+      "ordersTitle": "Bestellungen",
+      "assistantTitle": "Assistent",
+      "assistantDescription": "Vorschläge bleiben ausstehend, bis Sie sie übernehmen.",
+      "editorTitle": "Seiteneditor",
+      "editorDescription": "Änderungen gehen beim Veröffentlichen live.",
+      "giftingTitle": "Firmengeschenke",
+      "giftingDescription": "Private Geschenkkataloge für Firmenkunden.",
+      "discountsTitle": "Rabattcodes",
+      "teamTitle": "Team",
+      "settingsTitle": "Einstellungen",
+      "activityTitle": "Änderungsverlauf"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "activeStores": "{count, plural, one {# aktiver Shop} other {# aktive Shops}}",
+    "archivedSuffix": ", {count} archiviert",
+    "planUsage": "Tarif {plan} · {usage}",
+    "limitReached": " · Limit erreicht",
+    "usageLimited": "{used} von {limit} aktiven Shops",
+    "usageUnlimited": "{used, plural, one {# aktiver Shop} other {# aktive Shops}}, ohne Limit",
+    "deniedStore": "Sie haben keinen Zugriff auf diesen Shop.",
+    "deniedPage": "Sie sind nicht berechtigt, diese Seite anzuzeigen.",
+    "statActiveStores": "Aktive Shops",
+    "statArchived": "{count} archiviert",
+    "statOrders": "Bestellungen",
+    "statPublished": "Veröffentlichte Produkte",
+    "statAttention": "Handlungsbedarf",
+    "statAttentionSub": "Ausnahmen und manuelle Weiterleitung",
+    "clientStores": "Kundenshops",
+    "emptyTitle": "Noch keine Shops",
+    "emptyBody": "Legen Sie Ihren ersten Kundenshop an.",
+    "stripeConnected": "Stripe verbunden",
+    "stripePending": "Stripe ausstehend",
+    "sales30": "Umsatz, 30 Tage",
+    "orders": "Bestellungen",
+    "products": "Produkte",
+    "inProduction": "{count} in Produktion",
+    "shipped": "{count} versandt",
+    "delivered": "{count} zugestellt",
+    "exceptions": "{count, plural, one {# Ausnahme} other {# Ausnahmen}}",
+    "manual": "{count} manuell",
+    "setup": "Einrichtung {done}/{total}",
+    "open": "Öffnen",
+    "storefront": "Storefront ↗",
+    "archivedStores": "Archivierte Shops",
+    "showArchived": "{count, plural, one {# archivierten Shop anzeigen} other {# archivierte Shops anzeigen}}",
+    "hideArchived": "{count, plural, one {# archivierten Shop ausblenden} other {# archivierte Shops ausblenden}}",
+    "archivedRow": "{client} · {count, plural, one {# frühere Bestellung} other {# frühere Bestellungen}} · {amount} gesamt",
+    "viewRecords": "Daten ansehen",
+    "restore": "Wiederherstellen",
+    "recentActivity": "Letzte Aktivitäten",
+    "nothingYet": "Noch nichts erfasst.",
+    "repeated": "{summary} ({count}-mal)",
+    "platform": {
+      "agencies": "{count, plural, one {# Agentur} other {# Agenturen}}",
+      "deniedStore": "Dieser Shop existiert nicht mehr.",
+      "deniedPage": "Der Plattformzugriff umfasst diese Ansicht nicht. Sie bleibt dem Shop-Team vorbehalten.",
+      "emptyTitle": "Noch keine Agenturen",
+      "emptyBody": "Legen Sie in der Plattformverwaltung eine Agentur an.",
+      "openAdmin": "Plattformverwaltung öffnen",
+      "missingAgency": "Agenturdatensatz fehlt",
+      "plan": "Tarif {plan}",
+      "suspended": "Gesperrt",
+      "noAgencyRecord": "Kein Agenturdatensatz",
+      "noStores": "Noch keine Shops.",
+      "published": "Veröffentlicht",
+      "archivedLabel": "· archiviert",
+      "historicOrders": "{count, plural, one {# frühere Bestellung} other {# frühere Bestellungen}}",
+      "recentActivity": "Letzte Aktivitäten auf der Plattform"
+    }
+  },
+  "pager": {
+    "orders": "{first}–{last} von {total} Bestellungen",
+    "audit": "{first}–{last} von {total} Einträgen",
+    "auditCoverage": "Aktivitäten seit {date}. Legen Sie einen Zeitraum fest, um ältere Einträge zu sehen."
+  },
+  "fallback": {
+    "goToDashboard": "Zum Dashboard",
+    "createStore": "Kundenshop anlegen",
+    "pageMissing": "Diese Seite existiert nicht oder wurde entfernt.",
+    "recordMissing": "Dieser Datensatz existiert nicht oder wurde entfernt.",
+    "backToStore": "Zurück zum Shop",
+    "platformOverview": "Plattformübersicht",
+    "agencyWorkspace": "Agentur-Arbeitsbereich"
+  }
+}

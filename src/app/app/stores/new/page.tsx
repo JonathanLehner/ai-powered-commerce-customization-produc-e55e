@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
@@ -29,13 +30,14 @@ export default async function NewStorePage() {
         .filter((store) => store.agencyId === agency.id && store.status === "active")
     : [];
 
+  const pages = await getTranslations("pages.store");
   return (
     <>
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-7 sm:px-6">
         <Breadcrumbs items={[{ label: "Stores", href: "/app" }, { label: "New store" }]} />
         <PageHeader
-          title="Create a client store"
+          title={pages("newStoreTitle")}
           description={agency?.name}
           actions={
             allowance ? (

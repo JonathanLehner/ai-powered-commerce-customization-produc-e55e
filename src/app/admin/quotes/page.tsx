@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Badge, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -22,11 +23,12 @@ export default async function AdminQuotesPage() {
     .filter((c) => c.status === "active")
     .map((c) => ({ id: c.id, label: `${c.name} · ${c.category}` }));
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Quote requests"
-        description="Record supplier quotes for store requests."
+        title={pages("quotesTitle")}
+        description={pages("quotesDescription")}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

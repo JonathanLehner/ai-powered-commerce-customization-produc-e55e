@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Document } from "@/components/Document";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { FallbackPanel } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
 
 export const metadata: Metadata = {
   title: "Page not found · Parcelith",
@@ -16,38 +18,44 @@ export const metadata: Metadata = {
  * It is a root layout of its own — an unmatched address never reaches any of
  * the app's layouts — so it renders the document itself and borrows the public
  * site's header and footer. Being prerendered, the HTML arrives complete and
- * with a 404 status, and needs no JavaScript to read.
+ * with a 404 status, and needs no JavaScript to read. The address names no
+ * language, so it is in English.
  */
-export default function RootNotFound() {
+export default async function RootNotFound() {
+  // The locale is passed explicitly rather than set for the request: this
+  // component is rendered into every route's tree as the root 404 boundary.
+  const locale = DEFAULT_LOCALE;
+  const [t, site, notFound] = await Promise.all([
+    getTranslations({ locale, namespace: "common" }),
+    getTranslations({ locale, namespace: "site" }),
+    getTranslations({ locale, namespace: "notFound" }),
+  ]);
+
   return (
     <Document>
       <div className="flex min-h-full flex-col">
-        <SiteHeader />
+        <SiteHeader locale={DEFAULT_LOCALE} />
         <main className="flex-1">
           <FallbackPanel
             eyebrow="404"
-            title="Page not found"
-            description={
-              <p>
-                Check the address and try again.
-              </p>
-            }
+            title={t("notFoundTitle")}
+            description={<p>{notFound("body")}</p>}
             actions={
               <>
                 <Link href="/" className={buttonVariants()}>
-                  Back to the homepage
+                  {t("backToHomepage")}
                 </Link>
                 <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
-                  How it works
+                  {site("howItWorks")}
                 </Link>
                 <Link href="/login" className={buttonVariants({ variant: "outline" })}>
-                  Sign in
+                  {site("signIn")}
                 </Link>
               </>
             }
           />
         </main>
-        <SiteFooter />
+        <SiteFooter locale={DEFAULT_LOCALE} languageSwitcher={false} />
       </div>
     </Document>
   );

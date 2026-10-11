@@ -69,6 +69,10 @@ export function getUserByEmail(email: string) {
   return db.findOne<User>(COLLECTIONS.users, { email: email.toLowerCase().trim() });
 }
 
+export async function updateUser(id: string, patch: Partial<User>) {
+  await db.updateOne(COLLECTIONS.users, { id }, { $set: patch as Record<string, unknown> });
+}
+
 export function listUsers() {
   return db.find<User>(COLLECTIONS.users, {}, { sort: { name: 1 } });
 }

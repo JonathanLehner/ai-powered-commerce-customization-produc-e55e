@@ -1,4 +1,7 @@
+import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
+import { MARKETING_PATHS, isLocale } from "@/i18n/locales";
+import { routing } from "@/i18n/routing";
 import { isLive } from "@/lib/artwork";
 import { getGiftCatalogueBySlug, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
@@ -32,7 +35,25 @@ export const config = {
   matcher: ["/((?!_next/static|_next/image|api/auth/|.*\\.[a-zA-Z0-9]+$).*)"],
 };
 
+const localizeMarketing = createMiddleware(routing);
+
+/**
+ * `/pricing` or `/de/pricing`: a public page, in English at the root or in
+ * another language under its prefix.
+ */
+function isMarketingAddress(pathname: string): boolean {
+  const segments = segmentsOf(pathname);
+  const rest = isLocale(segments[0]) ? segments.slice(1) : segments;
+  return (MARKETING_PATHS as readonly string[]).includes(`/${rest.join("/")}`);
+}
+
 export async function proxy(request: NextRequest): Promise<NextResponse | undefined> {
+  // The public pages live under `[locale]`. next-intl serves English at the
+  // root by rewriting `/pricing` to `/en/pricing`, and sends `/en/pricing` back
+  // to `/pricing`. Server actions post to the page address too, so this runs
+  // for every method.
+  if (isMarketingAddress(request.nextUrl.pathname)) return localizeMarketing(request);
+
   // Reads only. A server action posts to the address the page is on, and its
   // response is a payload the browser is waiting on rather than a page anyone
   // navigated to; a status of 404 there would say something about the action,

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { deleteTaxBracket } from "@/app/actions/admin";
 import { Badge, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -17,11 +18,12 @@ export default async function AdminTaxPage() {
   );
   const usageById = new Map(usage.map((u) => [u.id, u.count]));
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tax brackets"
-        description="Platform-wide rates. Stores choose a default bracket."
+        title={pages("taxTitle")}
+        description={pages("taxDescription")}
       />
 
 

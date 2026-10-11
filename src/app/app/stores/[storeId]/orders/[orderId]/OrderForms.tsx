@@ -319,7 +319,7 @@ export function RefundForm({ order }: { order: Order }) {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel />
               <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
                 Record refund
               </AlertDialogAction>

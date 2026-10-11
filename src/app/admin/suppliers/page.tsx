@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { setSupplierStatus } from "@/app/actions/admin";
 import { Badge, PageHeader } from "@/components/ui";
@@ -20,11 +21,12 @@ const CAPABILITY_LABELS: Record<string, string> = {
 export default async function AdminSuppliersPage() {
   const [suppliers, catalog] = await Promise.all([listSuppliers(), listCatalogProducts()]);
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Suppliers"
-        description="Only approved suppliers are available to stores."
+        title={pages("suppliersTitle")}
+        description={pages("suppliersDescription")}
       />
 
 

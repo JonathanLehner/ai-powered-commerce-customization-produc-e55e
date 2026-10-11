@@ -49,11 +49,6 @@ export function planPrice(plan: Plan, cycle: BillingCycle): PlanPrice | null {
   return { perMonth: Math.round(yearly / 12), billed: yearly };
 }
 
-/** "$1,430" */
-export function formatDollars(amount: number): string {
-  return `$${amount.toLocaleString("en-US")}`;
-}
-
 /** Resolves a stored plan value, falling back to the smallest plan. */
 export function planFor(plan: string | null | undefined): Plan {
   return PLANS[plan as PlanKey] ?? PLANS.starter;

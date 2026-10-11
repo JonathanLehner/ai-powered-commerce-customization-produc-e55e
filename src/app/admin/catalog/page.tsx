@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
@@ -11,11 +12,12 @@ export default async function AdminCatalogPage() {
   const [catalog, suppliers] = await Promise.all([listCatalogProducts(), listSuppliers()]);
   const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name ?? "Unknown";
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Shared catalog"
-        description="Products every store can import."
+        title={pages("catalogTitle")}
+        description={pages("catalogDescription")}
         actions={
           <Button asChild size="sm">
             <Link href="/admin/catalog/new">Add product</Link>

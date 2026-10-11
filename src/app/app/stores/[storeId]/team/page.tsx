@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { resendInvite } from "@/app/actions/team";
 import { Badge, PageHeader } from "@/components/ui";
@@ -40,10 +41,11 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
     (u) => u.agencyId === store.agencyId && u.platformRole === "agency_admin",
   );
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Team"
+        title={pages("teamTitle")}
       />
 
       <Card asChild>

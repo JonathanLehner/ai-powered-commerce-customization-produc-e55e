@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { applySuggestion, dismissSuggestion } from "@/app/actions/ai";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
@@ -90,11 +91,12 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
     label: `${p.name} · ${storeSku(p, store.channelCode)} · imported ${formatDate(p.importedAt)}`,
   }));
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Assistant"
-        description="Suggestions stay pending until you apply one."
+        title={pages("assistantTitle")}
+        description={pages("assistantDescription")}
       />
 
       <section>

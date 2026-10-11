@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -12,26 +13,26 @@ export default function AdminError({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  const t = useTranslations("common");
+  const fallback = useTranslations("fallback");
   return (
     <FallbackPanel
-      eyebrow="Error"
-      title="Something went wrong"
+      eyebrow={t("error")}
+      title={t("errorTitle")}
       description={
-        <p>
-          This page could not be loaded. Please try again.
-        </p>
+        <p>{t("errorBody")}</p>
       }
       actions={
         <>
           <Button type="button" onClick={unstable_retry}>
-            Try again
+            {t("tryAgain")}
           </Button>
           <Button asChild variant="outline">
-            <Link href="/admin">Platform overview</Link>
+            <Link href="/admin">{fallback("platformOverview")}</Link>
           </Button>
         </>
       }
-      note={error.digest ? `Reference ${error.digest}` : null}
+      note={error.digest ? t("reference", { digest: error.digest }) : null}
     />
   );
 }

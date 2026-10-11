@@ -128,7 +128,7 @@ function ArchiveDialog({ formId }: { formId: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
             Yes, archive it
           </AlertDialogAction>

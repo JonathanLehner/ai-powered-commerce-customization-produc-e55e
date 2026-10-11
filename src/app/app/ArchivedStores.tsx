@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDownIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
  */
 export function ArchivedStores({ count, children }: { count: number; children: ReactNode }) {
   const [open, setOpen] = useState(false);
-  const noun = count === 1 ? "archived store" : "archived stores";
+  const t = useTranslations("dashboard");
   return (
     <div className="mt-4 space-y-3">
       <Button
@@ -22,7 +23,7 @@ export function ArchivedStores({ count, children }: { count: number; children: R
         onClick={() => setOpen(!open)}
       >
         <ChevronDownIcon className={open ? "rotate-180 transition-transform" : "transition-transform"} />
-        {open ? `Hide ${count} ${noun}` : `Show ${count} ${noun}`}
+        {open ? t("hideArchived", { count }) : t("showArchived", { count })}
       </Button>
       {open ? children : null}
     </div>

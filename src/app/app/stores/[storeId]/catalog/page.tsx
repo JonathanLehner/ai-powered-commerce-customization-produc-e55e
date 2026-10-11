@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { setProductStatus } from "@/app/actions/products";
@@ -55,10 +56,11 @@ export default async function StoreCatalogPage({
       ? published.reduce((sum, p) => sum + p.costs.marginPct, 0) / published.length
       : 0;
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Products"
+        title={pages("productsTitle")}
         actions={
           canEdit ? (
             <Button asChild>

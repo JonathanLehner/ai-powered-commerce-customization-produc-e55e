@@ -403,7 +403,7 @@ function DeleteProductDialog({ formId, name }: { formId: string; name: string })
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
             Delete permanently
           </AlertDialogAction>

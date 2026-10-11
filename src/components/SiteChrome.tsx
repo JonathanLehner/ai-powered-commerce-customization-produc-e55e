@@ -1,7 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Document } from "@/components/Document";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Logo } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
+import { getPathname } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/locales";
 import { cn } from "@/lib/utils";
 
 /**
@@ -15,33 +19,39 @@ import { cn } from "@/lib/utils";
 /** The small uppercase heading above a footer column. */
 const SECTION_TITLE = "text-xs font-semibold tracking-wide text-muted-foreground uppercase";
 
-const NAV = [
-  { href: "/how-it-works", label: "How it works" },
-  { href: "/pricing", label: "Pricing" },
-];
-
-export function SiteHeader() {
+/**
+ * Links to the public pages stay in the visitor's language. The addresses are
+ * worked out from the `locale` prop rather than from the request, because the
+ * site-wide 404 renders this header too and must not read the request. Sign-in
+ * has no localized address.
+ */
+export async function SiteHeader({ locale }: { locale: Locale }) {
+  const t = await getTranslations({ locale, namespace: "site" });
+  const nav = [
+    { href: "/how-it-works", label: t("howItWorks") },
+    { href: "/pricing", label: t("pricing") },
+  ];
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
-          href="/"
+          href={getPathname({ href: "/", locale })}
           className="rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
         >
           <Logo />
         </Link>
-        <nav aria-label="Main" className="flex items-center gap-1 sm:gap-2">
-          {NAV.map((item) => (
+        <nav aria-label={t("mainNav")} className="flex items-center gap-1 sm:gap-2">
+          {nav.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={getPathname({ href: item.href, locale })}
               className="rounded-lg px-2.5 py-2 text-sm font-medium whitespace-nowrap text-inksoft hover:bg-canvas hover:text-ink sm:px-3"
             >
               {item.label}
             </Link>
           ))}
           <Link href="/login" className={cn(buttonVariants({ size: "sm" }), "ml-1 sm:ml-2 sm:px-4 sm:py-2 sm:text-sm")}>
-            Sign in
+            {t("signIn")}
           </Link>
         </nav>
       </div>
@@ -49,36 +59,43 @@ export function SiteHeader() {
   );
 }
 
-export function SiteFooter() {
+export async function SiteFooter({
+  locale,
+  languageSwitcher = true,
+}: {
+  locale: Locale;
+  /** Off on the site-wide 404, whose address has no translation to switch to. */
+  languageSwitcher?: boolean;
+}) {
+  const t = await getTranslations({ locale, namespace: "site" });
   return (
     <footer className="border-t border-line bg-canvas">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-2">
           <Logo />
-          <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-            Branded merchandise stores for agencies and their clients.
-          </p>
+          <p className="mt-3 max-w-sm text-sm text-muted-foreground">{t("tagline")}</p>
         </div>
         <div>
-          <h2 className={SECTION_TITLE}>Platform</h2>
+          <h2 className={SECTION_TITLE}>{t("platform")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
-            <li><Link href="/how-it-works" className="hover:text-ink hover:underline">How it works</Link></li>
-            <li><Link href="/pricing" className="hover:text-ink hover:underline">Pricing</Link></li>
-            <li><Link href="/contact" className="hover:text-ink hover:underline">Contact sales</Link></li>
-            <li><Link href="/login" className="hover:text-ink hover:underline">Sign in</Link></li>
+            <li><Link href={getPathname({ href: "/how-it-works", locale })} className="hover:text-ink hover:underline">{t("howItWorks")}</Link></li>
+            <li><Link href={getPathname({ href: "/pricing", locale })} className="hover:text-ink hover:underline">{t("pricing")}</Link></li>
+            <li><Link href={getPathname({ href: "/contact", locale })} className="hover:text-ink hover:underline">{t("contactSales")}</Link></li>
+            <li><Link href="/login" className="hover:text-ink hover:underline">{t("signIn")}</Link></li>
           </ul>
         </div>
         <div>
-          <h2 className={SECTION_TITLE}>Legal</h2>
+          <h2 className={SECTION_TITLE}>{t("legal")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
-            <li><Link href="/legal/terms" className="hover:text-ink hover:underline">Terms of service</Link></li>
-            <li><Link href="/legal/privacy" className="hover:text-ink hover:underline">Privacy policy</Link></li>
+            <li><Link href={getPathname({ href: "/legal/terms", locale })} className="hover:text-ink hover:underline">{t("terms")}</Link></li>
+            <li><Link href={getPathname({ href: "/legal/privacy", locale })} className="hover:text-ink hover:underline">{t("privacy")}</Link></li>
           </ul>
         </div>
       </div>
       <div className="border-t border-line">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Parcelith</p>
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <p>{t("copyright", { year: new Date().getFullYear() })}</p>
+          {languageSwitcher ? <LanguageSwitcher label={t("language")} /> : null}
         </div>
       </div>
     </footer>

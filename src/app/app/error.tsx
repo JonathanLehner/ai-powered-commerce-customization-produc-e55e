@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FallbackPanel, Logo } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -16,34 +17,35 @@ export default function WorkspaceError({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  const t = useTranslations("common");
+  const fallback = useTranslations("fallback");
+  const shell = useTranslations("shell");
   return (
     <>
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center px-4 sm:px-6">
-          <Link href="/app" aria-label="Parcelith agency workspace">
+          <Link href="/app" aria-label={shell("workspaceHome")}>
             <Logo size={26} />
           </Link>
         </div>
       </header>
       <FallbackPanel
-        eyebrow="Error"
-        title="Something went wrong"
+        eyebrow={t("error")}
+        title={t("errorTitle")}
         description={
-          <p>
-            This page could not be loaded. Please try again.
-          </p>
+          <p>{t("errorBody")}</p>
         }
         actions={
           <>
             <Button type="button" onClick={unstable_retry}>
-              Try again
+              {t("tryAgain")}
             </Button>
             <Button asChild variant="outline">
-              <Link href="/app">Go to the dashboard</Link>
+              <Link href="/app">{fallback("goToDashboard")}</Link>
             </Button>
           </>
         }
-        note={error.digest ? `Reference ${error.digest}` : null}
+        note={error.digest ? t("reference", { digest: error.digest }) : null}
       />
     </>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckIcon, CopyIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
@@ -147,6 +148,7 @@ export function SubmitButton({
   value?: string;
 }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("common");
   return (
     <Button
       type="submit"
@@ -157,7 +159,7 @@ export function SubmitButton({
       name={name}
       value={value}
     >
-      {pending ? (pendingLabel ?? "Saving…") : children}
+      {pending ? (pendingLabel ?? t("saving")) : children}
     </Button>
   );
 }
@@ -173,12 +175,14 @@ export function SubmitButton({
  */
 export function SuccessToast({ state }: { state: ActionState }) {
   const previous = useRef(state.status);
+  const t = useTranslations("common");
+  const saved = t("saved");
   useEffect(() => {
     if (state.status === "success" && previous.current !== "success") {
-      toast.success(state.message ?? "Saved.");
+      toast.success(state.message ?? saved);
     }
     previous.current = state.status;
-  }, [state]);
+  }, [state, saved]);
   return null;
 }
 
@@ -297,9 +301,9 @@ export function ConfirmSubmit({
   variant = "destructive",
   size,
   className,
-  question = "Are you sure?",
-  pendingLabel = "Working…",
-  cancelLabel = "Cancel",
+  question,
+  pendingLabel,
+  cancelLabel,
 }: {
   children: ReactNode;
   confirmLabel: string;
@@ -313,6 +317,7 @@ export function ConfirmSubmit({
 }) {
   const [armed, setArmed] = useState(false);
   const { pending } = useFormStatus();
+  const t = useTranslations("common");
 
   if (!armed) {
     return (
@@ -330,12 +335,12 @@ export function ConfirmSubmit({
   }
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
-      <span className="text-sm text-muted-foreground">{question}</span>
+      <span className="text-sm text-muted-foreground">{question ?? t("areYouSure")}</span>
       <Button type="submit" variant={variant} size={size} className={className} disabled={pending}>
-        {pending ? pendingLabel : confirmLabel}
+        {pending ? (pendingLabel ?? t("working")) : confirmLabel}
       </Button>
       <Button type="button" variant="ghost" size={size} onClick={() => setArmed(false)} disabled={pending}>
-        {cancelLabel}
+        {cancelLabel ?? t("cancel")}
       </Button>
     </span>
   );
@@ -349,8 +354,9 @@ export function ConfirmSubmit({
  * that case the button says so instead of pretending it worked, and the text is
  * selected ready to be copied by hand.
  */
-export function CopyField({ value, label = "Copy link" }: { value: string; label?: string }) {
+export function CopyField({ value, label }: { value: string; label?: string }) {
   const [result, setResult] = useState<"idle" | "copied" | "failed">("idle");
+  const t = useTranslations("common");
   const textRef = useRef<HTMLParagraphElement>(null);
 
   async function copy() {
@@ -381,14 +387,10 @@ export function CopyField({ value, label = "Copy link" }: { value: string; label
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button type="button" variant="outline" size="sm" onClick={copy}>
           {result === "copied" ? <CheckIcon /> : <CopyIcon />}
-          {label}
+          {label ?? t("copyLink")}
         </Button>
         <span role="status" aria-live="polite" className="text-xs text-muted-foreground">
-          {result === "copied"
-            ? "Copied"
-            : result === "failed"
-              ? "Could not copy. Select the text and copy it manually."
-              : ""}
+          {result === "copied" ? t("copied") : result === "failed" ? t("copyFailed") : ""}
         </span>
       </div>
     </div>

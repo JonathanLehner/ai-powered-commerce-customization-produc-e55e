@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import {
   Pagination,
   PaginationContent,
@@ -16,7 +17,7 @@ import { orderListQuery, type OrderListFilters, type OrderListPage } from "@/lib
  * different screenful of orders, and the router prefetching them rendered the
  * page over and over in the background for the one page somebody asked for.
  */
-export function OrdersPager({
+export async function OrdersPager({
   basePath,
   filters,
   page,
@@ -26,34 +27,53 @@ export function OrdersPager({
   page: OrderListPage;
 }) {
   if (page.total === 0) return null;
+  const [t, common] = await Promise.all([getTranslations("pager"), getTranslations("common")]);
   const href = (n: number) => `${basePath}${orderListQuery(filters, { page: n })}`;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs text-muted-foreground">
-        Showing <span className="tabular-nums">{page.first}</span>–
-        <span className="tabular-nums">{page.last}</span> of{" "}
-        <span className="tabular-nums">{page.total}</span> orders
+      <p className="text-xs text-muted-foreground tabular-nums">
+        {t("orders", { first: page.first, last: page.last, total: page.total })}
       </p>
       {page.pages > 1 ? (
-        <Pagination aria-label="Pages" className="mx-0 w-auto justify-end">
+        <Pagination aria-label={common("pages")} className="mx-0 w-auto justify-end">
           <PaginationContent>
             <PaginationItem>
               {page.page > 1 ? (
-                <PaginationPrevious href={href(page.page - 1)} rel="prev" />
+                <PaginationPrevious
+                  href={href(page.page - 1)}
+                  rel="prev"
+                  text={common("previous")}
+                  aria-label={common("previousPage")}
+                />
               ) : (
-                <PaginationPrevious aria-disabled className="pointer-events-none opacity-50" />
+                <PaginationPrevious
+                  aria-disabled
+                  className="pointer-events-none opacity-50"
+                  text={common("previous")}
+                  aria-label={common("previousPage")}
+                />
               )}
             </PaginationItem>
             <PaginationItem>
               <span className="px-2 text-xs text-muted-foreground tabular-nums">
-                Page {page.page} of {page.pages}
+                {common("pageOf", { page: page.page, pages: page.pages })}
               </span>
             </PaginationItem>
             <PaginationItem>
               {page.page < page.pages ? (
-                <PaginationNext href={href(page.page + 1)} rel="next" />
+                <PaginationNext
+                  href={href(page.page + 1)}
+                  rel="next"
+                  text={common("next")}
+                  aria-label={common("nextPage")}
+                />
               ) : (
-                <PaginationNext aria-disabled className="pointer-events-none opacity-50" />
+                <PaginationNext
+                  aria-disabled
+                  className="pointer-events-none opacity-50"
+                  text={common("next")}
+                  aria-label={common("nextPage")}
+                />
               )}
             </PaginationItem>
           </PaginationContent>

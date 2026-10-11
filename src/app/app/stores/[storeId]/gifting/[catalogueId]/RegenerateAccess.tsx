@@ -50,7 +50,7 @@ function RegenerateDialog({ formId }: { formId: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
             Regenerate access
           </AlertDialogAction>

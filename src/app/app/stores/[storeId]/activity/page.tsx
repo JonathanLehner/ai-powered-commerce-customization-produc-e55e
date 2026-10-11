@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { Card } from "@/components/ui/card";
@@ -17,7 +18,7 @@ import {
 import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
 import { auditExportMessage, planFor } from "@/lib/plans";
 import { requireStoreAccess } from "@/lib/session";
-import { AUDIT_CATEGORY_LABELS, PLATFORM_ACCESS_NOTE, type AuditCategory } from "@/lib/types";
+import { AUDIT_CATEGORY_LABELS, type AuditCategory } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 const TONES: Record<AuditCategory, "brand" | "iris" | "green" | "amber" | "slate" | "neutral"> = {
@@ -76,11 +77,13 @@ export default async function ActivityPage({
   const page = pageAuditEntries(matched, filters.page);
   const base = `/app/stores/${storeId}/activity`;
 
+  const pages = await getTranslations("pages.store");
+  const roles = await getTranslations("roles");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Audit history"
-                description={viaPlatform ? PLATFORM_ACCESS_NOTE : undefined}
+        title={pages("activityTitle")}
+                description={viaPlatform ? roles("platformAccessNote") : undefined}
       />
 
       <AuditFilterBar

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Badge, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -39,11 +40,12 @@ export default async function AdminOverviewPage() {
   const pendingSuppliers = suppliers.filter((s) => s.status === "pending_review");
   const activeStores = stores.filter((s) => s.status === "active");
 
+  const pages = await getTranslations("pages.admin");
   return (
     <div className="space-y-7">
       <PageHeader
-        title="Operations overview"
-        description="Suppliers, the shared catalog, global tax rates and agency access."
+        title={pages("overviewTitle")}
+        description={pages("overviewDescription")}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

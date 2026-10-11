@@ -1,6 +1,7 @@
 "use client";
 
 import { DownloadIcon, SearchIcon } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,6 @@ import {
   type AuditPage,
 } from "@/lib/audit-log";
 import { AUDIT_CATEGORY_LABELS, type AuditCategory } from "@/lib/types";
-import { formatDate } from "@/lib/util";
 
 /**
  * The controls above and below the audit list, shared by a store's Activity page
@@ -205,30 +205,37 @@ export function AuditPager({
   filters: AuditFilters;
   page: AuditPage;
 }) {
+  const t = useTranslations("pager");
+  const common = useTranslations("common");
   if (page.total === 0) return null;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs text-muted-foreground">
-        Showing <span className="tabular-nums">{page.first}</span>–
-        <span className="tabular-nums">{page.last}</span> of{" "}
-        <span className="tabular-nums">{page.total}</span> entries
+      <p className="text-xs text-muted-foreground tabular-nums">
+        {t("audit", { first: page.first, last: page.last, total: page.total })}
       </p>
       {page.pages > 1 ? (
-        <Pagination aria-label="Pages" className="mx-0 w-auto justify-end">
+        <Pagination aria-label={common("pages")} className="mx-0 w-auto justify-end">
           <PaginationContent>
             <PaginationItem>
               {page.page > 1 ? (
                 <PaginationPrevious
                   href={`${basePath}${auditQuery(filters, { page: page.page - 1 })}`}
                   rel="prev"
+                  text={common("previous")}
+                  aria-label={common("previousPage")}
                 />
               ) : (
-                <PaginationPrevious aria-disabled className="pointer-events-none opacity-50" />
+                <PaginationPrevious
+                  aria-disabled
+                  className="pointer-events-none opacity-50"
+                  text={common("previous")}
+                  aria-label={common("previousPage")}
+                />
               )}
             </PaginationItem>
             <PaginationItem>
               <span className="px-2 text-xs tabular-nums text-muted-foreground">
-                Page {page.page} of {page.pages}
+                {common("pageOf", { page: page.page, pages: page.pages })}
               </span>
             </PaginationItem>
             <PaginationItem>
@@ -236,9 +243,16 @@ export function AuditPager({
                 <PaginationNext
                   href={`${basePath}${auditQuery(filters, { page: page.page + 1 })}`}
                   rel="next"
+                  text={common("next")}
+                  aria-label={common("nextPage")}
                 />
               ) : (
-                <PaginationNext aria-disabled className="pointer-events-none opacity-50" />
+                <PaginationNext
+                  aria-disabled
+                  className="pointer-events-none opacity-50"
+                  text={common("next")}
+                  aria-label={common("nextPage")}
+                />
               )}
             </PaginationItem>
           </PaginationContent>
@@ -253,9 +267,11 @@ export function AuditPager({
  * covered, rather than letting the list imply it has reached the beginning.
  */
 export function AuditCoverageNote({ coveredFrom }: { coveredFrom: string }) {
+  const t = useTranslations("pager");
+  const format = useFormatter();
   return (
     <p className="text-xs text-muted-foreground">
-      Showing activity since {formatDate(coveredFrom)}. Set a date range to see older entries.
+      {t("auditCoverage", { date: format.dateTime(new Date(coveredFrom), "date") })}
     </p>
   );
 }

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Callout, PageHeader, ProgressBar } from "@/components/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { listTaxBrackets } from "@/lib/data";
@@ -19,10 +20,11 @@ export default async function StoreSetupPage({
   const brackets = await listTaxBrackets();
   const progress = setupProgress(store.setup);
 
+  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Settings"
+        title={pages("settingsTitle")}
       />
 
       {created ? (

@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDollars, type BillingCycle, type PlanPrice } from "@/lib/plans";
+import { Link } from "@/i18n/navigation";
+import type { BillingCycle, PlanPrice } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { CheckList } from "../kit";
 
@@ -24,6 +25,10 @@ export interface PlanCard {
 /** The plan cards and the Monthly/Yearly switch that reprices them. */
 export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySaving: string }) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const t = useTranslations("pricing");
+  const format = useFormatter();
+  const dollars = (amount: number) =>
+    format.number(amount, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
   return (
     <>
@@ -32,13 +37,13 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
         onValueChange={(value) => setCycle(value as BillingCycle)}
         className="mx-auto w-fit items-center"
       >
-        <TabsList aria-label="Billing period">
+        <TabsList aria-label={t("billingPeriod")}>
           <TabsTrigger value="monthly" className="px-4">
-            Monthly
+            {t("monthly")}
           </TabsTrigger>
           <TabsTrigger value="yearly" className="gap-2 px-4">
-            Yearly
-            <span className="text-xs font-medium text-primary">Save {yearlySaving}</span>
+            {t("yearly")}
+            <span className="text-xs font-medium text-primary">{t("save", { percent: yearlySaving })}</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -57,7 +62,7 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
               {plan.highlighted ? (
                 <span className="absolute -top-3 left-6">
                   <Badge tone="brand" className="border-transparent bg-primary text-primary-foreground">
-                    Most popular
+                    {t("mostPopular")}
                   </Badge>
                 </span>
               ) : null}
@@ -68,16 +73,16 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
               <CardContent>
                 <p className="flex items-baseline gap-1">
                   <span className="font-heading text-3xl font-semibold tracking-tight text-foreground">
-                    {price ? formatDollars(price.perMonth) : "Custom"}
+                    {price ? dollars(price.perMonth) : t("custom")}
                   </span>
-                  {price ? <span className="text-sm text-muted-foreground">/month</span> : null}
+                  {price ? <span className="text-sm text-muted-foreground">{t("perMonth")}</span> : null}
                 </p>
                 <p className="mt-1 h-5 text-sm text-muted-foreground">
                   {price
                     ? cycle === "yearly"
-                      ? `Billed ${formatDollars(price.billed)} yearly`
-                      : "Billed monthly"
-                    : "Annual contract"}
+                      ? t("billedYearly", { amount: dollars(price.billed) })
+                      : t("billedMonthly")
+                    : t("annualContract")}
                 </p>
                 <CheckList items={plan.features} className="mt-6" />
               </CardContent>

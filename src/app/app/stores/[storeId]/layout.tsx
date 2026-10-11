@@ -1,8 +1,10 @@
+import type { Messages } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/AppHeader";
 import { StoreNav } from "@/components/StoreNav";
 import { Badge } from "@/components/ui";
 import { accessibleStores, requireStoreAccess, roleCan, type Capability } from "@/lib/session";
-import { PLATFORM_ACCESS_NOTE, storeAccessLabel } from "@/lib/types";
+
 
 export default async function StoreLayout({
   children,
@@ -13,21 +15,25 @@ export default async function StoreLayout({
 }) {
   const { storeId } = await params;
   const { user, store, role, viaPlatform } = await requireStoreAccess(storeId);
-  const stores = await accessibleStores(user);
+  const [stores, t, roles] = await Promise.all([
+    accessibleStores(user),
+    getTranslations("shell"),
+    getTranslations("roles"),
+  ]);
 
   const base = `/app/stores/${store.id}`;
-  const items: { href: string; label: string; capability: Capability }[] = [
-    { href: base, label: "Overview", capability: "store.view" },
-    { href: `${base}/catalog`, label: "Catalog", capability: "store.view" },
-    { href: `${base}/sourcing`, label: "Sourcing", capability: "store.catalog" },
-    { href: `${base}/assistant`, label: "AI assistant", capability: "store.catalog" },
-    { href: `${base}/storefront`, label: "Storefront", capability: "store.storefront" },
-    { href: `${base}/gifting`, label: "Gifting", capability: "store.gifting" },
-    { href: `${base}/orders`, label: "Orders", capability: "store.view" },
-    { href: `${base}/discounts`, label: "Discounts", capability: "store.settings" },
-    { href: `${base}/team`, label: "Team", capability: "store.team" },
-    { href: `${base}/setup`, label: "Settings", capability: "store.settings" },
-    { href: `${base}/activity`, label: "Activity", capability: "store.view" },
+  const items: { href: string; section: keyof Messages["shell"]["tabs"]; capability: Capability }[] = [
+    { href: base, section: "overview", capability: "store.view" },
+    { href: `${base}/catalog`, section: "catalog", capability: "store.view" },
+    { href: `${base}/sourcing`, section: "sourcing", capability: "store.catalog" },
+    { href: `${base}/assistant`, section: "assistant", capability: "store.catalog" },
+    { href: `${base}/storefront`, section: "storefront", capability: "store.storefront" },
+    { href: `${base}/gifting`, section: "gifting", capability: "store.gifting" },
+    { href: `${base}/orders`, section: "orders", capability: "store.view" },
+    { href: `${base}/discounts`, section: "discounts", capability: "store.settings" },
+    { href: `${base}/team`, section: "team", capability: "store.team" },
+    { href: `${base}/setup`, section: "settings", capability: "store.settings" },
+    { href: `${base}/activity`, section: "activity", capability: "store.view" },
   ];
 
   return (
@@ -38,17 +44,22 @@ export default async function StoreLayout({
           <h1 className="text-lg font-semibold tracking-tight text-foreground">{store.name}</h1>
           <span className="text-sm text-muted-foreground">{store.clientName}</span>
           <Badge tone={store.status === "active" ? "green" : "slate"}>
-            {store.status === "active" ? "Active" : "Archived"}
+            {store.status === "active" ? t("active") : t("archived")}
           </Badge>
-          <Badge tone={viaPlatform ? "iris" : "neutral"}>{storeAccessLabel(role, viaPlatform)}</Badge>
+          <Badge tone={viaPlatform ? "iris" : "neutral"}>{viaPlatform ? roles("platformAccess") : roles(role)}</Badge>
         </div>
         {viaPlatform ? (
           <p className="mx-auto w-full max-w-[92rem] px-4 pt-2 text-xs text-muted-foreground sm:px-6">
-            {PLATFORM_ACCESS_NOTE}
+            {roles("platformAccessNote")}
           </p>
         ) : null}
       </div>
-      <StoreNav items={items.filter((i) => roleCan(role, i.capability)).map(({ href, label }) => ({ href, label }))} />
+      <StoreNav
+        label={t("storeSections")}
+        items={items
+          .filter((i) => roleCan(role, i.capability))
+          .map(({ href, section }) => ({ href, section, label: t(`tabs.${section}`) }))}
+      />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">{children}</div>
     </>
   );

@@ -23,11 +23,15 @@ const sessionUserId = cache(async (): Promise<string | null> => {
   return session?.user?.id ?? null;
 });
 
-export async function getSessionUser(): Promise<User | null> {
+/**
+ * Memoised per render as well: the workspace's language is read from the user
+ * record, and so is the layout's own sign-in check.
+ */
+export const getSessionUser = cache(async (): Promise<User | null> => {
   const id = await sessionUserId();
   if (!id) return null;
   return (await getUserById(id)) ?? null;
-}
+});
 
 export async function requireUser(): Promise<User> {
   const user = await getSessionUser();

@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "title": "Parcelith: lojas de merchandising para agências",
+    "description": "Encontre fornecedores, personalize e venda produtos com impressão a pedido para cada cliente a partir de um único espaço de agência."
+  },
+  "common": {
+    "saving": "A guardar…",
+    "working": "A processar…",
+    "cancel": "Cancelar",
+    "areYouSure": "Tem a certeza?",
+    "saved": "Guardado.",
+    "copyLink": "Copiar ligação",
+    "copied": "Copiado",
+    "copyFailed": "Não foi possível copiar. Selecione o texto e copie-o manualmente.",
+    "close": "Fechar",
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "previousPage": "Ir para a página anterior",
+    "nextPage": "Ir para a página seguinte",
+    "morePages": "Mais páginas",
+    "pages": "Páginas",
+    "pageOf": "Página {page} de {pages}",
+    "breadcrumb": "Trilho de navegação",
+    "error": "Erro",
+    "errorTitle": "Ocorreu um erro",
+    "errorBody": "Não foi possível carregar esta página. Tente novamente.",
+    "tryAgain": "Tentar novamente",
+    "reference": "Referência {digest}",
+    "notFoundTitle": "Página não encontrada",
+    "backToHomepage": "Voltar à página inicial"
+  },
+  "site": {
+    "mainNav": "Navegação principal",
+    "howItWorks": "Como funciona",
+    "pricing": "Preços",
+    "signIn": "Iniciar sessão",
+    "tagline": "Lojas de merchandising para agências e os seus clientes.",
+    "platform": "Plataforma",
+    "contactSales": "Contactar vendas",
+    "legal": "Informação legal",
+    "terms": "Termos de serviço",
+    "privacy": "Política de privacidade",
+    "language": "Idioma",
+    "copyright": "© {year} Parcelith"
+  },
+  "notFound": {
+    "body": "Verifique o endereço e tente novamente."
+  },
+  "home": {
+    "title": "Lojas de merchandising para cada cliente",
+    "lead": "Encontre fornecedores, personalize e venda produtos com impressão a pedido a partir de um único espaço de agência.",
+    "openWorkspace": "Abrir o espaço de trabalho",
+    "howItWorks": "Como funciona",
+    "factsProducts": "Produtos",
+    "factsProductsValue": "Vestuário e canecas",
+    "factsLanguages": "Idiomas",
+    "factsCarriers": "Transportadoras",
+    "heroAlt": "Uma secretária de estúdio com vestuário liso dobrado, canecas de cerâmica e amostras de cor",
+    "pillarsTitle": "Feito para agências",
+    "pillars": {
+      "stores": {
+        "title": "Lojas separadas por cliente",
+        "body": "Cada cliente tem o seu próprio catálogo, clientes, encomendas, moedas, domínio e pagamentos."
+      },
+      "catalog": {
+        "title": "Catálogo de fornecedores partilhado",
+        "body": "Vestuário e canecas de fornecedores, com custos, áreas de impressão e regiões de entrega. Copie o que precisa para qualquer loja."
+      },
+      "approval": {
+        "title": "Aprovação antes de publicar",
+        "body": "Designs, mockups, margens e sugestões de IA precisam de aprovação antes de ficarem visíveis."
+      }
+    },
+    "features": {
+      "sourcing": {
+        "title": "Compare fornecedores lado a lado",
+        "body": "Filtre o catálogo partilhado por categoria, fornecedor, custo e região e compare as opções.",
+        "points": ["Custo base, custo de impressão e prazo", "Regiões de entrega cobertas", "Cópia para o catálogo de uma loja"],
+        "alt": "Amostras de merchandising liso e retalhos de tecido sobre uma superfície clara"
+      },
+      "artwork": {
+        "title": "Designs verificados antes da produção",
+        "body": "Coloque um logótipo na área de impressão e ajuste o tamanho e a rotação enquanto a resolução de impressão é atualizada.",
+        "points": ["Áreas de impressão em milímetros", "Verificação de resolução, limites e ficheiro", "Mockups de frente, costas e lado"],
+        "alt": "Mãos a posicionar uma folha de transfer sobre uma t-shirt lisa dobrada"
+      },
+      "fulfilment": {
+        "title": "As encomendas pagas seguem para produção",
+        "body": "Cada encomenda é enviada ao respetivo fornecedor. As encomendas que precisam de atenção ficam assinaladas na lista de encomendas.",
+        "points": ["Seguimento DHL, FedEx e UPS", "Reembolsos, cancelamentos e exceções", "Registo de auditoria completo"],
+        "alt": "Caixas de cartão kraft, fita adesiva e um leitor de códigos de barras numa bancada"
+      }
+    },
+    "giftingEyebrow": "Ofertas empresariais",
+    "giftingTitle": "Portais de ofertas privados para empresas",
+    "giftingBody": "Dê a cada empresa o seu próprio catálogo de ofertas, com listas de destinatários e aprovação antes do pagamento.",
+    "giftingPoints": ["Ligação privada ou acesso só por convite", "Até 100 destinatários por campanha", "Limite de gasto por destinatário"],
+    "giftingHow": "Como funcionam as ofertas",
+    "giftingIncluded": "Incluído em todos os planos",
+    "giftingAlt": "Caixas de oferta em kraft com laço ao lado de um hoodie azul-marinho dobrado e de uma caneca branca de cerâmica",
+    "giftFlow": {
+      "publish": { "title": "Publique um catálogo", "body": "Escolha ofertas entre os produtos publicados da loja." },
+      "recipients": { "title": "Adicione destinatários", "body": "Cole uma lista ou carregue um CSV." },
+      "approve": { "title": "Aprove", "body": "Um aprovador revê a lista e o total." },
+      "pay": { "title": "Pague uma vez", "body": "Cada destinatário recebe a sua própria encomenda com seguimento." }
+    },
+    "lifecycleTitle": "Do briefing à entrega",
+    "lifecycle": {
+      "create": { "title": "Crie a loja", "body": "Logótipo, tema, moedas e domínio." },
+      "payments": { "title": "Ligue os pagamentos", "body": "Stripe, transportadoras e impostos." },
+      "products": { "title": "Adicione produtos", "body": "Importe, coloque os designs e aprove os mockups." },
+      "storefront": { "title": "Construa a montra", "body": "Organize secções, pré-visualize e publique." },
+      "sell": { "title": "Venda e entregue", "body": "As encomendas seguem para produção com seguimento." }
+    },
+    "demoTitle": "Experimente o espaço de demonstração",
+    "demoBody": "Quatro lojas de clientes de exemplo com produtos, encomendas e campanhas de ofertas.",
+    "demoCta": "Iniciar sessão na demonstração"
+  },
+  "howItWorks": {
+    "metaTitle": "Como funciona",
+    "metaDescription": "Configuração de lojas, pesquisa de fornecedores, verificação de designs, mockups, montras, pagamento, processamento de encomendas e ofertas empresariais no Parcelith.",
+    "title": "Como funciona",
+    "lead": "Da configuração de uma loja de cliente à entrega da primeira encomenda.",
+    "stages": {
+      "setup": {
+        "title": "1. Configuração da loja",
+        "body": "Seis passos cobrem a marca, o idioma, o domínio, os pagamentos, as transportadoras e os impostos.",
+        "detail": ["Logótipo, tema e idioma predefinido", "Moedas de venda", "Domínio próprio", "Conta Stripe", "Contas DHL, FedEx e UPS", "Taxa de imposto e preços com IVA incluído"]
+      },
+      "sourcing": {
+        "title": "2. Fornecedores",
+        "body": "Pesquise no catálogo de fornecedores partilhado e copie produtos para uma loja.",
+        "detail": ["Filtrar por categoria, fornecedor, disponibilidade e região", "Comparar até três produtos", "Definir o preço e o estado próprios da loja"]
+      },
+      "artwork": {
+        "title": "3. Designs",
+        "body": "Coloque os designs dentro de cada área de impressão. Cada problema é assinalado com a respetiva correção.",
+        "detail": ["Mover, redimensionar, rodar e remover designs", "Verificação de área de impressão, resolução, formato, tamanho do ficheiro e transparência"]
+      },
+      "mockups": {
+        "title": "4. Mockups e margem",
+        "body": "Aprove os mockups e reveja a margem antes de publicar.",
+        "detail": ["Pré-visualizações de frente, costas e lado", "Custo do fornecedor, custo de impressão, envio e impostos", "Preço de venda e margem"]
+      },
+      "storefront": {
+        "title": "5. Montra",
+        "body": "Organize secções, pré-visualize em qualquer ecrã e publique.",
+        "detail": ["Oito tipos de secção", "Pré-visualização em computador, tablet e telemóvel", "Publicar, reverter e histórico de versões"]
+      },
+      "checkout": {
+        "title": "6. Pagamento e processamento",
+        "body": "Os clientes pagam na sua moeda. As encomendas seguem automaticamente para o fornecedor.",
+        "detail": ["Confirmação da encomenda e página de estado", "Atualizações de produção, envio e entrega", "Ligações de seguimento da transportadora"]
+      },
+      "gifting": {
+        "title": "7. Ofertas empresariais",
+        "body": "Abra um catálogo de ofertas privado para uma empresa. O comprador da empresa adiciona destinatários, um aprovador dá o aval e cada destinatário recebe uma encomenda.",
+        "detail": ["Ligação privada ou acesso só por convite", "Limite de gasto por destinatário", "Listas de destinatários em CSV ou coladas", "Aprovação antes do pagamento", "Encomendas agrupadas por campanha"]
+      }
+    },
+    "rolesTitle": "Funções",
+    "roleColumn": "Função",
+    "managesColumn": "Gere",
+    "noAccessColumn": "Sem acesso a",
+    "roles": {
+      "platform": { "role": "Administrador da plataforma", "owns": "Fornecedores, catálogo partilhado, taxas de imposto, agências e acesso às lojas", "cannot": "Textos e preços das lojas" },
+      "agency": { "role": "Equipa da agência", "owns": "Lojas, marca, domínios, pagamentos, transportadoras e membros da equipa", "cannot": "Lojas de outras agências" },
+      "manager": { "role": "Gestor de loja", "owns": "Catálogo, designs, mockups, preços e publicação", "cannot": "Tudo o que esteja fora da sua função" },
+      "shopper": { "role": "Cliente", "owns": "Explorar, personalizar, pagar e acompanhar encomendas", "cannot": "Outras lojas" },
+      "buyer": { "role": "Comprador de ofertas", "owns": "Listas de destinatários, pedidos de aprovação e pagamento da campanha", "cannot": "Pagar antes da aprovação" },
+      "approver": { "role": "Aprovador de ofertas", "owns": "Aprovar ou recusar uma campanha", "cannot": "Editar ou pagar a lista" }
+    },
+    "assistantTitle": "Assistente de IA",
+    "assistantBody": "Sugere produtos, fornecedores, descrições, etiquetas e preços. Cada sugestão é revista por si antes de ser aplicada.",
+    "assistantCta": "Experimentar no espaço de trabalho"
+  },
+  "pricing": {
+    "metaTitle": "Preços",
+    "metaDescription": "Planos Parcelith para agências de qualquer dimensão, com faturação mensal ou anual.",
+    "title": "Preços",
+    "lead": "Planos simples para agências de qualquer dimensão.",
+    "billingPeriod": "Período de faturação",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "save": "Poupe {percent}",
+    "mostPopular": "O mais escolhido",
+    "custom": "Personalizado",
+    "perMonth": "/mês",
+    "billedYearly": "{amount} faturados por ano",
+    "billedMonthly": "Faturação mensal",
+    "annualContract": "Contrato anual",
+    "getStarted": "Começar",
+    "contactSales": "Contactar vendas",
+    "liveStores": "{count, plural, one {# loja ativa} other {# lojas ativas}}",
+    "unlimitedLiveStores": "Lojas ativas ilimitadas",
+    "unlimited": "Ilimitadas",
+    "summaries": {
+      "starter": "Para pequenas agências que estão a começar.",
+      "studio": "Para agências com várias lojas de clientes.",
+      "scale": "Para grandes redes que vendem em muitos mercados."
+    },
+    "features": {
+      "draftStores": "Lojas em rascunho ilimitadas",
+      "catalog": "Catálogo de fornecedores partilhado",
+      "configurator": "Configurador de designs e mockups",
+      "checkout": "Pagamento em várias moedas",
+      "gifting": "Ofertas empresariais",
+      "tracking": "Seguimento DHL, FedEx e UPS",
+      "emailSupport": "Suporte por email",
+      "everythingStarter": "Tudo o que o Starter inclui",
+      "everythingStudio": "Tudo o que o Studio inclui",
+      "team": "Funções de equipa e convites",
+      "domains": "Domínios próprios",
+      "assistant": "Assistente de comércio com IA",
+      "dashboard": "Painel da agência",
+      "auditExport": "Exportação do registo de auditoria",
+      "onboarding": "Integração prioritária de fornecedores",
+      "taxMarkets": "Taxas de imposto por mercado",
+      "productionContact": "Contacto de produção dedicado",
+      "sso": "Início de sessão único (SSO)"
+    },
+    "compareTitle": "Comparar planos",
+    "compareCaption": "Comparação dos planos Parcelith",
+    "featuresColumn": "Funcionalidades",
+    "liveStoresRow": "Lojas ativas",
+    "draftStoresRow": "Lojas em rascunho",
+    "includedOn": "Incluído no {plan}",
+    "notOn": "Não incluído no {plan}"
+  },
+  "contact": {
+    "metaTitle": "Contactar vendas",
+    "metaDescription": "Comece a usar o Parcelith ou fale com a equipa de vendas sobre o plano Scale.",
+    "title": "Contactar vendas",
+    "lead": "Fale-nos da sua agência e configuramos o seu espaço de trabalho.",
+    "demoTitle": "Explorar a demonstração",
+    "demoBody": "Quatro lojas de clientes de exemplo com produtos e encomendas.",
+    "demoCta": "Abrir a demonstração",
+    "form": {
+      "name": "O seu nome",
+      "email": "Email profissional",
+      "company": "Agência ou empresa",
+      "plan": "Plano",
+      "planOption": "{plan}, {price}/mês",
+      "planCustom": "{plan}, preço personalizado",
+      "notSure": "Ainda não sei",
+      "message": "Mensagem",
+      "messageHint": "Número de lojas de clientes, produtos e necessidades de ofertas.",
+      "wantsCall": "Prefiro uma chamada",
+      "submit": "Enviar pedido",
+      "sending": "A enviar…",
+      "replyTime": "Respondemos no prazo de um dia útil."
+    },
+    "errors": {
+      "name": "Introduza o seu nome.",
+      "email": "Introduza o seu endereço de email.",
+      "company": "Introduza o nome da sua empresa.",
+      "plan": "Escolha um plano."
+    },
+    "duplicate": "Obrigado, {name}. Já recebemos o seu pedido e respondemos no prazo de um dia útil.",
+    "received": "Obrigado, {name}. Recebemos o seu pedido sobre {plan, select, unsure {o plano mais adequado} other {o plano {planName}}} e {call, select, yes {ligamos-lhe} other {respondemos por email}} no prazo de um dia útil."
+  },
+  "terms": {
+    "metaTitle": "Termos de serviço",
+    "metaDescription": "Os termos que regem os espaços de agência, as lojas de clientes, as encomendas a fornecedores e as responsabilidades do vendedor no Parcelith.",
+    "title": "Termos de serviço",
+    "lead": "Estes termos regem os espaços de agência e as lojas de clientes neles geridas.",
+    "sections": [
+      {
+        "heading": "1. O serviço",
+        "body": [
+          "O Parcelith disponibiliza um espaço de comércio para várias lojas. Uma agência cria e gere lojas em nome dos seus clientes. Cada loja é um canal de venda independente, com o seu próprio catálogo, clientes, encomendas, moedas, configuração fiscal, montra e conta de pagamento.",
+          "O Parcelith fornece o software, o catálogo de fornecedores partilhado e o encaminhamento de cada encomenda paga para um parceiro de produção. Não fabrica produtos, não mantém stock nem guarda fundos dos clientes."
+        ]
+      },
+      {
+        "heading": "2. Vendedor",
+        "body": [
+          "O comerciante que gere cada loja é o vendedor dessa loja. Os pagamentos são creditados na conta Stripe associada à própria loja. O vendedor é responsável pelos preços, pela cobrança e entrega de impostos, pelos reembolsos, pelos estornos, pelas obrigações perante os consumidores e por qualquer responsabilidade decorrente dos produtos vendidos.",
+          "As taxas de imposto configuradas pelo administrador da plataforma servem para calcular o imposto de um produto. A escolha de uma taxa não transfere qualquer obrigação fiscal para o Parcelith nem torna o Parcelith parte na venda."
+        ]
+      },
+      {
+        "heading": "3. Encomendas a fornecedores",
+        "body": [
+          "Os parceiros de produção são terceiros independentes. Quando um parceiro disponibiliza uma interface para receber encomendas, as encomendas pagas podem ser encaminhadas automaticamente. Quando não existe, como em plataformas de aprovisionamento como o Alibaba.com, a encomenda é assinalada para tratamento manual e o vendedor faz a nota de encomenda diretamente ao fornecedor, segundo as condições deste.",
+          "Os prazos, a disponibilidade e as regiões de entrega indicados no catálogo partilhado são fornecidos pelo parceiro e podem mudar sem aviso prévio. O Parcelith não os garante."
+        ]
+      },
+      {
+        "heading": "4. Designs e propriedade intelectual",
+        "body": [
+          "Mantém a propriedade dos designs que carrega. Garante que tem o direito de os reproduzir em produtos físicos e isenta o Parcelith e os seus parceiros de produção de quaisquer reclamações decorrentes dos designs que fornece.",
+          "As verificações de pré-impressão (limites da área de impressão, resolução efetiva, formato, tamanho do ficheiro e transparência) são controlos de qualidade automáticos. Passar nestas verificações não significa que tenha o direito de imprimir o design."
+        ]
+      },
+      {
+        "heading": "5. Sugestões geradas por IA",
+        "body": [
+          "O assistente de comércio produz rascunhos: ideias de produtos, recomendações de fornecedores, descrições, etiquetas e preços. Cada sugestão fica pendente e só é aplicada depois de um utilizador identificado a confirmar. Continua a ser responsável pela exatidão dos textos e preços que decidir publicar."
+        ]
+      },
+      {
+        "heading": "6. Isolamento de dados e acesso",
+        "body": [
+          "Os dados de uma loja pertencem a essa loja. A equipa da agência acede a uma loja por esta pertencer à agência ou através de um convite explícito com uma função atribuída. Os dados dos clientes nunca são combinados entre lojas, incluindo nos relatórios da agência.",
+          "As ações administrativas, alterações de configuração, importações de produtos, alterações de preço, aprovações de IA, publicações e encaminhamento de encomendas ficam registadas num histórico conservado durante toda a vida do espaço de trabalho."
+        ]
+      },
+      {
+        "heading": "7. Suspensão e cessação",
+        "body": [
+          "Qualquer das partes pode pôr termo ao acordo com um pré-aviso de 30 dias. Ao arquivar uma loja, os seus registos continuam disponíveis para relatórios e auditoria, mas a loja deixa de operar no dia a dia e a montra fica offline.",
+          "O Parcelith pode suspender um espaço de trabalho utilizado para violar direitos de terceiros ou para vender produtos proibidos por um parceiro de produção."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Aviso de privacidade",
+    "metaDescription": "Que dados o Parcelith guarda sobre as equipas das agências, as equipas das lojas e os clientes, porquê, e como os dados de cada loja se mantêm isolados.",
+    "title": "Aviso de privacidade",
+    "lead": "Como os dados circulam num espaço de agência e onde fica a fronteira entre lojas.",
+    "sections": [
+      {
+        "heading": "Quem é responsável por quê",
+        "body": [
+          "Nas contas das equipas de agência e de loja, o Parcelith é o responsável pelo tratamento do registo da conta: nome, email profissional, função e ações atribuídas a essa pessoa no histórico.",
+          "Nos dados dos clientes (contactos da encomenda, morada de entrega, designs carregados no pagamento e texto de personalização), o responsável é a loja que realiza a venda. O Parcelith trata esses dados por instrução da loja para que a encomenda possa ser produzida e entregue."
+        ]
+      },
+      {
+        "heading": "O que é guardado",
+        "body": [
+          "Contas: nome, email, função, agência e acesso a lojas.",
+          "Configuração da loja: marca, moedas, domínio, identificador da conta de pagamento associada, números de conta das transportadoras e definições fiscais. Os dados de pagamento seguem diretamente para a Stripe.",
+          "Dados comerciais: produtos, ficheiros de design e respetivo posicionamento, mockups gerados, encomendas, eventos de envio, números de seguimento e reembolsos.",
+          "Histórico: quem alterou o quê e quando, na configuração de lojas, importações, preços, aprovações de IA, publicações, encaminhamento de encomendas e administração."
+        ]
+      },
+      {
+        "heading": "Como funciona o isolamento",
+        "body": [
+          "Cada registo comercial está associado à sua loja, e cada consulta está limitada às lojas a que a pessoa com sessão iniciada tem acesso. Os relatórios da agência somam os totais de encomendas por loja, mas nunca juntam identidades de clientes de lojas diferentes.",
+          "Um cliente que compra em duas lojas geridas pela mesma agência existe como dois registos de cliente distintos, porque as duas lojas são responsáveis independentes."
+        ]
+      },
+      {
+        "heading": "Terceiros",
+        "body": [
+          "A Stripe processa os pagamentos de cada loja através da conta própria dessa loja.",
+          "Os parceiros de produção (Printful, Gelato e Printify) recebem a morada de entrega, a especificação do artigo e o ficheiro de design necessários para produzir e enviar a encomenda. Os pedidos de aprovisionamento através do Alibaba.com são feitos diretamente pelo vendedor.",
+          "A DHL, a FedEx e a UPS recebem a morada de entrega para transportar a encomenda e devolver os eventos de seguimento.",
+          "O assistente de comércio envia informação de produtos e catálogo a um fornecedor de IA externo para redigir sugestões. Esses pedidos não incluem dados pessoais de clientes."
+        ]
+      },
+      {
+        "heading": "Conservação",
+        "body": [
+          "Os registos de encomendas e envios são conservados enquanto a loja estiver ativa, acrescidos do prazo que o vendedor tem de cumprir para efeitos fiscais. Ao arquivar uma loja, os seus registos continuam disponíveis para auditoria e relatórios, mas a montra fica offline.",
+          "Os designs carregados por um cliente são conservados enquanto a encomenda ainda puder ser reproduzida ou contestada e depois são eliminados com o registo da encomenda."
+        ]
+      },
+      {
+        "heading": "Os seus direitos",
+        "body": [
+          "Os membros da equipa podem pedir ao administrador da sua agência que corrija ou elimine a sua conta. Os clientes devem contactar a loja onde compraram. A equipa da loja pode exportar ou apagar uma encomenda e os respetivos designs a partir do ecrã da encomenda."
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "metaTitle": "Iniciar sessão",
+    "metaDescription": "Inicie sessão no espaço de agência do Parcelith.",
+    "howItWorks": "Como funciona",
+    "title": "Iniciar sessão",
+    "lead": "Escolha uma conta de demonstração.",
+    "personas": {
+      "alex": { "title": "Diretor de agência, Northlight Studio", "blurb": "Acesso total a quatro lojas de clientes." },
+      "sam": { "title": "Produtor de catálogo", "blurb": "Gestor de catálogo na Northwind e na Lumen, administrador na Ferro." },
+      "ines": { "title": "Responsável de logística", "blurb": "Gestora de encomendas na Northwind." },
+      "dana": { "title": "Contacto do cliente", "blurb": "Acesso só de leitura à Northwind Supply Co." },
+      "priya": { "title": "Operações da plataforma", "blurb": "Fornecedores, catálogo partilhado, taxas de imposto e agências." }
+    },
+    "continueAs": "Continuar como {name}",
+    "passwordTitle": "Iniciar sessão com palavra-passe",
+    "passwordHint": "Todas as contas de demonstração usam a palavra-passe <code>parcelith</code>.",
+    "email": "Endereço de email",
+    "emailPlaceholder": "nome@empresa.pt",
+    "password": "Palavra-passe",
+    "signIn": "Iniciar sessão",
+    "invitedEmail": "Iniciar sessão com um email convidado",
+    "continue": "Continuar",
+    "failed": "Não foi possível iniciar sessão",
+    "errors": {
+      "unknownUser": "Não existe nenhuma conta com esse endereço de email.",
+      "badCredentials": "Esse email e essa palavra-passe não correspondem a nenhuma conta."
+    }
+  },
+  "invite": {
+    "metaTitle": "Aceitar o convite",
+    "metaDescription": "Aceite um convite para trabalhar numa loja Parcelith.",
+    "invalidTitle": "Esta ligação já não é válida",
+    "invalidBody": "A ligação pode já ter sido usada. Inicie sessão ou peça um novo convite.",
+    "goToSignIn": "Ir para o início de sessão",
+    "title": "{inviter} convidou-o para {store}",
+    "creates": "Ao aceitar, é criada uma conta Parcelith para {email} e a sessão é iniciada.",
+    "invited": "Convite de {date}.",
+    "accept": "Aceitar convite",
+    "accepting": "A configurar a sua conta…"
+  },
+  "roles": {
+    "store_admin": "Administrador da loja",
+    "catalog_manager": "Gestor de catálogo",
+    "order_manager": "Gestor de encomendas",
+    "viewer": "Leitor",
+    "platformAccess": "Acesso de plataforma",
+    "platformAccessNote": "Com acesso de plataforma, os dados dos clientes e os valores das encomendas ficam ocultos.",
+    "descriptions": {
+      "store_admin": "Acesso total, incluindo definições e equipa.",
+      "catalog_manager": "Produtos, preços, publicação e catálogos de ofertas.",
+      "order_manager": "Encomendas, processamento, reembolsos e exceções de fornecedores.",
+      "viewer": "Acesso só de leitura."
+    },
+    "platform": {
+      "platform_admin": "Admin da plataforma",
+      "agency_admin": "Admin da agência",
+      "agency_member": "Membro da agência"
+    }
+  },
+  "shell": {
+    "workspaceHome": "Espaço de agência Parcelith",
+    "adminHome": "Administração da plataforma Parcelith",
+    "switchStore": "Mudar de loja",
+    "allStores": "Todas as lojas",
+    "noActiveStores": "Ainda não há lojas ativas.",
+    "createStore": "Criar uma loja de cliente",
+    "platformAdmin": "Admin da plataforma",
+    "platformAdministration": "Administração da plataforma",
+    "workspace": "Espaço",
+    "agencyWorkspace": "Espaço de agência",
+    "signOut": "Terminar sessão",
+    "language": "Idioma",
+    "languageSaved": "Idioma atualizado.",
+    "languageFailed": "Não foi possível mudar o idioma. Tente novamente.",
+    "storeSections": "Secções da loja",
+    "active": "Ativa",
+    "archived": "Arquivada",
+    "tabs": {
+      "overview": "Resumo",
+      "catalog": "Catálogo",
+      "sourcing": "Fornecedores",
+      "assistant": "Assistente de IA",
+      "storefront": "Montra",
+      "gifting": "Ofertas",
+      "orders": "Encomendas",
+      "discounts": "Descontos",
+      "team": "Equipa",
+      "settings": "Definições",
+      "activity": "Atividade"
+    },
+    "adminTabs": {
+      "overview": "Resumo",
+      "suppliers": "Fornecedores",
+      "catalog": "Catálogo partilhado",
+      "quotes": "Pedidos de orçamento",
+      "tax": "Taxas de imposto",
+      "agencies": "Agências e acesso",
+      "audit": "Registo de auditoria"
+    }
+  },
+  "pages": {
+    "admin": {
+      "overviewTitle": "Resumo das operações",
+      "overviewDescription": "Fornecedores, catálogo partilhado, taxas de imposto globais e acesso das agências.",
+      "suppliersTitle": "Fornecedores",
+      "suppliersDescription": "Só os fornecedores aprovados estão disponíveis para as lojas.",
+      "catalogTitle": "Catálogo partilhado",
+      "catalogDescription": "Produtos que qualquer loja pode importar.",
+      "newCatalogTitle": "Adicionar um produto ao catálogo",
+      "quotesTitle": "Pedidos de orçamento",
+      "quotesDescription": "Registe os orçamentos de fornecedores para os pedidos das lojas.",
+      "taxTitle": "Taxas de imposto",
+      "taxDescription": "Taxas comuns a toda a plataforma. Cada loja escolhe uma taxa predefinida.",
+      "agenciesTitle": "Agências",
+      "auditTitle": "Registo de auditoria da plataforma",
+      "auditDescription": "Todas as alterações registadas na plataforma."
+    },
+    "store": {
+      "newStoreTitle": "Criar uma loja de cliente",
+      "productsTitle": "Produtos",
+      "ordersTitle": "Encomendas",
+      "assistantTitle": "Assistente",
+      "assistantDescription": "As sugestões ficam pendentes até as aplicar.",
+      "editorTitle": "Editor de páginas",
+      "editorDescription": "As alterações ficam visíveis quando publicar.",
+      "giftingTitle": "Ofertas empresariais",
+      "giftingDescription": "Catálogos de ofertas privados para clientes empresariais.",
+      "discountsTitle": "Códigos de desconto",
+      "teamTitle": "Equipa",
+      "settingsTitle": "Definições",
+      "activityTitle": "Histórico de auditoria"
+    }
+  },
+  "dashboard": {
+    "title": "Painel",
+    "activeStores": "{count, plural, one {# loja ativa} other {# lojas ativas}}",
+    "archivedSuffix": ", {count} arquivadas",
+    "planUsage": "Plano {plan} · {usage}",
+    "limitReached": " · limite atingido",
+    "usageLimited": "{used} de {limit} lojas ativas",
+    "usageUnlimited": "{used, plural, one {# loja ativa} other {# lojas ativas}}, sem limite",
+    "deniedStore": "Não tem acesso a essa loja.",
+    "deniedPage": "Não tem permissão para ver essa página.",
+    "statActiveStores": "Lojas ativas",
+    "statArchived": "{count} arquivadas",
+    "statOrders": "Encomendas",
+    "statPublished": "Produtos publicados",
+    "statAttention": "Precisam de atenção",
+    "statAttentionSub": "Exceções e encaminhamento manual",
+    "clientStores": "Lojas de clientes",
+    "emptyTitle": "Ainda não há lojas",
+    "emptyBody": "Crie a sua primeira loja de cliente para começar.",
+    "stripeConnected": "Stripe ligado",
+    "stripePending": "Stripe pendente",
+    "sales30": "Vendas, 30 dias",
+    "orders": "Encomendas",
+    "products": "Produtos",
+    "inProduction": "{count} em produção",
+    "shipped": "{count} enviadas",
+    "delivered": "{count} entregues",
+    "exceptions": "{count, plural, one {# exceção} other {# exceções}}",
+    "manual": "{count} manuais",
+    "setup": "Configuração {done}/{total}",
+    "open": "Abrir",
+    "storefront": "Montra ↗",
+    "archivedStores": "Lojas arquivadas",
+    "showArchived": "{count, plural, one {Mostrar # loja arquivada} other {Mostrar # lojas arquivadas}}",
+    "hideArchived": "{count, plural, one {Ocultar # loja arquivada} other {Ocultar # lojas arquivadas}}",
+    "archivedRow": "{client} · {count, plural, one {# encomenda anterior} other {# encomendas anteriores}} · {amount} no total",
+    "viewRecords": "Ver registos",
+    "restore": "Restaurar",
+    "recentActivity": "Atividade recente",
+    "nothingYet": "Ainda não há nada registado.",
+    "repeated": "{summary} ({count} vezes)",
+    "platform": {
+      "agencies": "{count, plural, one {# agência} other {# agências}}",
+      "deniedStore": "Essa loja já não existe.",
+      "deniedPage": "O acesso de plataforma não inclui esse ecrã. Fica reservado à equipa da loja.",
+      "emptyTitle": "Ainda não há agências",
+      "emptyBody": "Adicione uma agência na administração da plataforma para começar.",
+      "openAdmin": "Abrir a administração",
+      "missingAgency": "Registo da agência em falta",
+      "plan": "Plano {plan}",
+      "suspended": "Suspensa",
+      "noAgencyRecord": "Sem registo de agência",
+      "noStores": "Ainda não há lojas.",
+      "published": "Publicados",
+      "archivedLabel": "· arquivada",
+      "historicOrders": "{count, plural, one {# encomenda anterior} other {# encomendas anteriores}}",
+      "recentActivity": "Atividade recente da plataforma"
+    }
+  },
+  "pager": {
+    "orders": "{first}–{last} de {total} encomendas",
+    "audit": "{first}–{last} de {total} entradas",
+    "auditCoverage": "Atividade desde {date}. Defina um intervalo de datas para ver entradas mais antigas."
+  },
+  "fallback": {
+    "goToDashboard": "Ir para o painel",
+    "createStore": "Criar uma loja de cliente",
+    "pageMissing": "Esta página não existe ou foi removida.",
+    "recordMissing": "Este registo não existe ou foi removido.",
+    "backToStore": "Voltar à loja",
+    "platformOverview": "Resumo da plataforma",
+    "agencyWorkspace": "Espaço de agência"
+  }
+}

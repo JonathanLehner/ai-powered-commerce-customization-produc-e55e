@@ -1,21 +1,22 @@
 import { CreditCardIcon, GlobeIcon } from "lucide-react";
+import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArchivedStores } from "@/app/app/ArchivedStores";
 import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
+import { formatAgo, formatMinorUnits } from "@/i18n/format";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { auditRunSummary, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
+import { recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
-import { storeAllowance, storeUsageLabel } from "@/lib/plans";
+import { storeAllowance } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
-import { storeAccessLabel, THEMES } from "@/lib/types";
-import { formatMoney, relativeTime } from "@/lib/util";
+import { THEMES } from "@/lib/types";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 12;
@@ -38,6 +39,13 @@ export default async function AgencyDashboard({
 }) {
   const { denied } = await searchParams;
   const user = await requireUser();
+  const [t, shell, roles, format] = await Promise.all([
+    getTranslations("dashboard"),
+    getTranslations("shell"),
+    getTranslations("roles"),
+    getFormatter(),
+  ]);
+  const now = new Date();
   // A platform administrator runs no store, so they get the oversight view:
   // grouped by agency, nothing added up across them.
   if (user.platformRole === "platform_admin") return <PlatformWorkspace user={user} denied={denied} />;
@@ -80,10 +88,15 @@ export default async function AgencyDashboard({
 
   const planAllowance = agency && user.platformRole === "agency_admin" ? storeAllowance(agency.plan, active.length) : null;
   const planUsage = planAllowance
-    ? `${planAllowance.plan.name} plan · ${storeUsageLabel(planAllowance)}${
-        planAllowance.atLimit ? " · limit reached" : ""
-      }`
+    ? t("planUsage", {
+        plan: planAllowance.plan.name,
+        usage:
+          planAllowance.limit === null
+            ? t("usageUnlimited", { used: planAllowance.used })
+            : t("usageLimited", { used: planAllowance.used, limit: planAllowance.limit }),
+      }) + (planAllowance.atLimit ? t("limitReached") : "")
     : null;
+  const money = (minor: number, currency: string) => formatMinorUnits(format, minor, currency);
 
   const totalOrders = active.reduce((sum, r) => sum + r.metrics.orderCount, 0);
   const openIssues = active.reduce((sum, r) => sum + r.metrics.exceptions + r.metrics.manualRouting, 0);
@@ -94,12 +107,12 @@ export default async function AgencyDashboard({
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
-          title="Dashboard"
+          title={t("title")}
           description={
             <>
               {agency ? `${agency.name} · ` : ""}
-              {active.length} active {active.length === 1 ? "store" : "stores"}
-              {archived.length ? `, ${archived.length} archived` : ""}
+              {t("activeStores", { count: active.length })}
+              {archived.length ? t("archivedSuffix", { count: archived.length }) : ""}
               {/* The agency's own admin sees every store it runs, so the count on
                   this page is the one the plan limit is applied to. */}
               {planUsage ? <span className="mt-0.5 block">{planUsage}</span> : null}
@@ -108,7 +121,7 @@ export default async function AgencyDashboard({
           actions={
             user.platformRole === "agency_admin" ? (
               <Button asChild>
-                <Link href="/app/stores/new">Create a client store</Link>
+                <Link href="/app/stores/new">{shell("createStore")}</Link>
               </Button>
             ) : null
           }
@@ -116,35 +129,37 @@ export default async function AgencyDashboard({
 
         {denied ? (
           <p role="alert" className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            {denied === "1"
-              ? "You do not have access to that store."
-              : "You do not have permission to view that page."}
+            {denied === "1" ? t("deniedStore") : t("deniedPage")}
           </p>
         ) : null}
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Active stores" value={String(active.length)} sub={`${archived.length} archived`} />
-          <StatCard label="Orders" value={String(totalOrders)} />
-          <StatCard label="Published products" value={String(publishedProducts)} />
           <StatCard
-            label="Needs attention"
-            value={String(openIssues)}
-            sub="Exceptions and manual routing"
+            label={t("statActiveStores")}
+            value={format.number(active.length)}
+            sub={t("statArchived", { count: archived.length })}
+          />
+          <StatCard label={t("statOrders")} value={format.number(totalOrders)} />
+          <StatCard label={t("statPublished")} value={format.number(publishedProducts)} />
+          <StatCard
+            label={t("statAttention")}
+            value={format.number(openIssues)}
+            sub={t("statAttentionSub")}
             tone={openIssues > 0 ? "amber" : "green"}
           />
         </div>
 
         <section className="mt-9">
-          <h2 className="text-base font-semibold text-foreground">Client stores</h2>
+          <h2 className="text-base font-semibold text-foreground">{t("clientStores")}</h2>
 
           {active.length === 0 ? (
             <div className="mt-4">
               <EmptyState
-                title="No stores yet"
-                description="Create your first client store to get started."
+                title={t("emptyTitle")}
+                description={t("emptyBody")}
                 action={
                   <Button asChild>
-                    <Link href="/app/stores/new">Create a client store</Link>
+                    <Link href="/app/stores/new">{shell("createStore")}</Link>
                   </Button>
                 }
               />
@@ -180,7 +195,7 @@ export default async function AgencyDashboard({
                         </div>
                         <CardAction>
                           <Badge variant={viaPlatform ? "secondary" : "outline"}>
-                            {storeAccessLabel(role, viaPlatform)}
+                            {viaPlatform ? roles("platformAccess") : roles(role)}
                           </Badge>
                         </CardAction>
                       </CardHeader>
@@ -196,7 +211,7 @@ export default async function AgencyDashboard({
                                   : "size-4 text-amber-600"
                               }
                             />
-                            {store.stripe.connected ? "Stripe connected" : "Stripe pending"}
+                            {store.stripe.connected ? t("stripeConnected") : t("stripePending")}
                           </li>
                           {store.customDomain ? (
                             <li className="flex items-center gap-2">
@@ -215,57 +230,57 @@ export default async function AgencyDashboard({
 
                         <dl className="grid grid-cols-3 gap-3 border-y border-border py-3 text-sm">
                           <div>
-                            <dt className="text-xs text-muted-foreground">Sales, 30 days</dt>
+                            <dt className="text-xs text-muted-foreground">{t("sales30")}</dt>
                             <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                              {formatMoney(metrics.last30Sales, store.defaultCurrency)}
+                              {money(metrics.last30Sales, store.defaultCurrency)}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-xs text-muted-foreground">Orders</dt>
+                            <dt className="text-xs text-muted-foreground">{t("orders")}</dt>
                             <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                              {metrics.orderCount}
+                              {format.number(metrics.orderCount)}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-xs text-muted-foreground">Products</dt>
+                            <dt className="text-xs text-muted-foreground">{t("products")}</dt>
                             <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                              {metrics.publishedProducts}
+                              {format.number(metrics.publishedProducts)}
                             </dd>
                           </div>
                         </dl>
 
                         <p className="text-xs text-muted-foreground">
-                          {metrics.inProduction} in production · {metrics.shipped} shipped ·{" "}
-                          {metrics.delivered} delivered
+                          {t("inProduction", { count: metrics.inProduction })} ·{" "}
+                          {t("shipped", { count: metrics.shipped })} · {t("delivered", { count: metrics.delivered })}
                           {metrics.exceptions > 0 ? (
                             <span className="text-destructive">
                               {" · "}
-                              {metrics.exceptions} exception{metrics.exceptions === 1 ? "" : "s"}
+                              {t("exceptions", { count: metrics.exceptions })}
                             </span>
                           ) : null}
                           {metrics.manualRouting > 0 ? (
                             <span className="text-amber-700">
                               {" · "}
-                              {metrics.manualRouting} manual
+                              {t("manual", { count: metrics.manualRouting })}
                             </span>
                           ) : null}
                         </p>
 
                         {progress.pct < 100 ? (
-                          <ProgressBar value={progress.pct} label={`Setup ${progress.done}/${progress.total}`} />
+                          <ProgressBar value={progress.pct} label={t("setup", { done: progress.done, total: progress.total })} />
                         ) : null}
                       </CardContent>
 
                       <CardFooter className="mt-auto gap-2">
                         <Button asChild size="sm">
-                          <Link href={`/app/stores/${store.id}`}>Open</Link>
+                          <Link href={`/app/stores/${store.id}`}>{t("open")}</Link>
                         </Button>
                         <Button asChild size="sm" variant="ghost">
-                          <Link href={`/app/stores/${store.id}/orders`}>Orders</Link>
+                          <Link href={`/app/stores/${store.id}/orders`}>{t("orders")}</Link>
                         </Button>
                         <Button asChild size="sm" variant="ghost">
                           <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
-                            Storefront ↗
+                            {t("storefront")}
                           </Link>
                         </Button>
                       </CardFooter>
@@ -279,7 +294,7 @@ export default async function AgencyDashboard({
 
         {archived.length > 0 ? (
           <section className="mt-9">
-            <h2 className="text-base font-semibold text-foreground">Archived stores</h2>
+            <h2 className="text-base font-semibold text-foreground">{t("archivedStores")}</h2>
             {/* Collapsed by default: the live stores above are what the page is
                 for, and an agency that has run for a while has more archived
                 than active. */}
@@ -290,19 +305,22 @@ export default async function AgencyDashboard({
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">{store.name}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {store.clientName} · {metrics.orderCount} historic orders ·{" "}
-                        {formatMoney(metrics.grossSales, store.defaultCurrency)} lifetime
+                        {t("archivedRow", {
+                          client: store.clientName,
+                          count: metrics.orderCount,
+                          amount: money(metrics.grossSales, store.defaultCurrency),
+                        })}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button asChild size="sm" variant="ghost">
-                        <Link href={`/app/stores/${store.id}`}>View records</Link>
+                        <Link href={`/app/stores/${store.id}`}>{t("viewRecords")}</Link>
                       </Button>
                       <form action={setStoreStatus}>
                         <input type="hidden" name="storeId" value={store.id} />
                         <input type="hidden" name="status" value="active" />
                         <Button type="submit" size="sm" variant="outline">
-                          Restore
+                          {t("restore")}
                         </Button>
                       </form>
                     </div>
@@ -314,16 +332,18 @@ export default async function AgencyDashboard({
         ) : null}
 
         <section className="mt-9 pb-4">
-          <h2 className="text-base font-semibold text-foreground">Recent activity</h2>
+          <h2 className="text-base font-semibold text-foreground">{t("recentActivity")}</h2>
           {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("nothingYet")}</p>
           ) : (
             <ol className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
-                  <span className="text-sm text-foreground">{auditRunSummary(run)}</span>
+                  <span className="text-sm text-foreground">
+                    {run.count > 1 ? t("repeated", { summary: run.entry.summary, count: run.count }) : run.entry.summary}
+                  </span>
                   <span className="text-xs text-muted-foreground">
-                    {run.entry.actorName} · {relativeTime(run.entry.at)}
+                    {run.entry.actorName} · {formatAgo(format, run.entry.at, now)}
                   </span>
                 </li>
               ))}

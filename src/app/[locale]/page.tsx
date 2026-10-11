@@ -1,6 +1,10 @@
 import { ArrowRightIcon, LayersIcon, LibraryBigIcon, ShieldCheckIcon } from "lucide-react";
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
+import { alternatesFor, asLocale } from "@/i18n/metadata";
+import { Link as IntlLink } from "@/i18n/navigation";
 import { IMAGES } from "@/lib/images";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,79 +13,27 @@ import { CheckList, Section, SectionHeading } from "./kit";
 export const dynamic = "force-static";
 
 const PILLARS = [
-  {
-    icon: LayersIcon,
-    title: "Separate client stores",
-    body: "Each client gets its own catalog, customers, orders, currencies, domain and payments.",
-  },
-  {
-    icon: LibraryBigIcon,
-    title: "Shared supplier catalog",
-    body: "Supplier-backed apparel and mugs with costs, print areas and fulfilment regions. Copy what you need into any store.",
-  },
-  {
-    icon: ShieldCheckIcon,
-    title: "Approval before publishing",
-    body: "Artwork, mockups, margins and AI suggestions all need sign-off before they go live.",
-  },
-];
+  { key: "stores", icon: LayersIcon },
+  { key: "catalog", icon: LibraryBigIcon },
+  { key: "approval", icon: ShieldCheckIcon },
+] as const;
 
 const FEATURES = [
-  {
-    title: "Compare suppliers side by side",
-    body: "Filter the shared catalog by category, supplier, cost and region, then compare the options.",
-    points: [
-      "Base cost, print cost and lead time",
-      "Fulfilment region coverage",
-      "Copy into a store catalog",
-    ],
-    image: IMAGES["marketing-sourcing"],
-    alt: "Blank merchandise samples and fabric swatches arranged on a pale surface",
-  },
-  {
-    title: "Artwork checked before production",
-    body: "Place a logo in the print area, then scale and rotate it while the print resolution updates.",
-    points: [
-      "Print areas in millimetres",
-      "Resolution, bounds and file checks",
-      "Front, back and side mockups",
-    ],
-    image: IMAGES["marketing-mockup"],
-    alt: "Hands positioning a transfer sheet over a folded blank t-shirt",
-  },
-  {
-    title: "Paid orders go to production",
-    body: "Each order is sent to its supplier. Orders that need attention are flagged in the order queue.",
-    points: [
-      "DHL, FedEx and UPS tracking",
-      "Refunds, cancellations and exceptions",
-      "Full audit log",
-    ],
-    image: IMAGES["marketing-fulfilment"],
-    alt: "Kraft parcel boxes, packing tape and a barcode scanner on a workbench",
-  },
-];
+  { key: "sourcing", image: IMAGES["marketing-sourcing"] },
+  { key: "artwork", image: IMAGES["marketing-mockup"] },
+  { key: "fulfilment", image: IMAGES["marketing-fulfilment"] },
+] as const;
 
-const GIFT_FLOW = [
-  { step: "01", title: "Publish a catalogue", body: "Choose gifts from the store's published products." },
-  { step: "02", title: "Add recipients", body: "Paste a list or upload a CSV." },
-  { step: "03", title: "Approve", body: "An approver reviews the list and the total." },
-  { step: "04", title: "Pay once", body: "Each recipient gets their own order and tracking." },
-];
+const GIFT_FLOW = ["publish", "recipients", "approve", "pay"] as const;
 
-const GIFT_POINTS = [
-  "Private link or invite-only access",
-  "Up to 100 recipients per campaign",
-  "Spend limit per recipient",
-];
+const LIFECYCLE = ["create", "payments", "products", "storefront", "sell"] as const;
 
-const LIFECYCLE = [
-  { step: "01", title: "Create the store", body: "Logo, theme, currencies and domain." },
-  { step: "02", title: "Connect payments", body: "Stripe, carriers and tax." },
-  { step: "03", title: "Add products", body: "Import, place artwork and approve mockups." },
-  { step: "04", title: "Build the storefront", body: "Arrange sections, preview and publish." },
-  { step: "05", title: "Sell and fulfil", body: "Orders go to production with tracking." },
-];
+/** "01", "02", … */
+const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
+
+export async function generateMetadata({ params }: PageProps<"/[locale]">): Promise<Metadata> {
+  return { alternates: alternatesFor("/", asLocale((await params).locale)) };
+}
 
 /** A numbered step, used by the gifting flow and the lifecycle. */
 function StepCard({ step, title, body }: { step: string; title: string; body: string }) {
@@ -98,37 +50,41 @@ function StepCard({ step, title, body }: { step: string; title: string; body: st
   );
 }
 
-export default function LandingPage() {
+export default async function LandingPage({ params }: PageProps<"/[locale]">) {
+  const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
+  const t = await getTranslations("home");
+
   return (
     <>
       <section className="border-b border-border">
         <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center lg:gap-14">
           <div>
             <h1 className="font-heading max-w-[22ch] text-[2rem] leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
-              Branded merchandise stores for every client
+              {t("title")}
             </h1>
             <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Source, customise and sell print-on-demand products from one agency workspace.
+              {t("lead")}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="px-4">
-                <Link href="/login">Open the workspace</Link>
+                <Link href="/login">{t("openWorkspace")}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="px-4">
-                <Link href="/how-it-works">How it works</Link>
+                <IntlLink href="/how-it-works">{t("howItWorks")}</IntlLink>
               </Button>
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 text-sm">
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Products</dt>
-                <dd className="mt-1 font-heading text-base font-semibold text-foreground">Apparel and mugs</dd>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">{t("factsProducts")}</dt>
+                <dd className="mt-1 font-heading text-base font-semibold text-foreground">{t("factsProductsValue")}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Languages</dt>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">{t("factsLanguages")}</dt>
                 <dd className="mt-1 font-heading text-base font-semibold text-foreground">9</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Carriers</dt>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">{t("factsCarriers")}</dt>
                 <dd className="mt-1 font-heading text-base font-semibold text-foreground">DHL · FedEx · UPS</dd>
               </div>
             </dl>
@@ -136,7 +92,7 @@ export default function LandingPage() {
           <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
             <Image
               src={IMAGES["marketing-hero"]}
-              alt="A studio desk with folded blank apparel, ceramic mugs and colour swatches"
+              alt={t("heroAlt")}
               width={1024}
               height={1024}
               priority
@@ -149,18 +105,18 @@ export default function LandingPage() {
       </section>
 
       <Section tone="muted">
-        <SectionHeading>Built for agencies</SectionHeading>
+        <SectionHeading>{t("pillarsTitle")}</SectionHeading>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {PILLARS.map((pillar) => (
-            <Card key={pillar.title} className="h-full">
+            <Card key={pillar.key} className="h-full">
               <CardHeader>
                 <pillar.icon aria-hidden className="size-5 text-muted-foreground" />
                 <CardTitle asChild className="mt-2">
-                  <h3>{pillar.title}</h3>
+                  <h3>{t(`pillars.${pillar.key}.title`)}</h3>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-relaxed text-muted-foreground">{pillar.body}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{t(`pillars.${pillar.key}.body`)}</p>
               </CardContent>
             </Card>
           ))}
@@ -168,18 +124,18 @@ export default function LandingPage() {
       </Section>
 
       {FEATURES.map((feature, index) => (
-        <Section key={feature.title} tone={index % 2 === 1 ? "muted" : "plain"}>
+        <Section key={feature.key} tone={index % 2 === 1 ? "muted" : "plain"}>
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
             <div className={index % 2 === 1 ? "lg:order-2" : undefined}>
-              <SectionHeading>{feature.title}</SectionHeading>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">{feature.body}</p>
-              <CheckList items={feature.points} className="mt-6" />
+              <SectionHeading>{t(`features.${feature.key}.title`)}</SectionHeading>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">{t(`features.${feature.key}.body`)}</p>
+              <CheckList items={t.raw(`features.${feature.key}.points`) as string[]} className="mt-6" />
             </div>
             <div className={index % 2 === 1 ? "lg:order-1" : undefined}>
               <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
                 <Image
                   src={feature.image}
-                  alt={feature.alt}
+                  alt={t(`features.${feature.key}.alt`)}
                   width={1024}
                   height={1024}
                   loading="lazy"
@@ -196,31 +152,31 @@ export default function LandingPage() {
       <Section id="gifting" tone="muted">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-primary uppercase">Corporate gifting</p>
+            <p className="text-xs font-semibold tracking-wide text-primary uppercase">{t("giftingEyebrow")}</p>
             <SectionHeading className="mt-3">
-              Private gift portals for companies
+              {t("giftingTitle")}
             </SectionHeading>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Give each company its own gift catalogue with bulk recipient lists and approval before payment.
+              {t("giftingBody")}
             </p>
-            <CheckList items={GIFT_POINTS} className="mt-6" />
+            <CheckList items={t.raw("giftingPoints") as string[]} className="mt-6" />
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Button asChild variant="outline" size="lg" className="px-4">
-                <Link href="/how-it-works#gifting">How gifting works</Link>
+                <IntlLink href="/how-it-works#gifting">{t("giftingHow")}</IntlLink>
               </Button>
-              <Link
+              <IntlLink
                 href="/pricing"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                Included on every plan
+                {t("giftingIncluded")}
                 <ArrowRightIcon aria-hidden className="size-4" />
-              </Link>
+              </IntlLink>
             </div>
           </div>
           <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
             <Image
               src={IMAGES["marketing-gifting"]}
-              alt="Kraft gift boxes tied with ribbon beside a folded navy hoodie and a white ceramic mug"
+              alt={t("giftingAlt")}
               width={1024}
               height={1024}
               loading="lazy"
@@ -232,17 +188,27 @@ export default function LandingPage() {
         </div>
 
         <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {GIFT_FLOW.map((item) => (
-            <StepCard key={item.step} {...item} />
+          {GIFT_FLOW.map((key, index) => (
+            <StepCard
+              key={key}
+              step={stepNumber(index)}
+              title={t(`giftFlow.${key}.title`)}
+              body={t(`giftFlow.${key}.body`)}
+            />
           ))}
         </ol>
       </Section>
 
       <Section>
-        <SectionHeading>From brief to delivery</SectionHeading>
+        <SectionHeading>{t("lifecycleTitle")}</SectionHeading>
         <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {LIFECYCLE.map((item) => (
-            <StepCard key={item.step} {...item} />
+          {LIFECYCLE.map((key, index) => (
+            <StepCard
+              key={key}
+              step={stepNumber(index)}
+              title={t(`lifecycle.${key}.title`)}
+              body={t(`lifecycle.${key}.body`)}
+            />
           ))}
         </ol>
       </Section>
@@ -250,13 +216,13 @@ export default function LandingPage() {
       <Section>
         <div className="rounded-xl bg-primary/5 px-6 py-12 text-center ring-1 ring-primary/20 sm:px-12">
           <h2 className="font-heading mx-auto max-w-[24ch] text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl">
-            Try the demo workspace
+            {t("demoTitle")}
           </h2>
           <p className="mx-auto mt-3 max-w-[60ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Four sample client stores with products, orders and gift campaigns.
+            {t("demoBody")}
           </p>
           <Button asChild size="lg" className="mt-8 px-4">
-            <Link href="/login">Sign in to the demo</Link>
+            <Link href="/login">{t("demoCta")}</Link>
           </Button>
         </div>
       </Section>

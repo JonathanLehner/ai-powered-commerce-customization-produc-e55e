@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "title": "Parcelith: merchandisewinkels voor bureaus",
+    "description": "Vind leveranciers, personaliseer en verkoop print-on-demandproducten voor elke klant vanuit één bureauomgeving."
+  },
+  "common": {
+    "saving": "Opslaan…",
+    "working": "Bezig…",
+    "cancel": "Annuleren",
+    "areYouSure": "Weet je het zeker?",
+    "saved": "Opgeslagen.",
+    "copyLink": "Link kopiëren",
+    "copied": "Gekopieerd",
+    "copyFailed": "Kopiëren is mislukt. Selecteer de tekst en kopieer die handmatig.",
+    "close": "Sluiten",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "previousPage": "Naar de vorige pagina",
+    "nextPage": "Naar de volgende pagina",
+    "morePages": "Meer pagina’s",
+    "pages": "Pagina’s",
+    "pageOf": "Pagina {page} van {pages}",
+    "breadcrumb": "Kruimelpad",
+    "error": "Fout",
+    "errorTitle": "Er is iets misgegaan",
+    "errorBody": "Deze pagina kan niet worden geladen. Probeer het opnieuw.",
+    "tryAgain": "Opnieuw proberen",
+    "reference": "Referentie {digest}",
+    "notFoundTitle": "Pagina niet gevonden",
+    "backToHomepage": "Terug naar de homepage"
+  },
+  "site": {
+    "mainNav": "Hoofdmenu",
+    "howItWorks": "Zo werkt het",
+    "pricing": "Prijzen",
+    "signIn": "Inloggen",
+    "tagline": "Merchandisewinkels voor bureaus en hun klanten.",
+    "platform": "Platform",
+    "contactSales": "Contact met sales",
+    "legal": "Juridisch",
+    "terms": "Servicevoorwaarden",
+    "privacy": "Privacybeleid",
+    "language": "Taal",
+    "copyright": "© {year} Parcelith"
+  },
+  "notFound": {
+    "body": "Controleer het adres en probeer het opnieuw."
+  },
+  "home": {
+    "title": "Merchandisewinkels voor elke klant",
+    "lead": "Vind leveranciers, personaliseer en verkoop print-on-demandproducten vanuit één bureauomgeving.",
+    "openWorkspace": "Open de werkomgeving",
+    "howItWorks": "Zo werkt het",
+    "factsProducts": "Producten",
+    "factsProductsValue": "Kleding en mokken",
+    "factsLanguages": "Talen",
+    "factsCarriers": "Vervoerders",
+    "heroAlt": "Een studiobureau met opgevouwen blanco kleding, keramische mokken en kleurstalen",
+    "pillarsTitle": "Gemaakt voor bureaus",
+    "pillars": {
+      "stores": {
+        "title": "Aparte klantwinkels",
+        "body": "Elke klant krijgt een eigen catalogus, klanten, bestellingen, valuta, domein en betalingen."
+      },
+      "catalog": {
+        "title": "Gedeelde leverancierscatalogus",
+        "body": "Kleding en mokken van leveranciers, met kosten, printvlakken en leveringsregio’s. Kopieer wat je nodig hebt naar elke winkel."
+      },
+      "approval": {
+        "title": "Goedkeuring vóór publicatie",
+        "body": "Ontwerpen, mockups, marges en AI-suggesties moeten worden goedgekeurd voordat ze live gaan."
+      }
+    },
+    "features": {
+      "sourcing": {
+        "title": "Vergelijk leveranciers naast elkaar",
+        "body": "Filter de gedeelde catalogus op categorie, leverancier, kosten en regio en vergelijk de opties.",
+        "points": ["Basisprijs, printkosten en levertijd", "Gedekte leveringsregio’s", "Kopiëren naar een winkelcatalogus"],
+        "alt": "Blanco merchandisestalen en stofstalen op een licht oppervlak"
+      },
+      "artwork": {
+        "title": "Ontwerpen gecontroleerd vóór productie",
+        "body": "Plaats een logo in het printvlak en schaal en draai het terwijl de printresolutie meeloopt.",
+        "points": ["Printvlakken in millimeters", "Controle van resolutie, grenzen en bestand", "Mockups van voor, achter en opzij"],
+        "alt": "Handen leggen een transfervel op een opgevouwen blanco T-shirt"
+      },
+      "fulfilment": {
+        "title": "Betaalde bestellingen gaan in productie",
+        "body": "Elke bestelling gaat naar de leverancier. Bestellingen die aandacht nodig hebben, worden gemarkeerd in het bestellingenoverzicht.",
+        "points": ["Tracking van DHL, FedEx en UPS", "Terugbetalingen, annuleringen en uitzonderingen", "Volledig auditlogboek"],
+        "alt": "Kartonnen verzenddozen, tape en een barcodescanner op een werkbank"
+      }
+    },
+    "giftingEyebrow": "Relatiegeschenken",
+    "giftingTitle": "Privé-cadeauportalen voor bedrijven",
+    "giftingBody": "Geef elk bedrijf een eigen cadeaucatalogus met ontvangerslijsten en goedkeuring vóór betaling.",
+    "giftingPoints": ["Privélink of toegang alleen op uitnodiging", "Tot 100 ontvangers per campagne", "Budget per ontvanger"],
+    "giftingHow": "Zo werken relatiegeschenken",
+    "giftingIncluded": "Inbegrepen in elk abonnement",
+    "giftingAlt": "Kraftpapieren cadeaudozen met lint naast een opgevouwen marineblauwe hoodie en een witte keramische mok",
+    "giftFlow": {
+      "publish": { "title": "Publiceer een catalogus", "body": "Kies cadeaus uit de gepubliceerde producten van de winkel." },
+      "recipients": { "title": "Voeg ontvangers toe", "body": "Plak een lijst of upload een CSV-bestand." },
+      "approve": { "title": "Keur goed", "body": "Een goedkeurder controleert de lijst en het totaal." },
+      "pay": { "title": "Betaal in één keer", "body": "Elke ontvanger krijgt een eigen bestelling met tracking." }
+    },
+    "lifecycleTitle": "Van briefing tot levering",
+    "lifecycle": {
+      "create": { "title": "Maak de winkel aan", "body": "Logo, thema, valuta en domein." },
+      "payments": { "title": "Koppel betalingen", "body": "Stripe, vervoerders en btw." },
+      "products": { "title": "Voeg producten toe", "body": "Importeer, plaats ontwerpen en keur mockups goed." },
+      "storefront": { "title": "Bouw de etalage", "body": "Orden secties, bekijk een voorbeeld en publiceer." },
+      "sell": { "title": "Verkoop en lever", "body": "Bestellingen gaan met tracking in productie." }
+    },
+    "demoTitle": "Probeer de demo-omgeving",
+    "demoBody": "Vier voorbeeldwinkels met producten, bestellingen en cadeaucampagnes.",
+    "demoCta": "Inloggen bij de demo"
+  },
+  "howItWorks": {
+    "metaTitle": "Zo werkt het",
+    "metaDescription": "Winkelinrichting, leveranciers zoeken, ontwerpcontrole, mockups, etalages, afrekenen, orderverwerking en relatiegeschenken in Parcelith.",
+    "title": "Zo werkt het",
+    "lead": "Van het inrichten van een klantwinkel tot het leveren van de eerste bestelling.",
+    "stages": {
+      "setup": {
+        "title": "1. Winkel inrichten",
+        "body": "Zes stappen voor huisstijl, taal, domein, betalingen, vervoerders en btw.",
+        "detail": ["Logo, thema en standaardtaal", "Verkoopvaluta", "Eigen domein", "Stripe-account", "Accounts bij DHL, FedEx en UPS", "Btw-tarief en prijzen inclusief btw"]
+      },
+      "sourcing": {
+        "title": "2. Leveranciers",
+        "body": "Zoek in de gedeelde leverancierscatalogus en kopieer producten naar een winkel.",
+        "detail": ["Filter op categorie, leverancier, beschikbaarheid en regio", "Vergelijk tot drie producten", "Stel de eigen prijs en status van de winkel in"]
+      },
+      "artwork": {
+        "title": "3. Ontwerpen",
+        "body": "Plaats ontwerpen binnen elk printvlak. Problemen worden gemeld met een oplossing.",
+        "detail": ["Ontwerpen verplaatsen, schalen, draaien en verwijderen", "Controle van printvlak, resolutie, formaat, bestandsgrootte en transparantie"]
+      },
+      "mockups": {
+        "title": "4. Mockups en marge",
+        "body": "Keur de mockups goed en controleer de marge voordat je publiceert.",
+        "detail": ["Voorbeelden van voor, achter en opzij", "Leverancierskosten, printkosten, verzending en btw", "Verkoopprijs en marge"]
+      },
+      "storefront": {
+        "title": "5. Etalage",
+        "body": "Orden secties, bekijk een voorbeeld op elk scherm en publiceer.",
+        "detail": ["Acht soorten secties", "Voorbeeld op desktop, tablet en telefoon", "Publiceren, terugzetten en versiegeschiedenis"]
+      },
+      "checkout": {
+        "title": "6. Afrekenen en orderverwerking",
+        "body": "Klanten betalen in hun eigen valuta. Bestellingen gaan automatisch naar de leverancier.",
+        "detail": ["Orderbevestiging en statuspagina", "Updates over productie, verzending en levering", "Trackinglinks van de vervoerder"]
+      },
+      "gifting": {
+        "title": "7. Relatiegeschenken",
+        "body": "Open een privé-cadeaucatalogus voor een bedrijf. Hun inkoper voegt ontvangers toe, een goedkeurder keurt goed en elke ontvanger krijgt een bestelling.",
+        "detail": ["Privélink of toegang alleen op uitnodiging", "Budget per ontvanger", "Ontvangerslijsten via CSV of plakken", "Goedkeuring vóór betaling", "Bestellingen gegroepeerd per campagne"]
+      }
+    },
+    "rolesTitle": "Rollen",
+    "roleColumn": "Rol",
+    "managesColumn": "Beheert",
+    "noAccessColumn": "Geen toegang tot",
+    "roles": {
+      "platform": { "role": "Platformbeheerder", "owns": "Leveranciers, gedeelde catalogus, btw-tarieven, bureaus en winkeltoegang", "cannot": "Winkelteksten en prijzen" },
+      "agency": { "role": "Bureauteam", "owns": "Winkels, huisstijl, domeinen, betalingen, vervoerders en teamleden", "cannot": "Winkels van andere bureaus" },
+      "manager": { "role": "Winkelbeheerder", "owns": "Catalogus, ontwerpen, mockups, prijzen en publicatie", "cannot": "Alles buiten de eigen rol" },
+      "shopper": { "role": "Klant", "owns": "Bekijken, personaliseren, betalen en bestellingen volgen", "cannot": "Andere winkels" },
+      "buyer": { "role": "Cadeau-inkoper", "owns": "Ontvangerslijsten, goedkeuringsverzoeken en betaling van de campagne", "cannot": "Betalen vóór goedkeuring" },
+      "approver": { "role": "Cadeaugoedkeurder", "owns": "Een campagne goedkeuren of afwijzen", "cannot": "De lijst bewerken of betalen" }
+    },
+    "assistantTitle": "AI-assistent",
+    "assistantBody": "Stelt producten, leveranciers, beschrijvingen, tags en prijzen voor. Je beoordeelt elke suggestie voordat die wordt toegepast.",
+    "assistantCta": "Probeer het in de werkomgeving"
+  },
+  "pricing": {
+    "metaTitle": "Prijzen",
+    "metaDescription": "Parcelith-abonnementen voor bureaus van elke omvang, per maand of per jaar gefactureerd.",
+    "title": "Prijzen",
+    "lead": "Eenvoudige abonnementen voor bureaus van elke omvang.",
+    "billingPeriod": "Factuurperiode",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks",
+    "save": "Bespaar {percent}",
+    "mostPopular": "Meest gekozen",
+    "custom": "Op maat",
+    "perMonth": "/maand",
+    "billedYearly": "{amount} per jaar gefactureerd",
+    "billedMonthly": "Maandelijks gefactureerd",
+    "annualContract": "Jaarcontract",
+    "getStarted": "Aan de slag",
+    "contactSales": "Contact met sales",
+    "liveStores": "{count, plural, one {# live winkel} other {# live winkels}}",
+    "unlimitedLiveStores": "Onbeperkt live winkels",
+    "unlimited": "Onbeperkt",
+    "summaries": {
+      "starter": "Voor kleine bureaus die net beginnen.",
+      "studio": "Voor bureaus met meerdere klantwinkels.",
+      "scale": "Voor grote netwerken die in veel markten verkopen."
+    },
+    "features": {
+      "draftStores": "Onbeperkt conceptwinkels",
+      "catalog": "Gedeelde leverancierscatalogus",
+      "configurator": "Ontwerpconfigurator en mockups",
+      "checkout": "Afrekenen in meerdere valuta",
+      "gifting": "Relatiegeschenken",
+      "tracking": "Tracking van DHL, FedEx en UPS",
+      "emailSupport": "Ondersteuning per e-mail",
+      "everythingStarter": "Alles uit Starter",
+      "everythingStudio": "Alles uit Studio",
+      "team": "Teamrollen en uitnodigingen",
+      "domains": "Eigen domeinen",
+      "assistant": "AI-commerce-assistent",
+      "dashboard": "Bureaudashboard",
+      "auditExport": "Export van het auditlogboek",
+      "onboarding": "Voorrang bij onboarding van leveranciers",
+      "taxMarkets": "Btw-tarieven per markt",
+      "productionContact": "Vast contactpersoon voor productie",
+      "sso": "Single sign-on"
+    },
+    "compareTitle": "Vergelijk abonnementen",
+    "compareCaption": "Parcelith-abonnementen vergeleken",
+    "featuresColumn": "Functies",
+    "liveStoresRow": "Live winkels",
+    "draftStoresRow": "Conceptwinkels",
+    "includedOn": "Inbegrepen in {plan}",
+    "notOn": "Niet in {plan}"
+  },
+  "contact": {
+    "metaTitle": "Contact met sales",
+    "metaDescription": "Begin met Parcelith of praat met sales over het Scale-abonnement.",
+    "title": "Contact met sales",
+    "lead": "Vertel ons over je bureau en we richten je werkomgeving in.",
+    "demoTitle": "Bekijk de demo",
+    "demoBody": "Vier voorbeeldwinkels met producten en bestellingen.",
+    "demoCta": "Demo openen",
+    "form": {
+      "name": "Je naam",
+      "email": "Zakelijk e-mailadres",
+      "company": "Bureau of bedrijf",
+      "plan": "Abonnement",
+      "planOption": "{plan}, {price}/maand",
+      "planCustom": "{plan}, prijs op maat",
+      "notSure": "Weet ik nog niet",
+      "message": "Bericht",
+      "messageHint": "Aantal klantwinkels, producten en wensen voor relatiegeschenken.",
+      "wantsCall": "Ik word liever gebeld",
+      "submit": "Aanvraag versturen",
+      "sending": "Versturen…",
+      "replyTime": "We reageren binnen één werkdag."
+    },
+    "errors": {
+      "name": "Vul je naam in.",
+      "email": "Vul je e-mailadres in.",
+      "company": "Vul je bedrijfsnaam in.",
+      "plan": "Kies een abonnement."
+    },
+    "duplicate": "Bedankt, {name}. We hebben je aanvraag al en reageren binnen één werkdag.",
+    "received": "Bedankt, {name}. We hebben je aanvraag over {plan, select, unsure {een passend abonnement} other {het abonnement {planName}}} ontvangen en {call, select, yes {bellen je} other {mailen je terug}} binnen één werkdag."
+  },
+  "terms": {
+    "metaTitle": "Servicevoorwaarden",
+    "metaDescription": "De voorwaarden voor bureauomgevingen, klantwinkels, leveranciersbestellingen en de verantwoordelijkheden van de verkoper op Parcelith.",
+    "title": "Servicevoorwaarden",
+    "lead": "Deze voorwaarden gelden voor bureauomgevingen en de klantwinkels die daarin worden beheerd.",
+    "sections": [
+      {
+        "heading": "1. De dienst",
+        "body": [
+          "Parcelith biedt een commerce-omgeving voor meerdere winkels. Een bureau maakt winkels aan en beheert ze namens zijn klanten. Elke winkel is een afzonderlijk verkoopkanaal met een eigen catalogus, klanten, bestellingen, valuta, btw-instellingen, etalage en betaalaccount.",
+          "Parcelith levert de software, de gedeelde leverancierscatalogus en het doorsturen van een betaalde bestelling naar een productiepartner. Parcelith maakt geen goederen, houdt geen voorraad aan en beheert geen geld van klanten."
+        ]
+      },
+      {
+        "heading": "2. Verkoper",
+        "body": [
+          "De handelaar die een winkel beheert, is de verkoper in die winkel. Betalingen komen binnen op het eigen gekoppelde Stripe-account van de winkel. De verkoper is verantwoordelijk voor prijzen, het innen en afdragen van belastingen, terugbetalingen, chargebacks, consumentenrechten en elke aansprakelijkheid voor verkochte goederen.",
+          "Btw-tarieven die de platformbeheerder instelt, dienen om de belasting op een product te berekenen. Het kiezen van een tarief draagt geen belastingverplichting over aan Parcelith en maakt Parcelith geen partij bij de verkoop."
+        ]
+      },
+      {
+        "heading": "3. Leveranciersbestellingen",
+        "body": [
+          "Productiepartners zijn onafhankelijke derden. Als een partner een koppeling voor bestellingen aanbiedt, kunnen betaalde bestellingen automatisch worden doorgestuurd. Is die er niet, zoals bij inkoopplatforms als Alibaba.com, dan wordt de bestelling gemarkeerd voor handmatige verwerking en plaatst de verkoper de inkooporder rechtstreeks bij de leverancier, onder diens eigen voorwaarden.",
+          "Levertijden, beschikbaarheid en leveringsregio’s in de gedeelde catalogus komen van de partner en kunnen zonder aankondiging wijzigen. Parcelith staat daar niet voor in."
+        ]
+      },
+      {
+        "heading": "4. Ontwerpen en intellectueel eigendom",
+        "body": [
+          "Je blijft eigenaar van de ontwerpen die je uploadt. Je garandeert dat je het recht hebt om ze op fysieke producten te reproduceren en vrijwaart Parcelith en zijn productiepartners van claims die voortkomen uit door jou aangeleverde ontwerpen.",
+          "Prepresscontroles (grenzen van het printvlak, effectieve resolutie, bestandsformaat, bestandsgrootte en transparantie) zijn geautomatiseerde kwaliteitscontroles. Slagen voor deze controles zegt niets over of je het ontwerp mag drukken."
+        ]
+      },
+      {
+        "heading": "5. Door AI gegenereerde suggesties",
+        "body": [
+          "De commerce-assistent maakt concepten: productideeën, leveranciersaanbevelingen, beschrijvingen, tags en prijzen. Elke suggestie wordt als openstaand opgeslagen en pas toegepast nadat een bekende gebruiker die bevestigt. Je blijft verantwoordelijk voor de juistheid van teksten en prijzen die je publiceert."
+        ]
+      },
+      {
+        "heading": "6. Gegevensscheiding en toegang",
+        "body": [
+          "Winkelgegevens horen bij de winkel. Bureaumedewerkers krijgen toegang tot een winkel omdat die van het bureau is of via een uitdrukkelijke uitnodiging met een rol. Klantgegevens worden nooit tussen winkels gecombineerd, ook niet in rapportages op bureauniveau.",
+          "Beheeracties, wijzigingen in de winkelinrichting, productimports, prijswijzigingen, AI-goedkeuringen, publicaties en het doorsturen van bestellingen worden vastgelegd in een geschiedenis die zolang de werkomgeving bestaat wordt bewaard."
+        ]
+      },
+      {
+        "heading": "7. Opschorting en beëindiging",
+        "body": [
+          "Beide partijen kunnen de overeenkomst opzeggen met een opzegtermijn van 30 dagen. Een gearchiveerde winkel blijft leesbaar voor rapportage en audit, maar wordt uit de dagelijkse werking gehaald en de etalage gaat offline.",
+          "Parcelith kan een werkomgeving opschorten die wordt gebruikt om rechten van derden te schenden of om goederen te verkopen die een productiepartner verbiedt."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Privacyverklaring",
+    "metaDescription": "Welke gegevens Parcelith bewaart over bureaumedewerkers, winkelteams en klanten, waarom, en hoe winkelgegevens gescheiden blijven.",
+    "title": "Privacyverklaring",
+    "lead": "Hoe gegevens door een bureauomgeving gaan en waar de grens tussen winkels ligt.",
+    "sections": [
+      {
+        "heading": "Wie waarvoor verantwoordelijk is",
+        "body": [
+          "Voor accounts van bureau- en winkelteams is Parcelith verwerkingsverantwoordelijke voor het accountrecord: naam, zakelijk e-mailadres, rol en de acties die in de geschiedenis aan die persoon zijn toegeschreven.",
+          "Voor klantgegevens (contactgegevens bij de bestelling, bezorgadres, bij het afrekenen geüploade ontwerpen en personalisatietekst) is de winkel die de verkoop doet verantwoordelijk. Parcelith verwerkt die gegevens in opdracht van de winkel, zodat de bestelling kan worden gemaakt en geleverd."
+        ]
+      },
+      {
+        "heading": "Wat wordt bewaard",
+        "body": [
+          "Accounts: naam, e-mailadres, rol, bureau en winkeltoegang.",
+          "Winkelinstellingen: huisstijl, valuta, domein, kenmerk van het gekoppelde betaalaccount, klantnummers bij vervoerders en btw-instellingen. Betaalgegevens gaan rechtstreeks naar Stripe.",
+          "Commerciële gegevens: producten, ontwerpbestanden en hun plaatsing, gegenereerde mockups, bestellingen, verzendgebeurtenissen, trackingnummers en terugbetalingen.",
+          "Geschiedenis: wie wat wanneer heeft gewijzigd, bij winkelinrichting, imports, prijzen, AI-goedkeuringen, publicaties, het doorsturen van bestellingen en beheer."
+        ]
+      },
+      {
+        "heading": "Hoe de scheiding werkt",
+        "body": [
+          "Elk commercieel record hoort bij een winkel en elke opvraging is beperkt tot winkels waartoe de ingelogde persoon toegang heeft. Rapportages op bureauniveau tellen ordertotalen per winkel op, maar voegen nooit klantidentiteiten van verschillende winkels samen.",
+          "Een klant die bij twee winkels van hetzelfde bureau koopt, bestaat als twee aparte klantrecords, omdat de twee winkels aparte verwerkingsverantwoordelijken zijn."
+        ]
+      },
+      {
+        "heading": "Derden",
+        "body": [
+          "Stripe verwerkt betalingen voor elke winkel via het eigen account van die winkel.",
+          "Productiepartners (Printful, Gelato en Printify) ontvangen het bezorgadres, de artikelspecificatie en het ontwerpbestand die nodig zijn om de bestelling te maken en te verzenden. Inkoopaanvragen via Alibaba.com doet de verkoper zelf.",
+          "DHL, FedEx en UPS ontvangen het bezorgadres om het pakket te bezorgen en trackinggebeurtenissen terug te melden.",
+          "De commerce-assistent stuurt product- en catalogusinformatie naar een externe AI-aanbieder om suggesties op te stellen. Persoonsgegevens van klanten worden daarbij niet meegestuurd."
+        ]
+      },
+      {
+        "heading": "Bewaartermijn",
+        "body": [
+          "Order- en verzendgegevens worden bewaard zolang de winkel actief is, plus de termijn die de verkoper voor de belastingdienst moet aanhouden. Een gearchiveerde winkel blijft leesbaar voor audit en rapportage, maar de etalage gaat offline.",
+          "Ontwerpen die een klant uploadt, worden bewaard zolang de bestelling nog opnieuw kan worden gemaakt of betwist, en daarna samen met de bestelling verwijderd."
+        ]
+      },
+      {
+        "heading": "Jouw rechten",
+        "body": [
+          "Teamleden kunnen de beheerder van hun bureau vragen hun account te corrigeren of te verwijderen. Klanten nemen contact op met de winkel waar ze hebben gekocht. Het winkelteam kan een bestelling en de bijbehorende ontwerpen exporteren of wissen vanuit het bestelscherm."
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "metaTitle": "Inloggen",
+    "metaDescription": "Log in op de Parcelith-bureauomgeving.",
+    "howItWorks": "Zo werkt het",
+    "title": "Inloggen",
+    "lead": "Kies een demo-account.",
+    "personas": {
+      "alex": { "title": "Bureaudirecteur, Northlight Studio", "blurb": "Volledige toegang tot vier klantwinkels." },
+      "sam": { "title": "Catalogusproducent", "blurb": "Catalogusbeheerder bij Northwind en Lumen, winkelbeheerder bij Ferro." },
+      "ines": { "title": "Teamleider orderverwerking", "blurb": "Bestellingenbeheerder bij Northwind." },
+      "dana": { "title": "Contactpersoon bij de klant", "blurb": "Alleen-lezentoegang tot Northwind Supply Co." },
+      "priya": { "title": "Platformbeheer", "blurb": "Leveranciers, gedeelde catalogus, btw-tarieven en bureaus." }
+    },
+    "continueAs": "Doorgaan als {name}",
+    "passwordTitle": "Inloggen met een wachtwoord",
+    "passwordHint": "Alle demo-accounts gebruiken het wachtwoord <code>parcelith</code>.",
+    "email": "E-mailadres",
+    "emailPlaceholder": "naam@bedrijf.nl",
+    "password": "Wachtwoord",
+    "signIn": "Inloggen",
+    "invitedEmail": "Inloggen met een uitgenodigd e-mailadres",
+    "continue": "Doorgaan",
+    "failed": "Inloggen mislukt",
+    "errors": {
+      "unknownUser": "Er is geen account met dit e-mailadres.",
+      "badCredentials": "Dit e-mailadres en wachtwoord horen niet bij een account."
+    }
+  },
+  "invite": {
+    "metaTitle": "Uitnodiging accepteren",
+    "metaDescription": "Accepteer een uitnodiging om aan een Parcelith-winkel te werken.",
+    "invalidTitle": "Deze link is niet meer geldig",
+    "invalidBody": "Deze link is mogelijk al gebruikt. Log in of vraag om een nieuwe uitnodiging.",
+    "goToSignIn": "Naar inloggen",
+    "title": "{inviter} heeft je uitgenodigd voor {store}",
+    "creates": "Als je accepteert, wordt er een Parcelith-account voor {email} aangemaakt en word je ingelogd.",
+    "invited": "Uitgenodigd op {date}.",
+    "accept": "Uitnodiging accepteren",
+    "accepting": "Je account wordt ingericht…"
+  },
+  "roles": {
+    "store_admin": "Winkelbeheerder",
+    "catalog_manager": "Catalogusbeheerder",
+    "order_manager": "Bestellingenbeheerder",
+    "viewer": "Kijker",
+    "platformAccess": "Platformtoegang",
+    "platformAccessNote": "Met platformtoegang zijn klantgegevens en orderbedragen verborgen.",
+    "descriptions": {
+      "store_admin": "Volledige toegang, inclusief instellingen en team.",
+      "catalog_manager": "Producten, prijzen, publicatie en cadeaucatalogi.",
+      "order_manager": "Bestellingen, orderverwerking, terugbetalingen en leveranciersuitzonderingen.",
+      "viewer": "Alleen-lezentoegang."
+    },
+    "platform": {
+      "platform_admin": "Platformbeheerder",
+      "agency_admin": "Bureaubeheerder",
+      "agency_member": "Bureaumedewerker"
+    }
+  },
+  "shell": {
+    "workspaceHome": "Parcelith-bureauomgeving",
+    "adminHome": "Parcelith-platformbeheer",
+    "switchStore": "Wissel van winkel",
+    "allStores": "Alle winkels",
+    "noActiveStores": "Nog geen actieve winkels.",
+    "createStore": "Klantwinkel aanmaken",
+    "platformAdmin": "Platformbeheer",
+    "platformAdministration": "Platformbeheer",
+    "workspace": "Werkomgeving",
+    "agencyWorkspace": "Bureauomgeving",
+    "signOut": "Uitloggen",
+    "language": "Taal",
+    "languageSaved": "Taal bijgewerkt.",
+    "languageFailed": "De taal kan niet worden gewijzigd. Probeer het opnieuw.",
+    "storeSections": "Winkelonderdelen",
+    "active": "Actief",
+    "archived": "Gearchiveerd",
+    "tabs": {
+      "overview": "Overzicht",
+      "catalog": "Catalogus",
+      "sourcing": "Leveranciers",
+      "assistant": "AI-assistent",
+      "storefront": "Etalage",
+      "gifting": "Cadeaus",
+      "orders": "Bestellingen",
+      "discounts": "Kortingen",
+      "team": "Team",
+      "settings": "Instellingen",
+      "activity": "Activiteit"
+    },
+    "adminTabs": {
+      "overview": "Overzicht",
+      "suppliers": "Leveranciers",
+      "catalog": "Gedeelde catalogus",
+      "quotes": "Offerteaanvragen",
+      "tax": "Btw-tarieven",
+      "agencies": "Bureaus en toegang",
+      "audit": "Auditlogboek"
+    }
+  },
+  "pages": {
+    "admin": {
+      "overviewTitle": "Overzicht van de bedrijfsvoering",
+      "overviewDescription": "Leveranciers, de gedeelde catalogus, wereldwijde btw-tarieven en bureautoegang.",
+      "suppliersTitle": "Leveranciers",
+      "suppliersDescription": "Alleen goedgekeurde leveranciers zijn beschikbaar voor winkels.",
+      "catalogTitle": "Gedeelde catalogus",
+      "catalogDescription": "Producten die elke winkel kan importeren.",
+      "newCatalogTitle": "Catalogusproduct toevoegen",
+      "quotesTitle": "Offerteaanvragen",
+      "quotesDescription": "Leg offertes van leveranciers vast voor aanvragen van winkels.",
+      "taxTitle": "Btw-tarieven",
+      "taxDescription": "Tarieven voor het hele platform. Winkels kiezen een standaardtarief.",
+      "agenciesTitle": "Bureaus",
+      "auditTitle": "Auditlogboek van het platform",
+      "auditDescription": "Elke vastgelegde wijziging op het platform."
+    },
+    "store": {
+      "newStoreTitle": "Klantwinkel aanmaken",
+      "productsTitle": "Producten",
+      "ordersTitle": "Bestellingen",
+      "assistantTitle": "Assistent",
+      "assistantDescription": "Suggesties blijven openstaan totdat je ze toepast.",
+      "editorTitle": "Pagina-editor",
+      "editorDescription": "Wijzigingen gaan live zodra je publiceert.",
+      "giftingTitle": "Relatiegeschenken",
+      "giftingDescription": "Privé-cadeaucatalogi voor zakelijke klanten.",
+      "discountsTitle": "Kortingscodes",
+      "teamTitle": "Team",
+      "settingsTitle": "Instellingen",
+      "activityTitle": "Auditgeschiedenis"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "activeStores": "{count, plural, one {# actieve winkel} other {# actieve winkels}}",
+    "archivedSuffix": ", {count} gearchiveerd",
+    "planUsage": "Abonnement {plan} · {usage}",
+    "limitReached": " · limiet bereikt",
+    "usageLimited": "{used} van {limit} live winkels",
+    "usageUnlimited": "{used, plural, one {# live winkel} other {# live winkels}}, geen limiet",
+    "deniedStore": "Je hebt geen toegang tot die winkel.",
+    "deniedPage": "Je hebt geen toestemming om die pagina te bekijken.",
+    "statActiveStores": "Actieve winkels",
+    "statArchived": "{count} gearchiveerd",
+    "statOrders": "Bestellingen",
+    "statPublished": "Gepubliceerde producten",
+    "statAttention": "Vraagt aandacht",
+    "statAttentionSub": "Uitzonderingen en handmatig doorsturen",
+    "clientStores": "Klantwinkels",
+    "emptyTitle": "Nog geen winkels",
+    "emptyBody": "Maak je eerste klantwinkel aan om te beginnen.",
+    "stripeConnected": "Stripe gekoppeld",
+    "stripePending": "Stripe in behandeling",
+    "sales30": "Omzet, 30 dagen",
+    "orders": "Bestellingen",
+    "products": "Producten",
+    "inProduction": "{count} in productie",
+    "shipped": "{count} verzonden",
+    "delivered": "{count} bezorgd",
+    "exceptions": "{count, plural, one {# uitzondering} other {# uitzonderingen}}",
+    "manual": "{count} handmatig",
+    "setup": "Inrichting {done}/{total}",
+    "open": "Openen",
+    "storefront": "Etalage ↗",
+    "archivedStores": "Gearchiveerde winkels",
+    "showArchived": "{count, plural, one {# gearchiveerde winkel tonen} other {# gearchiveerde winkels tonen}}",
+    "hideArchived": "{count, plural, one {# gearchiveerde winkel verbergen} other {# gearchiveerde winkels verbergen}}",
+    "archivedRow": "{client} · {count, plural, one {# eerdere bestelling} other {# eerdere bestellingen}} · {amount} totaal",
+    "viewRecords": "Gegevens bekijken",
+    "restore": "Herstellen",
+    "recentActivity": "Recente activiteit",
+    "nothingYet": "Nog niets vastgelegd.",
+    "repeated": "{summary} ({count} keer)",
+    "platform": {
+      "agencies": "{count, plural, one {# bureau} other {# bureaus}}",
+      "deniedStore": "Die winkel bestaat niet meer.",
+      "deniedPage": "Platformtoegang omvat dat scherm niet. Het blijft voorbehouden aan het winkelteam.",
+      "emptyTitle": "Nog geen bureaus",
+      "emptyBody": "Voeg een bureau toe in platformbeheer om te beginnen.",
+      "openAdmin": "Platformbeheer openen",
+      "missingAgency": "Bureaurecord ontbreekt",
+      "plan": "Abonnement {plan}",
+      "suspended": "Opgeschort",
+      "noAgencyRecord": "Geen bureaurecord",
+      "noStores": "Nog geen winkels.",
+      "published": "Gepubliceerd",
+      "archivedLabel": "· gearchiveerd",
+      "historicOrders": "{count, plural, one {# eerdere bestelling} other {# eerdere bestellingen}}",
+      "recentActivity": "Recente platformactiviteit"
+    }
+  },
+  "pager": {
+    "orders": "{first}–{last} van {total} bestellingen",
+    "audit": "{first}–{last} van {total} items",
+    "auditCoverage": "Activiteit sinds {date}. Kies een periode om oudere items te zien."
+  },
+  "fallback": {
+    "goToDashboard": "Naar het dashboard",
+    "createStore": "Klantwinkel aanmaken",
+    "pageMissing": "Deze pagina bestaat niet of is verwijderd.",
+    "recordMissing": "Dit item bestaat niet of is verwijderd.",
+    "backToStore": "Terug naar de winkel",
+    "platformOverview": "Platformoverzicht",
+    "agencyWorkspace": "Bureauomgeving"
+  }
+}
