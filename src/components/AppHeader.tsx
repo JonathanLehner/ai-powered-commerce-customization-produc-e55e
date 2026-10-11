@@ -1,6 +1,6 @@
 "use client";
 
-import { BellIcon, ChevronsUpDownIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react";
+import { BellIcon, ChevronsUpDownIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon, UsersIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -216,6 +216,14 @@ export function AppHeader({
                   {notifications("menu")}
                 </DropdownMenuItem>
               )}
+              {user.platformRole === "agency_admin" ? (
+                <DropdownMenuItem asChild>
+                  <Link href="/app/people">
+                    <UsersIcon />
+                    {t("people")}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
               {user.platformRole === "platform_admin" ? (
                 <DropdownMenuItem asChild className="sm:hidden">
                   <Link href="/admin">

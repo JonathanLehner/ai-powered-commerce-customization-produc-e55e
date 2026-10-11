@@ -582,7 +582,8 @@
       "tax": "税区分",
       "agencies": "エージェンシーとアクセス",
       "audit": "監査ログ"
-    }
+    },
+    "people": "メンバー"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "4 つのストアロールから 1 つ選択してください。",
       "alreadyMember": "このユーザーはすでにこのストアにアクセスできます。",
       "activeNow": "{name} はすでに Parcelith のアカウントを持っているため、すぐにアクセスできます。",
-      "invited": "{email} への招待を作成し、メールを送信しました。届かない場合は、上のメンバー一覧にある承諾リンクもご利用いただけます。"
+      "invited": "{email} への招待を作成し、メールを送信しました。届かない場合は、上のメンバー一覧にある承諾リンクもご利用いただけます。",
+      "storesRequired": "少なくとも 1 つのストアでロールを選択してください。",
+      "isAgencyAdmin": "{name} はエージェンシー管理者で、すべてのストアにすでにアクセスできます。",
+      "alreadyOnAll": "このユーザーは選択したストアにすでにアクセスできます。",
+      "activeInStores": "{name} が {count, plural, other {# 件のストア}}にアクセスできるようになりました。",
+      "invitedToStores": "{email} に {count, plural, other {# 件のストア}}への招待を送信しました。"
     },
     "discounts": {
       "percentRange": "1 から {max} までの整数でパーセントを入力してください。",
@@ -1311,6 +1317,27 @@
     "remove": "削除",
     "removeTitle": "このストアから削除",
     "removeBody": "{name} はすぐにこのストアにアクセスできなくなります。"
+  },
+  "people": {
+    "title": "メンバー",
+    "description": "{stores, plural, other {# 件のストア}}に{people, plural, other {# 人}}",
+    "back": "ダッシュボード",
+    "noStoresTitle": "ストアがまだありません",
+    "noStoresBody": "ストアを作成するとメンバーを招待できます。",
+    "accessTitle": "ストアへのアクセス",
+    "colPerson": "ユーザー",
+    "colActions": "操作",
+    "archived": "アーカイブ済み",
+    "invited": "招待保留中",
+    "noAccess": "アクセスなし",
+    "inviteTitle": "ストアに招待",
+    "storeAccess": "ストアごとのロール",
+    "removeAll": "すべてのストアから削除",
+    "removeTitle": "{name} を削除しますか？",
+    "removeBody": "{name} は次の{count, plural, other {# 件のストア}}へのアクセスをすぐに失います:",
+    "showArchived": "アーカイブ済みのストアを表示 ({count})",
+    "hideArchived": "アーカイブ済みのストアを非表示",
+    "archivedStore": "{name} (アーカイブ済み)"
   },
   "discounts": {
     "inactive": "無効",

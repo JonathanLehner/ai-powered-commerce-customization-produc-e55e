@@ -582,7 +582,8 @@
       "tax": "Tax brackets",
       "agencies": "Agencies and access",
       "audit": "Audit log"
-    }
+    },
+    "people": "People"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Choose one of the four store roles.",
       "alreadyMember": "That person already has access to this store.",
       "activeNow": "{name} already has a Parcelith account, so access is active immediately.",
-      "invited": "Invitation created for {email} and the email is on its way. The acceptance link is also in the members list above if it never arrives."
+      "invited": "Invitation created for {email} and the email is on its way. The acceptance link is also in the members list above if it never arrives.",
+      "storesRequired": "Choose a role in at least one store.",
+      "isAgencyAdmin": "{name} is an agency admin and already has access to every store.",
+      "alreadyOnAll": "This person already has access to the selected stores.",
+      "activeInStores": "{name} now has access to {count, plural, one {# store} other {# stores}}.",
+      "invitedToStores": "Invitations sent to {email} for {count, plural, one {# store} other {# stores}}."
     },
     "discounts": {
       "percentRange": "Enter a whole percentage between 1 and {max}.",
@@ -1311,6 +1317,27 @@
     "remove": "Remove",
     "removeTitle": "Remove from this store",
     "removeBody": "{name} will lose access to this store immediately."
+  },
+  "people": {
+    "title": "People",
+    "description": "{people, plural, one {# person} other {# people}} across {stores, plural, one {# store} other {# stores}}",
+    "back": "Dashboard",
+    "noStoresTitle": "No stores yet",
+    "noStoresBody": "Create a store to invite people to it.",
+    "accessTitle": "Store access",
+    "colPerson": "Person",
+    "colActions": "Actions",
+    "archived": "Archived",
+    "invited": "Invitation pending",
+    "noAccess": "No access",
+    "inviteTitle": "Invite to stores",
+    "storeAccess": "Role in each store",
+    "removeAll": "Remove from all stores",
+    "removeTitle": "Remove {name}?",
+    "removeBody": "{name} loses access to {count, plural, one {this store} other {these # stores}} immediately:",
+    "showArchived": "Show archived stores ({count})",
+    "hideArchived": "Hide archived stores",
+    "archivedStore": "{name} (archived)"
   },
   "discounts": {
     "inactive": "Inactive",

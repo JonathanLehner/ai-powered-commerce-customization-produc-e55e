@@ -582,7 +582,8 @@
       "tax": "Steuerklassen",
       "agencies": "Agenturen und Zugriff",
       "audit": "Audit-Log"
-    }
+    },
+    "people": "Personen"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Wählen Sie eine der vier Shop-Rollen.",
       "alreadyMember": "Diese Person hat bereits Zugriff auf diesen Shop.",
       "activeNow": "{name} hat bereits ein Parcelith-Konto, der Zugriff ist sofort aktiv.",
-      "invited": "Einladung für {email} erstellt, die E-Mail ist unterwegs. Falls sie nicht ankommt, finden Sie den Annahmelink auch oben in der Mitgliederliste."
+      "invited": "Einladung für {email} erstellt, die E-Mail ist unterwegs. Falls sie nicht ankommt, finden Sie den Annahmelink auch oben in der Mitgliederliste.",
+      "storesRequired": "Wählen Sie in mindestens einem Shop eine Rolle.",
+      "isAgencyAdmin": "{name} ist Agentur-Admin und hat bereits Zugriff auf alle Shops.",
+      "alreadyOnAll": "Diese Person hat bereits Zugriff auf die ausgewählten Shops.",
+      "activeInStores": "{name} hat jetzt Zugriff auf {count, plural, one {# Shop} other {# Shops}}.",
+      "invitedToStores": "Einladungen an {email} für {count, plural, one {# Shop} other {# Shops}} gesendet."
     },
     "discounts": {
       "percentRange": "Geben Sie einen ganzzahligen Prozentsatz zwischen 1 und {max} ein.",
@@ -1311,6 +1317,27 @@
     "remove": "Entfernen",
     "removeTitle": "Aus diesem Shop entfernen",
     "removeBody": "{name} verliert sofort den Zugriff auf diesen Shop."
+  },
+  "people": {
+    "title": "Personen",
+    "description": "{people, plural, one {# Person} other {# Personen}} in {stores, plural, one {# Shop} other {# Shops}}",
+    "back": "Dashboard",
+    "noStoresTitle": "Noch keine Shops",
+    "noStoresBody": "Erstellen Sie einen Shop, um Personen einzuladen.",
+    "accessTitle": "Shop-Zugriff",
+    "colPerson": "Person",
+    "colActions": "Aktionen",
+    "archived": "Archiviert",
+    "invited": "Einladung ausstehend",
+    "noAccess": "Kein Zugriff",
+    "inviteTitle": "Zu Shops einladen",
+    "storeAccess": "Rolle je Shop",
+    "removeAll": "Aus allen Shops entfernen",
+    "removeTitle": "{name} entfernen?",
+    "removeBody": "{name} verliert sofort den Zugriff auf {count, plural, one {diesen Shop} other {diese # Shops}}:",
+    "showArchived": "Archivierte Shops anzeigen ({count})",
+    "hideArchived": "Archivierte Shops ausblenden",
+    "archivedStore": "{name} (archiviert)"
   },
   "discounts": {
     "inactive": "Inaktiv",

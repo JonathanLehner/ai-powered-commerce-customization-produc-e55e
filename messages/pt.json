@@ -582,7 +582,8 @@
       "tax": "Taxas de imposto",
       "agencies": "Agências e acesso",
       "audit": "Registo de auditoria"
-    }
+    },
+    "people": "Pessoas"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Escolha uma das quatro funções da loja.",
       "alreadyMember": "Essa pessoa já tem acesso a esta loja.",
       "activeNow": "{name} já tem conta Parcelith, por isso o acesso fica ativo de imediato.",
-      "invited": "Convite criado para {email} e o email já foi enviado. Se não chegar, a ligação de aceitação também está na lista de membros acima."
+      "invited": "Convite criado para {email} e o email já foi enviado. Se não chegar, a ligação de aceitação também está na lista de membros acima.",
+      "storesRequired": "Escolha uma função em pelo menos uma loja.",
+      "isAgencyAdmin": "{name} é administrador da agência e já tem acesso a todas as lojas.",
+      "alreadyOnAll": "Esta pessoa já tem acesso às lojas selecionadas.",
+      "activeInStores": "{name} agora tem acesso a {count, plural, one {# loja} other {# lojas}}.",
+      "invitedToStores": "Convites enviados para {email} para {count, plural, one {# loja} other {# lojas}}."
     },
     "discounts": {
       "percentRange": "Introduza uma percentagem inteira entre 1 e {max}.",
@@ -1311,6 +1317,27 @@
     "remove": "Remover",
     "removeTitle": "Remover desta loja",
     "removeBody": "{name} perde de imediato o acesso a esta loja."
+  },
+  "people": {
+    "title": "Pessoas",
+    "description": "{people, plural, one {# pessoa} other {# pessoas}} em {stores, plural, one {# loja} other {# lojas}}",
+    "back": "Painel",
+    "noStoresTitle": "Ainda não há lojas",
+    "noStoresBody": "Crie uma loja para convidar pessoas.",
+    "accessTitle": "Acesso às lojas",
+    "colPerson": "Pessoa",
+    "colActions": "Ações",
+    "archived": "Arquivada",
+    "invited": "Convite pendente",
+    "noAccess": "Sem acesso",
+    "inviteTitle": "Convidar para lojas",
+    "storeAccess": "Função em cada loja",
+    "removeAll": "Remover de todas as lojas",
+    "removeTitle": "Remover {name}?",
+    "removeBody": "{name} perde o acesso a {count, plural, one {esta loja} other {estas # lojas}} imediatamente:",
+    "showArchived": "Mostrar lojas arquivadas ({count})",
+    "hideArchived": "Ocultar lojas arquivadas",
+    "archivedStore": "{name} (arquivada)"
   },
   "discounts": {
     "inactive": "Inativo",

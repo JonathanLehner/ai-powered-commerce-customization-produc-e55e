@@ -144,6 +144,11 @@ export function listMembershipsForUser(userId: string) {
   return db.find<Membership>(COLLECTIONS.memberships, { userId });
 }
 
+/** Every membership in any of the given stores, in one read. */
+export function listMembershipsForStores(storeIds: string[]) {
+  return db.findIn<Membership>(COLLECTIONS.memberships, "storeId", storeIds, { sort: { invitedAt: 1 } });
+}
+
 export function getMembership(id: string) {
   return db.findOne<Membership>(COLLECTIONS.memberships, { id });
 }

@@ -10,6 +10,8 @@ import {
   getStore,
   getUserByEmail,
   listMemberships,
+  listMembershipsForStores,
+  listStoresForAgency,
   recordAudit,
 } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
@@ -17,7 +19,8 @@ import { brandFor, teamInviteEmail } from "@/lib/email-templates";
 import { isLocale } from "@/i18n/locales";
 import { emailCopy } from "@/i18n/storefront";
 import { db } from "@/lib/mongo";
-import { assertStoreAccess } from "@/lib/session";
+import { chosenRoles } from "@/lib/people";
+import { assertAgencyAdmin, assertStoreAccess } from "@/lib/session";
 import { STORE_ROLE_LABELS, type Membership, type Store, type StoreRole, type User } from "@/lib/types";
 import { newId } from "@/lib/util";
 import { signInUser } from "./auth";
@@ -93,6 +96,139 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
       ? t("activeNow", { name: account.name })
       : t("invited", { email }),
   };
+}
+
+/**
+ * Invites one person to several of the agency's stores at once, with a role
+ * chosen per store. Each store gets its own membership, invitation and activity
+ * entry, exactly as if it had been sent from that store's Team page. Stores the
+ * person is already on are left as they are, and the write is keyed on store and
+ * email, so a repeated submission adds nothing twice.
+ */
+export async function invitePerson(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const name = String(formData.get("name") ?? "").trim();
+  const language = String(formData.get("language") ?? "");
+  const t = await getTranslations("actions.team");
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { status: "error", message: t("emailInvalid"), field: "email" };
+  }
+  if (name.length < 2) {
+    return { status: "error", message: t("nameRequired"), field: "name" };
+  }
+
+  const user = await assertAgencyAdmin();
+  const [stores, account] = await Promise.all([listStoresForAgency(user.agencyId), getUserByEmail(email)]);
+  const open = stores.filter((store) => store.status === "active");
+  const chosen = chosenRoles(formData, new Set(open.map((store) => store.id)));
+  if (chosen.size === 0) {
+    return { status: "error", message: t("storesRequired"), field: "stores" };
+  }
+  if (account?.platformRole === "agency_admin" && account.agencyId === user.agencyId) {
+    return { status: "error", message: t("isAgencyAdmin", { name: account.name }), field: "email" };
+  }
+
+  const existing = await listMembershipsForStores([...chosen.keys()]);
+  const already = new Set(existing.filter((m) => m.email.toLowerCase() === email).map((m) => m.storeId));
+  const targets = open.filter((store) => chosen.has(store.id) && !already.has(store.id));
+  if (targets.length === 0) {
+    return { status: "error", message: t("alreadyOnAll"), field: "stores" };
+  }
+
+  const now = new Date().toISOString();
+  const added = await Promise.all(
+    targets.map(async (store) => {
+      const role = chosen.get(store.id)!;
+      const membership: Membership = {
+        id: newId("mem"),
+        storeId: store.id,
+        agencyId: store.agencyId,
+        userId: account?.id ?? null,
+        email,
+        name: account?.name ?? name,
+        role,
+        status: account ? "active" : "invited",
+        invitedBy: user.name,
+        invitedAt: now,
+        acceptedAt: account ? now : null,
+        inviteToken: account ? null : newId("inv"),
+        ...(isLocale(language) ? { language } : {}),
+      };
+      // The filter's own fields are written by the upsert itself.
+      const filter = { storeId: store.id, email };
+      const fields = Object.fromEntries(Object.entries(membership).filter(([key]) => !(key in filter)));
+      const result = await db.upsertOne(COLLECTIONS.memberships, filter, { $setOnInsert: fields });
+      if (result.upsertedCount === 0) return null;
+      recordAudit({
+        category: "team",
+        action: "team.invited",
+        summary: `Invited ${email} as ${STORE_ROLE_LABELS[role].toLowerCase()}`,
+        storeId: store.id,
+        agencyId: store.agencyId,
+        actorId: user.id,
+        actorName: user.name,
+        entity: "membership",
+        entityId: membership.id,
+        meta: { role, email, via: "people" },
+      });
+      if (membership.inviteToken) await emailInvitation(store, membership, user.name);
+      revalidatePath(`/app/stores/${store.id}/team`);
+      return membership;
+    }),
+  );
+  const count = added.filter(Boolean).length;
+  if (count === 0) {
+    return { status: "error", message: t("alreadyOnAll"), field: "stores" };
+  }
+
+  revalidatePath("/app/people");
+  return {
+    status: "success",
+    message: account
+      ? t("activeInStores", { name: account.name, count })
+      : t("invitedToStores", { email, count }),
+  };
+}
+
+/**
+ * Takes a person off every store listed in the confirmation, in one step. Only
+ * the memberships the admin was shown are removed, so a stale page never takes
+ * away access it did not list. Each store records its own activity entry.
+ */
+export async function removePersonEverywhere(formData: FormData): Promise<void> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const ids = new Set(formData.getAll("membershipId").map(String));
+  if (!email || ids.size === 0) return;
+
+  const user = await assertAgencyAdmin();
+  const stores = await listStoresForAgency(user.agencyId);
+  const byId = new Map(stores.map((store) => [store.id, store]));
+  const memberships = (await listMembershipsForStores([...byId.keys()])).filter(
+    (m) => ids.has(m.id) && m.email.toLowerCase() === email,
+  );
+
+  await Promise.all(
+    memberships.map(async (membership) => {
+      const store = byId.get(membership.storeId)!;
+      const result = await db.deleteOne(COLLECTIONS.memberships, { id: membership.id });
+      if (result.deletedCount === 0) return;
+      recordAudit({
+        category: "team",
+        action: "team.removed",
+        summary: `Removed ${membership.email} from the store team`,
+        storeId: store.id,
+        agencyId: store.agencyId,
+        actorId: user.id,
+        actorName: user.name,
+        entity: "membership",
+        entityId: membership.id,
+        meta: { email: membership.email, via: "people" },
+      });
+      revalidatePath(`/app/stores/${store.id}/team`);
+    }),
+  );
+  revalidatePath("/app/people");
 }
 
 /**

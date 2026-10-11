@@ -582,7 +582,8 @@
       "tax": "Tipos impositivos",
       "agencies": "Agencias y acceso",
       "audit": "Registro de auditoría"
-    }
+    },
+    "people": "Personas"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Elige uno de los cuatro roles de tienda.",
       "alreadyMember": "Esa persona ya tiene acceso a esta tienda.",
       "activeNow": "{name} ya tiene cuenta en Parcelith, así que el acceso está activo desde ya.",
-      "invited": "Invitación creada para {email} y el correo está en camino. Si no llega, el enlace de aceptación también aparece en la lista de miembros de arriba."
+      "invited": "Invitación creada para {email} y el correo está en camino. Si no llega, el enlace de aceptación también aparece en la lista de miembros de arriba.",
+      "storesRequired": "Elige un rol en al menos una tienda.",
+      "isAgencyAdmin": "{name} es administrador de la agencia y ya tiene acceso a todas las tiendas.",
+      "alreadyOnAll": "Esta persona ya tiene acceso a las tiendas seleccionadas.",
+      "activeInStores": "{name} ya tiene acceso a {count, plural, one {# tienda} other {# tiendas}}.",
+      "invitedToStores": "Invitaciones enviadas a {email} para {count, plural, one {# tienda} other {# tiendas}}."
     },
     "discounts": {
       "percentRange": "Introduce un porcentaje entero entre 1 y {max}.",
@@ -1311,6 +1317,27 @@
     "remove": "Quitar",
     "removeTitle": "Quitar de esta tienda",
     "removeBody": "{name} perderá el acceso a esta tienda de inmediato."
+  },
+  "people": {
+    "title": "Personas",
+    "description": "{people, plural, one {# persona} other {# personas}} en {stores, plural, one {# tienda} other {# tiendas}}",
+    "back": "Panel",
+    "noStoresTitle": "Aún no hay tiendas",
+    "noStoresBody": "Crea una tienda para invitar a personas.",
+    "accessTitle": "Acceso a tiendas",
+    "colPerson": "Persona",
+    "colActions": "Acciones",
+    "archived": "Archivada",
+    "invited": "Invitación pendiente",
+    "noAccess": "Sin acceso",
+    "inviteTitle": "Invitar a tiendas",
+    "storeAccess": "Rol en cada tienda",
+    "removeAll": "Quitar de todas las tiendas",
+    "removeTitle": "¿Quitar a {name}?",
+    "removeBody": "{name} pierde el acceso a {count, plural, one {esta tienda} other {estas # tiendas}} de inmediato:",
+    "showArchived": "Mostrar tiendas archivadas ({count})",
+    "hideArchived": "Ocultar tiendas archivadas",
+    "archivedStore": "{name} (archivada)"
   },
   "discounts": {
     "inactive": "Inactivo",

@@ -582,7 +582,8 @@
       "tax": "Aliquote fiscali",
       "agencies": "Agenzie e accessi",
       "audit": "Registro di controllo"
-    }
+    },
+    "people": "Persone"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Scegli uno dei quattro ruoli del negozio.",
       "alreadyMember": "Questa persona ha già accesso a questo negozio.",
       "activeNow": "{name} ha già un account Parcelith, quindi l’accesso è attivo da subito.",
-      "invited": "Invito creato per {email} e l’email è in arrivo. Se non arriva, il link di accettazione si trova anche nell’elenco dei membri qui sopra."
+      "invited": "Invito creato per {email} e l’email è in arrivo. Se non arriva, il link di accettazione si trova anche nell’elenco dei membri qui sopra.",
+      "storesRequired": "Scegli un ruolo in almeno un negozio.",
+      "isAgencyAdmin": "{name} è amministratore dell’agenzia e ha già accesso a tutti i negozi.",
+      "alreadyOnAll": "Questa persona ha già accesso ai negozi selezionati.",
+      "activeInStores": "{name} ora ha accesso a {count, plural, one {# negozio} other {# negozi}}.",
+      "invitedToStores": "Inviti inviati a {email} per {count, plural, one {# negozio} other {# negozi}}."
     },
     "discounts": {
       "percentRange": "Inserisci una percentuale intera tra 1 e {max}.",
@@ -1311,6 +1317,27 @@
     "remove": "Rimuovi",
     "removeTitle": "Rimuovi da questo negozio",
     "removeBody": "{name} perderà subito l’accesso a questo negozio."
+  },
+  "people": {
+    "title": "Persone",
+    "description": "{people, plural, one {# persona} other {# persone}} in {stores, plural, one {# negozio} other {# negozi}}",
+    "back": "Dashboard",
+    "noStoresTitle": "Ancora nessun negozio",
+    "noStoresBody": "Crea un negozio per invitare persone.",
+    "accessTitle": "Accesso ai negozi",
+    "colPerson": "Persona",
+    "colActions": "Azioni",
+    "archived": "Archiviato",
+    "invited": "Invito in sospeso",
+    "noAccess": "Nessun accesso",
+    "inviteTitle": "Invita nei negozi",
+    "storeAccess": "Ruolo in ogni negozio",
+    "removeAll": "Rimuovi da tutti i negozi",
+    "removeTitle": "Rimuovere {name}?",
+    "removeBody": "{name} perde subito l’accesso a {count, plural, one {questo negozio} other {questi # negozi}}:",
+    "showArchived": "Mostra negozi archiviati ({count})",
+    "hideArchived": "Nascondi negozi archiviati",
+    "archivedStore": "{name} (archiviato)"
   },
   "discounts": {
     "inactive": "Non attivo",

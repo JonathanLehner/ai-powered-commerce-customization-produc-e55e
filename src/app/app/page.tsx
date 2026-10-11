@@ -140,9 +140,14 @@ export default async function AgencyDashboard({
           }
           actions={
             user.platformRole === "agency_admin" ? (
-              <Button asChild>
-                <Link href="/app/stores/new">{shell("createStore")}</Link>
-              </Button>
+              <>
+                <Button asChild variant="outline">
+                  <Link href="/app/people">{shell("people")}</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/app/stores/new">{shell("createStore")}</Link>
+                </Button>
+              </>
             ) : null
           }
         />

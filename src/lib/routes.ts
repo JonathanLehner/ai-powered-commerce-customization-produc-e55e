@@ -41,6 +41,8 @@ export const ROUTES = [
   "/admin/tax",
 
   "/app",
+  "/app/attention",
+  "/app/people",
   "/app/stores/new",
   "/app/stores/[storeId]",
   "/app/stores/[storeId]/activity",

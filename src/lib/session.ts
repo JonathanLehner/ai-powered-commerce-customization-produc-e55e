@@ -45,6 +45,21 @@ export async function requirePlatformAdmin(): Promise<User> {
   return user;
 }
 
+/** The agency's own administrator, for agency-wide pages such as People. */
+export async function requireAgencyAdmin(): Promise<User & { agencyId: string }> {
+  const user = await requireUser();
+  if (user.platformRole !== "agency_admin" || !user.agencyId) redirect("/app");
+  return user as User & { agencyId: string };
+}
+
+/** `requireAgencyAdmin` for server actions — throws instead of redirecting. */
+export async function assertAgencyAdmin(): Promise<User & { agencyId: string }> {
+  const user = await getSessionUser();
+  if (!user) throw new Error("You are signed out. Sign in again to continue.");
+  if (user.platformRole !== "agency_admin" || !user.agencyId) throw new Error("Agency administrator access required.");
+  return user as User & { agencyId: string };
+}
+
 export interface StoreAccess {
   user: User;
   store: Store;

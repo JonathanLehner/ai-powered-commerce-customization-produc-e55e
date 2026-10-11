@@ -582,7 +582,8 @@
       "tax": "Momssatser",
       "agencies": "Byråer och åtkomst",
       "audit": "Granskningslogg"
-    }
+    },
+    "people": "Personer"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Välj en av de fyra butiksrollerna.",
       "alreadyMember": "Personen har redan åtkomst till butiken.",
       "activeNow": "{name} har redan ett Parcelith-konto, så åtkomsten gäller direkt.",
-      "invited": "Inbjudan till {email} har skapats och mejlet är på väg. Om det inte kommer fram finns länken för att tacka ja även i medlemslistan ovan."
+      "invited": "Inbjudan till {email} har skapats och mejlet är på väg. Om det inte kommer fram finns länken för att tacka ja även i medlemslistan ovan.",
+      "storesRequired": "Välj en roll i minst en butik.",
+      "isAgencyAdmin": "{name} är byråadministratör och har redan åtkomst till alla butiker.",
+      "alreadyOnAll": "Personen har redan åtkomst till de valda butikerna.",
+      "activeInStores": "{name} har nu åtkomst till {count, plural, one {# butik} other {# butiker}}.",
+      "invitedToStores": "Inbjudningar skickade till {email} för {count, plural, one {# butik} other {# butiker}}."
     },
     "discounts": {
       "percentRange": "Ange en hel procentsats mellan 1 och {max}.",
@@ -1311,6 +1317,27 @@
     "remove": "Ta bort",
     "removeTitle": "Ta bort från butiken",
     "removeBody": "{name} förlorar direkt åtkomsten till butiken."
+  },
+  "people": {
+    "title": "Personer",
+    "description": "{people, plural, one {# person} other {# personer}} i {stores, plural, one {# butik} other {# butiker}}",
+    "back": "Översikt",
+    "noStoresTitle": "Inga butiker än",
+    "noStoresBody": "Skapa en butik för att bjuda in personer.",
+    "accessTitle": "Butiksåtkomst",
+    "colPerson": "Person",
+    "colActions": "Åtgärder",
+    "archived": "Arkiverad",
+    "invited": "Inbjudan väntar",
+    "noAccess": "Ingen åtkomst",
+    "inviteTitle": "Bjud in till butiker",
+    "storeAccess": "Roll i varje butik",
+    "removeAll": "Ta bort från alla butiker",
+    "removeTitle": "Ta bort {name}?",
+    "removeBody": "{name} förlorar direkt åtkomsten till {count, plural, one {den här butiken} other {dessa # butiker}}:",
+    "showArchived": "Visa arkiverade butiker ({count})",
+    "hideArchived": "Dölj arkiverade butiker",
+    "archivedStore": "{name} (arkiverad)"
   },
   "discounts": {
     "inactive": "Inaktiv",

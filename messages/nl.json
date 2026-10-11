@@ -582,7 +582,8 @@
       "tax": "Btw-tarieven",
       "agencies": "Bureaus en toegang",
       "audit": "Auditlogboek"
-    }
+    },
+    "people": "Personen"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Kies een van de vier winkelrollen.",
       "alreadyMember": "Deze persoon heeft al toegang tot deze winkel.",
       "activeNow": "{name} heeft al een Parcelith-account, dus de toegang is meteen actief.",
-      "invited": "Uitnodiging voor {email} aangemaakt en de e-mail is onderweg. Komt die niet aan, dan staat de acceptatielink ook in de ledenlijst hierboven."
+      "invited": "Uitnodiging voor {email} aangemaakt en de e-mail is onderweg. Komt die niet aan, dan staat de acceptatielink ook in de ledenlijst hierboven.",
+      "storesRequired": "Kies een rol in minstens één winkel.",
+      "isAgencyAdmin": "{name} is bureaubeheerder en heeft al toegang tot alle winkels.",
+      "alreadyOnAll": "Deze persoon heeft al toegang tot de geselecteerde winkels.",
+      "activeInStores": "{name} heeft nu toegang tot {count, plural, one {# winkel} other {# winkels}}.",
+      "invitedToStores": "Uitnodigingen verstuurd naar {email} voor {count, plural, one {# winkel} other {# winkels}}."
     },
     "discounts": {
       "percentRange": "Vul een heel percentage tussen 1 en {max} in.",
@@ -1311,6 +1317,27 @@
     "remove": "Verwijderen",
     "removeTitle": "Verwijderen uit deze winkel",
     "removeBody": "{name} verliest direct de toegang tot deze winkel."
+  },
+  "people": {
+    "title": "Personen",
+    "description": "{people, plural, one {# persoon} other {# personen}} in {stores, plural, one {# winkel} other {# winkels}}",
+    "back": "Dashboard",
+    "noStoresTitle": "Nog geen winkels",
+    "noStoresBody": "Maak een winkel aan om mensen uit te nodigen.",
+    "accessTitle": "Winkeltoegang",
+    "colPerson": "Persoon",
+    "colActions": "Acties",
+    "archived": "Gearchiveerd",
+    "invited": "Uitnodiging open",
+    "noAccess": "Geen toegang",
+    "inviteTitle": "Uitnodigen voor winkels",
+    "storeAccess": "Rol per winkel",
+    "removeAll": "Uit alle winkels verwijderen",
+    "removeTitle": "{name} verwijderen?",
+    "removeBody": "{name} verliest direct de toegang tot {count, plural, one {deze winkel} other {deze # winkels}}:",
+    "showArchived": "Gearchiveerde winkels tonen ({count})",
+    "hideArchived": "Gearchiveerde winkels verbergen",
+    "archivedStore": "{name} (gearchiveerd)"
   },
   "discounts": {
     "inactive": "Inactief",

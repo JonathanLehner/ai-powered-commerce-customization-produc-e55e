@@ -582,7 +582,8 @@
       "tax": "Taux de taxe",
       "agencies": "Agences et accès",
       "audit": "Journal d’audit"
-    }
+    },
+    "people": "Personnes"
   },
   "pages": {
     "admin": {
@@ -949,7 +950,12 @@
       "roleInvalid": "Choisissez l’un des quatre rôles de boutique.",
       "alreadyMember": "Cette personne a déjà accès à cette boutique.",
       "activeNow": "{name} a déjà un compte Parcelith, l’accès est donc actif immédiatement.",
-      "invited": "Invitation créée pour {email}, l’e-mail est en route. Si elle ne le reçoit pas, le lien d’acceptation figure aussi dans la liste des membres ci-dessus."
+      "invited": "Invitation créée pour {email}, l’e-mail est en route. Si elle ne le reçoit pas, le lien d’acceptation figure aussi dans la liste des membres ci-dessus.",
+      "storesRequired": "Choisissez un rôle dans au moins une boutique.",
+      "isAgencyAdmin": "{name} est administrateur de l’agence et a déjà accès à toutes les boutiques.",
+      "alreadyOnAll": "Cette personne a déjà accès aux boutiques sélectionnées.",
+      "activeInStores": "{name} a maintenant accès à {count, plural, one {# boutique} other {# boutiques}}.",
+      "invitedToStores": "Invitations envoyées à {email} pour {count, plural, one {# boutique} other {# boutiques}}."
     },
     "discounts": {
       "percentRange": "Saisissez un pourcentage entier entre 1 et {max}.",
@@ -1311,6 +1317,27 @@
     "remove": "Retirer",
     "removeTitle": "Retirer de cette boutique",
     "removeBody": "{name} perdra immédiatement l’accès à cette boutique."
+  },
+  "people": {
+    "title": "Personnes",
+    "description": "{people, plural, one {# personne} other {# personnes}} sur {stores, plural, one {# boutique} other {# boutiques}}",
+    "back": "Tableau de bord",
+    "noStoresTitle": "Aucune boutique",
+    "noStoresBody": "Créez une boutique pour y inviter des personnes.",
+    "accessTitle": "Accès aux boutiques",
+    "colPerson": "Personne",
+    "colActions": "Actions",
+    "archived": "Archivée",
+    "invited": "Invitation en attente",
+    "noAccess": "Aucun accès",
+    "inviteTitle": "Inviter dans des boutiques",
+    "storeAccess": "Rôle par boutique",
+    "removeAll": "Retirer de toutes les boutiques",
+    "removeTitle": "Retirer {name} ?",
+    "removeBody": "{name} perd immédiatement l’accès à {count, plural, one {cette boutique} other {ces # boutiques}} :",
+    "showArchived": "Afficher les boutiques archivées ({count})",
+    "hideArchived": "Masquer les boutiques archivées",
+    "archivedStore": "{name} (archivée)"
   },
   "discounts": {
     "inactive": "Inactif",
