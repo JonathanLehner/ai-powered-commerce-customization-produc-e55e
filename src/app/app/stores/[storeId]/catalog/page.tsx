@@ -1,19 +1,22 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
-import { setProductStatus } from "@/app/actions/products";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { listStoreProducts } from "@/lib/data";
+import { listStoreProducts, listTaxBrackets } from "@/lib/data";
+import type { BulkProduct } from "@/lib/bulk-products";
 import { marginTone } from "@/lib/pricing";
+import { publishBlockersFor } from "@/lib/publish-blockers";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import type { StoreProduct } from "@/lib/types";
 import { formatAgo } from "@/i18n/format";
 import { formatDate, formatMoney, formatPercent } from "@/lib/util";
+import { BulkActionBar, CatalogSelection, ProductCheckbox, SelectableItem } from "./CatalogSelection";
 import { CatalogTabs } from "./CatalogTabs";
 import { CatalogToolbar } from "./CatalogToolbar";
+import { UnpublishButton } from "./UnpublishButton";
 
 const STATUS_TONES: Record<StoreProduct["status"], "green" | "amber" | "neutral" | "slate"> = {
   published: "green",
@@ -51,13 +54,36 @@ export default async function StoreCatalogPage({
       ? published.reduce((sum, p) => sum + p.costs.marginPct, 0) / published.length
       : 0;
 
-  const [pages, t, labels, locale, format] = await Promise.all([
+  const [pages, t, labels, locale, format, brackets, blockers] = await Promise.all([
     getTranslations("pages.store"),
     getTranslations("catalog"),
     getTranslations("labels"),
     getLocale(),
     getFormatter(),
+    canEdit ? listTaxBrackets() : [],
+    // What stops each unpublished product going live, so bulk Publish can say
+    // up front which ones it will skip.
+    canEdit ? publishBlockersFor(filtered.filter((p) => p.status !== "published")) : new Map<string, { reason: string }[]>(),
   ]);
+  const bulkProducts: BulkProduct[] = filtered.map((p) => ({
+    id: p.id,
+    name: p.name,
+    status: p.status,
+    visibility: p.visibility,
+    taxBracketId: p.taxBracketId,
+    price: p.price,
+    currency: p.currency,
+    variants: p.variants.map((v) => ({ id: v.id, enabled: v.enabled, price: v.price, baseCost: v.baseCost })),
+    costs: {
+      supplierCost: p.costs.supplierCost,
+      customizationCost: p.costs.customizationCost,
+      shippingEstimate: p.costs.shippingEstimate,
+      taxRate: p.costs.taxRate,
+      marginAmount: p.costs.marginAmount,
+      marginPct: p.costs.marginPct,
+    },
+    publishBlockers: (blockers.get(p.id) ?? []).map((b) => b.reason),
+  }));
   const now = new Date();
   return (
     <div className="space-y-6">
@@ -103,13 +129,23 @@ export default async function StoreCatalogPage({
           }
         />
       ) : (
+        // Keyed on the filters, so changing them starts with nothing ticked.
+        <CatalogSelection key={`${status ?? ""}|${q ?? ""}`} products={bulkProducts}>
+        <div className="space-y-4">
+        {canEdit ? (
+          <BulkActionBar
+            storeId={storeId}
+            brackets={brackets.map((b) => ({ id: b.id, name: b.name, rate: b.rate }))}
+            pricesIncludeTax={store.pricesIncludeTax}
+          />
+        ) : null}
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((product) => {
             const cover = product.mockups[0];
             const tone = marginTone(product.costs.marginPct);
             return (
-              <li key={product.id} className="flex">
-                <Card className="flex-1 gap-0 py-0">
+              <SelectableItem key={product.id} id={product.id} className="flex">
+                <Card className="flex-1 gap-0 py-0 group-data-[state=selected]:ring-2 group-data-[state=selected]:ring-primary">
                   <div className="relative border-b border-border bg-canvas">
                     {cover ? (
                       <Image
@@ -130,7 +166,8 @@ export default async function StoreCatalogPage({
                         {t("noMockup")}
                       </div>
                     )}
-                    <span className="absolute top-3 left-3">
+                    <span className="absolute top-3 left-3 flex items-center gap-2">
+                      {canEdit ? <ProductCheckbox id={product.id} name={product.name} /> : null}
                       <Badge tone={STATUS_TONES[product.status]}>{labels(`productStatus.${product.status}`)}</Badge>
                     </span>
                     {product.visibility === "hidden" ? (
@@ -205,14 +242,7 @@ export default async function StoreCatalogPage({
                       </Link>
                     </Button>
                     {canEdit && product.status === "published" ? (
-                      <form action={setProductStatus}>
-                        <input type="hidden" name="storeId" value={storeId} />
-                        <input type="hidden" name="productId" value={product.id} />
-                        <input type="hidden" name="status" value="in_review" />
-                        <Button type="submit" variant="ghost" size="sm">
-                          {t("unpublish")}
-                        </Button>
-                      </form>
+                      <UnpublishButton storeId={storeId} productId={product.id} name={product.name} />
                     ) : null}
                     {product.status === "published" ? (
                       <Button asChild variant="ghost" size="sm">
@@ -227,10 +257,12 @@ export default async function StoreCatalogPage({
                     ) : null}
                   </CardFooter>
                 </Card>
-              </li>
+              </SelectableItem>
             );
           })}
         </ul>
+        </div>
+        </CatalogSelection>
       )}
     </div>
   );

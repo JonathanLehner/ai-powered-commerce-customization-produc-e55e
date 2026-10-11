@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { deleteProduct, saveProductDetails, saveVariants } from "@/app/actions/products";
 import { ActionForm } from "@/components/forms";
@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,7 +39,8 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import type { StoreProduct, TaxBracket } from "@/lib/types";
-import { formatMoney, toMajorString } from "@/lib/util";
+import { formatMoney, parseMoney, toMajorString } from "@/lib/util";
+import { cn } from "@/lib/utils";
 
 /**
  * The value the tax dropdown carries for "no bracket selected". Radix refuses
@@ -258,6 +260,18 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
   const t = useTranslations("productForms");
   const labels = useTranslations("labels");
   const locale = useLocale();
+  // Ticked rows for "Set price"; the boxes have no name, so nothing is posted.
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const allSelected = selected.size === product.variants.length;
+  const toggle = (ids: string[], on: boolean) =>
+    setSelected((current) => {
+      const next = new Set(current);
+      for (const id of ids) {
+        if (on) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
   return (
     <Card asChild>
       <ActionForm
@@ -276,11 +290,19 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                 {t("variantsHint")}
               </p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <VariantPriceTools product={product} selected={selected} onToggle={toggle} />
               <div className="relative overflow-x-auto">
-                <Table className="min-w-[38rem]">
+                <Table className="min-w-[40rem]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
+                      <TableHead className="w-8 px-0">
+                        <Checkbox
+                          aria-label={t("selectAllVariants")}
+                          checked={allSelected ? true : selected.size > 0 ? "indeterminate" : false}
+                          onCheckedChange={() => toggle(product.variants.map((v) => v.id), !allSelected)}
+                        />
+                      </TableHead>
                       <TableHead className={TH}>{t("colEnabled")}</TableHead>
                       <TableHead className={TH}>{t("colVariant")}</TableHead>
                       <TableHead className={TH}>{t("colSku")}</TableHead>
@@ -291,7 +313,18 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                   </TableHeader>
                   <TableBody>
                     {product.variants.map((variant) => (
-                      <TableRow key={variant.id} className="hover:bg-transparent">
+                      <TableRow
+                        key={variant.id}
+                        className="hover:bg-transparent"
+                        data-state={selected.has(variant.id) ? "selected" : undefined}
+                      >
+                        <TableCell className="w-8 px-0 py-2">
+                          <Checkbox
+                            aria-label={t("selectVariant", { name: variant.name })}
+                            checked={selected.has(variant.id)}
+                            onCheckedChange={(on) => toggle([variant.id], on === true)}
+                          />
+                        </TableCell>
                         <TableCell className="px-0 py-2">
                           <Label htmlFor={`enabled_${variant.id}`} className="sr-only">
                             {t("enable", { name: variant.name })}
@@ -354,6 +387,122 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
         )}
       </ActionForm>
     </Card>
+  );
+}
+
+/**
+ * Quick select by colour or size, and one price written into every ticked
+ * variant (or all of them when none is ticked). The price inputs stay the
+ * form's own, so the change is kept with "Save variants" like a typed one.
+ */
+function VariantPriceTools({
+  product,
+  selected,
+  onToggle,
+}: {
+  product: StoreProduct;
+  selected: Set<string>;
+  onToggle: (ids: string[], on: boolean) => void;
+}) {
+  const t = useTranslations("productForms");
+  const ref = useRef<HTMLDivElement>(null);
+  const [raw, setRaw] = useState("");
+  const [message, setMessage] = useState<{ error: boolean; text: string } | null>(null);
+
+  const groups = [
+    { key: "colour" as const, label: t("colour"), values: [...new Set(product.variants.map((v) => v.colour))] },
+    { key: "size" as const, label: t("size"), values: [...new Set(product.variants.map((v) => v.size))] },
+  ].filter((group) => group.values.length > 1);
+
+  function apply() {
+    const price = parseMoney(raw, product.currency);
+    if (price === null || price <= 0) {
+      setMessage({ error: true, text: t("bulkPriceInvalid") });
+      return;
+    }
+    const targets = selected.size > 0 ? product.variants.filter((v) => selected.has(v.id)) : product.variants;
+    const form = ref.current?.closest("form");
+    for (const variant of targets) {
+      const input = form?.elements.namedItem(`price_${variant.id}`);
+      if (input instanceof HTMLInputElement) input.value = toMajorString(price, product.currency);
+    }
+    setMessage({ error: false, text: t("bulkPriceApplied", { count: targets.length }) });
+  }
+
+  return (
+    <div ref={ref} className="space-y-3 rounded-lg bg-muted/50 p-3 ring-1 ring-foreground/5">
+      {groups.length > 0 ? (
+        <div className="space-y-2">
+          {groups.map((group) => (
+            <div key={group.key} className="flex flex-wrap items-center gap-1.5">
+              <span className="w-14 text-xs font-medium text-muted-foreground">{group.label}</span>
+              {group.values.map((value) => {
+                const ids = product.variants.filter((v) => v[group.key] === value).map((v) => v.id);
+                const on = ids.every((id) => selected.has(id));
+                const variant = product.variants.find((v) => v[group.key] === value);
+                return (
+                  <Button
+                    key={value}
+                    type="button"
+                    size="xs"
+                    variant={on ? "default" : "outline"}
+                    aria-pressed={on}
+                    onClick={() => onToggle(ids, !on)}
+                  >
+                    {group.key === "colour" ? (
+                      <span
+                        aria-hidden
+                        className="h-2.5 w-2.5 rounded-full border border-border"
+                        style={{ background: variant?.colourHex }}
+                      />
+                    ) : null}
+                    {value}
+                  </Button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      ) : null}
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={`bulk-price-${product.id}`} className="text-xs">
+            {t("bulkPrice", { count: selected.size })}
+          </Label>
+          <Input
+            id={`bulk-price-${product.id}`}
+            inputMode="decimal"
+            autoComplete="off"
+            value={raw}
+            placeholder={toMajorString(product.price, product.currency)}
+            onChange={(event) => {
+              setRaw(event.target.value);
+              setMessage(null);
+            }}
+            onKeyDown={(event) => {
+              // Enter applies the price here rather than saving the whole form.
+              if (event.key === "Enter") {
+                event.preventDefault();
+                apply();
+              }
+            }}
+            aria-invalid={message?.error ? true : undefined}
+            className="w-28 bg-card tabular-nums"
+          />
+        </div>
+        <Button type="button" variant="outline" size="sm" onClick={apply}>
+          {selected.size > 0 ? t("setForSelected") : t("setForAll")}
+        </Button>
+        {message ? (
+          <p
+            role="status"
+            className={cn("pb-1.5 text-xs", message.error ? "text-destructive" : "text-muted-foreground")}
+          >
+            {message.text}
+          </p>
+        ) : null}
+      </div>
+    </div>
   );
 }
 

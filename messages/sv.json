@@ -1914,7 +1914,78 @@
     "status": "Status",
     "all": "Alla",
     "filter": "Filtrera",
-    "clear": "Rensa"
+    "clear": "Rensa",
+    "unpublishTitle": "Avpublicera ”{name}”?",
+    "unpublishBody": "Produkten tas bort från butiken och flyttas till granskning. Du kan publicera den igen från produktsidan.",
+    "unpublishing": "Avpublicerar…",
+    "bulk": {
+      "selectAll": "Markera alla",
+      "selectProduct": "Markera {name}",
+      "toolbar": "Massåtgärder",
+      "selected": "{count} markerade",
+      "clear": "Rensa",
+      "publish": "Publicera",
+      "unpublish": "Avpublicera",
+      "archive": "Arkivera",
+      "taxBracket": "Momssats",
+      "visibility": "Synlighet",
+      "visible": "Synlig",
+      "hidden": "Dold",
+      "changePrice": "Ändra pris",
+      "eligible": "{count} av {total}",
+      "working": "Arbetar…",
+      "dismiss": "Stäng",
+      "noneSelected": "Markera minst en produkt.",
+      "notFound": "Hittades inte i den här butiken.",
+      "failedGeneric": "Något gick fel. Försök igen.",
+      "skipHeading": "{count, plural, one {# produkt hoppas över:} other {# produkter hoppas över:}}",
+      "confirm": {
+        "publishTitle": "Publicera {count, plural, one {# produkt} other {# produkter}}?",
+        "publishBody": "De markerade produkterna publiceras i butiken.",
+        "unpublishTitle": "Avpublicera {count, plural, one {# produkt} other {# produkter}}?",
+        "unpublishBody": "De markerade produkterna tas bort från butiken och flyttas till granskning.",
+        "archiveTitle": "Arkivera {count, plural, one {# produkt} other {# produkter}}?",
+        "archiveBody": "Arkiverade produkter tas bort från butiken. Du kan återställa dem från produktsidan."
+      },
+      "price": {
+        "title": "Ändra pris",
+        "body": "Variantpriserna ändras lika mycket.",
+        "mode": "Ändring",
+        "increase": "Höj med %",
+        "decrease": "Sänk med %",
+        "set": "Sätt pris till",
+        "value": "Belopp",
+        "percentPlaceholder": "10",
+        "invalid": "Ange en procentsats över 0 (under 100 för att sänka) eller ett pris över 0.",
+        "colProduct": "Produkt",
+        "colPrice": "Pris",
+        "colNewPrice": "Nytt pris",
+        "colMargin": "Marginal",
+        "colNewMargin": "Ny marginal",
+        "skipped": "Hoppas över",
+        "enterAmount": "Ange ett belopp för att se de nya marginalerna.",
+        "submit": "Uppdatera {count, plural, one {# pris} other {# priser}}"
+      },
+      "blocked": {
+        "alreadyPublished": "Redan publicerad.",
+        "notPublished": "Inte publicerad.",
+        "alreadyArchived": "Redan arkiverad.",
+        "alreadyBracket": "Har redan den här momssatsen.",
+        "alreadyVisibility": "Redan inställd.",
+        "belowCost": "Det nya priset är lika med eller under kostnaden.",
+        "notReady": "Inte redo att publiceras.",
+        "priceChanged": "Priset har ändrats sedan förhandsvisningen. Kontrollera det och försök igen."
+      },
+      "result": {
+        "publish": "{count, plural, =0 {Inga produkter publicerade.} one {# produkt publicerad.} other {# produkter publicerade.}}",
+        "unpublish": "{count, plural, =0 {Inga produkter avpublicerade.} one {# produkt avpublicerad.} other {# produkter avpublicerade.}}",
+        "archive": "{count, plural, =0 {Inga produkter arkiverade.} one {# produkt arkiverad.} other {# produkter arkiverade.}}",
+        "bracket": "{count, plural, =0 {Ingen momssats ändrad.} one {Momssats ändrad på # produkt.} other {Momssats ändrad på # produkter.}}",
+        "visibility": "{count, plural, =0 {Ingen synlighet ändrad.} one {Synlighet ändrad på # produkt.} other {Synlighet ändrad på # produkter.}}",
+        "price": "{count, plural, =0 {Inga priser ändrade.} one {Pris ändrat på # produkt.} other {Priser ändrade på # produkter.}}",
+        "failed": "{count, plural, one {# produkt hoppades över:} other {# produkter hoppades över:}}"
+      }
+    }
   },
   "product": {
     "catalog": "Katalog",
@@ -2013,7 +2084,16 @@
     "deleteBody": "Tar bort produkten från butiken. Befintliga ordrar påverkas inte.",
     "deleting": "Tar bort…",
     "deletePermanently": "Ta bort permanent",
-    "deleteConfirm": "”{name}” tas bort tillsammans med motiv och mockups. Det går inte att ångra."
+    "deleteConfirm": "”{name}” tas bort tillsammans med motiv och mockups. Det går inte att ångra.",
+    "selectVariant": "Markera {name}",
+    "selectAllVariants": "Markera alla varianter",
+    "colour": "Färg",
+    "size": "Storlek",
+    "bulkPrice": "Pris för {count, plural, =0 {alla varianter} one {# markerad variant} other {# markerade varianter}}",
+    "setForAll": "Sätt för alla",
+    "setForSelected": "Sätt för markerade",
+    "bulkPriceInvalid": "Ange ett pris över 0.",
+    "bulkPriceApplied": "{count, plural, one {# pris uppdaterat.} other {# priser uppdaterade.}} Spara varianterna för att behålla ändringen."
   },
   "artworkIssues": {
     "edges": {

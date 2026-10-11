@@ -1914,7 +1914,78 @@
     "status": "ステータス",
     "all": "すべて",
     "filter": "絞り込む",
-    "clear": "クリア"
+    "clear": "クリア",
+    "unpublishTitle": "「{name}」の公開を停止しますか？",
+    "unpublishBody": "ストアから取り下げられ、レビュー中に戻ります。商品ページから再度公開できます。",
+    "unpublishing": "公開停止中…",
+    "bulk": {
+      "selectAll": "すべて選択",
+      "selectProduct": "{name} を選択",
+      "toolbar": "一括操作",
+      "selected": "{count} 件選択中",
+      "clear": "クリア",
+      "publish": "公開",
+      "unpublish": "公開停止",
+      "archive": "アーカイブ",
+      "taxBracket": "税区分",
+      "visibility": "表示設定",
+      "visible": "表示",
+      "hidden": "非表示",
+      "changePrice": "価格を変更",
+      "eligible": "{total} 件中 {count} 件",
+      "working": "処理中…",
+      "dismiss": "閉じる",
+      "noneSelected": "商品を 1 つ以上選択してください。",
+      "notFound": "このストアに見つかりません。",
+      "failedGeneric": "問題が発生しました。もう一度お試しください。",
+      "skipHeading": "{count} 件の商品はスキップされます：",
+      "confirm": {
+        "publishTitle": "{count} 件の商品を公開しますか？",
+        "publishBody": "選択した商品がストアに公開されます。",
+        "unpublishTitle": "{count} 件の商品の公開を停止しますか？",
+        "unpublishBody": "選択した商品はストアから取り下げられ、レビュー中に戻ります。",
+        "archiveTitle": "{count} 件の商品をアーカイブしますか？",
+        "archiveBody": "アーカイブした商品はストアから削除されます。商品ページから復元できます。"
+      },
+      "price": {
+        "title": "価格を変更",
+        "body": "バリエーションの価格も同じ割合で変わります。",
+        "mode": "変更方法",
+        "increase": "% 値上げ",
+        "decrease": "% 値下げ",
+        "set": "価格を指定",
+        "value": "金額",
+        "percentPlaceholder": "10",
+        "invalid": "0 より大きい割合（値下げは 100 未満）または 0 より大きい価格を入力してください。",
+        "colProduct": "商品",
+        "colPrice": "価格",
+        "colNewPrice": "新しい価格",
+        "colMargin": "利益率",
+        "colNewMargin": "新しい利益率",
+        "skipped": "スキップ",
+        "enterAmount": "金額を入力すると新しい利益率が表示されます。",
+        "submit": "{count} 件の価格を更新"
+      },
+      "blocked": {
+        "alreadyPublished": "公開済みです。",
+        "notPublished": "公開されていません。",
+        "alreadyArchived": "アーカイブ済みです。",
+        "alreadyBracket": "すでにこの税区分です。",
+        "alreadyVisibility": "設定済みです。",
+        "belowCost": "新しい価格が原価以下です。",
+        "notReady": "まだ公開できる状態ではありません。",
+        "priceChanged": "プレビュー後に価格が変更されました。確認してもう一度お試しください。"
+      },
+      "result": {
+        "publish": "{count, plural, =0 {公開された商品はありません。} other {# 件の商品を公開しました。}}",
+        "unpublish": "{count, plural, =0 {公開停止した商品はありません。} other {# 件の商品の公開を停止しました。}}",
+        "archive": "{count, plural, =0 {アーカイブした商品はありません。} other {# 件の商品をアーカイブしました。}}",
+        "bracket": "{count, plural, =0 {税区分は変更されていません。} other {# 件の商品の税区分を変更しました。}}",
+        "visibility": "{count, plural, =0 {表示設定は変更されていません。} other {# 件の商品の表示設定を変更しました。}}",
+        "price": "{count, plural, =0 {価格は変更されていません。} other {# 件の商品の価格を変更しました。}}",
+        "failed": "{count} 件の商品をスキップしました："
+      }
+    }
   },
   "product": {
     "catalog": "カタログ",
@@ -2013,7 +2084,16 @@
     "deleteBody": "この商品をストアから削除します。既存の注文には影響しません。",
     "deleting": "削除中…",
     "deletePermanently": "完全に削除",
-    "deleteConfirm": "「{name}」とそのデザイン、モックアップが削除されます。この操作は取り消せません。"
+    "deleteConfirm": "「{name}」とそのデザイン、モックアップが削除されます。この操作は取り消せません。",
+    "selectVariant": "{name} を選択",
+    "selectAllVariants": "すべてのバリエーションを選択",
+    "colour": "カラー",
+    "size": "サイズ",
+    "bulkPrice": "{count, plural, =0 {すべてのバリエーション} other {選択した # 件のバリエーション}}の価格",
+    "setForAll": "すべてに設定",
+    "setForSelected": "選択に設定",
+    "bulkPriceInvalid": "0 より大きい価格を入力してください。",
+    "bulkPriceApplied": "{count} 件の価格を更新しました。変更を保持するにはバリエーションを保存してください。"
   },
   "artworkIssues": {
     "edges": {

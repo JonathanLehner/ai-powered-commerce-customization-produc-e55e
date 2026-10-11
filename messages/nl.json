@@ -1914,7 +1914,78 @@
     "status": "Status",
     "all": "Alle",
     "filter": "Filteren",
-    "clear": "Wissen"
+    "clear": "Wissen",
+    "unpublishTitle": "Publicatie van ‘{name}’ intrekken?",
+    "unpublishBody": "Het product gaat uit de winkel en naar Ter beoordeling. Je kunt het opnieuw publiceren vanaf de productpagina.",
+    "unpublishing": "Bezig met intrekken…",
+    "bulk": {
+      "selectAll": "Alles selecteren",
+      "selectProduct": "{name} selecteren",
+      "toolbar": "Bulkacties",
+      "selected": "{count} geselecteerd",
+      "clear": "Wissen",
+      "publish": "Publiceren",
+      "unpublish": "Publicatie intrekken",
+      "archive": "Archiveren",
+      "taxBracket": "Btw-tarief",
+      "visibility": "Zichtbaarheid",
+      "visible": "Zichtbaar",
+      "hidden": "Verborgen",
+      "changePrice": "Prijs wijzigen",
+      "eligible": "{count} van {total}",
+      "working": "Bezig…",
+      "dismiss": "Sluiten",
+      "noneSelected": "Selecteer ten minste één product.",
+      "notFound": "Niet gevonden in deze winkel.",
+      "failedGeneric": "Er ging iets mis. Probeer het opnieuw.",
+      "skipHeading": "{count, plural, one {# product wordt overgeslagen:} other {# producten worden overgeslagen:}}",
+      "confirm": {
+        "publishTitle": "{count, plural, one {# product} other {# producten}} publiceren?",
+        "publishBody": "De geselecteerde producten gaan live in de winkel.",
+        "unpublishTitle": "Publicatie van {count, plural, one {# product} other {# producten}} intrekken?",
+        "unpublishBody": "De geselecteerde producten gaan uit de winkel en naar Ter beoordeling.",
+        "archiveTitle": "{count, plural, one {# product} other {# producten}} archiveren?",
+        "archiveBody": "Gearchiveerde producten worden uit de winkel gehaald. Je kunt ze herstellen vanaf de productpagina."
+      },
+      "price": {
+        "title": "Prijs wijzigen",
+        "body": "Variantprijzen veranderen in dezelfde mate.",
+        "mode": "Wijziging",
+        "increase": "Verhogen met %",
+        "decrease": "Verlagen met %",
+        "set": "Prijs instellen op",
+        "value": "Bedrag",
+        "percentPlaceholder": "10",
+        "invalid": "Voer een percentage boven 0 in (onder 100 om te verlagen) of een prijs boven 0.",
+        "colProduct": "Product",
+        "colPrice": "Prijs",
+        "colNewPrice": "Nieuwe prijs",
+        "colMargin": "Marge",
+        "colNewMargin": "Nieuwe marge",
+        "skipped": "Overgeslagen",
+        "enterAmount": "Voer een bedrag in om de nieuwe marges te zien.",
+        "submit": "{count, plural, one {# prijs bijwerken} other {# prijzen bijwerken}}"
+      },
+      "blocked": {
+        "alreadyPublished": "Al gepubliceerd.",
+        "notPublished": "Niet gepubliceerd.",
+        "alreadyArchived": "Al gearchiveerd.",
+        "alreadyBracket": "Heeft dit btw-tarief al.",
+        "alreadyVisibility": "Al ingesteld.",
+        "belowCost": "De nieuwe prijs ligt op of onder de kostprijs.",
+        "notReady": "Nog niet klaar om te publiceren.",
+        "priceChanged": "De prijs is gewijzigd sinds het voorbeeld. Controleer hem en probeer het opnieuw."
+      },
+      "result": {
+        "publish": "{count, plural, =0 {Geen producten gepubliceerd.} one {# product gepubliceerd.} other {# producten gepubliceerd.}}",
+        "unpublish": "{count, plural, =0 {Geen publicaties ingetrokken.} one {Publicatie van # product ingetrokken.} other {Publicatie van # producten ingetrokken.}}",
+        "archive": "{count, plural, =0 {Geen producten gearchiveerd.} one {# product gearchiveerd.} other {# producten gearchiveerd.}}",
+        "bracket": "{count, plural, =0 {Geen btw-tarieven gewijzigd.} one {Btw-tarief gewijzigd bij # product.} other {Btw-tarief gewijzigd bij # producten.}}",
+        "visibility": "{count, plural, =0 {Geen zichtbaarheid gewijzigd.} one {Zichtbaarheid gewijzigd bij # product.} other {Zichtbaarheid gewijzigd bij # producten.}}",
+        "price": "{count, plural, =0 {Geen prijzen gewijzigd.} one {Prijs gewijzigd bij # product.} other {Prijzen gewijzigd bij # producten.}}",
+        "failed": "{count, plural, one {# product overgeslagen:} other {# producten overgeslagen:}}"
+      }
+    }
   },
   "product": {
     "catalog": "Catalogus",
@@ -2013,7 +2084,16 @@
     "deleteBody": "Verwijdert het product uit deze winkel. Bestaande bestellingen blijven ongewijzigd.",
     "deleting": "Verwijderen…",
     "deletePermanently": "Definitief verwijderen",
-    "deleteConfirm": "‘{name}’ wordt samen met de ontwerpen en mockups verwijderd. Dit kan niet ongedaan worden gemaakt."
+    "deleteConfirm": "‘{name}’ wordt samen met de ontwerpen en mockups verwijderd. Dit kan niet ongedaan worden gemaakt.",
+    "selectVariant": "{name} selecteren",
+    "selectAllVariants": "Alle varianten selecteren",
+    "colour": "Kleur",
+    "size": "Maat",
+    "bulkPrice": "Prijs voor {count, plural, =0 {alle varianten} one {# geselecteerde variant} other {# geselecteerde varianten}}",
+    "setForAll": "Voor alle instellen",
+    "setForSelected": "Voor selectie instellen",
+    "bulkPriceInvalid": "Voer een prijs boven 0 in.",
+    "bulkPriceApplied": "{count, plural, one {# prijs bijgewerkt.} other {# prijzen bijgewerkt.}} Sla de varianten op om de wijziging te bewaren."
   },
   "artworkIssues": {
     "edges": {

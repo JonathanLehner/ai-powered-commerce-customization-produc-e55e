@@ -1914,7 +1914,78 @@
     "status": "Status",
     "all": "All",
     "filter": "Filter",
-    "clear": "Clear"
+    "clear": "Clear",
+    "unpublishTitle": "Unpublish “{name}”?",
+    "unpublishBody": "It comes off the storefront and moves to In review. You can publish it again from the product page.",
+    "unpublishing": "Unpublishing…",
+    "bulk": {
+      "selectAll": "Select all",
+      "selectProduct": "Select {name}",
+      "toolbar": "Bulk actions",
+      "selected": "{count} selected",
+      "clear": "Clear",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "archive": "Archive",
+      "taxBracket": "Tax bracket",
+      "visibility": "Visibility",
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "changePrice": "Change price",
+      "eligible": "{count} of {total}",
+      "working": "Working…",
+      "dismiss": "Dismiss",
+      "noneSelected": "Select at least one product.",
+      "notFound": "Not found in this store.",
+      "failedGeneric": "Something went wrong. Try again.",
+      "skipHeading": "{count, plural, one {# product will be skipped:} other {# products will be skipped:}}",
+      "confirm": {
+        "publishTitle": "Publish {count, plural, one {# product} other {# products}}?",
+        "publishBody": "Selected products go live on the storefront.",
+        "unpublishTitle": "Unpublish {count, plural, one {# product} other {# products}}?",
+        "unpublishBody": "Selected products come off the storefront and move to In review.",
+        "archiveTitle": "Archive {count, plural, one {# product} other {# products}}?",
+        "archiveBody": "Archived products are removed from the storefront. You can restore them from the product page."
+      },
+      "price": {
+        "title": "Change price",
+        "body": "Variant prices change by the same amount.",
+        "mode": "Change",
+        "increase": "Increase by %",
+        "decrease": "Decrease by %",
+        "set": "Set price to",
+        "value": "Amount",
+        "percentPlaceholder": "10",
+        "invalid": "Enter a percentage above 0 (below 100 to lower prices), or a price above 0.",
+        "colProduct": "Product",
+        "colPrice": "Price",
+        "colNewPrice": "New price",
+        "colMargin": "Margin",
+        "colNewMargin": "New margin",
+        "skipped": "Skipped",
+        "enterAmount": "Enter an amount to see new margins.",
+        "submit": "Update {count, plural, one {# price} other {# prices}}"
+      },
+      "blocked": {
+        "alreadyPublished": "Already published.",
+        "notPublished": "Not published.",
+        "alreadyArchived": "Already archived.",
+        "alreadyBracket": "Already in this tax bracket.",
+        "alreadyVisibility": "Already set.",
+        "belowCost": "The new price is at or below cost.",
+        "notReady": "Not ready to publish.",
+        "priceChanged": "Price changed since the preview. Review it and try again."
+      },
+      "result": {
+        "publish": "{count, plural, =0 {No products published.} one {# product published.} other {# products published.}}",
+        "unpublish": "{count, plural, =0 {No products unpublished.} one {# product unpublished.} other {# products unpublished.}}",
+        "archive": "{count, plural, =0 {No products archived.} one {# product archived.} other {# products archived.}}",
+        "bracket": "{count, plural, =0 {No tax brackets changed.} one {Tax bracket changed on # product.} other {Tax bracket changed on # products.}}",
+        "visibility": "{count, plural, =0 {No visibility changed.} one {Visibility changed on # product.} other {Visibility changed on # products.}}",
+        "price": "{count, plural, =0 {No prices changed.} one {Price changed on # product.} other {Prices changed on # products.}}",
+        "failed": "{count, plural, one {# product skipped:} other {# products skipped:}}"
+      }
+    }
   },
   "product": {
     "catalog": "Catalog",
@@ -2013,7 +2084,16 @@
     "deleteBody": "Removes the product from this store. Existing orders are not affected.",
     "deleting": "Deleting…",
     "deletePermanently": "Delete permanently",
-    "deleteConfirm": "“{name}” and its artwork and mockups will be deleted. This cannot be undone."
+    "deleteConfirm": "“{name}” and its artwork and mockups will be deleted. This cannot be undone.",
+    "selectVariant": "Select {name}",
+    "selectAllVariants": "Select all variants",
+    "colour": "Colour",
+    "size": "Size",
+    "bulkPrice": "Price for {count, plural, =0 {all variants} one {# selected variant} other {# selected variants}}",
+    "setForAll": "Set for all",
+    "setForSelected": "Set for selected",
+    "bulkPriceInvalid": "Enter a price above 0.",
+    "bulkPriceApplied": "{count, plural, one {# price updated.} other {# prices updated.}} Save variants to keep the change."
   },
   "artworkIssues": {
     "edges": {

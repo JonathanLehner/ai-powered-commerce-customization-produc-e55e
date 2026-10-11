@@ -35,6 +35,7 @@
     "line-preview-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/line-preview-check.mjs",
     "order-list-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/order-list-check.mjs",
     "bulk-orders-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/bulk-orders-check.mjs",
+    "bulk-products-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/bulk-products-check.mjs",
     "batch-read-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/batch-read-check.mjs",
     "analytics-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/analytics-check.mjs",
     "customers-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/customers-check.mjs",

@@ -1914,7 +1914,78 @@
     "status": "Estado",
     "all": "Todos",
     "filter": "Filtrar",
-    "clear": "Borrar"
+    "clear": "Borrar",
+    "unpublishTitle": "¿Despublicar «{name}»?",
+    "unpublishBody": "Se retira de la tienda y pasa a revisión. Puedes volver a publicarlo desde la página del producto.",
+    "unpublishing": "Despublicando…",
+    "bulk": {
+      "selectAll": "Seleccionar todo",
+      "selectProduct": "Seleccionar {name}",
+      "toolbar": "Acciones en lote",
+      "selected": "{count} seleccionados",
+      "clear": "Borrar",
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "archive": "Archivar",
+      "taxBracket": "Tramo de impuestos",
+      "visibility": "Visibilidad",
+      "visible": "Visible",
+      "hidden": "Oculto",
+      "changePrice": "Cambiar precio",
+      "eligible": "{count} de {total}",
+      "working": "Procesando…",
+      "dismiss": "Cerrar",
+      "noneSelected": "Selecciona al menos un producto.",
+      "notFound": "No se encuentra en esta tienda.",
+      "failedGeneric": "Algo salió mal. Inténtalo de nuevo.",
+      "skipHeading": "{count, plural, one {Se omitirá # producto:} other {Se omitirán # productos:}}",
+      "confirm": {
+        "publishTitle": "¿Publicar {count, plural, one {# producto} other {# productos}}?",
+        "publishBody": "Los productos seleccionados se publican en la tienda.",
+        "unpublishTitle": "¿Despublicar {count, plural, one {# producto} other {# productos}}?",
+        "unpublishBody": "Los productos seleccionados se retiran de la tienda y pasan a revisión.",
+        "archiveTitle": "¿Archivar {count, plural, one {# producto} other {# productos}}?",
+        "archiveBody": "Los productos archivados se retiran de la tienda. Puedes restaurarlos desde la página del producto."
+      },
+      "price": {
+        "title": "Cambiar precio",
+        "body": "Los precios de las variantes cambian en la misma proporción.",
+        "mode": "Cambio",
+        "increase": "Subir un %",
+        "decrease": "Bajar un %",
+        "set": "Fijar precio en",
+        "value": "Importe",
+        "percentPlaceholder": "10",
+        "invalid": "Introduce un porcentaje mayor que 0 (menor que 100 para bajar) o un precio mayor que 0.",
+        "colProduct": "Producto",
+        "colPrice": "Precio",
+        "colNewPrice": "Nuevo precio",
+        "colMargin": "Margen",
+        "colNewMargin": "Nuevo margen",
+        "skipped": "Omitido",
+        "enterAmount": "Introduce un importe para ver los nuevos márgenes.",
+        "submit": "Actualizar {count, plural, one {# precio} other {# precios}}"
+      },
+      "blocked": {
+        "alreadyPublished": "Ya publicado.",
+        "notPublished": "No publicado.",
+        "alreadyArchived": "Ya archivado.",
+        "alreadyBracket": "Ya está en este tramo de impuestos.",
+        "alreadyVisibility": "Ya configurado.",
+        "belowCost": "El nuevo precio es igual o inferior al coste.",
+        "notReady": "Aún no está listo para publicar.",
+        "priceChanged": "El precio cambió desde la vista previa. Revísalo e inténtalo de nuevo."
+      },
+      "result": {
+        "publish": "{count, plural, =0 {Ningún producto publicado.} one {# producto publicado.} other {# productos publicados.}}",
+        "unpublish": "{count, plural, =0 {Ningún producto despublicado.} one {# producto despublicado.} other {# productos despublicados.}}",
+        "archive": "{count, plural, =0 {Ningún producto archivado.} one {# producto archivado.} other {# productos archivados.}}",
+        "bracket": "{count, plural, =0 {Ningún tramo de impuestos cambiado.} one {Tramo de impuestos cambiado en # producto.} other {Tramo de impuestos cambiado en # productos.}}",
+        "visibility": "{count, plural, =0 {Ninguna visibilidad cambiada.} one {Visibilidad cambiada en # producto.} other {Visibilidad cambiada en # productos.}}",
+        "price": "{count, plural, =0 {Ningún precio cambiado.} one {Precio cambiado en # producto.} other {Precios cambiados en # productos.}}",
+        "failed": "{count, plural, one {# producto omitido:} other {# productos omitidos:}}"
+      }
+    }
   },
   "product": {
     "catalog": "Catálogo",
@@ -2013,7 +2084,16 @@
     "deleteBody": "Quita el producto de esta tienda. Los pedidos existentes no se ven afectados.",
     "deleting": "Eliminando…",
     "deletePermanently": "Eliminar definitivamente",
-    "deleteConfirm": "Se eliminarán «{name}», sus diseños y sus mockups. No se puede deshacer."
+    "deleteConfirm": "Se eliminarán «{name}», sus diseños y sus mockups. No se puede deshacer.",
+    "selectVariant": "Seleccionar {name}",
+    "selectAllVariants": "Seleccionar todas las variantes",
+    "colour": "Color",
+    "size": "Talla",
+    "bulkPrice": "Precio para {count, plural, =0 {todas las variantes} one {# variante seleccionada} other {# variantes seleccionadas}}",
+    "setForAll": "Aplicar a todas",
+    "setForSelected": "Aplicar a la selección",
+    "bulkPriceInvalid": "Introduce un precio mayor que 0.",
+    "bulkPriceApplied": "{count, plural, one {# precio actualizado.} other {# precios actualizados.}} Guarda las variantes para conservar el cambio."
   },
   "artworkIssues": {
     "edges": {

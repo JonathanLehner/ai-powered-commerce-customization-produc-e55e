@@ -9,16 +9,30 @@ import {
   getStoreProduct,
   getTaxBracket,
   listStoreProducts,
+  listTaxBrackets,
   recordAudit,
   updateStoreProduct,
 } from "@/lib/data";
-import { artworkIssueText } from "@/i18n/artwork-copy";
 import { blockingIssues, validateArtwork } from "@/lib/artwork";
+import { publishBlockersFor, type PublishBlocker } from "@/lib/publish-blockers";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/mongo";
 import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
 import { isQuoteOnly } from "@/lib/sourcing";
+import {
+  archiveBlock,
+  bracketBlock,
+  parsePriceChange,
+  parseProductIds,
+  priceBlock,
+  publishBlock,
+  repriceProduct,
+  unpublishBlock,
+  visibilityBlock,
+  type PriceChange,
+  type ProductBlock,
+} from "@/lib/bulk-products";
 import { assertStoreAccess } from "@/lib/session";
 import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct } from "@/lib/types";
 import { formatMoney, newId, parseMoney } from "@/lib/util";
@@ -537,56 +551,16 @@ export async function rejectMockups(formData: FormData): Promise<void> {
 
 /* -------------------------------------------------------------- publishing */
 
-export interface PublishBlocker {
-  reason: string;
-  fix: string;
-}
+export type { PublishBlocker };
 
 /** Everything that must be true before a product can go live. */
 export async function publishBlockers(productId: string): Promise<PublishBlocker[]> {
-  const [t, issuesT, locale] = await Promise.all([
-    getTranslations("actions.products.blockers"),
-    getTranslations("artworkIssues"),
-    getLocale(),
-  ]);
   const product = await getStoreProduct(productId);
-  if (!product) return [{ reason: t("notFound"), fix: t("reload") }];
-  const catalog = await getCatalogProduct(product.catalogProductId);
-  const blockers: PublishBlocker[] = [];
-
-  if (!catalog) {
-    blockers.push({ reason: t("retired"), fix: t("retiredFix") });
-    return blockers;
+  if (!product) {
+    const t = await getTranslations("actions.products.blockers");
+    return [{ reason: t("notFound"), fix: t("reload") }];
   }
-  if (product.artworks.length === 0) {
-    blockers.push({ reason: t("noArtwork"), fix: t("noArtworkFix") });
-  }
-  for (const artwork of product.artworks) {
-    const area = catalog.printAreas.find((a) => a.id === artwork.printAreaId);
-    if (!area) continue;
-    for (const issue of blockingIssues(validateArtwork(artwork, area, catalog.fileRequirements))) {
-      const text = artworkIssueText(issuesT, issue, locale);
-      blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix });
-    }
-  }
-  if (product.mockups.length === 0) {
-    blockers.push({ reason: t("noMockups"), fix: t("noMockupsFix") });
-  } else if (product.mockups.some((m) => !m.approved)) {
-    blockers.push({ reason: t("unapproved"), fix: t("unapprovedFix") });
-  }
-  if (!product.taxBracketId) {
-    blockers.push({ reason: t("noBracket"), fix: t("noBracketFix") });
-  }
-  if (product.costs.marginAmount <= 0) {
-    blockers.push({
-      reason: t("belowCost", { margin: formatMoney(product.costs.marginAmount, product.currency, locale) }),
-      fix: t("belowCostFix"),
-    });
-  }
-  if (!product.variants.some((v) => v.enabled)) {
-    blockers.push({ reason: t("noVariants"), fix: t("noVariantsFix") });
-  }
-  return blockers;
+  return (await publishBlockersFor([product])).get(product.id) ?? [];
 }
 
 export async function setProductStatus(formData: FormData): Promise<void> {
@@ -629,6 +603,206 @@ export async function setProductStatus(formData: FormData): Promise<void> {
   revalidatePath(`/app/stores/${storeId}/catalog`);
   revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
   revalidatePath(`/s/${store.slug}`);
+}
+
+/* ------------------------------------------------------------ bulk actions */
+
+export type BulkProductAction =
+  | { kind: "publish" }
+  | { kind: "unpublish" }
+  | { kind: "archive" }
+  | { kind: "bracket"; bracketId: string }
+  | { kind: "visibility"; visibility: StoreProduct["visibility"] }
+  /**
+   * `from` is each product's price when the margins were previewed. A product
+   * whose price has moved since is skipped, so a replayed request does not
+   * raise the same prices twice.
+   */
+  | { kind: "price"; change: PriceChange; from: Record<string, number> };
+
+export interface BulkProductOutcome {
+  /** Set when the whole request was refused, e.g. a signed-out session. */
+  error?: string;
+  succeeded: { id: string; name: string }[];
+  failed: { id: string; name: string; reason: string }[];
+}
+
+/**
+ * Applies one action to the selected products of a store and reports each
+ * one. Publishing runs the same checks as the product page's Publish button,
+ * and every product gets its own audit entry.
+ */
+export async function bulkUpdateProducts(
+  storeId: string,
+  productIds: string[],
+  action: BulkProductAction,
+): Promise<BulkProductOutcome> {
+  const t = await getTranslations("catalog.bulk");
+  const refuse = (error: string): BulkProductOutcome => ({ error, succeeded: [], failed: [] });
+  let access: Awaited<ReturnType<typeof assertStoreAccess>>;
+  try {
+    access = await assertStoreAccess(storeId, "store.catalog");
+  } catch (error) {
+    return refuse(error instanceof Error ? error.message : t("failedGeneric"));
+  }
+  const { user, store } = access;
+  const ids = parseProductIds(productIds);
+  if (ids.length === 0) return refuse(t("noneSelected"));
+
+  const kind = action?.kind;
+  if (!["publish", "unpublish", "archive", "bracket", "visibility", "price"].includes(kind)) {
+    return refuse(t("failedGeneric"));
+  }
+  const change = action.kind === "price" ? parsePriceChange(action.change) : null;
+  if (action.kind === "price" && !change) return refuse(t("price.invalid"));
+  const brackets = kind === "price" || kind === "bracket" ? await listTaxBrackets() : [];
+  const bracket = action.kind === "bracket" ? brackets.find((b) => b.id === action.bracketId) : undefined;
+  if (kind === "bracket" && !bracket) return refuse(t("failedGeneric"));
+  if (action.kind === "visibility" && action.visibility !== "public" && action.visibility !== "hidden") {
+    return refuse(t("failedGeneric"));
+  }
+
+  const wanted = new Set(ids);
+  const products = (await listStoreProducts(storeId)).filter((p) => wanted.has(p.id));
+  const outcome: BulkProductOutcome = { succeeded: [], failed: [] };
+  const found = new Set(products.map((p) => p.id));
+  for (const id of ids) {
+    if (!found.has(id)) outcome.failed.push({ id, name: id, reason: t("notFound") });
+  }
+
+  const blockers = kind === "publish" ? await publishBlockersFor(products.filter((p) => p.status !== "published")) : null;
+  const catalogs = new Map<string, CatalogProduct | null>();
+  if (kind === "price" || kind === "bracket") {
+    const catalogIds = [...new Set(products.map((p) => p.catalogProductId))];
+    for (const [id, catalog] of await Promise.all(
+      catalogIds.map(async (id) => [id, await getCatalogProduct(id)] as const),
+    )) {
+      catalogs.set(id, catalog);
+    }
+  }
+  const costsFor = (product: StoreProduct) =>
+    breakdownFor(
+      product,
+      catalogs.get(product.catalogProductId) ?? null,
+      brackets.find((b) => b.id === product.taxBracketId) ?? null,
+      store.pricesIncludeTax,
+    );
+  const audit = {
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "store_product",
+  };
+
+  async function apply(product: StoreProduct): Promise<string | null> {
+    const blocked = (reason: ProductBlock) => t(`blocked.${reason}`);
+    if (kind === "publish") {
+      const list = blockers?.get(product.id) ?? [];
+      const block = publishBlock({ status: product.status, publishBlockers: list.map((b) => b.reason) });
+      if (block === "notReady") return list.map((b) => b.reason).join(" ");
+      if (block) return blocked(block);
+      await updateStoreProduct(
+        product.id,
+        { status: "published", publishedAt: new Date().toISOString(), unpublishedReason: null },
+        product,
+      );
+      recordAudit({
+        ...audit,
+        category: "publishing",
+        action: "product.published",
+        summary: `Published “${product.name}” at ${formatMoney(product.price, product.currency)}`,
+        entityId: product.id,
+        meta: { status: "published", bulk: true },
+      });
+      return null;
+    }
+    if (kind === "unpublish" || kind === "archive") {
+      const block = kind === "unpublish" ? unpublishBlock(product) : archiveBlock(product);
+      if (block) return blocked(block);
+      const status = kind === "unpublish" ? "in_review" : "archived";
+      await updateStoreProduct(product.id, { status, unpublishedReason: null }, product);
+      recordAudit({
+        ...audit,
+        category: "publishing",
+        action: `product.${status}`,
+        summary: status === "archived" ? `Archived “${product.name}”` : `Moved “${product.name}” to in review`,
+        entityId: product.id,
+        meta: { status, bulk: true },
+      });
+      return null;
+    }
+    if (action.kind === "visibility") {
+      const block = visibilityBlock(product, action.visibility);
+      if (block) return blocked(block);
+      await updateStoreProduct(product.id, { visibility: action.visibility }, product);
+      recordAudit({
+        ...audit,
+        category: "product_import",
+        action: "product.updated",
+        summary: `Set “${product.name}” to ${action.visibility === "hidden" ? "hidden" : "visible"} on the storefront`,
+        entityId: product.id,
+        meta: { visibility: action.visibility, bulk: true },
+      });
+      return null;
+    }
+    if (kind === "bracket") {
+      const block = bracketBlock(product, bracket!.id);
+      if (block) return blocked(block);
+      const costs = costsFor({ ...product, taxBracketId: bracket!.id });
+      await updateStoreProduct(product.id, { taxBracketId: bracket!.id, costs }, product);
+      recordAudit({
+        ...audit,
+        category: "pricing",
+        action: "product.updated",
+        summary: `Changed the tax bracket on “${product.name}” to ${bracket!.name}`,
+        entityId: product.id,
+        meta: { taxBracketId: bracket!.id, marginPct: costs.marginPct, bulk: true },
+      });
+      return null;
+    }
+    // Price.
+    const from = action.kind === "price" ? action.from?.[product.id] : undefined;
+    // A price the preview never saw is left alone.
+    if (from !== product.price) return t("blocked.priceChanged");
+    const next = { ...product, ...repriceProduct(product, change!) };
+    const costs = costsFor(next);
+    const block = priceBlock(next.variants, costs.marginAmount);
+    if (block) return blocked(block);
+    await updateStoreProduct(product.id, { price: next.price, variants: next.variants, costs }, product);
+    recordAudit({
+      ...audit,
+      category: "pricing",
+      action: "product.price_changed",
+      summary: `Changed “${product.name}” from ${formatMoney(product.price, product.currency)} to ${formatMoney(next.price, product.currency)}`,
+      entityId: product.id,
+      meta: { from: product.price, to: next.price, marginPct: costs.marginPct, bulk: true },
+    });
+    return null;
+  }
+
+  // Five at a time keeps the database pool unhurried.
+  for (let i = 0; i < products.length; i += 5) {
+    await Promise.all(
+      products.slice(i, i + 5).map(async (product) => {
+        let reason: string | null;
+        try {
+          reason = await apply(product);
+        } catch {
+          reason = t("failedGeneric");
+        }
+        if (reason) outcome.failed.push({ id: product.id, name: product.name, reason });
+        else outcome.succeeded.push({ id: product.id, name: product.name });
+      }),
+    );
+  }
+
+  if (outcome.succeeded.length > 0) {
+    revalidatePath(`/app/stores/${storeId}/catalog`);
+    for (const entry of outcome.succeeded) revalidatePath(`/app/stores/${storeId}/catalog/${entry.id}`);
+    revalidatePath(`/s/${store.slug}`);
+  }
+  return outcome;
 }
 
 export async function deleteProduct(formData: FormData): Promise<void> {

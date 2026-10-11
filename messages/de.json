@@ -1914,7 +1914,78 @@
     "status": "Status",
     "all": "Alle",
     "filter": "Filtern",
-    "clear": "Zurücksetzen"
+    "clear": "Zurücksetzen",
+    "unpublishTitle": "Veröffentlichung von „{name}“ aufheben?",
+    "unpublishBody": "Das Produkt wird aus dem Shop genommen und in die Prüfung verschoben. Sie können es auf der Produktseite erneut veröffentlichen.",
+    "unpublishing": "Wird zurückgezogen…",
+    "bulk": {
+      "selectAll": "Alle auswählen",
+      "selectProduct": "{name} auswählen",
+      "toolbar": "Sammelaktionen",
+      "selected": "{count} ausgewählt",
+      "clear": "Auswahl aufheben",
+      "publish": "Veröffentlichen",
+      "unpublish": "Veröffentlichung aufheben",
+      "archive": "Archivieren",
+      "taxBracket": "Steuerklasse",
+      "visibility": "Sichtbarkeit",
+      "visible": "Sichtbar",
+      "hidden": "Ausgeblendet",
+      "changePrice": "Preis ändern",
+      "eligible": "{count} von {total}",
+      "working": "Wird ausgeführt…",
+      "dismiss": "Schließen",
+      "noneSelected": "Wählen Sie mindestens ein Produkt aus.",
+      "notFound": "In diesem Shop nicht gefunden.",
+      "failedGeneric": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
+      "skipHeading": "{count, plural, one {# Produkt wird übersprungen:} other {# Produkte werden übersprungen:}}",
+      "confirm": {
+        "publishTitle": "{count, plural, one {# Produkt} other {# Produkte}} veröffentlichen?",
+        "publishBody": "Die ausgewählten Produkte gehen im Shop live.",
+        "unpublishTitle": "Veröffentlichung von {count, plural, one {# Produkt} other {# Produkten}} aufheben?",
+        "unpublishBody": "Die ausgewählten Produkte werden aus dem Shop genommen und in die Prüfung verschoben.",
+        "archiveTitle": "{count, plural, one {# Produkt} other {# Produkte}} archivieren?",
+        "archiveBody": "Archivierte Produkte werden aus dem Shop entfernt. Sie können sie auf der Produktseite wiederherstellen."
+      },
+      "price": {
+        "title": "Preis ändern",
+        "body": "Variantenpreise ändern sich im gleichen Umfang.",
+        "mode": "Änderung",
+        "increase": "Erhöhen um %",
+        "decrease": "Senken um %",
+        "set": "Preis festlegen auf",
+        "value": "Betrag",
+        "percentPlaceholder": "10",
+        "invalid": "Geben Sie einen Prozentsatz über 0 (unter 100 zum Senken) oder einen Preis über 0 ein.",
+        "colProduct": "Produkt",
+        "colPrice": "Preis",
+        "colNewPrice": "Neuer Preis",
+        "colMargin": "Marge",
+        "colNewMargin": "Neue Marge",
+        "skipped": "Übersprungen",
+        "enterAmount": "Geben Sie einen Betrag ein, um die neuen Margen zu sehen.",
+        "submit": "{count, plural, one {# Preis aktualisieren} other {# Preise aktualisieren}}"
+      },
+      "blocked": {
+        "alreadyPublished": "Bereits veröffentlicht.",
+        "notPublished": "Nicht veröffentlicht.",
+        "alreadyArchived": "Bereits archiviert.",
+        "alreadyBracket": "Bereits in dieser Steuerklasse.",
+        "alreadyVisibility": "Bereits so eingestellt.",
+        "belowCost": "Der neue Preis liegt bei oder unter den Kosten.",
+        "notReady": "Noch nicht bereit zur Veröffentlichung.",
+        "priceChanged": "Der Preis hat sich seit der Vorschau geändert. Prüfen Sie ihn und versuchen Sie es erneut."
+      },
+      "result": {
+        "publish": "{count, plural, =0 {Keine Produkte veröffentlicht.} one {# Produkt veröffentlicht.} other {# Produkte veröffentlicht.}}",
+        "unpublish": "{count, plural, =0 {Keine Veröffentlichung aufgehoben.} one {Veröffentlichung von # Produkt aufgehoben.} other {Veröffentlichung von # Produkten aufgehoben.}}",
+        "archive": "{count, plural, =0 {Keine Produkte archiviert.} one {# Produkt archiviert.} other {# Produkte archiviert.}}",
+        "bracket": "{count, plural, =0 {Keine Steuerklasse geändert.} one {Steuerklasse bei # Produkt geändert.} other {Steuerklasse bei # Produkten geändert.}}",
+        "visibility": "{count, plural, =0 {Keine Sichtbarkeit geändert.} one {Sichtbarkeit bei # Produkt geändert.} other {Sichtbarkeit bei # Produkten geändert.}}",
+        "price": "{count, plural, =0 {Keine Preise geändert.} one {Preis bei # Produkt geändert.} other {Preise bei # Produkten geändert.}}",
+        "failed": "{count, plural, one {# Produkt übersprungen:} other {# Produkte übersprungen:}}"
+      }
+    }
   },
   "product": {
     "catalog": "Katalog",
@@ -2013,7 +2084,16 @@
     "deleteBody": "Entfernt das Produkt aus diesem Shop. Bestehende Bestellungen sind nicht betroffen.",
     "deleting": "Wird gelöscht…",
     "deletePermanently": "Endgültig löschen",
-    "deleteConfirm": "„{name}“ wird samt Motiven und Mockups gelöscht. Dies kann nicht rückgängig gemacht werden."
+    "deleteConfirm": "„{name}“ wird samt Motiven und Mockups gelöscht. Dies kann nicht rückgängig gemacht werden.",
+    "selectVariant": "{name} auswählen",
+    "selectAllVariants": "Alle Varianten auswählen",
+    "colour": "Farbe",
+    "size": "Größe",
+    "bulkPrice": "Preis für {count, plural, =0 {alle Varianten} one {# ausgewählte Variante} other {# ausgewählte Varianten}}",
+    "setForAll": "Für alle festlegen",
+    "setForSelected": "Für Auswahl festlegen",
+    "bulkPriceInvalid": "Geben Sie einen Preis über 0 ein.",
+    "bulkPriceApplied": "{count, plural, one {# Preis aktualisiert.} other {# Preise aktualisiert.}} Speichern Sie die Varianten, um die Änderung zu übernehmen."
   },
   "artworkIssues": {
     "edges": {
