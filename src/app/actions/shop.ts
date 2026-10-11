@@ -139,11 +139,11 @@ async function loadCart(storeId: string, create: boolean): Promise<Cart | null> 
   return cart;
 }
 
-async function saveCart(cart: Cart, items: CartItem[]) {
+async function saveCart(cart: Cart, items: CartItem[], addKeys?: string[]) {
   await db.updateOne(
     COLLECTIONS.carts,
     { id: cart.id },
-    { $set: { items, updatedAt: new Date().toISOString() } },
+    { $set: { items, ...(addKeys ? { addKeys } : {}), updatedAt: new Date().toISOString() } },
   );
 }
 
@@ -183,8 +183,18 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const variantId = String(formData.get("variantId") ?? "");
   const quantity = Math.max(1, Math.min(50, Number(formData.get("quantity") ?? 1) || 1));
   const text = String(formData.get("text") ?? "").trim();
+  // The product page names the line before it posts, so a resubmission of the
+  // same add finds it already stored.
+  const lineId = String(formData.get("lineId") ?? "");
+  const id = /^cit_[a-z0-9]{12}$/.test(lineId) ? lineId : newId("cit");
 
-  const [store, product] = await Promise.all([getStore(storeId), getStoreProduct(productId)]);
+  // Independent reads go out together: this action sits between the shopper
+  // and the basket they are waiting on.
+  const [store, product, cart] = await Promise.all([
+    getStore(storeId),
+    getStoreProduct(productId),
+    loadCart(storeId, true),
+  ]);
   const { t, locale } = await shopperCopy(store);
   if (!store || store.status !== "active") {
     return { status: "error", message: t("actions.storeClosed") };
@@ -212,7 +222,6 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     };
   }
 
-  const catalog = await getCatalogProduct(product.catalogProductId);
   // The file itself went to /api/uploads before the form was submitted, so only
   // its stored URL and metadata arrive here.
   const stored = readStoredImage(formData, "artwork", "shopperArtwork");
@@ -225,6 +234,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     if (!product.shopperCustomization.artworkUpload) {
       return { status: "error", message: t("actions.noArtworkUpload") };
     }
+    const catalog = await getCatalogProduct(product.catalogProductId);
     if (!catalog) return { status: "error", message: t("actions.productUnavailable") };
     if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
       return {
@@ -274,13 +284,14 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     if (rendered) previewUrl = rendered.url;
   }
 
-  const cart = await loadCart(storeId, true);
   if (!cart) return { status: "error", message: t("actions.basketUnavailable") };
 
   // The basket line keeps the names the shopper saw, in their language.
   const shown = localizeProduct(product, locale, storeLanguages(store).defaultLocale);
+  const added: ActionState = { status: "success", message: t("actions.addedToBasket", { product: shown.name }) };
+  if (cart.items.some((i) => i.id === id) || cart.addKeys?.includes(id)) return added;
   const item: CartItem = {
-    id: newId("cit"),
+    id,
     storeProductId: product.id,
     variantId: variant.id,
     productName: shown.name,
@@ -302,9 +313,10 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     ? cart.items.map((i) => (i.id === existing.id ? { ...i, quantity: Math.min(50, i.quantity + quantity) } : i))
     : [...cart.items, item];
 
-  await saveCart(cart, items);
+  // A line folded into another keeps no id of its own, so the add is remembered.
+  await saveCart(cart, items, existing ? [...(cart.addKeys ?? []).slice(-19), id] : undefined);
   refreshBasket(store.slug);
-  return { status: "success", message: t("actions.addedToBasket", { product: shown.name }) };
+  return added;
 }
 
 export async function updateCartItem(formData: FormData): Promise<void> {

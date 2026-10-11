@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { readCurrency, readShopperSession, setCurrency } from "@/app/actions/shop";
-import { BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
+import { BasketProvider, BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
 import { CurrencySelect } from "@/components/CurrencySelect";
 import { Document, siteMetadata } from "@/components/Document";
 import { LanguageSelect } from "@/components/LanguageSelect";
@@ -85,7 +85,7 @@ export default async function StorefrontLayout({
   }
 
   const theme = THEMES[store.theme];
-  const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
+  const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { locales, defaultLocale } = storeLanguages(store);
   const [messages, storefront, collections] = await Promise.all([
     shopperMessages(store, locale),
@@ -105,7 +105,6 @@ export default async function StorefrontLayout({
   const session = await readShopperSession();
   const cart = session ? await getCart(store.id, session) : null;
   const items = cart?.items ?? [];
-  const cartCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   // The drawer shows the same prices the basket page does, so they are worked
   // out in the same place rather than re-derived from the stored line.
@@ -116,9 +115,10 @@ export default async function StorefrontLayout({
     productName: item.productName,
     variantName: item.variantName,
     quantity: item.quantity,
-    amount: money(unit * item.quantity, currency),
+    amount: unit * item.quantity,
     previewUrl: item.previewUrl,
     text: item.text,
+    plainVariantId: item.text || item.artworkUrl ? null : item.variantId,
   }));
 
   return (
@@ -127,178 +127,170 @@ export default async function StorefrontLayout({
         locale={locale}
         messages={{ common: messages.common, storefront: messages.storefront }}
       >
-        <div className="flex min-h-full flex-col bg-background">
-          {site.announcement ? (
-            <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">
-              {site.announcement}
-            </div>
-          ) : null}
-          <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">
-            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-6">
-              <Link href={base} className="flex min-w-0 items-center gap-2.5">
-                <StoreMark name={store.name} logoUrl={store.logoUrl} />
-                <span className="font-heading truncate text-base font-semibold tracking-tight text-foreground">
-                  {store.name}
-                </span>
-              </Link>
-
-              <nav
-                aria-label={t("chrome.shop")}
-                className="no-scrollbar -mx-1 flex max-w-full min-w-0 items-center gap-1 overflow-x-auto px-1"
-              >
-                <Link
-                  href={`${base}/products`}
-                  className={buttonVariants({ variant: "ghost", size: "lg" })}
-                >
-                  {site.navShop || t("chrome.shop")}
+        <BasketProvider lines={basketLines} subtotal={subtotal} currency={currency} base={base}>
+          <div className="flex min-h-full flex-col bg-background">
+            {site.announcement ? (
+              <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">
+                {site.announcement}
+              </div>
+            ) : null}
+            <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">
+              <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-6">
+                <Link href={base} className="flex min-w-0 items-center gap-2.5">
+                  <StoreMark name={store.name} logoUrl={store.logoUrl} />
+                  <span className="font-heading truncate text-base font-semibold tracking-tight text-foreground">
+                    {store.name}
+                  </span>
                 </Link>
-                {navCollections.map((collection) => (
+
+                <nav
+                  aria-label={t("chrome.shop")}
+                  className="no-scrollbar -mx-1 flex max-w-full min-w-0 items-center gap-1 overflow-x-auto px-1"
+                >
                   <Link
-                    key={collection.id}
-                    href={`${base}/collections/${collection.handle}`}
+                    href={`${base}/products`}
                     className={buttonVariants({ variant: "ghost", size: "lg" })}
                   >
-                    {collection.name}
+                    {site.navShop || t("chrome.shop")}
                   </Link>
-                ))}
-                <Link
-                  href={`${base}/orders`}
-                  className={buttonVariants({ variant: "ghost", size: "lg" })}
-                >
-                  {site.navOrders || t("chrome.orderStatus")}
-                </Link>
-              </nav>
-
-              <div className="ml-auto flex items-center gap-2">
-                {locales.length > 1 ? (
-                  <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
-                ) : null}
-                <form action={setCurrency} className="flex items-center gap-1.5">
-                  <input type="hidden" name="storeId" value={store.id} />
-                  <input type="hidden" name="slug" value={store.slug} />
-                  <input type="hidden" name="back" value={base} />
-                  <Label htmlFor="store-currency" className="sr-only">
-                    {t("chrome.currencyLabel")}
-                  </Label>
-                  <CurrencySelect
-                    id="store-currency"
-                    defaultValue={currency}
-                    currencies={store.currencies}
-                  />
-                  {/* The Select applies a currency as soon as it is picked, but
-                      it cannot open without JavaScript. Then the browser shows
-                      this native select and submit instead, and hides the
-                      Select's dead trigger. */}
-                  <noscript>
-                    <style>{"#store-currency{display:none}"}</style>
-                    <select
-                      name="currency"
-                      defaultValue={currency}
-                      aria-label={t("chrome.currencyLabel")}
-                      className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                  {navCollections.map((collection) => (
+                    <Link
+                      key={collection.id}
+                      href={`${base}/collections/${collection.handle}`}
+                      className={buttonVariants({ variant: "ghost", size: "lg" })}
                     >
-                      {store.currencies.map((code) => (
-                        <option key={code} value={code}>
-                          {code}
-                        </option>
-                      ))}
-                    </select>
-                    <Button type="submit" variant="ghost" size="lg">
-                      {t("chrome.currencyApply")}
-                    </Button>
-                  </noscript>
-                </form>
-                <BasketSheet
-                  storeId={store.id}
-                  base={base}
-                  triggerLabel={
-                    cartCount > 0
-                      ? t("chrome.basketWithCount", { count: cartCount })
-                      : t("chrome.basket")
-                  }
-                  lines={basketLines}
-                  subtotal={money(subtotal, currency)}
-                />
-              </div>
-            </div>
-          </header>
+                      {collection.name}
+                    </Link>
+                  ))}
+                  <Link
+                    href={`${base}/orders`}
+                    className={buttonVariants({ variant: "ghost", size: "lg" })}
+                  >
+                    {site.navOrders || t("chrome.orderStatus")}
+                  </Link>
+                </nav>
 
-          <main className="flex-1">
-            {/* The not-found and error boundaries live inside this main area and
-                are given no params, so they read the store from here. */}
-            <StorefrontFallbackProvider
-              value={{ base, storeName: store.name, accent: theme.accent }}
-            >
-              {children}
-            </StorefrontFallbackProvider>
-          </main>
+                <div className="ml-auto flex items-center gap-2">
+                  {locales.length > 1 ? (
+                    <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
+                  ) : null}
+                  <form action={setCurrency} className="flex items-center gap-1.5">
+                    <input type="hidden" name="storeId" value={store.id} />
+                    <input type="hidden" name="slug" value={store.slug} />
+                    <input type="hidden" name="back" value={base} />
+                    <Label htmlFor="store-currency" className="sr-only">
+                      {t("chrome.currencyLabel")}
+                    </Label>
+                    <CurrencySelect
+                      id="store-currency"
+                      defaultValue={currency}
+                      currencies={store.currencies}
+                    />
+                    {/* The Select applies a currency as soon as it is picked, but
+                        it cannot open without JavaScript. Then the browser shows
+                        this native select and submit instead, and hides the
+                        Select's dead trigger. */}
+                    <noscript>
+                      <style>{"#store-currency{display:none}"}</style>
+                      <select
+                        name="currency"
+                        defaultValue={currency}
+                        aria-label={t("chrome.currencyLabel")}
+                        className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                      >
+                        {store.currencies.map((code) => (
+                          <option key={code} value={code}>
+                            {code}
+                          </option>
+                        ))}
+                      </select>
+                      <Button type="submit" variant="ghost" size="lg">
+                        {t("chrome.currencyApply")}
+                      </Button>
+                    </noscript>
+                  </form>
+                  <BasketSheet storeId={store.id} />
+                </div>
+              </div>
+            </header>
 
-          <footer className="mt-16 border-t border-border bg-muted/60">
-            <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6">
-              <div>
-                <p className="font-heading text-sm font-semibold text-foreground">{store.name}</p>
-                {site.footerNote ? (
-                  <p className="mt-2 text-sm whitespace-pre-line text-muted-foreground">{site.footerNote}</p>
-                ) : null}
-              </div>
-              <div>
-                <p className={SECTION_TITLE}>{t("chrome.shop")}</p>
-                <ul className="mt-3 space-y-2 text-sm text-inksoft">
-                  <li>
-                    <Link href={`${base}/products`} className="hover:text-foreground hover:underline">
-                      {t("chrome.allProducts")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href={`${base}/cart`} className="hover:text-foreground hover:underline">
-                      {t("chrome.basket")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href={`${base}/orders`} className="hover:text-foreground hover:underline">
-                      {t("chrome.orderStatus")}
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              {support.email || support.phone ? (
+            <main className="flex-1">
+              {/* The not-found and error boundaries live inside this main area and
+                  are given no params, so they read the store from here. */}
+              <StorefrontFallbackProvider
+                value={{ base, storeName: store.name, accent: theme.accent }}
+              >
+                {children}
+              </StorefrontFallbackProvider>
+            </main>
+
+            <footer className="mt-16 border-t border-border bg-muted/60">
+              <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6">
                 <div>
-                  <p className={SECTION_TITLE}>{t("chrome.help")}</p>
+                  <p className="font-heading text-sm font-semibold text-foreground">{store.name}</p>
+                  {site.footerNote ? (
+                    <p className="mt-2 text-sm whitespace-pre-line text-muted-foreground">{site.footerNote}</p>
+                  ) : null}
+                </div>
+                <div>
+                  <p className={SECTION_TITLE}>{t("chrome.shop")}</p>
                   <ul className="mt-3 space-y-2 text-sm text-inksoft">
-                    {support.email ? (
-                      <li>
-                        <span className="text-muted-foreground">{t("chrome.supportEmailLabel")}:</span>{" "}
-                        <a href={supportMailto(support.email)} className="hover:text-foreground hover:underline">
-                          {support.email}
-                        </a>
-                      </li>
-                    ) : null}
-                    {support.phone ? (
-                      <li>
-                        <span className="text-muted-foreground">{t("chrome.supportPhoneLabel")}:</span>{" "}
-                        <a href={supportTel(support.phone)} className="hover:text-foreground hover:underline">
-                          {support.phone}
-                        </a>
-                      </li>
-                    ) : null}
+                    <li>
+                      <Link href={`${base}/products`} className="hover:text-foreground hover:underline">
+                        {t("chrome.allProducts")}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`${base}/cart`} className="hover:text-foreground hover:underline">
+                        {t("chrome.basket")}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`${base}/orders`} className="hover:text-foreground hover:underline">
+                        {t("chrome.orderStatus")}
+                      </Link>
+                    </li>
                   </ul>
                 </div>
-              ) : null}
-            </div>
-            <Separator />
-            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-muted-foreground sm:px-6">
-              <p>{t("chrome.legal", { year: String(new Date().getFullYear()), client: store.clientName })}</p>
-              <div className="flex gap-4">
-                <Link href={localizedPath("/legal/terms", locale)} className="hover:text-foreground hover:underline">
-                  {t("chrome.terms")}
-                </Link>
-                <Link href={localizedPath("/legal/privacy", locale)} className="hover:text-foreground hover:underline">
-                  {t("chrome.privacy")}
-                </Link>
+                {support.email || support.phone ? (
+                  <div>
+                    <p className={SECTION_TITLE}>{t("chrome.help")}</p>
+                    <ul className="mt-3 space-y-2 text-sm text-inksoft">
+                      {support.email ? (
+                        <li>
+                          <span className="text-muted-foreground">{t("chrome.supportEmailLabel")}:</span>{" "}
+                          <a href={supportMailto(support.email)} className="hover:text-foreground hover:underline">
+                            {support.email}
+                          </a>
+                        </li>
+                      ) : null}
+                      {support.phone ? (
+                        <li>
+                          <span className="text-muted-foreground">{t("chrome.supportPhoneLabel")}:</span>{" "}
+                          <a href={supportTel(support.phone)} className="hover:text-foreground hover:underline">
+                            {support.phone}
+                          </a>
+                        </li>
+                      ) : null}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
-            </div>
-          </footer>
-        </div>
+              <Separator />
+              <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-muted-foreground sm:px-6">
+                <p>{t("chrome.legal", { year: String(new Date().getFullYear()), client: store.clientName })}</p>
+                <div className="flex gap-4">
+                  <Link href={localizedPath("/legal/terms", locale)} className="hover:text-foreground hover:underline">
+                    {t("chrome.terms")}
+                  </Link>
+                  <Link href={localizedPath("/legal/privacy", locale)} className="hover:text-foreground hover:underline">
+                    {t("chrome.privacy")}
+                  </Link>
+                </div>
+              </div>
+            </footer>
+          </div>
+        </BasketProvider>
       </NextIntlClientProvider>
     </Document>
   );

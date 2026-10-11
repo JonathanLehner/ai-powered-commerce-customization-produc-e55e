@@ -1,9 +1,10 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { startTransition, useEffect, useRef, useState } from "react";
+import type { ActionState } from "@/app/actions/stores";
 import { addToCart } from "@/app/actions/shop";
+import { useBasket } from "@/components/BasketSheet";
 import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
 import { placementBox } from "@/lib/artwork";
@@ -28,8 +29,8 @@ import {
   type StoredImage,
   type StoreProduct,
 } from "@/lib/types";
-import { classNames } from "@/lib/util";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { classNames, newId } from "@/lib/util";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,6 +90,8 @@ export function ProductPurchase({
   const gallery = colourMockups.length > 0 ? colourMockups : product.mockups;
   const activeMockup = (gallery.find((m) => m.view === activeView) ?? gallery[0])?.url ?? null;
   const objectUrl = useRef<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const basket = useBasket();
   const fileInput = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{
@@ -288,7 +291,41 @@ export function ProductPurchase({
    * to the submission, so the basket and the production job carry the same
    * picture the shopper just approved — at the placement they approved it in.
    */
-  async function renderPreview(formData: FormData) {
+  /**
+   * Puts the line in the header basket and opens the drawer as soon as the
+   * button is pressed. The preview upload and the save carry on behind it; the
+   * line's id goes with the form, so a resubmission is stored once.
+   */
+  const purchasable = Boolean(variant && variant.availability !== "out_of_stock");
+
+  async function addInstantly(formData: FormData) {
+    const lineId = newId("cit");
+    formData.set("lineId", lineId);
+    if (!variant || !purchasable) {
+      await renderPreview(formData);
+      return;
+    }
+    const personalised = Boolean(artwork || text.trim());
+    const quantity = Math.max(1, Math.min(50, Number(formData.get("quantity") ?? 1) || 1));
+    const line = {
+      id: lineId,
+      productName: product.name,
+      variantName: variant.name,
+      quantity,
+      amount: variant.price * quantity,
+      previewUrl: (personalised ? activeMockup : product.mockups[0]?.url) ?? null,
+      text: text.trim() || null,
+      plainVariantId: personalised ? null : variant.id,
+      pending: true,
+    };
+    basket.addLine(line);
+    await renderPreview(formData, (previewUrl) =>
+      // Past an await, so the update has to join the add's transition again.
+      startTransition(() => basket.addLine({ ...line, previewUrl })),
+    );
+  }
+
+  async function renderPreview(formData: FormData, onDrawn?: (url: string) => void) {
     if (artwork) appendStoredImage(formData, "artwork", artwork);
     if (!area || !activeMockup || (!artwork && !text)) return;
     const layers: MockupLayer[] = [];
@@ -311,6 +348,7 @@ export function ProductPurchase({
       });
     }
     const blob = await renderMockup(activeMockup, area.rect, layers);
+    onDrawn?.(URL.createObjectURL(blob));
     const stored = await uploadImage(
       new File([blob], "preview.webp", { type: blob.type || "image/webp" }),
       "shopperPreview",
@@ -435,8 +473,14 @@ export function ProductPurchase({
       </div>
 
       <ActionForm
+        ref={formRef}
+        // Opened here rather than in the action: state set inside the action is
+        // held back until the save has finished.
+        onSubmit={() => {
+          if (purchasable) basket.setOpen(true);
+        }}
         action={addToCart}
-        beforeSubmit={renderPreview}
+        beforeSubmit={addInstantly}
         submitLabel={t("addToBasket")}
         pendingLabel={t("adding")}
         submitSize="lg"
@@ -449,17 +493,10 @@ export function ProductPurchase({
         // status line travels with it, which is where a refused artwork or a
         // missing size has to be read.
         actionsClassName="max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-40 max-lg:border-t max-lg:border-border max-lg:bg-background/95 max-lg:px-4 max-lg:py-3 max-lg:*:mt-0 max-lg:supports-backdrop-filter:backdrop-blur"
-        footer={
-          <Link
-            href={`${product.base}/cart`}
-            className={buttonVariants({ variant: "outline", size: "lg" })}
-          >
-            {t("viewBasket")}
-          </Link>
-        }
       >
         {(state) => (
           <>
+            <SettleBasket state={state} form={formRef} />
             <input type="hidden" name="variantId" value={variantId} />
             {artwork ? (
               <>
@@ -747,4 +784,20 @@ export function ProductPurchase({
       </ActionForm>
     </div>
   );
+}
+
+/**
+ * Tells the basket how the add went: a refusal closes the drawer, so the
+ * reason beside the button is read, and a success lets a checkout pressed
+ * while it saved go ahead.
+ */
+function SettleBasket({ state, form }: { state: ActionState; form: React.RefObject<HTMLFormElement | null> }) {
+  const { settle } = useBasket();
+  useEffect(() => {
+    if (state.status === "success") settle(true);
+    if (state.status === "error") {
+      settle(false, () => form.current?.querySelector<HTMLElement>('[role="status"]') ?? null);
+    }
+  }, [state, settle, form]);
+  return null;
 }

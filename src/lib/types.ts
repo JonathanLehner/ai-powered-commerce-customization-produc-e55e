@@ -908,6 +908,8 @@ export interface Cart {
   currency: string;
   /** The code the shopper entered, re-checked on every render and at payment. */
   discountCode?: string | null;
+  /** The last few adds that were folded into an existing line, so a resubmission is not counted twice. */
+  addKeys?: string[];
   updatedAt: string;
 }
 
