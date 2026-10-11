@@ -3,6 +3,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArchivedStores } from "@/app/app/ArchivedStores";
 import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
+import { RevenueSparkline } from "@/app/app/RevenueSparkline";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
@@ -11,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { loadSparklines } from "@/lib/analytics-data";
 import { recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
@@ -67,9 +69,15 @@ export default async function AgencyDashboard({
   // for an agency with twenty-five clients — and the platform runs only about
   // six at a time, so they queued and the page took twenty seconds to render.
   const storeIds = stores.map(({ store }) => store.id);
-  const [ordersByStore, productsByStore] = await Promise.all([
+  // The sparklines come from the same aggregation as each store's Analytics
+  // page, for every live store in one read.
+  const [ordersByStore, productsByStore, sparklines] = await Promise.all([
     listOrdersByStore(storeIds),
     listStoreProductsByStore(storeIds),
+    loadSparklines(
+      stores.filter(({ store }) => store.status === "active").map(({ store }) => store),
+      now,
+    ),
   ]);
 
   const rows = stores.map(({ store, role, viaPlatform }) => ({
@@ -168,6 +176,7 @@ export default async function AgencyDashboard({
             <ul className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {active.map(({ store, role, viaPlatform, metrics }) => {
                 const progress = setupProgress(store.setup);
+                const revenue = sparklines.get(store.id) ?? [];
                 const theme = THEMES[store.theme];
                 return (
                   <li key={store.id}>
@@ -228,11 +237,12 @@ export default async function AgencyDashboard({
                           ) : null}
                         </ul>
 
-                        <dl className="grid grid-cols-3 gap-3 border-y border-border py-3 text-sm">
+                        <div className="space-y-2 border-y border-border py-3">
+                        <dl className="grid grid-cols-3 gap-3 text-sm">
                           <div>
-                            <dt className="text-xs text-muted-foreground">{t("sales30")}</dt>
+                            <dt className="text-xs text-muted-foreground">{t("revenue30")}</dt>
                             <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
-                              {money(metrics.last30Sales, store.defaultCurrency)}
+                              {money(revenue.reduce((sum, day) => sum + day, 0), store.defaultCurrency)}
                             </dd>
                           </div>
                           <div>
@@ -248,6 +258,8 @@ export default async function AgencyDashboard({
                             </dd>
                           </div>
                         </dl>
+                        <RevenueSparkline values={revenue} label={t("revenue30")} />
+                        </div>
 
                         <p className="text-xs text-muted-foreground">
                           {t("inProduction", { count: metrics.inProduction })} ·{" "}

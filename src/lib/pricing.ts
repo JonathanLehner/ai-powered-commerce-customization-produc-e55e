@@ -126,7 +126,7 @@ export function marginTone(pct: number): "healthy" | "thin" | "negative" {
 }
 
 /** Naive FX for storefronts that sell in more than one currency. */
-const FX_TO_USD: Record<string, number> = {
+export const FX_TO_USD: Record<string, number> = {
   USD: 1, EUR: 1.08, GBP: 1.27, CAD: 0.73, AUD: 0.66, JPY: 0.0064, SGD: 0.74,
   CHF: 1.12, SEK: 0.095, AED: 0.27, BRL: 0.18, INR: 0.012, MXN: 0.055, ZAR: 0.054,
 };

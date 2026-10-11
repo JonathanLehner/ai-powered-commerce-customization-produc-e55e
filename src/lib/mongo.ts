@@ -138,6 +138,10 @@ export const db = {
   async deleteMany(name: string, filter: Record<string, unknown>) {
     return (await collection(name)).deleteMany(filter as Filter<Document>);
   },
+  /** Runs an aggregation pipeline; its stages decide what comes back. */
+  async aggregate<T>(name: string, pipeline: Document[]): Promise<T[]> {
+    return (await (await collection(name)).aggregate(pipeline).toArray()) as T[];
+  },
   async count(name: string, filter: Record<string, unknown> = {}) {
     return (await collection(name)).countDocuments(filter as Filter<Document>);
   },

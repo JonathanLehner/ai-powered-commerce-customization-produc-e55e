@@ -34,6 +34,7 @@
     "order-status-check": "node --experimental-strip-types scripts/order-status-check.mjs",
     "order-list-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/order-list-check.mjs",
     "batch-read-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/batch-read-check.mjs",
+    "analytics-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/analytics-check.mjs",
     "create-indexes": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/create-indexes.mjs"
   },
   "dependencies": {
@@ -54,6 +55,7 @@
     "radix-ui": "^1.7.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "recharts": "^3.8.0",
     "server-only": "^0.0.1",
     "shadcn": "^4.21.4",
     "sharp": "^0.35.3",

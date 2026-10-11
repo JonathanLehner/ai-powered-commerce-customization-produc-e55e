@@ -3,6 +3,7 @@
 import {
   ActivityIcon,
   BuildingIcon,
+  ChartColumnIcon,
   ClipboardListIcon,
   GiftIcon,
   LayoutDashboardIcon,
@@ -34,6 +35,7 @@ const ICONS: Record<string, LucideIcon> = {
   assistant: SparklesIcon,
   storefront: LayoutTemplateIcon,
   gifting: GiftIcon,
+  analytics: ChartColumnIcon,
   orders: ClipboardListIcon,
   discounts: PercentIcon,
   team: UsersIcon,
