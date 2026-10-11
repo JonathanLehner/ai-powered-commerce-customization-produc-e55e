@@ -432,6 +432,8 @@
     "billedYearly": "Faktureras {amount} per år",
     "trial": "{days} dagars gratis provperiod. Säg upp innan den tar slut så debiteras du inte.",
     "scale": "Behöver du fler aktiva butiker? <link>Kontakta sälj</link> om Scale.",
+    "unavailableTitle": "Registrering online öppnar snart",
+    "unavailableLead": "<link>Kontakta sälj</link> för att komma igång.",
     "errors": {
       "name": "Ange ditt namn.",
       "email": "Ange en giltig jobbmejladress.",
@@ -439,7 +441,8 @@
       "password": "Använd minst 8 tecken.",
       "plan": "Välj Starter eller Studio.",
       "form": "Något gick fel. Ladda om sidan och försök igen.",
-      "emailTaken": "Det finns redan ett konto med den här mejladressen. Logga in i stället."
+      "emailTaken": "Det finns redan ett konto med den här mejladressen. Logga in i stället.",
+      "unavailable": "Registrering online öppnar snart. Kontakta sälj för att komma igång."
     }
   },
   "terms": {

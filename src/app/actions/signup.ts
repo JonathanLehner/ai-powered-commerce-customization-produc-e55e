@@ -6,7 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { asLocale } from "@/i18n/metadata";
-import { billingPending, startPlanCheckout } from "@/lib/billing";
+import { billingConfigured, billingPending, startPlanCheckout } from "@/lib/billing";
 import { COLLECTIONS, getAgency, getUserByEmail, recordAudit } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
 import { db } from "@/lib/mongo";
@@ -36,10 +36,14 @@ async function checkoutAddress(agency: BillingAgency, email: string, locale: str
  * The form carries one key per filled-in form. A second submission with the
  * same key and password finds the account it already made and goes on to
  * Checkout, rather than failing on the email address it just took.
+ *
+ * Without a billing key no account is made: the sign-up page sends visitors to
+ * sales then, and this only answers a form left open from before.
  */
 export async function createAccount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const locale = asLocale(String(formData.get("locale") ?? ""));
   const t = await getTranslations({ locale, namespace: "signup.errors" });
+  if (!billingConfigured()) return { status: "error", message: t("unavailable"), field: "form" };
   const checked = checkSignup({
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),

@@ -432,6 +432,8 @@
     "billedYearly": "Jaarlijks gefactureerd: {amount}",
     "trial": "{days} dagen gratis proberen. Zeg je op voordat de proefperiode eindigt, dan betaal je niets.",
     "scale": "Meer live winkels nodig? <link>Neem contact op met sales</link> over Scale.",
+    "unavailableTitle": "Online aanmelden is binnenkort mogelijk",
+    "unavailableLead": "<link>Neem contact op met sales</link> om te beginnen.",
     "errors": {
       "name": "Vul je naam in.",
       "email": "Vul een geldig zakelijk e-mailadres in.",
@@ -439,7 +441,8 @@
       "password": "Gebruik minimaal 8 tekens.",
       "plan": "Kies Starter of Studio.",
       "form": "Er ging iets mis. Laad de pagina opnieuw en probeer het nog eens.",
-      "emailTaken": "Er bestaat al een account met dit e-mailadres. Log in."
+      "emailTaken": "Er bestaat al een account met dit e-mailadres. Log in.",
+      "unavailable": "Online aanmelden is binnenkort mogelijk. Neem contact op met sales om te beginnen."
     }
   },
   "terms": {

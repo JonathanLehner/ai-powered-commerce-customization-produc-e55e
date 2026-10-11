@@ -432,6 +432,8 @@
     "billedYearly": "Billed yearly at {amount}",
     "trial": "{days}-day free trial. Cancel before it ends and you won't be charged.",
     "scale": "Need more live stores? <link>Contact sales</link> about Scale.",
+    "unavailableTitle": "Online sign-up opens soon",
+    "unavailableLead": "<link>Contact sales</link> to get started.",
     "errors": {
       "name": "Enter your name.",
       "email": "Enter a valid work email.",
@@ -439,7 +441,8 @@
       "password": "Use at least 8 characters.",
       "plan": "Choose Starter or Studio.",
       "form": "Something went wrong. Reload the page and try again.",
-      "emailTaken": "An account already uses this email. Sign in instead."
+      "emailTaken": "An account already uses this email. Sign in instead.",
+      "unavailable": "Online sign-up opens soon. Contact sales to get started."
     }
   },
   "terms": {

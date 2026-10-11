@@ -5,6 +5,7 @@ import { routing } from "@/i18n/routing";
 import { negotiateShopperLocale } from "@/i18n/shopper-negotiation";
 import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing";
 import { isLive } from "@/lib/artwork";
+import { billingConfigured } from "@/lib/billing-config";
 import { getGiftCatalogueBySlug, getStore, getStoreByDomain, getStoreBySlug } from "@/lib/data";
 import { isPolicyKey } from "@/lib/policies";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
@@ -61,6 +62,29 @@ function isMarketingAddress(pathname: string): boolean {
   return (MARKETING_PATHS as readonly string[]).includes(`/${rest.join("/")}`);
 }
 
+/** The pages that start a self-serve sign-up, and the copy served in their place while billing is not configured. */
+const CONTACT_SALES_PAGES = ["/pricing", "/signup"];
+
+/**
+ * While plan billing is not configured, `/pricing` and `/signup` are served
+ * from their prerendered contact-sales copies, so no visitor starts a sign-up
+ * that cannot reach payment. The key is only readable per request, which is
+ * why this is decided here and not in the static pages. next-intl's redirects
+ * and server action posts pass through unchanged.
+ */
+function withoutSelfServe(request: NextRequest, localized: NextResponse): NextResponse {
+  if (billingConfigured() || !isRead(request) || localized.headers.has("location")) return localized;
+  const segments = segmentsOf(request.nextUrl.pathname);
+  const locale = isLocale(segments[0]) ? segments[0] : DEFAULT_LOCALE;
+  const rest = `/${(isLocale(segments[0]) ? segments.slice(1) : segments).join("/")}`;
+  if (!CONTACT_SALES_PAGES.includes(rest)) return localized;
+  const url = request.nextUrl.clone();
+  url.pathname = `/${locale}${rest}/contact-sales`;
+  const headers = new Headers(request.headers);
+  headers.set("X-NEXT-INTL-LOCALE", locale);
+  return NextResponse.rewrite(url, { request: { headers } });
+}
+
 export async function proxy(request: NextRequest): Promise<NextResponse | undefined> {
   // A generated share image is requested at its page's internal address, which
   // already names the language, so it is served as it is.
@@ -77,7 +101,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse | undefi
   // root by rewriting `/pricing` to `/en/pricing`, and sends `/en/pricing` back
   // to `/pricing`. Server actions post to the page address too, so this runs
   // for every method.
-  if (isMarketingAddress(request.nextUrl.pathname)) return localizeMarketing(request);
+  if (isMarketingAddress(request.nextUrl.pathname)) return withoutSelfServe(request, localizeMarketing(request));
 
   const segments = segmentsOf(request.nextUrl.pathname);
   if ((segments[0] === "s" || segments[0] === "g") && segments.length >= 2) {

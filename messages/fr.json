@@ -432,6 +432,8 @@
     "billedYearly": "Facturé {amount} par an",
     "trial": "Essai gratuit de {days} jours. Annulez avant la fin et vous ne serez pas débité.",
     "scale": "Besoin de plus de boutiques en ligne ? <link>Contactez les ventes</link> pour Scale.",
+    "unavailableTitle": "L'inscription en ligne ouvre bientôt",
+    "unavailableLead": "<link>Contactez les ventes</link> pour commencer.",
     "errors": {
       "name": "Saisissez votre nom.",
       "email": "Saisissez un e-mail professionnel valide.",
@@ -439,7 +441,8 @@
       "password": "Utilisez au moins 8 caractères.",
       "plan": "Choisissez Starter ou Studio.",
       "form": "Une erreur s'est produite. Rechargez la page et réessayez.",
-      "emailTaken": "Un compte utilise déjà cet e-mail. Connectez-vous plutôt."
+      "emailTaken": "Un compte utilise déjà cet e-mail. Connectez-vous plutôt.",
+      "unavailable": "L'inscription en ligne ouvre bientôt. Contactez les ventes pour commencer."
     }
   },
   "terms": {

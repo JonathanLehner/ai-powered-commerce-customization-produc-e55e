@@ -432,6 +432,8 @@
     "billedYearly": "Fatturazione annuale di {amount}",
     "trial": "Prova gratuita di {days} giorni. Annulla prima della scadenza e non ti verrà addebitato nulla.",
     "scale": "Ti servono più negozi attivi? <link>Contatta le vendite</link> per Scale.",
+    "unavailableTitle": "La registrazione online apre a breve",
+    "unavailableLead": "<link>Contatta le vendite</link> per iniziare.",
     "errors": {
       "name": "Inserisci il tuo nome.",
       "email": "Inserisci un'email di lavoro valida.",
@@ -439,7 +441,8 @@
       "password": "Usa almeno 8 caratteri.",
       "plan": "Scegli Starter o Studio.",
       "form": "Qualcosa è andato storto. Ricarica la pagina e riprova.",
-      "emailTaken": "Esiste già un account con questa email. Accedi."
+      "emailTaken": "Esiste già un account con questa email. Accedi.",
+      "unavailable": "La registrazione online apre a breve. Contatta le vendite per iniziare."
     }
   },
   "terms": {

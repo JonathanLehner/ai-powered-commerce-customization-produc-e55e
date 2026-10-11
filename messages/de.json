@@ -432,6 +432,8 @@
     "billedYearly": "Jährliche Abrechnung: {amount}",
     "trial": "{days} Tage kostenlos testen. Wenn Sie vorher kündigen, wird nichts berechnet.",
     "scale": "Sie brauchen mehr Live-Shops? <link>Kontaktieren Sie den Vertrieb</link> zum Scale-Tarif.",
+    "unavailableTitle": "Die Online-Registrierung startet in Kürze",
+    "unavailableLead": "<link>Kontaktieren Sie den Vertrieb</link>, um loszulegen.",
     "errors": {
       "name": "Geben Sie Ihren Namen ein.",
       "email": "Geben Sie eine gültige geschäftliche E-Mail-Adresse ein.",
@@ -439,7 +441,8 @@
       "password": "Verwenden Sie mindestens 8 Zeichen.",
       "plan": "Wählen Sie Starter oder Studio.",
       "form": "Etwas ist schiefgelaufen. Laden Sie die Seite neu und versuchen Sie es erneut.",
-      "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet. Melden Sie sich stattdessen an."
+      "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet. Melden Sie sich stattdessen an.",
+      "unavailable": "Die Online-Registrierung startet in Kürze. Kontaktieren Sie den Vertrieb, um loszulegen."
     }
   },
   "terms": {
