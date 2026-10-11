@@ -1,5 +1,6 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +23,7 @@ import {
   listStoreProducts,
 } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
-import { requireStoreAccess, roleCan } from "@/lib/session";
+import { requireStoreAccess, roleCan, type Capability } from "@/lib/session";
 import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo } from "@/i18n/format";
 import { storeLimitText } from "@/i18n/plan-copy";
@@ -48,6 +49,7 @@ export default async function StoreOverviewPage({
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
   const canSource = roleCan(role, "store.catalog");
+  const can = (capability: Capability) => roleCan(role, capability);
   const [orders, products, storefront, audit, enquiries] = await Promise.all([
     listOrders(store.id),
     listStoreProducts(store.id),
@@ -438,7 +440,13 @@ export default async function StoreOverviewPage({
                 <ol className="divide-y divide-border text-sm">
                   {activity.map((run) => (
                     <li key={run.entry.id} className="py-2.5">
-                      <p className="text-foreground">{run.count > 1 ? dashboard("repeated", { summary: run.entry.summary, count: run.count }) : run.entry.summary}</p>
+                      <p className="text-foreground">
+                        <AuditSummary
+                          entry={run.entry}
+                          can={can}
+                          line={run.count > 1 ? dashboard("repeated", { summary: SUMMARY_SLOT, count: run.count }) : undefined}
+                        />
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {run.entry.actorName} · {formatAgo(format, run.entry.at, now)}
                       </p>

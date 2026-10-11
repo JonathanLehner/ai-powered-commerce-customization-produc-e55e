@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
+import { AuditSummary } from "@/components/AuditSummary";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { Card } from "@/components/ui/card";
 import {
@@ -18,7 +19,8 @@ import {
 import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
 import { auditExportText } from "@/i18n/plan-copy";
 import { planFor } from "@/lib/plans";
-import { requireStoreAccess } from "@/lib/session";
+import { requireStoreAccess, roleCan } from "@/lib/session";
+import type { Capability } from "@/lib/store-access";
 import type { AuditCategory } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
@@ -47,7 +49,8 @@ export default async function ActivityPage({
 }) {
   const { storeId } = await params;
   const filters = parseAuditFilters(await searchParams);
-  const { store, viaPlatform } = await requireStoreAccess(storeId);
+  const { store, role, viaPlatform } = await requireStoreAccess(storeId);
+  const can = (capability: Capability) => roleCan(role, capability);
   const agency = await getAgency(store.agencyId);
   const plan = planFor(agency?.plan);
   // Recorded fields are stored as the code wrote them, so the supplier names and
@@ -121,7 +124,9 @@ export default async function ActivityPage({
                       <Badge tone={TONES[entry.category]}>{labels(`auditCategory.${entry.category}`)}</Badge>
                       <span className="font-mono text-xs text-muted-foreground">{entry.action}</span>
                     </div>
-                    <p className="mt-1.5 text-sm text-foreground">{entry.summary}</p>
+                    <p className="mt-1.5 text-sm text-foreground">
+                      <AuditSummary entry={entry} can={can} />
+                    </p>
                     {line ? <p className="mt-1 text-xs text-muted-foreground">{line}</p> : null}
                   </div>
                   <div className="shrink-0 text-right">

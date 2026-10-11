@@ -964,7 +964,7 @@ function EditorShell(props: ShellProps) {
                   <CardContent>
                     <ul className="space-y-2 text-sm">
                       {props.history.map((version) => (
-                        <li key={version.id} className="rounded-lg border border-border p-3">
+                        <li key={version.id} id={`version-${version.id}`} className="scroll-mt-24 rounded-lg border border-border p-3 target:border-primary">
                           <p className="font-medium text-foreground">{version.label}</p>
                           <p className="text-xs text-muted-foreground">
                             {version.savedBy} · {formatDateTime(version.savedAt, uiLocale)}

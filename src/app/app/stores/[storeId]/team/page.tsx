@@ -109,7 +109,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
               </TableHeader>
               <TableBody>
                 {memberships.map((member) => (
-                  <TableRow key={member.id} className="hover:bg-transparent">
+                  <TableRow key={member.id} id={member.id} className="scroll-mt-24 hover:bg-transparent target:bg-muted/50">
                     <TableCell className="px-0 py-3 align-top whitespace-normal">
                       <p className="font-medium text-foreground">{member.name}</p>
                       <p className="text-xs text-muted-foreground">{member.email}</p>

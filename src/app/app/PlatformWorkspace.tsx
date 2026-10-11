@@ -1,6 +1,7 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
+import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
 import { Badge, EmptyState, PageHeader, ProgressBar } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/li
 import { listAgencies, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
 import { planFor } from "@/lib/plans";
-import { accessibleStores } from "@/lib/session";
+import { accessibleStores, roleCan, type Capability } from "@/lib/session";
 import { THEMES, type Agency, type Store, type User } from "@/lib/types";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
@@ -50,6 +51,12 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
 
   // Read as platform access: no shopper names, no order values.
   const activity = recentAuditRuns(platformAuditEntries(audit), ACTIVITY_ROWS);
+  // Each entry links into its own store, as far as platform access goes there.
+  const roleIn = new Map(stores.map(({ store, role }) => [store.id, role]));
+  const canIn = (storeId: string | null) => (capability: Capability) => {
+    const role = storeId ? roleIn.get(storeId) : undefined;
+    return role ? roleCan(role, capability) : false;
+  };
 
   // One read for every store's orders and one for their products, as on the
   // agency dashboard — platform oversight lists every store on the platform, so
@@ -280,7 +287,11 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
                   <span className="text-sm text-foreground">
-                    {run.count > 1 ? t("repeated", { summary: run.entry.summary, count: run.count }) : run.entry.summary}
+                    <AuditSummary
+                      entry={run.entry}
+                      can={canIn(run.entry.storeId)}
+                      line={run.count > 1 ? t("repeated", { summary: SUMMARY_SLOT, count: run.count }) : undefined}
+                    />
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {formatAgo(format, run.entry.at, now)}

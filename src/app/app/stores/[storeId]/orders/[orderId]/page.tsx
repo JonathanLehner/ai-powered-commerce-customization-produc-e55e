@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
 import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/orders";
 import { Breadcrumbs, Callout, DataList, Dot, PageHeader } from "@/components/ui";
@@ -8,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { countryName } from "@/i18n/display";
-import { getOrder, getSupplier } from "@/lib/data";
+import { getOrder, getOrderByCode, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
 import { orderTaxRows } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
@@ -35,8 +36,12 @@ export default async function OrderDetailPage({
   const canManage = roleCan(role, "store.orders");
 
   const order = await getOrder(orderId);
-  if (!order || order.storeId !== storeId)
+  if (!order || order.storeId !== storeId) {
+    // The activity log names orders by code, so a code opens the order too.
+    const byCode = orderId.startsWith("ORD-") ? await getOrderByCode(storeId, orderId) : null;
+    if (byCode) redirect(`/app/stores/${storeId}/orders/${byCode.id}`);
     return <StoreWorkspaceNotFoundView base={`/app/stores/${storeId}`} />;
+  }
   // Where else this job could go — only needed by the panel an order manager sees.
   const [supplier, routingOptions] = await Promise.all([
     order.fulfillment.supplierId ? getSupplier(order.fulfillment.supplierId) : null,

@@ -103,7 +103,7 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
     actorId: user.id,
     actorName: user.name,
     entity: "storefront",
-    entityId: storeId,
+    entityId: version.id,
     meta: { sections: sections.length, label },
   });
 

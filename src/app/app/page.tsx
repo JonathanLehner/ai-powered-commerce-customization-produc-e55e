@@ -6,6 +6,7 @@ import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
 import { RevenueSparkline } from "@/app/app/RevenueSparkline";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
+import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
 import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
 import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo, formatMinorUnits } from "@/i18n/format";
@@ -19,7 +20,7 @@ import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } fro
 import { addBreakdowns } from "@/lib/attention";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeAllowance } from "@/lib/plans";
-import { accessibleStores, requireUser } from "@/lib/session";
+import { accessibleStores, requireUser, roleCan, type Capability } from "@/lib/session";
 import { THEMES } from "@/lib/types";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
@@ -66,6 +67,12 @@ export default async function AgencyDashboard({
   // Repeats are one row here; the platform log and each store's Activity page
   // still list every record.
   const activity = recentAuditRuns(audit, ACTIVITY_ROWS);
+  // Each entry links into its own store, as far as the user's role there goes.
+  const roleIn = new Map(stores.map(({ store, role }) => [store.id, role]));
+  const canIn = (storeId: string | null) => (capability: Capability) => {
+    const role = storeId ? roleIn.get(storeId) : undefined;
+    return role ? roleCan(role, capability) : false;
+  };
 
   // Orders and store products for every store on the page, one read each.
   // Read per store it was two round trips times the store count — fifty fetches
@@ -373,7 +380,11 @@ export default async function AgencyDashboard({
               {activity.map((run) => (
                 <li key={run.entry.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2.5">
                   <span className="text-sm text-foreground">
-                    {run.count > 1 ? t("repeated", { summary: run.entry.summary, count: run.count }) : run.entry.summary}
+                    <AuditSummary
+                      entry={run.entry}
+                      can={canIn(run.entry.storeId)}
+                      line={run.count > 1 ? t("repeated", { summary: SUMMARY_SLOT, count: run.count }) : undefined}
+                    />
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {run.entry.actorName} · {formatAgo(format, run.entry.at, now)}

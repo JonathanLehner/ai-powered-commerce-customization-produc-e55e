@@ -12,6 +12,7 @@ import {
   auditQuery,
   auditRange,
   auditRunSummary,
+  auditSummarySegments,
   auditWindow,
   collapseAuditRuns,
   hasAuditFilters,
@@ -407,6 +408,65 @@ assert.equal(
   "parcelith-audit-log-start-to-2026-07-31.csv",
 );
 assert.ok(!/[^a-z0-9.\-]/.test(auditFileName("Ferro Coffee Club · Activity/2", empty, "2026-08-05")));
+
+/* ------------------------------------------------ the records an entry names */
+
+const linked = (e, can) =>
+  auditSummarySegments(e, can).filter((segment) => segment.href).map((segment) => [segment.text, segment.href]);
+const store = "/app/stores/str_northwind";
+
+// The segments always read back as the summary, linked or not.
+const routed = entry({ category: "order_routing", action: "order.routed", summary: "Routed ORD-13712700 to Gelato", entity: "order", entityId: "ORD-13712700" });
+assert.equal(auditSummarySegments(routed).map((segment) => segment.text).join(""), routed.summary);
+assert.deepEqual(linked(routed), [["ORD-13712700", `${store}/orders/ORD-13712700`]]);
+
+assert.deepEqual(linked(entry({ summary: "Changed “Field Tee” from $20.00 to $24.00", entityId: "sp_1" })), [
+  ["Field Tee", `${store}/catalog/sp_1`],
+]);
+assert.deepEqual(
+  linked(entry({ action: "product.imported", summary: "Imported “Tee” from the shared catalog as “Tee 2” (copy 2)", entityId: "sp_2" })),
+  [["Tee 2", `${store}/catalog/sp_2`]],
+  "an imported copy links its own name, not the catalog item's",
+);
+assert.deepEqual(linked(entry({ action: "product.deleted", summary: "Deleted “Tee” from the store catalog" })), []);
+
+const redeemed = entry({
+  category: "discounts",
+  action: "discount.redeemed",
+  summary: "SUMMER10 redeemed on ORD-11112222: $2.00 off",
+  entity: "discount_code",
+  entityId: "dsc_1",
+  meta: { order: "ORD-11112222" },
+});
+assert.deepEqual(linked(redeemed), [
+  ["SUMMER10", `${store}/discounts#dsc_1`],
+  ["ORD-11112222", `${store}/orders/ORD-11112222`],
+]);
+// Only what the viewer's role can open is linked.
+assert.deepEqual(linked(redeemed, (capability) => capability === "store.view"), [
+  ["ORD-11112222", `${store}/orders/ORD-11112222`],
+]);
+
+assert.deepEqual(
+  linked(entry({ category: "team", action: "team.invited", summary: "Invited sam@example.com as viewer", entity: "membership", entityId: "mem_1" })),
+  [["sam@example.com", `${store}/team#mem_1`]],
+);
+assert.deepEqual(
+  linked(entry({ category: "team", action: "team.invite_accepted", actorName: "Sam Lee", summary: "Sam Lee accepted the invitation to Northwind", entity: "membership", entityId: "mem_1" })),
+  [["Sam Lee", `${store}/team#mem_1`]],
+);
+assert.deepEqual(linked(entry({ category: "team", action: "team.removed", summary: "Removed sam@example.com from the store team", entity: "membership", entityId: "mem_1" })), []);
+
+assert.deepEqual(
+  linked(entry({ action: "storefront.version_restored", summary: "Restored storefront version “Spring” into the draft", entity: "storefront", entityId: "sfv_1" })),
+  [["Spring", `${store}/storefront#version-sfv_1`]],
+);
+assert.deepEqual(
+  linked(entry({ action: "storefront.published", summary: "Published storefront layout “Spring” with 4 sections", entity: "storefront", entityId: "str_northwind" })),
+  [["Spring", `${store}/storefront`]],
+  "an older publish entry recorded against the store opens the editor",
+);
+assert.deepEqual(linked(entry({ storeId: null, summary: "Routed ORD-1 to Gelato", entity: "order", entityId: "ORD-1" })), []);
 
 /* ---------------------------------------------------- what the plans include */
 

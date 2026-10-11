@@ -14,6 +14,7 @@ import {
   type AuditLog,
   type StoreRole,
 } from "./types";
+import type { Capability } from "./store-access";
 import { formatMoney, formatPercent, slugify } from "./util";
 
 /** Entries per page. The list is read top to bottom, so a screenful at a time. */
@@ -329,6 +330,95 @@ export function auditDetail(entry: AuditLog, options: AuditDetailOptions = {}): 
 
 export function auditCategoryLabel(entry: AuditLog): string {
   return AUDIT_CATEGORY_LABELS[entry.category] ?? entry.category;
+}
+
+/* ------------------------------------------- the records an entry names, as links */
+
+export interface AuditSummarySegment {
+  text: string;
+  /** Where the named record lives inside the entry's store, when it can be opened. */
+  href?: string;
+}
+
+/** Order codes as the checkout writes them, e.g. `ORD-13712700`. */
+const ORDER_CODE = /\bORD-\d+\b/g;
+const EMAIL = /[^\s@()]+@[^\s@()]+\.[^\s@()]+/;
+
+/** Entries about a record that no longer exists, so there is nothing to open. */
+const GONE_ACTIONS = new Set(["product.deleted", "team.removed"]);
+
+/** The text between the last pair of curly quotes: a product's or a version's name. */
+function lastQuoted(summary: string): string | null {
+  const matches = [...summary.matchAll(/“([^”]+)”/g)];
+  return matches.length > 0 ? matches[matches.length - 1][1] : null;
+}
+
+/** The names in an entry that point at a record, each with where it lives. */
+function auditLinks(entry: AuditLog, can: (capability: Capability) => boolean): { text: string; href: string }[] {
+  if (!entry.storeId) return [];
+  const base = `/app/stores/${entry.storeId}`;
+  const links: { text: string; href: string }[] = [];
+
+  if (can("store.view")) {
+    // Order codes are linked wherever they appear, so a discount redeemed on an
+    // order opens that order as well as the code.
+    for (const code of new Set(entry.summary.match(ORDER_CODE) ?? [])) {
+      links.push({ text: code, href: `${base}/orders/${code}` });
+    }
+  }
+  if (!entry.entityId || GONE_ACTIONS.has(entry.action)) return links;
+
+  if (entry.entity === "store_product" && can("store.view")) {
+    const name = lastQuoted(entry.summary);
+    if (name) links.push({ text: name, href: `${base}/catalog/${entry.entityId}` });
+  }
+  if (entry.entity === "discount_code" && can("store.settings")) {
+    const code = typeof entry.meta?.code === "string" ? entry.meta.code : entry.summary.split(" ")[0];
+    if (code) links.push({ text: code, href: `${base}/discounts#${entry.entityId}` });
+  }
+  if (entry.entity === "membership" && can("store.team")) {
+    const person =
+      entry.summary.match(EMAIL)?.[0] ??
+      (entry.actorName && entry.summary.startsWith(entry.actorName) ? entry.actorName : null);
+    if (person) links.push({ text: person, href: `${base}/team#${entry.entityId}` });
+  }
+  if (entry.entity === "storefront" && can("store.storefront")) {
+    const label = lastQuoted(entry.summary);
+    // Older publish entries were recorded against the store rather than the
+    // version, so they open the editor without picking a version out.
+    const anchor = entry.entityId === entry.storeId ? "" : `#version-${entry.entityId}`;
+    if (label) links.push({ text: label, href: `${base}/storefront${anchor}` });
+  }
+  return links;
+}
+
+/**
+ * An entry's summary cut into plain text and links, so "Routed ORD-13712700 to
+ * Gelato" opens that order. Only records the viewer's role can open are linked,
+ * and only inside the store the entry belongs to.
+ */
+export function auditSummarySegments(
+  entry: AuditLog,
+  can: (capability: Capability) => boolean = () => true,
+): AuditSummarySegment[] {
+  const summary = entry.summary;
+  // The first place each name appears, earliest first, skipping any that fall
+  // inside a name already taken.
+  const found = auditLinks(entry, can)
+    .map((link) => ({ ...link, at: summary.indexOf(link.text) }))
+    .filter((link) => link.at >= 0)
+    .sort((a, b) => a.at - b.at);
+
+  const segments: AuditSummarySegment[] = [];
+  let cursor = 0;
+  for (const link of found) {
+    if (link.at < cursor) continue;
+    if (link.at > cursor) segments.push({ text: summary.slice(cursor, link.at) });
+    segments.push({ text: link.text, href: link.href });
+    cursor = link.at + link.text.length;
+  }
+  if (cursor < summary.length) segments.push({ text: summary.slice(cursor) });
+  return segments;
 }
 
 /* ------------------------------------------------- reading it with platform access */

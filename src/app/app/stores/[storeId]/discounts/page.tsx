@@ -64,7 +64,7 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
             {codes.map((code) => {
               const state = codeState(code);
               return (
-                <li key={code.id}>
+                <li key={code.id} id={code.id} className="scroll-mt-24">
                   <Card>
                     <CardHeader>
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
