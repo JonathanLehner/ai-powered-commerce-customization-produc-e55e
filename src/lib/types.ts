@@ -5,6 +5,7 @@
  * rate definitions that a store product simply points at.
  */
 
+import type { NotificationPrefs } from "./notifications";
 import type { ShopTextOverrides } from "./shop-text";
 import type { FieldTranslations } from "./translations";
 
@@ -61,6 +62,8 @@ export interface User {
   createdAt: string;
   /** The language the workspace is shown in. Unset follows the browser. */
   uiLanguage?: string;
+  /** Per event type, where notifications go. Unset types use the defaults. */
+  notificationPrefs?: NotificationPrefs;
 }
 
 export interface Membership {

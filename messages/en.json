@@ -3269,5 +3269,49 @@
       "handle": "Reorder {name}"
     },
     "descriptionLabel": "Description"
+  },
+  "notifications": {
+    "bell": "Notifications",
+    "unread": "{count, plural, one {# unread} other {# unread}}",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet.",
+    "loadFailed": "Could not load notifications.",
+    "titles": {
+      "order_paid": "New order {code} for {amount}",
+      "campaignPaid": "Gift campaign {code} paid: {count, plural, one {# order} other {# orders}}",
+      "order_exception": "Exception raised on order {code}",
+      "refund_recorded": "Refund of {amount} recorded on order {code}",
+      "gift_approval": "Gift campaign {code} is awaiting approval",
+      "quote_received": "Quote received from {name} for {code}",
+      "invite_accepted": "{name} accepted the invitation"
+    },
+    "settings": {
+      "menu": "Notifications",
+      "title": "Notification settings",
+      "description": "Choose how you hear about events in your stores.",
+      "event": "Event",
+      "inApp": "In-app",
+      "email": "Email",
+      "save": "Save",
+      "saved": "Notification settings saved.",
+      "failed": "Could not save. Try again.",
+      "digestNote": "New order emails are grouped into one per store each hour.",
+      "types": {
+        "order_paid": "New orders",
+        "order_exception": "Order exceptions",
+        "refund_recorded": "Refunds",
+        "gift_approval": "Gift campaigns awaiting approval",
+        "quote_received": "Sourcing quotes",
+        "invite_accepted": "Accepted invitations"
+      }
+    },
+    "email": {
+      "subject": "{title} in {store}",
+      "storeLabel": "Store",
+      "cta": "View details",
+      "digestSubject": "{count, plural, one {# new order} other {# new orders}} in {store}",
+      "digestHeading": "{count, plural, one {# new order} other {# new orders}}",
+      "digestCta": "View orders"
+    }
   }
 }

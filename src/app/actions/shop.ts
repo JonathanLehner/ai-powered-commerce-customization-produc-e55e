@@ -620,6 +620,11 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     entity: "order",
     entityId: code,
     meta: { total, currency, routing: decision.routing },
+    notify: {
+      type: "order_paid",
+      href: `/app/stores/${storeId}/orders/${order.id}`,
+      params: { code, amount: total, currency },
+    },
   });
 
   refreshBasket(store.slug);

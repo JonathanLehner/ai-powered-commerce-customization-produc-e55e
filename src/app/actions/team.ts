@@ -258,6 +258,7 @@ export async function acceptInvitation(formData: FormData): Promise<void> {
     entity: "membership",
     entityId: membership.id,
     meta: { role: membership.role, email: membership.email },
+    notify: { type: "invite_accepted", href: `/app/stores/${store.id}/team`, params: { name: account.name } },
   });
 
   revalidatePath(`/app/stores/${store.id}/team`);

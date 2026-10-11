@@ -3269,5 +3269,49 @@
       "handle": "Sposta {name}"
     },
     "descriptionLabel": "Descrizione"
+  },
+  "notifications": {
+    "bell": "Notifiche",
+    "unread": "{count, plural, one {# non letta} other {# non lette}}",
+    "markAllRead": "Segna tutte come lette",
+    "empty": "Ancora nessuna notifica.",
+    "loadFailed": "Impossibile caricare le notifiche.",
+    "titles": {
+      "order_paid": "Nuovo ordine {code} da {amount}",
+      "campaignPaid": "Campagna regalo {code} pagata: {count, plural, one {# ordine} other {# ordini}}",
+      "order_exception": "Problema segnalato sull’ordine {code}",
+      "refund_recorded": "Rimborso di {amount} registrato sull’ordine {code}",
+      "gift_approval": "La campagna regalo {code} è in attesa di approvazione",
+      "quote_received": "Preventivo ricevuto da {name} per {code}",
+      "invite_accepted": "{name} ha accettato l’invito"
+    },
+    "settings": {
+      "menu": "Notifiche",
+      "title": "Impostazioni notifiche",
+      "description": "Scegli come ricevere gli aggiornamenti sui tuoi negozi.",
+      "event": "Evento",
+      "inApp": "Nell’app",
+      "email": "Email",
+      "save": "Salva",
+      "saved": "Impostazioni notifiche salvate.",
+      "failed": "Impossibile salvare. Riprova.",
+      "digestNote": "Le email dei nuovi ordini sono raggruppate in una per negozio ogni ora.",
+      "types": {
+        "order_paid": "Nuovi ordini",
+        "order_exception": "Problemi sugli ordini",
+        "refund_recorded": "Rimborsi",
+        "gift_approval": "Campagne regalo da approvare",
+        "quote_received": "Preventivi dei fornitori",
+        "invite_accepted": "Inviti accettati"
+      }
+    },
+    "email": {
+      "subject": "{title} su {store}",
+      "storeLabel": "Negozio",
+      "cta": "Vedi dettagli",
+      "digestSubject": "{count, plural, one {# nuovo ordine} other {# nuovi ordini}} su {store}",
+      "digestHeading": "{count, plural, one {# nuovo ordine} other {# nuovi ordini}}",
+      "digestCta": "Vedi ordini"
+    }
   }
 }

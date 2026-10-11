@@ -1,12 +1,14 @@
 "use client";
 
-import { ChevronsUpDownIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react";
+import { BellIcon, ChevronsUpDownIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { signOut } from "@/app/actions/auth";
 import { setUiLanguage } from "@/app/actions/preferences";
+import { NotificationBell } from "@/components/NotificationBell";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { Badge, Logo } from "@/components/ui";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -100,7 +102,9 @@ export function AppHeader({
   const router = useRouter();
   const t = useTranslations("shell");
   const roles = useTranslations("roles");
+  const notifications = useTranslations("notifications.settings");
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const active = stores.filter((s) => s.store.status === "active");
   const current = stores.find((s) => s.store.id === currentStoreId);
 
@@ -181,6 +185,7 @@ export function AppHeader({
               <Link href="/admin">{t("platformAdmin")}</Link>
             </Button>
           ) : null}
+          {user.platformRole === "platform_admin" ? null : <NotificationBell />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="gap-2 px-1.5" aria-label={user.name}>
@@ -205,6 +210,12 @@ export function AppHeader({
               </div>
               <DropdownMenuSeparator />
               <LanguageMenu />
+              {user.platformRole === "platform_admin" ? null : (
+                <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
+                  <BellIcon />
+                  {notifications("menu")}
+                </DropdownMenuItem>
+              )}
               {user.platformRole === "platform_admin" ? (
                 <DropdownMenuItem asChild className="sm:hidden">
                   <Link href="/admin">
@@ -226,6 +237,9 @@ export function AppHeader({
               </form>
             </DropdownMenuContent>
           </DropdownMenu>
+          {settingsOpen ? (
+            <NotificationSettings open onOpenChange={setSettingsOpen} saved={user.notificationPrefs} />
+          ) : null}
         </div>
       </div>
     </header>

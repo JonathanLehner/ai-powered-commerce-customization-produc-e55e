@@ -3,6 +3,7 @@ import { after } from "next/server";
 import { hasApprovedPreviews } from "./artwork";
 import type { AuditReadWindow } from "./audit-log";
 import { db } from "./mongo";
+import type { NotifyInput } from "./notifications";
 import { storeAllowance, type StoreAllowance } from "./plans";
 import { quoteCode } from "./sourcing";
 import { newId } from "./util";
@@ -50,6 +51,8 @@ export const COLLECTIONS = {
   discounts: "discount_codes",
   customers: "customers",
   productCollections: "product_collections",
+  notifications: "notifications",
+  notificationDigests: "notification_digests",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */
@@ -617,6 +620,8 @@ export interface AuditInput {
   entity?: string | null;
   entityId?: string | null;
   meta?: Record<string, string | number | boolean | null>;
+  /** Set when the entry should also notify the store's team. */
+  notify?: NotifyInput;
 }
 
 /**
@@ -629,14 +634,17 @@ export interface AuditInput {
  * outside a request scope — it falls back to writing inline.
  */
 export function recordAudit(input: AuditInput): void {
+  // The links in a notification email need this deployment's address, which is
+  // read from the request while it is still in scope.
+  const origin = input.notify ? import("./email").then(({ siteOrigin }) => siteOrigin()) : Promise.resolve("");
   try {
-    after(() => writeAudit(input));
+    after(() => writeAudit(input, origin));
   } catch {
-    void writeAudit(input);
+    void writeAudit(input, origin);
   }
 }
 
-async function writeAudit(input: AuditInput): Promise<void> {
+async function writeAudit(input: AuditInput, origin: Promise<string>): Promise<void> {
   const entry: AuditLog = {
     id: newId("aud"),
     category: input.category,
@@ -657,6 +665,13 @@ async function writeAudit(input: AuditInput): Promise<void> {
     // The change itself already succeeded and the response has gone out, so a
     // failed trail entry is logged rather than surfaced as a failed save.
     console.error("Audit entry could not be written", error);
+  }
+  if (!input.notify) return;
+  try {
+    const { notifyFromAudit } = await import("./notify");
+    await notifyFromAudit(entry, input.notify, await origin);
+  } catch (error) {
+    console.error("Notifications could not be written", error);
   }
 }
 

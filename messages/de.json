@@ -3269,5 +3269,49 @@
       "handle": "{name} verschieben"
     },
     "descriptionLabel": "Beschreibung"
+  },
+  "notifications": {
+    "bell": "Benachrichtigungen",
+    "unread": "{count, plural, one {# ungelesen} other {# ungelesen}}",
+    "markAllRead": "Alle als gelesen markieren",
+    "empty": "Noch keine Benachrichtigungen.",
+    "loadFailed": "Benachrichtigungen konnten nicht geladen werden.",
+    "titles": {
+      "order_paid": "Neue Bestellung {code} über {amount}",
+      "campaignPaid": "Geschenkkampagne {code} bezahlt: {count, plural, one {# Bestellung} other {# Bestellungen}}",
+      "order_exception": "Problem bei Bestellung {code} gemeldet",
+      "refund_recorded": "Erstattung von {amount} für Bestellung {code} erfasst",
+      "gift_approval": "Geschenkkampagne {code} wartet auf Freigabe",
+      "quote_received": "Angebot von {name} für {code} erhalten",
+      "invite_accepted": "{name} hat die Einladung angenommen"
+    },
+    "settings": {
+      "menu": "Benachrichtigungen",
+      "title": "Benachrichtigungseinstellungen",
+      "description": "Legen Sie fest, wie Sie über Ereignisse in Ihren Shops informiert werden.",
+      "event": "Ereignis",
+      "inApp": "In der App",
+      "email": "E-Mail",
+      "save": "Speichern",
+      "saved": "Benachrichtigungseinstellungen gespeichert.",
+      "failed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+      "digestNote": "E-Mails zu neuen Bestellungen werden pro Shop stündlich zusammengefasst.",
+      "types": {
+        "order_paid": "Neue Bestellungen",
+        "order_exception": "Probleme bei Bestellungen",
+        "refund_recorded": "Erstattungen",
+        "gift_approval": "Geschenkkampagnen zur Freigabe",
+        "quote_received": "Beschaffungsangebote",
+        "invite_accepted": "Angenommene Einladungen"
+      }
+    },
+    "email": {
+      "subject": "{title} in {store}",
+      "storeLabel": "Shop",
+      "cta": "Details ansehen",
+      "digestSubject": "{count, plural, one {# neue Bestellung} other {# neue Bestellungen}} in {store}",
+      "digestHeading": "{count, plural, one {# neue Bestellung} other {# neue Bestellungen}}",
+      "digestCta": "Bestellungen ansehen"
+    }
   }
 }

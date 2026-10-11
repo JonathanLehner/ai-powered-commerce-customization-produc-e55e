@@ -3269,5 +3269,49 @@
       "handle": "{name}を並べ替え"
     },
     "descriptionLabel": "説明"
+  },
+  "notifications": {
+    "bell": "通知",
+    "unread": "{count, plural, other {未読 #件}}",
+    "markAllRead": "すべて既読にする",
+    "empty": "通知はまだありません。",
+    "loadFailed": "通知を読み込めませんでした。",
+    "titles": {
+      "order_paid": "新しい注文 {code}（{amount}）",
+      "campaignPaid": "ギフトキャンペーン {code} の支払いが完了しました：{count, plural, other {#件の注文}}",
+      "order_exception": "注文 {code} で問題が報告されました",
+      "refund_recorded": "注文 {code} に {amount} の返金が記録されました",
+      "gift_approval": "ギフトキャンペーン {code} が承認待ちです",
+      "quote_received": "{name} から {code} の見積もりが届きました",
+      "invite_accepted": "{name} さんが招待を承諾しました"
+    },
+    "settings": {
+      "menu": "通知",
+      "title": "通知設定",
+      "description": "ストアでの出来事の受け取り方を選択してください。",
+      "event": "イベント",
+      "inApp": "アプリ内",
+      "email": "メール",
+      "save": "保存",
+      "saved": "通知設定を保存しました。",
+      "failed": "保存できませんでした。もう一度お試しください。",
+      "digestNote": "新規注文のメールは、ストアごとに1時間に1通にまとめて送信されます。",
+      "types": {
+        "order_paid": "新しい注文",
+        "order_exception": "注文の問題",
+        "refund_recorded": "返金",
+        "gift_approval": "承認待ちのギフトキャンペーン",
+        "quote_received": "仕入れの見積もり",
+        "invite_accepted": "承諾された招待"
+      }
+    },
+    "email": {
+      "subject": "{store}：{title}",
+      "storeLabel": "ストア",
+      "cta": "詳細を見る",
+      "digestSubject": "{store}：{count, plural, other {新しい注文 #件}}",
+      "digestHeading": "{count, plural, other {新しい注文 #件}}",
+      "digestCta": "注文を見る"
+    }
   }
 }

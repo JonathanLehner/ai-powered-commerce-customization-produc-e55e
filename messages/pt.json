@@ -3269,5 +3269,49 @@
       "handle": "Mover {name}"
     },
     "descriptionLabel": "Descrição"
+  },
+  "notifications": {
+    "bell": "Notificações",
+    "unread": "{count, plural, one {# não lida} other {# não lidas}}",
+    "markAllRead": "Marcar todas como lidas",
+    "empty": "Ainda não há notificações.",
+    "loadFailed": "Não foi possível carregar as notificações.",
+    "titles": {
+      "order_paid": "Novo pedido {code} de {amount}",
+      "campaignPaid": "Campanha de presentes {code} paga: {count, plural, one {# pedido} other {# pedidos}}",
+      "order_exception": "Problema registrado no pedido {code}",
+      "refund_recorded": "Reembolso de {amount} registrado no pedido {code}",
+      "gift_approval": "A campanha de presentes {code} aguarda aprovação",
+      "quote_received": "Orçamento recebido de {name} para {code}",
+      "invite_accepted": "{name} aceitou o convite"
+    },
+    "settings": {
+      "menu": "Notificações",
+      "title": "Configurações de notificação",
+      "description": "Escolha como ser avisado sobre eventos nas suas lojas.",
+      "event": "Evento",
+      "inApp": "No app",
+      "email": "E-mail",
+      "save": "Salvar",
+      "saved": "Configurações de notificação salvas.",
+      "failed": "Não foi possível salvar. Tente novamente.",
+      "digestNote": "Os e-mails de novos pedidos são agrupados em um por loja a cada hora.",
+      "types": {
+        "order_paid": "Novos pedidos",
+        "order_exception": "Problemas em pedidos",
+        "refund_recorded": "Reembolsos",
+        "gift_approval": "Campanhas de presentes aguardando aprovação",
+        "quote_received": "Orçamentos de fornecedores",
+        "invite_accepted": "Convites aceitos"
+      }
+    },
+    "email": {
+      "subject": "{title} em {store}",
+      "storeLabel": "Loja",
+      "cta": "Ver detalhes",
+      "digestSubject": "{count, plural, one {# novo pedido} other {# novos pedidos}} em {store}",
+      "digestHeading": "{count, plural, one {# novo pedido} other {# novos pedidos}}",
+      "digestCta": "Ver pedidos"
+    }
   }
 }

@@ -369,6 +369,11 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
       minimumOrderQuantity: quote.minimumOrderQuantity,
       leadTimeDays: quote.leadTimeDays,
     },
+    notify: {
+      type: "quote_received",
+      href: `/app/stores/${request.storeId}/sourcing`,
+      params: { code: request.code, name: quote.supplierLabel },
+    },
   });
 
   revalidateEnquiry(request.storeId);

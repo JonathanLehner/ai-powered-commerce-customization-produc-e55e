@@ -234,3 +234,25 @@ export function giftApprovalEmail(brand: EmailBrand, copy: EmailCopy, campaign: 
     action: { label: t("approvalCta"), url: campaign.approvalUrl },
   });
 }
+
+/* -------------------------------------------------------------- store team */
+
+export interface NotificationEmailInput {
+  subject: string;
+  heading: string;
+  name: string;
+  paragraphs: string[];
+  rows?: { label: string; value: string }[];
+  action: { label: string; url: string };
+}
+
+/** A notification to someone on the store's team, already written in their language. */
+export function notificationEmail(brand: EmailBrand, copy: EmailCopy, input: NotificationEmailInput): BuiltEmail {
+  return render(brand, copy, input.subject, {
+    heading: input.heading,
+    greetingName: input.name,
+    paragraphs: input.paragraphs,
+    rows: input.rows,
+    action: input.action,
+  });
+}

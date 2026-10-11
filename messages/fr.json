@@ -3269,5 +3269,49 @@
       "handle": "Déplacer {name}"
     },
     "descriptionLabel": "Description"
+  },
+  "notifications": {
+    "bell": "Notifications",
+    "unread": "{count, plural, one {# non lue} other {# non lues}}",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Aucune notification pour le moment.",
+    "loadFailed": "Impossible de charger les notifications.",
+    "titles": {
+      "order_paid": "Nouvelle commande {code} de {amount}",
+      "campaignPaid": "Campagne cadeau {code} payée : {count, plural, one {# commande} other {# commandes}}",
+      "order_exception": "Incident signalé sur la commande {code}",
+      "refund_recorded": "Remboursement de {amount} enregistré sur la commande {code}",
+      "gift_approval": "La campagne cadeau {code} attend une validation",
+      "quote_received": "Devis reçu de {name} pour {code}",
+      "invite_accepted": "{name} a accepté l’invitation"
+    },
+    "settings": {
+      "menu": "Notifications",
+      "title": "Paramètres de notification",
+      "description": "Choisissez comment être informé des événements de vos boutiques.",
+      "event": "Événement",
+      "inApp": "Dans l’app",
+      "email": "E-mail",
+      "save": "Enregistrer",
+      "saved": "Paramètres de notification enregistrés.",
+      "failed": "Enregistrement impossible. Réessayez.",
+      "digestNote": "Les e-mails de nouvelles commandes sont regroupés en un seul par boutique et par heure.",
+      "types": {
+        "order_paid": "Nouvelles commandes",
+        "order_exception": "Incidents de commande",
+        "refund_recorded": "Remboursements",
+        "gift_approval": "Campagnes cadeaux à valider",
+        "quote_received": "Devis fournisseurs",
+        "invite_accepted": "Invitations acceptées"
+      }
+    },
+    "email": {
+      "subject": "{title} sur {store}",
+      "storeLabel": "Boutique",
+      "cta": "Voir le détail",
+      "digestSubject": "{count, plural, one {# nouvelle commande} other {# nouvelles commandes}} sur {store}",
+      "digestHeading": "{count, plural, one {# nouvelle commande} other {# nouvelles commandes}}",
+      "digestCta": "Voir les commandes"
+    }
   }
 }

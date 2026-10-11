@@ -3269,5 +3269,49 @@
       "handle": "{name} verplaatsen"
     },
     "descriptionLabel": "Beschrijving"
+  },
+  "notifications": {
+    "bell": "Meldingen",
+    "unread": "{count, plural, one {# ongelezen} other {# ongelezen}}",
+    "markAllRead": "Alles als gelezen markeren",
+    "empty": "Nog geen meldingen.",
+    "loadFailed": "Meldingen konden niet worden geladen.",
+    "titles": {
+      "order_paid": "Nieuwe bestelling {code} van {amount}",
+      "campaignPaid": "Cadeaucampagne {code} betaald: {count, plural, one {# bestelling} other {# bestellingen}}",
+      "order_exception": "Probleem gemeld bij bestelling {code}",
+      "refund_recorded": "Terugbetaling van {amount} geregistreerd bij bestelling {code}",
+      "gift_approval": "Cadeaucampagne {code} wacht op goedkeuring",
+      "quote_received": "Offerte ontvangen van {name} voor {code}",
+      "invite_accepted": "{name} heeft de uitnodiging geaccepteerd"
+    },
+    "settings": {
+      "menu": "Meldingen",
+      "title": "Meldingsinstellingen",
+      "description": "Kies hoe je op de hoogte blijft van gebeurtenissen in je winkels.",
+      "event": "Gebeurtenis",
+      "inApp": "In de app",
+      "email": "E-mail",
+      "save": "Opslaan",
+      "saved": "Meldingsinstellingen opgeslagen.",
+      "failed": "Opslaan mislukt. Probeer het opnieuw.",
+      "digestNote": "E-mails over nieuwe bestellingen worden per winkel elk uur gebundeld.",
+      "types": {
+        "order_paid": "Nieuwe bestellingen",
+        "order_exception": "Problemen met bestellingen",
+        "refund_recorded": "Terugbetalingen",
+        "gift_approval": "Cadeaucampagnes ter goedkeuring",
+        "quote_received": "Leveranciersoffertes",
+        "invite_accepted": "Geaccepteerde uitnodigingen"
+      }
+    },
+    "email": {
+      "subject": "{title} in {store}",
+      "storeLabel": "Winkel",
+      "cta": "Details bekijken",
+      "digestSubject": "{count, plural, one {# nieuwe bestelling} other {# nieuwe bestellingen}} in {store}",
+      "digestHeading": "{count, plural, one {# nieuwe bestelling} other {# nieuwe bestellingen}}",
+      "digestCta": "Bestellingen bekijken"
+    }
   }
 }

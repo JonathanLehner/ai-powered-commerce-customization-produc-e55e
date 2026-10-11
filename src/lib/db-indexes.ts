@@ -53,6 +53,8 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   discount_codes: [byId, { key: { storeId: 1, code: 1 } }, { key: { storeId: 1, createdAt: -1 } }],
   customers: [byId, { key: { storeId: 1, email: 1 }, unique: true }, { key: { storeId: 1, lastOrderAt: -1 } }],
   product_collections: [byId, { key: { storeId: 1, handle: 1 }, unique: true }, { key: { storeId: 1, position: 1 } }],
+  notifications: [byId, { key: { userId: 1, createdAt: -1 } }, { key: { storeId: 1, email: 1 } }, { key: { userId: 1, email: 1 } }],
+  notification_digests: [byId],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

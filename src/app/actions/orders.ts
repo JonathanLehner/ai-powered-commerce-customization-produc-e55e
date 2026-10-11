@@ -373,6 +373,7 @@ export async function raiseException(_prev: ActionState, formData: FormData): Pr
     entity: "order",
     entityId: order.code,
     meta: {},
+    notify: { type: "order_exception", href: `/app/stores/${storeId}/orders/${orderId}`, params: { code: order.code } },
   });
   refresh(storeId, orderId);
   return { status: "success", message: t("exceptionRecorded") };
@@ -503,6 +504,11 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     entity: "order",
     entityId: order.code,
     meta: { amount, reason, gatewayRefundId: gateway.refundId },
+    notify: {
+      type: "refund_recorded",
+      href: `/app/stores/${storeId}/orders/${orderId}`,
+      params: { code: order.code, amount, currency: order.currency },
+    },
   });
   refreshCustomers(store, [order.customer.email]);
   refresh(storeId, orderId);

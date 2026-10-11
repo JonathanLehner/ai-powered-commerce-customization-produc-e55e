@@ -3269,5 +3269,49 @@
       "handle": "Mover {name}"
     },
     "descriptionLabel": "Descripción"
+  },
+  "notifications": {
+    "bell": "Notificaciones",
+    "unread": "{count, plural, one {# sin leer} other {# sin leer}}",
+    "markAllRead": "Marcar todo como leído",
+    "empty": "Todavía no hay notificaciones.",
+    "loadFailed": "No se pudieron cargar las notificaciones.",
+    "titles": {
+      "order_paid": "Nuevo pedido {code} por {amount}",
+      "campaignPaid": "Campaña de regalos {code} pagada: {count, plural, one {# pedido} other {# pedidos}}",
+      "order_exception": "Incidencia registrada en el pedido {code}",
+      "refund_recorded": "Reembolso de {amount} registrado en el pedido {code}",
+      "gift_approval": "La campaña de regalos {code} está pendiente de aprobación",
+      "quote_received": "Presupuesto recibido de {name} para {code}",
+      "invite_accepted": "{name} aceptó la invitación"
+    },
+    "settings": {
+      "menu": "Notificaciones",
+      "title": "Ajustes de notificaciones",
+      "description": "Elige cómo quieres enterarte de lo que pasa en tus tiendas.",
+      "event": "Evento",
+      "inApp": "En la app",
+      "email": "Correo",
+      "save": "Guardar",
+      "saved": "Ajustes de notificaciones guardados.",
+      "failed": "No se pudo guardar. Inténtalo de nuevo.",
+      "digestNote": "Los correos de nuevos pedidos se agrupan en uno por tienda cada hora.",
+      "types": {
+        "order_paid": "Nuevos pedidos",
+        "order_exception": "Incidencias de pedidos",
+        "refund_recorded": "Reembolsos",
+        "gift_approval": "Campañas de regalos pendientes de aprobación",
+        "quote_received": "Presupuestos de proveedores",
+        "invite_accepted": "Invitaciones aceptadas"
+      }
+    },
+    "email": {
+      "subject": "{title} en {store}",
+      "storeLabel": "Tienda",
+      "cta": "Ver detalles",
+      "digestSubject": "{count, plural, one {# pedido nuevo} other {# pedidos nuevos}} en {store}",
+      "digestHeading": "{count, plural, one {# pedido nuevo} other {# pedidos nuevos}}",
+      "digestCta": "Ver pedidos"
+    }
   }
 }

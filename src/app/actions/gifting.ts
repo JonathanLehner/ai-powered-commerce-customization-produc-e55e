@@ -788,6 +788,14 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
     entity: "gift_campaign",
     entityId: campaign.code,
     meta: { recipients: recipients.length, total: quote.total, currency: catalogue.currency },
+    notify:
+      campaign.status === "awaiting_approval"
+        ? {
+            type: "gift_approval",
+            href: `/app/stores/${store.id}/orders/campaigns/${campaign.id}`,
+            params: { code: campaign.code, name: campaignName },
+          }
+        : undefined,
   });
   if (campaign.status === "awaiting_approval") {
     await emailApprovalRequest(store, catalogue, campaign);
@@ -1140,6 +1148,11 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
     entity: "gift_campaign",
     entityId: campaign.code,
     meta: { orders: orders.length, total: quote.total, currency: campaign.currency, held },
+    notify: {
+      type: "order_paid",
+      href: `/app/stores/${store.id}/orders/campaigns/${campaign.id}`,
+      params: { code: campaign.code, count: orders.length, amount: quote.total, currency: campaign.currency },
+    },
   });
 
   revalidatePath(`/app/stores/${store.id}/orders`);

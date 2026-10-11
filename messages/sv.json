@@ -3269,5 +3269,49 @@
       "handle": "Flytta {name}"
     },
     "descriptionLabel": "Beskrivning"
+  },
+  "notifications": {
+    "bell": "Aviseringar",
+    "unread": "{count, plural, one {# oläst} other {# olästa}}",
+    "markAllRead": "Markera alla som lästa",
+    "empty": "Inga aviseringar än.",
+    "loadFailed": "Aviseringarna kunde inte läsas in.",
+    "titles": {
+      "order_paid": "Ny order {code} på {amount}",
+      "campaignPaid": "Presentkampanj {code} betald: {count, plural, one {# order} other {# ordrar}}",
+      "order_exception": "Problem rapporterat för order {code}",
+      "refund_recorded": "Återbetalning på {amount} registrerad för order {code}",
+      "gift_approval": "Presentkampanj {code} väntar på godkännande",
+      "quote_received": "Offert mottagen från {name} för {code}",
+      "invite_accepted": "{name} har accepterat inbjudan"
+    },
+    "settings": {
+      "menu": "Aviseringar",
+      "title": "Aviseringsinställningar",
+      "description": "Välj hur du får veta vad som händer i dina butiker.",
+      "event": "Händelse",
+      "inApp": "I appen",
+      "email": "E-post",
+      "save": "Spara",
+      "saved": "Aviseringsinställningarna har sparats.",
+      "failed": "Det gick inte att spara. Försök igen.",
+      "digestNote": "E-post om nya ordrar samlas till ett meddelande per butik och timme.",
+      "types": {
+        "order_paid": "Nya ordrar",
+        "order_exception": "Orderproblem",
+        "refund_recorded": "Återbetalningar",
+        "gift_approval": "Presentkampanjer att godkänna",
+        "quote_received": "Leverantörsofferter",
+        "invite_accepted": "Accepterade inbjudningar"
+      }
+    },
+    "email": {
+      "subject": "{title} i {store}",
+      "storeLabel": "Butik",
+      "cta": "Visa detaljer",
+      "digestSubject": "{count, plural, one {# ny order} other {# nya ordrar}} i {store}",
+      "digestHeading": "{count, plural, one {# ny order} other {# nya ordrar}}",
+      "digestCta": "Visa ordrar"
+    }
   }
 }
