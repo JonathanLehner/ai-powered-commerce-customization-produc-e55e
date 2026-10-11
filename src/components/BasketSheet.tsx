@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
+import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createContext, use, useCallback, useMemo, useOptimistic, useRef, useState } from "react";
@@ -175,12 +176,29 @@ export function BasketSheet({ storeId }: { storeId: string }) {
     useBasket();
   const count = lines.reduce((sum, l) => sum + l.quantity, 0);
   const saving = lines.some((l) => l.pending);
+  const label = count > 0 ? chrome("basketWithCount", { count }) : chrome("basket");
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="lg">
-          {count > 0 ? chrome("basketWithCount", { count }) : chrome("basket")}
+        {/* On a phone the header has one row, so the basket is an icon with
+            the item count; the full label comes back from md up. */}
+        <Button
+          variant="outline"
+          size="lg"
+          aria-label={label}
+          className="relative max-md:w-9 max-md:px-0"
+        >
+          <ShoppingBag aria-hidden className="size-4.5 md:hidden" />
+          <span className="max-md:hidden">{label}</span>
+          {count > 0 ? (
+            <span
+              aria-hidden
+              className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[0.6875rem] leading-none font-medium tabular-nums text-primary-foreground md:hidden"
+            >
+              {count}
+            </span>
+          ) : null}
         </Button>
       </SheetTrigger>
       <SheetContent

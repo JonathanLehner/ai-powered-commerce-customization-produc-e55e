@@ -9,6 +9,7 @@ import { Document, siteMetadata } from "@/components/Document";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { PlainDocument } from "@/components/SiteChrome";
 import { StoreMark } from "@/components/StoreMark";
+import { StorefrontMenu } from "@/components/StorefrontMenu";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { localizedPath } from "@/i18n/locales";
@@ -121,6 +122,53 @@ export default async function StorefrontLayout({
     plainVariantId: item.text || item.artworkUrl ? null : item.variantId,
   }));
 
+  // On small screens the header is one row and the links move into the menu.
+  const menuLinks = [
+    { href: `${base}/products`, label: site.navShop || t("chrome.shop") },
+    ...navCollections.map((c) => ({ href: `${base}/collections/${c.handle}`, label: c.name })),
+    { href: `${base}/orders`, label: site.navOrders || t("chrome.orderStatus") },
+  ];
+
+  // The currency picker, in the desktop header and in the small-screen menu.
+  // Only the desktop one carries the no-JavaScript fallback: the menu cannot
+  // open without JavaScript.
+  const currencyForm = (id: string, className: string, fallback: boolean) => (
+    <form action={setCurrency} className={`${className} items-center gap-1.5`}>
+      <input type="hidden" name="storeId" value={store.id} />
+      <input type="hidden" name="slug" value={store.slug} />
+      <input type="hidden" name="back" value={base} />
+      {fallback ? (
+        <Label htmlFor={id} className="sr-only">
+          {t("chrome.currencyLabel")}
+        </Label>
+      ) : null}
+      <CurrencySelect id={id} defaultValue={currency} currencies={store.currencies} />
+      {/* The Select applies a currency as soon as it is picked, but it cannot
+          open without JavaScript. Then the browser shows this native select
+          and submit instead, and hides the Select's dead trigger. */}
+      {fallback ? (
+        <noscript>
+          <style>{`#${id}{display:none}`}</style>
+          <select
+            name="currency"
+            defaultValue={currency}
+            aria-label={t("chrome.currencyLabel")}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            {store.currencies.map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </select>
+          <Button type="submit" variant="ghost" size="lg">
+            {t("chrome.currencyApply")}
+          </Button>
+        </noscript>
+      ) : null}
+    </form>
+  );
+
   return (
     <Document lang={locale} style={storeThemeStyle(store.theme)}>
       <NextIntlClientProvider
@@ -135,7 +183,7 @@ export default async function StorefrontLayout({
               </div>
             ) : null}
             <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">
-              <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-6">
+              <div className="mx-auto flex w-full max-w-6xl items-center gap-x-3 gap-y-2 px-4 py-2.5 sm:px-6 md:flex-wrap md:gap-x-5 md:py-3">
                 <Link href={base} className="flex min-w-0 items-center gap-2.5">
                   <StoreMark name={store.name} logoUrl={store.logoUrl} />
                   <span className="font-heading truncate text-base font-semibold tracking-tight text-foreground">
@@ -145,7 +193,7 @@ export default async function StorefrontLayout({
 
                 <nav
                   aria-label={t("chrome.shop")}
-                  className="no-scrollbar -mx-1 flex max-w-full min-w-0 items-center gap-1 overflow-x-auto px-1"
+                  className="no-scrollbar -mx-1 hidden max-w-full min-w-0 items-center gap-1 overflow-x-auto px-1 md:flex"
                 >
                   <Link
                     href={`${base}/products`}
@@ -170,45 +218,29 @@ export default async function StorefrontLayout({
                   </Link>
                 </nav>
 
-                <div className="ml-auto flex items-center gap-2">
+                <div className="ml-auto flex shrink-0 items-center gap-2">
                   {locales.length > 1 ? (
-                    <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
+                    <div className="hidden md:block">
+                      <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
+                    </div>
                   ) : null}
-                  <form action={setCurrency} className="flex items-center gap-1.5">
-                    <input type="hidden" name="storeId" value={store.id} />
-                    <input type="hidden" name="slug" value={store.slug} />
-                    <input type="hidden" name="back" value={base} />
-                    <Label htmlFor="store-currency" className="sr-only">
-                      {t("chrome.currencyLabel")}
-                    </Label>
-                    <CurrencySelect
-                      id="store-currency"
-                      defaultValue={currency}
-                      currencies={store.currencies}
-                    />
-                    {/* The Select applies a currency as soon as it is picked, but
-                        it cannot open without JavaScript. Then the browser shows
-                        this native select and submit instead, and hides the
-                        Select's dead trigger. */}
-                    <noscript>
-                      <style>{"#store-currency{display:none}"}</style>
-                      <select
-                        name="currency"
-                        defaultValue={currency}
-                        aria-label={t("chrome.currencyLabel")}
-                        className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                      >
-                        {store.currencies.map((code) => (
-                          <option key={code} value={code}>
-                            {code}
-                          </option>
-                        ))}
-                      </select>
-                      <Button type="submit" variant="ghost" size="lg">
-                        {t("chrome.currencyApply")}
-                      </Button>
-                    </noscript>
-                  </form>
+                  {currencyForm("store-currency", "hidden md:flex", true)}
+                  <div className="md:hidden">
+                    <StorefrontMenu links={menuLinks}>
+                      {locales.length > 1 ? (
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-sm text-muted-foreground">{t("chrome.languageLabel")}</span>
+                          <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
+                        </div>
+                      ) : null}
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="store-currency-menu" className="font-normal text-muted-foreground">
+                          {t("chrome.currencyLabel")}
+                        </Label>
+                        {currencyForm("store-currency-menu", "flex", false)}
+                      </div>
+                    </StorefrontMenu>
+                  </div>
                   <BasketSheet storeId={store.id} />
                 </div>
               </div>

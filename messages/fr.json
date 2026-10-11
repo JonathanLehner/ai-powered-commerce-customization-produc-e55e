@@ -2744,6 +2744,7 @@
       "currencyLabel": "Devise",
       "currencyApply": "Appliquer",
       "languageLabel": "Langue",
+      "menu": "Menu",
       "basket": "Panier",
       "basketWithCount": "Panier ({count})",
       "allProducts": "Tous les produits",

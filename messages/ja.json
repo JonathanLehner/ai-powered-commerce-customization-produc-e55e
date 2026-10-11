@@ -2744,6 +2744,7 @@
       "currencyLabel": "通貨",
       "currencyApply": "適用",
       "languageLabel": "言語",
+      "menu": "メニュー",
       "basket": "カート",
       "basketWithCount": "カート（{count}）",
       "allProducts": "すべての商品",
