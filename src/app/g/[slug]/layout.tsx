@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Document, siteMetadata } from "@/components/Document";
 import { GiftPortalFallbackProvider } from "@/components/GiftPortalFallback";
 import { PlainDocument } from "@/components/SiteChrome";
+import { StoreMark } from "@/components/StoreMark";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { fmt, storefrontLocale } from "@/lib/i18n";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
@@ -71,23 +71,7 @@ export default async function GiftPortalLayout({
         <header className="border-b border-border bg-background">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
             <Link href={`/g/${catalogue.slug}`} className="flex min-w-0 items-center gap-2.5">
-              {store.logoUrl ? (
-                <Image
-                  src={store.logoUrl}
-                  alt=""
-                  width={40}
-                  height={40}
-                  sizes="40px"
-                  className="h-9 w-9 shrink-0 rounded-md object-contain"
-                />
-              ) : (
-                <span
-                  aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground"
-                >
-                  {store.name.slice(0, 1)}
-                </span>
-              )}
+              <StoreMark name={store.name} logoUrl={store.logoUrl} />
               <span className="min-w-0">
                 <span className="font-heading block truncate text-base font-semibold tracking-tight text-foreground">
                   {catalogue.companyName}

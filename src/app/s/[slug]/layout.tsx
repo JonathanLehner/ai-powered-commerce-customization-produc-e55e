@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { readCurrency, readShopperSession, setCurrency } from "@/app/actions/shop";
 import { BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
 import { CurrencySelect } from "@/components/CurrencySelect";
 import { Document, siteMetadata } from "@/components/Document";
 import { PlainDocument } from "@/components/SiteChrome";
+import { StoreMark } from "@/components/StoreMark";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { getCart, getStorefront, getStoreBySlug } from "@/lib/data";
@@ -102,23 +102,7 @@ export default async function StorefrontLayout({
         <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-6">
             <Link href={`/s/${store.slug}`} className="flex min-w-0 items-center gap-2.5">
-              {store.logoUrl ? (
-                <Image
-                  src={store.logoUrl}
-                  alt=""
-                  width={40}
-                  height={40}
-                  sizes="40px"
-                  className="h-9 w-9 shrink-0 rounded-md object-contain"
-                />
-              ) : (
-                <span
-                  aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground"
-                >
-                  {store.name.slice(0, 1)}
-                </span>
-              )}
+              <StoreMark name={store.name} logoUrl={store.logoUrl} />
               <span className="font-heading truncate text-base font-semibold tracking-tight text-foreground">
                 {store.name}
               </span>
@@ -145,9 +129,28 @@ export default async function StorefrontLayout({
                   defaultValue={currency}
                   currencies={store.currencies}
                 />
-                <Button type="submit" variant="ghost" size="lg">
-                  {t.chrome.currencyApply}
-                </Button>
+                {/* The Select applies a currency as soon as it is picked, but
+                    it cannot open without JavaScript. Then the browser shows
+                    this native select and submit instead, and hides the
+                    Select's dead trigger. */}
+                <noscript>
+                  <style>{"#store-currency{display:none}"}</style>
+                  <select
+                    name="currency"
+                    defaultValue={currency}
+                    aria-label={t.chrome.currencyLabel}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                  >
+                    {store.currencies.map((code) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                  <Button type="submit" variant="ghost" size="lg">
+                    {t.chrome.currencyApply}
+                  </Button>
+                </noscript>
               </form>
               <BasketSheet
                 storeId={store.id}
