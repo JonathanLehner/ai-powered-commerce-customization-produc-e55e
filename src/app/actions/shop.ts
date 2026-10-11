@@ -26,7 +26,7 @@ import {
 import { refreshCustomers } from "@/lib/customer-data";
 import { brandFor, orderConfirmationEmail } from "@/lib/email-templates";
 import { sendEmail, siteOrigin } from "@/lib/email";
-import { localCountryName } from "@/lib/countries";
+import { addressRegionKind, localCountryName } from "@/lib/countries";
 import { formatMinorUnits } from "@/i18n/format";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
@@ -446,9 +446,13 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const line1 = String(formData.get("line1") ?? "").trim();
+  const line2 = String(formData.get("line2") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
   const postalCode = String(formData.get("postalCode") ?? "").trim();
   const country = String(formData.get("country") ?? "").trim().toUpperCase();
+  // Only countries with a region line show the field; anything else is dropped.
+  const region = addressRegionKind(country) ? String(formData.get("region") ?? "").trim() : "";
+  const phone = String(formData.get("phone") ?? "").trim();
   const currency = String(formData.get("currency") ?? store.defaultCurrency);
   const cardNumber = String(formData.get("cardNumber") ?? "");
   const expiry = String(formData.get("expiry") ?? "");
@@ -467,6 +471,12 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   // posted without it.
   if (!/^[A-Z]{2}$/.test(country)) {
     return { status: "error", message: t("actions.chooseCountry"), field: "country" };
+  }
+  if (addressRegionKind(country) && region.length < 2) {
+    return { status: "error", message: t("actions.enterRegion"), field: "region" };
+  }
+  if (phone && !/^\+?[\d\s().-]{6,20}$/.test(phone)) {
+    return { status: "error", message: t("actions.enterPhone"), field: "phone" };
   }
   if (!store.currencies.includes(currency)) {
     return {
@@ -538,7 +548,17 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     status: "paid",
     currency,
     locale,
-    customer: { name, email, line1, city, postalCode, country },
+    customer: {
+      name,
+      email,
+      line1,
+      ...(line2 ? { line2 } : {}),
+      city,
+      ...(region ? { region } : {}),
+      postalCode,
+      country,
+      ...(phone ? { phone } : {}),
+    },
     items: cart.items.map((item, index) => ({
       id: newId("oit"),
       storeProductId: item.storeProductId,
@@ -676,7 +696,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
         code,
         total,
         currency,
-        deliveryAddress: [line1, city, postalCode, localCountryName(country, locale)]
+        deliveryAddress: [line1, line2, city, region, postalCode, localCountryName(country, locale)]
           .filter(Boolean)
           .join(", "),
         statusUrl: `${origin}${orderStatusUrl(base, code, token)}`,

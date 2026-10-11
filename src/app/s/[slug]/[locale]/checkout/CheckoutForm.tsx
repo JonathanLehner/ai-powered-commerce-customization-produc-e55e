@@ -9,6 +9,7 @@ import { ActionForm } from "@/components/forms";
 import { Callout } from "@/components/ui";
 import { Card } from "@/components/ui/card";
 import {
+  addressRegionKind,
   isCountryCode,
   localCountryName,
   suppliersOutsideRegion,
@@ -25,6 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+const REGION_LABELS = {
+  state: "regionState",
+  province: "regionProvince",
+  prefecture: "regionPrefecture",
+} as const;
 
 /** Stripe's published test numbers, labelled in the storefront's language. */
 const TEST_CARD_LABELS: Record<string, keyof ShopperMessages["checkout"]> = {
@@ -57,6 +64,7 @@ export function CheckoutForm({
   );
   const unfulfilled = suppliersOutsideRegion(country, fulfillmentSources);
   const destination = localCountryName(country, localeTag);
+  const regionKind = addressRegionKind(country);
 
   return (
     <Card asChild className="block overflow-visible p-5">
@@ -112,6 +120,18 @@ export function CheckoutForm({
                 className="mt-1.5"
               />
             </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="line2">
+                {t("line2")}
+              </Label>
+              <Input
+                id="line2"
+                name="line2"
+                autoComplete="address-line2"
+                aria-invalid={state.field === "line2" ? true : undefined}
+                className="mt-1.5"
+              />
+            </div>
             <div>
               <Label htmlFor="city">
                 {t("city")}
@@ -148,6 +168,34 @@ export function CheckoutForm({
                 value={country}
                 onChange={setCountry}
                 invalid={state.field === "country"}
+              />
+            </div>
+            {regionKind ? (
+              <div>
+                <Label htmlFor="region">
+                  {t(REGION_LABELS[regionKind])}
+                </Label>
+                <Input
+                  id="region"
+                  name="region"
+                  autoComplete="address-level1"
+                  required
+                  aria-invalid={state.field === "region" ? true : undefined}
+                  className="mt-1.5"
+                />
+              </div>
+            ) : null}
+            <div>
+              <Label htmlFor="phone">
+                {t("phone")}
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                aria-invalid={state.field === "phone" ? true : undefined}
+                className="mt-1.5"
               />
             </div>
             <div>
@@ -200,7 +248,7 @@ export function CheckoutForm({
                 name="cardNumber"
                 inputMode="numeric"
                 autoComplete="cc-number"
-                placeholder="4242 4242 4242 4242"
+                placeholder="1234 1234 1234 1234"
                 required
                 aria-invalid={state.field === "cardNumber" ? true : undefined}
                 className="mt-1.5"
@@ -214,7 +262,7 @@ export function CheckoutForm({
                 id="expiry"
                 name="expiry"
                 autoComplete="cc-exp"
-                placeholder="04/29"
+                placeholder={t("expiryPlaceholder")}
                 required
                 aria-invalid={state.field === "expiry" ? true : undefined}
                 className="mt-1.5"
@@ -229,7 +277,7 @@ export function CheckoutForm({
                 name="cvc"
                 inputMode="numeric"
                 autoComplete="cc-csc"
-                placeholder="123"
+                placeholder={t("cvcPlaceholder")}
                 required
                 aria-invalid={state.field === "cvc" ? true : undefined}
                 className="mt-1.5"

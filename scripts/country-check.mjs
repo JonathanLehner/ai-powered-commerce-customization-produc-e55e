@@ -1,6 +1,7 @@
 // Self-check for the checkout country picker: npm run country-check
 import assert from "node:assert/strict";
 import {
+  addressRegionKind,
   COUNTRIES,
   countryName,
   isCountryCode,
@@ -82,5 +83,15 @@ assert.deepEqual(
 assert.deepEqual(suppliersOutsideRegion("DE", [printify, gelato]), []);
 // Nothing in the basket to check means nothing to warn about.
 assert.deepEqual(suppliersOutsideRegion("ZA", []), []);
+
+// The delivery form asks for a region line only where the address uses one.
+assert.equal(addressRegionKind("US"), "state");
+assert.equal(addressRegionKind("ca"), "province");
+assert.equal(addressRegionKind("JP"), "prefecture");
+assert.equal(addressRegionKind("DE"), null);
+assert.equal(addressRegionKind("GB"), null);
+for (const code of ["US", "CA", "AU", "BR", "IN", "MX", "MY", "AR", "CN", "ES", "IT", "JP"]) {
+  assert.ok(isCountryCode(code), `${code} has a region line but is not offered at checkout`);
+}
 
 console.log("country-check ok");

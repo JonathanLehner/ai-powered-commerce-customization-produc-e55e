@@ -205,7 +205,13 @@ export default async function OrderStatusPage({
             <br />
             {order.customer.line1}
             <br />
-            {order.customer.city} {order.customer.postalCode}
+            {order.customer.line2 ? (
+              <>
+                {order.customer.line2}
+                <br />
+              </>
+            ) : null}
+            {[order.customer.city, order.customer.region, order.customer.postalCode].filter(Boolean).join(" ")}
             <br />
             {localCountryName(order.customer.country, locale)}
           </address>

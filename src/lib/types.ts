@@ -631,9 +631,14 @@ export interface Order {
     name: string;
     email: string;
     line1: string;
+    line2?: string;
     city: string;
+    /** State, province or prefecture, for countries whose addresses have one. */
+    region?: string;
     postalCode: string;
     country: string;
+    /** For the carrier; optional at checkout. */
+    phone?: string;
     /** Set once the shopper's personal data was deleted. Name, email and address are blanked then. */
     anonymisedAt?: string;
   };

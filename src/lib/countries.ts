@@ -416,3 +416,26 @@ export function suppliersOutsideRegion(country: string, sources: FulfillmentSour
   const region = regionForCountry(country);
   return sources.filter((source) => !source.regions.includes(region));
 }
+
+/** What a country calls the region line of an address, for countries whose carriers need one. */
+export type AddressRegionKind = "state" | "province" | "prefecture";
+
+const ADDRESS_REGIONS: Record<string, AddressRegionKind> = {
+  US: "state",
+  AU: "state",
+  BR: "state",
+  IN: "state",
+  MX: "state",
+  MY: "state",
+  CA: "province",
+  AR: "province",
+  CN: "province",
+  ES: "province",
+  IT: "province",
+  JP: "prefecture",
+};
+
+/** The region line a delivery address in this country needs, or null when it has none. */
+export function addressRegionKind(code: string): AddressRegionKind | null {
+  return ADDRESS_REGIONS[code.toUpperCase()] ?? null;
+}

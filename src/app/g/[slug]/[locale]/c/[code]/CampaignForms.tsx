@@ -121,7 +121,7 @@ export function PaymentForm({
                 name="cardNumber"
                 inputMode="numeric"
                 autoComplete="cc-number"
-                placeholder="4242 4242 4242 4242"
+                placeholder="1234 1234 1234 1234"
                 required
                 aria-invalid={state.field === "cardNumber" ? true : undefined}
                 className="mt-1.5"
@@ -135,7 +135,7 @@ export function PaymentForm({
                 id="expiry"
                 name="expiry"
                 autoComplete="cc-exp"
-                placeholder="04/29"
+                placeholder={card("expiryPlaceholder")}
                 required
                 aria-invalid={state.field === "expiry" ? true : undefined}
                 className="mt-1.5"
@@ -150,7 +150,7 @@ export function PaymentForm({
                 name="cvc"
                 inputMode="numeric"
                 autoComplete="cc-csc"
-                placeholder="123"
+                placeholder={card("cvcPlaceholder")}
                 required
                 aria-invalid={state.field === "cvc" ? true : undefined}
                 className="mt-1.5"

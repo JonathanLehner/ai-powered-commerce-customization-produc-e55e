@@ -59,7 +59,7 @@ export function DiscountEntry({
           placeholder={t("placeholder")}
           aria-invalid={state.field === "code" ? true : undefined}
           aria-label={t("label")}
-          className="font-mono uppercase"
+          className="font-mono uppercase placeholder:font-sans placeholder:normal-case"
         />
         <SubmitButton variant="outline" className="shrink-0" pendingLabel={t("applying")}>
           {t("apply")}

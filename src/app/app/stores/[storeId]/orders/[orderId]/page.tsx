@@ -391,10 +391,22 @@ export default async function OrderDetailPage({
                     <br />
                     {order.customer.line1}
                     <br />
-                    {order.customer.city} {order.customer.postalCode}
+                    {order.customer.line2 ? (
+                      <>
+                        {order.customer.line2}
+                        <br />
+                      </>
+                    ) : null}
+                    {[order.customer.city, order.customer.region, order.customer.postalCode].filter(Boolean).join(" ")}
                     <br />
                     {countryName(locale, order.customer.country)} ({order.customer.country}) ·{" "}
                     {region(order.customer.country)}
+                    {order.customer.phone ? (
+                      <>
+                        <br />
+                        {order.customer.phone}
+                      </>
+                    ) : null}
                   </address>
                 )}
                 {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
