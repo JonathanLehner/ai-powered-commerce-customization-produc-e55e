@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, shippingNotificationEmail } from "@/lib/email-templates";
+import { emailCopy, shopperLocale } from "@/i18n/storefront";
+import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
 import { assertStoreAccess } from "@/lib/session";
@@ -274,15 +276,18 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
   // leaves the shipment recorded and the attempt in the store's activity.
   try {
     const origin = await siteOrigin();
+    // Written in the language the shopper checked out in, if the store still offers it.
+    const locale = shopperLocale(store, order.locale ?? "");
+    const base = localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale);
     sendEmail({
       to: order.customer.email,
-      message: shippingNotificationEmail(brandFor(store), {
+      message: shippingNotificationEmail(brandFor(store), await emailCopy(locale), {
         customerName: order.customer.name,
         code: order.code,
         carrierName: CARRIER_LABELS[carrier],
         trackingNumber,
         trackingUrl,
-        statusUrl: `${origin}${orderStatusUrl(store.slug, order.code, await signOrderToken(storeId, order.code))}`,
+        statusUrl: `${origin}${orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code))}`,
       }),
       kind: "shipping notification",
       storeId,

@@ -4,10 +4,9 @@ import { NextIntlClientProvider, type AbstractIntlMessages } from "next-intl";
 
 /**
  * English for the shared form controls (pending labels, confirmations, copy
- * buttons) on surfaces that do not set up next-intl themselves: the shopper
- * storefront and the gift portal, whose own copy comes from `lib/i18n`. The
- * public site and the workspace wrap their pages in their own provider, which
- * takes precedence.
+ * buttons) on any surface that does not set up next-intl itself. The public
+ * site, the workspace, the storefronts and the gift portals wrap their pages
+ * in their own provider, which takes precedence.
  */
 export function BaseIntlProvider({
   messages,

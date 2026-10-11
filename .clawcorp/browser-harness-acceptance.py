@@ -437,20 +437,27 @@ except Exception:
 try:
     G(qa_store_url + "/setup")
     t = text()
-    sections = [s for s in ["Branding", "Language and selling currencies", "Custom domain",
+    sections = [s for s in ["Branding", "Languages", "Selling currencies", "Custom domain",
                             "Stripe", "carrier", "Tax"] if s.lower() in t.lower()]
     has_logo = bool(J("!!document.querySelector('input[type=file]')"))
     # each section saves on its own; reload between them so the form re-renders
     J("""(()=>{const r=[...document.querySelectorAll('input[name=theme]')][1]; if(r) r.click();})()""")
     click_text("button", "Save branding"); time.sleep(3); wait_for_load()
 
+    # Languages: enable German beside the default, then make it the default.
+    # The language checkboxes are controlled, so the shadcn Checkbox button is
+    # what has to be clicked; the default picker lists only enabled languages.
     G(qa_store_url + "/setup")
+    J("""(()=>{const b=document.querySelector('button[role=checkbox][value=de]');
+        if(b&&b.getAttribute('aria-checked')!=='true')b.click();})()""")
+    time.sleep(0.5)
     set_select("select[name=defaultLanguage]", "German")
-    # The posting input of a shadcn Checkbox is aria-hidden inside the control's
-    # own button, so the button is what has to be clicked.
+    click_text("button", "Save languages"); time.sleep(3); wait_for_load()
+
+    G(qa_store_url + "/setup")
     J("""(()=>{const c=[...document.querySelectorAll('input[name=currencies]')].find(i=>i.value==='EUR');
         if(c&&!c.checked)(c.closest('button')||c).click();})()""")
-    click_text("button", "Save localisation"); time.sleep(3); wait_for_load()
+    click_text("button", "Save currencies"); time.sleep(3); wait_for_load()
 
     G(qa_store_url + "/setup")
     fill("input[name=customDomain]", "qa-%s.example" % STAMP)
@@ -491,7 +498,7 @@ try:
     progress = m.group(0) if m else "progress unknown"
     if not carrier_crash:
         shot(3)
-    if carriers_saved and len(sections) >= 6 and has_logo:
+    if carriers_saved and len(sections) >= 7 and has_logo:
         record(3, "pass",
                "guided setup walks logo upload, theme, default language, selling currencies, custom domain, Stripe account, shipping carriers and tax; each section saves on its own (%s)" % progress)
     else:

@@ -18,6 +18,8 @@ import {
   getUserByEmail,
 } from "@/lib/data";
 import { isLocale } from "@/i18n/locales";
+import { emailCopy, shopperLocale } from "@/i18n/storefront";
+import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, giftApprovalEmail } from "@/lib/email-templates";
 import { routeOrder } from "@/lib/fulfillment";
@@ -370,7 +372,7 @@ async function emailApprovalRequest(
     );
     sendEmail({
       to,
-      message: giftApprovalEmail({ ...brandFor(store), language }, {
+      message: giftApprovalEmail(brandFor(store), await emailCopy(language), {
         approverName: campaign.approval.approverName,
         buyerName: campaign.buyer.name,
         campaignName: campaign.name,
@@ -577,6 +579,16 @@ async function portalCatalogue(slug: string): Promise<{ catalogue: GiftCatalogue
   return { catalogue, store };
 }
 
+/**
+ * A portal address in the language the action was posted from: `/g/<slug>/…`
+ * becomes `/g/<slug>/de/…` for a buyer reading the portal in German.
+ */
+async function inPortalLanguage(store: Store, slug: string, path: string): Promise<string> {
+  const root = `/g/${slug}`;
+  const base = localeBase(root, shopperLocale(store, await getLocale()), storeLanguages(store).defaultLocale);
+  return base + path.slice(root.length);
+}
+
 /** Invite-gated access: the address has to be on the catalogue's list. */
 export async function unlockGiftCatalogue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const slug = String(formData.get("slug") ?? "");
@@ -595,7 +607,7 @@ export async function unlockGiftCatalogue(_prev: ActionState, formData: FormData
     );
   }
   await grantGiftAccess(found.catalogue, email);
-  redirect(`/g/${slug}`);
+  redirect(await inPortalLanguage(found.store, slug, `/g/${slug}`));
 }
 
 function toRecipient(row: ParsedRecipient): CampaignRecipient {
@@ -780,7 +792,13 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
     await emailApprovalRequest(store, catalogue, campaign);
   }
   revalidatePath(`/app/stores/${store.id}/gifting`);
-  redirect(campaignPath(slug, campaign.code, await campaignToken(campaign.id, "buyer"), "buyer"));
+  redirect(
+    await inPortalLanguage(
+      store,
+      slug,
+      campaignPath(slug, campaign.code, await campaignToken(campaign.id, "buyer"), "buyer"),
+    ),
+  );
 }
 
 async function loadCampaign(slug: string, code: string) {
@@ -887,7 +905,7 @@ export async function cancelCampaign(formData: FormData): Promise<void> {
     meta: {},
   });
   revalidatePath(`/app/stores/${store.id}/gifting`);
-  revalidatePath(`/g/${slug}/c/${campaign.code}`);
+  revalidatePath(`/g/${slug}`, "layout");
 }
 
 /**
@@ -912,7 +930,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   const key = `gift_${campaign.id}`;
   if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(store.id, `${key}:0`))) {
     // A retried submission must not charge twice or duplicate the orders.
-    redirect(campaignPath(slug, campaign.code, token, "buyer"));
+    redirect(await inPortalLanguage(store, slug, campaignPath(slug, campaign.code, token, "buyer")));
   }
   if (campaign.status !== "approved") {
     return fail(
@@ -941,6 +959,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
     cvc: String(formData.get("cvc") ?? ""),
     name: campaign.buyer.name,
     idempotencyKey: key,
+    t: await getTranslations("storefront.payment"),
   });
   if (!charge.ok) {
     return {
@@ -1122,5 +1141,5 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
 
   revalidatePath(`/app/stores/${store.id}/orders`);
   revalidatePath(`/app/stores/${store.id}/gifting`);
-  redirect(campaignPath(slug, campaign.code, token, "buyer"));
+  redirect(await inPortalLanguage(store, slug, campaignPath(slug, campaign.code, token, "buyer")));
 }

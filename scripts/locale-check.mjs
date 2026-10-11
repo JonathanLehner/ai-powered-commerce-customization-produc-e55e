@@ -1,46 +1,34 @@
 // Self-check for the storefront languages: npm run locale-check
 //
-// The workspace offers a language dropdown, so the promise it makes has to hold
-// for every entry in it: a full dictionary, matching placeholders, a locale tag
-// that actually changes how money and dates read, and no English left behind.
+// Storefronts and gift portals read their built-in copy from messages/<locale>.json
+// through next-intl, and each store chooses which of the nine languages it is
+// available in. The promise the settings page makes has to hold for every one
+// of them: a full set of shopper messages, the same placeholders as English,
+// money and dates that actually read differently, addresses that carry the
+// language, and negotiation that never lands on a language the store has not
+// enabled.
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  DEFAULT_LANGUAGE,
-  LANGUAGES,
-  LANGUAGE_OPTIONS,
-  copyFor,
-  fmt,
-  fmtAround,
-  isLanguageCode,
-  joinList,
-  localeDate,
-  localeMoney,
-  localeTag,
-  resolveLanguage,
-  storefrontLocale,
-} from "../src/lib/i18n.ts";
+import { TYPE, parse } from "@formatjs/icu-messageformat-parser";
+import { DEFAULT_LOCALE, LOCALES, isLocale } from "../src/i18n/locales.ts";
+import { formatMinorUnits } from "../src/i18n/format.ts";
+import { negotiateShopperLocale } from "../src/i18n/shopper-negotiation.ts";
+import { localeBase, storeLanguages, switchLocalePath } from "../src/i18n/storefront-routing.ts";
 import { localCountries, localCountryName, matchCountry, searchCountries } from "../src/lib/countries.ts";
+import { read, shopperFormat, shopperT } from "./shopper-intl.mjs";
 
-/* ------------------------------------------- the dropdown lists what exists */
+/* -------------------------------------------- the hand-rolled layer is gone */
 
-assert.equal(LANGUAGE_OPTIONS.length, LANGUAGES.length);
-assert.deepEqual(
-  LANGUAGE_OPTIONS.map((l) => l.code),
-  LANGUAGES.map((l) => l.code),
-  "the dropdown must offer exactly the languages that have a dictionary",
-);
-for (const option of LANGUAGE_OPTIONS) {
-  assert.ok(option.label, `${option.code} has no English label`);
-  assert.ok(option.endonym, `${option.code} has no native name`);
+for (const path of ["../src/lib/i18n.ts", "../src/lib/copy"]) {
+  assert.ok(!existsSync(new URL(path, import.meta.url)), `${path.slice(3)} is back; the shopper copy lives in messages/`);
 }
 
-/* ------------------------------------------------- every dictionary is whole */
+/* ------------------------------------------ every language has the shopper copy */
 
-/** Flattens to "group.key" -> string so two dictionaries can be compared. */
+/** Flattens to "group.key" -> string so two languages can be compared. */
 function flatten(value, prefix = "") {
   const out = {};
   for (const [key, entry] of Object.entries(value)) {
@@ -51,44 +39,57 @@ function flatten(value, prefix = "") {
   return out;
 }
 
-// The set of names, not their count: a translation may repeat one where the
-// sentence reads better for it, but it must not drop or invent one.
-const placeholders = (template) =>
-  [...new Set([...template.matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort();
+/** The ICU arguments a message uses. A translation must not drop or invent one. */
+function placeholders(message) {
+  const found = new Set();
+  (function walk(nodes) {
+    for (const node of nodes) {
+      if (node.type === TYPE.argument || node.type === TYPE.number || node.type === TYPE.date) found.add(node.value);
+      if (node.type === TYPE.select || node.type === TYPE.plural) {
+        found.add(node.value);
+        for (const option of Object.values(node.options)) walk(option.value);
+      }
+      if (node.type === TYPE.tag) walk(node.children);
+    }
+  })(parse(message, { ignoreTag: false }));
+  return [...found].sort();
+}
 
-const english = flatten(copyFor("en"));
+const english = flatten(read("en").storefront);
 const englishKeys = Object.keys(english).sort();
-assert.ok(englishKeys.length > 150, "the English dictionary looks truncated");
+assert.ok(englishKeys.length > 150, "the English shopper messages look truncated");
 
-for (const { code } of LANGUAGES) {
-  const dictionary = flatten(copyFor(code));
-  assert.deepEqual(
-    Object.keys(dictionary).sort(),
-    englishKeys,
-    `${code} does not have the same keys as English`,
-  );
-  for (const [key, value] of Object.entries(dictionary)) {
+for (const code of LOCALES) {
+  const messages = flatten(read(code).storefront);
+  assert.deepEqual(Object.keys(messages).sort(), englishKeys, `${code} does not have the same shopper keys as English`);
+  for (const [key, value] of Object.entries(messages)) {
     assert.equal(typeof value, "string", `${code}.${key} is not a string`);
     assert.ok(value.trim().length > 0, `${code}.${key} is empty`);
     // A dropped placeholder silently prints the wrong sentence, e.g. a total
     // with no amount in it, so parity with English is enforced.
-    assert.deepEqual(
-      placeholders(value),
-      placeholders(english[key]),
-      `${code}.${key} does not carry the same placeholders as English`,
-    );
+    assert.deepEqual(placeholders(value), placeholders(english[key]), `${code}.${key} does not carry English's placeholders`);
+    // The copy rules: no em dashes anywhere a shopper reads.
+    assert.ok(!value.includes("\u2014"), `${code}.${key} uses an em dash`);
   }
 }
 
-// Every non-English storefront actually reads differently: a dictionary copied
+// Every non-English storefront actually reads differently: messages copied
 // wholesale from English would pass the shape checks above but not this one.
-const SAMPLE = ["basket.title", "checkout.title", "order.whatYouOrdered", "shop.title"];
-for (const { code } of LANGUAGES) {
+const SAMPLE = ["basket.title", "checkout.title", "order.whatYouOrdered", "shop.title", "actions.basketEmpty", "payment.invalidNumber"];
+for (const code of LOCALES) {
   if (code === "en") continue;
-  const dictionary = flatten(copyFor(code));
+  const messages = flatten(read(code).storefront);
   for (const key of SAMPLE) {
-    assert.notEqual(dictionary[key], english[key], `${code}.${key} is still the English string`);
+    assert.notEqual(messages[key], english[key], `${code}.${key} is still the English string`);
   }
+}
+
+// next-intl formats them: placeholders fill, nothing is left in braces.
+assert.equal(shopperT("en", "actions")("outOfStock", { variant: "Navy / M" }), "Navy / M is out of stock.");
+assert.equal(shopperT("de", "basket")("title"), "Ihr Warenkorb");
+for (const code of LOCALES) {
+  const filled = shopperT(code, "discount")("applied", { code: "SPRING10", amount: "5" });
+  assert.ok(filled.includes("SPRING10") && !/\{\w+\}/.test(filled), `${code} discount.applied did not fill`);
 }
 
 /* ------------------------------------- the gift portal is translated as well */
@@ -98,12 +99,12 @@ for (const { code } of LANGUAGES) {
 // product with no mockup, "Over limit" on a badge — so a German store's
 // storefront read in German while its own gifting portal stayed in English. The
 // portal is the store's surface too, and it renders in the store's language, so
-// every shopper-facing string in it has to come from these dictionaries.
-for (const { code } of LANGUAGES) {
+// every shopper-facing string in it has to come from the messages.
+for (const code of LOCALES) {
   if (code === "en") continue;
-  const dictionary = flatten(copyFor(code));
+  const messages = flatten(read(code).storefront);
   for (const key of ["gift.startOrder", "gift.previewSoon", "gift.overLimit", "gift.recipientsTitle"]) {
-    assert.notEqual(dictionary[key], english[key], `${code}.${key} is still the English string`);
+    assert.notEqual(messages[key], english[key], `${code}.${key} is still the English string`);
   }
 }
 
@@ -139,7 +140,7 @@ const withoutComments = (source) =>
 
 /**
  * Two short English words in a row, either case on the first. Portal copy now
- * arrives as `{t.gift.…}`, so a sentence left in the source — in the JSX, in a
+ * arrives as `{t("…")}`, so a sentence left in the source — in the JSX, in a
  * template literal, in a validation message — still reads like English and
  * nothing else in TypeScript does. The second word has to be plain lowercase so
  * `of readdirSync` and `of giftProductOptions` are not mistaken for prose.
@@ -155,7 +156,7 @@ const PROSE = new RegExp(
   "g",
 );
 
-/** A bare JSX text node that has a word in it was never passed through a dictionary. */
+/** A bare JSX text node that has a word in it was never passed through a translator. */
 const JSX_TEXT = />([^<>{}]+)<\//g;
 
 // Props and object keys that carry a sentence to the screen: a literal there is
@@ -185,89 +186,88 @@ for (const path of portalFiles) {
   }
 }
 
-/* --------------------------------------------------------- resolving a code */
+/* ------------------------------------------------------ languages per store */
 
-assert.equal(resolveLanguage("de"), "de");
-assert.equal(resolveLanguage("kl"), DEFAULT_LANGUAGE, "an unsupported code falls back to English");
-assert.equal(resolveLanguage(null), DEFAULT_LANGUAGE);
-assert.equal(resolveLanguage(undefined), DEFAULT_LANGUAGE);
-assert.equal(isLanguageCode("ja"), true);
-assert.equal(isLanguageCode("kl"), false);
+// A store saved before languages could be chosen is available in its default only.
+assert.deepEqual(storeLanguages({ defaultLanguage: "de" }), { locales: ["de"], defaultLocale: "de" });
+// The default is always enabled, the order is the switcher's, and a retired code is dropped.
+assert.deepEqual(storeLanguages({ defaultLanguage: "fr", languages: ["ja", "en", "kl"] }), {
+  locales: ["en", "fr", "ja"],
+  defaultLocale: "fr",
+});
+assert.equal(storeLanguages({ defaultLanguage: "kl" }).defaultLocale, DEFAULT_LOCALE, "a retired default falls back to English");
 
-/* ------------------------------------------------ money and dates follow the language */
+/* ------------------------------------------------- the language is in the path */
+
+const root = "/s/northwind-supply";
+assert.equal(localeBase(root, "en", "en"), root, "the default language keeps the plain address");
+assert.equal(localeBase(root, "de", "en"), `${root}/de`);
+assert.equal(switchLocalePath(`${root}/products/tee`, root, "de", "en"), `${root}/de/products/tee`);
+assert.equal(switchLocalePath(`${root}/de/products/tee`, root, "fr", "en"), `${root}/fr/products/tee`);
+assert.equal(switchLocalePath(`${root}/de/products/tee`, root, "en", "en"), `${root}/products/tee`);
+assert.equal(switchLocalePath(`${root}/de`, root, "en", "en"), root);
+assert.equal(switchLocalePath("/g/helio/c/CMP-1", "/g/helio", "de", "fr"), "/g/helio/de/c/CMP-1");
+
+/* -------------------------------- negotiation: cookie, Accept-Language, default */
+
+const northwind = storeLanguages({ defaultLanguage: "en", languages: ["en", "de"] });
+const negotiate = (cookie, acceptLanguage, store = northwind) =>
+  negotiateShopperLocale({ cookie, acceptLanguage }, store);
+
+assert.equal(negotiate(undefined, null), "en", "nothing to go on serves the store default");
+assert.equal(negotiate(undefined, "de-CH,de;q=0.9,en;q=0.8"), "de", "the browser's language when the store has it");
+assert.equal(negotiate(undefined, "fr-FR,fr;q=0.9"), "en", "a language the store has not enabled is never chosen");
+assert.equal(negotiate(undefined, "fr-FR,de;q=0.5"), "de", "the browser's best enabled language wins");
+assert.equal(negotiate("de", "en-US"), "de", "the cookie comes before Accept-Language");
+assert.equal(negotiate("fr", "de"), "de", "a cookie for a language the store has not enabled is ignored");
+assert.equal(negotiate(undefined, "de", storeLanguages({ defaultLanguage: "en" })), "en", "a one-language store never moves");
+assert.equal(negotiate(undefined, "***;;q=x"), "en", "a malformed header falls back to the default");
+
+/* ------------------------------------ money and dates follow the language, via next-intl */
 
 // Intl separates groups and the symbol with non-breaking spaces in several of
 // these languages; the check is about the shape, not which space was used.
 const spaces = (value) => value.replace(/[\u00a0\u202f\u2009]/g, " ");
+const money = (minor, currency, locale) => formatMinorUnits(shopperFormat(locale), minor, currency);
 
 // The bug this check exists for: every storefront formatted as US English.
-assert.equal(spaces(localeMoney(249900, "EUR", "de")), "2.499,00 \u20ac");
-assert.equal(spaces(localeMoney(249900, "EUR", "fr")), "2 499,00 \u20ac");
-assert.equal(spaces(localeMoney(249900, "EUR", "en")), "\u20ac2,499.00");
-assert.notEqual(localeMoney(249900, "EUR", "de"), localeMoney(249900, "EUR", "en"));
+assert.equal(spaces(money(249900, "EUR", "de")), "2.499,00 \u20ac");
+assert.equal(spaces(money(249900, "EUR", "fr")), "2 499,00 \u20ac");
+assert.equal(spaces(money(249900, "EUR", "en")), "\u20ac2,499.00");
+// Zero-decimal currencies still round-trip.
+assert.equal(spaces(money(2500, "JPY", "ja")), "\uffe52,500");
 
-// Zero-decimal currencies still round-trip in every language.
-assert.equal(spaces(localeMoney(2500, "JPY", "ja")), "\uffe52,500");
-
-const day = "2026-03-09T10:30:00.000Z";
-assert.notEqual(localeDate(day, "de"), localeDate(day, "en"));
-assert.notEqual(localeDate(day, "ja"), localeDate(day, "en"));
-for (const { code, tag } of LANGUAGES) {
-  assert.equal(localeTag(code), tag);
-  assert.ok(localeDate(day, code).length > 0, `${code} cannot format a date`);
-}
-assert.equal(localeTag("kl"), localeTag("en"), "an unknown code still formats as English");
-
-/* --------------------------------------------------------------- interpolation */
-
-assert.equal(fmt("Basket ({count})", { count: 3 }), "Basket (3)");
-assert.equal(fmt("Hello {name}", {}), "Hello {name}", "an unfilled placeholder is left visible");
-assert.deepEqual(fmtAround("before {x} after", "x"), ["before ", " after"]);
-assert.deepEqual(fmtAround("no placeholder", "x"), ["no placeholder", ""]);
-// Word order is the translation's, not English's.
-assert.deepEqual(fmtAround(copyFor("ja").order.confirmedFindAgain, "email")[0].includes("注文コード"), true);
-
-assert.equal(joinList(["a"], "and"), "a");
-assert.equal(joinList(["a", "b"], "and"), "a and b");
-assert.equal(joinList(["a", "b", "c"], "und"), "a, b und c");
-
-/* ----------------------------------------------------- the per-request bundle */
-
-const german = storefrontLocale({ defaultLanguage: "de" });
-assert.equal(german.language, "de");
-assert.equal(german.tag, "de-DE");
-assert.equal(german.t.basket.title, "Ihr Warenkorb");
-assert.equal(spaces(german.money(1999, "EUR")), "19,99 \u20ac");
-assert.ok(german.dateTime(day).length > 0);
-
-const legacy = storefrontLocale({ defaultLanguage: "kl" });
-assert.equal(legacy.language, "en", "a store saved with a retired language still renders");
+const day = new Date("2026-03-09T10:30:00.000Z");
+const date = (locale) => shopperFormat(locale).dateTime(day, { year: "numeric", month: "short", day: "numeric" });
+assert.notEqual(date("de"), date("en"));
+assert.notEqual(date("ja"), date("en"));
+for (const code of LOCALES) assert.ok(date(code).length > 0, `${code} cannot format a date`);
 
 /* ------------------------------------------------- country names follow the language */
 
-assert.equal(localCountryName("DE", "de-DE"), "Deutschland");
-assert.equal(localCountryName("DE", "fr-FR"), "Allemagne");
+assert.equal(localCountryName("DE", "de"), "Deutschland");
+assert.equal(localCountryName("DE", "fr"), "Allemagne");
 assert.equal(localCountryName("DE"), "Germany");
-assert.equal(localCountryName("ZZ", "de-DE"), "ZZ", "an unknown code is shown as itself");
+assert.equal(localCountryName("ZZ", "de"), "ZZ", "an unknown code is shown as itself");
 
 // A German storefront lists German names, in German alphabetical order.
-const germanCountries = localCountries("de-DE");
+const germanCountries = localCountries("de");
 assert.equal(germanCountries.length, localCountries().length);
 assert.deepEqual(
   germanCountries.map((c) => c.name),
-  [...germanCountries.map((c) => c.name)].sort((a, b) => a.localeCompare(b, "de-DE")),
+  [...germanCountries.map((c) => c.name)].sort((a, b) => a.localeCompare(b, "de")),
 );
 
 // Both the translated and the English name find the row, so autofill still works.
-assert.equal(searchCountries("Deutschland", "de-DE")[0].code, "DE");
-assert.equal(searchCountries("Germany", "de-DE")[0].code, "DE");
-assert.equal(matchCountry("Deutschland", "de-DE")?.code, "DE");
-assert.equal(matchCountry("Germany", "de-DE")?.code, "DE");
-assert.equal(matchCountry("DE", "de-DE")?.code, "DE");
+assert.equal(searchCountries("Deutschland", "de")[0].code, "DE");
+assert.equal(searchCountries("Germany", "de")[0].code, "DE");
+assert.equal(matchCountry("Deutschland", "de")?.code, "DE");
+assert.equal(matchCountry("Germany", "de")?.code, "DE");
+assert.equal(matchCountry("DE", "de")?.code, "DE");
 
 /* --------------------------------- the demo tenancy shows more than one language */
 
-// Nine dictionaries are worth nothing on a tour if every seeded store is set to
+// Nine languages are worth nothing on a tour if every seeded store is set to
 // English, which is exactly how this shipped: the feature existed and nothing a
 // visitor could click showed it. The seed is read as text — it talks to the
 // platform database when it runs, so it cannot be imported — and checked for a
@@ -277,7 +277,7 @@ const seed = await readFile(new URL("./seed.mjs", import.meta.url), "utf8");
 const declared = seed.match(/const FERRO_LANGUAGE = "([a-z]{2})";/);
 assert.ok(declared, "the seed no longer declares the language of the non-English demo store");
 const demoLanguage = declared[1];
-assert.ok(isLanguageCode(demoLanguage), `the demo store is set to ${demoLanguage}, which has no dictionary`);
+assert.ok(isLocale(demoLanguage), `the demo store is set to ${demoLanguage}, which has no messages`);
 assert.notEqual(demoLanguage, "en", "at least one demo store has to run in a language other than English");
 
 /** The literal between `id: "str_x",` and the end of that store record. */
@@ -301,6 +301,11 @@ assert.match(storeBlock("str_ferro"), /stripe: \{ connected: true[^}]*chargesEna
 for (const id of ["str_northwind", "str_lumen", "str_halcyon", "str_rivet"]) {
   assert.match(storeBlock(id), /defaultLanguage: "en",/, `${id} should stay English for contrast`);
 }
+
+// The tour shows the switcher: Northwind sells in English and German, Lumen in
+// English and French, each with English as the default.
+assert.match(storeBlock("str_northwind"), /languages: \["en", "de"\],/);
+assert.match(storeBlock("str_lumen"), /languages: \["en", "fr"\],/);
 
 // Seeded copy, not just a seeded setting: the shopper-facing strings the store
 // owns — product names, descriptions and the personalisation label — have to be

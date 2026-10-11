@@ -1,10 +1,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { FallbackPanel } from "@/components/ui";
-import { DEFAULT_LANGUAGE, fmt, storefrontLocale } from "@/lib/i18n";
-import { THEMES, type Store } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 /**
  * The bodies of every "we cannot find that" page, as server components.
@@ -23,37 +20,6 @@ import { cn } from "@/lib/utils";
  * routes pair them with `robots: noindex` metadata, which is how Next.js marks
  * a not-found page whose HTTP status cannot be a 404.
  */
-
-/** The way back for a mistyped or retired shopper URL, in the store's own language. */
-export function StorefrontNotFoundView({ store }: { store: Store }) {
-  const { t } = storefrontLocale(store);
-  const accent = THEMES[store.theme].accent;
-
-  return (
-    <FallbackPanel
-      eyebrow={store.name}
-      title={t.fallback.notFoundTitle}
-      description={<p>{fmt(t.fallback.notFoundBody, { store: store.name })}</p>}
-      actions={
-        <>
-          <Link
-            href={`/s/${store.slug}/products`}
-            className={cn(buttonVariants(), "text-white")}
-            style={{ background: accent }}
-          >
-            {t.fallback.browseProducts}
-          </Link>
-          <Link href={`/s/${store.slug}/cart`} className={buttonVariants({ variant: "outline" })}>
-            {t.basket.title}
-          </Link>
-          <Link href={`/s/${store.slug}/orders`} className={buttonVariants({ variant: "outline" })}>
-            {t.chrome.orderStatus}
-          </Link>
-        </>
-      }
-    />
-  );
-}
 
 /**
  * An address whose slug belongs to no store. There is no shop language to
@@ -82,34 +48,6 @@ export function UnknownStoreView({ slug }: { slug: string }) {
             Go to Parcelith
           </Link>
         </>
-      }
-    />
-  );
-}
-
-/**
- * A mistyped address inside a gift portal that does resolve. The portal runs in
- * the store's own storefront language, so this reads in it too; a catalogue
- * whose store could not be loaded falls back to English.
- */
-export function GiftPortalNotFoundView({
-  catalogue,
-  store,
-}: {
-  catalogue: { slug: string; name: string };
-  store: Store | null;
-}) {
-  const { t } = storefrontLocale(store ?? { defaultLanguage: DEFAULT_LANGUAGE });
-
-  return (
-    <FallbackPanel
-      eyebrow={catalogue.name}
-      title={t.gift.notFoundTitle}
-      description={<p>{t.gift.notFoundBody}</p>}
-      actions={
-        <Link href={`/g/${catalogue.slug}`} className={buttonVariants()}>
-          {t.gift.backToCatalogue}
-        </Link>
       }
     />
   );

@@ -5,7 +5,8 @@
 // every tab read "… · Parcelith" and every share preview pitched the agency
 // platform instead of the shop the shopper is standing in.
 import assert from "node:assert/strict";
-import { LANGUAGES, copyFor } from "../src/lib/i18n.ts";
+import { LOCALES } from "../src/i18n/locales.ts";
+import { shopperT } from "./shopper-intl.mjs";
 import { giftPortalMetadata, storeTagline, storefrontMetadata } from "../src/lib/storefront-meta.ts";
 import { treeFromSections } from "../src/lib/storefront-schema.ts";
 
@@ -35,7 +36,7 @@ assert.equal(
 
 /* --------------------------------------------- the storefront names the shop */
 
-const meta = storefrontMetadata(store, storeTagline(published));
+const meta = storefrontMetadata(store, shopperT("en", "meta"), storeTagline(published));
 
 assert.equal(meta.title.template, "%s · Northwind Supply Co", "child pages carry the store, not the platform");
 assert.ok(meta.title.default.startsWith("Northwind Supply Co"), "the store home is titled after the store");
@@ -54,10 +55,10 @@ assert.deepEqual(meta.openGraph.images, [
 ]);
 
 // A store without a logo gets no share image rather than a stand-in one.
-assert.equal(storefrontMetadata({ ...store, logoUrl: null }, null).openGraph.images, undefined);
+assert.equal(storefrontMetadata({ ...store, logoUrl: null }, shopperT("en", "meta"), null).openGraph.images, undefined);
 
 // Without a published hero the description still describes this store.
-const plain = storefrontMetadata(store, null);
+const plain = storefrontMetadata(store, shopperT("en", "meta"), null);
 assert.ok(plain.description.includes("Northwind Supply Co") && plain.description.includes("Northwind Ltd"));
 
 /* ------------------------------------------- the gift portal names the portal */
@@ -99,17 +100,17 @@ const strings = (m) => [
   m.openGraph.siteName,
 ];
 
-for (const { code } of LANGUAGES) {
-  const localised = storefrontMetadata({ ...store, defaultLanguage: code }, "Kit the whole team out");
+for (const code of LOCALES) {
+  const localised = storefrontMetadata(store, shopperT(code, "meta"), "Kit the whole team out");
   for (const value of strings(localised)) {
     assert.ok(value, `${code} produced an empty metadata field`);
     assert.ok(!value.includes("Parcelith"), `${code} storefront metadata still names the platform: ${value}`);
   }
   // Store footers carry the store's own name, support and legal links only.
   for (const key of ["legal", "terms", "privacy"]) {
-    assert.ok(!copyFor(code).chrome[key].includes("Parcelith"), `${code} footer still names the platform`);
+    assert.ok(!shopperT(code, "chrome")(key).includes("Parcelith"), `${code} footer still names the platform`);
   }
-  assert.ok(!copyFor(code).gift.legal.includes("Parcelith"), `${code} gift portal footer still names the platform`);
+  assert.ok(!shopperT(code, "gift")("legal").includes("Parcelith"), `${code} gift portal footer still names the platform`);
 }
 
 for (const value of strings(gift)) {

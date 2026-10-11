@@ -5,7 +5,8 @@
 // branding at the top, no placeholder left unfilled, and the link the message
 // exists for actually in it.
 import assert from "node:assert/strict";
-import { LANGUAGES, copyFor } from "../src/lib/i18n.ts";
+import { LOCALES } from "../src/i18n/locales.ts";
+import { emailCopyFor, shopperT } from "./shopper-intl.mjs";
 import {
   brandFor,
   giftApprovalEmail,
@@ -68,16 +69,17 @@ const approval = {
 };
 
 function built(language) {
-  const b = brandFor({ ...store, defaultLanguage: language });
+  const b = brandFor(store);
+  const copy = emailCopyFor(language);
   return [
-    { name: "order confirmation", email: orderConfirmationEmail(b, order), link: order.statusUrl },
-    { name: "shipping notification", email: shippingNotificationEmail(b, shipment), link: shipment.trackingUrl },
-    { name: "team invitation", email: teamInviteEmail(b, invite), link: invite.acceptUrl },
-    { name: "gift approval", email: giftApprovalEmail(b, approval), link: approval.approvalUrl },
+    { name: "order confirmation", email: orderConfirmationEmail(b, copy, order), link: order.statusUrl },
+    { name: "shipping notification", email: shippingNotificationEmail(b, copy, shipment), link: shipment.trackingUrl },
+    { name: "team invitation", email: teamInviteEmail(b, copy, invite), link: invite.acceptUrl },
+    { name: "gift approval", email: giftApprovalEmail(b, copy, approval), link: approval.approvalUrl },
   ];
 }
 
-for (const { code } of LANGUAGES) {
+for (const code of LOCALES) {
   for (const { name, email, link } of built(code)) {
     assert.ok(email.subject.length > 0, `${code} ${name} has no subject`);
     // The bug this exists for: a template shipped with "{code}" in the subject.
@@ -105,8 +107,8 @@ for (let i = 0; i < english.length; i += 1) {
   );
 }
 assert.ok(
-  german[0].email.html.includes(copyFor("de").email.orderHeading),
-  "the order confirmation reads from the German dictionary",
+  german[0].email.html.includes(shopperT("de", "email")("orderHeading")),
+  "the order confirmation reads from the German messages",
 );
 // Money follows the store's language, like everything else on the storefront.
 assert.ok(english[0].email.text.includes("€84.50"));
@@ -114,15 +116,15 @@ assert.ok(german[0].email.text.replace(/[  ]/g, " ").includes("84,50 €"));
 
 /* ------------------------------------------------------- escaping and fallbacks */
 
-const noLogo = orderConfirmationEmail(brandFor({ ...store, logoUrl: null }), order);
+const noLogo = orderConfirmationEmail(brandFor({ ...store, logoUrl: null }), emailCopyFor("en"), order);
 assert.ok(noLogo.html.includes("Northwind Supply"), "a store with no logo falls back to its name");
 assert.ok(!noLogo.html.includes("<img"));
 
-const noSupport = orderConfirmationEmail(brandFor({ ...store, supportEmail: null }), order);
+const noSupport = orderConfirmationEmail(brandFor({ ...store, supportEmail: null }), emailCopyFor("en"), order);
 assert.ok(!noSupport.html.includes("support@northwind.example"), "nothing invents a support address");
 
 // A name or a campaign title with markup in it cannot break out of the message.
-const injected = orderConfirmationEmail(brand, {
+const injected = orderConfirmationEmail(brand, emailCopyFor("en"), {
   ...order,
   customerName: '<script>alert("x")</script>',
 });
@@ -130,7 +132,7 @@ assert.ok(!injected.html.includes("<script>"), "names are escaped into the HTML 
 assert.ok(injected.html.includes("&lt;script&gt;"));
 
 // A shipment with no carrier page still links the shopper back to their order.
-const noTracking = shippingNotificationEmail(brand, { ...shipment, trackingUrl: null });
+const noTracking = shippingNotificationEmail(brand, emailCopyFor("en"), { ...shipment, trackingUrl: null });
 assert.ok(noTracking.html.includes(shipment.statusUrl));
 
 console.log("email-check: OK");

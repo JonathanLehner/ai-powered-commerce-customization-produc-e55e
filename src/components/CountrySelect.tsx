@@ -1,9 +1,9 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { localCountryName, matchCountry, searchCountries } from "@/lib/countries";
-import { fmt } from "@/lib/i18n";
 import { classNames } from "@/lib/util";
 
 /**
@@ -11,8 +11,7 @@ import { classNames } from "@/lib/util";
  * submits the ISO alpha-2 code the rest of the platform routes on, so nobody
  * has to know that South Africa is ZA.
  *
- * `localeTag` names the countries in the storefront's own language; the English
- * name keeps matching, so autofill and a shopper who types "Germany" both land
+ * Countries are named in the shopper's language; the English name keeps matching, so autofill and a shopper who types "Germany" both land
  * on the same row.
  */
 export function CountrySelect({
@@ -22,10 +21,6 @@ export function CountrySelect({
   onChange,
   invalid,
   describedBy,
-  localeTag,
-  label,
-  searchPlaceholder,
-  noMatch,
 }: {
   id: string;
   name: string;
@@ -33,14 +28,9 @@ export function CountrySelect({
   onChange: (code: string) => void;
   invalid?: boolean;
   describedBy?: string;
-  /** BCP-47 tag the country names are shown in. */
-  localeTag?: string;
-  /** Accessible name of the list, and the picker's own copy. */
-  label?: string;
-  searchPlaceholder?: string;
-  /** Template with a `{query}` placeholder. */
-  noMatch?: string;
 }) {
+  const t = useTranslations("storefront.checkout");
+  const localeTag = useLocale();
   const listId = useId();
   const [query, setQuery] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -123,7 +113,7 @@ export function CountrySelect({
         aria-describedby={describedBy}
         autoComplete="country-name"
         spellCheck={false}
-        placeholder={searchPlaceholder ?? "Search countries"}
+        placeholder={t("countrySearchPlaceholder")}
         value={display}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -145,12 +135,12 @@ export function CountrySelect({
           id={listId}
           ref={listRef}
           role="listbox"
-          aria-label={label ?? "Country"}
+          aria-label={t("country")}
           className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-popover py-1 shadow-lg"
         >
           {matches.length === 0 ? (
             <li className="px-3 py-2 text-sm text-muted-foreground">
-              {noMatch ? fmt(noMatch, { query: query ?? "" }) : `No country matches “${query}”.`}
+              {t("countryNoMatch", { query: query ?? "" })}
             </li>
           ) : (
             matches.map((country, index) => (

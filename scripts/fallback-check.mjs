@@ -31,8 +31,8 @@ const exists = (path) => {
 // boundary — and a catch-all, because an address that matches no page at all
 // never reaches a boundary on its own.
 const SURFACES = [
-  "s/[slug]",
-  "g/[slug]",
+  "s/[slug]/[locale]",
+  "g/[slug]/[locale]",
   "app",
   "app/stores/[storeId]",
   "admin",

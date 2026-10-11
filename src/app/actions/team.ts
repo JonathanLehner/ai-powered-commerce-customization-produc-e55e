@@ -15,6 +15,7 @@ import {
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, teamInviteEmail } from "@/lib/email-templates";
 import { isLocale } from "@/i18n/locales";
+import { emailCopy } from "@/i18n/storefront";
 import { db } from "@/lib/mongo";
 import { assertStoreAccess } from "@/lib/session";
 import { STORE_ROLE_LABELS, type Membership, type Store, type StoreRole, type User } from "@/lib/types";
@@ -111,7 +112,7 @@ async function emailInvitation(
     const roles = await getTranslations({ locale: isLocale(language) ? language : "en", namespace: "roles" });
     sendEmail({
       to: membership.email,
-      message: teamInviteEmail({ ...brandFor(store), language }, {
+      message: teamInviteEmail(brandFor(store), await emailCopy(language), {
         name: membership.name,
         inviterName,
         roleLabel: roles(membership.role),

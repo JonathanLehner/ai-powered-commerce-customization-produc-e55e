@@ -4,18 +4,17 @@ import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import type { StorefrontCopy } from "@/lib/i18n";
+import type { ShopperMessages } from "@/i18n/shopper-copy";
 import type { SectionType } from "@/lib/storefront-schema";
 import type { ThemeKey } from "@/lib/types";
-import { formatMoney } from "@/lib/util";
 import { cn } from "@/lib/utils";
 
 export interface StorefrontProductCard {
   id: string;
   name: string;
   slug: string;
-  price: number;
-  currency: string;
+  /** Already formatted in the shopper's language and display currency. */
+  price: string;
   imageUrl: string | null;
   tagline: string;
 }
@@ -23,16 +22,15 @@ export interface StorefrontProductCard {
 export interface StorefrontContext {
   storeName: string;
   clientName: string;
-  slug: string;
+  /** The storefront in the shopper's language: `/s/<slug>` or `/s/<slug>/de`. */
+  base: string;
   logoUrl: string | null;
   theme: ThemeKey;
   products: StorefrontProductCard[];
   /** When true the section renders inside the editor and links are inert. */
   preview: boolean;
-  /** The store language's built-in section copy. */
-  t: StorefrontCopy["sections"];
-  /** BCP-47 tag prices in these sections are formatted for. */
-  localeTag: string;
+  /** The built-in section copy in the shopper's language, from the messages files. */
+  t: ShopperMessages["sections"];
 }
 
 /**
@@ -45,8 +43,8 @@ export interface StorefrontContext {
 
 function href(ctx: StorefrontContext, target: string): string {
   if (ctx.preview) return "#";
-  if (target === "cart") return `/s/${ctx.slug}/cart`;
-  return `/s/${ctx.slug}/products`;
+  if (target === "cart") return `${ctx.base}/cart`;
+  return `${ctx.base}/products`;
 }
 
 function str(props: Record<string, unknown>, key: string, fallback = ""): string {
@@ -218,10 +216,10 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
             <ProductTile
               key={product.id}
               columns={columns}
-              href={ctx.preview ? undefined : `/s/${ctx.slug}/products/${product.slug}`}
+              href={ctx.preview ? undefined : `${ctx.base}/products/${product.slug}`}
               name={product.name}
               tagline={product.tagline}
-              price={showPrice ? formatMoney(product.price, product.currency, ctx.localeTag) : null}
+              price={showPrice ? product.price : null}
               imageUrl={product.imageUrl}
               imageAlt={product.name}
               placeholder={ctx.t.previewSoon}
@@ -319,7 +317,7 @@ export function NewsletterSignup({ props, ctx }: { props: Record<string, unknown
         <p className="mt-3 text-sm text-inksoft">{str(props, "body")}</p>
         <form
           className="mx-auto mt-6 flex max-w-md flex-col gap-2 sm:flex-row"
-          action={ctx.preview ? undefined : `/s/${ctx.slug}/products`}
+          action={ctx.preview ? undefined : `${ctx.base}/products`}
         >
           <label htmlFor="newsletter-email" className="sr-only">
             {ctx.t.newsletterEmail}

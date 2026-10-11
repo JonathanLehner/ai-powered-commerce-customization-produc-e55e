@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import {
   issueSentence,
   shopperArtworkIssues,
@@ -25,7 +26,10 @@ import {
 import { brandFor, orderConfirmationEmail } from "@/lib/email-templates";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { localCountryName } from "@/lib/countries";
-import { copyFor, fmt, localeTag } from "@/lib/i18n";
+import { formatMinorUnits } from "@/i18n/format";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { emailCopy, shopperLocale } from "@/i18n/storefront";
+import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
@@ -42,6 +46,7 @@ import {
   type Cart,
   type CartItem,
   type Order,
+  type Store,
 } from "@/lib/types";
 import { formatMoney, newId, orderCode } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -150,8 +155,22 @@ async function saveCartDiscount(cart: Cart, code: string | null) {
 }
 
 function refreshBasket(slug: string) {
-  revalidatePath(`/s/${slug}/cart`);
-  revalidatePath(`/s/${slug}/checkout`);
+  revalidatePath(`/s/${slug}`, "layout");
+}
+
+/**
+ * The shopper copy in the language the action was posted from, which the proxy
+ * names on every storefront request, held to the languages the store has
+ * enabled. `base` is the storefront's address in that language.
+ */
+async function shopperCopy(store: Store | null) {
+  const locale = store ? shopperLocale(store, await getLocale()) : DEFAULT_LOCALE;
+  const [t, format] = await Promise.all([
+    getTranslations({ locale, namespace: "storefront" }),
+    getFormatter({ locale }),
+  ]);
+  const base = store ? localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale) : "";
+  return { locale, t, format, base };
 }
 
 /* -------------------------------------------------------------- add to cart */
@@ -164,29 +183,29 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const text = String(formData.get("text") ?? "").trim();
 
   const [store, product] = await Promise.all([getStore(storeId), getStoreProduct(productId)]);
-  const t = copyFor(store?.defaultLanguage);
+  const { t } = await shopperCopy(store);
   if (!store || store.status !== "active") {
-    return { status: "error", message: t.actions.storeClosed };
+    return { status: "error", message: t("actions.storeClosed") };
   }
   if (!product || product.storeId !== storeId || !isLive(product)) {
-    return { status: "error", message: t.actions.productGone };
+    return { status: "error", message: t("actions.productGone") };
   }
   const variant = product.variants.find((v) => v.id === variantId && v.enabled);
-  if (!variant) return { status: "error", message: t.actions.chooseVariant, field: "variantId" };
+  if (!variant) return { status: "error", message: t("actions.chooseVariant"), field: "variantId" };
   if (variant.availability === "out_of_stock") {
     return {
       status: "error",
-      message: fmt(t.actions.outOfStock, { variant: variant.name }),
+      message: t("actions.outOfStock", { variant: variant.name }),
       field: "variantId",
     };
   }
   if (text && !product.shopperCustomization.textLine) {
-    return { status: "error", message: t.actions.noTextPersonalisation };
+    return { status: "error", message: t("actions.noTextPersonalisation") };
   }
   if (text.length > product.shopperCustomization.maxTextLength) {
     return {
       status: "error",
-      message: fmt(t.actions.textTooLong, { max: product.shopperCustomization.maxTextLength }),
+      message: t("actions.textTooLong", { max: product.shopperCustomization.maxTextLength }),
       field: "text",
     };
   }
@@ -202,13 +221,13 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   if (stored) {
     if (!product.shopperCustomization.artworkUpload) {
-      return { status: "error", message: t.actions.noArtworkUpload };
+      return { status: "error", message: t("actions.noArtworkUpload") };
     }
-    if (!catalog) return { status: "error", message: t.actions.productUnavailable };
+    if (!catalog) return { status: "error", message: t("actions.productUnavailable") };
     if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
       return {
         status: "error",
-        message: fmt(t.actions.fileTooLarge, {
+        message: t("actions.fileTooLarge", {
           size: (stored.sizeBytes / 1024 / 1024).toFixed(1),
           limit: catalog.fileRequirements.maxFileMb,
         }),
@@ -235,7 +254,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
       ...placement,
     };
     const issues = shopperBlockingIssues(
-      shopperArtworkIssues(shopperArtwork, area, catalog.fileRequirements, t.artwork),
+      shopperArtworkIssues(shopperArtwork, area, catalog.fileRequirements, (key, values) => t(`artwork.${key}`, values)),
     );
     if (issues.length > 0) {
       return { status: "error", message: issueSentence(issues[0]), field: "artwork" };
@@ -254,7 +273,7 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   }
 
   const cart = await loadCart(storeId, true);
-  if (!cart) return { status: "error", message: t.actions.basketUnavailable };
+  if (!cart) return { status: "error", message: t("actions.basketUnavailable") };
 
   const item: CartItem = {
     id: newId("cit"),
@@ -280,8 +299,8 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     : [...cart.items, item];
 
   await saveCart(cart, items);
-  revalidatePath(`/s/${store.slug}/cart`);
-  return { status: "success", message: fmt(t.actions.addedToBasket, { product: product.name }) };
+  refreshBasket(store.slug);
+  return { status: "success", message: t("actions.addedToBasket", { product: product.name }) };
 }
 
 export async function updateCartItem(formData: FormData): Promise<void> {
@@ -296,7 +315,7 @@ export async function updateCartItem(formData: FormData): Promise<void> {
       ? cart.items.filter((i) => i.id !== itemId)
       : cart.items.map((i) => (i.id === itemId ? { ...i, quantity: Math.min(50, quantity) } : i));
   await saveCart(cart, items);
-  revalidatePath(`/s/${store.slug}/cart`);
+  refreshBasket(store.slug);
 }
 
 export async function removeCartItem(formData: FormData): Promise<void> {
@@ -308,7 +327,7 @@ export async function removeCartItem(formData: FormData): Promise<void> {
     cart,
     cart.items.filter((i) => i.id !== itemId),
   );
-  revalidatePath(`/s/${store.slug}/cart`);
+  refreshBasket(store.slug);
 }
 
 /* ------------------------------------------------------- discount codes */
@@ -321,30 +340,30 @@ export async function removeCartItem(formData: FormData): Promise<void> {
 export async function applyDiscount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const store = await getStore(storeId);
-  const t = copyFor(store?.defaultLanguage);
+  const { t, format } = await shopperCopy(store);
   if (!store || store.status !== "active") {
-    return { status: "error", message: t.actions.storeClosed };
+    return { status: "error", message: t("actions.storeClosed") };
   }
 
   const entered = normalizeDiscountCode(String(formData.get("code") ?? ""));
-  if (!entered) return { status: "error", message: t.discount.enterCode, field: "code" };
+  if (!entered) return { status: "error", message: t("discount.enterCode"), field: "code" };
 
   const cart = await loadCart(storeId, false);
   if (!cart || cart.items.length === 0) {
-    return { status: "error", message: t.actions.basketEmpty };
+    return { status: "error", message: t("actions.basketEmpty") };
   }
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const record = await getDiscountCodeByCode(storeId, entered);
-  if (!record) return { status: "error", message: t.discount.unknown, field: "code" };
+  if (!record) return { status: "error", message: t("discount.unknown"), field: "code" };
 
-  const money = (minor: number) => formatMoney(minor, currency, localeTag(store.defaultLanguage));
+  const money = (minor: number) => formatMinorUnits(format, minor, currency);
   const { subtotal } = await basketTotals(store, cart.items, currency);
   const verdict = checkDiscount(record, subtotal, currency);
   if (verdict.refusal) {
     return {
       status: "error",
-      message: fmt(t.discount[verdict.refusal], { amount: money(verdict.minimum) }),
+      message: t(`discount.${verdict.refusal}`, { amount: money(verdict.minimum) }),
       field: "code",
     };
   }
@@ -353,7 +372,7 @@ export async function applyDiscount(_prev: ActionState, formData: FormData): Pro
   refreshBasket(store.slug);
   return {
     status: "success",
-    message: fmt(t.discount.applied, { code: record.code, amount: money(verdict.amount) }),
+    message: t("discount.applied", { code: record.code, amount: money(verdict.amount) }),
   };
 }
 
@@ -376,15 +395,15 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     idempotencyKey ? getOrderByIdempotencyKey(storeId, idempotencyKey) : Promise.resolve(null),
     loadCart(storeId, false),
   ]);
-  const t = copyFor(store?.defaultLanguage);
+  const { locale, t, base } = await shopperCopy(store);
   if (!store || store.status !== "active") {
-    return { status: "error", message: t.actions.storeClosed };
+    return { status: "error", message: t("actions.storeClosed") };
   }
   if (replayed) {
-    redirect(orderStatusUrl(store.slug, replayed.code, await signOrderToken(store.id, replayed.code)));
+    redirect(orderStatusUrl(base, replayed.code, await signOrderToken(store.id, replayed.code)));
   }
   if (!cart || cart.items.length === 0) {
-    return { status: "error", message: t.actions.basketEmpty };
+    return { status: "error", message: t("actions.basketEmpty") };
   }
 
   const name = String(formData.get("name") ?? "").trim();
@@ -398,24 +417,24 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const expiry = String(formData.get("expiry") ?? "");
   const cvc = String(formData.get("cvc") ?? "");
 
-  if (name.length < 2) return { status: "error", message: t.actions.enterName, field: "name" };
+  if (name.length < 2) return { status: "error", message: t("actions.enterName"), field: "name" };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { status: "error", message: t.actions.enterEmail, field: "email" };
+    return { status: "error", message: t("actions.enterEmail"), field: "email" };
   }
-  if (line1.length < 4) return { status: "error", message: t.actions.enterStreet, field: "line1" };
-  if (city.length < 2) return { status: "error", message: t.actions.enterCity, field: "city" };
+  if (line1.length < 4) return { status: "error", message: t("actions.enterStreet"), field: "line1" };
+  if (city.length < 2) return { status: "error", message: t("actions.enterCity"), field: "city" };
   if (postalCode.length < 3) {
-    return { status: "error", message: t.actions.enterPostalCode, field: "postalCode" };
+    return { status: "error", message: t("actions.enterPostalCode"), field: "postalCode" };
   }
   // The checkout picker always submits a valid code; this backstops a form
   // posted without it.
   if (!/^[A-Z]{2}$/.test(country)) {
-    return { status: "error", message: t.actions.chooseCountry, field: "country" };
+    return { status: "error", message: t("actions.chooseCountry"), field: "country" };
   }
   if (!store.currencies.includes(currency)) {
     return {
       status: "error",
-      message: fmt(t.actions.currencyNotSold, { currency }),
+      message: t("actions.currencyNotSold", { currency }),
       field: "currency",
     };
   }
@@ -429,7 +448,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   if (discountCode && discountRefusal) {
     await saveCartDiscount(cart, null);
     refreshBasket(store.slug);
-    return { status: "error", message: fmt(t.discount.dropped, { code: discountCode.code }) };
+    return { status: "error", message: t("discount.dropped", { code: discountCode.code }) };
   }
 
   // One use is taken before the card is charged, with a write guarded on the
@@ -441,7 +460,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     if (!claimed) {
       await saveCartDiscount(cart, null);
       refreshBasket(store.slug);
-      return { status: "error", message: fmt(t.discount.dropped, { code: discount.code }) };
+      return { status: "error", message: t("discount.dropped", { code: discount.code }) };
     }
   }
 
@@ -455,6 +474,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     cvc,
     name,
     idempotencyKey: key,
+    t: (key, values) => t(`payment.${key}`, values),
   });
   if (!charge.ok) {
     if (claimed && discount) await releaseDiscountUse(discount.codeId);
@@ -480,6 +500,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     code,
     status: "paid",
     currency,
+    locale,
     customer: { name, email, line1, city, postalCode, country },
     items: cart.items.map((item, index) => ({
       id: newId("oit"),
@@ -607,15 +628,15 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     const origin = await siteOrigin();
     sendEmail({
       to: email,
-      message: orderConfirmationEmail(brandFor(store), {
+      message: orderConfirmationEmail(brandFor(store), await emailCopy(locale), {
         customerName: name,
         code,
         total,
         currency,
-        deliveryAddress: [line1, city, postalCode, localCountryName(country, localeTag(store.defaultLanguage))]
+        deliveryAddress: [line1, city, postalCode, localCountryName(country, locale)]
           .filter(Boolean)
           .join(", "),
-        statusUrl: `${origin}${orderStatusUrl(store.slug, code, token)}`,
+        statusUrl: `${origin}${orderStatusUrl(base, code, token)}`,
       }),
       kind: "order confirmation",
       storeId,
@@ -627,7 +648,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     console.error("Order confirmation email could not be queued", error);
   }
 
-  redirect(orderStatusUrl(store.slug, code, token, "&new=1"));
+  redirect(orderStatusUrl(base, code, token, "&new=1"));
 }
 
 /* -------------------------------------------------------------- order status */
@@ -644,15 +665,15 @@ export async function lookupOrder(_prev: ActionState, formData: FormData): Promi
   const email = String(formData.get("email") ?? "").trim();
 
   const store = await getStoreBySlug(slug);
-  const t = copyFor(store?.defaultLanguage);
+  const { t, base } = await shopperCopy(store);
 
-  if (!code) return { status: "error", message: t.actions.enterOrderCode, field: "code" };
-  if (!email) return { status: "error", message: t.actions.enterOrderEmail, field: "email" };
+  if (!code) return { status: "error", message: t("actions.enterOrderCode"), field: "code" };
+  if (!email) return { status: "error", message: t("actions.enterOrderEmail"), field: "email" };
 
   const order = store ? await getOrderByCode(store.id, code) : null;
   if (!store || !order || !emailMatchesOrder(order.customer.email, email)) {
-    return { status: "error", message: t.actions.lookupFailed };
+    return { status: "error", message: t("actions.lookupFailed") };
   }
 
-  redirect(orderStatusUrl(slug, order.code, await signOrderToken(store.id, order.code)));
+  redirect(orderStatusUrl(base, order.code, await signOrderToken(store.id, order.code)));
 }

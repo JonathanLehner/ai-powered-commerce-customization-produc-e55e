@@ -16,10 +16,11 @@ import {
   unreadableFormatIssue,
 } from "../src/lib/artwork-shopper.ts";
 import { placementBox } from "../src/lib/artwork.ts";
-import { copyFor, LANGUAGES } from "../src/lib/i18n.ts";
+import { LOCALES } from "../src/i18n/locales.ts";
+import { shopperT } from "./shopper-intl.mjs";
 import { DEFAULT_PLACEMENT } from "../src/lib/types.ts";
 
-const t = copyFor("en").artwork;
+const t = shopperT("en", "artwork");
 
 // The mug from the seed catalog: 200 × 85 mm at 300 DPI, PNG/JPG/PDF, 15 MB.
 const AREA = {
@@ -158,8 +159,8 @@ assert.match(early.message, /18\.0 MB/);
 
 /* ------------------------------------------ every storefront language answers */
 
-for (const { code } of LANGUAGES) {
-  const dictionary = copyFor(code).artwork;
+for (const code of LOCALES) {
+  const dictionary = shopperT(code, "artwork");
   const issues = shopperArtworkIssues(tiny, AREA, RULES, dictionary);
   for (const issue of issues) {
     assert.ok(issue.message.trim().length > 0, `${code} has no message for ${issue.code}`);

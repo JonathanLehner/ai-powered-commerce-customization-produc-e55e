@@ -55,6 +55,7 @@ export function emailMatchesOrder(orderEmail: string, given: string): boolean {
   return orderEmail.trim().toLowerCase() === given.trim().toLowerCase();
 }
 
-export function orderStatusUrl(slug: string, code: string, token: string, extra = ""): string {
-  return `/s/${slug}/orders/${encodeURIComponent(code)}?t=${token}${extra}`;
+/** `base` is the storefront in the shopper's language: `/s/<slug>` or `/s/<slug>/de`. */
+export function orderStatusUrl(base: string, code: string, token: string, extra = ""): string {
+  return `${base}/orders/${encodeURIComponent(code)}?t=${token}${extra}`;
 }

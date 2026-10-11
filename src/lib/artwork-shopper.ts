@@ -1,5 +1,5 @@
 import { formatOf, placementBox, validateArtwork, type ArtworkIssue } from "./artwork";
-import { fmt, type StorefrontCopy } from "./i18n";
+import type { ShopperTranslator } from "@/i18n/shopper-copy";
 import type { Artwork, FileRequirements, PrintArea } from "./types";
 
 /**
@@ -65,7 +65,7 @@ function translate(
   artwork: Artwork,
   area: PrintArea,
   rules: FileRequirements,
-  t: StorefrontCopy["artwork"],
+  t: ShopperTranslator<"artwork">,
 ): ShopperArtworkIssue {
   const box = placementBox(artwork, area);
   const required = Math.max(area.minDpi, rules.minDpi);
@@ -75,14 +75,14 @@ function translate(
     case "outside_print_area":
       return {
         ...base,
-        message: t.outsideArea,
-        fix: fmt(t.outsideAreaFix, { width: area.widthMm, height: area.heightMm }),
+        message: t("outsideArea"),
+        fix: t("outsideAreaFix", { width: area.widthMm, height: area.heightMm }),
       };
     case "low_dpi":
       return {
         ...base,
-        message: fmt(t.lowDpi, { dpi: Math.round(box.effectiveDpi), required }),
-        fix: fmt(t.lowDpiFix, {
+        message: t("lowDpi", { dpi: Math.round(box.effectiveDpi), required }),
+        fix: t("lowDpiFix", {
           pixels: Math.ceil((required * box.printedWidthMm) / MM_PER_INCH),
           width: Math.max(1, Math.floor((artwork.pixelWidth / required) * MM_PER_INCH)),
         }),
@@ -90,38 +90,38 @@ function translate(
     case "bad_format":
       return {
         ...base,
-        message: fmt(t.badFormat, { format: formatOf(artwork.mimeType) }),
-        fix: fmt(t.badFormatFix, { formats: shopperFormats(rules).join(", ") }),
+        message: t("badFormat", { format: formatOf(artwork.mimeType) }),
+        fix: t("badFormatFix", { formats: shopperFormats(rules).join(", ") }),
       };
     case "file_too_large":
       return {
         ...base,
-        message: fmt(t.fileTooLarge, {
+        message: t("fileTooLarge", {
           size: (artwork.sizeBytes / (1024 * 1024)).toFixed(1),
           limit: rules.maxFileMb,
         }),
-        fix: t.fileTooLargeFix,
+        fix: t("fileTooLargeFix"),
       };
     case "too_many_pixels":
       return {
         ...base,
-        message: fmt(t.tooManyPixels, {
+        message: t("tooManyPixels", {
           megapixels: (rules.maxPixels / 1_000_000).toFixed(0),
         }),
-        fix: t.tooManyPixelsFix,
+        fix: t("tooManyPixelsFix"),
       };
     case "no_transparency":
-      return { ...base, message: t.noTransparency, fix: t.noTransparencyFix };
+      return { ...base, message: t("noTransparency"), fix: t("noTransparencyFix") };
     case "dpi_close_to_limit":
       return {
         ...base,
-        message: fmt(t.dpiTight, { dpi: Math.round(box.effectiveDpi), required }),
-        fix: t.dpiTightFix,
+        message: t("dpiTight", { dpi: Math.round(box.effectiveDpi), required }),
+        fix: t("dpiTightFix"),
       };
     case "very_small":
-      return { ...base, message: t.verySmall, fix: t.verySmallFix };
+      return { ...base, message: t("verySmall"), fix: t("verySmallFix") };
     default:
-      return { ...base, message: t.generic, fix: t.genericFix };
+      return { ...base, message: t("generic"), fix: t("genericFix") };
   }
 }
 
@@ -130,7 +130,7 @@ export function shopperArtworkIssues(
   artwork: Artwork,
   area: PrintArea,
   rules: FileRequirements,
-  t: StorefrontCopy["artwork"],
+  t: ShopperTranslator<"artwork">,
 ): ShopperArtworkIssue[] {
   return validateArtwork(artwork, area, rules).map((issue) =>
     translate(issue, artwork, area, rules, t),
@@ -149,13 +149,13 @@ export function shopperBlockingIssues(issues: ShopperArtworkIssue[]): ShopperArt
 export function unreadableFormatIssue(
   mimeType: string,
   rules: FileRequirements,
-  t: StorefrontCopy["artwork"],
+  t: ShopperTranslator<"artwork">,
 ): ShopperArtworkIssue {
   return {
     code: "unreadable_format",
     severity: "error",
-    message: fmt(t.unreadableFormat, { format: formatOf(mimeType) }),
-    fix: fmt(t.unreadableFormatFix, { formats: shopperFormats(rules).join(", ") }),
+    message: t("unreadableFormat", { format: formatOf(mimeType) }),
+    fix: t("unreadableFormatFix", { formats: shopperFormats(rules).join(", ") }),
   };
 }
 
@@ -163,16 +163,16 @@ export function unreadableFormatIssue(
 export function fileTooLargeIssue(
   sizeBytes: number,
   rules: FileRequirements,
-  t: StorefrontCopy["artwork"],
+  t: ShopperTranslator<"artwork">,
 ): ShopperArtworkIssue {
   return {
     code: "file_too_large",
     severity: "error",
-    message: fmt(t.fileTooLarge, {
+    message: t("fileTooLarge", {
       size: (sizeBytes / (1024 * 1024)).toFixed(1),
       limit: rules.maxFileMb,
     }),
-    fix: t.fileTooLargeFix,
+    fix: t("fileTooLargeFix"),
   };
 }
 

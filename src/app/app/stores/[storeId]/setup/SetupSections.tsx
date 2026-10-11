@@ -8,6 +8,7 @@ import {
   saveBranding,
   saveCarriers,
   saveDomain,
+  saveLanguages,
   saveLocalisation,
   saveStripe,
   saveSupport,
@@ -38,7 +39,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { countryName, currencyName, languageOption } from "@/i18n/display";
-import { LANGUAGE_OPTIONS } from "@/lib/i18n";
+import { LOCALES, LOCALE_NAMES } from "@/i18n/locales";
+import { storeLanguages } from "@/i18n/storefront-routing";
 import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
 import { CARRIER_LABELS, CURRENCY_OPTIONS, STRIPE_COUNTRIES } from "@/lib/util";
@@ -198,6 +200,8 @@ function StoredImageFields({ prefix, image }: { prefix: string; image: StoredIma
 
 export function SetupSections({ store, brackets }: { store: Store; brackets: TaxBracket[] }) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
+  const [languages, setLanguages] = useState<string[]>(() => storeLanguages(store).locales);
+  const [defaultLanguage, setDefaultLanguage] = useState<string>(() => storeLanguages(store).defaultLocale);
   const [currencies, setCurrencies] = useState<string[]>(store.currencies);
   const [carrierEnabled, setCarrierEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(store.carriers.map((c) => [c.carrier, c.enabled])),
@@ -207,6 +211,14 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
   const t = useTranslations("settings");
   const labels = useTranslations("labels");
   const locale = useLocale();
+
+  function toggleLanguage(code: string, on: boolean) {
+    const next = on ? [...new Set([...languages, code])] : languages.filter((c) => c !== code);
+    // At least one language stays enabled, and the default is always one of them.
+    if (next.length === 0) return;
+    setLanguages(next);
+    if (!next.includes(defaultLanguage)) setDefaultLanguage(LOCALES.find((l) => next.includes(l)) ?? next[0]);
+  }
 
   function toggleCurrency(code: string, on: boolean) {
     setCurrencies((prev) => (on ? [...new Set([...prev, code])] : prev.filter((c) => c !== code)));
@@ -266,6 +278,67 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={2}
+        title={t("languages")}
+        description={t("languagesDescription")}
+        done
+      >
+        <ActionForm action={saveLanguages} submitLabel={t("saveLanguages")} hidden={hidden}>
+          {(state) => (
+            <>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor="defaultLanguage">{t("defaultLanguage")}</Label>
+                  <Select name="defaultLanguage" value={defaultLanguage} onValueChange={setDefaultLanguage}>
+                    <SelectTrigger
+                      id="defaultLanguage"
+                      className="w-full"
+                      aria-invalid={state.field === "defaultLanguage" ? true : undefined}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LOCALES.filter((code) => languages.includes(code)).map((code) => (
+                        <SelectItem key={code} value={code}>
+                          {languageOption(locale, code, LOCALE_NAMES[code])}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">{t("defaultLanguageHint")}</p>
+                </div>
+              </div>
+
+              <fieldset className="mt-6" aria-invalid={state.field === "languages" ? true : undefined}>
+                <legend className="text-sm leading-none font-medium text-foreground select-none">
+                  {t("enabledLanguages")}
+                </legend>
+                <p className="mt-1.5 mb-3 text-xs text-muted-foreground">
+                  <span className="tabular-nums">{t("selected", { count: languages.length })}</span>
+                </p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                  {LOCALES.map((code) => (
+                    <Label
+                      key={code}
+                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-normal hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                    >
+                      <Checkbox
+                        name="languages"
+                        value={code}
+                        checked={languages.includes(code)}
+                        onCheckedChange={(checked) => toggleLanguage(code, checked === true)}
+                      />
+                      <span className="truncate text-foreground">{languageOption(locale, code, LOCALE_NAMES[code])}</span>
+                    </Label>
+                  ))}
+                </div>
+              </fieldset>
+            </>
+          )}
+        </ActionForm>
+      </Step>
+
+      <Step
+        index={3}
         title={t("localisation")}
         description={t("localisationDescription")}
         done={store.setup.localisation}
@@ -274,21 +347,6 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
           {(state) => (
             <>
               <div className="grid gap-5 sm:grid-cols-2">
-                <div className="grid content-start gap-1.5">
-                  <Label htmlFor="defaultLanguage">{t("defaultLanguage")}</Label>
-                  <Select name="defaultLanguage" defaultValue={store.defaultLanguage}>
-                    <SelectTrigger id="defaultLanguage" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LANGUAGE_OPTIONS.map((l) => (
-                        <SelectItem key={l.code} value={l.code}>
-                          {languageOption(locale, l.code, l.endonym)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div className="grid content-start gap-1.5">
                   <Label htmlFor="defaultCurrency">{t("defaultCurrency")}</Label>
                   <Select name="defaultCurrency" defaultValue={store.defaultCurrency}>
@@ -342,7 +400,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={3}
+        index={4}
         title={t("support")}
         description={t("supportDescription")}
         done={store.setup.support}
@@ -380,7 +438,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={4}
+        index={5}
         title={t("domain")}
         description={t("domainDescription")}
         done={store.setup.domain}
@@ -436,7 +494,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={5}
+        index={6}
         title={t("stripe")}
         description={t("stripeDescription")}
         done={store.setup.payments}
@@ -501,7 +559,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={6}
+        index={7}
         title={t("carriers")}
         description={t("carriersDescription")}
         done={store.setup.shipping}
@@ -550,7 +608,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       </Step>
 
       <Step
-        index={7}
+        index={8}
         title={t("tax")}
         description={t("taxDescription")}
         done={store.setup.tax}

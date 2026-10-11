@@ -9,7 +9,7 @@
  * "powered by" line in the footer, which is a credit rather than branding.
  */
 import type { Metadata } from "next";
-import { fmt, storefrontLocale } from "./i18n";
+import type { ShopperTranslator } from "@/i18n/shopper-copy";
 import { sectionsFromTree } from "./storefront-schema";
 import type { GiftCatalogue, Store } from "./types";
 
@@ -54,17 +54,20 @@ function shareImages(store: Store) {
  * "Your basket · Northwind Supply Co". `title.default` covers the store home,
  * which sets no title of its own.
  */
-export function storefrontMetadata(store: Store, tagline: string | null): Metadata {
-  const { t } = storefrontLocale(store);
-  const title = fmt(t.meta.homeTitle, { store: store.name });
+export function storefrontMetadata(
+  store: Store,
+  t: ShopperTranslator<"meta">,
+  tagline: string | null,
+): Metadata {
+  const title = t("homeTitle", { store: store.name });
   const description = clamp(
     tagline
-      ? fmt(t.meta.taglineDescription, {
+      ? t("taglineDescription", {
           tagline: asSentence(tagline),
           store: store.name,
           client: store.clientName,
         })
-      : fmt(t.meta.homeDescription, { store: store.name, client: store.clientName }),
+      : t("homeDescription", { store: store.name, client: store.clientName }),
   );
 
   return {

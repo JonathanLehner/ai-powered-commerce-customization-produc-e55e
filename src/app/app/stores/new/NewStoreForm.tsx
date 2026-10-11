@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { currencyName, languageOption } from "@/i18n/display";
-import { LANGUAGE_OPTIONS } from "@/lib/i18n";
+import { LOCALES, LOCALE_NAMES } from "@/i18n/locales";
 import { THEMES, type ThemeKey } from "@/lib/types";
 import { CURRENCY_OPTIONS } from "@/lib/util";
 
@@ -91,9 +91,9 @@ export function NewStoreForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {LANGUAGE_OPTIONS.map((l) => (
-                    <SelectItem key={l.code} value={l.code}>
-                      {languageOption(locale, l.code, l.endonym)}
+                  {LOCALES.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {languageOption(locale, code, LOCALE_NAMES[code])}
                     </SelectItem>
                   ))}
                 </SelectContent>
