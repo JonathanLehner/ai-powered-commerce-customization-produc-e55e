@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "Finns det en gratis provperiod?",
-        "answer": "Ja. Starter och Studio har 14 dagars gratis provperiod, utan kort. Du kan också utforska demoarbetsytan när du vill."
+        "answer": "Ja. Starter och Studio har 14 dagars gratis provperiod. Du kan också utforska demoarbetsytan när du vill."
       },
       {
         "question": "Kan jag säga upp eller byta plan?",
@@ -405,6 +405,41 @@
       "replyEmail": "E-post",
       "messageLabel": "Ditt meddelande",
       "undecided": "Vet inte än"
+    }
+  },
+  "signup": {
+    "metaTitle": "Skapa konto",
+    "metaDescription": "Starta en Parcelith-arbetsyta för din byrå med Starter eller Studio.",
+    "title": "Skapa konto",
+    "lead": "Konfigurera byråns arbetsyta. Du lägger till betaluppgifter i nästa steg.",
+    "name": "Ditt namn",
+    "email": "Jobbmejl",
+    "agencyName": "Byråns namn",
+    "password": "Lösenord",
+    "passwordHint": "Minst {count} tecken.",
+    "terms": "Genom att skapa ett konto godkänner du <terms>användarvillkoren</terms> och <privacy>integritetspolicyn</privacy>.",
+    "submit": "Fortsätt till betalning",
+    "pending": "Skapar konto…",
+    "haveAccount": "Har du redan ett konto?",
+    "signIn": "Logga in",
+    "summaryTitle": "Din plan",
+    "plan": "Plan",
+    "billingPeriod": "Faktureringsperiod",
+    "monthly": "Månadsvis",
+    "yearly": "Årsvis",
+    "perMonth": "/mån",
+    "billedMonthly": "Faktureras månadsvis",
+    "billedYearly": "Faktureras {amount} per år",
+    "trial": "{days} dagars gratis provperiod. Säg upp innan den tar slut så debiteras du inte.",
+    "scale": "Behöver du fler aktiva butiker? <link>Kontakta sälj</link> om Scale.",
+    "errors": {
+      "name": "Ange ditt namn.",
+      "email": "Ange en giltig jobbmejladress.",
+      "agencyName": "Ange byråns namn.",
+      "password": "Använd minst 8 tecken.",
+      "plan": "Välj Starter eller Studio.",
+      "form": "Något gick fel. Ladda om sidan och försök igen.",
+      "emailTaken": "Det finns redan ett konto med den här mejladressen. Logga in i stället."
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "Det finns inget konto med den e-postadressen.",
       "badCredentials": "E-postadressen och lösenordet matchar inget konto."
-    }
+    },
+    "createTitle": "Ny på Parcelith?",
+    "createBlurb": "Skapa en arbetsyta för din byrå med Starter eller Studio.",
+    "createAccount": "Skapa konto"
   },
   "invite": {
     "metaTitle": "Acceptera inbjudan",
@@ -950,7 +988,27 @@
     "archive": "Arkivera",
     "archiveQuestion": "Arkivera {name}?",
     "archiveDescription": "Butiksfronten går offline. Du kan återställa den senare.",
-    "archiveConfirm": "Ja, arkivera"
+    "archiveConfirm": "Ja, arkivera",
+    "welcomeTitle": "Din {plan}-plan är aktiv",
+    "welcomeBody": "Skapa din första butik för att komma igång."
+  },
+  "billing": {
+    "title": "Slutför din prenumeration",
+    "plan": "{plan}-planen",
+    "billingPeriod": "Faktureringsperiod",
+    "monthly": "Månadsvis",
+    "yearly": "Årsvis",
+    "monthlyPrice": "{amount} per månad",
+    "yearlyPrice": "{amount} per år",
+    "trial": "{days} dagars gratis provperiod. Säg upp innan den tar slut så debiteras du inte.",
+    "proceed": "Fortsätt till betalning",
+    "opening": "Öppnar betalningen…",
+    "unavailableTitle": "Betalningen kunde inte öppnas",
+    "unavailableBody": "Ditt konto är sparat. Försök igen om några minuter.",
+    "unconfirmedTitle": "Betalningen är inte bekräftad",
+    "unconfirmedBody": "Vi kunde inte bekräfta din betalning. Försök igen.",
+    "cancelled": "Betalningen avbröts. Ditt konto är sparat.",
+    "ownerOnly": "Byråns prenumeration är inte aktiv än. Be kontoägaren att slutföra betalningen."
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "Momsinställningarna har sparats.",
       "policyLanguageInvalid": "Välj ett av butikens språk.",
       "policyTooLong": "Varje policy får vara högst {max} tecken.",
-      "policiesSaved": "Policyerna har sparats."
+      "policiesSaved": "Policyerna har sparats.",
+      "paymentPending": "Slutför din prenumeration innan du skapar en butik."
     },
     "team": {
       "emailInvalid": "Ange en giltig e-postadress.",

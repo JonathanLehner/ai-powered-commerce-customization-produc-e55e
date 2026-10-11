@@ -16,6 +16,7 @@
     "form-restore-check": "node --experimental-strip-types scripts/form-restore-check.mjs",
     "publish-guard-check": "node --experimental-strip-types scripts/publish-guard-check.mjs",
     "plan-limit-check": "node --experimental-strip-types scripts/plan-limit-check.mjs",
+    "signup-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/signup-check.mjs",
     "routing-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/routing-check.mjs",
     "discount-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/discount-check.mjs",
     "refund-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/refund-check.mjs",

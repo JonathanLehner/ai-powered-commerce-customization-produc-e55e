@@ -50,6 +50,24 @@ export interface Agency {
   contactEmail: string;
   status: "active" | "suspended";
   createdAt: string;
+  /**
+   * Self-serve subscription. Absent on agencies set up by the platform team,
+   * which are billed outside the workspace.
+   */
+  billing?: AgencyBilling;
+  /** The sign-up form that created the agency, so a resubmission finds it again. */
+  signupKey?: string;
+}
+
+export interface AgencyBilling {
+  status: "pending" | "active";
+  plan: "starter" | "studio";
+  cycle: "monthly" | "yearly";
+  currency: "USD" | "EUR";
+  checkoutSessionId: string | null;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  activatedAt: string | null;
 }
 
 export interface User {
@@ -65,6 +83,8 @@ export interface User {
   uiLanguage?: string;
   /** Per event type, where notifications go. Unset types use the defaults. */
   notificationPrefs?: NotificationPrefs;
+  /** The sign-up form that created the account, so a resubmission finds it again. */
+  signupKey?: string;
 }
 
 export interface Membership {

@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "無料トライアルはありますか？",
-        "answer": "はい。StarterとStudioは14日間無料でお試しいただけます。カードの登録は不要です。デモワークスペースはいつでもご覧いただけます。"
+        "answer": "はい。StarterとStudioは14日間無料でお試しいただけます。デモワークスペースはいつでもご覧いただけます。"
       },
       {
         "question": "解約やプランの変更はできますか？",
@@ -405,6 +405,41 @@
       "replyEmail": "メール",
       "messageLabel": "お問い合わせ内容",
       "undecided": "まだ決めていない"
+    }
+  },
+  "signup": {
+    "metaTitle": "アカウントを作成",
+    "metaDescription": "StarterまたはStudioプランでParcelithのエージェンシーワークスペースを開始します。",
+    "title": "アカウントを作成",
+    "lead": "エージェンシーのワークスペースを設定します。お支払い情報は次のステップで入力します。",
+    "name": "お名前",
+    "email": "勤務先メールアドレス",
+    "agencyName": "エージェンシー名",
+    "password": "パスワード",
+    "passwordHint": "{count}文字以上。",
+    "terms": "アカウントを作成すると、<terms>利用規約</terms>および<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。",
+    "submit": "お支払いへ進む",
+    "pending": "アカウントを作成しています…",
+    "haveAccount": "アカウントをお持ちですか？",
+    "signIn": "サインイン",
+    "summaryTitle": "ご利用プラン",
+    "plan": "プラン",
+    "billingPeriod": "請求期間",
+    "monthly": "月払い",
+    "yearly": "年払い",
+    "perMonth": "/月",
+    "billedMonthly": "毎月請求",
+    "billedYearly": "年額{amount}を請求",
+    "trial": "{days}日間の無料トライアル。終了前に解約すれば料金はかかりません。",
+    "scale": "さらに多くの公開ストアが必要ですか？Scaleについては<link>営業チームにお問い合わせ</link>ください。",
+    "errors": {
+      "name": "お名前を入力してください。",
+      "email": "有効な勤務先メールアドレスを入力してください。",
+      "agencyName": "エージェンシー名を入力してください。",
+      "password": "8文字以上で入力してください。",
+      "plan": "StarterまたはStudioを選択してください。",
+      "form": "問題が発生しました。ページを再読み込みして、もう一度お試しください。",
+      "emailTaken": "このメールアドレスのアカウントは既に存在します。サインインしてください。"
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "このメールアドレスのアカウントはありません。",
       "badCredentials": "メールアドレスとパスワードが一致するアカウントがありません。"
-    }
+    },
+    "createTitle": "Parcelithは初めてですか？",
+    "createBlurb": "StarterまたはStudioプランでエージェンシーのワークスペースを作成します。",
+    "createAccount": "アカウントを作成"
   },
   "invite": {
     "metaTitle": "招待を承諾",
@@ -950,7 +988,27 @@
     "archive": "アーカイブ",
     "archiveQuestion": "{name} をアーカイブしますか?",
     "archiveDescription": "ストアフロントはオフラインになります。あとで復元できます。",
-    "archiveConfirm": "アーカイブする"
+    "archiveConfirm": "アーカイブする",
+    "welcomeTitle": "{plan}プランが有効になりました",
+    "welcomeBody": "最初のストアを作成しましょう。"
+  },
+  "billing": {
+    "title": "サブスクリプションを完了",
+    "plan": "{plan}プラン",
+    "billingPeriod": "請求期間",
+    "monthly": "月払い",
+    "yearly": "年払い",
+    "monthlyPrice": "月額{amount}",
+    "yearlyPrice": "年額{amount}",
+    "trial": "{days}日間の無料トライアル。終了前に解約すれば料金はかかりません。",
+    "proceed": "お支払いへ進む",
+    "opening": "決済ページを開いています…",
+    "unavailableTitle": "決済ページを開けませんでした",
+    "unavailableBody": "アカウントは保存されています。数分後にもう一度お試しください。",
+    "unconfirmedTitle": "お支払いを確認できません",
+    "unconfirmedBody": "お支払いを確認できませんでした。もう一度お試しください。",
+    "cancelled": "決済はキャンセルされました。アカウントは保存されています。",
+    "ownerOnly": "エージェンシーのサブスクリプションはまだ有効ではありません。アカウント所有者にお支払いの完了を依頼してください。"
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "税設定を保存しました。",
       "policyLanguageInvalid": "ストアの言語から選択してください。",
       "policyTooLong": "各ポリシーは {max} 文字以内にしてください。",
-      "policiesSaved": "ポリシーを保存しました。"
+      "policiesSaved": "ポリシーを保存しました。",
+      "paymentPending": "ストアを作成する前にサブスクリプションを完了してください。"
     },
     "team": {
       "emailInvalid": "有効なメールアドレスを入力してください。",

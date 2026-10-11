@@ -43,7 +43,7 @@ export function shareFor(path: string, locale: Locale, title: string, descriptio
 export async function pageMetadata(
   locale: Locale,
   path: string,
-  namespace: "howItWorks" | "pricing" | "contact" | "terms" | "privacy",
+  namespace: "howItWorks" | "pricing" | "contact" | "signup" | "terms" | "privacy",
 ): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace });
   return {

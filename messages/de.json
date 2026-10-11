@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "Gibt es eine kostenlose Testphase?",
-        "answer": "Ja. Starter und Studio können 14 Tage kostenlos getestet werden, ohne Kreditkarte. Den Demo-Arbeitsbereich können Sie jederzeit ausprobieren."
+        "answer": "Ja. Starter und Studio können 14 Tage kostenlos getestet werden. Den Demo-Arbeitsbereich können Sie jederzeit ausprobieren."
       },
       {
         "question": "Kann ich kündigen oder den Plan wechseln?",
@@ -405,6 +405,41 @@
       "replyEmail": "E-Mail",
       "messageLabel": "Ihre Nachricht",
       "undecided": "Noch nicht sicher"
+    }
+  },
+  "signup": {
+    "metaTitle": "Konto erstellen",
+    "metaDescription": "Starten Sie einen Parcelith-Agenturarbeitsbereich im Starter- oder Studio-Tarif.",
+    "title": "Konto erstellen",
+    "lead": "Richten Sie Ihren Agenturarbeitsbereich ein. Die Zahlungsdaten geben Sie im nächsten Schritt an.",
+    "name": "Ihr Name",
+    "email": "Geschäftliche E-Mail",
+    "agencyName": "Name der Agentur",
+    "password": "Passwort",
+    "passwordHint": "Mindestens {count} Zeichen.",
+    "terms": "Mit der Kontoerstellung stimmen Sie den <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzerklärung</privacy> zu.",
+    "submit": "Weiter zur Zahlung",
+    "pending": "Konto wird erstellt…",
+    "haveAccount": "Sie haben bereits ein Konto?",
+    "signIn": "Anmelden",
+    "summaryTitle": "Ihr Tarif",
+    "plan": "Tarif",
+    "billingPeriod": "Abrechnungszeitraum",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "perMonth": "/Monat",
+    "billedMonthly": "Monatliche Abrechnung",
+    "billedYearly": "Jährliche Abrechnung: {amount}",
+    "trial": "{days} Tage kostenlos testen. Wenn Sie vorher kündigen, wird nichts berechnet.",
+    "scale": "Sie brauchen mehr Live-Shops? <link>Kontaktieren Sie den Vertrieb</link> zum Scale-Tarif.",
+    "errors": {
+      "name": "Geben Sie Ihren Namen ein.",
+      "email": "Geben Sie eine gültige geschäftliche E-Mail-Adresse ein.",
+      "agencyName": "Geben Sie den Namen Ihrer Agentur ein.",
+      "password": "Verwenden Sie mindestens 8 Zeichen.",
+      "plan": "Wählen Sie Starter oder Studio.",
+      "form": "Etwas ist schiefgelaufen. Laden Sie die Seite neu und versuchen Sie es erneut.",
+      "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet. Melden Sie sich stattdessen an."
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "Zu dieser E-Mail-Adresse gibt es kein Konto.",
       "badCredentials": "E-Mail-Adresse und Passwort passen zu keinem Konto."
-    }
+    },
+    "createTitle": "Neu bei Parcelith?",
+    "createBlurb": "Erstellen Sie einen Agenturarbeitsbereich im Starter- oder Studio-Tarif.",
+    "createAccount": "Konto erstellen"
   },
   "invite": {
     "metaTitle": "Einladung annehmen",
@@ -950,7 +988,27 @@
     "archive": "Archivieren",
     "archiveQuestion": "{name} archivieren?",
     "archiveDescription": "Die Storefront geht offline. Sie können sie später wiederherstellen.",
-    "archiveConfirm": "Ja, archivieren"
+    "archiveConfirm": "Ja, archivieren",
+    "welcomeTitle": "Ihr Tarif {plan} ist aktiv",
+    "welcomeBody": "Erstellen Sie Ihren ersten Shop."
+  },
+  "billing": {
+    "title": "Abonnement abschließen",
+    "plan": "Tarif {plan}",
+    "billingPeriod": "Abrechnungszeitraum",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "monthlyPrice": "{amount} pro Monat",
+    "yearlyPrice": "{amount} pro Jahr",
+    "trial": "{days} Tage kostenlos testen. Wenn Sie vorher kündigen, wird nichts berechnet.",
+    "proceed": "Weiter zur Zahlung",
+    "opening": "Checkout wird geöffnet…",
+    "unavailableTitle": "Der Checkout konnte nicht geöffnet werden",
+    "unavailableBody": "Ihr Konto ist gespeichert. Versuchen Sie es in ein paar Minuten erneut.",
+    "unconfirmedTitle": "Zahlung nicht bestätigt",
+    "unconfirmedBody": "Wir konnten Ihre Zahlung nicht bestätigen. Versuchen Sie es erneut.",
+    "cancelled": "Der Checkout wurde abgebrochen. Ihr Konto ist gespeichert.",
+    "ownerOnly": "Das Abonnement Ihrer Agentur ist noch nicht aktiv. Bitten Sie die Kontoinhaberin oder den Kontoinhaber, die Zahlung abzuschließen."
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "Steuereinstellungen gespeichert.",
       "policyLanguageInvalid": "Wählen Sie eine der Sprachen des Shops.",
       "policyTooLong": "Jede Richtlinie darf höchstens {max} Zeichen lang sein.",
-      "policiesSaved": "Richtlinien gespeichert."
+      "policiesSaved": "Richtlinien gespeichert.",
+      "paymentPending": "Schließen Sie Ihr Abonnement ab, bevor Sie einen Shop erstellen."
     },
     "team": {
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",

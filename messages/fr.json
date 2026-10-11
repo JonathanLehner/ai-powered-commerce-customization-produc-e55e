@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "Y a-t-il un essai gratuit ?",
-        "answer": "Oui. Starter et Studio incluent un essai gratuit de 14 jours, sans carte bancaire. Vous pouvez aussi explorer l'espace de démonstration à tout moment."
+        "answer": "Oui. Starter et Studio incluent un essai gratuit de 14 jours. Vous pouvez aussi explorer l'espace de démonstration à tout moment."
       },
       {
         "question": "Puis-je résilier ou changer de formule ?",
@@ -405,6 +405,41 @@
       "replyEmail": "E-mail",
       "messageLabel": "Votre message",
       "undecided": "Je ne sais pas encore"
+    }
+  },
+  "signup": {
+    "metaTitle": "Créer un compte",
+    "metaDescription": "Lancez un espace agence Parcelith avec la formule Starter ou Studio.",
+    "title": "Créer un compte",
+    "lead": "Configurez votre espace agence. Vous ajouterez vos informations de paiement à l'étape suivante.",
+    "name": "Votre nom",
+    "email": "E-mail professionnel",
+    "agencyName": "Nom de l'agence",
+    "password": "Mot de passe",
+    "passwordHint": "Au moins {count} caractères.",
+    "terms": "En créant un compte, vous acceptez les <terms>Conditions d'utilisation</terms> et la <privacy>Politique de confidentialité</privacy>.",
+    "submit": "Continuer vers le paiement",
+    "pending": "Création du compte…",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter",
+    "summaryTitle": "Votre formule",
+    "plan": "Formule",
+    "billingPeriod": "Période de facturation",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "perMonth": "/mois",
+    "billedMonthly": "Facturé mensuellement",
+    "billedYearly": "Facturé {amount} par an",
+    "trial": "Essai gratuit de {days} jours. Annulez avant la fin et vous ne serez pas débité.",
+    "scale": "Besoin de plus de boutiques en ligne ? <link>Contactez les ventes</link> pour Scale.",
+    "errors": {
+      "name": "Saisissez votre nom.",
+      "email": "Saisissez un e-mail professionnel valide.",
+      "agencyName": "Saisissez le nom de votre agence.",
+      "password": "Utilisez au moins 8 caractères.",
+      "plan": "Choisissez Starter ou Studio.",
+      "form": "Une erreur s'est produite. Rechargez la page et réessayez.",
+      "emailTaken": "Un compte utilise déjà cet e-mail. Connectez-vous plutôt."
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "Aucun compte n’utilise cette adresse e-mail.",
       "badCredentials": "Cette adresse e-mail et ce mot de passe ne correspondent à aucun compte."
-    }
+    },
+    "createTitle": "Nouveau sur Parcelith ?",
+    "createBlurb": "Créez un espace agence avec la formule Starter ou Studio.",
+    "createAccount": "Créer un compte"
   },
   "invite": {
     "metaTitle": "Accepter votre invitation",
@@ -950,7 +988,27 @@
     "archive": "Archiver",
     "archiveQuestion": "Archiver {name} ?",
     "archiveDescription": "La vitrine passe hors ligne. Vous pourrez la restaurer plus tard.",
-    "archiveConfirm": "Oui, archiver"
+    "archiveConfirm": "Oui, archiver",
+    "welcomeTitle": "Votre formule {plan} est active",
+    "welcomeBody": "Créez votre première boutique pour commencer."
+  },
+  "billing": {
+    "title": "Finaliser votre abonnement",
+    "plan": "Formule {plan}",
+    "billingPeriod": "Période de facturation",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "monthlyPrice": "{amount} par mois",
+    "yearlyPrice": "{amount} par an",
+    "trial": "Essai gratuit de {days} jours. Annulez avant la fin et vous ne serez pas débité.",
+    "proceed": "Continuer vers le paiement",
+    "opening": "Ouverture du paiement…",
+    "unavailableTitle": "Le paiement n'a pas pu s'ouvrir",
+    "unavailableBody": "Votre compte est enregistré. Réessayez dans quelques minutes.",
+    "unconfirmedTitle": "Paiement non confirmé",
+    "unconfirmedBody": "Nous n'avons pas pu confirmer votre paiement. Réessayez.",
+    "cancelled": "Le paiement a été annulé. Votre compte est enregistré.",
+    "ownerOnly": "L'abonnement de votre agence n'est pas encore actif. Demandez au titulaire du compte de finaliser le paiement."
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "Configuration des taxes enregistrée.",
       "policyLanguageInvalid": "Choisissez l’une des langues de la boutique.",
       "policyTooLong": "Chaque politique doit faire moins de {max} caractères.",
-      "policiesSaved": "Politiques enregistrées."
+      "policiesSaved": "Politiques enregistrées.",
+      "paymentPending": "Finalisez votre abonnement avant de créer une boutique."
     },
     "team": {
       "emailInvalid": "Saisissez une adresse e-mail valide.",

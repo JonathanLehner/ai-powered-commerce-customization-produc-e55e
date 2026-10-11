@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "Is er een gratis proefperiode?",
-        "answer": "Ja. Starter en Studio hebben een gratis proefperiode van 14 dagen, zonder creditcard. Je kunt ook altijd de demowerkruimte bekijken."
+        "answer": "Ja. Starter en Studio hebben een gratis proefperiode van 14 dagen. Je kunt ook altijd de demowerkruimte bekijken."
       },
       {
         "question": "Kan ik opzeggen of van abonnement wisselen?",
@@ -405,6 +405,41 @@
       "replyEmail": "E-mail",
       "messageLabel": "Je bericht",
       "undecided": "Weet ik nog niet"
+    }
+  },
+  "signup": {
+    "metaTitle": "Account aanmaken",
+    "metaDescription": "Start een Parcelith-bureauwerkruimte met het Starter- of Studio-abonnement.",
+    "title": "Account aanmaken",
+    "lead": "Richt je bureauwerkruimte in. In de volgende stap voeg je je betaalgegevens toe.",
+    "name": "Je naam",
+    "email": "Zakelijk e-mailadres",
+    "agencyName": "Naam van het bureau",
+    "password": "Wachtwoord",
+    "passwordHint": "Minimaal {count} tekens.",
+    "terms": "Door een account aan te maken ga je akkoord met de <terms>Servicevoorwaarden</terms> en het <privacy>Privacybeleid</privacy>.",
+    "submit": "Doorgaan naar betalen",
+    "pending": "Account wordt aangemaakt…",
+    "haveAccount": "Heb je al een account?",
+    "signIn": "Inloggen",
+    "summaryTitle": "Je abonnement",
+    "plan": "Abonnement",
+    "billingPeriod": "Factuurperiode",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks",
+    "perMonth": "/maand",
+    "billedMonthly": "Maandelijks gefactureerd",
+    "billedYearly": "Jaarlijks gefactureerd: {amount}",
+    "trial": "{days} dagen gratis proberen. Zeg je op voordat de proefperiode eindigt, dan betaal je niets.",
+    "scale": "Meer live winkels nodig? <link>Neem contact op met sales</link> over Scale.",
+    "errors": {
+      "name": "Vul je naam in.",
+      "email": "Vul een geldig zakelijk e-mailadres in.",
+      "agencyName": "Vul de naam van je bureau in.",
+      "password": "Gebruik minimaal 8 tekens.",
+      "plan": "Kies Starter of Studio.",
+      "form": "Er ging iets mis. Laad de pagina opnieuw en probeer het nog eens.",
+      "emailTaken": "Er bestaat al een account met dit e-mailadres. Log in."
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "Er is geen account met dit e-mailadres.",
       "badCredentials": "Dit e-mailadres en wachtwoord horen niet bij een account."
-    }
+    },
+    "createTitle": "Nieuw bij Parcelith?",
+    "createBlurb": "Maak een bureauwerkruimte aan met het Starter- of Studio-abonnement.",
+    "createAccount": "Account aanmaken"
   },
   "invite": {
     "metaTitle": "Uitnodiging accepteren",
@@ -950,7 +988,27 @@
     "archive": "Archiveren",
     "archiveQuestion": "{name} archiveren?",
     "archiveDescription": "De etalage gaat offline. Je kunt hem later herstellen.",
-    "archiveConfirm": "Ja, archiveren"
+    "archiveConfirm": "Ja, archiveren",
+    "welcomeTitle": "Je {plan}-abonnement is actief",
+    "welcomeBody": "Maak je eerste winkel aan om te beginnen."
+  },
+  "billing": {
+    "title": "Rond je abonnement af",
+    "plan": "{plan}-abonnement",
+    "billingPeriod": "Factuurperiode",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks",
+    "monthlyPrice": "{amount} per maand",
+    "yearlyPrice": "{amount} per jaar",
+    "trial": "{days} dagen gratis proberen. Zeg je op voordat de proefperiode eindigt, dan betaal je niets.",
+    "proceed": "Doorgaan naar betalen",
+    "opening": "Betaalpagina wordt geopend…",
+    "unavailableTitle": "De betaalpagina kon niet worden geopend",
+    "unavailableBody": "Je account is opgeslagen. Probeer het over een paar minuten opnieuw.",
+    "unconfirmedTitle": "Betaling niet bevestigd",
+    "unconfirmedBody": "We konden je betaling niet bevestigen. Probeer het opnieuw.",
+    "cancelled": "Het betalen is geannuleerd. Je account is opgeslagen.",
+    "ownerOnly": "Het abonnement van je bureau is nog niet actief. Vraag de accounteigenaar om de betaling af te ronden."
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "Belastinginstellingen opgeslagen.",
       "policyLanguageInvalid": "Kies een van de talen van de winkel.",
       "policyTooLong": "Houd elk beleid onder {max} tekens.",
-      "policiesSaved": "Beleid opgeslagen."
+      "policiesSaved": "Beleid opgeslagen.",
+      "paymentPending": "Rond je abonnement af voordat je een winkel aanmaakt."
     },
     "team": {
       "emailInvalid": "Vul een geldig e-mailadres in.",

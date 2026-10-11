@@ -24,6 +24,7 @@ export const ROUTES = [
   "/[locale]/legal/privacy",
   "/[locale]/legal/terms",
   "/[locale]/pricing",
+  "/[locale]/signup",
   "/login",
   "/invite/[token]",
   "/api/asset",
@@ -42,6 +43,8 @@ export const ROUTES = [
 
   "/app",
   "/app/attention",
+  "/app/billing",
+  "/app/billing/complete",
   "/app/people",
   "/app/stores/new",
   "/app/stores/[storeId]",

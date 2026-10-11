@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { agencyStoreAllowance, getAgency, listAgencies } from "@/lib/data";
 import { planStoresText, storeLimitText, storeUsageText } from "@/i18n/plan-copy";
+import { billingPending } from "@/lib/billing";
 import { accessibleStores, requireUser } from "@/lib/session";
 import { formatDate } from "@/lib/util";
 import { ArchiveStoreForm } from "./ArchiveStoreForm";
 import { NewStoreForm } from "./NewStoreForm";
 
-export default async function NewStorePage() {
+export default async function NewStorePage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+  const { welcome } = await searchParams;
   const user = await requireUser();
   if (user.platformRole === "agency_member") redirect("/app?denied=1");
 
@@ -22,6 +24,7 @@ export default async function NewStorePage() {
     accessibleStores(user),
     user.agencyId ? getAgency(user.agencyId) : listAgencies().then((all) => all[0] ?? null),
   ]);
+  if (billingPending(agency)) redirect("/app/billing");
   const allowance = agency ? await agencyStoreAllowance(agency) : null;
 
   const liveStores = agency
@@ -52,6 +55,13 @@ export default async function NewStorePage() {
         />
 
         <div className="mt-6">
+          {welcome && allowance && !allowance.atLimit ? (
+            <div className="mb-5">
+              <Callout tone="green" title={t("welcomeTitle", { plan: allowance.plan.name })}>
+                {t("welcomeBody")}
+              </Callout>
+            </div>
+          ) : null}
           {!agency || !allowance ? (
             <Callout tone="amber" title={t("noAgencyTitle")}>
               {t("noAgencyBody")}

@@ -20,6 +20,8 @@ import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } fro
 import { addBreakdowns } from "@/lib/attention";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeAllowance } from "@/lib/plans";
+import { redirect } from "next/navigation";
+import { billingPending } from "@/lib/billing";
 import { accessibleStores, requireUser, roleCan, type Capability } from "@/lib/session";
 import { THEMES } from "@/lib/types";
 
@@ -63,6 +65,7 @@ export default async function AgencyDashboard({
     user.agencyId ? getAgency(user.agencyId) : Promise.resolve(null),
     listAudit({ agencyId: user.agencyId ?? "__none__" }, recentAuditReadSize(ACTIVITY_ROWS)),
   ]);
+  if (billingPending(agency)) redirect("/app/billing");
 
   // Repeats are one row here; the platform log and each store's Activity page
   // still list every record.

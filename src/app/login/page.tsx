@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Suspense } from "react";
 import { signInAs, signInWithPassword } from "@/app/actions/auth";
 import { Badge, Logo } from "@/components/ui";
+import { isLocale, localizedPath } from "@/i18n/locales";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,8 @@ const PERSONAS = [
 ] as const;
 
 export default async function LoginPage() {
-  const t = await getTranslations("auth");
+  const [t, locale] = await Promise.all([getTranslations("auth"), getLocale()]);
+  const signupHref = localizedPath("/signup", isLocale(locale) ? locale : "en");
 
   return (
     <div className="flex min-h-screen flex-col bg-muted">
@@ -75,6 +77,17 @@ export default async function LoginPage() {
                 </Card>
               </li>
             ))}
+            <li>
+              <Card size="sm" className="h-full border-dashed">
+                <CardContent className="flex h-full flex-col">
+                  <p className="text-sm font-semibold text-foreground">{t("createTitle")}</p>
+                  <p className="mt-2.5 flex-1 text-sm leading-relaxed text-muted-foreground">{t("createBlurb")}</p>
+                  <Button asChild size="sm" className="mt-4 w-full">
+                    <Link href={signupHref}>{t("createAccount")}</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </li>
           </ul>
           <Card asChild size="sm" className="mt-6">
           <form action={signInWithPassword}>

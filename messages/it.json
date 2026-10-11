@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "C'è una prova gratuita?",
-        "answer": "Sì. Starter e Studio includono una prova gratuita di 14 giorni, senza carta di credito. Puoi anche esplorare lo spazio demo in qualsiasi momento."
+        "answer": "Sì. Starter e Studio includono una prova gratuita di 14 giorni. Puoi anche esplorare lo spazio demo in qualsiasi momento."
       },
       {
         "question": "Posso disdire o cambiare piano?",
@@ -405,6 +405,41 @@
       "replyEmail": "Email",
       "messageLabel": "Il tuo messaggio",
       "undecided": "Non lo so ancora"
+    }
+  },
+  "signup": {
+    "metaTitle": "Crea il tuo account",
+    "metaDescription": "Apri uno spazio agenzia Parcelith con il piano Starter o Studio.",
+    "title": "Crea il tuo account",
+    "lead": "Configura lo spazio della tua agenzia. Inserirai i dati di pagamento nel passaggio successivo.",
+    "name": "Il tuo nome",
+    "email": "Email di lavoro",
+    "agencyName": "Nome dell'agenzia",
+    "password": "Password",
+    "passwordHint": "Almeno {count} caratteri.",
+    "terms": "Creando un account accetti i <terms>Termini di servizio</terms> e l’<privacy>Informativa sulla privacy</privacy>.",
+    "submit": "Continua al pagamento",
+    "pending": "Creazione account…",
+    "haveAccount": "Hai già un account?",
+    "signIn": "Accedi",
+    "summaryTitle": "Il tuo piano",
+    "plan": "Piano",
+    "billingPeriod": "Periodo di fatturazione",
+    "monthly": "Mensile",
+    "yearly": "Annuale",
+    "perMonth": "/mese",
+    "billedMonthly": "Fatturazione mensile",
+    "billedYearly": "Fatturazione annuale di {amount}",
+    "trial": "Prova gratuita di {days} giorni. Annulla prima della scadenza e non ti verrà addebitato nulla.",
+    "scale": "Ti servono più negozi attivi? <link>Contatta le vendite</link> per Scale.",
+    "errors": {
+      "name": "Inserisci il tuo nome.",
+      "email": "Inserisci un'email di lavoro valida.",
+      "agencyName": "Inserisci il nome della tua agenzia.",
+      "password": "Usa almeno 8 caratteri.",
+      "plan": "Scegli Starter o Studio.",
+      "form": "Qualcosa è andato storto. Ricarica la pagina e riprova.",
+      "emailTaken": "Esiste già un account con questa email. Accedi."
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "Nessun account usa questo indirizzo email.",
       "badCredentials": "Indirizzo email e password non corrispondono ad alcun account."
-    }
+    },
+    "createTitle": "Nuovo su Parcelith?",
+    "createBlurb": "Crea uno spazio agenzia con il piano Starter o Studio.",
+    "createAccount": "Crea account"
   },
   "invite": {
     "metaTitle": "Accetta l’invito",
@@ -950,7 +988,27 @@
     "archive": "Archivia",
     "archiveQuestion": "Archiviare {name}?",
     "archiveDescription": "La vetrina va offline. Puoi ripristinarla in seguito.",
-    "archiveConfirm": "Sì, archivia"
+    "archiveConfirm": "Sì, archivia",
+    "welcomeTitle": "Il tuo piano {plan} è attivo",
+    "welcomeBody": "Crea il tuo primo negozio per iniziare."
+  },
+  "billing": {
+    "title": "Completa l'abbonamento",
+    "plan": "Piano {plan}",
+    "billingPeriod": "Periodo di fatturazione",
+    "monthly": "Mensile",
+    "yearly": "Annuale",
+    "monthlyPrice": "{amount} al mese",
+    "yearlyPrice": "{amount} all'anno",
+    "trial": "Prova gratuita di {days} giorni. Annulla prima della scadenza e non ti verrà addebitato nulla.",
+    "proceed": "Continua al pagamento",
+    "opening": "Apertura del pagamento…",
+    "unavailableTitle": "Impossibile aprire il pagamento",
+    "unavailableBody": "Il tuo account è salvato. Riprova tra qualche minuto.",
+    "unconfirmedTitle": "Pagamento non confermato",
+    "unconfirmedBody": "Non siamo riusciti a confermare il pagamento. Riprova.",
+    "cancelled": "Il pagamento è stato annullato. Il tuo account è salvato.",
+    "ownerOnly": "L'abbonamento della tua agenzia non è ancora attivo. Chiedi al titolare dell'account di completare il pagamento."
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "Configurazione fiscale salvata.",
       "policyLanguageInvalid": "Scegli una delle lingue del negozio.",
       "policyTooLong": "Ogni politica deve avere meno di {max} caratteri.",
-      "policiesSaved": "Politiche salvate."
+      "policiesSaved": "Politiche salvate.",
+      "paymentPending": "Completa l'abbonamento prima di creare un negozio."
     },
     "team": {
       "emailInvalid": "Inserisci un indirizzo email valido.",

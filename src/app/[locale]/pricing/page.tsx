@@ -86,7 +86,7 @@ export default async function PricingPage({ params }: PageProps<"/[locale]/prici
     summary: t(`summaries.${key}`),
     features: [storeLabel(PLANS[key]), ...PLAN_FEATURES[key].map((feature) => t(`features.${feature}`))],
     cta: PLANS[key].monthlyPrice === null ? t("contactSales") : t("getStarted"),
-    href: `/contact?plan=${key}`,
+    href: PLANS[key].monthlyPrice === null ? `/contact?plan=${key}` : `/signup?plan=${key}`,
     highlighted: key === "studio",
     prices: prices(PLANS[key]),
   }));

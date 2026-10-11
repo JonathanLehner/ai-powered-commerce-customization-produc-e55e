@@ -18,6 +18,7 @@ import { storeLanguages } from "@/i18n/storefront-routing";
 import { db } from "@/lib/mongo";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type StorePolicies } from "@/lib/policies";
 import { storeLimitText } from "@/i18n/plan-copy";
+import { billingPending } from "@/lib/billing";
 import { storeAllowance } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";
@@ -59,6 +60,7 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
     countActiveStoresForAgency(agencyId),
   ]);
   if (!agency) return fail(t("agencyGone"), "agencyId");
+  if (billingPending(agency)) return fail(t("paymentPending"));
   const allowance = storeAllowance(agency.plan, activeStores);
   if (allowance.atLimit) return fail(await storeLimitText(allowance, agency.name));
 

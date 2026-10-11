@@ -17,6 +17,7 @@ export interface PlanCard {
   summary: string;
   features: string[];
   cta: string;
+  /** Plans with a price get the billing period and currency added, so sign-up starts on what was shown. */
   href: string;
   highlighted: boolean;
   /** null for a plan priced by sales. */
@@ -105,7 +106,7 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
               </CardContent>
               <CardFooter className="border-0 bg-transparent pt-0">
                 <Button asChild size="lg" variant={plan.highlighted ? "default" : "outline"} className="w-full">
-                  <Link href={plan.href}>{plan.cta}</Link>
+                  <Link href={plan.prices ? `${plan.href}&cycle=${cycle}&currency=${currency}` : plan.href}>{plan.cta}</Link>
                 </Button>
               </CardFooter>
             </Card>

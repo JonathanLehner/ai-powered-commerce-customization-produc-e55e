@@ -336,7 +336,7 @@
     "faq": [
       {
         "question": "Existe um teste gratuito?",
-        "answer": "Sim. Starter e Studio incluem 14 dias de teste gratuito, sem cartão. Você também pode explorar o espaço de demonstração a qualquer momento."
+        "answer": "Sim. Starter e Studio incluem 14 dias de teste gratuito. Você também pode explorar o espaço de demonstração a qualquer momento."
       },
       {
         "question": "Posso cancelar ou mudar de plano?",
@@ -405,6 +405,41 @@
       "replyEmail": "Email",
       "messageLabel": "A sua mensagem",
       "undecided": "Ainda não sei"
+    }
+  },
+  "signup": {
+    "metaTitle": "Crie sua conta",
+    "metaDescription": "Abra um espaço de agência na Parcelith com o plano Starter ou Studio.",
+    "title": "Crie sua conta",
+    "lead": "Configure o espaço da sua agência. Você adiciona os dados de pagamento na próxima etapa.",
+    "name": "Seu nome",
+    "email": "E-mail de trabalho",
+    "agencyName": "Nome da agência",
+    "password": "Senha",
+    "passwordHint": "Pelo menos {count} caracteres.",
+    "terms": "Ao criar uma conta, você concorda com os <terms>Termos de Serviço</terms> e a <privacy>Política de Privacidade</privacy>.",
+    "submit": "Continuar para o pagamento",
+    "pending": "Criando conta…",
+    "haveAccount": "Já tem uma conta?",
+    "signIn": "Entrar",
+    "summaryTitle": "Seu plano",
+    "plan": "Plano",
+    "billingPeriod": "Período de cobrança",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "perMonth": "/mês",
+    "billedMonthly": "Cobrança mensal",
+    "billedYearly": "Cobrança anual de {amount}",
+    "trial": "{days} dias de teste gratuito. Cancele antes do fim e você não será cobrado.",
+    "scale": "Precisa de mais lojas ativas? <link>Fale com vendas</link> sobre o Scale.",
+    "errors": {
+      "name": "Informe seu nome.",
+      "email": "Informe um e-mail de trabalho válido.",
+      "agencyName": "Informe o nome da sua agência.",
+      "password": "Use pelo menos 8 caracteres.",
+      "plan": "Escolha Starter ou Studio.",
+      "form": "Algo deu errado. Recarregue a página e tente novamente.",
+      "emailTaken": "Já existe uma conta com este e-mail. Entre na sua conta."
     }
   },
   "terms": {
@@ -557,7 +592,10 @@
     "errors": {
       "unknownUser": "Não existe nenhuma conta com esse endereço de email.",
       "badCredentials": "Esse email e essa palavra-passe não correspondem a nenhuma conta."
-    }
+    },
+    "createTitle": "Novo na Parcelith?",
+    "createBlurb": "Crie um espaço de agência com o plano Starter ou Studio.",
+    "createAccount": "Criar conta"
   },
   "invite": {
     "metaTitle": "Aceitar o convite",
@@ -950,7 +988,27 @@
     "archive": "Arquivar",
     "archiveQuestion": "Arquivar {name}?",
     "archiveDescription": "A montra fica offline. Pode restaurá-la mais tarde.",
-    "archiveConfirm": "Sim, arquivar"
+    "archiveConfirm": "Sim, arquivar",
+    "welcomeTitle": "Seu plano {plan} está ativo",
+    "welcomeBody": "Crie sua primeira loja para começar."
+  },
+  "billing": {
+    "title": "Conclua sua assinatura",
+    "plan": "Plano {plan}",
+    "billingPeriod": "Período de cobrança",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "monthlyPrice": "{amount} por mês",
+    "yearlyPrice": "{amount} por ano",
+    "trial": "{days} dias de teste gratuito. Cancele antes do fim e você não será cobrado.",
+    "proceed": "Continuar para o pagamento",
+    "opening": "Abrindo o pagamento…",
+    "unavailableTitle": "Não foi possível abrir o pagamento",
+    "unavailableBody": "Sua conta está salva. Tente novamente em alguns minutos.",
+    "unconfirmedTitle": "Pagamento não confirmado",
+    "unconfirmedBody": "Não conseguimos confirmar seu pagamento. Tente novamente.",
+    "cancelled": "O pagamento foi cancelado. Sua conta está salva.",
+    "ownerOnly": "A assinatura da sua agência ainda não está ativa. Peça ao titular da conta para concluir o pagamento."
   },
   "actions": {
     "common": {
@@ -991,7 +1049,8 @@
       "taxSaved": "Configuração de impostos guardada.",
       "policyLanguageInvalid": "Escolha um dos idiomas da loja.",
       "policyTooLong": "Cada política deve ter menos de {max} caracteres.",
-      "policiesSaved": "Políticas guardadas."
+      "policiesSaved": "Políticas guardadas.",
+      "paymentPending": "Conclua sua assinatura antes de criar uma loja."
     },
     "team": {
       "emailInvalid": "Introduza um email válido.",

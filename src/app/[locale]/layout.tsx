@@ -29,12 +29,12 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
 export default async function MarketingLayout({ children, params }: LayoutProps<"/[locale]">) {
   const locale = asLocale((await params).locale);
   setRequestLocale(locale);
-  const { common, site, pricing, contact } = await getMessages();
+  const { common, site, pricing, contact, signup } = await getMessages();
 
   return (
     <Document lang={locale}>
       {/* Only what the client components on these pages read. */}
-      <NextIntlClientProvider messages={{ common, site, pricing, contact }}>
+      <NextIntlClientProvider messages={{ common, site, pricing, contact, signup }}>
         <div className="flex min-h-full flex-col">
           <SiteHeader locale={locale} />
           <main className="flex-1">{children}</main>
