@@ -12,7 +12,7 @@ import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
 import { orderTaxRows } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { canMoveOrder } from "@/lib/types";
+import { canMoveOrder, type FulfillmentEvent } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
 import {
   ExceptionForm,
@@ -21,6 +21,9 @@ import {
   SupplierPickerForm,
   TrackingForm,
 } from "./OrderForms";
+
+/** Timeline entries shown before "Show all". */
+const TIMELINE_PREVIEW = 5;
 
 export default async function OrderDetailPage({
   params,
@@ -53,6 +56,26 @@ export default async function OrderDetailPage({
     const name = regionForCountry(code);
     return labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
   };
+
+  const latestEvents = order.events.slice(-TIMELINE_PREVIEW);
+  const earlierEvents = order.events.slice(0, -TIMELINE_PREVIEW);
+  const renderEvent = (entry: FulfillmentEvent, index: number) => (
+    <li key={index} className="flex gap-3">
+      <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground">{entry.status}</p>
+        {/* Notes quote amounts and, on a refund, the reason the team
+            wrote. Platform access sees the step, not the wording. */}
+        {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
+        {/* A step a shopper took is recorded under their own name,
+            so platform access reads the step and when, not who. */}
+        <p className="text-xs text-muted-foreground">
+          {when(entry.at)}
+          {viaPlatform ? null : ` · ${entry.actor}`}
+        </p>
+      </div>
+    </li>
+  );
 
   return (
     <div className="space-y-6">
@@ -104,13 +127,20 @@ export default async function OrderDetailPage({
             ? t("exceptionHidden")
             : order.fulfillment.exception}
           {canManage ? (
-            <form action={resolveException} className="mt-3">
-              <input type="hidden" name="storeId" value={storeId} />
-              <input type="hidden" name="orderId" value={order.id} />
-              <Button type="submit" variant="outline" size="sm">
-                {t("markResolved")}
-              </Button>
-            </form>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <form action={resolveException}>
+                <input type="hidden" name="storeId" value={storeId} />
+                <input type="hidden" name="orderId" value={order.id} />
+                <Button type="submit" variant="outline" size="sm">
+                  {t("markResolved")}
+                </Button>
+              </form>
+              {routingOptions ? (
+                <Button asChild size="sm">
+                  <a href="#supplier-picker">{t("rerouteSupplier")}</a>
+                </Button>
+              ) : null}
+            </div>
           ) : null}
         </Callout>
       ) : null}
@@ -240,29 +270,28 @@ export default async function OrderDetailPage({
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Oldest first, as recorded. The latest few stay in view; earlier
+                    steps open above them on request. */}
+                {earlierEvents.length > 0 ? (
+                  <details className="group mb-4">
+                    <summary className="cursor-pointer list-none text-sm font-medium text-primary hover:underline [&::-webkit-details-marker]:hidden">
+                      <span className="group-open:hidden">{t("showAllEvents", { count: order.events.length })}</span>
+                      <span className="hidden group-open:inline">{t("showLatestEvents", { count: latestEvents.length })}</span>
+                    </summary>
+                    <ol className="mt-4 space-y-4">
+                      {earlierEvents.map((entry, index) => renderEvent(entry, index))}
+                    </ol>
+                  </details>
+                ) : null}
                 <ol className="space-y-4">
-                  {order.events.map((entry, index) => (
-                    <li key={index} className="flex gap-3">
-                      <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">{entry.status}</p>
-                        {/* Notes quote amounts and, on a refund, the reason the team
-                            wrote. Platform access sees the step, not the wording. */}
-                        {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
-                        {/* A step a shopper took is recorded under their own name,
-                            so platform access reads the step and when, not who. */}
-                        <p className="text-xs text-muted-foreground">
-                          {when(entry.at)}
-                          {viaPlatform ? null : ` · ${entry.actor}`}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
+                  {latestEvents.map((entry, index) => renderEvent(entry, earlierEvents.length + index))}
                 </ol>
               </CardContent>
             </Card>
           </section>
+        </div>
 
+        <div className="space-y-6">
           {canManage ? (
             <section>
               <Card>
@@ -271,7 +300,7 @@ export default async function OrderDetailPage({
                     <h2>{t("manualSteps")}</h2>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 @container">
                   <div className="rounded-xl border border-border p-4">
                     <h3 className="text-sm font-semibold text-foreground">{t("supplierRouting")}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -287,7 +316,7 @@ export default async function OrderDetailPage({
                       </form>
                     </div>
                     {routingOptions ? (
-                      <div className="mt-5 border-t border-border pt-4">
+                      <div id="supplier-picker" className="mt-5 scroll-mt-24 border-t border-border pt-4">
                         <h4 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                           {routingOptions.available.length === 0
                             ? t("alternatives")
@@ -358,9 +387,7 @@ export default async function OrderDetailPage({
               </Card>
             </section>
           ) : null}
-        </div>
 
-        <div className="space-y-6">
           <section>
             <Card>
               <CardHeader>

@@ -194,7 +194,7 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 @md:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="carrier">{t("carrier")}</Label>
             <Select
@@ -292,7 +292,7 @@ export function RefundForm({ order }: { order: Order }) {
       <input type="hidden" name="storeId" value={order.storeId} />
       <input type="hidden" name="orderId" value={order.id} />
       <div className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 @md:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="amount">{t("amount", { currency: order.currency })}</Label>
             <Input
