@@ -36,6 +36,7 @@ export const ROUTES = [
   "/admin/audit/export",
   "/admin/catalog",
   "/admin/catalog/new",
+  "/admin/enquiries/[enquiryId]",
   "/admin/catalog/[itemId]",
   "/admin/quotes",
   "/admin/suppliers",

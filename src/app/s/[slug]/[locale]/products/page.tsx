@@ -12,7 +12,7 @@ import { breadcrumbJsonLd, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { localizeProduct } from "@/lib/translations";
-import { getStoreBySlug, listPublishedProducts } from "@/lib/data";
+import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
@@ -24,7 +24,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   if (!store) return { title: "Shop", ...notFoundRobots };
   const active = shopperLocale(store, locale);
   const t = await getTranslations({ locale: active, namespace: "storefront.meta" });
@@ -45,12 +45,12 @@ export default async function StorefrontProductsPage({
 }) {
   const { slug, locale: requested } = await params;
   const { q, tag } = await searchParams;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;
 
-  const stored = await listPublishedProducts(store.id);
+  const stored = await publishedProducts(store.id);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const products = stored.map((p) => localizeProduct(p, locale, storeLanguages(store).defaultLocale));

@@ -7,7 +7,7 @@ import { Badge, Breadcrumbs } from "@/components/ui";
 import { isLive } from "@/lib/artwork";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale } from "@/i18n/storefront";
-import { getCatalogProduct, getStorefront, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
+import { storefrontBySlug, storefrontProduct } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
 import { breadcrumbJsonLd, metaDescription, productJsonLd, storeUrl } from "@/lib/seo";
 import { shipDays } from "@/lib/shipping-promise";
@@ -26,9 +26,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string; productSlug: string }>;
 }): Promise<Metadata> {
   const { slug, locale, productSlug } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   if (!store) return { title: "Not found", ...notFoundRobots };
-  const stored = await getStoreProductBySlug(store.id, productSlug);
+  const stored = (await storefrontProduct(store.id, productSlug))?.product;
   if (!stored || !isLive(stored)) return { title: "Not found", ...notFoundRobots };
   const active = shopperLocale(store, locale);
   const product = localizeProduct(stored, active, storeLanguages(store).defaultLocale);
@@ -49,20 +49,18 @@ export default async function StorefrontProductPage({
   params: Promise<{ slug: string; locale: string; productSlug: string }>;
 }) {
   const { slug, locale: requested, productSlug } = await params;
-  const store = await getStoreBySlug(slug);
+  const data = await storefrontBySlug(slug);
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
-  if (!store) return <UnknownStoreView slug={slug} />;
+  if (!data) return <UnknownStoreView slug={slug} />;
 
-  const stored = await getStoreProductBySlug(store.id, productSlug);
+  const { store, storefront } = data;
+  const found = await storefrontProduct(store.id, productSlug);
   // Taken off sale, or never existed: the store's own not-found page, in the
   // store's language and inside its header and footer.
-  if (!stored || !isLive(stored)) return <StorefrontNotFoundView store={store} locale={requested} />;
+  if (!found || !isLive(found.product)) return <StorefrontNotFoundView store={store} locale={requested} />;
 
-  const [catalog, storefront] = await Promise.all([
-    getCatalogProduct(stored.catalogProductId),
-    getStorefront(store.id),
-  ]);
+  const { product: stored, catalog } = found;
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   // Name, description, colours and the personalisation label in the shopper's language.

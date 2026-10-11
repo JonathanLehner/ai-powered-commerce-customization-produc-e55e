@@ -7,7 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { getStoreBySlug, getStorefront, listProductCollections, listPublishedProducts } from "@/lib/data";
+import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
 import { sectionsFromTree } from "@/lib/storefront-schema";
 import { organizationJsonLd, storeUrl } from "@/lib/seo";
@@ -23,15 +23,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
-  if (!store) return { title: "Store not found", ...notFoundRobots };
+  const data = await storefrontBySlug(slug);
+  if (!data) return { title: "Store not found", ...notFoundRobots };
+  const { store, storefront } = data;
   // The home page is the store itself, so it carries the store's own title and
   // description rather than adding a page name to it.
   const active = shopperLocale(store, locale);
-  const [storefront, t] = await Promise.all([
-    getStorefront(store.id),
-    getTranslations({ locale: active, namespace: "storefront.meta" }),
-  ]);
+  const t = await getTranslations({ locale: active, namespace: "storefront.meta" });
   const site = siteContent(storefront?.published, active, storeLanguages(store).defaultLocale);
   const seo = storeSeo(store, t, storeTagline(storefront?.published), site);
   return shopperPageMetadata(store, active, "", { title: seo.title, description: seo.description, absolute: true });
@@ -43,16 +41,13 @@ export default async function StorefrontHome({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale: requested } = await params;
-  const store = await getStoreBySlug(slug);
+  const data = await storefrontBySlug(slug);
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
-  if (!store) return <UnknownStoreView slug={slug} />;
+  if (!data) return <UnknownStoreView slug={slug} />;
 
-  const [storefront, products, collections] = await Promise.all([
-    getStorefront(store.id),
-    listPublishedProducts(store.id),
-    listProductCollections(store.id),
-  ]);
+  const { store, storefront, collections } = data;
+  const products = await publishedProducts(store.id);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { defaultLocale } = storeLanguages(store);

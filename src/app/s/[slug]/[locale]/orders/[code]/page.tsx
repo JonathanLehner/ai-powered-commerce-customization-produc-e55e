@@ -8,7 +8,8 @@ import { localCountryName } from "@/lib/countries";
 import type { ShopperMessages } from "@/i18n/shopper-copy";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
-import { getOrderByCode, getStoreBySlug } from "@/lib/data";
+import { getOrderByCode } from "@/lib/data";
+import { storefrontBySlug } from "@/lib/storefront-data";
 import { verifyOrderToken } from "@/lib/order-access";
 import { shopperTimeline } from "@/lib/order-timeline";
 import { orderTaxRows } from "@/lib/pricing";
@@ -25,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string; code: string }>;
 }): Promise<Metadata> {
   const { slug, locale, code } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   const robots = { index: false, follow: false };
   if (!store) return { title: "Order status", robots };
   const t = await shopperTranslator(store, shopperLocale(store, locale));
@@ -62,7 +63,7 @@ export default async function OrderStatusPage({
 }) {
   const { slug, locale: requested, code } = await params;
   const { new: isNew, t: token } = await searchParams;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;

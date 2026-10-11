@@ -21,6 +21,7 @@ import { storeLimitText } from "@/i18n/plan-copy";
 import { billingPending } from "@/lib/billing";
 import { storeAllowance } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
+import { forgetStorePolicies } from "@/lib/storefront-data";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { isSupportEmail, isSupportPhone } from "@/lib/support";
 import { readStoredImage } from "@/lib/uploads";
@@ -426,7 +427,8 @@ export async function savePolicies(_prev: ActionState, formData: FormData): Prom
   }
 
   const policies: StorePolicies = { ...(store.policies ?? {}), [language]: own };
-  await updateStore(storeId, { policies });
+  await updateStore(storeId, { policies, policiesVersion: new Date().toISOString() });
+  forgetStorePolicies(storeId);
   recordAudit({
     category: "store_setup",
     action: "store.policies_updated",

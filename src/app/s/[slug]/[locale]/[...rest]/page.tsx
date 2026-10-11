@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
-import { getStoreBySlug } from "@/lib/data";
+import { storefrontBySlug } from "@/lib/storefront-data";
 
 /**
  * Any address under a storefront that matches no page — an old campaign link, a
@@ -20,6 +20,6 @@ export default async function StorefrontCatchAll({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   return store ? <StorefrontNotFoundView store={store} locale={locale} /> : <UnknownStoreView slug={slug} />;
 }

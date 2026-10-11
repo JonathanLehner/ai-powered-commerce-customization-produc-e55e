@@ -6,7 +6,7 @@ import { getStore, getUserById, listMembershipsForUser } from "./data";
 import { resolveStoreRole, roleCan, type Capability } from "./store-access";
 import type { Store, StoreRole, User } from "./types";
 
-export const SHOPPER_COOKIE = "cc_shopper";
+export { SHOPPER_COOKIE } from "./storefront-data";
 
 export { resolveStoreRole, roleCan };
 export type { Capability, StoreGrant } from "./store-access";

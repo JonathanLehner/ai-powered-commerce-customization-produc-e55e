@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/locales";
 import { shopperIntl } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { POLICY_KEYS, policyBlocks, policyPath, storePolicyText, type PolicyKey } from "@/lib/policies";
+import { POLICY_KEYS, policyBlocks, policyPath, type PolicyKey } from "@/lib/policies";
+import { storePolicies } from "@/lib/storefront-data";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import type { Store } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 /** The text of a policy in the shopper's language: what the store wrote, else the built-in text. */
 async function resolvePolicy(store: Store, key: PolicyKey, locale: Locale) {
   const { defaultLocale } = storeLanguages(store);
-  const own = storePolicyText(store, key, locale, defaultLocale);
+  const own = (await storePolicies(store, locale, defaultLocale))[key];
   if (own) return own;
   const builtIn = await getTranslations({ locale, namespace: "storePolicies" });
   return builtIn(key, { store: store.name });

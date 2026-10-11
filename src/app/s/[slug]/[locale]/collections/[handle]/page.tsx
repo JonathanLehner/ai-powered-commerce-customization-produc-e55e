@@ -20,7 +20,7 @@ import {
   sortProducts,
   type CollectionSort,
 } from "@/lib/collections";
-import { getProductCollectionByHandle, getStoreBySlug, listPublishedProducts } from "@/lib/data";
+import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
 import { breadcrumbJsonLd, metaDescription, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
@@ -42,9 +42,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string; handle: string }>;
 }): Promise<Metadata> {
   const { slug, locale, handle } = await params;
-  const store = await getStoreBySlug(slug);
-  if (!store) return { title: "Not found", ...notFoundRobots };
-  const stored = await getProductCollectionByHandle(store.id, handle);
+  const data = await storefrontBySlug(slug);
+  if (!data) return { title: "Not found", ...notFoundRobots };
+  const { store } = data;
+  const stored = data.collections.find((c) => c.handle === handle);
   if (!stored) return { title: "Not found", ...notFoundRobots };
   const active = shopperLocale(store, locale);
   const collection = localizeCollection(stored, active, storeLanguages(store).defaultLocale);
@@ -65,17 +66,17 @@ export default async function StorefrontCollectionPage({
   searchParams: Promise<{ tag?: string; sort?: string }>;
 }) {
   const [{ slug, locale: requested, handle }, query] = await Promise.all([params, searchParams]);
-  const store = await getStoreBySlug(slug);
+  const data = await storefrontBySlug(slug);
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
-  if (!store) return <UnknownStoreView slug={slug} />;
+  if (!data) return <UnknownStoreView slug={slug} />;
 
-  const [stored, published] = await Promise.all([
-    getProductCollectionByHandle(store.id, handle),
-    listPublishedProducts(store.id),
-  ]);
+  const { store } = data;
+  // The layout read every collection with the store, so finding this one costs nothing.
+  const stored = data.collections.find((c) => c.handle === handle);
   if (!stored) return <StorefrontNotFoundView store={store} locale={requested} />;
 
+  const published = await publishedProducts(store.id);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { defaultLocale } = storeLanguages(store);

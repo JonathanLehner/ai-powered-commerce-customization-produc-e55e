@@ -1,4 +1,4 @@
-import { getDiscountCodeByCode, getStoreProductsByIds, getTaxBracket } from "./data";
+import { getDiscountCodeByCode, getStoreProductsByIds, getTaxBracketsByIds } from "./data";
 import { allocateDiscount, checkDiscount, type DiscountRefusal } from "./discounts";
 import { convert, parcelShipping, taxRowsFor, type TaxRow } from "./pricing";
 import type { Cart, CartItem, DiscountCode, Store, StoreProduct } from "./types";
@@ -58,16 +58,18 @@ export async function basketTotals(
   items: CartItem[],
   currency: string,
   discountCode: DiscountCode | null = null,
+  known?: { products: Map<string, StoreProduct>; rates: Map<string, number> },
 ): Promise<BasketTotals> {
   // One read for the whole basket. A read per line meant a fetch per line, and
   // the platform runs only a handful at a time, so a large basket priced itself
-  // one wave of lines after another.
-  const byId = await getStoreProductsByIds(items.map((i) => i.storeProductId));
+  // one wave of lines after another. A storefront page has both already, read
+  // with the store.
+  const byId = known?.products ?? (await getStoreProductsByIds(items.map((i) => i.storeProductId)));
   const products = items.map((i) => byId.get(i.storeProductId) ?? null);
   const bracketIds = [...new Set(products.map((p) => p?.taxBracketId).filter(Boolean))] as string[];
-  const brackets = new Map(
-    await Promise.all(bracketIds.map(async (id) => [id, (await getTaxBracket(id))?.rate ?? 0] as const)),
-  );
+  const brackets =
+    known?.rates ??
+    new Map((bracketIds.length > 0 ? await getTaxBracketsByIds(bracketIds) : []).map((b) => [b.id, b.rate]));
 
   const lines = items.map((item, index) => ({
     item,

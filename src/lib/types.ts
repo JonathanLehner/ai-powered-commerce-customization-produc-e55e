@@ -176,6 +176,8 @@ export interface Store {
    * language. Absent until one is edited; read it through `storePolicyText()`.
    */
   policies?: StorePolicies;
+  /** Changes on every policy save; the storefront's policy cache is keyed on it. */
+  policiesVersion?: string;
   stripe: {
     connected: boolean;
     accountId: string | null;

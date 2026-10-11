@@ -108,7 +108,7 @@ const proxySource = readFileSync(PROXY, "utf8");
 assert.match(proxySource, /status:\s*404/, "src/proxy.ts no longer marks anything 404");
 // The shop and the product are looked up, because "no store with that slug" and
 // "that product is not on sale" are not visible in the address itself.
-for (const lookup of ["getStoreBySlug", "getStoreProductBySlug", "getGiftCatalogueBySlug"]) {
+for (const lookup of ["proxyStorefrontBySlug", "proxyStorefrontProduct", "getGiftCatalogueBySlug"]) {
   assert.ok(proxySource.includes(lookup), `src/proxy.ts no longer checks ${lookup}`);
 }
 

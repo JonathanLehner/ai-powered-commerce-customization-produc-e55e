@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { readCurrency, readShopperSession, removeCartItem, updateCartItem } from "@/app/actions/shop";
+import { readCurrency, removeCartItem, updateCartItem } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { EmptyState } from "@/components/ui";
-import { basketTotals, cartDiscountCode } from "@/lib/basket";
+import { basketTotals } from "@/lib/basket";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
-import { getCart, getStoreBySlug } from "@/lib/data";
+import { storefrontBySlug } from "@/lib/storefront-data";
 import { variantPhoto } from "@/lib/line-preview";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   if (!store) return { title: "Basket", ...notFoundRobots };
   const t = await shopperTranslator(store, shopperLocale(store, locale));
   return shopperPageMetadata(store, shopperLocale(store, locale), "/cart", { title: t("basket.title") });
@@ -29,20 +29,19 @@ export async function generateMetadata({
 
 export default async function CartPage({ params }: { params: Promise<{ slug: string; locale: string }> }) {
   const { slug, locale: requested } = await params;
-  const store = await getStoreBySlug(slug);
+  const data = await storefrontBySlug(slug);
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
-  if (!store) return <UnknownStoreView slug={slug} />;
+  if (!data) return <UnknownStoreView slug={slug} />;
+  const { store, basket } = data;
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
-  const session = await readShopperSession();
-  const cart = session ? await getCart(store.id, session) : null;
+  const cart = basket?.cart ?? null;
   const items = cart?.items ?? [];
 
-  const discountCode = await cartDiscountCode(store.id, cart);
   const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
-    await basketTotals(store, items, currency, discountCode);
+    await basketTotals(store, items, currency, basket?.discountCode ?? null, basket ?? undefined);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">

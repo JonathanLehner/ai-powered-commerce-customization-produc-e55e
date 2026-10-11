@@ -5,18 +5,17 @@ import { routing } from "@/i18n/routing";
 import { negotiateShopperLocale } from "@/i18n/shopper-negotiation";
 import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing";
 import { isLive } from "@/lib/artwork";
-import {
-  getGiftCatalogueBySlug,
-  getProductCollectionByHandle,
-  getStore,
-  getStoreByDomain,
-  getStoreBySlug,
-  getStoreProductBySlug,
-} from "@/lib/data";
+import { getGiftCatalogueBySlug, getStore, getStoreByDomain, getStoreBySlug } from "@/lib/data";
 import { isPolicyKey } from "@/lib/policies";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
 import { SITE_ORIGIN } from "@/lib/seo";
-import type { Store } from "@/lib/types";
+import {
+  proxyStorefrontByDomain,
+  proxyStorefrontBySlug,
+  proxyStorefrontProduct,
+  SHOPPER_COOKIE,
+} from "@/lib/storefront-data";
+import type { ProductCollection, Store } from "@/lib/types";
 
 /**
  * Gives the branded "we cannot find that" screens a 404 status.
@@ -117,8 +116,11 @@ function isPlatformHost(host: string): boolean {
   );
 }
 
+/** A store, with its collections when they were read with it. */
+type KnownStore = { store: Store; collections: ProductCollection[] | null };
+
 /** The store whose custom domain this request was sent to, if any. */
-async function customDomainStore(request: NextRequest): Promise<Store | null> {
+async function customDomainStore(request: NextRequest): Promise<KnownStore | null> {
   const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "")
     .split(",")[0]
     .trim()
@@ -126,10 +128,18 @@ async function customDomainStore(request: NextRequest): Promise<Store | null> {
     .replace(/:\d+$/, "");
   if (!host || isPlatformHost(host)) return null;
   try {
-    return await getStoreByDomain(host);
+    if (!isRead(request)) {
+      const store = await getStoreByDomain(host);
+      return store ? { store, collections: null } : null;
+    }
+    return await proxyStorefrontByDomain(host, shopperSession(request));
   } catch {
     return null;
   }
+}
+
+function shopperSession(request: NextRequest): string | null {
+  return request.cookies.get(SHOPPER_COOKIE)?.value ?? null;
 }
 
 /**
@@ -139,7 +149,8 @@ async function customDomainStore(request: NextRequest): Promise<Store | null> {
  * `/api`) keep working, since the pages link to them; those return null and
  * are handled as on the platform host.
  */
-async function serveCustomDomain(request: NextRequest, store: Store): Promise<NextResponse | null> {
+async function serveCustomDomain(request: NextRequest, known: KnownStore): Promise<NextResponse | null> {
+  const { store } = known;
   const { pathname } = request.nextUrl;
   if (pathname === "/sitemap.xml" || pathname === "/robots.txt") {
     const url = request.nextUrl.clone();
@@ -148,7 +159,7 @@ async function serveCustomDomain(request: NextRequest, store: Store): Promise<Ne
   }
   const segments = segmentsOf(pathname);
   if (["s", "g", "api", "_next"].includes(segments[0] ?? "")) return null;
-  return localizeShopper(request, ["s", store.slug, ...segments], { store, publicRoot: "" });
+  return localizeShopper(request, ["s", store.slug, ...segments], { ...known, publicRoot: "" });
 }
 
 const isRead = (request: NextRequest) => request.method === "GET" || request.method === "HEAD";
@@ -168,7 +179,7 @@ const isRead = (request: NextRequest) => request.method === "GET" || request.met
 async function localizeShopper(
   request: NextRequest,
   segments: string[],
-  known?: { store: Store; publicRoot: string },
+  known?: KnownStore & { publicRoot: string },
 ): Promise<NextResponse> {
   const [surface, slug, ...after] = segments;
   const requested = isLocale(after[0]) ? after[0] : null;
@@ -180,9 +191,10 @@ async function localizeShopper(
   const read = isRead(request);
 
   let store: Store | null | undefined = known?.store;
+  let collections = known?.collections ?? null;
   if (!known) {
     try {
-      store = await storeFor(surface, decodeSegment(slug));
+      ({ store, collections } = (await storeFor(request, surface, decodeSegment(slug))) ?? { store: null, collections });
     } catch {
       store = undefined;
     }
@@ -210,7 +222,7 @@ async function localizeShopper(
     if (locale !== defaultLocale) return redirectTo(request, `${publicRoot}/${locale}${restPath}`);
   }
 
-  const missing = read && (await shopperMissing(`${root}${restPath}`, store, rest));
+  const missing = read && (await shopperMissing(`${root}${restPath}`, store, collections, rest));
   const url = request.nextUrl.clone();
   url.pathname = `${root}/${locale}${restPath}`;
   const headers = new Headers(request.headers);
@@ -219,11 +231,19 @@ async function localizeShopper(
   return read && requested && locales.includes(requested) ? remember(response, request, requested) : response;
 }
 
-/** The store a storefront or gift portal address belongs to. */
-async function storeFor(surface: string, slug: string): Promise<Store | null> {
-  if (surface === "s") return getStoreBySlug(slug);
+/**
+ * The store a storefront or gift portal address belongs to. A storefront read
+ * is the page's own first read, handed on to the render of this request.
+ */
+async function storeFor(request: NextRequest, surface: string, slug: string): Promise<KnownStore | null> {
+  if (surface === "s") {
+    if (isRead(request)) return proxyStorefrontBySlug(slug, shopperSession(request));
+    const store = await getStoreBySlug(slug);
+    return store ? { store, collections: null } : null;
+  }
   const catalogue = await getGiftCatalogueBySlug(slug);
-  return catalogue ? getStore(catalogue.storeId) : null;
+  const store = catalogue ? await getStore(catalogue.storeId) : null;
+  return store ? { store, collections: null } : null;
 }
 
 function redirectTo(request: NextRequest, pathname: string): NextResponse {
@@ -262,6 +282,7 @@ function isMissing(pathname: string): boolean {
 async function shopperMissing(
   pathname: string,
   store: Store | null | undefined,
+  collections: ProductCollection[] | null,
   rest: string[],
 ): Promise<boolean> {
   if (isMissing(pathname)) return true;
@@ -271,11 +292,12 @@ async function shopperMissing(
   if (!pathname.startsWith("/s/") || rest.length !== 2) return false;
   try {
     if (rest[0] === "products") {
-      const product = await getStoreProductBySlug(store.id, decodeSegment(rest[1]));
-      return !(product != null && isLive(product));
+      const found = await proxyStorefrontProduct(store.id, decodeSegment(rest[1]));
+      return !(found != null && isLive(found.product));
     }
     if (rest[0] === "collections") {
-      return (await getProductCollectionByHandle(store.id, decodeSegment(rest[1]))) == null;
+      const handle = decodeSegment(rest[1]);
+      return !collections?.some((c) => c.handle === handle);
     }
     return false;
   } catch {

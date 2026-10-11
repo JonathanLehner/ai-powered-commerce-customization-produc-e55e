@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { readCurrency, readShopperSession, setCurrency } from "@/app/actions/shop";
+import { readCurrency, setCurrency } from "@/app/actions/shop";
 import { BasketProvider, BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
 import { CurrencySelect } from "@/components/CurrencySelect";
 import { Document, siteMetadata } from "@/components/Document";
@@ -11,14 +11,14 @@ import { PlainDocument } from "@/components/SiteChrome";
 import { StoreMark } from "@/components/StoreMark";
 import { StorefrontMenu } from "@/components/StorefrontMenu";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
-import { basketTotals, cartDiscountCode } from "@/lib/basket";
+import { basketTotals } from "@/lib/basket";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { collectionProducts, localizeCollection, navCollectionIds } from "@/lib/collections";
-import { getCart, getStorefront, getStoreBySlug, listProductCollections } from "@/lib/data";
 import { variantPhoto } from "@/lib/line-preview";
 import { POLICY_KEYS, policyPath } from "@/lib/policies";
 import { shipDays } from "@/lib/shipping-promise";
+import { storefrontBySlug } from "@/lib/storefront-data";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
@@ -41,9 +41,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
-  if (!store) return siteMetadata;
-  const storefront = await getStorefront(store.id);
+  const data = await storefrontBySlug(slug);
+  if (!data) return siteMetadata;
+  const { store, storefront } = data;
   const active = shopperLocale(store, locale);
   const t = await getTranslations({ locale: active, namespace: "storefront.meta" });
   const site = siteContent(storefront?.published, active, storeLanguages(store).defaultLocale);
@@ -72,14 +72,14 @@ export default async function StorefrontLayout({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale: requested } = await params;
-  const store = await getStoreBySlug(slug);
+  const data = await storefrontBySlug(slug);
 
   // An address that belongs to no store still has to render as a page rather
   // than a blank document. The layout carries Parcelith's own chrome instead of
   // a shop's, and keeps rendering `children`: every page below returns the
   // "not this address" body when the store is missing, so the whole page is in
   // the server's HTML.
-  if (!store) {
+  if (!data) {
     return (
       <PlainDocument note="© Parcelith">
         {children}
@@ -87,14 +87,11 @@ export default async function StorefrontLayout({
     );
   }
 
+  const { store, storefront, collections, basket } = data;
   const theme = THEMES[store.theme];
   const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { locales, defaultLocale } = storeLanguages(store);
-  const [messages, storefront, collections] = await Promise.all([
-    shopperMessages(store, locale),
-    getStorefront(store.id),
-    listProductCollections(store.id),
-  ]);
+  const messages = await shopperMessages(store, locale);
   // The announcement, navigation labels and footer note the store published,
   // in the shopper's language. An empty label keeps the built-in one.
   const site = siteContent(storefront?.published, locale, defaultLocale);
@@ -108,14 +105,17 @@ export default async function StorefrontLayout({
   );
   const support = storeSupport(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const session = await readShopperSession();
-  const cart = session ? await getCart(store.id, session) : null;
-  const items = cart?.items ?? [];
+  const items = basket?.cart.items ?? [];
 
   // The drawer shows the same prices the basket page does, so they are worked
   // out in the same place rather than re-derived from the stored line.
-  const discountCode = await cartDiscountCode(store.id, cart);
-  const { products, lines, subtotal } = await basketTotals(store, items, currency, discountCode);
+  const { products, lines, subtotal } = await basketTotals(
+    store,
+    items,
+    currency,
+    basket?.discountCode ?? null,
+    basket ?? { products: new Map(), rates: new Map() },
+  );
   const basketLines: BasketSheetLine[] = lines.map(({ item, unit }, index) => ({
     id: item.id,
     productName: item.productName,

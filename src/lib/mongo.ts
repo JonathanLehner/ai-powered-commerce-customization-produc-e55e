@@ -29,7 +29,16 @@ type RequestContext = {
   ctx?: { waitUntil(promise: Promise<unknown>): void };
 };
 
-const perRequest = new WeakMap<object, Promise<Db>>();
+/**
+ * On `globalThis` rather than in this module: OpenNext bundles the proxy and the
+ * pages separately, and with a map each the proxy and the page it lets through
+ * opened a connection apiece.
+ */
+const PER_REQUEST = Symbol.for("parcelith.mongo-per-request");
+const perRequest = ((globalThis as Record<symbol, unknown>)[PER_REQUEST] ??= new WeakMap()) as WeakMap<
+  object,
+  Promise<Db>
+>;
 let perProcess: Promise<Db> | null = null;
 /** Set once this isolate has created the indexes, so later requests skip it. */
 let indexesEnsured = false;
@@ -61,12 +70,28 @@ async function connect(context: RequestContext | undefined): Promise<Db> {
   if (!indexesEnsured) {
     indexesEnsured = true;
     // Off the request's critical path: kept alive by waitUntil on Workers.
-    const pending = ensureIndexes(db).then(({ failed }) => {
-      if (failed.length > 0) console.error("Some indexes could not be created", failed);
-    });
+    const pending = createIndexes(uri, databaseName(context));
     context?.ctx?.waitUntil(pending);
   }
   return db;
+}
+
+/**
+ * On a connection of its own: some seventy createIndex calls queued on the
+ * request's single connection held up the first page each instance served by
+ * seconds.
+ */
+async function createIndexes(uri: string, name: string): Promise<void> {
+  const client = new MongoClient(uri, { maxPoolSize: 1 });
+  try {
+    await client.connect();
+    const { failed } = await ensureIndexes(client.db(name));
+    if (failed.length > 0) console.error("Some indexes could not be created", failed);
+  } catch (error) {
+    console.error("Indexes could not be created", error);
+  } finally {
+    await client.close().catch(() => {});
+  }
 }
 
 function database(): Promise<Db> {

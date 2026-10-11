@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { UnknownStoreView } from "@/components/NotFoundViews";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
-import { getStoreBySlug } from "@/lib/data";
+import { storefrontBySlug } from "@/lib/storefront-data";
 import { OrderLookupForm } from "./OrderLookupForm";
 
 export async function generateMetadata({
@@ -11,7 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   const robots = { index: false, follow: false };
   if (!store) return { title: "Order status", robots };
   const t = await shopperTranslator(store, shopperLocale(store, locale));
@@ -24,7 +24,7 @@ export default async function OrderLookupPage({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;

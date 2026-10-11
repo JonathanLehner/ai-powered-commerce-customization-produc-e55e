@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { readCurrency, readShopperSession } from "@/app/actions/shop";
+import { readCurrency } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { Callout } from "@/components/ui";
-import { basketTotals, cartDiscountCode } from "@/lib/basket";
+import { basketTotals } from "@/lib/basket";
 import type { FulfillmentSource } from "@/lib/countries";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
-import { getCart, getStoreBySlug, getSupplier } from "@/lib/data";
+import { getSupplier } from "@/lib/data";
+import { storefrontBySlug } from "@/lib/storefront-data";
 import { variantPhoto } from "@/lib/line-preview";
 import { CheckoutForm } from "./CheckoutForm";
 import { buttonVariants } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
   const { slug, locale } = await params;
-  const store = await getStoreBySlug(slug);
+  const store = (await storefrontBySlug(slug))?.store ?? null;
   if (!store) return { title: "Checkout", ...notFoundRobots };
   const t = await shopperTranslator(store, shopperLocale(store, locale));
   return shopperPageMetadata(store, shopperLocale(store, locale), "/checkout", { title: t("checkout.title") });
@@ -35,20 +36,19 @@ export default async function CheckoutPage({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale: requested } = await params;
-  const store = await getStoreBySlug(slug);
+  const data = await storefrontBySlug(slug);
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
-  if (!store) return <UnknownStoreView slug={slug} />;
+  if (!data) return <UnknownStoreView slug={slug} />;
+  const { store, basket } = data;
 
   const { t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
-  const session = await readShopperSession();
-  const cart = session ? await getCart(store.id, session) : null;
-  if (!cart || cart.items.length === 0) redirect(`${base}/cart`);
+  const cart = basket?.cart;
+  if (!basket || !cart || cart.items.length === 0) redirect(`${base}/cart`);
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const discountCode = await cartDiscountCode(store.id, cart);
   const { products, lines, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
-    await basketTotals(store, cart.items, currency, discountCode);
+    await basketTotals(store, cart.items, currency, basket.discountCode, basket);
 
   // Which supplier stands behind each basket line, so the form can tell the
   // shopper their destination is out of region before the card is charged.
