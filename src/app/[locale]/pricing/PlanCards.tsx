@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "@/i18n/navigation";
-import type { BillingCycle, PlanPrice } from "@/lib/plans";
+import { PLAN_CURRENCIES, type BillingCycle, type PlanCurrency, type PlanPrice } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { usePlanCurrency } from "../currency";
 import { CheckList } from "../kit";
 
 export interface PlanCard {
@@ -19,38 +20,54 @@ export interface PlanCard {
   href: string;
   highlighted: boolean;
   /** null for a plan priced by sales. */
-  prices: Record<BillingCycle, PlanPrice> | null;
+  prices: Record<PlanCurrency, Record<BillingCycle, PlanPrice>> | null;
 }
 
-/** The plan cards and the Monthly/Yearly switch that reprices them. */
+/** The plan cards and the Monthly/Yearly and currency switches that reprice them. */
 export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySaving: string }) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [currency, setCurrency] = usePlanCurrency();
   const t = useTranslations("pricing");
   const format = useFormatter();
-  const dollars = (amount: number) =>
-    format.number(amount, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  const money = (amount: number) =>
+    format.number(amount, { style: "currency", currency, maximumFractionDigits: 0 });
 
   return (
     <>
-      <Tabs
-        value={cycle}
-        onValueChange={(value) => setCycle(value as BillingCycle)}
-        className="mx-auto w-fit items-center"
-      >
-        <TabsList aria-label={t("billingPeriod")}>
-          <TabsTrigger value="monthly" className="px-4">
-            {t("monthly")}
-          </TabsTrigger>
-          <TabsTrigger value="yearly" className="gap-2 px-4">
-            {t("yearly")}
-            <span className="text-xs font-medium text-primary">{t("save", { percent: yearlySaving })}</span>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Tabs
+          value={cycle}
+          onValueChange={(value) => setCycle(value as BillingCycle)}
+          className="w-fit items-center"
+        >
+          <TabsList aria-label={t("billingPeriod")}>
+            <TabsTrigger value="monthly" className="px-4">
+              {t("monthly")}
+            </TabsTrigger>
+            <TabsTrigger value="yearly" className="gap-2 px-4">
+              {t("yearly")}
+              <span className="text-xs font-medium text-primary">{t("save", { percent: yearlySaving })}</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Tabs
+          value={currency}
+          onValueChange={(value) => setCurrency(value as PlanCurrency)}
+          className="w-fit items-center"
+        >
+          <TabsList aria-label={t("currency")}>
+            {PLAN_CURRENCIES.map((code) => (
+              <TabsTrigger key={code} value={code} className="px-3">
+                {code}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
 
       <div className="mt-10 grid items-start gap-4 lg:grid-cols-3">
         {plans.map((plan) => {
-          const price = plan.prices?.[cycle];
+          const price = plan.prices?.[currency][cycle];
           return (
             <Card
               key={plan.name}
@@ -73,14 +90,14 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
               <CardContent>
                 <p className="flex items-baseline gap-1">
                   <span className="font-heading text-3xl font-semibold tracking-tight text-foreground">
-                    {price ? dollars(price.perMonth) : t("custom")}
+                    {price ? money(price.perMonth) : t("custom")}
                   </span>
                   {price ? <span className="text-sm text-muted-foreground">{t("perMonth")}</span> : null}
                 </p>
                 <p className="mt-1 h-5 text-sm text-muted-foreground">
                   {price
                     ? cycle === "yearly"
-                      ? t("billedYearly", { amount: dollars(price.billed) })
+                      ? t("billedYearly", { amount: money(price.billed) })
                       : t("billedMonthly")
                     : t("annualContract")}
                 </p>
@@ -95,6 +112,7 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
           );
         })}
       </div>
+      <p className="mt-6 text-center text-sm text-muted-foreground">{t("taxNote", { currency })}</p>
     </>
   );
 }

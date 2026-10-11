@@ -5,9 +5,10 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { submitPlanEnquiry } from "@/app/actions/contact";
 import { ActionForm, Field } from "@/components/forms";
 import { UNDECIDED } from "@/lib/enquiry";
-import { PLAN_KEYS, PLANS, planPrice, type Plan, type PlanKey } from "@/lib/plans";
+import { PLAN_CURRENCIES, PLAN_KEYS, PLANS, isPlanCurrency, planPrice, type Plan, type PlanCurrency, type PlanKey } from "@/lib/plans";
 import type { ActionState } from "@/app/actions/stores";
 import { newId } from "@/lib/util";
+import { usePlanCurrency } from "../currency";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,15 +28,15 @@ import { Textarea } from "@/components/ui/textarea";
  */
 const PLAN_VALUES = [...PLAN_KEYS, UNDECIDED];
 
-function usePlanOptions() {
+function usePlanOptions(currency: PlanCurrency) {
   const t = useTranslations("contact.form");
   const format = useFormatter();
   const label = (plan: Plan) => {
-    const price = planPrice(plan, "monthly");
+    const price = planPrice(plan, "monthly", currency);
     return price
       ? t("planOption", {
           plan: plan.name,
-          price: format.number(price.perMonth, { style: "currency", currency: "USD", maximumFractionDigits: 0 }),
+          price: format.number(price.perMonth, { style: "currency", currency, maximumFractionDigits: 0 }),
         })
       : t("planCustom", { plan: plan.name });
   };
@@ -65,13 +66,14 @@ function requestedPlan() {
  * than through the router keeps the page out of request-time rendering, and the
  * visitor can pick a different plan afterwards.
  */
-function PlanSelect({ error }: { error: boolean }) {
+function PlanSelect({ error, currency }: { error: boolean; currency: PlanCurrency }) {
   const fromAddress = useSyncExternalStore(subscribeToAddress, requestedPlan, () => UNDECIDED);
   const [chosen, setChosen] = useState<string | null>(null);
-  const options = usePlanOptions();
+  const options = usePlanOptions(currency);
 
   return (
-    <Select name="plan" value={chosen ?? fromAddress} onValueChange={setChosen}>
+    // Radix reports "" when the value changes before its list is filled in; that is not a choice.
+    <Select name="plan" value={chosen ?? fromAddress} onValueChange={(value) => value && setChosen(value)}>
       <SelectTrigger id="plan" className="mt-1.5 w-full" aria-invalid={error ? true : undefined}>
         <SelectValue />
       </SelectTrigger>
@@ -79,6 +81,26 @@ function PlanSelect({ error }: { error: boolean }) {
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/** The currency the plan prices are shown in, which is the one the plan is billed in. */
+function CurrencySelect({ currency, onChange }: { currency: PlanCurrency; onChange: (currency: PlanCurrency) => void }) {
+  const locale = useLocale();
+  const names = new Intl.DisplayNames([locale], { type: "currency" });
+  return (
+    <Select name="currency" value={currency} onValueChange={(value) => isPlanCurrency(value) && onChange(value)}>
+      <SelectTrigger id="currency" className="mt-1.5 w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {PLAN_CURRENCIES.map((code) => (
+          <SelectItem key={code} value={code}>
+            {names.of(code)} ({code})
           </SelectItem>
         ))}
       </SelectContent>
@@ -110,6 +132,7 @@ function SubmissionKey({ status }: { status: ActionState["status"] }) {
 export function ContactForm() {
   const t = useTranslations("contact.form");
   const locale = useLocale();
+  const [currency, setCurrency] = usePlanCurrency();
   return (
     <ActionForm
       action={submitPlanEnquiry}
@@ -138,7 +161,7 @@ export function ContactForm() {
               className="mt-1.5"
             />
           </Field>
-          <Field label={t("company")} htmlFor="company" error={state.field === "company"}>
+          <Field label={t("company")} htmlFor="company" error={state.field === "company"} className="sm:col-span-2">
             <Input
               id="company"
               name="company"
@@ -147,7 +170,10 @@ export function ContactForm() {
             />
           </Field>
           <Field label={t("plan")} htmlFor="plan">
-            <PlanSelect error={state.field === "plan"} />
+            <PlanSelect error={state.field === "plan"} currency={currency} />
+          </Field>
+          <Field label={t("currency")} htmlFor="currency" hint={t("taxNote", { currency })}>
+            <CurrencySelect currency={currency} onChange={setCurrency} />
           </Field>
           <Field
             label={t("message")}

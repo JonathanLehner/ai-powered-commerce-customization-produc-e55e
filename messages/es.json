@@ -293,6 +293,8 @@
     "billedYearly": "{amount} facturados al año",
     "billedMonthly": "Facturación mensual",
     "annualContract": "Contrato anual",
+    "currency": "Moneda",
+    "taxNote": "{currency, select, EUR {Precios sin IVA. El IVA se añade al pagar según tu país de facturación.} other {Precios sin impuestos. El IVA o el impuesto sobre las ventas se añade al pagar según tu país de facturación.}}",
     "getStarted": "Empezar",
     "contactSales": "Contactar con ventas",
     "liveStores": "{count, plural, one {# tienda activa} other {# tiendas activas}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "¿En qué moneda se factura y se añade el IVA?",
-        "answer": "Los planes se facturan en dólares estadounidenses. Los precios no incluyen impuestos. El IVA o el impuesto sobre ventas se añade según tu país de facturación, y las empresas de la UE con un número de IVA válido se facturan con inversión del sujeto pasivo."
+        "answer": "Los planes se facturan en euros o en dólares estadounidenses, en la moneda que se muestra al registrarte. Los precios no incluyen impuestos. El IVA o el impuesto sobre las ventas se añade según tu país de facturación, y las empresas de la UE con un número de IVA válido se facturan con inversión del sujeto pasivo."
       },
       {
         "question": "¿Qué pasa con las tiendas de mis clientes si bajo de plan?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/mes",
       "planCustom": "{plan}, precio a medida",
       "notSure": "Aún no lo sé",
+      "currency": "Moneda de facturación",
+      "taxNote": "{currency, select, EUR {Precios sin IVA. El IVA se añade al pagar según tu país de facturación.} other {Precios sin impuestos. El IVA o el impuesto sobre las ventas se añade al pagar según tu país de facturación.}}",
       "message": "Mensaje",
       "messageHint": "Número de tiendas de clientes, productos y necesidades de regalos.",
       "wantsCall": "Prefiero una llamada",
@@ -395,6 +399,7 @@
       "body": "Hemos recibido tu consulta sobre {plan, select, unsure {el plan que mejor te encaje} other {el plan {planName}}} y {call, select, yes {te llamaremos} other {te responderemos por correo}} en un día laborable.",
       "companyLabel": "Empresa",
       "planLabel": "Plan",
+      "currencyLabel": "Moneda",
       "replyLabel": "Respuesta por",
       "replyCall": "Teléfono",
       "replyEmail": "Correo",
@@ -2963,6 +2968,7 @@
       "emailLabel": "Correo",
       "companyLabel": "Empresa",
       "planLabel": "Plan",
+      "currencyLabel": "Moneda",
       "replyLabel": "Respuesta por",
       "replyCall": "Teléfono",
       "replyEmail": "Correo",
@@ -2977,6 +2983,7 @@
       "email": "Correo",
       "company": "Empresa",
       "plan": "Plan",
+      "currency": "Moneda",
       "replyBy": "Respuesta por",
       "replyCall": "Teléfono",
       "replyEmail": "Correo",

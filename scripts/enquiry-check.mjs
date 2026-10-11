@@ -7,7 +7,7 @@ import {
   PLAN_ENQUIRY_CHOICES,
   UNDECIDED,
 } from "../src/lib/enquiry.ts";
-import { PLAN_KEYS, PLANS } from "../src/lib/plans.ts";
+import { PLAN_CURRENCIES, PLAN_KEYS, PLANS, defaultPlanCurrency, planPrice } from "../src/lib/plans.ts";
 import { createTranslator } from "next-intl";
 import { LOCALES } from "../src/i18n/locales.ts";
 import { enquiryAlertEmail, enquiryConfirmationEmail } from "../src/lib/enquiry-emails.ts";
@@ -39,6 +39,21 @@ assert.equal(planEnquirySentence(UNDECIDED), "a plan we can recommend");
 // A plan nobody sells is named without pretending to know it.
 assert.equal(planEnquiryLabel("platinum"), "Undecided");
 
+// German and the other EU languages show euros first; English and Japanese show
+// US dollars. Every priced plan has a list price in each currency the switch offers.
+assert.equal(defaultPlanCurrency("de"), "EUR");
+assert.equal(defaultPlanCurrency("fr"), "EUR");
+assert.equal(defaultPlanCurrency("en"), "USD");
+assert.equal(defaultPlanCurrency("ja"), "USD");
+for (const key of PLAN_KEYS) {
+  for (const currency of PLAN_CURRENCIES) {
+    const price = planPrice(PLANS[key], "monthly", currency);
+    if (PLANS[key].monthlyPrice === null) assert.equal(price, null);
+    else assert.ok(price.perMonth > 0, `${key} has no ${currency} price`);
+  }
+}
+assert.deepEqual(planPrice(PLANS.studio, "monthly", "EUR"), { perMonth: 139, billed: 139 });
+
 /* ------------------------------------------------------ what is refused */
 
 const refusals = [
@@ -67,9 +82,16 @@ assert.deepEqual(accepted.value, {
   company: "Vale & Co",
   message: "Six client stores and two gifting programmes.",
   plan: "studio",
+  currency: "USD",
   wantsCall: true,
   submissionKey: "frm_abc123",
 });
+
+// The currency the prices were shown in is kept, so the plan is billed in it.
+// Anything the form could not have sent falls back to US dollars.
+assert.equal(checkEnquiry({ ...filled, currency: "EUR" }).value.currency, "EUR");
+assert.equal(checkEnquiry({ ...filled, currency: "eur" }).value.currency, "EUR");
+assert.equal(checkEnquiry({ ...filled, currency: "GBP" }).value.currency, "USD");
 
 // The message is the only long field, and it is clamped rather than refused:
 // somebody pasting a brief should not lose the enquiry over it.

@@ -1082,6 +1082,8 @@ export interface PlanEnquiry {
   submissionKey: string;
   /** The language of the page the form was sent from; absent on older enquiries. */
   locale?: string;
+  /** The currency the plan is billed in; absent on older enquiries, which were all US dollars. */
+  currency?: "USD" | "EUR";
   status: "new";
   createdAt: string;
 }

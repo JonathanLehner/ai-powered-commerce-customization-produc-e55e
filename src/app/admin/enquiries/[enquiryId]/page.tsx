@@ -58,6 +58,7 @@ export default async function AdminEnquiryPage({ params }: { params: Promise<{ e
                 },
                 { label: t("company"), value: enquiry.company },
                 { label: t("plan"), value: plan },
+                { label: t("currency"), value: enquiry.currency ?? "USD" },
                 { label: t("replyBy"), value: enquiry.wantsCall ? t("replyCall") : t("replyEmail") },
                 ...(isLocale(enquiry.locale) ? [{ label: t("language"), value: LOCALE_NAMES[enquiry.locale] }] : []),
                 { label: t("received"), value: formatDateTime(enquiry.createdAt, locale) },

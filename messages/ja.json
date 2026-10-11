@@ -293,6 +293,8 @@
     "billedYearly": "年額 {amount} で請求",
     "billedMonthly": "毎月請求",
     "annualContract": "年間契約",
+    "currency": "通貨",
+    "taxNote": "{currency, select, EUR {価格はVAT別です。VATはチェックアウト時に請求先の国に応じて加算されます。} other {価格は税別です。消費税、売上税またはVATはチェックアウト時に請求先の国に応じて加算されます。}}",
     "getStarted": "始める",
     "contactSales": "営業に問い合わせる",
     "liveStores": "{count, plural, other {公開ストア # 店舗}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "請求通貨は何ですか？消費税やVATはかかりますか？",
-        "answer": "プランは米ドルで請求されます。表示価格は税抜きです。請求先の国に応じてVATまたは売上税が加算されます。有効なVAT番号をお持ちのEU企業にはリバースチャージが適用されます。"
+        "answer": "プランは米ドルまたはユーロで請求され、登録時に表示された通貨が適用されます。価格は税別です。請求先の国に応じてVATまたは売上税が加算され、有効なVAT番号を持つEU企業にはリバースチャージが適用されます。"
       },
       {
         "question": "ダウングレードするとクライアントのストアはどうなりますか？",
@@ -374,6 +376,8 @@
       "planOption": "{plan}、{price}/月",
       "planCustom": "{plan}、個別見積もり",
       "notSure": "まだ決めていない",
+      "currency": "請求通貨",
+      "taxNote": "{currency, select, EUR {価格はVAT別です。VATはチェックアウト時に請求先の国に応じて加算されます。} other {価格は税別です。消費税、売上税またはVATはチェックアウト時に請求先の国に応じて加算されます。}}",
       "message": "メッセージ",
       "messageHint": "クライアントストアの数、商品数、ギフトのご要望など。",
       "wantsCall": "電話での連絡を希望する",
@@ -395,6 +399,7 @@
       "body": "{plan, select, unsure {最適なプラン} other {{planName} プラン}}に関するお問い合わせを受け付けました。1 営業日以内に{call, select, yes {お電話いたします} other {メールでご返信します}}。",
       "companyLabel": "会社名",
       "planLabel": "プラン",
+      "currencyLabel": "通貨",
       "replyLabel": "ご連絡方法",
       "replyCall": "お電話",
       "replyEmail": "メール",
@@ -2963,6 +2968,7 @@
       "emailLabel": "メール",
       "companyLabel": "会社名",
       "planLabel": "プラン",
+      "currencyLabel": "通貨",
       "replyLabel": "ご連絡方法",
       "replyCall": "お電話",
       "replyEmail": "メール",
@@ -2977,6 +2983,7 @@
       "email": "メール",
       "company": "会社名",
       "plan": "プラン",
+      "currency": "通貨",
       "replyBy": "ご連絡方法",
       "replyCall": "お電話",
       "replyEmail": "メール",

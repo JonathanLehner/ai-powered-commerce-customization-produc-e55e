@@ -293,6 +293,8 @@
     "billedYearly": "{amount} per jaar gefactureerd",
     "billedMonthly": "Maandelijks gefactureerd",
     "annualContract": "Jaarcontract",
+    "currency": "Valuta",
+    "taxNote": "{currency, select, EUR {Prijzen excl. btw. Btw wordt bij het afrekenen berekend op basis van je factuurland.} other {Prijzen excl. belasting. Btw of sales tax wordt bij het afrekenen berekend op basis van je factuurland.}}",
     "getStarted": "Aan de slag",
     "contactSales": "Contact met sales",
     "liveStores": "{count, plural, one {# live winkel} other {# live winkels}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "In welke valuta word ik gefactureerd, en komt er btw bij?",
-        "answer": "Abonnementen worden gefactureerd in Amerikaanse dollars. Prijzen zijn exclusief belasting. Btw of omzetbelasting wordt toegevoegd op basis van je factuurland. EU-bedrijven met een geldig btw-nummer worden gefactureerd met btw verlegd."
+        "answer": "Abonnementen worden gefactureerd in euro of Amerikaanse dollar, de valuta die bij aanmelding wordt getoond. Prijzen zijn exclusief belasting. Btw of sales tax wordt berekend op basis van je factuurland, en EU-bedrijven met een geldig btw-nummer worden gefactureerd met btw verlegd."
       },
       {
         "question": "Wat gebeurt er met klantwinkels als ik downgrade?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/maand",
       "planCustom": "{plan}, prijs op maat",
       "notSure": "Weet ik nog niet",
+      "currency": "Factuurvaluta",
+      "taxNote": "{currency, select, EUR {Prijzen excl. btw. Btw wordt bij het afrekenen berekend op basis van je factuurland.} other {Prijzen excl. belasting. Btw of sales tax wordt bij het afrekenen berekend op basis van je factuurland.}}",
       "message": "Bericht",
       "messageHint": "Aantal klantwinkels, producten en wensen voor relatiegeschenken.",
       "wantsCall": "Ik word liever gebeld",
@@ -395,6 +399,7 @@
       "body": "We hebben je aanvraag over {plan, select, unsure {een passend abonnement} other {het abonnement {planName}}} ontvangen en {call, select, yes {bellen je} other {mailen je terug}} binnen één werkdag.",
       "companyLabel": "Bedrijf",
       "planLabel": "Abonnement",
+      "currencyLabel": "Valuta",
       "replyLabel": "Antwoord via",
       "replyCall": "Telefoon",
       "replyEmail": "E-mail",
@@ -2963,6 +2968,7 @@
       "emailLabel": "E-mail",
       "companyLabel": "Bedrijf",
       "planLabel": "Abonnement",
+      "currencyLabel": "Valuta",
       "replyLabel": "Antwoord via",
       "replyCall": "Telefoon",
       "replyEmail": "E-mail",
@@ -2977,6 +2983,7 @@
       "email": "E-mail",
       "company": "Bedrijf",
       "plan": "Abonnement",
+      "currency": "Valuta",
       "replyBy": "Antwoord via",
       "replyCall": "Telefoon",
       "replyEmail": "E-mail",

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import type { Messages } from "next-intl";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import { asLocale, pageMetadata } from "@/i18n/metadata";
-import { PLAN_KEYS, PLANS, YEARLY_DISCOUNT, planPrice, type Plan, type PlanKey } from "@/lib/plans";
+import { PLAN_CURRENCIES, PLAN_KEYS, PLANS, YEARLY_DISCOUNT, planPrice, type Plan, type PlanKey } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { Section, SectionHeading } from "../kit";
 import { SecurityBlock, TrustStrip } from "../trust";
@@ -16,9 +16,13 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/pricing"
 }
 
 function prices(plan: Plan): PlanCard["prices"] {
-  const monthly = planPrice(plan, "monthly");
-  const yearly = planPrice(plan, "yearly");
-  return monthly && yearly ? { monthly, yearly } : null;
+  if (plan.monthlyPrice === null) return null;
+  return Object.fromEntries(
+    PLAN_CURRENCIES.map((currency) => [
+      currency,
+      { monthly: planPrice(plan, "monthly", currency)!, yearly: planPrice(plan, "yearly", currency)! },
+    ]),
+  ) as NonNullable<PlanCard["prices"]>;
 }
 
 type Feature = keyof Messages["pricing"]["features"];

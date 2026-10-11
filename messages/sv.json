@@ -293,6 +293,8 @@
     "billedYearly": "{amount} faktureras per år",
     "billedMonthly": "Faktureras månadsvis",
     "annualContract": "Årsavtal",
+    "currency": "Valuta",
+    "taxNote": "{currency, select, EUR {Priser exkl. moms. Moms läggs till i kassan utifrån ditt faktureringsland.} other {Priser exkl. skatt. Moms eller försäljningsskatt läggs till i kassan utifrån ditt faktureringsland.}}",
     "getStarted": "Kom igång",
     "contactSales": "Kontakta sälj",
     "liveStores": "{count, plural, one {# aktiv butik} other {# aktiva butiker}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "Vilken valuta faktureras jag i, och tillkommer moms?",
-        "answer": "Planerna faktureras i amerikanska dollar. Priserna är exklusive skatt. Moms eller försäljningsskatt läggs till utifrån ditt faktureringsland, och EU-företag med giltigt momsnummer faktureras med omvänd skattskyldighet."
+        "answer": "Abonnemang faktureras i euro eller amerikanska dollar, i den valuta som visas när du registrerar dig. Priserna är exklusive skatt. Moms eller försäljningsskatt läggs till utifrån ditt faktureringsland, och EU-företag med giltigt momsregistreringsnummer faktureras med omvänd skattskyldighet."
       },
       {
         "question": "Vad händer med kundbutikerna om jag nedgraderar?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/mån",
       "planCustom": "{plan}, pris enligt offert",
       "notSure": "Vet inte än",
+      "currency": "Faktureringsvaluta",
+      "taxNote": "{currency, select, EUR {Priser exkl. moms. Moms läggs till i kassan utifrån ditt faktureringsland.} other {Priser exkl. skatt. Moms eller försäljningsskatt läggs till i kassan utifrån ditt faktureringsland.}}",
       "message": "Meddelande",
       "messageHint": "Antal kundbutiker, produkter och behov av företagsgåvor.",
       "wantsCall": "Jag vill hellre bli uppringd",
@@ -395,6 +399,7 @@
       "body": "Vi har tagit emot din förfrågan om {plan, select, unsure {ett abonnemang som passar dig} other {abonnemanget {planName}}} och {call, select, yes {ringer dig} other {svarar via e-post}} inom en arbetsdag.",
       "companyLabel": "Företag",
       "planLabel": "Abonnemang",
+      "currencyLabel": "Valuta",
       "replyLabel": "Svar via",
       "replyCall": "Telefon",
       "replyEmail": "E-post",
@@ -2963,6 +2968,7 @@
       "emailLabel": "E-post",
       "companyLabel": "Företag",
       "planLabel": "Abonnemang",
+      "currencyLabel": "Valuta",
       "replyLabel": "Svar via",
       "replyCall": "Telefon",
       "replyEmail": "E-post",
@@ -2977,6 +2983,7 @@
       "email": "E-post",
       "company": "Företag",
       "plan": "Abonnemang",
+      "currency": "Valuta",
       "replyBy": "Svar via",
       "replyCall": "Telefon",
       "replyEmail": "E-post",

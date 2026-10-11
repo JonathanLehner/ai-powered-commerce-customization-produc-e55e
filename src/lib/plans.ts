@@ -15,17 +15,33 @@ export const PLAN_KEYS = ["starter", "studio", "scale"] as const;
 export interface Plan {
   key: PlanKey;
   name: string;
-  /** List price in whole US dollars per month on monthly billing. `null` is priced by sales. */
-  monthlyPrice: number | null;
+  /** List price per month on monthly billing, in whole units of each currency. `null` is priced by sales. */
+  monthlyPrice: Record<PlanCurrency, number> | null;
   /** Active stores an agency may run at once. `null` is no ceiling. */
   storeLimit: number | null;
   /** Downloading the audit history as a spreadsheet. Reading it is on every plan. */
   auditExport: boolean;
 }
 
+/** The currencies plans are priced and billed in. Each has its own list price, not a conversion. */
+export const PLAN_CURRENCIES = ["USD", "EUR"] as const;
+
+export type PlanCurrency = (typeof PLAN_CURRENCIES)[number];
+
+export function isPlanCurrency(value: unknown): value is PlanCurrency {
+  return typeof value === "string" && (PLAN_CURRENCIES as readonly string[]).includes(value);
+}
+
+/** Languages mostly read inside the EU see euros first; the rest see US dollars. */
+const EURO_LOCALES = ["de", "fr", "es", "it", "nl", "pt", "sv"];
+
+export function defaultPlanCurrency(locale: string): PlanCurrency {
+  return EURO_LOCALES.includes(locale) ? "EUR" : "USD";
+}
+
 export const PLANS: Record<PlanKey, Plan> = {
-  starter: { key: "starter", name: "Starter", monthlyPrice: 39, storeLimit: 3, auditExport: false },
-  studio: { key: "studio", name: "Studio", monthlyPrice: 149, storeLimit: 15, auditExport: true },
+  starter: { key: "starter", name: "Starter", monthlyPrice: { USD: 39, EUR: 36 }, storeLimit: 3, auditExport: false },
+  studio: { key: "studio", name: "Studio", monthlyPrice: { USD: 149, EUR: 139 }, storeLimit: 15, auditExport: true },
   scale: { key: "scale", name: "Scale", monthlyPrice: null, storeLimit: null, auditExport: true },
 };
 
@@ -35,17 +51,18 @@ export type BillingCycle = "monthly" | "yearly";
 export const YEARLY_DISCOUNT = 0.2;
 
 export interface PlanPrice {
-  /** What a month costs on this cycle, rounded to whole dollars. */
+  /** What a month costs on this cycle, rounded to whole units. */
   perMonth: number;
   /** What is charged per invoice: one month, or the whole year. */
   billed: number;
 }
 
-/** A plan's price on a billing cycle, or null for a plan priced by sales. */
-export function planPrice(plan: Plan, cycle: BillingCycle): PlanPrice | null {
+/** A plan's price on a billing cycle in a currency, or null for a plan priced by sales. */
+export function planPrice(plan: Plan, cycle: BillingCycle, currency: PlanCurrency): PlanPrice | null {
   if (plan.monthlyPrice === null) return null;
-  if (cycle === "monthly") return { perMonth: plan.monthlyPrice, billed: plan.monthlyPrice };
-  const yearly = Math.round(plan.monthlyPrice * 12 * (1 - YEARLY_DISCOUNT));
+  const monthly = plan.monthlyPrice[currency];
+  if (cycle === "monthly") return { perMonth: monthly, billed: monthly };
+  const yearly = Math.round(monthly * 12 * (1 - YEARLY_DISCOUNT));
   return { perMonth: Math.round(yearly / 12), billed: yearly };
 }
 

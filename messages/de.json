@@ -293,6 +293,8 @@
     "billedYearly": "{amount} jährlich abgerechnet",
     "billedMonthly": "Monatlich abgerechnet",
     "annualContract": "Jahresvertrag",
+    "currency": "Währung",
+    "taxNote": "{currency, select, EUR {Preise zzgl. MwSt. Die MwSt. wird beim Checkout je nach Rechnungsland berechnet.} other {Preise zzgl. Steuern. MwSt. oder Umsatzsteuer wird beim Checkout je nach Rechnungsland berechnet.}}",
     "getStarted": "Jetzt starten",
     "contactSales": "Vertrieb kontaktieren",
     "liveStores": "{count, plural, one {# aktiver Shop} other {# aktive Shops}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "In welcher Währung wird abgerechnet, und kommt MwSt. hinzu?",
-        "answer": "Pläne werden in US-Dollar abgerechnet. Die Preise verstehen sich ohne Steuern. MwSt. oder Umsatzsteuer wird je nach Rechnungsland berechnet. Unternehmen in der EU mit gültiger USt-IdNr. werden im Reverse-Charge-Verfahren abgerechnet."
+        "answer": "Pläne werden in Euro oder US-Dollar abgerechnet, in der Währung, die bei der Anmeldung angezeigt wird. Die Preise verstehen sich ohne Steuern. MwSt. oder Umsatzsteuer wird je nach Rechnungsland berechnet. Unternehmen in der EU mit gültiger USt-IdNr. werden im Reverse-Charge-Verfahren abgerechnet."
       },
       {
         "question": "Was passiert mit Kunden-Shops bei einem Downgrade?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/Monat",
       "planCustom": "{plan}, individueller Preis",
       "notSure": "Noch nicht sicher",
+      "currency": "Abrechnungswährung",
+      "taxNote": "{currency, select, EUR {Preise zzgl. MwSt. Die MwSt. wird beim Checkout je nach Rechnungsland berechnet.} other {Preise zzgl. Steuern. MwSt. oder Umsatzsteuer wird beim Checkout je nach Rechnungsland berechnet.}}",
       "message": "Nachricht",
       "messageHint": "Anzahl der Kundenshops, Produkte und Bedarf an Firmengeschenken.",
       "wantsCall": "Ich bevorzuge einen Anruf",
@@ -395,6 +399,7 @@
       "body": "Wir haben Ihre Anfrage zu {plan, select, unsure {einem passenden Tarif} other {dem Tarif {planName}}} erhalten und {call, select, yes {rufen Sie innerhalb eines Werktags an} other {antworten Ihnen innerhalb eines Werktags per E-Mail}}.",
       "companyLabel": "Unternehmen",
       "planLabel": "Tarif",
+      "currencyLabel": "Währung",
       "replyLabel": "Antwort per",
       "replyCall": "Telefon",
       "replyEmail": "E-Mail",
@@ -2963,6 +2968,7 @@
       "emailLabel": "E-Mail",
       "companyLabel": "Unternehmen",
       "planLabel": "Tarif",
+      "currencyLabel": "Währung",
       "replyLabel": "Antwort per",
       "replyCall": "Telefon",
       "replyEmail": "E-Mail",
@@ -2977,6 +2983,7 @@
       "email": "E-Mail",
       "company": "Unternehmen",
       "plan": "Tarif",
+      "currency": "Währung",
       "replyBy": "Antwort per",
       "replyCall": "Telefon",
       "replyEmail": "E-Mail",

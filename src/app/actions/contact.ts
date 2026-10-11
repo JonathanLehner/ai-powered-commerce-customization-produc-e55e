@@ -22,6 +22,7 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
     company: String(formData.get("company") ?? ""),
     message: String(formData.get("message") ?? ""),
     plan: String(formData.get("plan") ?? ""),
+    currency: String(formData.get("currency") ?? ""),
     wantsCall: formData.get("wantsCall") === "on",
     submissionKey: String(formData.get("submissionKey") ?? ""),
   });

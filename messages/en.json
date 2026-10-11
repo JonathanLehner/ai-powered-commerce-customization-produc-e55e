@@ -293,6 +293,8 @@
     "billedYearly": "Billed {amount} yearly",
     "billedMonthly": "Billed monthly",
     "annualContract": "Annual contract",
+    "currency": "Currency",
+    "taxNote": "{currency, select, EUR {Prices exclude VAT, which is added at checkout based on your billing country.} other {Prices exclude tax. Sales tax or VAT is added at checkout based on your billing country.}}",
     "getStarted": "Get started",
     "contactSales": "Contact sales",
     "liveStores": "{count, plural, one {# live store} other {# live stores}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "Which currency am I billed in, and is VAT added?",
-        "answer": "Plans are billed in US dollars. Prices exclude tax. VAT or sales tax is added based on your billing country, and EU businesses with a valid VAT number are billed under the reverse charge."
+        "answer": "Plans are billed in US dollars or euros, the currency shown when you sign up. Prices exclude tax. VAT or sales tax is added based on your billing country, and EU businesses with a valid VAT number are billed under the reverse charge."
       },
       {
         "question": "What happens to client stores if I downgrade?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/month",
       "planCustom": "{plan}, custom pricing",
       "notSure": "Not sure yet",
+      "currency": "Billing currency",
+      "taxNote": "{currency, select, EUR {Prices exclude VAT, which is added at checkout based on your billing country.} other {Prices exclude tax. Sales tax or VAT is added at checkout based on your billing country.}}",
       "message": "Message",
       "messageHint": "Number of client stores, products and gifting needs.",
       "wantsCall": "I prefer a call",
@@ -395,6 +399,7 @@
       "body": "We have your enquiry about {plan, select, unsure {a plan we can recommend} other {the {planName} plan}} and will {call, select, yes {call you} other {email you back}} within one business day.",
       "companyLabel": "Company",
       "planLabel": "Plan",
+      "currencyLabel": "Currency",
       "replyLabel": "Reply by",
       "replyCall": "Phone call",
       "replyEmail": "Email",
@@ -2963,6 +2968,7 @@
       "emailLabel": "Email",
       "companyLabel": "Company",
       "planLabel": "Plan",
+      "currencyLabel": "Currency",
       "replyLabel": "Reply by",
       "replyCall": "Phone call",
       "replyEmail": "Email",
@@ -2977,6 +2983,7 @@
       "email": "Email",
       "company": "Company",
       "plan": "Plan",
+      "currency": "Currency",
       "replyBy": "Reply by",
       "replyCall": "Phone call",
       "replyEmail": "Email",

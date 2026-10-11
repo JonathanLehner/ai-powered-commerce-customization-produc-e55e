@@ -293,6 +293,8 @@
     "billedYearly": "{amount} facturés par an",
     "billedMonthly": "Facturé mensuellement",
     "annualContract": "Contrat annuel",
+    "currency": "Devise",
+    "taxNote": "{currency, select, EUR {Prix HT. La TVA est ajoutée au paiement selon votre pays de facturation.} other {Prix hors taxes. La TVA ou la taxe de vente est ajoutée au paiement selon votre pays de facturation.}}",
     "getStarted": "Commencer",
     "contactSales": "Contacter les ventes",
     "liveStores": "{count, plural, one {# boutique en ligne} other {# boutiques en ligne}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "Dans quelle devise suis-je facturé, et la TVA est-elle ajoutée ?",
-        "answer": "Les formules sont facturées en dollars américains. Les prix s'entendent hors taxes. La TVA ou la taxe de vente est ajoutée selon votre pays de facturation, et les entreprises de l'UE disposant d'un numéro de TVA valide sont facturées en autoliquidation."
+        "answer": "Les forfaits sont facturés en euros ou en dollars américains, dans la devise affichée lors de l'inscription. Les prix s'entendent hors taxes. La TVA ou la taxe de vente est ajoutée selon votre pays de facturation, et les entreprises de l'UE disposant d'un numéro de TVA valide sont facturées en autoliquidation."
       },
       {
         "question": "Que deviennent les boutiques clientes si je rétrograde ?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/mois",
       "planCustom": "{plan}, tarif sur mesure",
       "notSure": "Je ne sais pas encore",
+      "currency": "Devise de facturation",
+      "taxNote": "{currency, select, EUR {Prix HT. La TVA est ajoutée au paiement selon votre pays de facturation.} other {Prix hors taxes. La TVA ou la taxe de vente est ajoutée au paiement selon votre pays de facturation.}}",
       "message": "Message",
       "messageHint": "Nombre de boutiques clients, de produits et besoins en cadeaux d’entreprise.",
       "wantsCall": "Je préfère être appelé",
@@ -395,6 +399,7 @@
       "body": "Nous avons bien reçu votre demande concernant {plan, select, unsure {l’offre la plus adaptée} other {l’offre {planName}}} et {call, select, yes {vous appellerons} other {vous répondrons par e-mail}} sous un jour ouvré.",
       "companyLabel": "Entreprise",
       "planLabel": "Offre",
+      "currencyLabel": "Devise",
       "replyLabel": "Réponse par",
       "replyCall": "Téléphone",
       "replyEmail": "E-mail",
@@ -2963,6 +2968,7 @@
       "emailLabel": "E-mail",
       "companyLabel": "Entreprise",
       "planLabel": "Offre",
+      "currencyLabel": "Devise",
       "replyLabel": "Réponse par",
       "replyCall": "Téléphone",
       "replyEmail": "E-mail",
@@ -2977,6 +2983,7 @@
       "email": "E-mail",
       "company": "Entreprise",
       "plan": "Offre",
+      "currency": "Devise",
       "replyBy": "Réponse par",
       "replyCall": "Téléphone",
       "replyEmail": "E-mail",

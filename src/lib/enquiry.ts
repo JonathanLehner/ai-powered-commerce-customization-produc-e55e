@@ -7,7 +7,7 @@
  * same rules run in `npm run enquiry-check`.
  */
 
-import { PLAN_KEYS, PLANS, type PlanKey } from "./plans";
+import { PLAN_KEYS, PLANS, isPlanCurrency, type PlanCurrency, type PlanKey } from "./plans";
 
 /** A visitor may name a plan, or say they have not decided. */
 export const UNDECIDED = "unsure";
@@ -25,6 +25,8 @@ export interface EnquiryInput {
   company: string;
   message: string;
   plan: string;
+  /** The currency the prices were shown in, and so the one the plan is billed in. */
+  currency: PlanCurrency;
   wantsCall: boolean;
   submissionKey: string;
 }
@@ -38,12 +40,14 @@ function clamp(value: string, max: number): string {
 }
 
 export function checkEnquiry(raw: Partial<Record<keyof EnquiryInput, string | boolean>>): EnquiryCheck {
+  const currency = String(raw.currency ?? "").trim().toUpperCase();
   const value: EnquiryInput = {
     name: clamp(String(raw.name ?? ""), LIMITS.name),
     email: clamp(String(raw.email ?? ""), LIMITS.email).toLowerCase(),
     company: clamp(String(raw.company ?? ""), LIMITS.company),
     message: clamp(String(raw.message ?? ""), LIMITS.message),
     plan: String(raw.plan ?? "").trim(),
+    currency: isPlanCurrency(currency) ? currency : "USD",
     wantsCall: raw.wantsCall === true || raw.wantsCall === "on",
     submissionKey: clamp(String(raw.submissionKey ?? ""), LIMITS.submissionKey),
   };

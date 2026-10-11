@@ -293,6 +293,8 @@
     "billedYearly": "{amount} faturados por ano",
     "billedMonthly": "Faturação mensal",
     "annualContract": "Contrato anual",
+    "currency": "Moeda",
+    "taxNote": "{currency, select, EUR {Preços sem IVA. O IVA é adicionado no pagamento conforme o país de faturação.} other {Preços sem impostos. O IVA ou imposto sobre vendas é adicionado no pagamento conforme o país de faturação.}}",
     "getStarted": "Começar",
     "contactSales": "Contactar vendas",
     "liveStores": "{count, plural, one {# loja ativa} other {# lojas ativas}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "Em que moeda sou cobrado, e há IVA?",
-        "answer": "Os planos são cobrados em dólares americanos. Os preços não incluem impostos. IVA ou imposto sobre vendas é adicionado conforme o país de cobrança, e empresas da UE com número de IVA válido são cobradas com autoliquidação."
+        "answer": "Os planos são faturados em euros ou dólares americanos, na moeda apresentada no registo. Os preços não incluem impostos. O IVA ou imposto sobre vendas é adicionado conforme o país de faturação, e as empresas da UE com número de IVA válido são faturadas em autoliquidação."
       },
       {
         "question": "O que acontece com as lojas dos clientes se eu fizer downgrade?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/mês",
       "planCustom": "{plan}, preço personalizado",
       "notSure": "Ainda não sei",
+      "currency": "Moeda de faturação",
+      "taxNote": "{currency, select, EUR {Preços sem IVA. O IVA é adicionado no pagamento conforme o país de faturação.} other {Preços sem impostos. O IVA ou imposto sobre vendas é adicionado no pagamento conforme o país de faturação.}}",
       "message": "Mensagem",
       "messageHint": "Número de lojas de clientes, produtos e necessidades de ofertas.",
       "wantsCall": "Prefiro uma chamada",
@@ -395,6 +399,7 @@
       "body": "Recebemos o seu pedido sobre {plan, select, unsure {o plano mais adequado} other {o plano {planName}}} e {call, select, yes {ligamos-lhe} other {respondemos por email}} no prazo de um dia útil.",
       "companyLabel": "Empresa",
       "planLabel": "Plano",
+      "currencyLabel": "Moeda",
       "replyLabel": "Resposta por",
       "replyCall": "Telefone",
       "replyEmail": "Email",
@@ -2963,6 +2968,7 @@
       "emailLabel": "Email",
       "companyLabel": "Empresa",
       "planLabel": "Plano",
+      "currencyLabel": "Moeda",
       "replyLabel": "Resposta por",
       "replyCall": "Telefone",
       "replyEmail": "Email",
@@ -2977,6 +2983,7 @@
       "email": "Email",
       "company": "Empresa",
       "plan": "Plano",
+      "currency": "Moeda",
       "replyBy": "Resposta por",
       "replyCall": "Telefone",
       "replyEmail": "Email",

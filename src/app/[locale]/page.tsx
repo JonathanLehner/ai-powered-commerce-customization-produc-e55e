@@ -6,7 +6,7 @@ import Link from "next/link";
 import { alternatesFor, asLocale, shareFor } from "@/i18n/metadata";
 import { Link as IntlLink } from "@/i18n/navigation";
 import { IMAGES } from "@/lib/images";
-import { PLANS } from "@/lib/plans";
+import { PLANS, defaultPlanCurrency } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckList, Section, SectionHeading } from "./kit";
@@ -90,7 +90,11 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
             <p className="mt-6 text-sm text-muted-foreground">
               <IntlLink href="/pricing" className="font-medium text-foreground underline-offset-4 hover:underline">
                 {t("plansFrom", {
-                  price: format.number(PLANS.starter.monthlyPrice ?? 0, { style: "currency", currency: "USD", maximumFractionDigits: 0 }),
+                  price: format.number(PLANS.starter.monthlyPrice?.[defaultPlanCurrency(locale)] ?? 0, {
+                    style: "currency",
+                    currency: defaultPlanCurrency(locale),
+                    maximumFractionDigits: 0,
+                  }),
                 })}
               </IntlLink>
             </p>

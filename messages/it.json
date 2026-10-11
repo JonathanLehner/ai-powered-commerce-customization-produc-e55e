@@ -293,6 +293,8 @@
     "billedYearly": "{amount} fatturati annualmente",
     "billedMonthly": "Fatturazione mensile",
     "annualContract": "Contratto annuale",
+    "currency": "Valuta",
+    "taxNote": "{currency, select, EUR {Prezzi IVA esclusa. L'IVA viene aggiunta al pagamento in base al paese di fatturazione.} other {Prezzi tasse escluse. IVA o imposta sulle vendite vengono aggiunte al pagamento in base al paese di fatturazione.}}",
     "getStarted": "Inizia",
     "contactSales": "Contatta il team vendite",
     "liveStores": "{count, plural, one {# negozio attivo} other {# negozi attivi}}",
@@ -350,7 +352,7 @@
       },
       {
         "question": "In quale valuta vengo fatturato e si aggiunge l'IVA?",
-        "answer": "I piani sono fatturati in dollari statunitensi. I prezzi sono al netto delle imposte. L'IVA o l'imposta sulle vendite si aggiunge in base al paese di fatturazione, e le aziende UE con partita IVA valida sono fatturate in reverse charge."
+        "answer": "I piani sono fatturati in euro o in dollari statunitensi, nella valuta mostrata al momento dell'iscrizione. I prezzi sono al netto delle imposte. IVA o imposta sulle vendite vengono aggiunte in base al paese di fatturazione e le aziende UE con partita IVA valida sono fatturate in inversione contabile."
       },
       {
         "question": "Cosa succede ai negozi dei clienti se passo a un piano inferiore?",
@@ -374,6 +376,8 @@
       "planOption": "{plan}, {price}/mese",
       "planCustom": "{plan}, prezzo su misura",
       "notSure": "Non lo so ancora",
+      "currency": "Valuta di fatturazione",
+      "taxNote": "{currency, select, EUR {Prezzi IVA esclusa. L'IVA viene aggiunta al pagamento in base al paese di fatturazione.} other {Prezzi tasse escluse. IVA o imposta sulle vendite vengono aggiunte al pagamento in base al paese di fatturazione.}}",
       "message": "Messaggio",
       "messageHint": "Numero di negozi clienti, prodotti ed esigenze per i regali aziendali.",
       "wantsCall": "Preferisco essere chiamato",
@@ -395,6 +399,7 @@
       "body": "Abbiamo ricevuto la tua richiesta su {plan, select, unsure {un piano adatto a te} other {il piano {planName}}} e {call, select, yes {ti chiameremo} other {ti risponderemo via email}} entro un giorno lavorativo.",
       "companyLabel": "Azienda",
       "planLabel": "Piano",
+      "currencyLabel": "Valuta",
       "replyLabel": "Risposta via",
       "replyCall": "Telefono",
       "replyEmail": "Email",
@@ -2963,6 +2968,7 @@
       "emailLabel": "Email",
       "companyLabel": "Azienda",
       "planLabel": "Piano",
+      "currencyLabel": "Valuta",
       "replyLabel": "Risposta via",
       "replyCall": "Telefono",
       "replyEmail": "Email",
@@ -2977,6 +2983,7 @@
       "email": "Email",
       "company": "Azienda",
       "plan": "Piano",
+      "currency": "Valuta",
       "replyBy": "Risposta via",
       "replyCall": "Telefono",
       "replyEmail": "Email",

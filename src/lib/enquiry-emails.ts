@@ -15,7 +15,7 @@ type Messages = typeof messages;
 /** A next-intl translator for one message group, as far as these builders use it. */
 type Translator<Group> = (key: keyof Group & string, values?: Record<string, string | number>) => string;
 
-type Enquiry = Pick<PlanEnquiry, "name" | "email" | "company" | "message" | "plan" | "wantsCall" | "locale">;
+type Enquiry = Pick<PlanEnquiry, "name" | "email" | "company" | "message" | "plan" | "wantsCall" | "locale" | "currency">;
 
 function planValue(enquiry: Enquiry, planName: string, undecided: string): string {
   return enquiry.plan === UNDECIDED ? undecided : planName;
@@ -44,6 +44,7 @@ export function enquiryConfirmationEmail(
     rows: [
       { label: t("companyLabel"), value: enquiry.company },
       { label: t("planLabel"), value: planValue(enquiry, planName, t("undecided")) },
+      { label: t("currencyLabel"), value: enquiry.currency ?? "USD" },
       { label: t("replyLabel"), value: enquiry.wantsCall ? t("replyCall") : t("replyEmail") },
       ...(enquiry.message ? [{ label: t("messageLabel"), value: enquiry.message }] : []),
     ],
@@ -70,6 +71,7 @@ export function enquiryAlertEmail(
       { label: t("emailLabel"), value: enquiry.email },
       { label: t("companyLabel"), value: enquiry.company },
       { label: t("planLabel"), value: plan },
+      { label: t("currencyLabel"), value: enquiry.currency ?? "USD" },
       { label: t("replyLabel"), value: enquiry.wantsCall ? t("replyCall") : t("replyEmail") },
       ...(isLocale(enquiry.locale) ? [{ label: t("languageLabel"), value: LOCALE_NAMES[enquiry.locale] }] : []),
       ...(enquiry.message ? [{ label: t("messageLabel"), value: enquiry.message }] : []),
