@@ -799,7 +799,7 @@ async function main() {
     "agencies", "users", "stores", "memberships", "suppliers", "catalog_products",
     "store_products", "tax_brackets", "orders", "storefronts", "audit_logs",
     "ai_suggestions", "carts", "gift_catalogues", "gift_campaigns", "quote_requests",
-    "discount_codes",
+    "discount_codes", "customers",
   ]) {
     await clear(c);
   }

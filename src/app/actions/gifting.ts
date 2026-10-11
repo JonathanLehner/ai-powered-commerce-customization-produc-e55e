@@ -17,6 +17,7 @@ import {
   updateGiftCatalogue,
   getUserByEmail,
 } from "@/lib/data";
+import { refreshCustomers } from "@/lib/customer-data";
 import { isLocale } from "@/i18n/locales";
 import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
@@ -1086,6 +1087,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   });
 
   await db.insertMany(COLLECTIONS.orders, orders as unknown as Record<string, unknown>[]);
+  refreshCustomers(store, orders.map((order) => order.customer.email));
 
   const held = orders.filter((order) => order.fulfillment.routing !== "submitted").length;
   await updateGiftCampaign(campaign.id, {

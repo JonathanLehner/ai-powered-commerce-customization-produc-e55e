@@ -2,6 +2,7 @@
 
 import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
+import { refreshCustomers } from "@/lib/customer-data";
 import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, shippingNotificationEmail } from "@/lib/email-templates";
@@ -342,6 +343,7 @@ export async function advanceStatus(formData: FormData): Promise<void> {
     entityId: order.code,
     meta: { status },
   });
+  if (status === "cancelled") refreshCustomers(store, [order.customer.email]);
   refresh(storeId, orderId);
 }
 
@@ -502,6 +504,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     entityId: order.code,
     meta: { amount, reason, gatewayRefundId: gateway.refundId },
   });
+  refreshCustomers(store, [order.customer.email]);
   refresh(storeId, orderId);
   return {
     status: "success",

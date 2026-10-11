@@ -598,6 +598,8 @@ export interface Order {
     city: string;
     postalCode: string;
     country: string;
+    /** Set once the shopper's personal data was deleted. Name, email and address are blanked then. */
+    anonymisedAt?: string;
   };
   items: OrderItem[];
   subtotal: number;
@@ -667,6 +669,47 @@ export interface Order {
     recipientId: string;
   } | null;
   idempotencyKey: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ----------------------------------------------------------- customers */
+
+export interface CustomerNote {
+  id: string;
+  body: string;
+  authorId: string;
+  authorName: string;
+  at: string;
+}
+
+/**
+ * A store's view of one shopper, built from that store's orders and keyed by
+ * email within the store: the same address in two stores is two customers.
+ * Every figure is recomputed from the orders whenever one changes, so the
+ * record never drifts from them; only `notes` is the team's own.
+ */
+export interface Customer {
+  id: string;
+  storeId: string;
+  /** Lowercased. Unique within the store. */
+  email: string;
+  /** From the most recent order. */
+  name: string;
+  country: string;
+  firstOrderAt: string;
+  lastOrderAt: string;
+  orderCount: number;
+  /** Paid orders less refunds, in `currency` (the store's default) and minor units. */
+  lifetimeSpend: number;
+  refundedTotal: number;
+  refundCount: number;
+  currency: string;
+  /** The language and currency the shopper checks out in most often. */
+  preferredLanguage: string;
+  preferredCurrency: string;
+  notes: CustomerNote[];
+  anonymisedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -898,7 +941,8 @@ export type AuditCategory =
   | "gifting"
   | "sourcing"
   | "email"
-  | "discounts";
+  | "discounts"
+  | "customers";
 
 export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   store_setup: "Store setup",
@@ -913,6 +957,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   sourcing: "Sourcing",
   email: "Email",
   discounts: "Discount codes",
+  customers: "Customers",
 };
 
 export interface AuditLog {

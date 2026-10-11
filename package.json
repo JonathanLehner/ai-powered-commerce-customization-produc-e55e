@@ -35,7 +35,9 @@
     "order-list-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/order-list-check.mjs",
     "batch-read-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/batch-read-check.mjs",
     "analytics-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/analytics-check.mjs",
-    "create-indexes": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/create-indexes.mjs"
+    "customers-check": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/customers-check.mjs",
+    "create-indexes": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/create-indexes.mjs",
+    "backfill-customers": "node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/backfill-customers.mjs"
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",

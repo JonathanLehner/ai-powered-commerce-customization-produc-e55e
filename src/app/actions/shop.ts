@@ -23,6 +23,7 @@ import {
   recordAudit,
   releaseDiscountUse,
 } from "@/lib/data";
+import { refreshCustomers } from "@/lib/customer-data";
 import { brandFor, orderConfirmationEmail } from "@/lib/email-templates";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { localCountryName } from "@/lib/countries";
@@ -588,6 +589,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   if (decision.exception) order.status = "exception";
 
   await db.insertOne(COLLECTIONS.orders, order as unknown as Record<string, unknown>);
+  refreshCustomers(store, [email]);
   await saveCart(cart, []);
   if (discount) {
     await saveCartDiscount(cart, null);

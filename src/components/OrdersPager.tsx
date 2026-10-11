@@ -27,12 +27,32 @@ export async function OrdersPager({
   page: OrderListPage;
 }) {
   if (page.total === 0) return null;
-  const [t, common] = await Promise.all([getTranslations("pager"), getTranslations("common")]);
-  const href = (n: number) => `${basePath}${orderListQuery(filters, { page: n })}`;
+  const t = await getTranslations("pager");
+  return (
+    <ListPager
+      page={page}
+      summary={t("orders", { first: page.first, last: page.last, total: page.total })}
+      href={(n) => `${basePath}${orderListQuery(filters, { page: n })}`}
+    />
+  );
+}
+
+/** The same pager for any list whose pages are URLs: `href` builds the address of page `n`. */
+export async function ListPager({
+  page,
+  summary,
+  href,
+}: {
+  page: { page: number; pages: number; total: number };
+  summary: string;
+  href: (n: number) => string;
+}) {
+  if (page.total === 0) return null;
+  const common = await getTranslations("common");
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-muted-foreground tabular-nums">
-        {t("orders", { first: page.first, last: page.last, total: page.total })}
+        {summary}
       </p>
       {page.pages > 1 ? (
         <Pagination aria-label={common("pages")} className="mx-0 w-auto justify-end">

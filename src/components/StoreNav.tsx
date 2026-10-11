@@ -17,6 +17,7 @@ import {
   SettingsIcon,
   SparklesIcon,
   TruckIcon,
+  UserRoundIcon,
   UsersIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -37,6 +38,7 @@ const ICONS: Record<string, LucideIcon> = {
   gifting: GiftIcon,
   analytics: ChartColumnIcon,
   orders: ClipboardListIcon,
+  customers: UserRoundIcon,
   discounts: PercentIcon,
   team: UsersIcon,
   settings: SettingsIcon,

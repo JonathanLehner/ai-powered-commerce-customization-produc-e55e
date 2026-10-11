@@ -125,6 +125,16 @@ gifting, orders, team, guided setup, activity.
   the store's own connected account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,
   carrier tracking links, refunds, cancellations and exception resolution.
+- **Customers.** Each store has a Customers tab for the people who work its
+  orders. A record per email address per store is built from that store's
+  orders and kept current by checkout, gift campaigns, refunds and
+  cancellations: name, country, first and last order, order count, lifetime
+  spend less refunds, preferred language and currency. The list searches,
+  filters, sorts, pages and downloads as CSV. The detail page shows the order
+  history, refunds and the team's notes, and can export everything held about
+  the customer as JSON or delete their name, email and address from the record
+  and its orders while keeping the amounts. Notes, exports and deletions are in
+  the audit history (`npm run customers-check`).
 - **Audit history.** Store setup, imports, price changes, AI approvals,
   publishing, order routing and administration are all recorded per store and
   platform-wide.
@@ -254,6 +264,11 @@ reads the same file, so a full rebuild and an upsert can never drift apart.
 seeded before store products carried a SKU: it assigns one per product and
 breaks any duplicate slugs left by a double-submitted import. It skips records
 that are already in good shape, so it is safe to re-run.
+
+`npm run backfill-customers` builds every store's customer records from its
+orders. Run it after seeding, and once on a database that has orders from
+before customers existed. Records are rebuilt by store and email, so it is safe
+to re-run, and the team's notes are kept.
 
 `scripts/backfill-password-hashes.mjs` is a one-off migration for databases
 seeded before the password was checked at all: it replaces each user's

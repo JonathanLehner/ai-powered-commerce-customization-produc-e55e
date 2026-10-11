@@ -47,6 +47,7 @@ export const COLLECTIONS = {
   planEnquiries: "plan_enquiries",
   quoteRequests: "quote_requests",
   discounts: "discount_codes",
+  customers: "customers",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */

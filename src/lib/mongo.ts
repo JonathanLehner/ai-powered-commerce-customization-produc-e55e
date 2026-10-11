@@ -129,6 +129,10 @@ export const db = {
   async updateOne(name: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
     return (await collection(name)).updateOne(filter as Filter<Document>, update);
   },
+  /** Updates the document matching `filter`, or inserts one built from it and the update. */
+  async upsertOne(name: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
+    return (await collection(name)).updateOne(filter as Filter<Document>, update, { upsert: true });
+  },
   async updateMany(name: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
     return (await collection(name)).updateMany(filter as Filter<Document>, update);
   },

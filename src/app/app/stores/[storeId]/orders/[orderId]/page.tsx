@@ -67,7 +67,7 @@ export default async function OrderDetailPage({
       <PageHeader
         title={order.code}
         description={
-          viaPlatform
+          viaPlatform || order.customer.anonymisedAt
             ? t("placed", { date: when(order.createdAt) })
             : t("placedBy", { name: order.customer.name, email: order.customer.email, date: when(order.createdAt) })
         }
@@ -378,6 +378,12 @@ export default async function OrderDetailPage({
                       {region(order.customer.country)}
                     </span>
                     .
+                  </p>
+                ) : order.customer.anonymisedAt ? (
+                  <p className="text-sm text-inksoft">
+                    {t("dataDeleted")}
+                    <br />
+                    {countryName(locale, order.customer.country)} ({order.customer.country})
                   </p>
                 ) : (
                   <address className="text-sm not-italic text-inksoft">

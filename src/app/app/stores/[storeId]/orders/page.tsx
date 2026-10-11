@@ -259,9 +259,12 @@ export default async function OrdersPage({
                     </TableCell>
                     {viaPlatform ? null : (
                       <TableCell className="px-4 py-3 align-top whitespace-normal">
-                        <p className="text-foreground">{order.customer.name}</p>
+                        <p className="text-foreground">
+                          {order.customer.anonymisedAt ? t("deletedCustomer") : order.customer.name}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          {order.customer.city}, {countryName(locale, order.customer.country)}
+                          {order.customer.anonymisedAt ? null : `${order.customer.city}, `}
+                          {countryName(locale, order.customer.country)}
                         </p>
                         {order.campaign ? (
                           <Link
