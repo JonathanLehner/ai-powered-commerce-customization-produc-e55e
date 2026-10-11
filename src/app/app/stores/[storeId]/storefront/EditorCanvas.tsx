@@ -3,7 +3,7 @@
 import { Editor, Frame, useEditor, useNode } from "@craftjs/core";
 import { createTranslator, useLocale, useTranslations } from "next-intl";
 import React, { createContext, useContext, useMemo, useState } from "react";
-import { publishStorefront, restoreVersion, saveStorefrontDraft } from "@/app/actions/storefront";
+import { publishStorefront, saveStorefrontDraft } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
 import { translateMissing } from "@/app/actions/translations";
 import { FormStatus } from "@/components/forms";
@@ -32,6 +32,7 @@ import { NAV_COLLECTIONS_PROP, navCollectionIds } from "@/lib/collections";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { MAX_SHIP_DAYS, SHIP_DAYS_PROP, shipDays } from "@/lib/shipping-promise";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
+import { summarizeSections, type SectionSummary } from "@/lib/storefront-versions";
 import {
   I18N_PROP,
   localizeSectionProps,
@@ -47,6 +48,7 @@ import {
 import { classNames, formatDateTime } from "@/lib/util";
 import { ContentTranslations, StateBadge, type ItemUpdate, type TranslatableItem } from "./ContentTranslations";
 import { ShopTextSheet, type ShopTextData } from "./ShopTextSheet";
+import { VersionHistory, type HistoryEntry } from "./VersionHistory";
 
 const Ctx = createContext<StorefrontContext | null>(null);
 function useCtx() {
@@ -653,7 +655,9 @@ export interface EditorCanvasProps {
   publishedAt: string | null;
   publishedBy: string | null;
   draftUpdatedAt: string;
-  history: { id: string; label: string; savedAt: string; savedBy: string }[];
+  history: HistoryEntry[];
+  liveVersionId: string | null;
+  liveSections: SectionSummary[] | null;
 }
 
 type ShellProps = EditorCanvasProps & {
@@ -724,6 +728,7 @@ function EditorShell(props: ShellProps) {
   const [products, setProducts] = useState(props.products);
   const [portals, setPortals] = useState(props.portals);
   const [collections, setCollections] = useState(props.collections);
+  const savedSections = useMemo(() => summarizeSections(props.tree), [props.tree]);
   const t = useTranslations("editor");
   const uiLocale = useLocale();
   const locale = props.locale;
@@ -751,7 +756,7 @@ function EditorShell(props: ShellProps) {
       data.set("storeId", props.storeId);
       data.set("tree", query.serialize());
       data.set("locale", locale);
-      if (kind === "publish") data.set("label", label || t("untitled"));
+      data.set("label", label);
       const result =
         kind === "save"
           ? await saveStorefrontDraft({ status: "idle" }, data)
@@ -951,37 +956,14 @@ function EditorShell(props: ShellProps) {
 
             <div className="space-y-4">
               <SettingsPanel />
-              {props.history.length > 0 ? (
-                <Card size="sm">
-                  <CardHeader>
-                    <CardTitle asChild className="text-sm font-semibold">
-                      <h2>{t("history")}</h2>
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("historyBody")}
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-sm">
-                      {props.history.map((version) => (
-                        <li key={version.id} id={`version-${version.id}`} className="scroll-mt-24 rounded-lg border border-border p-3 target:border-primary">
-                          <p className="font-medium text-foreground">{version.label}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {version.savedBy} · {formatDateTime(version.savedAt, uiLocale)}
-                          </p>
-                          <form action={restoreVersion} className="mt-2">
-                            <input type="hidden" name="storeId" value={props.storeId} />
-                            <input type="hidden" name="versionId" value={version.id} />
-                            <Button type="submit" variant="outline" size="sm">
-                              {t("restore")}
-                            </Button>
-                          </form>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ) : null}
+              <VersionHistory
+                storeId={props.storeId}
+                history={props.history}
+                liveVersionId={props.liveVersionId}
+                liveSections={props.liveSections}
+                savedSections={savedSections}
+                canvasSections={summarizeSections(pageTree)}
+              />
             </div>
           </div>
         </TabsContent>

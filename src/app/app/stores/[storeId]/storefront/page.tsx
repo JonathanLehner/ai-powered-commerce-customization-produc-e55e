@@ -6,12 +6,13 @@ import type { StorefrontContext } from "@/components/sections";
 import { collectionFields, localizeCollection } from "@/lib/collections";
 import { getStorefront, listGiftCatalogues, listProductCollections, listStoreProducts } from "@/lib/data";
 import { formatMinorUnits } from "@/i18n/format";
-import { isLocale } from "@/i18n/locales";
+import { isLocale, LOCALES } from "@/i18n/locales";
 import { shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { requireStoreAccess } from "@/lib/session";
 import { flattenShopText, shopTextEntries } from "@/lib/shop-text";
 import { treeFromSections } from "@/lib/storefront-schema";
+import { liveVersionId, summarizeSections, versionKind } from "@/lib/storefront-versions";
 import { localizeProduct, productFields } from "@/lib/translations";
 import type { ShopTextData } from "./ShopTextSheet";
 import { StorefrontEditor } from "./StorefrontEditor";
@@ -98,7 +99,15 @@ export default async function StorefrontEditorPage({
       ? (storefront.draft as Record<string, unknown>)
       : (treeFromSections([{ type: "HeroSection" }, { type: "ProductGrid" }]) as unknown as Record<string, unknown>);
 
-  const [pages, t] = await Promise.all([getTranslations("pages.store"), getTranslations("editor")]);
+  const [pages, t, untitled] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("editor"),
+    // Older versions were saved under a placeholder name in whichever language
+    // the editor was in; those are treated as unnamed and labelled for them.
+    Promise.all(LOCALES.map((locale) => getTranslations({ locale, namespace: "editor" }).then((e) => e("untitled")))),
+  ]);
+  const placeholders = new Set(["Untitled version", ...untitled]);
+  const history = storefront?.history ?? [];
   return (
     <div className="space-y-6">
       <PageHeader
@@ -159,12 +168,16 @@ export default async function StorefrontEditorPage({
         publishedAt={storefront?.publishedAt ?? null}
         publishedBy={storefront?.publishedBy ?? null}
         draftUpdatedAt={storefront?.draftUpdatedAt ?? new Date().toISOString()}
-        history={(storefront?.history ?? []).map((v) => ({
+        history={history.map((v) => ({
           id: v.id,
-          label: v.label,
+          label: placeholders.has(v.label) ? "" : v.label,
+          kind: versionKind(v),
           savedAt: v.savedAt,
           savedBy: v.savedBy,
+          sections: summarizeSections(v.data),
         }))}
+        liveVersionId={liveVersionId(history, storefront?.published)}
+        liveSections={storefront?.published ? summarizeSections(storefront.published) : null}
       />
     </div>
   );

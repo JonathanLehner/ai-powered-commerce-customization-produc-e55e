@@ -27,6 +27,7 @@
     "sourcing-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/sourcing-check.mjs",
     "fallback-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/fallback-check.mjs",
     "catalog-rows-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/catalog-rows-check.mjs",
+    "version-history-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/version-history-check.mjs",
     "artwork-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/artwork-check.mjs",
     "platform-access-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/platform-access-check.mjs",
     "email-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/email-check.mjs",

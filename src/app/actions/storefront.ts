@@ -8,6 +8,7 @@ import { storeLanguages } from "@/i18n/storefront-routing";
 import { getStorefront, recordAudit, updateStorefront } from "@/lib/data";
 import { assertStoreAccess } from "@/lib/session";
 import { sectionsFromTree } from "@/lib/storefront-schema";
+import { capHistory, sameTree } from "@/lib/storefront-versions";
 import type { StorefrontVersion } from "@/lib/types";
 import { newId } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -25,7 +26,11 @@ function parseTree(raw: string): Record<string, unknown> | null {
 export async function saveStorefrontDraft(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const raw = String(formData.get("tree") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.storefront");
+  const label = String(formData.get("label") ?? "").trim();
+  const [{ user, store }, storefront] = await Promise.all([
+    assertStoreAccess(storeId, "store.storefront"),
+    getStorefront(storeId),
+  ]);
   const t = await getTranslations("actions.storefront");
 
   const tree = parseTree(raw);
@@ -37,7 +42,17 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
   const inLanguage =
     isLocale(locale) && locale !== storeLanguages(store).defaultLocale ? ` in ${languageName("en", locale)}` : "";
 
-  await updateStorefront(storeId, { draft: tree, draftUpdatedAt: new Date().toISOString() });
+  // Each saved draft is kept in the history, unless it is what was last kept.
+  const now = new Date().toISOString();
+  const history = storefront?.history ?? [];
+  const unchanged = history.length > 0 && sameTree(history[0].data, tree);
+  const version: StorefrontVersion = { id: newId("ver"), label, kind: "draft", data: tree, savedAt: now, savedBy: user.name };
+
+  await updateStorefront(storeId, {
+    draft: tree,
+    draftUpdatedAt: now,
+    ...(unchanged ? {} : { history: capHistory([version, ...history]) }),
+  });
   recordAudit({
     category: "publishing",
     action: "storefront.draft_saved",
@@ -57,7 +72,7 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
 export async function publishStorefront(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const raw = String(formData.get("tree") ?? "");
-  const label = String(formData.get("label") ?? "").trim() || "Untitled version";
+  const label = String(formData.get("label") ?? "").trim();
   // The existing storefront is needed for its version history, and it is
   // fetched alongside the access check instead of after it.
   const [{ user, store }, storefront] = await Promise.all([
@@ -80,11 +95,12 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
   const version: StorefrontVersion = {
     id: newId("ver"),
     label,
+    kind: "published",
     data: tree,
     savedAt: now,
     savedBy: user.name,
   };
-  const history = [version, ...(storefront?.history ?? [])].slice(0, 10);
+  const history = capHistory([version, ...(storefront?.history ?? [])]);
 
   await updateStorefront(storeId, {
     draft: tree,
@@ -97,7 +113,9 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
   recordAudit({
     category: "publishing",
     action: "storefront.published",
-    summary: `Published storefront layout “${label}” with ${sections.length} sections`,
+    summary: label
+      ? `Published storefront layout “${label}” with ${sections.length} sections`
+      : `Published storefront layout with ${sections.length} sections`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
@@ -156,7 +174,9 @@ export async function restoreVersion(formData: FormData): Promise<void> {
   recordAudit({
     category: "publishing",
     action: "storefront.version_restored",
-    summary: `Restored storefront version “${version.label}” into the draft`,
+    summary: version.label
+      ? `Restored storefront version “${version.label}” into the draft`
+      : `Restored a ${version.kind === "draft" ? "saved draft" : "published version"} from ${version.savedAt.slice(0, 10)} into the draft`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,

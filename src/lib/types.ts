@@ -976,7 +976,10 @@ export type CraftNodes = Record<string, unknown>;
 
 export interface StorefrontVersion {
   id: string;
+  /** The name it was given; empty when none was, and the panel labels it. */
   label: string;
+  /** Older entries were all published versions. */
+  kind?: "published" | "draft";
   data: CraftNodes;
   savedAt: string;
   savedBy: string;
