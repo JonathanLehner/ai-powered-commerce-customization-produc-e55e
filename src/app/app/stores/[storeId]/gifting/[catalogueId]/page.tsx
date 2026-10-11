@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
@@ -8,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getGiftCatalogue, listGiftCampaigns, listPublishedProducts } from "@/lib/data";
 import { campaignPath, campaignToken, portalUrl } from "@/lib/gift-access";
-import { approvalWaitLabel, daysAwaitingApproval } from "@/lib/gift-approval";
+import { daysAwaitingApproval } from "@/lib/gift-approval";
 import { requireStoreAccess } from "@/lib/session";
-import { CAMPAIGN_STATUS_LABELS, type CampaignStatus } from "@/lib/types";
+import type { CampaignStatus } from "@/lib/types";
 import { formatDate, formatMoney } from "@/lib/util";
 import {
   CatalogueAccessForm,
@@ -65,13 +66,21 @@ export default async function GiftCataloguePage({
     ),
   );
   const missing = catalogue.productIds.filter((id) => !published.some((product) => product.id === id));
+  const [t, campaignT, labels, locale] = await Promise.all([
+    getTranslations("gifting"),
+    getTranslations("campaign"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const waitLower = (days: number) =>
+    days <= 0 ? campaignT("sentTodayLower") : campaignT("waitingLower", { days });
 
   return (
     <div className="space-y-6">
       <div>
         <Breadcrumbs
           items={[
-            { label: "Gifting", href: `/app/stores/${storeId}/gifting` },
+            { label: t("gifting"), href: `/app/stores/${storeId}/gifting` },
             { label: catalogue.name },
           ]}
         />
@@ -81,7 +90,7 @@ export default async function GiftCataloguePage({
           actions={
             <>
               <Badge tone={catalogue.status === "active" ? "green" : "slate"}>
-                {catalogue.status === "active" ? "Open" : "Paused"}
+                {catalogue.status === "active" ? t("open") : t("paused")}
               </Badge>
               <form action={setGiftCatalogueStatus}>
                 <input type="hidden" name="storeId" value={storeId} />
@@ -91,8 +100,8 @@ export default async function GiftCataloguePage({
                   name="status"
                   value={catalogue.status === "active" ? "paused" : "active"}
                 />
-                <SubmitButton variant="outline" size="sm" pendingLabel="Saving…">
-                  {catalogue.status === "active" ? "Pause catalogue" : "Reopen catalogue"}
+                <SubmitButton variant="outline" size="sm" pendingLabel={t("saving")}>
+                  {catalogue.status === "active" ? t("pause") : t("reopen")}
                 </SubmitButton>
               </form>
             </>
@@ -101,9 +110,8 @@ export default async function GiftCataloguePage({
       </div>
 
       {missing.length > 0 ? (
-        <Callout tone="amber" title="Some products are unavailable">
-          {missing.length} {missing.length === 1 ? "product is" : "products are"} not published. Republish or remove{" "}
-          {missing.length === 1 ? "it" : "them"} below.
+        <Callout tone="amber" title={t("unavailableTitle")}>
+          {t("unavailableBody", { count: missing.length })}
         </Callout>
       ) : null}
 
@@ -111,10 +119,10 @@ export default async function GiftCataloguePage({
       <section>
         <CardHeader>
         <CardTitle asChild>
-          <h2>Portal link</h2>
+          <h2>{t("portalLink")}</h2>
         </CardTitle>
                 <p className="max-w-2xl text-sm text-muted-foreground">
-          {catalogue.access === "invite" ? "Invited email addresses only" : "Anyone with the link"}
+          {catalogue.access === "invite" ? t("inviteOnly") : t("anyoneWithLink")}
         </p>
         </CardHeader>
         <CardContent>
@@ -124,7 +132,7 @@ export default async function GiftCataloguePage({
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button asChild variant="outline" size="sm">
             <a href={privateLink} target="_blank" rel="noreferrer">
-              Open the portal ↗
+              {t("openPortal")}
             </a>
           </Button>
           <RegenerateAccess storeId={storeId} catalogueId={catalogue.id} />
@@ -138,7 +146,7 @@ export default async function GiftCataloguePage({
         <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Programme rules</h2>
+                <h2>{t("rules")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -151,7 +159,7 @@ export default async function GiftCataloguePage({
         <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Access</h2>
+                <h2>{t("access")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -165,7 +173,7 @@ export default async function GiftCataloguePage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Products</h2>
+              <h2>{t("products")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -175,11 +183,11 @@ export default async function GiftCataloguePage({
       </Card>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-foreground">Campaigns from this catalogue</h2>
+        <h2 className="text-base font-semibold text-foreground">{t("fromCatalogue")}</h2>
         {mine.length === 0 ? (
           <EmptyState
-            title="No campaigns yet"
-            description="Campaigns appear here when a buyer submits a recipient list."
+            title={t("noCampaigns")}
+            description={t("noCampaignsBody")}
           />
         ) : (
           <ul className="space-y-3">
@@ -195,35 +203,39 @@ export default async function GiftCataloguePage({
                       {campaign.code} · {campaign.name}
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      {campaign.buyer.name} ({campaign.buyer.email}) ·{" "}
-                      <span className="tabular-nums">{campaign.recipients.length}</span> recipients ·{" "}
-                      {formatDate(campaign.createdAt)}
+                      {t("campaignLine", {
+                        buyer: campaign.buyer.name,
+                        email: campaign.buyer.email,
+                        count: campaign.recipients.length,
+                        date: formatDate(campaign.createdAt, locale),
+                      })}
                     </p>
                   </div>
                   <CardAction className="flex shrink-0 items-center gap-2">
                     <Badge tone={CAMPAIGN_TONES[campaign.status]}>
-                      {CAMPAIGN_STATUS_LABELS[campaign.status]}
+                      {labels(`campaignStatus.${campaign.status}`)}
                     </Badge>
                     <span className="text-sm font-medium tabular-nums text-foreground">
-                      {formatMoney(campaign.totals.total, campaign.currency)}
+                      {formatMoney(campaign.totals.total, campaign.currency, locale)}
                     </span>
                   </CardAction>
                 </CardHeader>
                 {approverLinks.get(campaign.id) ? (
                   <CardContent>
                     <p className="text-xs text-muted-foreground">
-                      Approval link for{" "}
-                      {campaign.approval.approverName || campaign.approval.approverEmail} ·{" "}
-                      {approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()} ·{" "}
+                      {t("approvalLinkFor", {
+                        approver: campaign.approval.approverName || campaign.approval.approverEmail,
+                        wait: waitLower(daysAwaitingApproval(campaign)),
+                      })}{" "}
                       <Link
                         href={`/app/stores/${storeId}/orders/campaigns/${campaign.id}`}
                         className="font-medium text-primary hover:underline"
                       >
-                                                Manage approval
+                        {t("manageApproval")}
                       </Link>
                     </p>
                     <div className="mt-2">
-                      <CopyField value={approverLinks.get(campaign.id) as string} label="Copy approval link" />
+                      <CopyField value={approverLinks.get(campaign.id) as string} label={t("copyApprovalLink")} />
                     </div>
                   </CardContent>
                 ) : null}

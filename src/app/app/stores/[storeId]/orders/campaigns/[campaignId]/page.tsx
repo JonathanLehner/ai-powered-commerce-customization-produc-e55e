@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
@@ -13,24 +14,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getGiftCampaign, getGiftCatalogue, listOrdersForCampaign } from "@/lib/data";
-import { countryName } from "@/lib/countries";
+import { countryName } from "@/i18n/display";
 import {
   approvalLastSentAt,
   approvalRemindersSent,
   approvalRequestedAt,
-  approvalWaitLabel,
   daysAwaitingApproval,
   isApprovalStale,
 } from "@/lib/gift-approval";
 import { campaignPath, campaignToken } from "@/lib/gift-access";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { ApprovalPanel } from "./ApprovalPanel";
-import {
-  CAMPAIGN_STATUS_LABELS,
-  ORDER_STATUS_LABELS,
-  type CampaignStatus,
-  type OrderStatus,
-} from "@/lib/types";
+import type { CampaignStatus, OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatDateTime, formatMoney } from "@/lib/util";
 
 /** The column-head style every table in the workspace shares. */
@@ -100,12 +95,24 @@ export default async function CampaignFulfilmentPage({
   const delivered = orders.filter((order) => order.status === "delivered").length;
   const shipped = orders.filter((order) => order.status === "shipped").length;
 
+  const [t, labels, ordersT, locale] = await Promise.all([
+    getTranslations("campaign"),
+    getTranslations("labels"),
+    getTranslations("orders"),
+    getLocale(),
+  ]);
+  const money = (minor: number) => formatMoney(minor, campaign.currency, locale);
+  const when = (iso: string) => formatDateTime(iso, locale);
+  const wait = (days: number) => (days <= 0 ? t("sentToday") : t("waiting", { days }));
+  const waitLower = (days: number) => (days <= 0 ? t("sentTodayLower") : t("waitingLower", { days }));
+  const company = catalogue?.companyName ?? t("theClient");
+
   return (
     <div className="space-y-6">
       <div>
         <Breadcrumbs
           items={[
-            { label: "Orders", href: `/app/stores/${storeId}/orders` },
+            { label: t("orders"), href: `/app/stores/${storeId}/orders` },
             { label: campaign.code },
           ]}
         />
@@ -113,22 +120,27 @@ export default async function CampaignFulfilmentPage({
           title={`${campaign.code} · ${campaign.name}`}
           description={
             viaPlatform
-              ? `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}`
-              : `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"} · ordered by ${campaign.buyer.name} (${campaign.buyer.email})`
+              ? t("recipientsFor", { count: campaign.recipients.length, company })
+              : t("recipientsForBy", {
+                  count: campaign.recipients.length,
+                  company,
+                  buyer: campaign.buyer.name,
+                  email: campaign.buyer.email,
+                })
           }
           actions={
             <>
-              <Badge tone={CAMPAIGN_TONES[campaign.status]}>{CAMPAIGN_STATUS_LABELS[campaign.status]}</Badge>
+              <Badge tone={CAMPAIGN_TONES[campaign.status]}>{labels(`campaignStatus.${campaign.status}`)}</Badge>
               {campaign.status === "ordered" ? (
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/app/stores/${storeId}/orders?campaign=${encodeURIComponent(campaign.code)}`}>
-                    View orders
+                    {t("viewOrders")}
                   </Link>
                 </Button>
               ) : null}
               {catalogue && !viaPlatform ? (
                 <Button asChild variant="ghost" size="sm">
-                  <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`}>Gift catalogue</Link>
+                  <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`}>{t("giftCatalogue")}</Link>
                 </Button>
               ) : null}
             </>
@@ -137,35 +149,39 @@ export default async function CampaignFulfilmentPage({
       </div>
 
       {exceptions.length > 0 ? (
-        <Callout tone="rose" title={`${exceptions.length} of ${orders.length} gifts need attention`}>
-          Open each order below to resolve it.
+        <Callout tone="rose" title={t("needAttention", { count: exceptions.length, total: orders.length })}>
+          {t("openEach")}
         </Callout>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {viaPlatform ? (
           <StatCard
-            label="Payment"
-            value={campaign.payment.status === "succeeded" ? "Paid" : "Not paid"}
+            label={t("payment")}
+            value={campaign.payment.status === "succeeded" ? t("paid") : t("notPaid")}
           />
         ) : (
           <StatCard
-            label="Campaign value"
-            value={formatMoney(campaign.totals.total, campaign.currency)}
+            label={t("value")}
+            value={money(campaign.totals.total)}
             sub={
               campaign.payment.status === "succeeded"
-                ? `Paid on card ending ${campaign.payment.last4 ?? "••••"}`
-                : "Not paid yet"
+                ? t("paidCard", { last4: campaign.payment.last4 ?? "••••" })
+                : t("notPaidYet")
             }
           />
         )}
-        <StatCard label="Orders raised" value={String(orders.length)} sub={`${campaign.recipients.length} recipients`} />
-        <StatCard label="Shipped" value={String(shipped)} sub={`${delivered} delivered`} />
         <StatCard
-          label="Needs attention"
+          label={t("ordersRaised")}
+          value={String(orders.length)}
+          sub={t("recipients", { count: campaign.recipients.length })}
+        />
+        <StatCard label={t("shipped")} value={String(shipped)} sub={t("delivered", { count: delivered })} />
+        <StatCard
+          label={t("attention")}
           value={String(exceptions.length)}
           tone={exceptions.length > 0 ? "rose" : "green"}
-          sub="Exceptions and manual routing"
+          sub={t("attentionSub")}
         />
       </div>
 
@@ -174,7 +190,7 @@ export default async function CampaignFulfilmentPage({
         <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>{viaPlatform ? "Gift orders" : "Recipients"}</h2>
+              <h2>{viaPlatform ? t("giftOrders") : t("recipientsTitle")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -183,8 +199,8 @@ export default async function CampaignFulfilmentPage({
             // the jobs the campaign raised, not who each one is going to.
             orders.length === 0 ? (
               <EmptyState
-                title="No orders raised"
-                description="Orders appear once the campaign is approved and paid."
+                title={t("noOrders")}
+                description={t("noOrdersBody")}
               />
             ) : (
               <ul className="divide-y divide-border text-sm">
@@ -198,29 +214,29 @@ export default async function CampaignFulfilmentPage({
                         {order.code}
                       </Link>
                       <span className="ml-2 text-xs text-muted-foreground">
-                        {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
-                        {order.fulfillment.routing === "manual_required" ? "manual required" : order.fulfillment.routing}
+                        {order.fulfillment.supplierName ?? ordersT("noSupplier")} ·{" "}
+                        {ordersT(`routing.${order.fulfillment.routing}`)}
                       </span>
                       {order.fulfillment.exception ? (
-                        <span className="block text-xs text-rose-700">Fulfilment exception raised</span>
+                        <span className="block text-xs text-rose-700">{ordersT("exceptionRaised")}</span>
                       ) : null}
                     </span>
-                    <Badge tone={ORDER_TONES[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                    <Badge tone={ORDER_TONES[order.status]}>{labels(`orderStatus.${order.status}`)}</Badge>
                   </li>
                 ))}
               </ul>
             )
           ) : campaign.recipients.length === 0 ? (
-            <EmptyState title="No recipients" description="This campaign carries no recipient list." />
+            <EmptyState title={t("noRecipients")} description={t("noRecipientsBody")} />
           ) : (
             <div className="relative overflow-x-auto">
               <Table className="min-w-[48rem]">
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className={TH}>Recipient</TableHead>
-                    <TableHead className={TH}>Gift</TableHead>
-                    <TableHead className={TH}>Order</TableHead>
-                    <TableHead className={TH}>Fulfilment</TableHead>
+                    <TableHead className={TH}>{t("colRecipient")}</TableHead>
+                    <TableHead className={TH}>{t("colGift")}</TableHead>
+                    <TableHead className={TH}>{t("colOrder")}</TableHead>
+                    <TableHead className={TH}>{t("colFulfilment")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -231,7 +247,7 @@ export default async function CampaignFulfilmentPage({
                         <TableCell className="px-0 py-2.5 align-top whitespace-normal">
                           <p className="font-medium text-foreground">{recipient.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {recipient.city}, {countryName(recipient.country)}
+                            {recipient.city}, {countryName(locale, recipient.country)}
                           </p>
                           {recipient.note ? (
                             <p className="mt-1 text-xs text-inksoft">“{recipient.note}”</p>
@@ -243,7 +259,7 @@ export default async function CampaignFulfilmentPage({
                             {recipient.variantName || recipient.size} ×{" "}
                             <span className="tabular-nums">{recipient.quantity}</span> ·{" "}
                             <span className="tabular-nums">
-                              {formatMoney(recipient.unitPrice * recipient.quantity, campaign.currency)}
+                              {money(recipient.unitPrice * recipient.quantity)}
                             </span>
                           </p>
                         </TableCell>
@@ -256,12 +272,12 @@ export default async function CampaignFulfilmentPage({
                               {order.code}
                             </Link>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Not ordered yet</span>
+                            <span className="text-xs text-muted-foreground">{t("notOrdered")}</span>
                           )}
                           {order ? (
                             <p className="mt-1">
                               <Badge tone={ORDER_TONES[order.status]}>
-                                {ORDER_STATUS_LABELS[order.status]}
+                                {labels(`orderStatus.${order.status}`)}
                               </Badge>
                             </p>
                           ) : null}
@@ -270,10 +286,8 @@ export default async function CampaignFulfilmentPage({
                           {order ? (
                             <>
                               <p className="text-xs text-inksoft">
-                                {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
-                                {order.fulfillment.routing === "manual_required"
-                                  ? "manual required"
-                                  : order.fulfillment.routing}
+                                {order.fulfillment.supplierName ?? ordersT("noSupplier")} ·{" "}
+                                {ordersT(`routing.${order.fulfillment.routing}`)}
                               </p>
                               {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
                                 <a
@@ -314,9 +328,10 @@ export default async function CampaignFulfilmentPage({
               approverName={campaign.approval.approverName}
               approverEmail={campaign.approval.approverEmail}
               approvalLink={approval.link}
-              waitLabel={approvalWaitLabel(approval.days)}
-              requestedAt={formatDate(approvalRequestedAt(campaign))}
-              lastSentAt={formatDateTime(approvalLastSentAt(campaign))}
+              waitLabel={wait(approval.days)}
+              waitDays={approval.days}
+              requestedAt={formatDate(approvalRequestedAt(campaign), locale)}
+              lastSentAt={when(approvalLastSentAt(campaign))}
               reminders={approvalRemindersSent(campaign)}
               stale={isApprovalStale(campaign)}
               canManage={roleCan(role, "store.gifting")}
@@ -326,46 +341,49 @@ export default async function CampaignFulfilmentPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Campaign</h2>
+                <h2>{t("campaign")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
             <DataList
               rows={[
-                { label: "Company", value: catalogue?.companyName ?? "–" },
+                { label: t("company"), value: catalogue?.companyName ?? "–" },
                 ...(viaPlatform
                   ? []
                   : [
-                      { label: "Buyer", value: campaign.buyer.name },
+                      { label: t("buyer"), value: campaign.buyer.name },
                       {
-                        label: "Spend limit",
+                        label: t("spendLimit"),
                         value:
                           campaign.spendLimitPerRecipient > 0
-                            ? `${formatMoney(campaign.spendLimitPerRecipient, campaign.currency)} each`
-                            : "No limit",
+                            ? t("each", { amount: money(campaign.spendLimitPerRecipient) })
+                            : t("noLimit"),
                       },
                     ]),
                 {
-                  label: "Approval",
+                  label: t("approval"),
                   value: viaPlatform
                     ? campaign.approval.required
                       ? campaign.approval.decidedBy
-                        ? "Decided"
-                        : "Awaiting approval"
-                      : "Not required"
+                        ? t("decided")
+                        : t("awaitingApproval")
+                      : t("notRequired")
                     : campaign.approval.required
                     ? campaign.approval.decidedBy
-                      ? `${campaign.approval.decidedBy}, ${formatDateTime(campaign.approval.decidedAt ?? campaign.updatedAt)}`
-                      : `Awaiting ${campaign.approval.approverName || campaign.approval.approverEmail} · ${approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()}`
-                    : "Not required",
+                      ? `${campaign.approval.decidedBy}, ${when(campaign.approval.decidedAt ?? campaign.updatedAt)}`
+                      : t("awaiting", {
+                          approver: campaign.approval.approverName || campaign.approval.approverEmail,
+                          wait: waitLower(daysAwaitingApproval(campaign)),
+                        })
+                    : t("notRequired"),
                 },
                 ...(viaPlatform
                   ? []
                   : [
-                      { label: "Goods", value: formatMoney(campaign.totals.subtotal, campaign.currency) },
-                      { label: "Delivery", value: formatMoney(campaign.totals.shipping, campaign.currency) },
-                      { label: "Tax", value: formatMoney(campaign.totals.taxAmount, campaign.currency) },
-                      { label: "Total", value: formatMoney(campaign.totals.total, campaign.currency) },
+                      { label: t("goods"), value: money(campaign.totals.subtotal) },
+                      { label: t("delivery"), value: money(campaign.totals.shipping) },
+                      { label: t("tax"), value: money(campaign.totals.taxAmount) },
+                      { label: t("total"), value: money(campaign.totals.total) },
                     ]),
               ]}
             />
@@ -380,7 +398,7 @@ export default async function CampaignFulfilmentPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>History</h2>
+                <h2>{t("history")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -393,7 +411,7 @@ export default async function CampaignFulfilmentPage({
                       platform access reads the step and when, not who. */}
                   <p className="text-xs text-muted-foreground">
                     {viaPlatform ? "" : `${entry.actor} · `}
-                    {formatDateTime(entry.at)}
+                    {when(entry.at)}
                   </p>
                 </li>
               ))}

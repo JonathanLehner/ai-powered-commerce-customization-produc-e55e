@@ -47,7 +47,7 @@ export default async function StorefrontEditorPage({
       ? (storefront.draft as Record<string, unknown>)
       : (treeFromSections([{ type: "HeroSection" }, { type: "ProductGrid" }]) as unknown as Record<string, unknown>);
 
-  const pages = await getTranslations("pages.store");
+  const [pages, t] = await Promise.all([getTranslations("pages.store"), getTranslations("editor")]);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -58,7 +58,7 @@ export default async function StorefrontEditorPage({
             <form action={revertStorefront}>
               <input type="hidden" name="storeId" value={storeId} />
               <Button type="submit" variant="outline">
-                Revert draft to published
+                {t("revert")}
               </Button>
             </form>
           ) : null
@@ -66,8 +66,8 @@ export default async function StorefrontEditorPage({
       />
 
       {published.length === 0 ? (
-        <Callout tone="amber" title="No published products yet">
-          Product sections stay empty until you publish a product.
+        <Callout tone="amber" title={t("noProductsTitle")}>
+          {t("noProductsBody")}
         </Callout>
       ) : null}
 

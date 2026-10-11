@@ -63,17 +63,19 @@ export function AuditFilterBar({
   exportNote?: string;
 }) {
   const [actor, setActor] = useState(filters.actorId ?? ANYONE);
+  const t = useTranslations("audit");
+  const labels = useTranslations("labels");
 
   return (
     <div className="space-y-3">
-      <nav aria-label="Filter by category" className="flex flex-wrap gap-2">
+      <nav aria-label={t("filterByCategory")} className="flex flex-wrap gap-2">
         <Button asChild size="sm" variant={!filters.category ? "default" : "outline"}>
           <Link
             href={`${basePath}${auditQuery(filters, { category: null, page: 1 })}`}
             prefetch={false}
             aria-current={!filters.category ? "true" : undefined}
           >
-            All
+            {t("all")}
           </Link>
         </Button>
         {(Object.keys(AUDIT_CATEGORY_LABELS) as AuditCategory[]).map((key) => (
@@ -88,7 +90,7 @@ export function AuditFilterBar({
               prefetch={false}
               aria-current={filters.category === key ? "true" : undefined}
             >
-              {AUDIT_CATEGORY_LABELS[key]}
+              {labels(`auditCategory.${key}`)}
             </Link>
           </Button>
         ))}
@@ -101,7 +103,7 @@ export function AuditFilterBar({
             {filters.category ? <input type="hidden" name="category" value={filters.category} /> : null}
             <div className="min-w-[14rem] flex-1">
               <Label htmlFor="audit-q" className="text-xs">
-                Search
+                {t("search")}
               </Label>
               <div className="relative mt-1.5">
                 <SearchIcon
@@ -112,14 +114,14 @@ export function AuditFilterBar({
                   id="audit-q"
                   name="q"
                   defaultValue={filters.q}
-                  placeholder="Product, order or setting"
+                  placeholder={t("searchPlaceholder")}
                   className="pl-8"
                 />
               </div>
             </div>
             <div>
               <Label htmlFor="audit-actor" className="text-xs">
-                Made by
+                {t("madeBy")}
               </Label>
               <input type="hidden" name="actor" value={actor === ANYONE ? "" : actor} />
               <Select value={actor} onValueChange={setActor}>
@@ -127,7 +129,7 @@ export function AuditFilterBar({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ANYONE}>Anyone</SelectItem>
+                  <SelectItem value={ANYONE}>{t("anyone")}</SelectItem>
                   {actors.map((entry) => (
                     <SelectItem key={entry.id} value={entry.id}>
                       {entry.name}
@@ -138,7 +140,7 @@ export function AuditFilterBar({
             </div>
             <div>
               <Label htmlFor="audit-from" className="text-xs">
-                From
+                {t("from")}
               </Label>
               <Input
                 id="audit-from"
@@ -150,7 +152,7 @@ export function AuditFilterBar({
             </div>
             <div>
               <Label htmlFor="audit-to" className="text-xs">
-                To
+                {t("to")}
               </Label>
               <Input
                 id="audit-to"
@@ -161,12 +163,12 @@ export function AuditFilterBar({
               />
             </div>
             <Button type="submit" variant="outline">
-              Filter
+              {t("filter")}
             </Button>
             {hasAuditFilters(filters) ? (
               <Button asChild variant="ghost">
                 <Link href={basePath} prefetch={false}>
-                  Clear
+                  {t("clear")}
                 </Link>
               </Button>
             ) : null}
@@ -177,13 +179,13 @@ export function AuditFilterBar({
                 <Button asChild variant="outline">
                   <a href={exportHref} download>
                     <DownloadIcon />
-                    Download spreadsheet
+                    {t("download")}
                   </a>
                 </Button>
               ) : (
                 <Button type="button" variant="outline" disabled title={exportNote}>
                   <DownloadIcon />
-                  Download spreadsheet
+                  {t("download")}
                 </Button>
               )}
             </span>

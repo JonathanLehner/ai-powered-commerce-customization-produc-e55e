@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -18,13 +19,10 @@ import { listCatalogProducts, listQuoteRequests, listStoreProducts, listSupplier
 import { requireStoreAccess } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import {
-  formatQuantity,
-  indicativeRange,
   isQuoteOnly,
-  QUOTE_PRICE_LABEL,
-  QUOTE_STATUS_LABELS,
   QUOTE_STATUS_TONES,
   quoteIsLive,
+  type BulkSourcingProduct,
 } from "@/lib/sourcing";
 import type { CatalogProduct, QuoteRequest, StoreProduct, SupplierQuote } from "@/lib/types";
 import { formatDate, formatMoney, newId } from "@/lib/util";
@@ -67,7 +65,7 @@ function CopyFields({
  * wanted — a second copy is an independent product with its own artwork, price
  * and SKU, and nothing merges the two back together later.
  */
-function ConfirmCopyAgain({
+async function ConfirmCopyAgain({
   storeId,
   catalogId,
   copies,
@@ -82,10 +80,11 @@ function ConfirmCopyAgain({
   filters: string;
   cancelHref: string;
 }) {
+  const [t, locale] = await Promise.all([getTranslations("sourcing"), getLocale()]);
   return (
     <div className="w-full rounded-lg border border-amber-200 bg-amber-50 p-3" role="group">
       <p className="text-sm font-semibold text-amber-900">
-        This product is already in the store. Copy it again?
+        {t("alreadyIn")}
       </p>
       <ul className="mt-2 space-y-1.5">
         {copies.map((copy) => (
@@ -94,24 +93,24 @@ function ConfirmCopyAgain({
               href={`/app/stores/${storeId}/catalog/${copy.id}`}
               className="font-medium underline underline-offset-2"
             >
-              Open {copy.name}
+              {t("openCopy", { name: copy.name })}
             </Link>{" "}
-            · <span className="font-mono">{storeSku(copy, channelCode)}</span> · imported{" "}
-            {formatDate(copy.importedAt)}
+            · <span className="font-mono">{storeSku(copy, channelCode)}</span> ·{" "}
+            {t("imported", { date: formatDate(copy.importedAt, locale) })}
           </li>
         ))}
       </ul>
-            <p className="mt-2 text-xs text-amber-800">The new copy gets its own name and SKU.</p>
+      <p className="mt-2 text-xs text-amber-800">{t("newCopy")}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <form action={importCatalogProduct}>
           <CopyFields storeId={storeId} catalogId={catalogId} filters={filters} confirmed />
-          <SubmitButton size="sm" pendingLabel="Copying…">
-            Copy again anyway
+          <SubmitButton size="sm" pendingLabel={t("copying")}>
+            {t("copyAnyway")}
           </SubmitButton>
         </form>
         <Button asChild variant="ghost" size="sm">
           <Link href={cancelHref} scroll={false}>
-            Cancel
+            {t("cancel")}
           </Link>
         </Button>
       </div>
@@ -138,20 +137,20 @@ interface CompareColumn {
   action: ReactNode;
 }
 
-const COMPARE_ROWS: { label: string; value: (c: CompareColumn) => ReactNode }[] = [
-  { label: "Supplier", value: (c) => c.supplier },
-  { label: "Unit cost", value: (c) => c.unitCost },
-  { label: "Minimum order", value: (c) => c.minimumOrder },
-  { label: "Customisation per area", value: (c) => c.customisation },
-  { label: "Shipping estimate", value: (c) => c.shipping },
-  { label: "Ordering", value: (c) => c.ordering },
-  { label: "Lead time", value: (c) => c.leadTime },
-  { label: "Variants", value: (c) => c.variants },
-  { label: "Print areas", value: (c) => c.printAreas },
-  { label: "Minimum DPI", value: (c) => c.minDpi },
-  { label: "Fulfils to", value: (c) => c.fulfils },
-  { label: "Availability", value: (c) => c.availability },
-];
+const COMPARE_ROWS = [
+  "supplier",
+  "unitCost",
+  "minimumOrder",
+  "customisation",
+  "shipping",
+  "ordering",
+  "leadTime",
+  "variants",
+  "printAreas",
+  "minDpi",
+  "fulfils",
+  "availability",
+] as const satisfies readonly (keyof CompareColumn)[];
 
 function listingTerms(c: CatalogProduct | undefined) {
   return {
@@ -198,6 +197,21 @@ export default async function SourcingPage({
   const { storeId } = await params;
   const filters = readFilters(await searchParams);
   const { store, user } = await requireStoreAccess(storeId, "store.catalog");
+  const [t, labels, locale] = await Promise.all([
+    getTranslations("sourcing"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const money = (minor: number, currency: string) => formatMoney(minor, currency, locale);
+  const formatQuantity = (units: number) => t("units", { count: units });
+  const indicativeRange = (product: BulkSourcingProduct) =>
+    t("indicative", {
+      low: money(product.bulkSourcing.indicativeUnitCost[0], product.currency),
+      high: money(product.bulkSourcing.indicativeUnitCost[1], product.currency),
+      quantity: formatQuantity(product.bulkSourcing.minimumOrderQuantity),
+    });
+  const region = (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
 
   const [catalog, suppliers, storeProducts, quoteRequests] = await Promise.all([
     listCatalogProducts(),
@@ -208,8 +222,8 @@ export default async function SourcingPage({
 
   const approved = suppliers.filter((s) => s.status === "approved");
   const approvedIds = new Set(approved.map((s) => s.id));
-  const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name ?? "Unknown supplier";
-  const catalogName = (id: string) => catalog.find((c) => c.id === id)?.name ?? "a retired listing";
+  const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name ?? t("unknownSupplier");
+  const catalogName = (id: string) => catalog.find((c) => c.id === id)?.name ?? t("retiredListing");
   // The marketplace that takes enquiries for anything not already listed with it.
   const marketplace = approved.find((s) => s.kind === "sourcing_marketplace" && s.capabilities.quotes);
 
@@ -280,7 +294,7 @@ export default async function SourcingPage({
       return (
         <Button asChild size="sm">
           <Link href={buildHref({ rfq: c.id, confirm: undefined }, "#rfq")} scroll={false}>
-            Request a quote
+            {t("requestQuote")}
           </Link>
         </Button>
       );
@@ -289,8 +303,8 @@ export default async function SourcingPage({
       return (
         <form action={importCatalogProduct}>
           <CopyFields storeId={storeId} catalogId={c.id} filters={filterString} />
-          <SubmitButton size="sm" pendingLabel="Copying…">
-            Copy to store
+          <SubmitButton size="sm" pendingLabel={t("copying")}>
+            {t("copyToStore")}
           </SubmitButton>
         </form>
       );
@@ -310,7 +324,7 @@ export default async function SourcingPage({
     return (
       <Button asChild size="sm">
         <Link href={buildHref({ confirm: c.id })} scroll={false}>
-          Copy again
+          {t("copyAgain")}
         </Link>
       </Button>
     );
@@ -324,15 +338,15 @@ export default async function SourcingPage({
       supplier: supplierName(c.supplierId),
       // A bulk-sourcing listing has no unit cost to compare, so the column
       // says what it is instead of showing a zero.
-      unitCost: quoteOnly ? `${QUOTE_PRICE_LABEL} · ${indicativeRange(c)}` : formatMoney(c.baseCost, c.currency),
-      minimumOrder: quoteOnly ? formatQuantity(c.bulkSourcing.minimumOrderQuantity) : "1 unit",
-      customisation: quoteOnly ? "Quoted with the run" : formatMoney(c.customizationCostPerArea, c.currency),
-      shipping: quoteOnly ? "Freight quoted with the run" : formatMoney(c.shippingEstimate, c.currency),
-      ordering: quoteOnly ? "Manual purchase order" : "Routed to the supplier automatically",
-      leadTime: `${c.leadTimeDays[0]}–${c.leadTimeDays[1]} days`,
+      unitCost: quoteOnly ? `${t("byQuote")} · ${indicativeRange(c)}` : money(c.baseCost, c.currency),
+      minimumOrder: quoteOnly ? formatQuantity(c.bulkSourcing.minimumOrderQuantity) : formatQuantity(1),
+      customisation: quoteOnly ? t("quotedWithRun") : money(c.customizationCostPerArea, c.currency),
+      shipping: quoteOnly ? t("freightQuoted") : money(c.shippingEstimate, c.currency),
+      ordering: quoteOnly ? t("manualPo") : t("routedAutomatically"),
+      leadTime: t("days", { min: c.leadTimeDays[0], max: c.leadTimeDays[1] }),
       ...listingTerms(c),
-      fulfils: c.fulfillmentRegions.join(", "),
-      availability: c.availability,
+      fulfils: c.fulfillmentRegions.map(region).join(", "),
+      availability: labels(`catalogAvailability.${c.availability}`),
       action: catalogAction(c),
     };
   };
@@ -345,31 +359,33 @@ export default async function SourcingPage({
         <>
           {request.productName}
           <span className="block text-xs font-normal text-muted-foreground">
-            Quote on {request.code} · {quote.supplierLabel}
+            {t("quoteOn", { code: request.code, supplier: quote.supplierLabel })}
           </span>
         </>
       ),
-      supplier: `${quote.supplierLabel} via ${request.supplierName}`,
-      unitCost: `${formatMoney(quote.unitCost, request.currency)} quoted${
-        request.targetUnitCost === null ? "" : ` · target ${formatMoney(request.targetUnitCost, request.currency)}`
+      supplier: t("via", { supplier: quote.supplierLabel, marketplace: request.supplierName }),
+      unitCost: `${t("quoted", { amount: money(quote.unitCost, request.currency) })}${
+        request.targetUnitCost === null ? "" : t("target", { amount: money(request.targetUnitCost, request.currency) })
       }`,
       minimumOrder: formatQuantity(quote.minimumOrderQuantity),
-      customisation: "Included in the quote",
-      shipping: "Freight quoted with the run",
-      ordering: "Manual purchase order",
-      leadTime: `${quote.leadTimeDays} days production`,
+      customisation: t("includedInQuote"),
+      shipping: t("freightQuoted"),
+      ordering: t("manualPo"),
+      leadTime: t("productionDays", { days: quote.leadTimeDays }),
       ...listingTerms(catalog.find((c) => c.id === quote.baseCatalogProductId)),
-      fulfils: request.destination,
+      fulfils: region(request.destination),
       availability: quote.validUntil
-        ? `${live ? "Quote valid until" : "Quote expired"} ${formatDate(quote.validUntil)}`
-        : "No expiry given",
+        ? live
+          ? t("validUntil", { date: formatDate(quote.validUntil, locale) })
+          : t("expired", { date: formatDate(quote.validUntil, locale) })
+        : t("noExpiry"),
       action:
         request.status === "accepted" && request.acceptedQuoteId === quote.id ? (
           <AcceptedQuoteAction storeId={storeId} request={request} />
         ) : request.status === "quoted" ? (
           <AcceptQuoteButton storeId={storeId} request={request} quote={quote} />
         ) : (
-          <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
+          <Badge tone={QUOTE_STATUS_TONES[request.status]}>{labels(`quoteStatus.${request.status}`)}</Badge>
         ),
     };
   };
@@ -386,18 +402,18 @@ export default async function SourcingPage({
   const supplierFilter = filters.supplier ? suppliers.find((s) => s.id === filters.supplier) : undefined;
   const bulkHint =
     supplierFilter?.kind === "sourcing_marketplace"
-      ? `${supplierFilter.name} quotes bulk runs per enquiry. Start an enquiry to request quotes.`
-      : "Try a different category, supplier or region.";
+      ? t("marketplaceHint", { supplier: supplierFilter.name })
+      : t("tryFilters");
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Supplier catalog"
+        title={t("title")}
         actions={
           marketplace ? (
             <Button asChild variant="outline">
               <Link href={startEnquiryHref()} scroll={false}>
-                Start a bulk enquiry
+                {t("startEnquiry")}
               </Link>
             </Button>
           ) : null
@@ -428,21 +444,25 @@ export default async function SourcingPage({
               {asking ? (
                 <>
                   <CardTitle asChild>
-                    <h2>Request a quote: {asking.name}</h2>
+                    <h2>{t("requestQuoteFor", { name: asking.name })}</h2>
                   </CardTitle>
                   <p className="mt-1 max-w-2xl text-sm text-inksoft">
-                    {supplierName(asking.supplierId)} · typical price {indicativeRange(asking)} · reply in{" "}
-                    {asking.bulkSourcing.responseDays[0]}–{asking.bulkSourcing.responseDays[1]} business days
+                    {t("askingMeta", {
+                      supplier: supplierName(asking.supplierId),
+                      range: indicativeRange(asking),
+                      min: asking.bulkSourcing.responseDays[0],
+                      max: asking.bulkSourcing.responseDays[1],
+                    })}
                   </p>
                   <p className="mt-1 max-w-2xl text-xs text-muted-foreground">{asking.bulkSourcing.quoteNotes}</p>
                 </>
               ) : (
                 <>
                   <CardTitle asChild>
-                    <h2>Start a bulk sourcing enquiry</h2>
+                    <h2>{t("generalTitle")}</h2>
                   </CardTitle>
                   <p className="mt-1 max-w-2xl text-sm text-inksoft">
-                    Choose a catalog item or describe the product.
+                    {t("generalBody")}
                   </p>
                 </>
               )}
@@ -450,7 +470,7 @@ export default async function SourcingPage({
             <CardAction>
               <Button asChild variant="ghost" size="sm">
                 <Link href={buildHref({ rfq: undefined, ref: undefined })} scroll={false}>
-                  Close
+                  {t("close")}
                 </Link>
               </Button>
             </CardAction>
@@ -502,12 +522,12 @@ export default async function SourcingPage({
           <CardHeader>
             <CardTitle asChild>
               <h2>
-                Comparing {columns.length} option{columns.length === 1 ? "" : "s"}
+                {t("comparing", { count: columns.length })}
               </h2>
             </CardTitle>
             <CardAction>
               <Button asChild variant="ghost" size="sm">
-                <Link href={buildHref({ compare: undefined })}>Clear comparison</Link>
+                <Link href={buildHref({ compare: undefined })}>{t("clearComparison")}</Link>
               </Button>
             </CardAction>
           </CardHeader>
@@ -516,7 +536,7 @@ export default async function SourcingPage({
               <Table className="min-w-[44rem]">
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className={TH}>Attribute</TableHead>
+                    <TableHead className={TH}>{t("attribute")}</TableHead>
                     {columns.map((c) => (
                       <TableHead key={c.key} className="px-0 align-bottom text-sm text-foreground">
                         <div>{c.name}</div>
@@ -525,7 +545,7 @@ export default async function SourcingPage({
                           className="mt-1 inline-block text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground"
                           scroll={false}
                         >
-                          Remove from comparison
+                          {t("removeFromComparison")}
                         </Link>
                       </TableHead>
                     ))}
@@ -533,20 +553,20 @@ export default async function SourcingPage({
                 </TableHeader>
                 <TableBody>
                   {COMPARE_ROWS.map((row) => (
-                    <TableRow key={row.label} className="hover:bg-transparent">
+                    <TableRow key={row} className="hover:bg-transparent">
                       <TableHead scope="row" className={`${TH} normal-case`}>
-                        {row.label}
+                        {t(`rows.${row}`)}
                       </TableHead>
                       {columns.map((c) => (
                         <TableCell key={c.key} className="px-0 py-2.5 align-top whitespace-normal text-inksoft">
-                          {row.value(c)}
+                          {c[row]}
                         </TableCell>
                       ))}
                     </TableRow>
                   ))}
                   <TableRow className="hover:bg-transparent">
                     <TableHead scope="row" className={`${TH} normal-case`}>
-                      Next step
+                      {t("nextStep")}
                     </TableHead>
                     {columns.map((c) => (
                       <TableCell key={c.key} className="px-0 py-2.5 align-top whitespace-normal">
@@ -577,8 +597,8 @@ export default async function SourcingPage({
         <EmptyState
           title={
             supplierFilter?.kind === "sourcing_marketplace"
-              ? `${supplierFilter.name} quotes per enquiry`
-              : "No matching products"
+              ? t("quotesPerEnquiry", { supplier: supplierFilter.name })
+              : t("noMatches")
           }
           description={bulkHint}
           action={
@@ -586,7 +606,7 @@ export default async function SourcingPage({
               {supplierFilter?.kind === "sourcing_marketplace" && marketplace ? (
                 <Button asChild>
                   <Link href={startEnquiryHref()} scroll={false}>
-                    Start a bulk enquiry
+                    {t("startEnquiry")}
                   </Link>
                 </Button>
               ) : null}
@@ -599,7 +619,7 @@ export default async function SourcingPage({
                     region: undefined,
                   })}
                 >
-                  Clear filters
+                  {t("clearFilters")}
                 </Link>
               </Button>
             </div>
@@ -621,7 +641,7 @@ export default async function SourcingPage({
                   <div className="border-b border-border bg-canvas">
                     <Image
                       src={cover.url}
-                      alt={`${product.name} in ${cover.colour}`}
+                      alt={t("coverAlt", { name: product.name, colour: cover.colour })}
                       width={640}
                       height={640}
                       loading="lazy"
@@ -635,7 +655,7 @@ export default async function SourcingPage({
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-sm font-semibold text-foreground">{product.name}</h3>
                     <Badge tone={quoteOnly ? "iris" : product.availability === "available" ? "green" : "amber"}>
-                      {quoteOnly ? "Bulk sourcing" : product.availability}
+                      {quoteOnly ? t("bulkSourcing") : labels(`catalogAvailability.${product.availability}`)}
                     </Badge>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -645,13 +665,13 @@ export default async function SourcingPage({
 
                   <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-border py-3 text-xs">
                     <div>
-                      <dt className="text-muted-foreground">Unit cost</dt>
+                      <dt className="text-muted-foreground">{t("unitCost")}</dt>
                       <dd className="font-semibold tabular-nums text-foreground">
-                        {quoteOnly ? QUOTE_PRICE_LABEL : formatMoney(product.baseCost, product.currency)}
+                        {quoteOnly ? t("byQuote") : money(product.baseCost, product.currency)}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground">{quoteOnly ? "Minimum order" : "Print areas"}</dt>
+                      <dt className="text-muted-foreground">{quoteOnly ? t("minimumOrder") : t("printAreas")}</dt>
                       <dd className="font-semibold tabular-nums text-foreground">
                         {isQuoteOnly(product)
                           ? formatQuantity(product.bulkSourcing.minimumOrderQuantity)
@@ -659,25 +679,24 @@ export default async function SourcingPage({
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground">Lead time</dt>
+                      <dt className="text-muted-foreground">{t("leadTime")}</dt>
                       <dd className="font-semibold tabular-nums text-foreground">
-                        {product.leadTimeDays[0]}–{product.leadTimeDays[1]} days
+                        {t("days", { min: product.leadTimeDays[0], max: product.leadTimeDays[1] })}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground">Variants</dt>
+                      <dt className="text-muted-foreground">{t("variants")}</dt>
                       <dd className="font-semibold tabular-nums text-foreground">{product.variants.length}</dd>
                     </div>
                   </dl>
 
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Fulfils to {product.fulfillmentRegions.slice(0, 3).join(", ")}
+                    {t("fulfilsTo", { regions: product.fulfillmentRegions.slice(0, 3).map(region).join(", ") })}
                     {product.fulfillmentRegions.length > 3 ? ` +${product.fulfillmentRegions.length - 3}` : ""}
                   </p>
                   {isQuoteOnly(product) ? (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Recent runs {indicativeRange(product)} · quoted per enquiry, ordered by manual purchase
-                      order
+                      {t("recentRuns", { range: indicativeRange(product) })}
                     </p>
                   ) : null}
 
@@ -691,20 +710,20 @@ export default async function SourcingPage({
                             href={buildHref({ rfq: product.id, confirm: undefined }, "#rfq")}
                             scroll={false}
                           >
-                            {awaiting ? "Ask about another run" : "Request a quote"}
+                            {awaiting ? t("anotherRun") : t("requestQuote")}
                           </Link>
                         </Button>
                         <Button asChild variant="outline" size="sm">
                           <Link href={toggleCompare(product.id)} scroll={false}>
-                            {selected ? "Remove from compare" : "Compare"}
+                            {selected ? t("removeCompare") : t("compare")}
                           </Link>
                         </Button>
                         {awaiting ? (
                           <a href="#enquiries" className="rounded-full">
                             <Badge tone={QUOTE_STATUS_TONES[awaiting.status]}>
                               {quoteCount > 0
-                                ? `${quoteCount} quote${quoteCount === 1 ? "" : "s"} to review`
-                                : QUOTE_STATUS_LABELS.submitted}{" "}
+                                ? t("quotesToReview", { count: quoteCount })
+                                : labels("quoteStatus.submitted")}{" "}
                               · {awaiting.code}
                             </Badge>
                           </a>
@@ -724,20 +743,20 @@ export default async function SourcingPage({
                         {catalogAction(product)}
                         <Button asChild variant="outline" size="sm">
                           <Link href={toggleCompare(product.id)} scroll={false}>
-                            {selected ? "Remove from compare" : "Compare"}
+                            {selected ? t("removeCompare") : t("compare")}
                           </Link>
                         </Button>
                         {marketplace ? (
                           <Button asChild variant="ghost" size="sm">
                             <Link href={startEnquiryHref(product.id)} scroll={false}>
-                              Bulk quote
+                              {t("bulkQuote")}
                             </Link>
                           </Button>
                         ) : null}
                         {copies.length > 0 ? (
                           <Badge tone="neutral">
-                            Already in this store
-                            {copies.length > 1 ? ` · ${copies.length} copies` : ""}
+                            {t("alreadyInStore")}
+                            {copies.length > 1 ? t("copies", { count: copies.length }) : ""}
                           </Badge>
                         ) : null}
                       </>
@@ -750,13 +769,13 @@ export default async function SourcingPage({
         </ul>
       )}
 
-      <Callout tone="neutral" title="Bulk sourcing">
-        Request quotes for bulk production runs.
+      <Callout tone="neutral" title={t("bulkTitle")}>
+        {t("bulkBody")}
         {marketplace ? (
           <>
             {" "}
             <Link href={startEnquiryHref()} className="font-medium underline underline-offset-2" scroll={false}>
-              Start a bulk enquiry
+              {t("startEnquiry")}
             </Link>
             .
           </>

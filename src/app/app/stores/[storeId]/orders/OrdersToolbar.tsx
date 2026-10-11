@@ -1,6 +1,7 @@
 "use client";
 
 import { DownloadIcon, SearchIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,8 @@ export function OrdersToolbar({
   showClear: boolean;
 }) {
   const [status, setStatus] = useState<string>(filters.status ?? ANY);
+  const t = useTranslations("orders");
+  const labels = useTranslations("labels");
 
   return (
     <form method="get" action={base} className="flex flex-wrap items-center gap-2">
@@ -50,7 +53,7 @@ export function OrdersToolbar({
       {filters.view ? <input type="hidden" name="view" value={filters.view} /> : null}
 
       <Label htmlFor="q" className="sr-only">
-        Search
+        {t("searchLabel")}
       </Label>
       <div className="relative min-w-[12rem] flex-1">
         <SearchIcon
@@ -67,29 +70,29 @@ export function OrdersToolbar({
       </div>
 
       <Label htmlFor="status" className="sr-only">
-        Status
+        {t("statusLabel")}
       </Label>
       <Select name="status" value={status} onValueChange={setStatus}>
         <SelectTrigger id="status" className="w-40">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ANY}>All</SelectItem>
+          <SelectItem value={ANY}>{t("allStatuses")}</SelectItem>
           {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((key) => (
             <SelectItem key={key} value={key}>
-              {ORDER_STATUS_LABELS[key]}
+              {labels(`orderStatus.${key}`)}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
       <Button type="submit" variant="outline">
-        Filter
+        {t("filter")}
       </Button>
       {showClear ? (
         <Button asChild variant="ghost">
           <Link href={base} prefetch={false}>
-            Clear
+            {t("clear")}
           </Link>
         </Button>
       ) : null}
@@ -101,7 +104,7 @@ export function OrdersToolbar({
           <Button asChild variant="outline">
             <a href={exportHref} download>
               <DownloadIcon />
-              Download CSV
+              {t("downloadCsv")}
             </a>
           </Button>
         ) : (
@@ -109,10 +112,10 @@ export function OrdersToolbar({
             type="button"
             variant="outline"
             disabled
-            title="Only the store team who work the orders can download the shopper records."
+            title={t("downloadDenied")}
           >
             <DownloadIcon />
-            Download CSV
+            {t("downloadCsv")}
           </Button>
         )}
       </span>

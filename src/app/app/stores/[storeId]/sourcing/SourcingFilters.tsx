@@ -1,6 +1,7 @@
 "use client";
 
 import { SearchIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -80,54 +81,58 @@ export function SourcingFilters({
   compare: string | undefined;
   clearHref: string;
 }) {
+  const t = useTranslations("sourcing.filters");
+  const labels = useTranslations("labels");
+  const regionLabel = (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
   return (
     <Card size="sm" asChild>
       <form method="get">
         <CardContent className="flex flex-wrap items-end gap-3">
           <div className="min-w-[12rem] flex-1">
             <Label htmlFor="q" className="text-xs">
-              Search
+              {t("search")}
             </Label>
             <div className="relative mt-1.5">
               <SearchIcon
                 aria-hidden
                 className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
               />
-              <Input id="q" name="q" defaultValue={q} placeholder="Tee, hoodie, mug…" className="pl-8" />
+              <Input id="q" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} className="pl-8" />
             </div>
           </div>
           <Dropdown
             id="category"
-            label="Category"
-            anyLabel="All"
+            label={t("category")}
+            anyLabel={t("all")}
             value={category}
             options={[
-              { value: "apparel", label: "Apparel" },
-              { value: "drinkware", label: "Drinkware" },
+              { value: "apparel", label: t("apparel") },
+              { value: "drinkware", label: t("drinkware") },
             ]}
           />
           <Dropdown
             id="supplier"
-            label="Supplier"
-            anyLabel="All approved"
+            label={t("supplier")}
+            anyLabel={t("allApproved")}
             value={supplier}
             options={suppliers.map((s) => ({ value: s.id, label: s.name }))}
           />
           <Dropdown
             id="region"
-            label="Fulfils to"
-            anyLabel="Anywhere"
+            label={t("fulfilsTo")}
+            anyLabel={t("anywhere")}
             value={region}
-            options={regions.map((r) => ({ value: r, label: r }))}
+            options={regions.map((r) => ({ value: r, label: regionLabel(r) }))}
           />
           {compare ? <input type="hidden" name="compare" value={compare} /> : null}
           <Button type="submit" variant="outline">
-            Apply filters
+            {t("apply")}
           </Button>
           {q || category || supplier || region ? (
             <Button asChild variant="ghost">
               <Link href={clearHref} prefetch={false}>
-                Clear
+                {t("clear")}
               </Link>
             </Button>
           ) : null}

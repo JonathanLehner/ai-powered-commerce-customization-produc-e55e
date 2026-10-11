@@ -87,7 +87,18 @@ export function approverLabel(campaign: ApprovalView): string {
 export type ApprovalCheck =
   | { ok: true }
   /** `duplicate` marks a repeat of a request that has only just gone out. */
-  | { ok: false; duplicate: boolean; message: string };
+  | { ok: false; duplicate: boolean; message: string; reason: ApprovalRefusal };
+
+/** Why a resend or an approver change was refused, for the workspace to word in its own language. */
+export type ApprovalRefusal =
+  | "noApprovalStep"
+  | "settled"
+  | "noApprover"
+  | "justSent"
+  | "noApproverToChange"
+  | "nameRequired"
+  | "emailInvalid"
+  | "alreadyApprover";
 
 function settled(campaign: ApprovalView): string {
   return `${campaign.code} is already ${campaign.status.replace(/_/g, " ")}.`;
@@ -96,16 +107,17 @@ function settled(campaign: ApprovalView): string {
 /** Whether the approval request may be sent to the approver again right now. */
 export function approvalResendCheck(campaign: ApprovalView, now: Date = new Date()): ApprovalCheck {
   if (!campaign.approval.required) {
-    return { ok: false, duplicate: false, message: "This campaign has no approval step to chase." };
+    return { ok: false, duplicate: false, message: "This campaign has no approval step to chase.", reason: "noApprovalStep" };
   }
   if (campaign.status !== "awaiting_approval") {
-    return { ok: false, duplicate: false, message: settled(campaign) };
+    return { ok: false, duplicate: false, message: settled(campaign), reason: "settled" };
   }
   if (!campaign.approval.approverName && !campaign.approval.approverEmail) {
     return {
       ok: false,
       duplicate: false,
       message: "This campaign has no approver. Name one below and the request goes to them.",
+      reason: "noApprover",
     };
   }
   const last = campaign.approval.lastRequestedAt;
@@ -116,6 +128,7 @@ export function approvalResendCheck(campaign: ApprovalView, now: Date = new Date
         ok: false,
         duplicate: true,
         message: `The request has just gone to ${approverLabel(campaign)}. It was not sent twice.`,
+        reason: "justSent",
       };
     }
   }
@@ -134,18 +147,24 @@ export function approverChangeCheck(campaign: ApprovalView, next: ApproverInput)
       ok: false,
       duplicate: false,
       message: "This campaign was placed without an approval step, so it has no approver to change.",
+      reason: "noApproverToChange",
     };
   }
   if (campaign.status !== "awaiting_approval") {
-    return { ok: false, duplicate: false, message: settled(campaign) };
+    return { ok: false, duplicate: false, message: settled(campaign), reason: "settled" };
   }
   const name = next.name.trim();
   const email = next.email.trim().toLowerCase();
   if (name.length < 2) {
-    return { ok: false, duplicate: false, message: "Enter the new approver's name." };
+    return { ok: false, duplicate: false, message: "Enter the new approver's name.", reason: "nameRequired" };
   }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { ok: false, duplicate: false, message: "Enter a valid email address for the new approver." };
+    return {
+      ok: false,
+      duplicate: false,
+      message: "Enter a valid email address for the new approver.",
+      reason: "emailInvalid",
+    };
   }
   if (
     email === campaign.approval.approverEmail.trim().toLowerCase() &&
@@ -155,6 +174,7 @@ export function approverChangeCheck(campaign: ApprovalView, next: ApproverInput)
       ok: false,
       duplicate: true,
       message: `${name} is already the approver on ${campaign.code}.`,
+      reason: "alreadyApprover",
     };
   }
   return { ok: true };

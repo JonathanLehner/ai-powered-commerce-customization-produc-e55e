@@ -75,6 +75,10 @@ export interface ArtworkIssue {
   severity: IssueSeverity;
   message: string;
   fix: string;
+  /** The numbers and names in the message, for the workspace to word it in its own language. */
+  values?: Record<string, string | number>;
+  /** Which edges an `outside_print_area` placement crosses. */
+  edges?: ("left" | "right" | "top" | "bottom")[];
 }
 
 const MIME_TO_FORMAT: Record<string, string> = {
@@ -107,7 +111,7 @@ export function validateArtwork(
   const top = box.y - box.rotatedH / 2;
   const bottom = box.y + box.rotatedH / 2;
 
-  const overflows: string[] = [];
+  const overflows: ("left" | "right" | "top" | "bottom")[] = [];
   if (left < -tolerance) overflows.push("left");
   if (right > 1 + tolerance) overflows.push("right");
   if (top < -tolerance) overflows.push("top");
@@ -121,6 +125,8 @@ export function validateArtwork(
       severity: "error",
       message: `Artwork extends past the ${overflows.join(" and ")} edge of the ${area.name} print area by about ${overshootMm} mm.`,
       fix: `Drag the artwork back inside the dashed print area, or reduce the size until the whole design sits within ${area.widthMm} × ${area.heightMm} mm.`,
+      values: { area: area.name, mm: overshootMm, width: area.widthMm, height: area.heightMm },
+      edges: overflows,
     });
   }
 
@@ -132,6 +138,13 @@ export function validateArtwork(
       severity: "error",
       message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI at this size. ${area.name} requires at least ${requiredDpi} DPI.`,
       fix: `Scale the artwork down to ${Math.floor(maxWidthMm)} mm wide or less, or upload a file at least ${Math.ceil((requiredDpi * box.printedWidthMm) / MM_PER_INCH)} px wide.`,
+      values: {
+        dpi: Math.round(box.effectiveDpi),
+        area: area.name,
+        required: requiredDpi,
+        maxWidth: Math.floor(maxWidthMm),
+        minPx: Math.ceil((requiredDpi * box.printedWidthMm) / MM_PER_INCH),
+      },
     });
   }
 
@@ -142,6 +155,7 @@ export function validateArtwork(
       severity: "error",
       message: `${format} files are not accepted by this supplier.`,
       fix: `Re-export the artwork as ${requirements.formats.join(", ")} and upload it again.`,
+      values: { format, formats: requirements.formats.join(", ") },
     });
   }
 
@@ -152,6 +166,7 @@ export function validateArtwork(
       severity: "error",
       message: `The file is ${(artwork.sizeBytes / (1024 * 1024)).toFixed(1)} MB. The supplier limit is ${requirements.maxFileMb} MB.`,
       fix: "Flatten unused layers or export at a lower compression quality, then upload again.",
+      values: { size: (artwork.sizeBytes / (1024 * 1024)).toFixed(1), max: requirements.maxFileMb },
     });
   }
 
@@ -161,6 +176,11 @@ export function validateArtwork(
       severity: "error",
       message: `The image is ${artwork.pixelWidth} × ${artwork.pixelHeight} px, above the supplier's ${(requirements.maxPixels / 1_000_000).toFixed(0)} megapixel ceiling.`,
       fix: "Resize the artwork in your design tool so the total pixel count is under the supplier limit.",
+      values: {
+        width: artwork.pixelWidth,
+        height: artwork.pixelHeight,
+        megapixels: (requirements.maxPixels / 1_000_000).toFixed(0),
+      },
     });
   }
 
@@ -179,6 +199,7 @@ export function validateArtwork(
       severity: "warning",
       message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI, just above the ${requiredDpi} DPI minimum.`,
       fix: "Fine detail and thin lines may soften. A larger source file gives a cleaner print.",
+      values: { dpi: Math.round(box.effectiveDpi), required: requiredDpi },
     });
   }
 

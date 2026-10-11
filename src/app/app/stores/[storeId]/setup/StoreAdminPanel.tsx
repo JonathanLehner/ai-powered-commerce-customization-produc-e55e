@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useFormStatus } from "react-dom";
 import { renameStore, setStoreStatus } from "@/app/actions/stores";
 import { ActionForm } from "@/components/forms";
@@ -24,30 +25,32 @@ import { formatDate } from "@/lib/util";
 export function StoreAdminPanel({ store }: { store: Store }) {
   const archived = store.status === "archived";
   const formId = `store-status-${store.id}`;
+  const t = useTranslations("settings");
+  const locale = useLocale();
 
   return (
     <Card asChild>
     <section>
       <CardHeader>
       <CardTitle asChild>
-        <h2>Store details</h2>
+        <h2>{t("storeDetails")}</h2>
       </CardTitle>
       <p className="text-sm text-muted-foreground">
-        Store address: <span className="font-mono text-xs">/s/{store.slug}</span>
+        {t("storeAddress")} <span className="font-mono text-xs">/s/{store.slug}</span>
       </p>
       </CardHeader>
 
       <CardContent className="grid gap-6 lg:grid-cols-2">
         <ActionForm
           action={renameStore}
-          submitLabel="Save name"
+          submitLabel={t("saveName")}
           submitVariant="outline"
           hidden={{ storeId: store.id }}
         >
           {(state) => (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="rename-name">Store name</Label>
+                <Label htmlFor="rename-name">{t("storeName")}</Label>
                 <Input
                   id="rename-name"
                   name="name"
@@ -58,7 +61,7 @@ export function StoreAdminPanel({ store }: { store: Store }) {
                 />
               </div>
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="rename-client">Client</Label>
+                <Label htmlFor="rename-client">{t("client")}</Label>
                 <Input
                   id="rename-client"
                   name="clientName"
@@ -73,12 +76,12 @@ export function StoreAdminPanel({ store }: { store: Store }) {
 
         <div className="rounded-xl border border-border bg-canvas p-4">
           <h3 className="text-sm font-semibold text-foreground">
-            {archived ? "Restore this store" : "Archive this store"}
+            {archived ? t("restoreTitle") : t("archiveTitle")}
           </h3>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {archived
-              ? `Archived ${store.archivedAt ? formatDate(store.archivedAt) : ""}`
-              : "Archived stores go offline. Records are kept."}
+              ? t("archivedOn", { date: store.archivedAt ? formatDate(store.archivedAt, locale) : "" })
+              : t("archivedNote")}
           </p>
           <form id={formId} action={setStoreStatus} className="mt-4">
             <input type="hidden" name="storeId" value={store.id} />
@@ -98,9 +101,11 @@ export function StoreAdminPanel({ store }: { store: Store }) {
 
 function RestoreButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("settings");
+  const common = useTranslations("common");
   return (
     <Button type="submit" size="sm" disabled={pending}>
-      {pending ? "Working…" : "Restore store"}
+      {pending ? common("working") : t("restoreStore")}
     </Button>
   );
 }
@@ -112,25 +117,27 @@ function RestoreButton() {
  */
 function ArchiveDialog({ formId }: { formId: string }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("settings");
+  const common = useTranslations("common");
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button type="button" variant="destructive" size="sm" disabled={pending}>
-          {pending ? "Working…" : "Archive store"}
+          {pending ? common("working") : t("archiveStore")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Archive this store?</AlertDialogTitle>
+          <AlertDialogTitle>{t("archiveQuestion")}</AlertDialogTitle>
           <AlertDialogDescription>
-            The storefront goes offline. You can restore it later.
+            {t("archiveDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-            Yes, archive it
+            {t("archiveConfirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

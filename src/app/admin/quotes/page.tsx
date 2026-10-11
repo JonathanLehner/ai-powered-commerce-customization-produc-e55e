@@ -1,9 +1,9 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Badge, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { listAllQuoteRequests, listCatalogProducts } from "@/lib/data";
-import { formatQuantity, QUOTE_STATUS_LABELS, QUOTE_STATUS_TONES, quoteIsLive } from "@/lib/sourcing";
+import { QUOTE_STATUS_TONES, quoteIsLive } from "@/lib/sourcing";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/util";
 import { AddQuoteForm, DeclineQuoteForm } from "./QuoteDeskForms";
 
@@ -18,12 +18,21 @@ export default async function AdminQuotesPage() {
   const open = requests.filter((r) => r.status === "submitted");
   const quoted = requests.filter((r) => r.status === "quoted");
   const accepted = requests.filter((r) => r.status === "accepted");
-  const catalogName = (id: string) => catalog.find((c) => c.id === id)?.name ?? "a retired listing";
+  const [pages, t, catalogT, labels, locale] = await Promise.all([
+    getTranslations("pages.admin"),
+    getTranslations("admin.quotes"),
+    getTranslations("admin.catalog"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const catalogName = (id: string) => catalog.find((c) => c.id === id)?.name ?? t("retiredListing");
   const catalogOptions = catalog
     .filter((c) => c.status === "active")
-    .map((c) => ({ id: c.id, label: `${c.name} · ${c.category}` }));
-
-  const pages = await getTranslations("pages.admin");
+    .map((c) => ({ id: c.id, label: `${c.name} · ${catalogT(c.category)}` }));
+  const money = (minor: number, currency: string) => formatMoney(minor, currency, locale);
+  const units = (count: number) => t("units", { count });
+  const region = (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
   return (
     <div className="space-y-6">
       <PageHeader
@@ -32,21 +41,21 @@ export default async function AdminQuotesPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Awaiting quotes" value={String(open.length)} />
-        <StatCard label="With the store" value={String(quoted.length)} />
-        <StatCard label="Accepted" value={String(accepted.length)} />
+        <StatCard label={t("awaitingQuotes")} value={String(open.length)} />
+        <StatCard label={t("withStore")} value={String(quoted.length)} />
+        <StatCard label={t("accepted")} value={String(accepted.length)} />
         <StatCard
-          label="Units requested"
-          value={open.reduce((sum, r) => sum + r.quantity, 0).toLocaleString("en-US")}
-          sub="Awaiting quotes"
+          label={t("unitsRequested")}
+          value={open.reduce((sum, r) => sum + r.quantity, 0).toLocaleString(locale)}
+          sub={t("awaitingQuotes")}
         />
       </div>
 
 
       {requests.length === 0 ? (
         <EmptyState
-          title="No enquiries yet"
-          description="Stores request quotes from the Sourcing page."
+          title={t("noEnquiries")}
+          description={t("noEnquiriesBody")}
         />
       ) : null}
 
@@ -62,12 +71,16 @@ export default async function AdminQuotesPage() {
                   <CardTitle asChild>
                     <h2>{request.productName}</h2>
                   </CardTitle>
-                  <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
-                  {request.storeProductId ? <Badge tone="neutral">Copied into the store</Badge> : null}
+                  <Badge tone={QUOTE_STATUS_TONES[request.status]}>{labels(`quoteStatus.${request.status}`)}</Badge>
+                  {request.storeProductId ? <Badge tone="neutral">{t("copied")}</Badge> : null}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {request.storeName} · {request.supplierName} · raised by {request.requestedBy} on{" "}
-                  {formatDateTime(request.createdAt)}
+                  {t("raisedBy", {
+                    store: request.storeName,
+                    supplier: request.supplierName,
+                    name: request.requestedBy,
+                    date: formatDateTime(request.createdAt, locale),
+                  })}
                 </p>
               </CardHeader>
 
@@ -75,22 +88,25 @@ export default async function AdminQuotesPage() {
                 <DataList
                   rows={[
                     {
-                      label: "Refers to",
-                      value: request.catalogProductId ? catalogName(request.catalogProductId) : "Described by the store",
+                      label: t("refersTo"),
+                      value: request.catalogProductId ? catalogName(request.catalogProductId) : t("describedByStore"),
                     },
-                    ...(request.description ? [{ label: "Description", value: request.description }] : []),
-                    { label: "Quantity", value: formatQuantity(request.quantity) },
-                    { label: "Destination market", value: request.destination },
+                    ...(request.description ? [{ label: t("description"), value: request.description }] : []),
+                    { label: t("quantity"), value: units(request.quantity) },
+                    { label: t("destination"), value: region(request.destination) },
                     {
-                      label: "Target unit cost",
+                      label: t("targetCost"),
                       value:
                         request.targetUnitCost === null
-                          ? "None given"
-                          : formatMoney(request.targetUnitCost, request.currency),
+                          ? t("noneGiven")
+                          : money(request.targetUnitCost, request.currency),
                     },
-                    { label: "Needed by", value: request.neededBy ? formatDate(request.neededBy) : "No fixed date" },
-                    { label: "Decoration needed", value: request.customisation },
-                    { label: "Reply to", value: `${request.contactName} · ${request.contactEmail}` },
+                    {
+                      label: t("neededBy"),
+                      value: request.neededBy ? formatDate(request.neededBy, locale) : t("noDate"),
+                    },
+                    { label: t("decoration"), value: request.customisation },
+                    { label: t("replyTo"), value: `${request.contactName} · ${request.contactEmail}` },
                   ]}
                 />
 
@@ -99,16 +115,20 @@ export default async function AdminQuotesPage() {
                   {quotes.map((quote) => (
                     <li key={quote.id} className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground">
                       <span className="font-semibold">{quote.supplierLabel}</span> ·{" "}
-                      <span className="font-semibold tabular-nums">{formatMoney(quote.unitCost, request.currency)}</span>{" "}
-                      a unit · minimum {formatQuantity(quote.minimumOrderQuantity)} · {quote.leadTimeDays} days
-                      production
+                      <span className="tabular-nums">
+                        {t("quoteLine", {
+                          amount: money(quote.unitCost, request.currency),
+                          quantity: units(quote.minimumOrderQuantity),
+                          days: quote.leadTimeDays,
+                        })}
+                      </span>
                       {quote.validUntil
-                        ? ` · ${quoteIsLive(quote) ? "valid until" : "expired"} ${formatDate(quote.validUntil)}`
+                        ? t(quoteIsLive(quote) ? "validUntil" : "expired", { date: formatDate(quote.validUntil, locale) })
                         : ""}{" "}
-                      · built on {catalogName(quote.baseCatalogProductId)} · recorded by {quote.recordedBy}
+                      · {t("builtOn", { base: catalogName(quote.baseCatalogProductId), name: quote.recordedBy })}
                       {request.acceptedQuoteId === quote.id ? (
                         <Badge tone="green" className="ml-2">
-                          Accepted by the store
+                          {t("acceptedByStore")}
                         </Badge>
                       ) : null}
                       {quote.notes ? <p className="mt-1 text-xs text-muted-foreground">{quote.notes}</p> : null}
@@ -118,14 +138,14 @@ export default async function AdminQuotesPage() {
               ) : null}
 
               {request.status === "declined" && request.declineReason ? (
-                <p className="mt-3 text-sm text-muted-foreground">Declined: {request.declineReason}</p>
+                <p className="mt-3 text-sm text-muted-foreground">{t("declined", { reason: request.declineReason })}</p>
               ) : null}
 
               {request.status === "withdrawn" ? (
-                <p className="mt-3 text-sm text-muted-foreground">The store withdrew this enquiry, so nothing is owed to it.</p>
+                <p className="mt-3 text-sm text-muted-foreground">{t("withdrawn")}</p>
               ) : request.status === "accepted" ? (
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Quote accepted. Raise a purchase order when orders arrive.
+                  {t("acceptedNote")}
                 </p>
               ) : (
                 <>

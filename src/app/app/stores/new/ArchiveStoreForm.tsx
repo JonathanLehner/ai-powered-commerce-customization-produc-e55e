@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormStatus } from "react-dom";
 import { setStoreStatus } from "@/app/actions/stores";
 import {
@@ -31,25 +32,27 @@ export function ArchiveStoreForm({ storeId, storeName }: { storeId: string; stor
 function ArchiveDialog({ formId, storeName }: { formId: string; storeName: string }) {
   // Inside the form, so the trigger locks the moment the dialog submits it.
   const { pending } = useFormStatus();
+  const t = useTranslations("newStore");
+  const common = useTranslations("common");
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button type="button" variant="destructive" size="sm" disabled={pending}>
-          {pending ? "Working…" : "Archive"}
+          {pending ? common("working") : t("archive")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Archive {storeName}?</AlertDialogTitle>
+          <AlertDialogTitle>{t("archiveQuestion", { name: storeName })}</AlertDialogTitle>
           <AlertDialogDescription>
-            The storefront goes offline. You can restore it later.
+            {t("archiveDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-            Yes, archive it
+            {t("archiveConfirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

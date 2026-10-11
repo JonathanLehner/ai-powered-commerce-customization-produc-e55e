@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
@@ -22,7 +23,6 @@ import {
 import { marginTone } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
-import { VIEW_LABELS } from "@/lib/types";
 import { formatDate, formatDateTime, formatMoney, formatPercent } from "@/lib/util";
 import { Configurator } from "./Configurator";
 import { DeleteProductForm, ProductDetailsForm, VariantsForm } from "./ProductForms";
@@ -78,13 +78,19 @@ export default async function ProductEditorPage({
   const unpublished = product.status !== "published";
   const artworkChanged = product.unpublishedReason === "artwork_changed" && unpublished;
   const showBlockers = blockers.length > 0 && unpublished;
+  const [t, labels, locale] = await Promise.all([
+    getTranslations("product"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const money = (minor: number) => formatMoney(minor, product.currency, locale);
 
   return (
     <div className="space-y-6">
       <Breadcrumbs
         items={[
           { label: store.name, href: `/app/stores/${storeId}` },
-          { label: "Catalog", href: `/app/stores/${storeId}/catalog` },
+          { label: t("catalog"), href: `/app/stores/${storeId}/catalog` },
           { label: product.name },
         ]}
       />
@@ -94,21 +100,21 @@ export default async function ProductEditorPage({
         description={
           <>
             <span className="font-mono">{sku}</span> ·{" "}
-            {product.category === "apparel" ? "Apparel" : "Drinkware"} ·{" "}
-            {product.variants.filter((v) => v.enabled).length} enabled variants
-            {supplier ? ` · produced by ${supplier.name}` : ""} · imported by {product.importedBy} on{" "}
-            {formatDate(product.importedAt)}
+            {product.category === "apparel" ? t("apparel") : t("drinkware")} ·{" "}
+            {t("enabledVariants", { count: product.variants.filter((v) => v.enabled).length })}
+            {supplier ? t("producedBy", { supplier: supplier.name }) : ""} ·{" "}
+            {t("importedBy", { name: product.importedBy, date: formatDate(product.importedAt, locale) })}
           </>
         }
         actions={
           <>
             <Badge tone={product.status === "published" ? "green" : product.status === "in_review" ? "amber" : "neutral"}>
-              {product.status.replace("_", " ")}
+              {labels(`productStatus.${product.status}`)}
             </Badge>
             {product.status === "published" ? (
               <Button asChild variant="outline" size="sm">
                 <Link href={`/s/${store.slug}/products/${product.slug}`} target="_blank" rel="noreferrer">
-                  View live ↗
+                  {t("viewLive")}
                 </Link>
               </Button>
             ) : null}
@@ -117,27 +123,32 @@ export default async function ProductEditorPage({
       />
 
       {imported === "copy" ? (
-        <Callout tone="amber" title="Saved as a second copy">
-          This store already has this product. The copy was saved as “{product.name}” (
-          <span className="font-mono">{sku}</span>). Rename it to tell them apart.{" "}
+        <Callout tone="amber" title={t("copyTitle")}>
+          {t.rich("copyBody", {
+            name: product.name,
+            sku,
+            code: (chunks) => <span className="font-mono">{chunks}</span>,
+          })}{" "}
           {canEdit ? (
             <a href="#name" className="font-medium underline underline-offset-2">
-              Rename it now
+              {t("renameNow")}
             </a>
           ) : null}
         </Callout>
       ) : imported ? (
-        <Callout tone="green" title="Copied into this store">
-          Saved as <span className="font-mono">{sku}</span>. Add artwork, generate mockups and set a price.
+        <Callout tone="green" title={t("copiedTitle")}>
+          {t.rich("copiedBody", { sku, code: (chunks) => <span className="font-mono">{chunks}</span> })}
         </Callout>
       ) : null}
 
       {product.manualFulfilment ? (
-        <Callout tone="neutral" title="Flagged for manual fulfilment">
-          Quote {product.manualFulfilment.quoteCode} from {product.manualFulfilment.supplierLabel}:{" "}
-          {formatMoney(product.manualFulfilment.unitCost, product.currency)} per unit, minimum{" "}
-          {product.manualFulfilment.minimumOrderQuantity.toLocaleString("en-US")} units. Orders need a manual
-          purchase order.
+        <Callout tone="neutral" title={t("manualTitle")}>
+          {t("manualBody", {
+            code: product.manualFulfilment.quoteCode,
+            supplier: product.manualFulfilment.supplierLabel,
+            cost: money(product.manualFulfilment.unitCost),
+            minimum: product.manualFulfilment.minimumOrderQuantity.toLocaleString(locale),
+          })}
         </Callout>
       ) : null}
 
@@ -146,14 +157,14 @@ export default async function ProductEditorPage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Publication</h2>
+              <h2>{t("publication")}</h2>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               {product.status === "published"
-                ? "This product is live on the storefront."
+                ? t("live")
                 : blockers.length === 0
-                  ? "Ready to publish."
-                  : `${blockers.length} ${blockers.length === 1 ? "issue" : "issues"} to resolve before publishing.`}
+                  ? t("ready")
+                  : t("issues", { count: blockers.length })}
             </p>
             {canEdit ? (
               <CardAction className="flex flex-wrap gap-2">
@@ -162,8 +173,8 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="published" />
-                  <SubmitButton pendingLabel="Publishing…" disabled={blockers.length> 0}>
-                    Publish to storefront
+                  <SubmitButton pendingLabel={t("publishing")} disabled={blockers.length > 0}>
+                    {t("publish")}
                   </SubmitButton>
                 </form>
               ) : (
@@ -171,8 +182,8 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="in_review" />
-                  <SubmitButton variant="outline" pendingLabel="Unpublishing…">
-                    Unpublish
+                  <SubmitButton variant="outline" pendingLabel={t("unpublishing")}>
+                    {t("unpublish")}
                   </SubmitButton>
                 </form>
               )}
@@ -181,8 +192,8 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="archived" />
-                  <SubmitButton variant="ghost" pendingLabel="Archiving…">
-                    Archive
+                  <SubmitButton variant="ghost" pendingLabel={t("archiving")}>
+                    {t("archive")}
                   </SubmitButton>
                 </form>
               ) : (
@@ -190,8 +201,8 @@ export default async function ProductEditorPage({
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
                   <input type="hidden" name="status" value="draft" />
-                  <SubmitButton variant="outline" pendingLabel="Restoring…">
-                    Restore to draft
+                  <SubmitButton variant="outline" pendingLabel={t("restoring")}>
+                    {t("restore")}
                   </SubmitButton>
                 </form>
               )}
@@ -202,8 +213,8 @@ export default async function ProductEditorPage({
           {artworkChanged || showBlockers ? (
             <CardContent className="space-y-4">
               {artworkChanged ? (
-                <Callout tone="amber" title="Taken off the storefront">
-                  The artwork changed. Regenerate and approve the mockups to republish.
+                <Callout tone="amber" title={t("takenOffTitle")}>
+                  {t("takenOffBody")}
                 </Callout>
               ) : null}
 
@@ -212,7 +223,7 @@ export default async function ProductEditorPage({
                   {blockers.map((blocker, index) => (
                     <li key={index} className="rounded-lg border border-amber-200 bg-amber-50 p-3">
                       <p className="text-sm font-medium text-amber-900">{blocker.reason}</p>
-                      <p className="mt-1 text-xs text-amber-800">How to fix: {blocker.fix}</p>
+                      <p className="mt-1 text-xs text-amber-800">{t("howToFix", { fix: blocker.fix })}</p>
                     </li>
                   ))}
                 </ul>
@@ -227,15 +238,15 @@ export default async function ProductEditorPage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Artwork and print areas</h2>
+              <h2>{t("artwork")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {catalog ? (
               <Configurator product={product} catalog={catalog} readOnly={!canEdit} />
             ) : (
-              <Callout tone="rose" title="Supplier product retired">
-                This supplier product is no longer available. Import a replacement from the supplier catalog.
+              <Callout tone="rose" title={t("retiredTitle")}>
+                {t("retiredBody")}
               </Callout>
             )}
           </CardContent>
@@ -247,14 +258,17 @@ export default async function ProductEditorPage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Mockup approval</h2>
+              <h2>{t("mockupApproval")}</h2>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               {product.mockups.length === 0
-                ? "No mockups yet. Generate them from the artwork panel."
+                ? t("noMockups")
                 : mockupsApproved
-                  ? `Approved by ${product.mockups[0].approvedBy} on ${formatDateTime(product.mockups[0].approvedAt ?? product.mockups[0].generatedAt)}.`
-                  : "Approval is required before the product can be published."}
+                  ? t("approvedBy", {
+                      name: product.mockups[0].approvedBy ?? "",
+                      date: formatDateTime(product.mockups[0].approvedAt ?? product.mockups[0].generatedAt, locale),
+                    })
+                  : t("approvalRequired")}
             </p>
             {canEdit && product.mockups.length > 0 ? (
               <CardAction className="flex gap-2">
@@ -262,16 +276,16 @@ export default async function ProductEditorPage({
                 <form action={approveMockups}>
                   <input type="hidden" name="storeId" value={storeId} />
                   <input type="hidden" name="productId" value={product.id} />
-                  <SubmitButton size="sm" pendingLabel="Approving…">
-                    Approve {product.mockups.length} preview{product.mockups.length === 1 ? "" : "s"}
+                  <SubmitButton size="sm" pendingLabel={t("approving")}>
+                    {t("approve", { count: product.mockups.length })}
                   </SubmitButton>
                 </form>
               ) : null}
               <form action={rejectMockups}>
                 <input type="hidden" name="storeId" value={storeId} />
                 <input type="hidden" name="productId" value={product.id} />
-                <SubmitButton variant="ghost" size="sm" pendingLabel="Clearing…">
-                  Reject and start over
+                <SubmitButton variant="ghost" size="sm" pendingLabel={t("clearing")}>
+                  {t("reject")}
                 </SubmitButton>
               </form>
               </CardAction>
@@ -285,7 +299,7 @@ export default async function ProductEditorPage({
               <li key={mockup.id} className="overflow-hidden rounded-xl border border-border">
                 <Image
                   src={mockup.url}
-                  alt={`${product.name}, ${VIEW_LABELS[mockup.view]} view`}
+                  alt={t("viewAlt", { name: product.name, view: labels(`view.${mockup.view}`) })}
                   width={640}
                   height={640}
                   loading="lazy"
@@ -294,9 +308,9 @@ export default async function ProductEditorPage({
                   style={{ aspectRatio: "1 / 1" }}
                 />
                 <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
-                  <span className="text-sm font-medium text-foreground">{VIEW_LABELS[mockup.view]}</span>
+                  <span className="text-sm font-medium text-foreground">{labels(`view.${mockup.view}`)}</span>
                   <Badge tone={mockup.approved ? "green" : "amber"}>
-                    {mockup.approved ? "Approved" : "Awaiting approval"}
+                    {mockup.approved ? t("approved") : t("awaitingApproval")}
                   </Badge>
                 </div>
               </li>
@@ -312,7 +326,7 @@ export default async function ProductEditorPage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Cost, tax and margin</h2>
+              <h2>{t("costs")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -320,34 +334,34 @@ export default async function ProductEditorPage({
               <DataList
                 rows={[
                   {
-                    label: "Supplier cost (cheapest enabled variant)",
+                    label: t("supplierCost"),
                     value: (
                       <span className="tabular-nums">
-                        {formatMoney(costs.supplierCost, product.currency)}
+                        {money(costs.supplierCost)}
                       </span>
                     ),
                   },
                   {
-                    label: `Customisation (${printAreaCount} print area${printAreaCount === 1 ? "" : "s"})`,
+                    label: t("customisation", { count: printAreaCount }),
                     value: (
                       <span className="tabular-nums">
-                        {formatMoney(costs.customizationCost, product.currency)}
+                        {money(costs.customizationCost)}
                       </span>
                     ),
                   },
                   {
-                    label: "Estimated shipping",
+                    label: t("shipping"),
                     value: (
                       <span className="tabular-nums">
-                        {formatMoney(costs.shippingEstimate, product.currency)}
+                        {money(costs.shippingEstimate)}
                       </span>
                     ),
                   },
                   {
-                    label: "Landed cost",
+                    label: t("landed"),
                     value: (
                       <span className="font-semibold tabular-nums">
-                        {formatMoney(landed, product.currency)}
+                        {money(landed)}
                       </span>
                     ),
                   },
@@ -357,25 +371,25 @@ export default async function ProductEditorPage({
               <DataList
                 rows={[
                   {
-                    label: "Tax bracket",
-                    value: bracket ? `${bracket.name} · ${bracket.rate}%` : "Not selected",
+                    label: t("taxBracket"),
+                    value: bracket ? `${bracket.name} · ${bracket.rate}%` : t("notSelected"),
                   },
                   {
-                    label: `Tax ${store.pricesIncludeTax ? "included in price" : "added at checkout"}`,
+                    label: store.pricesIncludeTax ? t("taxIncluded") : t("taxAdded"),
                     value: (
-                      <span className="tabular-nums">{formatMoney(costs.taxAmount, product.currency)}</span>
+                      <span className="tabular-nums">{money(costs.taxAmount)}</span>
                     ),
                   },
                   {
-                    label: "Selling price",
+                    label: t("sellingPrice"),
                     value: (
                       <span className="font-semibold tabular-nums">
-                        {formatMoney(costs.sellingPrice, product.currency)}
+                        {money(costs.sellingPrice)}
                       </span>
                     ),
                   },
                   {
-                    label: "Margin",
+                    label: t("margin"),
                     value: (
                       <span
                         className={
@@ -386,7 +400,7 @@ export default async function ProductEditorPage({
                               : "font-semibold tabular-nums text-rose-700"
                         }
                       >
-                        {formatMoney(costs.marginAmount, product.currency)} ·{" "}
+                        {money(costs.marginAmount)} ·{" "}
                         {formatPercent(costs.marginPct)}
                       </span>
                     ),
@@ -397,8 +411,8 @@ export default async function ProductEditorPage({
             {tone !== "healthy" ? (
               <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
                 {tone === "negative"
-                  ? "This price is below cost."
-                  : "Margin is under 25%."}
+                  ? t("belowCost")
+                  : t("thinMargin")}
               </p>
             ) : null}
           </CardContent>

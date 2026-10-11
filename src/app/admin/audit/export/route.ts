@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { NextRequest } from "next/server";
 import {
   auditCsv,
@@ -10,6 +11,7 @@ import {
   AUDIT_EXPORT_CAP,
 } from "@/lib/audit-log";
 import { listAllStores, listSuppliers, loadAuditWindow } from "@/lib/data";
+import { auditCsvLabels } from "@/i18n/audit-copy";
 import { assertPlatformAdmin } from "@/lib/session";
 
 /**
@@ -18,10 +20,11 @@ import { assertPlatformAdmin } from "@/lib/session";
  * platform view spans every one of them.
  */
 export async function GET(request: NextRequest) {
+  const t = await getTranslations("audit");
   try {
     await assertPlatformAdmin();
   } catch (error) {
-    return new Response(error instanceof Error ? error.message : "Access denied.", { status: 403 });
+    return new Response(error instanceof Error ? error.message : t("accessDenied"), { status: 403 });
   }
 
   const filters = parseAuditFilters(Object.fromEntries(request.nextUrl.searchParams));
@@ -44,12 +47,13 @@ export async function GET(request: NextRequest) {
   const csv = auditCsv(
     platformAuditEntries(entries).filter((entry) => matchesAuditFilters(entry, filters)),
     {
-      storeName: (id) => (id ? (stores.find((store) => store.id === id)?.name ?? id) : "Platform"),
+      ...(await auditCsvLabels()),
+      storeName: (id) => (id ? (stores.find((store) => store.id === id)?.name ?? id) : t("platform")),
       detail: {
         currency: (entry) => stores.find((store) => store.id === entry.storeId)?.defaultCurrency,
         supplierName: (id) => suppliers.find((supplier) => supplier.id === id)?.name,
       },
     },
   );
-  return auditCsvResponse(csv, auditFileName("Parcelith audit log", filters, now.toISOString().slice(0, 10)));
+  return auditCsvResponse(csv, auditFileName(t("fileName"), filters, now.toISOString().slice(0, 10)));
 }

@@ -599,17 +599,23 @@ export function auditCsv(
     storeName?: (storeId: string | null) => string;
     /** How the detail column is written — the same rules the pages read by. */
     detail?: AuditDetailOptions;
+    /** The column headings and category names in the reader's language. */
+    columns?: string[];
+    storeColumn?: string;
+    categoryLabel?: (entry: AuditLog) => string;
   } = {},
 ): string {
   const withStore = typeof options.storeName === "function";
+  const columns = options.columns ?? AUDIT_CSV_COLUMNS;
   const header = withStore
-    ? [AUDIT_CSV_COLUMNS[0], "Store", ...AUDIT_CSV_COLUMNS.slice(1)]
-    : AUDIT_CSV_COLUMNS;
+    ? [columns[0], options.storeColumn ?? "Store", ...columns.slice(1)]
+    : columns;
+  const category = options.categoryLabel ?? auditCategoryLabel;
   const rows = entries.map((entry) => {
     const cells = [
       entry.at,
       entry.actorName || entry.actorId,
-      auditCategoryLabel(entry),
+      category(entry),
       entry.action,
       entry.summary,
       auditDetail(entry, options.detail),

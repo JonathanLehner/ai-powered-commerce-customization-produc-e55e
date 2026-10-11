@@ -574,7 +574,7 @@ try:
         pass
     G(qa_store_url + "/catalog")
     cat = text()
-    in_store = bool(re.search(r"\d+ variants", cat))
+    in_store = bool(re.search(r"\d+ variants?\b", cat))
     shot(6)
     record(6, "pass" if (only_mugs and compared and copied and in_store) else "fail",
            "search+category filter returns supplier mugs (%s); side-by-side compare of two catalog entries (%s); 'Copy to store' imported a product into the new store's isolated catalog (%s)"

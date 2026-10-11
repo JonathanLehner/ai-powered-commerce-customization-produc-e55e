@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { resendInvite } from "@/app/actions/team";
 import { Badge, PageHeader } from "@/components/ui";
@@ -41,7 +41,11 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
     (u) => u.agencyId === store.agencyId && u.platformRole === "agency_admin",
   );
 
-  const pages = await getTranslations("pages.store");
+  const [pages, t, locale] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("team"),
+    getLocale(),
+  ]);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -52,10 +56,10 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
       <section>
         <CardHeader>
         <CardTitle asChild>
-          <h2>Agency administrators</h2>
+          <h2>{t("agencyAdmins")}</h2>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Full access to every {agency?.name ?? "agency"} store.
+          {t("agencyAdminsBody", { agency: agency?.name ?? t("agencyFallback") })}
         </p>
         </CardHeader>
         <CardContent>
@@ -68,11 +72,11 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                   {admin.email} · {admin.title}
                 </p>
               </div>
-              <Badge tone="brand">Store administrator (agency)</Badge>
+              <Badge tone="brand">{t("agencyAdminBadge")}</Badge>
             </li>
           ))}
           {agencyAdmins.length === 0 ? (
-            <li className="py-3 text-sm text-muted-foreground">No agency administrators.</li>
+            <li className="py-3 text-sm text-muted-foreground">{t("noAgencyAdmins")}</li>
           ) : null}
         </ul>
         </CardContent>
@@ -83,11 +87,11 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
       <section>
         <CardHeader>
         <CardTitle asChild>
-          <h2>Invited members</h2>
+          <h2>{t("members")}</h2>
         </CardTitle>
         {memberships.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No members yet.
+            {t("noMembers")}
           </p>
         ) : null}
         </CardHeader>
@@ -97,10 +101,10 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
             <Table className="min-w-[46rem]">
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className={TH}>Person</TableHead>
-                  <TableHead className={TH}>Status</TableHead>
-                  <TableHead className={TH}>Role</TableHead>
-                  <TableHead className={`${TH} text-right`}>Actions</TableHead>
+                  <TableHead className={TH}>{t("colPerson")}</TableHead>
+                  <TableHead className={TH}>{t("colStatus")}</TableHead>
+                  <TableHead className={TH}>{t("colRole")}</TableHead>
+                  <TableHead className={`${TH} text-right`}>{t("colActions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -112,16 +116,16 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                     </TableCell>
                     <TableCell className="px-0 py-3 align-top whitespace-normal">
                       <Badge tone={member.status === "active" ? "green" : "amber"}>
-                        {member.status === "active" ? "Active" : "Invitation pending"}
+                        {member.status === "active" ? t("active") : t("pending")}
                       </Badge>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Invited {formatDate(member.invitedAt)} by {member.invitedBy}
+                        {t("invitedBy", { date: formatDate(member.invitedAt, locale), name: member.invitedBy })}
                       </p>
                       {member.status === "invited" ? (
                         member.inviteToken ? (
                           <div className="mt-2 max-w-sm">
                             <p className="text-xs text-muted-foreground">
-                              Invitation link
+                              {t("inviteLink")}
                             </p>
                             <code className="mt-1 block break-all rounded-lg border border-border bg-canvas px-2 py-1.5 text-[11px] text-inksoft">
                               {origin}/invite/{member.inviteToken}
@@ -129,7 +133,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                           </div>
                         ) : (
                           <p className="mt-2 max-w-sm text-xs text-amber-700">
-                            No invitation link. Choose “New link” to create one.
+                            {t("noLink")}
                           </p>
                         )
                       ) : null}
@@ -152,9 +156,9 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
                               type="submit"
                               variant="ghost"
                               size="sm"
-                              title="Invalidates the old link and issues a fresh one"
+                              title={t("newLinkTitle")}
                             >
-                              New link
+                              {t("newLink")}
                             </Button>
                           </form>
                         ) : null}

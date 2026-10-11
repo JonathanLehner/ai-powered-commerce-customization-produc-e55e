@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { addSupplier, saveSupplierRegions } from "@/app/actions/admin";
 import { ActionForm } from "@/components/forms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +23,12 @@ const REGION_CHIP =
   "flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-normal hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5";
 
 export function SupplierRegionsForm({ supplier }: { supplier: Supplier }) {
+  const t = useTranslations("admin.suppliers");
+  const labels = useTranslations("labels");
   return (
     <ActionForm
       action={saveSupplierRegions}
-      submitLabel="Save regions"
+      submitLabel={t("saveRegions")}
       submitVariant="outline"
       submitSize="sm"
       hidden={{ supplierId: supplier.id }}
@@ -34,7 +37,7 @@ export function SupplierRegionsForm({ supplier }: { supplier: Supplier }) {
         <>
           <fieldset>
             <legend className="text-xs leading-none font-medium text-foreground select-none">
-              Fulfilment regions
+              {t("regions")}
             </legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {REGION_OPTIONS.map((region) => (
@@ -45,17 +48,17 @@ export function SupplierRegionsForm({ supplier }: { supplier: Supplier }) {
                     defaultChecked={supplier.regions.includes(region)}
                     className="size-3.5"
                   />
-                  {region}
+                  {labels(`region.${region}` as "region.APAC")}
                 </Label>
               ))}
             </div>
             {state.field === "regions" ? (
-              <p className="mt-1.5 text-xs text-destructive">At least one region is required.</p>
+              <p className="mt-1.5 text-xs text-destructive">{t("regionRequired")}</p>
             ) : null}
           </fieldset>
           <div className="mt-3 grid content-start gap-1.5">
             <Label htmlFor={`notes-${supplier.id}`} className="text-xs">
-              Operational notes
+              {t("notes")}
             </Label>
             <Textarea id={`notes-${supplier.id}`} name="notes" rows={2} defaultValue={supplier.notes} />
           </div>
@@ -66,28 +69,30 @@ export function SupplierRegionsForm({ supplier }: { supplier: Supplier }) {
 }
 
 export function AddSupplierForm() {
+  const t = useTranslations("admin.suppliers");
+  const labels = useTranslations("labels");
   return (
     <Card asChild>
       <ActionForm
         action={addSupplier}
-        submitLabel="Add for review"
+        submitLabel={t("addForReview")}
         actionsClassName="px-(--card-spacing)"
       >
         {(state) => (
           <>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Add a supplier</h2>
+                <h2>{t("addTitle")}</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                New suppliers need approval before stores can use them.
+                {t("addBody")}
               </p>
             </CardHeader>
 
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="supplier-name">Name</Label>
+                  <Label htmlFor="supplier-name">{t("name")}</Label>
                   <Input
                     id="supplier-name"
                     name="name"
@@ -96,7 +101,7 @@ export function AddSupplierForm() {
                   />
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="supplier-website">Website</Label>
+                  <Label htmlFor="supplier-website">{t("website")}</Label>
                   <Input
                     id="supplier-website"
                     name="website"
@@ -106,35 +111,35 @@ export function AddSupplierForm() {
                   />
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="supplier-kind">Type</Label>
+                  <Label htmlFor="supplier-kind">{t("type")}</Label>
                   <Select name="kind" defaultValue="print_on_demand">
                     <SelectTrigger id="supplier-kind" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="print_on_demand">Print on demand</SelectItem>
-                      <SelectItem value="manufacturer">Manufacturer</SelectItem>
-                      <SelectItem value="sourcing_marketplace">Sourcing marketplace</SelectItem>
+                      <SelectItem value="print_on_demand">{labels("supplierKind.print_on_demand")}</SelectItem>
+                      <SelectItem value="manufacturer">{labels("supplierKind.manufacturer")}</SelectItem>
+                      <SelectItem value="sourcing_marketplace">{labels("supplierKind.sourcing_marketplace")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="supplier-integration">Integration</Label>
+                  <Label htmlFor="supplier-integration">{t("integration")}</Label>
                   <Select name="integration" defaultValue="api">
                     <SelectTrigger id="supplier-integration" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="api">Order API</SelectItem>
-                      <SelectItem value="manual">Manual purchase orders</SelectItem>
+                      <SelectItem value="api">{t("orderApi")}</SelectItem>
+                      <SelectItem value="manual">{t("manualPos")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Manual suppliers need a purchase order for each order.
+                    {t("manualHint")}
                   </p>
                 </div>
                 <div className="grid content-start gap-1.5 sm:col-span-2">
-                  <Label htmlFor="supplier-summary">Summary</Label>
+                  <Label htmlFor="supplier-summary">{t("summary")}</Label>
                   <Textarea
                     id="supplier-summary"
                     name="summary"
@@ -146,13 +151,13 @@ export function AddSupplierForm() {
                 </div>
                 <fieldset className="sm:col-span-2">
                   <legend className="text-sm leading-none font-medium text-foreground select-none">
-                    Fulfilment regions
+                    {t("regions")}
                   </legend>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {REGION_OPTIONS.map((region) => (
                       <Label key={region} className={REGION_CHIP}>
                         <Checkbox name="regions" value={region} className="size-3.5" />
-                        {region}
+                        {labels(`region.${region}` as "region.APAC")}
                       </Label>
                     ))}
                   </div>

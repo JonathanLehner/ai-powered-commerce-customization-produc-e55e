@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { createStore } from "@/app/actions/stores";
 import { ActionForm } from "@/components/forms";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { currencyName, languageOption } from "@/i18n/display";
 import { LANGUAGE_OPTIONS } from "@/lib/i18n";
 import { THEMES, type ThemeKey } from "@/lib/types";
 import { CURRENCY_OPTIONS } from "@/lib/util";
@@ -25,13 +27,16 @@ export function NewStoreForm({
   allowanceNote?: string;
 }) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
+  const t = useTranslations("newStore");
+  const labels = useTranslations("labels");
+  const locale = useLocale();
 
   return (
     <Card asChild>
     <ActionForm
       action={createStore}
-      submitLabel="Create store and continue"
-      pendingLabel="Creating store…"
+      submitLabel={t("submit")}
+      pendingLabel={t("pending")}
       hidden={{ agencyId }}
       actionsClassName="px-(--card-spacing)"
     >
@@ -41,7 +46,7 @@ export function NewStoreForm({
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <div className="grid content-start gap-1.5">
-              <Label htmlFor="name">Store name</Label>
+              <Label htmlFor="name">{t("storeName")}</Label>
               <Input
                 id="name"
                 name="name"
@@ -53,7 +58,7 @@ export function NewStoreForm({
             </div>
 
             <div className="grid content-start gap-1.5">
-              <Label htmlFor="clientName">Client</Label>
+              <Label htmlFor="clientName">{t("client")}</Label>
               <Input
                 id="clientName"
                 name="clientName"
@@ -64,7 +69,7 @@ export function NewStoreForm({
             </div>
 
             <div className="grid content-start gap-1.5">
-              <Label htmlFor="defaultCurrency">Default selling currency</Label>
+              <Label htmlFor="defaultCurrency">{t("currency")}</Label>
               <Select name="defaultCurrency" defaultValue="USD">
                 <SelectTrigger id="defaultCurrency" className="w-full">
                   <SelectValue />
@@ -72,7 +77,7 @@ export function NewStoreForm({
                 <SelectContent>
                   {CURRENCY_OPTIONS.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
-                      {c.code} · {c.label}
+                      {c.code} · {currencyName(locale, c.code, c.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -80,7 +85,7 @@ export function NewStoreForm({
             </div>
 
             <div className="grid content-start gap-1.5">
-              <Label htmlFor="defaultLanguage">Default language</Label>
+              <Label htmlFor="defaultLanguage">{t("language")}</Label>
               <Select name="defaultLanguage" defaultValue="en">
                 <SelectTrigger id="defaultLanguage" className="w-full">
                   <SelectValue />
@@ -88,7 +93,7 @@ export function NewStoreForm({
                 <SelectContent>
                   {LANGUAGE_OPTIONS.map((l) => (
                     <SelectItem key={l.code} value={l.code}>
-                      {l.label === l.endonym ? l.label : `${l.label} · ${l.endonym}`}
+                      {languageOption(locale, l.code, l.endonym)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -98,7 +103,7 @@ export function NewStoreForm({
 
           <fieldset className="mt-6">
             <legend className="mb-3 text-sm leading-none font-medium text-foreground select-none">
-              Storefront theme
+              {t("theme")}
             </legend>
             <div className="grid gap-3 sm:grid-cols-2">
               {themeKeys.map((key, index) => (
@@ -123,7 +128,7 @@ export function NewStoreForm({
                       <span className="text-sm font-semibold text-foreground">{THEMES[key].name}</span>
                     </span>
                     <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                      {THEMES[key].description}
+                      {labels(`theme.${key}`)}
                     </span>
                   </span>
                 </Label>

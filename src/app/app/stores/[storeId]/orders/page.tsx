@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { OrdersPager } from "@/components/OrdersPager";
 import { Dot, EmptyState, PageHeader, StatCard } from "@/components/ui";
@@ -23,8 +23,9 @@ import {
   parseOrderFilters,
   type OrderListParams,
 } from "@/lib/order-list";
+import { countryName } from "@/i18n/display";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
+import type { OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
 import { OrdersToolbar } from "./OrdersToolbar";
 
@@ -82,15 +83,20 @@ export default async function OrdersPage({
     ? `${base}/export${orderListQuery(filters, { page: 1 })}`
     : null;
 
-  const pages = await getTranslations("pages.store");
-  const roles = await getTranslations("roles");
+  const [pages, roles, t, labels, locale] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("roles"),
+    getTranslations("orders"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
   return (
     <div className="space-y-6">
       <PageHeader
                 title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : pages("ordersTitle")}
         description={
           activeCampaign
-            ? `${activeCampaign.recipients.length} recipients`
+            ? t("recipients", { count: activeCampaign.recipients.length })
             : viaPlatform
               ? roles("platformAccessNote")
               : undefined
@@ -101,7 +107,7 @@ export default async function OrdersPage({
               href={`${base}${orderListQuery(filters, { view: view === "attention" ? null : "attention", page: 1 })}`}
               prefetch={false}
             >
-              {view === "attention" ? "Showing needs attention" : `Needs attention (${metrics.awaitingAction})`}
+              {view === "attention" ? t("showingAttention") : t("needsAttention", { count: metrics.awaitingAction })}
             </Link>
           </Button>
         }
@@ -109,21 +115,21 @@ export default async function OrdersPage({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {viaPlatform ? (
-          <StatCard label="Orders" value={String(metrics.orderCount)} sub={`${metrics.paidOrders} paid`} />
+          <StatCard label={t("statOrders")} value={String(metrics.orderCount)} sub={t("paid", { count: metrics.paidOrders })} />
         ) : (
           <StatCard
-            label="Lifetime sales"
-            value={formatMoney(metrics.grossSales, store.defaultCurrency)}
-            sub={`${metrics.paidOrders} paid orders`}
+            label={t("lifetimeSales")}
+            value={formatMoney(metrics.grossSales, store.defaultCurrency, locale)}
+            sub={t("paidOrders", { count: metrics.paidOrders })}
           />
         )}
-        <StatCard label="In production" value={String(metrics.inProduction)} sub="Paid or being made" />
-        <StatCard label="Shipped" value={String(metrics.shipped)} sub={`${metrics.delivered} delivered`} />
+        <StatCard label={t("inProduction")} value={String(metrics.inProduction)} sub={t("inProductionSub")} />
+        <StatCard label={t("shipped")} value={String(metrics.shipped)} sub={t("delivered", { count: metrics.delivered })} />
         <StatCard
-          label="Exceptions"
+          label={t("exceptions")}
           value={String(metrics.exceptions)}
           tone={metrics.exceptions > 0 ? "rose" : "green"}
-          sub={`${metrics.manualRouting} awaiting manual routing`}
+          sub={t("manualRouting", { count: metrics.manualRouting })}
         />
       </div>
 
@@ -133,14 +139,14 @@ export default async function OrdersPage({
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <CardTitle asChild className="text-sm font-semibold">
-                  <h2>Gift campaigns</h2>
+                  <h2>{t("giftCampaigns")}</h2>
                 </CardTitle>
                 {viaPlatform ? null : (
                   <Link
                     href={`/app/stores/${storeId}/gifting`}
                     className="text-sm font-medium text-primary hover:underline"
                   >
-                    Gifting
+                    {t("gifting")}
                   </Link>
                 )}
               </div>
@@ -167,9 +173,9 @@ export default async function OrdersPage({
                         {row.campaign.code} · {row.campaign.name}
                       </span>
                       <span className="text-muted-foreground">
-                        {row.orders} orders · {row.delivered} delivered
+                        {t("campaignOrders", { count: row.orders, delivered: row.delivered })}
                         {row.exceptions > 0 ? (
-                          <span className="text-destructive"> · {row.exceptions} need attention</span>
+                          <span className="text-destructive">{t("campaignAttention", { count: row.exceptions })}</span>
                         ) : null}
                       </span>
                     </Link>
@@ -178,12 +184,12 @@ export default async function OrdersPage({
               </ul>
               {activeCampaign ? (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Showing {activeCampaign.code} only.{" "}
+                  {t("showingOnly", { code: activeCampaign.code })}{" "}
                   <Link
                     href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
                     className="font-medium text-primary hover:underline"
                   >
-                                        View campaign
+                    {t("viewCampaign")}
                   </Link>
                 </p>
               ) : null}
@@ -196,7 +202,7 @@ export default async function OrdersPage({
         base={base}
         filters={filters}
         searchPlaceholder={
-          viaPlatform ? "Order code or tracking number" : "Order code, customer or tracking number"
+          viaPlatform ? t("searchPlatform") : t("search")
         }
         exportHref={exportHref}
         showClear={hasOrderFilters(filters)}
@@ -204,8 +210,8 @@ export default async function OrdersPage({
 
       {page.total === 0 ? (
         <EmptyState
-          title={orders.length === 0 ? "No orders yet" : "No matching orders"}
-                    description={orders.length === 0 ? undefined : "Try different filters."}
+          title={orders.length === 0 ? t("noOrders") : t("noMatches")}
+          description={orders.length === 0 ? undefined : t("tryFilters")}
         />
       ) : (
         <div className="space-y-3">
@@ -217,22 +223,22 @@ export default async function OrdersPage({
               <TableHeader className="sticky top-0 z-10 bg-muted">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
-                    Order
+                    {t("colOrder")}
                   </TableHead>
                   {viaPlatform ? null : (
                     <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
-                      Customer
+                      {t("colCustomer")}
                     </TableHead>
                   )}
                   <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
-                    Status
+                    {t("colStatus")}
                   </TableHead>
                   <TableHead className="px-4 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
-                    Fulfilment
+                    {t("colFulfilment")}
                   </TableHead>
                   {viaPlatform ? null : (
                     <TableHead className="px-4 text-right text-xs font-semibold tracking-wide uppercase text-muted-foreground">
-                      Total
+                      {t("colTotal")}
                     </TableHead>
                   )}
                 </TableRow>
@@ -249,20 +255,20 @@ export default async function OrdersPage({
                       >
                         {order.code}
                       </Link>
-                      <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(order.createdAt, locale)}</p>
                     </TableCell>
                     {viaPlatform ? null : (
                       <TableCell className="px-4 py-3 align-top whitespace-normal">
                         <p className="text-foreground">{order.customer.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {order.customer.city}, {order.customer.country}
+                          {order.customer.city}, {countryName(locale, order.customer.country)}
                         </p>
                         {order.campaign ? (
                           <Link
                             href={`/app/stores/${storeId}/orders/campaigns/${order.campaign.campaignId}`}
                             className="relative mt-1 inline-block text-xs font-medium text-primary hover:underline"
                           >
-                            Gift · {order.campaign.campaignCode}
+                            {t("gift", { code: order.campaign.campaignCode })}
                           </Link>
                         ) : null}
                       </TableCell>
@@ -270,27 +276,25 @@ export default async function OrdersPage({
                     <TableCell className="px-4 py-3 align-top whitespace-normal">
                       <Badge variant="outline" className="gap-1.5">
                         <Dot tone={TONES[order.status]} />
-                        {ORDER_STATUS_LABELS[order.status]}
+                        {labels(`orderStatus.${order.status}`)}
                       </Badge>
                       {order.refunds.length > 0 ? (
                         <p className="mt-1 text-xs text-muted-foreground">
                           {viaPlatform
-                            ? "Refunded"
-                            : `${formatMoney(
-                                order.refunds.reduce((s, r) => s + r.amount, 0),
-                                order.currency,
-                              )} refunded`}
+                            ? t("refunded")
+                            : t("amountRefunded", {
+                                amount: formatMoney(
+                                  order.refunds.reduce((s, r) => s + r.amount, 0),
+                                  order.currency,
+                                  locale,
+                                ),
+                              })}
                         </p>
                       ) : null}
                     </TableCell>
                     <TableCell className="px-4 py-3 align-top whitespace-normal">
                       <p className="text-xs text-inksoft">
-                        {order.fulfillment.supplierName ?? "No supplier"} ·{" "}
-                        {order.fulfillment.routing === "submitted"
-                          ? "submitted"
-                          : order.fulfillment.routing === "manual_required"
-                            ? "manual required"
-                            : order.fulfillment.routing}
+                        {order.fulfillment.supplierName ?? t("noSupplier")} · {t(`routing.${order.fulfillment.routing}`)}
                       </p>
                       {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
                         <a
@@ -304,13 +308,13 @@ export default async function OrdersPage({
                       ) : null}
                       {order.fulfillment.exception ? (
                         <p className="mt-1 text-xs text-destructive">
-                          {viaPlatform ? "Fulfilment exception raised" : order.fulfillment.exception}
+                          {viaPlatform ? t("exceptionRaised") : order.fulfillment.exception}
                         </p>
                       ) : null}
                     </TableCell>
                     {viaPlatform ? null : (
                       <TableCell className="px-4 py-3 text-right align-top font-medium tabular-nums whitespace-normal text-foreground">
-                        {formatMoney(order.total, order.currency)}
+                        {formatMoney(order.total, order.currency, locale)}
                       </TableCell>
                     )}
                   </TableRow>

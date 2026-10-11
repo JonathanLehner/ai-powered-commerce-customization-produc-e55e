@@ -11,13 +11,13 @@ export default async function AdminCatalogNewPage({
   const [{ supplierId }, suppliers] = await Promise.all([searchParams, listSuppliers()]);
   const preselected = suppliers.find((s) => s.id === supplierId);
 
-  const pages = await getTranslations("pages.admin");
+  const [pages, t] = await Promise.all([getTranslations("pages.admin"), getTranslations("admin.catalog")]);
   return (
     <div className="space-y-6">
       <Breadcrumbs
         items={[
-          { label: "Shared catalog", href: "/admin/catalog" },
-          { label: "New product" },
+          { label: t("sharedCatalog"), href: "/admin/catalog" },
+          { label: t("newProduct") },
         ]}
       />
       <PageHeader
@@ -25,10 +25,8 @@ export default async function AdminCatalogNewPage({
       />
 
       {preselected ? (
-        <Callout tone="neutral" title={`Adding a product for ${preselected.name}`}>
-          {preselected.status === "approved"
-            ? "Stores can import it once it is active."
-            : "Stores can import it once this supplier is approved."}
+        <Callout tone="neutral" title={t("addingFor", { supplier: preselected.name })}>
+          {preselected.status === "approved" ? t("importWhenActive") : t("importWhenApproved")}
         </Callout>
       ) : null}
 

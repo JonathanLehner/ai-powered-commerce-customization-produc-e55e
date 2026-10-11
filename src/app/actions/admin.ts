@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -51,10 +52,11 @@ export async function saveSupplierRegions(_prev: ActionState, formData: FormData
   const notes = String(formData.get("notes") ?? "").trim();
 
   const user = await assertPlatformAdmin();
+  const t = await getTranslations("actions.admin");
   const supplier = await getSupplier(supplierId);
-  if (!supplier) return { status: "error", message: "Supplier not found." };
+  if (!supplier) return { status: "error", message: t("supplierGone") };
   if (regions.length === 0) {
-    return { status: "error", message: "A supplier must fulfil to at least one region.", field: "regions" };
+    return { status: "error", message: t("regionRequired"), field: "regions" };
   }
 
   await db.updateOne(COLLECTIONS.suppliers, { id: supplierId }, { $set: { regions, notes } });
@@ -69,7 +71,7 @@ export async function saveSupplierRegions(_prev: ActionState, formData: FormData
     meta: { regions: regions.join(", ") },
   });
   revalidatePath("/admin/suppliers");
-  return { status: "success", message: `${supplier.name} now fulfils to ${regions.join(", ")}.` };
+  return { status: "success", message: t("regionsSaved", { supplier: supplier.name, regions: regions.join(", ") }) };
 }
 
 export async function addSupplier(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -80,16 +82,17 @@ export async function addSupplier(_prev: ActionState, formData: FormData): Promi
   const kind = String(formData.get("kind") ?? "print_on_demand") as Supplier["kind"];
   const integration = String(formData.get("integration") ?? "api") as Supplier["integration"];
   const regions = formData.getAll("regions").map(String);
+  const t = await getTranslations("actions.admin");
 
-  if (name.length < 2) return { status: "error", message: "Enter the supplier's name.", field: "name" };
+  if (name.length < 2) return { status: "error", message: t("nameRequired"), field: "name" };
   if (!/^https?:\/\/.+\..+/.test(website)) {
-    return { status: "error", message: "Enter the supplier's website, including https://.", field: "website" };
+    return { status: "error", message: t("websiteRequired"), field: "website" };
   }
   if (summary.length < 20) {
-    return { status: "error", message: "Add a short summary.", field: "summary" };
+    return { status: "error", message: t("summaryRequired"), field: "summary" };
   }
   if (regions.length === 0) {
-    return { status: "error", message: "Choose at least one fulfilment region.", field: "regions" };
+    return { status: "error", message: t("fulfilmentRegionRequired"), field: "regions" };
   }
 
   const supplier: Supplier = {
@@ -129,7 +132,7 @@ export async function addSupplier(_prev: ActionState, formData: FormData): Promi
   revalidatePath("/admin/suppliers");
   return {
     status: "success",
-    message: `${name} added for review.`,
+    message: t("supplierAdded", { name }),
   };
 }
 
@@ -149,7 +152,8 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
   const catalogId = String(formData.get("catalogId") ?? "").trim();
   const user = await assertPlatformAdmin();
   const item = catalogId ? await getCatalogProduct(catalogId) : null;
-  if (catalogId && !item) return { status: "error", message: "Catalog product not found." };
+  const t = await getTranslations("actions.admin");
+  if (catalogId && !item) return { status: "error", message: t("catalogGone") };
 
   // A bulk-sourcing listing is priced by quote, so there are no costs for this
   // editor to save. Writing one would publish a unit price no supplier has
@@ -157,7 +161,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
   if (item && isQuoteOnly(item)) {
     return {
       status: "error",
-      message: `“${item.name}” is priced by quote. Record prices in Quote requests.`,
+      message: t("pricedByQuote", { name: item.name }),
     };
   }
 
@@ -180,38 +184,42 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
 
   const supplier = await getSupplier(supplierId);
   if (!supplier) {
-    return { status: "error", message: "Choose the supplier that makes this product.", field: "supplierId" };
+    return { status: "error", message: t("supplierRequired"), field: "supplierId" };
   }
   if (productType.length < 3) {
-    return { status: "error", message: "Describe the product type, such as “T-shirt, 180 gsm”.", field: "productType" };
+    return { status: "error", message: t("productTypeRequired"), field: "productType" };
   }
-  if (name.length < 3) return { status: "error", message: "Enter a product name.", field: "name" };
+  if (name.length < 3) return { status: "error", message: t("productNameRequired"), field: "name" };
   if (description.length < 20) {
-    return { status: "error", message: "Add a product description.", field: "description" };
+    return { status: "error", message: t("descriptionRequired"), field: "description" };
   }
   if (baseCost === null || baseCost <= 0) {
-    return { status: "error", message: "Enter the supplier's base cost.", field: "baseCost" };
+    return { status: "error", message: t("baseCostRequired"), field: "baseCost" };
   }
   if (customizationCostPerArea === null) {
-    return { status: "error", message: "Enter the customisation cost per print area.", field: "customizationCost" };
+    return { status: "error", message: t("customisationRequired"), field: "customizationCost" };
   }
   if (shippingEstimate === null) {
-    return { status: "error", message: "Enter an estimated shipping cost.", field: "shippingEstimate" };
+    return { status: "error", message: t("shippingRequired"), field: "shippingEstimate" };
   }
   if (category !== "apparel" && category !== "drinkware") {
-    return { status: "error", message: "Choose a product category.", field: "category" };
+    return { status: "error", message: t("categoryRequired"), field: "category" };
   }
   if (!CURRENCY_OPTIONS.some((option) => option.code === currency)) {
-    return { status: "error", message: "Choose the currency this supplier invoices in.", field: "currency" };
+    return { status: "error", message: t("currencyRequired"), field: "currency" };
   }
   if (fulfillmentRegions.length === 0) {
-    return { status: "error", message: "Choose at least one fulfilment region.", field: "regions" };
+    return { status: "error", message: t("fulfilmentRegionRequired"), field: "regions" };
   }
 
   const parsedAreas = parsePrintAreas(formData.get("printAreas"), item?.printAreas ?? []);
-  if ("error" in parsedAreas) return { status: "error", message: parsedAreas.error, field: "printAreas" };
+  if ("error" in parsedAreas) {
+    return { status: "error", message: t(`rows.${parsedAreas.code}`, parsedAreas.values), field: "printAreas" };
+  }
   const parsedVariants = parseVariants(formData.get("variants"), item?.variants ?? [], currency);
-  if ("error" in parsedVariants) return { status: "error", message: parsedVariants.error, field: "variants" };
+  if ("error" in parsedVariants) {
+    return { status: "error", message: t(`rows.${parsedVariants.code}`, parsedVariants.values), field: "variants" };
+  }
   const printAreas = parsedAreas.areas;
   const variants = parsedVariants.variants;
 
@@ -226,7 +234,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
     if (clash) {
       return {
         status: "error",
-        message: `${supplier.name} already has a catalog product called “${clash.name}”. Give this one a different name.`,
+        message: t("nameClash", { supplier: supplier.name, name: clash.name }),
         field: "name",
       };
     }
@@ -343,7 +351,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
 
   revalidatePath("/admin/catalog");
   revalidatePath(`/admin/catalog/${item.id}`);
-  return { status: "success", message: "Product updated." };
+  return { status: "success", message: t("productUpdated") };
 }
 
 /* ------------------------------------------------------------ tax brackets */
@@ -356,22 +364,23 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
   const description = String(formData.get("description") ?? "").trim();
   const rateRaw = String(formData.get("rate") ?? "");
   const regions = formData.getAll("regions").map(String);
+  const t = await getTranslations("actions.admin");
 
-  if (name.length < 3) return { status: "error", message: "Give the bracket a name.", field: "name" };
+  if (name.length < 3) return { status: "error", message: t("bracketName"), field: "name" };
   if (!/^[A-Z0-9-.]{2,12}$/.test(code)) {
-    return { status: "error", message: "Codes are 2–12 characters, letters, numbers, dots and dashes.", field: "code" };
+    return { status: "error", message: t("bracketCode"), field: "code" };
   }
   const rate = Number(rateRaw);
   if (!Number.isFinite(rate) || rate < 0 || rate > 50) {
-    return { status: "error", message: "Enter a rate between 0 and 50 percent.", field: "rate" };
+    return { status: "error", message: t("bracketRate"), field: "rate" };
   }
   if (regions.length === 0) {
-    return { status: "error", message: "Choose the regions this bracket applies to.", field: "regions" };
+    return { status: "error", message: t("bracketRegions"), field: "regions" };
   }
 
   if (bracketId) {
     const existing = await getTaxBracket(bracketId);
-    if (!existing) return { status: "error", message: "That tax bracket no longer exists." };
+    if (!existing) return { status: "error", message: t("bracketGone") };
     await db.updateOne(
       COLLECTIONS.taxBrackets,
       { id: bracketId },
@@ -388,7 +397,7 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
       meta: { from: existing.rate, to: rate },
     });
     revalidatePath("/admin/tax");
-    return { status: "success", message: `${name} saved at ${rate}%.` };
+    return { status: "success", message: t("bracketSaved", { name, rate }) };
   }
 
   const bracket: TaxBracket = {
@@ -412,7 +421,7 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
     meta: { rate },
   });
   revalidatePath("/admin/tax");
-  return { status: "success", message: `${name} created.` };
+  return { status: "success", message: t("bracketCreated", { name }) };
 }
 
 export async function deleteTaxBracket(formData: FormData): Promise<void> {

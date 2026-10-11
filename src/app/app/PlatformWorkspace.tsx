@@ -231,7 +231,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
 
                       <CardFooter className="mt-auto flex-wrap gap-2">
                         <Button asChild variant="outline" size="sm">
-                          <Link href={`/app/stores/${store.id}`}>Open</Link>
+                          <Link href={`/app/stores/${store.id}`}>{t("open")}</Link>
                         </Button>
                         <Button asChild variant="ghost" size="sm">
                           <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
@@ -260,7 +260,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                       </p>
                     </div>
                     <Button asChild variant="ghost" size="sm">
-                      <Link href={`/app/stores/${store.id}`}>Open</Link>
+                      <Link href={`/app/stores/${store.id}`}>{t("open")}</Link>
                     </Button>
                   </li>
                 ))}

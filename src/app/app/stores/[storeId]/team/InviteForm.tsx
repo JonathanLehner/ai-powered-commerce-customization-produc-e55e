@@ -1,21 +1,33 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { inviteTeamMember } from "@/app/actions/team";
 import { ActionForm } from "@/components/forms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { STORE_ROLE_DESCRIPTIONS, STORE_ROLE_LABELS, type StoreRole } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LOCALES, LOCALE_NAMES } from "@/i18n/locales";
+import type { StoreRole } from "@/lib/types";
 
 const ROLES: StoreRole[] = ["store_admin", "catalog_manager", "order_manager", "viewer"];
 
 export function InviteForm({ storeId }: { storeId: string }) {
+  const t = useTranslations("team");
+  const roles = useTranslations("roles");
+  const locale = useLocale();
   return (
     <Card asChild>
       <ActionForm
         action={inviteTeamMember}
-        submitLabel="Send invitation"
-        pendingLabel="Sending…"
+        submitLabel={t("sendInvitation")}
+        pendingLabel={t("sending")}
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -23,14 +35,14 @@ export function InviteForm({ storeId }: { storeId: string }) {
           <>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Invite a team member</h2>
+                <h2>{t("inviteTitle")}</h2>
               </CardTitle>
             </CardHeader>
 
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="invite-email">Email address</Label>
+                  <Label htmlFor="invite-email">{t("email")}</Label>
                   <Input
                     id="invite-email"
                     name="email"
@@ -41,7 +53,7 @@ export function InviteForm({ storeId }: { storeId: string }) {
                   />
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="invite-name">Name</Label>
+                  <Label htmlFor="invite-name">{t("name")}</Label>
                   <Input
                     id="invite-name"
                     name="name"
@@ -51,10 +63,25 @@ export function InviteForm({ storeId }: { storeId: string }) {
                     aria-invalid={state.field === "name" ? true : undefined}
                   />
                 </div>
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor="invite-language">{t("language")}</Label>
+                  <Select name="language" defaultValue={locale}>
+                    <SelectTrigger id="invite-language" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LOCALES.map((code) => (
+                        <SelectItem key={code} value={code}>
+                          {LOCALE_NAMES[code]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <fieldset className="mt-5">
-                <legend className="text-sm leading-none font-medium text-foreground select-none">Role</legend>
+                <legend className="text-sm leading-none font-medium text-foreground select-none">{t("role")}</legend>
                 <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
                   {ROLES.map((role, index) => (
                     <Label
@@ -70,10 +97,10 @@ export function InviteForm({ storeId }: { storeId: string }) {
                       />
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold text-foreground">
-                          {STORE_ROLE_LABELS[role]}
+                          {roles(role)}
                         </span>
                         <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                          {STORE_ROLE_DESCRIPTIONS[role]}
+                          {roles(`descriptions.${role}`)}
                         </span>
                       </span>
                     </Label>

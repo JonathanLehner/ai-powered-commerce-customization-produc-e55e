@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   createGiftCatalogue,
@@ -25,25 +26,26 @@ import type { GiftCatalogue, StoreProduct } from "@/lib/types";
 import { formatMoney, toMajorString } from "@/lib/util";
 
 export function CatalogueCreateForm({ storeId, currency }: { storeId: string; currency: string }) {
+  const t = useTranslations("gifting");
   return (
     <ActionForm
       action={createGiftCatalogue}
-      submitLabel="Create catalogue"
-      pendingLabel="Creating…"
+      submitLabel={t("create")}
+      pendingLabel={t("creating")}
       hidden={{ storeId }}
     >
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Catalogue name" htmlFor="name">
+          <Field label={t("name")} htmlFor="name">
             <Input
               id="name"
               name="name"
-              placeholder="Northwind employee gifting"
+              placeholder={t("namePlaceholder")}
               className="mt-1.5"
               aria-invalid={state.field === "name" ? true : undefined}
             />
           </Field>
-          <Field label="Company" htmlFor="companyName">
+          <Field label={t("company")} htmlFor="companyName">
             <Input
               id="companyName"
               name="companyName"
@@ -53,9 +55,9 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
             />
           </Field>
           <Field
-            label={`Spend limit per recipient (${currency})`}
+            label={t("spendLimitLabel", { currency })}
             htmlFor="spendLimit"
-            hint="0 for no limit."
+            hint={t("spendLimitHint")}
           >
             <Input
               id="spendLimit"
@@ -66,18 +68,18 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
               aria-invalid={state.field === "spendLimit" ? true : undefined}
             />
           </Field>
-          <Field label="Who may open it" htmlFor="access">
+          <Field label={t("whoMayOpen")} htmlFor="access">
             <Select name="access" defaultValue="link">
               <SelectTrigger id="access" className="mt-1.5 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="link">Anyone with the private link</SelectItem>
-                <SelectItem value="invite">Only invited email addresses</SelectItem>
+                <SelectItem value="link">{t("accessLink")}</SelectItem>
+                <SelectItem value="invite">{t("accessInvite")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Approver name" htmlFor="approverName" hint="Leave empty if no approval is needed.">
+          <Field label={t("approverName")} htmlFor="approverName" hint={t("approverNameHint")}>
             <Input
               id="approverName"
               name="approverName"
@@ -85,7 +87,7 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
               className="mt-1.5"
             />
           </Field>
-          <Field label="Approver email" htmlFor="approverEmail">
+          <Field label={t("approverEmail")} htmlFor="approverEmail">
             <Input
               id="approverEmail"
               name="approverEmail"
@@ -103,16 +105,17 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
 
 export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }) {
   const [approvalRequired, setApprovalRequired] = useState(catalogue.approvalRequired);
+  const t = useTranslations("gifting");
 
   return (
     <ActionForm
       action={saveGiftCatalogue}
-      submitLabel="Save details"
+      submitLabel={t("saveDetails")}
       hidden={{ storeId: catalogue.storeId, catalogueId: catalogue.id }}
     >
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Catalogue name" htmlFor="name">
+          <Field label={t("name")} htmlFor="name">
             <Input
               id="name"
               name="name"
@@ -121,7 +124,7 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
               aria-invalid={state.field === "name" ? true : undefined}
             />
           </Field>
-          <Field label="Company" htmlFor="companyName">
+          <Field label={t("company")} htmlFor="companyName">
             <Input
               id="companyName"
               name="companyName"
@@ -131,24 +134,24 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
             />
           </Field>
           <Field
-            label="Welcome message"
+            label={t("welcome")}
             htmlFor="intro"
             className="sm:col-span-2"
-            hint="Shown at the top of the portal."
+            hint={t("welcomeHint")}
           >
             <Textarea
               id="intro"
               name="intro"
               rows={3}
               defaultValue={catalogue.intro}
-              placeholder="Gifts for new joiners and client thank-yous. Orders close on the 20th of each month."
+              placeholder={t("welcomePlaceholder")}
               className="mt-1.5"
             />
           </Field>
           <Field
-            label={`Spend limit per recipient (${catalogue.currency})`}
+            label={t("spendLimitLabel", { currency: catalogue.currency })}
             htmlFor="spendLimit"
-            hint="0 for no limit."
+            hint={t("spendLimitHint")}
           >
             <Input
               id="spendLimit"
@@ -169,11 +172,11 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
                 className="mt-0.5"
               />
               <Label htmlFor="approvalRequired" className="block cursor-pointer font-normal">
-                Require approval before payment
+                {t("requireApproval")}
               </Label>
             </div>
           </div>
-          <Field label="Approver name" htmlFor="approverName">
+          <Field label={t("approverName")} htmlFor="approverName">
             <Input
               id="approverName"
               name="approverName"
@@ -182,9 +185,9 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
             />
           </Field>
           <Field
-            label="Approver email"
+            label={t("approverEmail")}
             htmlFor="approverEmail"
-            hint={approvalRequired ? "Required while approval is switched on." : undefined}
+            hint={approvalRequired ? t("approverEmailHint") : undefined}
           >
             <Input
               id="approverEmail"
@@ -203,31 +206,32 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
 
 export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue }) {
   const [access, setAccess] = useState(catalogue.access);
+  const t = useTranslations("gifting");
 
   return (
     <ActionForm
       action={saveGiftAccess}
-      submitLabel="Save access"
+      submitLabel={t("saveAccess")}
       hidden={{ storeId: catalogue.storeId, catalogueId: catalogue.id }}
     >
       {(state) => (
         <div className="space-y-4">
           <fieldset>
             <legend className="text-sm leading-none font-medium text-foreground select-none">
-              Who may open this catalogue
+              {t("whoMayOpenCatalogue")}
             </legend>
             <div className="mt-2 space-y-2">
               {(
                 [
                   {
                     value: "link",
-                    title: "Anyone with the private link",
-                    detail: "Regenerating the link disables old copies.",
+                    title: t("accessLink"),
+                    detail: t("accessLinkDetail"),
                   },
                   {
                     value: "invite",
-                    title: "Only invited email addresses",
-                    detail: "Buyers enter their work email to sign in.",
+                    title: t("accessInvite"),
+                    detail: t("accessInviteDetail"),
                   },
                 ] as const
               ).map((option) => (
@@ -253,9 +257,9 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
           </fieldset>
 
           <Field
-            label="Invited addresses"
+            label={t("invitedAddresses")}
             htmlFor="invitedEmails"
-            hint="One per line or separated by commas."
+            hint={t("invitedHint")}
           >
             <Textarea
               id="invitedEmails"
@@ -269,7 +273,7 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
             />
           </Field>
           {access === "link" && catalogue.invitedEmails.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Addresses are kept for when you switch this catalogue to invites.</p>
+            <p className="text-xs text-muted-foreground">{t("addressesKept")}</p>
           ) : null}
         </div>
       )}
@@ -285,18 +289,20 @@ export function CatalogueProductsForm({
   products: StoreProduct[];
 }) {
   const chosen = new Set(catalogue.productIds);
+  const t = useTranslations("gifting");
+  const locale = useLocale();
 
   return (
     <ActionForm
       action={saveGiftProducts}
-      submitLabel="Save products"
+      submitLabel={t("saveProducts")}
       hidden={{ storeId: catalogue.storeId, catalogueId: catalogue.id }}
     >
       {(state) => (
         <div>
           {products.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No published products yet.
+              {t("noPublished")}
             </p>
           ) : (
             <ul
@@ -319,16 +325,15 @@ export function CatalogueProductsForm({
                       <span className="block truncate font-medium text-foreground">{product.name}</span>
                       <span className="block text-xs text-muted-foreground">
                         <span className="tabular-nums">
-                          {formatMoney(product.price, product.currency)}
-                        </span>{" "}
-                        · <span className="tabular-nums">
-                          {product.variants.filter((v) => v.enabled).length}
-                        </span>{" "}
-                        options
+                          {t("productLine", {
+                            price: formatMoney(product.price, product.currency, locale),
+                            count: product.variants.filter((v) => v.enabled).length,
+                          })}
+                        </span>
                         {catalogue.spendLimitPerRecipient > 0 &&
                         convert(product.price, product.currency, catalogue.currency) >
                           catalogue.spendLimitPerRecipient
-                          ? " · over the spend limit"
+                          ? t("overLimit")
                           : ""}
                       </span>
                     </span>

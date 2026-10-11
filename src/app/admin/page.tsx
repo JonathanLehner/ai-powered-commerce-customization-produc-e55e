@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Badge, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,11 @@ export default async function AdminOverviewPage() {
   const pendingSuppliers = suppliers.filter((s) => s.status === "pending_review");
   const activeStores = stores.filter((s) => s.status === "active");
 
-  const pages = await getTranslations("pages.admin");
+  const [pages, t, locale] = await Promise.all([
+    getTranslations("pages.admin"),
+    getTranslations("admin.overview"),
+    getLocale(),
+  ]);
   return (
     <div className="space-y-7">
       <PageHeader
@@ -49,15 +53,23 @@ export default async function AdminOverviewPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Agencies" value={String(agencies.length)} sub={`${agencies.filter((a) => a.status === "active").length} active`} />
-        <StatCard label="Stores" value={String(stores.length)} sub={`${activeStores.length} active`} />
         <StatCard
-          label="Approved suppliers"
+          label={t("agencies")}
+          value={String(agencies.length)}
+          sub={t("active", { count: agencies.filter((a) => a.status === "active").length })}
+        />
+        <StatCard label={t("stores")} value={String(stores.length)} sub={t("active", { count: activeStores.length })} />
+        <StatCard
+          label={t("approvedSuppliers")}
           value={String(suppliers.filter((s) => s.status === "approved").length)}
-          sub={`${pendingSuppliers.length} awaiting review`}
+          sub={t("awaitingReview", { count: pendingSuppliers.length })}
           tone={pendingSuppliers.length > 0 ? "amber" : "green"}
         />
-        <StatCard label="Catalog products" value={String(catalog.length)} sub={`${brackets.length} tax brackets`} />
+        <StatCard
+          label={t("catalogProducts")}
+          value={String(catalog.length)}
+          sub={t("taxBrackets", { count: brackets.length })}
+        />
       </div>
 
       {pendingSuppliers.length> 0 ? (
@@ -65,7 +77,7 @@ export default async function AdminOverviewPage() {
         <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Suppliers awaiting review</h2>
+                <h2>{t("suppliersAwaiting")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -77,7 +89,7 @@ export default async function AdminOverviewPage() {
                       <p className="text-xs text-muted-foreground">{supplier.summary}</p>
                     </div>
                     <Button asChild variant="outline" size="sm">
-                      <Link href="/admin/suppliers">Review</Link>
+                      <Link href="/admin/suppliers">{t("review")}</Link>
                     </Button>
                   </li>
                 ))}
@@ -91,10 +103,10 @@ export default async function AdminOverviewPage() {
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Stores across the platform</h2>
+              <h2>{t("storesTitle")}</h2>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Customer and order details are hidden.
+              {t("storesHidden")}
             </p>
           </CardHeader>
           <CardContent>
@@ -102,11 +114,11 @@ export default async function AdminOverviewPage() {
               <Table className="min-w-[42rem]">
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className={TH}>Store</TableHead>
-                    <TableHead className={TH}>Agency</TableHead>
-                    <TableHead className={TH}>Currencies</TableHead>
-                    <TableHead className={TH}>Payments</TableHead>
-                    <TableHead className={TH}>Status</TableHead>
+                    <TableHead className={TH}>{t("colStore")}</TableHead>
+                    <TableHead className={TH}>{t("colAgency")}</TableHead>
+                    <TableHead className={TH}>{t("colCurrencies")}</TableHead>
+                    <TableHead className={TH}>{t("colPayments")}</TableHead>
+                    <TableHead className={TH}>{t("colStatus")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -129,11 +141,13 @@ export default async function AdminOverviewPage() {
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal">
                         <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                          {store.stripe.connected ? "Stripe connected" : "Not connected"}
+                          {store.stripe.connected ? t("stripeConnected") : t("notConnected")}
                         </Badge>
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal">
-                        <Badge tone={store.status === "active" ? "green" : "slate"}>{store.status}</Badge>
+                        <Badge tone={store.status === "active" ? "green" : "slate"}>
+                          {store.status === "active" ? t("storeActive") : t("storeArchived")}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -149,9 +163,9 @@ export default async function AdminOverviewPage() {
         <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Plan enquiries</h2>
+                <h2>{t("enquiries")}</h2>
               </CardTitle>
-                            <p className="text-sm text-muted-foreground">Sent from the contact page.</p>
+              <p className="text-sm text-muted-foreground">{t("enquiriesBody")}</p>
             </CardHeader>
             <CardContent>
               <ul className="divide-y divide-border">
@@ -165,7 +179,7 @@ export default async function AdminOverviewPage() {
                         <a href={`mailto:${enquiry.email}`} className="hover:underline">
                           {enquiry.email}
                         </a>
-                        {enquiry.wantsCall ? " · asked for a call" : null}
+                        {enquiry.wantsCall ? t("askedForCall") : null}
                       </p>
                       {enquiry.message ? (
                         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{enquiry.message}</p>
@@ -173,10 +187,10 @@ export default async function AdminOverviewPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <Badge tone={enquiry.plan === UNDECIDED ? "slate" : "brand"}>
-                        {planEnquiryLabel(enquiry.plan)}
+                        {planEnquiryLabel(enquiry.plan) === "Undecided" ? t("undecided") : planEnquiryLabel(enquiry.plan)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {formatDateTime(enquiry.createdAt)}
+                        {formatDateTime(enquiry.createdAt, locale)}
                       </span>
                     </div>
                   </li>
@@ -191,11 +205,11 @@ export default async function AdminOverviewPage() {
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Recent platform activity</h2>
+              <h2>{t("recentActivity")}</h2>
             </CardTitle>
             <CardAction>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/admin/audit">Full audit log</Link>
+                <Link href="/admin/audit">{t("fullAudit")}</Link>
               </Button>
             </CardAction>
           </CardHeader>
@@ -205,7 +219,7 @@ export default async function AdminOverviewPage() {
                 <li key={entry.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
                   <span className="text-foreground">{entry.summary}</span>
                   <span className="text-xs text-muted-foreground">
-                    {entry.actorName} · {formatDateTime(entry.at)}
+                    {entry.actorName} · {formatDateTime(entry.at, locale)}
                   </span>
                 </li>
               ))}

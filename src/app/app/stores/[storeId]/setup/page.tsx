@@ -20,7 +20,7 @@ export default async function StoreSetupPage({
   const brackets = await listTaxBrackets();
   const progress = setupProgress(store.setup);
 
-  const pages = await getTranslations("pages.store");
+  const [pages, t] = await Promise.all([getTranslations("pages.store"), getTranslations("settings")]);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -28,8 +28,8 @@ export default async function StoreSetupPage({
       />
 
       {created ? (
-        <Callout tone="green" title={`${store.name} is created`}>
-          Complete the setup steps below.
+        <Callout tone="green" title={t("createdTitle", { name: store.name })}>
+          {t("createdBody")}
         </Callout>
       ) : null}
 
@@ -37,21 +37,21 @@ export default async function StoreSetupPage({
 
       <section className="space-y-4" id="guided-setup">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Guided setup</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">{t("guidedSetup")}</h2>
         </div>
 
         <Card>
           <CardContent>
             <ProgressBar
               value={progress.pct}
-              label={`Setup progress: ${progress.done} of ${progress.total} steps`}
+              label={t("progress", { done: progress.done, total: progress.total })}
             />
             {progress.pct === 100 ? (
               <p className="mt-3 text-sm text-emerald-700">
-                Setup complete
+                {t("complete")}
               </p>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">Connect payments and a carrier to start selling.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("startSelling")}</p>
             )}
           </CardContent>
         </Card>

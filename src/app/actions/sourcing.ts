@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -47,13 +48,14 @@ export async function requestQuote(_prev: ActionState, formData: FormData): Prom
   const storeId = String(formData.get("storeId") ?? "");
   const catalogId = String(formData.get("catalogId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.catalog");
+  const t = await getTranslations("actions.sourcing");
 
   const [listing, suppliers] = await Promise.all([
     catalogId ? getCatalogProduct(catalogId) : Promise.resolve(null),
     listSuppliers(),
   ]);
   if (catalogId && (!listing || listing.status !== "active")) {
-    return { status: "error", message: "That catalog item is no longer offered. Pick another or describe it." };
+    return { status: "error", message: t("listingGone") };
   }
 
   // A quote-priced listing belongs to its marketplace; anything else — a
@@ -64,7 +66,7 @@ export async function requestQuote(_prev: ActionState, formData: FormData): Prom
     ? suppliers.find((s) => s.id === quoteListing.supplierId)
     : suppliers.find((s) => s.status === "approved" && s.kind === "sourcing_marketplace" && s.capabilities.quotes);
   if (!supplier || supplier.status !== "approved") {
-    return { status: "error", message: "No bulk sourcing partner is taking enquiries right now." };
+    return { status: "error", message: t("noPartner") };
   }
 
   const currency = listing?.currency ?? "USD";
@@ -88,7 +90,9 @@ export async function requestQuote(_prev: ActionState, formData: FormData): Prom
       listingName: listing?.name ?? null,
     },
   );
-  if (!checked.ok) return { status: "error", message: checked.message, field: checked.field };
+  if (!checked.ok) {
+    return { status: "error", message: t(`check.${checked.code}`, checked.values), field: checked.field };
+  }
   const input = checked.value;
 
   // The form key is minted once per filled-in form, so a double click, a slow
@@ -99,7 +103,7 @@ export async function requestQuote(_prev: ActionState, formData: FormData): Prom
     if (existing) {
       return {
         status: "success",
-        message: `Enquiry ${existing.code} was already sent.`,
+        message: t("alreadySent", { code: existing.code }),
       };
     }
   }
@@ -150,9 +154,9 @@ export async function requestQuote(_prev: ActionState, formData: FormData): Prom
   const days = quoteListing?.bulkSourcing.responseDays;
   return {
     status: "success",
-    message: `Enquiry ${request.code} is with ${supplier.name}. ${
-      days ? `Suppliers answer in ${days[0]}–${days[1]} working days` : "Suppliers usually answer in a few working days"
-    }, and the quotes appear under Bulk sourcing enquiries.`,
+    message: days
+      ? t("sent", { code: request.code, supplier: supplier.name, min: days[0], max: days[1] })
+      : t("sentUsual", { code: request.code, supplier: supplier.name }),
   };
 }
 
@@ -290,17 +294,18 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
   const requestId = String(formData.get("requestId") ?? "");
   const quoteId = String(formData.get("submissionKey") ?? "");
   const request = await getQuoteRequest(requestId);
-  if (!request) return { status: "error", message: "That enquiry no longer exists." };
-  if (!quoteId) return { status: "error", message: "The form was not ready. Try again." };
+  const [t, locale] = await Promise.all([getTranslations("actions.sourcing"), getLocale()]);
+  if (!request) return { status: "error", message: t("enquiryGone") };
+  if (!quoteId) return { status: "error", message: t("formNotReady") };
   if (request.status === "withdrawn" || request.status === "accepted") {
     return {
       status: "error",
-      message: `${request.code} is ${request.status === "withdrawn" ? "withdrawn by the store" : "already accepted"}, so it takes no more quotes.`,
+      message: t(request.status === "withdrawn" ? "withdrawnNoQuotes" : "acceptedNoQuotes", { code: request.code }),
     };
   }
   // Submitting the same form twice lands the quote once.
   if ((request.quotes ?? []).some((q) => q.id === quoteId)) {
-    return { status: "success", message: `That quote is already on ${request.code}.` };
+    return { status: "success", message: t("quoteAlreadyOn", { code: request.code }) };
   }
 
   const checked = checkSupplierQuote(
@@ -315,7 +320,7 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
     request.currency,
     request.quantity,
   );
-  if (!checked.ok) return { status: "error", message: checked.message, field: checked.field };
+  if (!checked.ok) return { status: "error", message: t(`quoteCheck.${checked.field}`), field: checked.field };
 
   // The copy needs variants, print areas and mockups to start from. An enquiry
   // that named a catalog item uses it; a described one needs the desk to say
@@ -326,7 +331,7 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
     return {
       status: "error",
       field: "baseCatalogProductId",
-      message: "Choose the catalog listing for this quote.",
+      message: t("chooseBase"),
     };
   }
 
@@ -343,7 +348,7 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
     { $push: { quotes: quote }, $set: { status: "quoted", declineReason: null } },
   );
   if (!pushed) {
-    return { status: "error", message: `${request.code} changed while you were typing. Reload to see where it stands.` };
+    return { status: "error", message: t("changed", { code: request.code }) };
   }
 
   recordAudit({
@@ -369,7 +374,11 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
   revalidateEnquiry(request.storeId);
   return {
     status: "success",
-    message: `Quote from ${quote.supplierLabel} at ${formatMoney(quote.unitCost, request.currency)} per unit added to ${request.code}.`,
+    message: t("quoteAdded", {
+      supplier: quote.supplierLabel,
+      amount: formatMoney(quote.unitCost, request.currency, locale),
+      code: request.code,
+    }),
   };
 }
 
@@ -378,19 +387,20 @@ export async function declineQuoteRequest(_prev: ActionState, formData: FormData
   const user = await assertPlatformAdmin();
   const requestId = String(formData.get("requestId") ?? "");
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 2000);
+  const t = await getTranslations("actions.sourcing");
   if (reason.length < 5) {
-    return { status: "error", message: "Say why the enquiry was declined.", field: "reason" };
+    return { status: "error", message: t("reasonRequired"), field: "reason" };
   }
 
   const request: QuoteRequest | null = await getQuoteRequest(requestId);
-  if (!request) return { status: "error", message: "That enquiry no longer exists." };
+  if (!request) return { status: "error", message: t("enquiryGone") };
 
   const declined = await updateQuoteRequest(
     request.id,
     { status: { $in: ["submitted", "quoted"] } },
     { $set: { status: "declined", declineReason: reason } },
   );
-  if (!declined) return { status: "error", message: `${request.code} is no longer open, so it was left as it is.` };
+  if (!declined) return { status: "error", message: t("notOpen", { code: request.code }) };
 
   recordAudit({
     category: "sourcing",
@@ -406,5 +416,5 @@ export async function declineQuoteRequest(_prev: ActionState, formData: FormData
   });
 
   revalidateEnquiry(request.storeId);
-  return { status: "success", message: `${request.code} declined.` };
+  return { status: "success", message: t("declined", { code: request.code }) };
 }

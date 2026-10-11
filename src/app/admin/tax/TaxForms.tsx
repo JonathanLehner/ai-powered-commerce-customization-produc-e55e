@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { saveTaxBracket } from "@/app/actions/admin";
 import { ActionForm } from "@/components/forms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,11 +19,13 @@ function Fields({
   state: { field?: string };
   prefix: string;
 }) {
+  const t = useTranslations("admin.tax");
+  const labels = useTranslations("labels");
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="grid content-start gap-1.5 sm:col-span-2">
-          <Label htmlFor={`${prefix}-name`}>Bracket name</Label>
+          <Label htmlFor={`${prefix}-name`}>{t("name")}</Label>
           <Input
             id={`${prefix}-name`}
             name="name"
@@ -32,7 +35,7 @@ function Fields({
           />
         </div>
         <div className="grid content-start gap-1.5">
-          <Label htmlFor={`${prefix}-rate`}>Rate (%)</Label>
+          <Label htmlFor={`${prefix}-rate`}>{t("rate")}</Label>
           <Input
             id={`${prefix}-rate`}
             name="rate"
@@ -46,29 +49,29 @@ function Fields({
           />
         </div>
         <div className="grid content-start gap-1.5">
-          <Label htmlFor={`${prefix}-code`}>Code</Label>
+          <Label htmlFor={`${prefix}-code`}>{t("code")}</Label>
           <Input
             id={`${prefix}-code`}
             name="code"
             defaultValue={bracket?.code}
             required
-            placeholder="STD-20"
+            placeholder={t("codePlaceholder")}
             aria-invalid={state.field === "code" ? true : undefined}
           />
         </div>
         <div className="grid content-start gap-1.5 sm:col-span-2">
-          <Label htmlFor={`${prefix}-description`}>Description</Label>
+          <Label htmlFor={`${prefix}-description`}>{t("description")}</Label>
           <Input
             id={`${prefix}-description`}
             name="description"
             defaultValue={bracket?.description}
-            placeholder="When a store should choose this bracket"
+            placeholder={t("descriptionPlaceholder")}
           />
         </div>
       </div>
 
       <fieldset className="mt-4">
-        <legend className="text-sm leading-none font-medium text-foreground select-none">Regions</legend>
+        <legend className="text-sm leading-none font-medium text-foreground select-none">{t("regions")}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {REGION_OPTIONS.map((region) => (
             <Label
@@ -81,12 +84,12 @@ function Fields({
                 defaultChecked={bracket?.regions.includes(region)}
                 className="size-3.5"
               />
-              {region}
+              {labels(`region.${region}` as "region.APAC")}
             </Label>
           ))}
         </div>
         {state.field === "regions" ? (
-          <p className="mt-1.5 text-xs text-destructive">Choose at least one region.</p>
+          <p className="mt-1.5 text-xs text-destructive">{t("regionRequired")}</p>
         ) : null}
       </fieldset>
     </>
@@ -94,10 +97,11 @@ function Fields({
 }
 
 export function EditBracketForm({ bracket }: { bracket: TaxBracket }) {
+  const t = useTranslations("admin.tax");
   return (
     <ActionForm
       action={saveTaxBracket}
-      submitLabel="Save bracket"
+      submitLabel={t("save")}
       submitVariant="outline"
       submitSize="sm"
       hidden={{ bracketId: bracket.id }}
@@ -108,21 +112,22 @@ export function EditBracketForm({ bracket }: { bracket: TaxBracket }) {
 }
 
 export function NewBracketForm() {
+  const t = useTranslations("admin.tax");
   return (
     <Card asChild>
       <ActionForm
         action={saveTaxBracket}
-        submitLabel="Create tax bracket"
+        submitLabel={t("create")}
         actionsClassName="px-(--card-spacing)"
       >
         {(state) => (
           <>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Add a tax bracket</h2>
+                <h2>{t("addTitle")}</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Brackets are global. Store managers pick one per product; they never set a rate themselves.
+                {t("addBody")}
               </p>
             </CardHeader>
             <CardContent>

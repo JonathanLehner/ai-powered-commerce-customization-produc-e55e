@@ -177,14 +177,24 @@ export function refundedTotal(order: Order): number {
  * in the order's own currency, which is a column of its own, so the totals can
  * be added up in the spreadsheet rather than read back out of a symbol.
  */
-export function orderCsv(orders: Order[]): string {
+export function orderCsv(
+  orders: Order[],
+  /** The column headings, statuses and country names in the reader's language. */
+  labels: {
+    columns?: string[];
+    status?: (status: OrderStatus) => string;
+    country?: (code: string) => string;
+  } = {},
+): string {
+  const status = labels.status ?? ((value: OrderStatus) => ORDER_STATUS_LABELS[value]);
+  const country = labels.country ?? countryName;
   const rows = orders.map((order) => [
     order.code,
     order.createdAt,
-    ORDER_STATUS_LABELS[order.status],
+    status(order.status),
     order.customer.name,
     order.customer.email,
-    countryName(order.customer.country),
+    country(order.customer.country),
     itemsCell(order),
     order.currency.toUpperCase(),
     toMajorString(order.subtotal, order.currency),
@@ -195,7 +205,7 @@ export function orderCsv(orders: Order[]): string {
     order.fulfillment.carrier ? CARRIER_LABELS[order.fulfillment.carrier] : "",
     order.fulfillment.trackingNumber ?? "",
   ]);
-  return csvDocument([ORDER_CSV_COLUMNS, ...rows]);
+  return csvDocument([labels.columns ?? ORDER_CSV_COLUMNS, ...rows]);
 }
 
 /** e.g. `northwind-supply-co-orders-shipped-2026-08-05.csv`. */

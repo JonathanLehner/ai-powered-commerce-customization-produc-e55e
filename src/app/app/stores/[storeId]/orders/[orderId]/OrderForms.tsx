@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   addTracking,
   raiseException,
@@ -34,15 +35,23 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Order, RoutingOptions, Store, SupplierChoice } from "@/lib/types";
 import { CARRIER_LABELS, toMajorString } from "@/lib/util";
 
-const SUPPLIER_KINDS: Record<SupplierChoice["kind"], string> = {
-  print_on_demand: "Print on demand",
-  manufacturer: "Manufacturer",
-  sourcing_marketplace: "Sourcing marketplace",
-};
+function useChoiceLabel() {
+  const t = useTranslations("orderDetail");
+  const labels = useTranslations("labels");
+  return (choice: SupplierChoice) =>
+    t("choice", {
+      name: choice.name,
+      kind: labels(`supplierKind.${choice.kind}`),
+      min: choice.leadTimeDays[0],
+      max: choice.leadTimeDays[1],
+    });
+}
 
-function choiceLabel(choice: SupplierChoice): string {
-  const lead = `${choice.leadTimeDays[0]}–${choice.leadTimeDays[1]} day lead time`;
-  return `${choice.name} · ${SUPPLIER_KINDS[choice.kind]}, ${lead}`;
+/** A fulfilment region in the reader's language, or as stored when it is one of the supplier's own. */
+function useRegionLabel() {
+  const labels = useTranslations("labels");
+  return (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
 }
 
 /**
@@ -56,6 +65,9 @@ function choiceLabel(choice: SupplierChoice): string {
  */
 export function SupplierPickerForm({ order, options }: { order: Order; options: RoutingOptions }) {
   const needs = options.requirements.map((r) => r.label).join(", ");
+  const t = useTranslations("orderDetail");
+  const choiceLabel = useChoiceLabel();
+  const regionLabel = useRegionLabel();
 
   // "Failed on" only reads true for a job routing could not place; the same
   // panel doubles as "move production elsewhere" for one already accepted.
@@ -66,24 +78,24 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
     return (
       <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
         <p className="font-semibold">
-          No approved supplier delivers {needs || "these items"} to {options.destination}.
+          {t("noSupplierFor", { needs: needs || t("theseItems"), destination: options.destination })}
         </p>
                 {options.manualOnly.length > 0 ? (
           <p className="mt-1">
-            Manual purchase order only: {options.manualOnly.map((s) => s.name).join(", ")}
+            {t("manualOnly", { names: options.manualOnly.map((s) => s.name).join(", ") })}
           </p>
         ) : null}
-        {current ? <p className="mt-1">Current supplier: {current}</p> : null}
-        <p className="mt-2 font-semibold">Options:</p>
+        {current ? <p className="mt-1">{t("currentSupplier", { name: current })}</p> : null}
+        <p className="mt-2 font-semibold">{t("options")}</p>
         <ul className="mt-1 list-disc space-y-1 pl-4">
           {held ? (
             <li>
-                            Raise a purchase order manually and record the reference below.
+              {t("optionManual")}
             </li>
           ) : null}
-          <li>Cancel and refund the order below.</li>
+          <li>{t("optionRefund")}</li>
           <li>
-                        Ask a platform administrator to add a supplier for {options.region}, then re-run routing.
+            {t("optionAdmin", { region: regionLabel(options.region) })}
           </li>
         </ul>
       </div>
@@ -94,8 +106,8 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
     <ActionForm
       action={rerouteToSupplier}
       className="mt-4"
-      submitLabel="Send job to supplier"
-      pendingLabel="Sending…"
+      submitLabel={t("sendJob")}
+      pendingLabel={t("sending")}
       submitSize="sm"
       submitDisabled={!options.carriersEnabled}
       hidden={{ storeId: order.storeId, orderId: order.id }}
@@ -103,7 +115,7 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
       {(state) => (
         <div className="space-y-3">
           <div className="grid gap-1.5">
-            <Label htmlFor="supplierId">Alternative production partner</Label>
+            <Label htmlFor="supplierId">{t("alternativePartner")}</Label>
             <Select name="supplierId" defaultValue={options.available[0].id}>
               <SelectTrigger
                 id="supplierId"
@@ -122,22 +134,22 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
               </SelectContent>
             </Select>
             <p id="supplierId-hint" className="text-xs text-muted-foreground">
-                            Approved suppliers that deliver to {options.region}.
+              {t("approvedFor", { region: regionLabel(options.region) })}
             </p>
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="reroute-reason">Reason</Label>
+            <Label htmlFor="reroute-reason">{t("reason")}</Label>
             <Input
               id="reroute-reason"
               name="reason"
               required
-              placeholder="Original supplier does not fulfil to this destination"
+              placeholder={t("reroutePlaceholder")}
               aria-invalid={state.field === "reason" ? true : undefined}
                           />
           </div>
           {!options.carriersEnabled ? (
             <p className="text-xs text-destructive">
-              Enable a carrier in store settings first.
+              {t("enableCarrier")}
             </p>
           ) : null}
         </div>
@@ -147,21 +159,22 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
 }
 
 export function ManualSubmissionForm({ order }: { order: Order }) {
+  const t = useTranslations("orderDetail");
   return (
     <ActionForm
       action={recordManualSubmission}
-      submitLabel="Record supplier reference"
+      submitLabel={t("recordReference")}
       submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="grid gap-1.5">
-          <Label htmlFor="reference">Supplier purchase order reference</Label>
+          <Label htmlFor="reference">{t("poReference")}</Label>
           <Input
             id="reference"
             name="reference"
             required
-            placeholder="e.g. ALB-2049117"
+            placeholder={t("poPlaceholder")}
             aria-invalid={state.field === "reference" ? true : undefined}
                       />
         </div>
@@ -172,17 +185,18 @@ export function ManualSubmissionForm({ order }: { order: Order }) {
 
 export function TrackingForm({ order, store }: { order: Order; store: Store }) {
   const enabled = store.carriers.filter((c) => c.enabled);
+  const t = useTranslations("orderDetail");
   return (
     <ActionForm
       action={addTracking}
-      submitLabel={order.fulfillment.trackingNumber ? "Update tracking" : "Mark shipped"}
+      submitLabel={order.fulfillment.trackingNumber ? t("updateTracking") : t("markShipped")}
       submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5">
-            <Label htmlFor="carrier">Carrier</Label>
+            <Label htmlFor="carrier">{t("carrier")}</Label>
             <Select
               name="carrier"
               defaultValue={order.fulfillment.carrier ?? enabled[0]?.carrier ?? undefined}
@@ -193,7 +207,7 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
                 className="w-full"
                 aria-invalid={state.field === "carrier" ? true : undefined}
               >
-                <SelectValue placeholder={enabled.length === 0 ? "No carriers enabled" : undefined} />
+                <SelectValue placeholder={enabled.length === 0 ? t("noCarriers") : undefined} />
               </SelectTrigger>
               <SelectContent>
                 {enabled.map((c) => (
@@ -205,12 +219,12 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
             </Select>
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="trackingNumber">Tracking number</Label>
+            <Label htmlFor="trackingNumber">{t("trackingNumber")}</Label>
             <Input
               id="trackingNumber"
               name="trackingNumber"
               defaultValue={order.fulfillment.trackingNumber ?? ""}
-              placeholder="Leave blank to generate one"
+              placeholder={t("trackingPlaceholder")}
               aria-invalid={state.field === "trackingNumber" ? true : undefined}
             />
           </div>
@@ -221,22 +235,23 @@ export function TrackingForm({ order, store }: { order: Order; store: Store }) {
 }
 
 export function ExceptionForm({ order }: { order: Order }) {
+  const t = useTranslations("orderDetail");
   return (
     <ActionForm
       action={raiseException}
-      submitLabel="Raise exception"
+      submitLabel={t("raiseException")}
       submitVariant="destructive" submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="grid gap-1.5">
-          <Label htmlFor="note">What has gone wrong?</Label>
+          <Label htmlFor="note">{t("whatWrong")}</Label>
           <Textarea
             id="note"
             name="note"
             rows={2}
             required
-            placeholder="Supplier cannot print the artwork at this size; awaiting a replacement file."
+            placeholder={t("exceptionPlaceholder")}
             aria-invalid={state.field === "note" ? true : undefined}
           />
         </div>
@@ -255,6 +270,8 @@ export function RefundForm({ order }: { order: Order }) {
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
   const remaining = order.total - refunded;
   const formId = `refund-${order.id}`;
+  const t = useTranslations("orderDetail");
+  const common = useTranslations("common");
 
   const [{ state, attempt }, formAction, pending] = useSubmission<ActionState>(recordRefund, {
     status: "idle",
@@ -277,7 +294,7 @@ export function RefundForm({ order }: { order: Order }) {
       <div className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5">
-            <Label htmlFor="amount">Amount ({order.currency})</Label>
+            <Label htmlFor="amount">{t("amount", { currency: order.currency })}</Label>
             <Input
               id="amount"
               name="amount"
@@ -288,19 +305,19 @@ export function RefundForm({ order }: { order: Order }) {
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="reason">Reason</Label>
+            <Label htmlFor="reason">{t("reason")}</Label>
             <Input
               id="reason"
               name="reason"
               required
-              placeholder="Shopper cancelled before production"
+              placeholder={t("refundPlaceholder")}
               aria-invalid={state.field === "reason" ? true : undefined}
             />
           </div>
         </div>
         <Label htmlFor="cancel" className="cursor-pointer font-normal text-inksoft">
           <input id="cancel" type="checkbox" name="cancel" className="size-4 accent-primary" />
-          Also cancel the order
+          {t("alsoCancel")}
         </Label>
       </div>
       <FormStatus state={state} />
@@ -308,20 +325,20 @@ export function RefundForm({ order }: { order: Order }) {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button type="button" variant="destructive" size="sm" disabled={pending}>
-              {pending ? "Saving…" : "Record refund"}
+              {pending ? common("saving") : t("recordRefund")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Record refund</AlertDialogTitle>
+              <AlertDialogTitle>{t("recordRefund")}</AlertDialogTitle>
               <AlertDialogDescription>
-                The amount will be refunded to the customer. This cannot be undone.
+                {t("refundBody")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel />
               <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-                Record refund
+                {t("recordRefund")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

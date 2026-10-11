@@ -18,7 +18,13 @@ export default async function AdminTaxPage() {
   );
   const usageById = new Map(usage.map((u) => [u.id, u.count]));
 
-  const pages = await getTranslations("pages.admin");
+  const [pages, t, labels] = await Promise.all([
+    getTranslations("pages.admin"),
+    getTranslations("admin.tax"),
+    getTranslations("labels"),
+  ]);
+  const region = (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
   return (
     <div className="space-y-6">
       <PageHeader
@@ -44,18 +50,18 @@ export default async function AdminTaxPage() {
                   </div>
                   <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{bracket.description}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Used by {inUse} product{inUse === 1 ? "" : "s"} · {bracket.regions.join(", ")}
+                    {t("usedBy", { count: inUse, regions: bracket.regions.map(region).join(", ") })}
                   </p>
                 </div>
                 {inUse === 0 ? (
                   <form action={deleteTaxBracket}>
                     <input type="hidden" name="bracketId" value={bracket.id} />
                     <Button type="submit" variant="destructive" size="sm">
-                      Delete
+                      {t("delete")}
                     </Button>
                   </form>
                 ) : (
-                  <Badge tone="amber">In use</Badge>
+                  <Badge tone="amber">{t("inUse")}</Badge>
                 )}
               </CardHeader>
               <CardContent>

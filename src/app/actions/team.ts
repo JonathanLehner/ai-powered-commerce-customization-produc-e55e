@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, teamInviteEmail } from "@/lib/email-templates";
+import { isLocale } from "@/i18n/locales";
 import { db } from "@/lib/mongo";
 import { assertStoreAccess } from "@/lib/session";
 import { STORE_ROLE_LABELS, type Membership, type Store, type StoreRole, type User } from "@/lib/types";
@@ -27,15 +29,17 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "viewer") as StoreRole;
+  const language = String(formData.get("language") ?? "");
+  const t = await getTranslations("actions.team");
 
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { status: "error", message: "Enter a valid email address.", field: "email" };
+    return { status: "error", message: t("emailInvalid"), field: "email" };
   }
   if (name.length < 2) {
-    return { status: "error", message: "Enter a name.", field: "name" };
+    return { status: "error", message: t("nameRequired"), field: "name" };
   }
   if (!ROLES.includes(role)) {
-    return { status: "error", message: "Choose one of the four store roles.", field: "role" };
+    return { status: "error", message: t("roleInvalid"), field: "role" };
   }
 
   const [{ user, store }, existing, account] = await Promise.all([
@@ -44,7 +48,7 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
     getUserByEmail(email),
   ]);
   if (existing.some((m) => m.email.toLowerCase() === email)) {
-    return { status: "error", message: "That person already has access to this store.", field: "email" };
+    return { status: "error", message: t("alreadyMember"), field: "email" };
   }
 
   const membership: Membership = {
@@ -60,6 +64,7 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
     invitedAt: new Date().toISOString(),
     acceptedAt: account ? new Date().toISOString() : null,
     inviteToken: account ? null : newId("inv"),
+    ...(isLocale(language) ? { language } : {}),
   };
 
   await db.insertOne(COLLECTIONS.memberships, membership as unknown as Record<string, unknown>);
@@ -84,15 +89,16 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
   return {
     status: "success",
     message: account
-      ? `${account.name} already has a Parcelith account, so access is active immediately.`
-      : `Invitation created for ${email} and the email is on its way. The acceptance link is also in the members list above if it never arrives.`,
+      ? t("activeNow", { name: account.name })
+      : t("invited", { email }),
   };
 }
 
 /**
  * Emails one invitation. The acceptance link has to be absolute, and it is the
  * same link the members list shows, so a person who never receives the email
- * can still be sent it by hand.
+ * can still be sent it by hand. It is written in the recipient's language: the
+ * one their account uses if they have one, else the one chosen when inviting.
  */
 async function emailInvitation(
   store: Store,
@@ -100,13 +106,15 @@ async function emailInvitation(
   inviterName: string,
 ): Promise<void> {
   try {
-    const origin = await siteOrigin();
+    const [origin, account] = await Promise.all([siteOrigin(), getUserByEmail(membership.email)]);
+    const language = [account?.uiLanguage, membership.language].find(isLocale) ?? store.defaultLanguage;
+    const roles = await getTranslations({ locale: isLocale(language) ? language : "en", namespace: "roles" });
     sendEmail({
       to: membership.email,
-      message: teamInviteEmail(brandFor(store), {
+      message: teamInviteEmail({ ...brandFor(store), language }, {
         name: membership.name,
         inviterName,
-        roleLabel: STORE_ROLE_LABELS[membership.role],
+        roleLabel: roles(membership.role),
         acceptUrl: `${origin}/invite/${membership.inviteToken}`,
       }),
       kind: "team invitation",
@@ -227,6 +235,7 @@ export async function acceptInvitation(formData: FormData): Promise<void> {
       agencyId: membership.agencyId,
       title: STORE_ROLE_LABELS[membership.role],
       createdAt: now,
+      ...(isLocale(membership.language) ? { uiLanguage: membership.language } : {}),
     };
     await db.insertOne(COLLECTIONS.users, user as unknown as Record<string, unknown>);
     account = user;

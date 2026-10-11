@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Badge, Callout, EmptyState, PageHeader, StatCard } from "@/components/ui";
@@ -15,7 +15,7 @@ import {
 import { listGiftCampaigns, listGiftCatalogues, listPublishedProducts } from "@/lib/data";
 import { portalUrl } from "@/lib/gift-access";
 import { requireStoreAccess } from "@/lib/session";
-import { CAMPAIGN_STATUS_LABELS, type CampaignStatus } from "@/lib/types";
+import type { CampaignStatus } from "@/lib/types";
 import { formatDate, formatMoney } from "@/lib/util";
 import { CatalogueCreateForm } from "./GiftingForms";
 
@@ -53,7 +53,12 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
   const ordered = campaigns.filter((c) => c.status === "ordered");
   const gifted = ordered.reduce((sum, c) => sum + c.recipients.length, 0);
 
-  const pages = await getTranslations("pages.store");
+  const [pages, t, labels, locale] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("gifting"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -62,28 +67,32 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Gift catalogues" value={String(catalogues.length)} sub={`${published.length} products available`} />
         <StatCard
-          label="Awaiting approval"
+          label={t("catalogues")}
+          value={String(catalogues.length)}
+          sub={t("productsAvailable", { count: published.length })}
+        />
+        <StatCard
+          label={t("awaitingApproval")}
           value={String(awaiting.length)}
           tone={awaiting.length > 0 ? "amber" : "neutral"}
         />
-        <StatCard label="Approved, unpaid" value={String(approved.length)} />
-        <StatCard label="Gifts ordered" value={String(gifted)} sub={`${ordered.length} campaigns paid`} />
+        <StatCard label={t("approvedUnpaid")} value={String(approved.length)} />
+        <StatCard label={t("giftsOrdered")} value={String(gifted)} sub={t("campaignsPaid", { count: ordered.length })} />
       </div>
 
       {published.length === 0 ? (
-        <Callout tone="amber" title="No published products">
-          Publish a product to add it to a gift catalogue.
+        <Callout tone="amber" title={t("noPublishedTitle")}>
+          {t("noPublishedBody")}
         </Callout>
       ) : null}
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-foreground">Catalogues</h2>
+        <h2 className="text-base font-semibold text-foreground">{t("cataloguesTitle")}</h2>
         {catalogues.length === 0 ? (
           <EmptyState
-            title="No gift catalogues yet"
-            description="Create one below."
+            title={t("noCatalogues")}
+            description={t("noCataloguesBody")}
           />
         ) : (
           <ul className="grid gap-4 lg:grid-cols-2">
@@ -104,17 +113,20 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                       </h3>
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      {catalogue.companyName} · created {formatDate(catalogue.createdAt)} by{" "}
-                      {catalogue.createdBy}
+                      {t("createdBy", {
+                        company: catalogue.companyName,
+                        date: formatDate(catalogue.createdAt, locale),
+                        name: catalogue.createdBy,
+                      })}
                     </p>
                     <CardAction className="flex shrink-0 flex-wrap items-center gap-2">
                       <Badge tone={catalogue.status === "active" ? "green" : "slate"}>
-                        {catalogue.status === "active" ? "Open" : "Paused"}
+                        {catalogue.status === "active" ? t("open") : t("paused")}
                       </Badge>
                       <Badge tone="neutral">
                         {catalogue.access === "invite"
-                          ? `${catalogue.invitedEmails.length} invited`
-                          : "Private link"}
+                          ? t("invited", { count: catalogue.invitedEmails.length })
+                          : t("privateLink")}
                       </Badge>
                     </CardAction>
                   </CardHeader>
@@ -122,25 +134,25 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                   <CardContent>
                   <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
                     <div>
-                      <dt className="text-xs text-muted-foreground">Products</dt>
+                      <dt className="text-xs text-muted-foreground">{t("products")}</dt>
                       <dd className="font-medium tabular-nums text-foreground">
                         {catalogue.productIds.length}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-muted-foreground">Spend limit</dt>
+                      <dt className="text-xs text-muted-foreground">{t("spendLimit")}</dt>
                       <dd className="font-medium tabular-nums text-foreground">
                         {catalogue.spendLimitPerRecipient > 0
-                          ? `${formatMoney(catalogue.spendLimitPerRecipient, catalogue.currency)} each`
-                          : "No limit"}
+                          ? t("each", { amount: formatMoney(catalogue.spendLimitPerRecipient, catalogue.currency, locale) })
+                          : t("noLimit")}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-muted-foreground">Approval</dt>
+                      <dt className="text-xs text-muted-foreground">{t("approval")}</dt>
                       <dd className="font-medium text-foreground">
                         {catalogue.approvalRequired
                           ? catalogue.approverName || catalogue.approverEmail
-                          : "Not required"}
+                          : t("notRequired")}
                       </dd>
                     </div>
                   </dl>
@@ -152,11 +164,10 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
 
                   <CardFooter className="flex-wrap items-center gap-2">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`}>Open catalogue</Link>
+                      <Link href={`/app/stores/${storeId}/gifting/${catalogue.id}`}>{t("openCatalogue")}</Link>
                     </Button>
                     <span className="text-xs text-muted-foreground">
-                      <span className="tabular-nums">{catalogueCampaigns.length}</span>{" "}
-                      {catalogueCampaigns.length === 1 ? "campaign" : "campaigns"}
+                      <span className="tabular-nums">{t("campaignCount", { count: catalogueCampaigns.length })}</span>
                     </span>
                   </CardFooter>
                   </Card>
@@ -168,22 +179,22 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-foreground">Campaigns</h2>
+        <h2 className="text-base font-semibold text-foreground">{t("campaigns")}</h2>
         {campaigns.length === 0 ? (
           <EmptyState
-            title="No campaigns yet"
-            description="Campaigns appear here when a buyer submits a recipient list."
+            title={t("noCampaigns")}
+            description={t("noCampaignsBody")}
           />
         ) : (
           <Card className="relative overflow-x-auto py-0">
             <Table className="min-w-[54rem]">
               <TableHeader className="bg-muted">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className={TH}>Campaign</TableHead>
-                  <TableHead className={TH}>Buyer</TableHead>
-                  <TableHead className={TH}>Recipients</TableHead>
-                  <TableHead className={TH}>Status</TableHead>
-                  <TableHead className={`${TH} text-right`}>Value</TableHead>
+                  <TableHead className={TH}>{t("colCampaign")}</TableHead>
+                  <TableHead className={TH}>{t("colBuyer")}</TableHead>
+                  <TableHead className={TH}>{t("colRecipients")}</TableHead>
+                  <TableHead className={TH}>{t("colStatus")}</TableHead>
+                  <TableHead className={`${TH} text-right`}>{t("colValue")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -199,7 +210,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                           {campaign.code}
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {campaign.name} · {catalogue?.companyName ?? "Catalogue removed"}
+                          {campaign.name} · {catalogue?.companyName ?? t("catalogueRemoved")}
                         </p>
                       </TableCell>
                       <TableCell className="px-4 py-3 align-top whitespace-normal">
@@ -211,12 +222,12 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
                       </TableCell>
                       <TableCell className="px-4 py-3 align-top whitespace-normal">
                         <Badge tone={CAMPAIGN_TONES[campaign.status]}>
-                          {CAMPAIGN_STATUS_LABELS[campaign.status]}
+                          {labels(`campaignStatus.${campaign.status}`)}
                         </Badge>
-                        <p className="mt-1 text-xs text-muted-foreground">{formatDate(campaign.createdAt)}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{formatDate(campaign.createdAt, locale)}</p>
                       </TableCell>
                       <TableCell className="px-4 py-3 text-right align-top font-medium tabular-nums text-foreground">
-                        {formatMoney(campaign.totals.total, campaign.currency)}
+                        {formatMoney(campaign.totals.total, campaign.currency, locale)}
                       </TableCell>
                     </TableRow>
                   );
@@ -231,7 +242,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
         <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>New gift catalogue</h2>
+              <h2>{t("newCatalogue")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent className="max-w-2xl">

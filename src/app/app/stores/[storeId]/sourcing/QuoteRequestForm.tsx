@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { requestQuote } from "@/app/actions/sourcing";
 import { ActionForm, Field, SubmissionKey } from "@/components/forms";
@@ -50,16 +51,21 @@ export function QuoteRequestForm({
   contactEmail: string;
 }) {
   const [reference, setReference] = useState(defaultReference || NO_REFERENCE);
+  const t = useTranslations("sourcing.form");
+  const labels = useTranslations("labels");
+  const locale = useLocale();
+  const regionLabel = (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
 
   return (
     <ActionForm
       action={requestQuote}
       hidden={listing ? { storeId, catalogId: listing.id } : { storeId }}
-      submitLabel="Send enquiry"
-      pendingLabel="Sending…"
+      submitLabel={t("send")}
+      pendingLabel={t("sending")}
       footer={
         <span className="text-xs text-muted-foreground">
-          No payment is taken.
+          {t("noPayment")}
         </span>
       }
     >
@@ -69,10 +75,10 @@ export function QuoteRequestForm({
           {listing ? null : (
             <>
               <Field
-                label="Refer to a catalog item"
+                label={t("reference")}
                 htmlFor="catalogId"
                 className="sm:col-span-2"
-                hint="Optional"
+                hint={t("optional")}
               >
                 <input
                   type="hidden"
@@ -84,7 +90,7 @@ export function QuoteRequestForm({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_REFERENCE}>None</SelectItem>
+                    <SelectItem value={NO_REFERENCE}>{t("none")}</SelectItem>
                     {catalogOptions?.map((option) => (
                       <SelectItem key={option.id} value={option.id}>
                         {option.label}
@@ -94,10 +100,10 @@ export function QuoteRequestForm({
                 </Select>
               </Field>
               <Field
-                label="Product"
+                label={t("product")}
                 htmlFor="productName"
                 error={state.field === "productName"}
-                hint="Required if no catalog item is selected."
+                hint={t("productHint")}
               >
                 <Input
                   id="productName"
@@ -109,11 +115,11 @@ export function QuoteRequestForm({
             </>
           )}
           <Field
-            label="Product description"
+            label={t("description")}
             htmlFor="description"
             className={listing ? "sm:col-span-2" : undefined}
             error={state.field === "description"}
-            hint={listing ? "Optional. Anything that differs from the listing." : "Material, weight, sizes or capacity."}
+            hint={listing ? t("descriptionListingHint") : t("descriptionHint")}
           >
             <Textarea
               id="description"
@@ -124,13 +130,13 @@ export function QuoteRequestForm({
             />
           </Field>
           <Field
-            label="Quantity"
+            label={t("quantity")}
             htmlFor="quantity"
             error={state.field === "quantity"}
             hint={
               minimumOrderQuantity > 0
-                ? `Quoted from ${minimumOrderQuantity.toLocaleString("en-US")} units.`
-                : "Units in the run."
+                ? t("quotedFrom", { count: minimumOrderQuantity.toLocaleString(locale) })
+                : t("unitsInRun")
             }
           >
             <Input
@@ -142,7 +148,7 @@ export function QuoteRequestForm({
               aria-invalid={state.field === "quantity" ? true : undefined}
             />
           </Field>
-          <Field label="Destination market" htmlFor="destination" error={state.field === "destination"}>
+          <Field label={t("destination")} htmlFor="destination" error={state.field === "destination"}>
             <Select name="destination" defaultValue={defaultDestination}>
               <SelectTrigger
                 id="destination"
@@ -154,32 +160,32 @@ export function QuoteRequestForm({
               <SelectContent>
                 {regions.map((region) => (
                   <SelectItem key={region} value={region}>
-                    {region}
+                    {regionLabel(region)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </Field>
           <Field
-            label={`Target unit cost (${currency})`}
+            label={t("targetCost", { currency })}
             htmlFor="targetUnitCost"
             error={state.field === "targetUnitCost"}
-            hint="Optional"
+            hint={t("optional")}
           >
             <Input
               id="targetUnitCost"
               name="targetUnitCost"
               inputMode="decimal"
-              placeholder="e.g. 3.80"
+              placeholder={t("targetPlaceholder")}
               className="mt-1.5 tabular-nums"
               aria-invalid={state.field === "targetUnitCost" ? true : undefined}
             />
           </Field>
           <Field
-            label="Needed by"
+            label={t("neededBy")}
             htmlFor="neededBy"
             error={state.field === "neededBy"}
-            hint="Optional"
+            hint={t("optional")}
           >
             <Input
               id="neededBy"
@@ -190,11 +196,11 @@ export function QuoteRequestForm({
             />
           </Field>
           <Field
-            label="Decoration needed"
+            label={t("decoration")}
             htmlFor="customisation"
             className="sm:col-span-2"
             error={state.field === "customisation"}
-            hint="Print method, placement, colours, labels and packaging."
+            hint={t("decorationHint")}
           >
             <Textarea
               id="customisation"
@@ -204,7 +210,7 @@ export function QuoteRequestForm({
               aria-invalid={state.field === "customisation" ? true : undefined}
             />
           </Field>
-          <Field label="Reply to" htmlFor="contactName" error={state.field === "contactName"}>
+          <Field label={t("replyTo")} htmlFor="contactName" error={state.field === "contactName"}>
             <Input
               id="contactName"
               name="contactName"
@@ -214,7 +220,7 @@ export function QuoteRequestForm({
               aria-invalid={state.field === "contactName" ? true : undefined}
             />
           </Field>
-          <Field label="Reply email" htmlFor="contactEmail" error={state.field === "contactEmail"}>
+          <Field label={t("replyEmail")} htmlFor="contactEmail" error={state.field === "contactEmail"}>
             <Input
               id="contactEmail"
               name="contactEmail"

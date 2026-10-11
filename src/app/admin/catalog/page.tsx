@@ -1,18 +1,22 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
-import { formatQuantity, isQuoteOnly, QUOTE_PRICE_LABEL } from "@/lib/sourcing";
+import { isQuoteOnly } from "@/lib/sourcing";
 import { formatMoney } from "@/lib/util";
 
 export default async function AdminCatalogPage() {
   const [catalog, suppliers] = await Promise.all([listCatalogProducts(), listSuppliers()]);
-  const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name ?? "Unknown";
-
-  const pages = await getTranslations("pages.admin");
+  const [pages, t, labels, locale] = await Promise.all([
+    getTranslations("pages.admin"),
+    getTranslations("admin.catalog"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name ?? t("unknown");
   return (
     <div className="space-y-6">
       <PageHeader
@@ -20,29 +24,29 @@ export default async function AdminCatalogPage() {
         description={pages("catalogDescription")}
         actions={
           <Button asChild size="sm">
-            <Link href="/admin/catalog/new">Add product</Link>
+            <Link href="/admin/catalog/new">{t("addProduct")}</Link>
           </Button>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Products" value={String(catalog.length)} />
-        <StatCard label="Apparel" value={String(catalog.filter((c) => c.category === "apparel").length)} />
-        <StatCard label="Drinkware" value={String(catalog.filter((c) => c.category === "drinkware").length)} />
+        <StatCard label={t("products")} value={String(catalog.length)} />
+        <StatCard label={t("apparel")} value={String(catalog.filter((c) => c.category === "apparel").length)} />
+        <StatCard label={t("drinkware")} value={String(catalog.filter((c) => c.category === "drinkware").length)} />
         <StatCard
-          label="Bulk sourcing"
+          label={t("bulkSourcing")}
           value={String(catalog.filter((c) => isQuoteOnly(c)).length)}
-          sub="Priced by quote"
+          sub={t("pricedByQuote")}
         />
       </div>
 
       {catalog.length === 0 ? (
         <EmptyState
-          title="No products yet"
-          description="Add a product so stores can import it."
+          title={t("noProducts")}
+          description={t("noProductsBody")}
           action={
             <Button asChild>
-              <Link href="/admin/catalog/new">Add product</Link>
+              <Link href="/admin/catalog/new">{t("addProduct")}</Link>
             </Button>
           }
         />
@@ -69,33 +73,33 @@ export default async function AdminCatalogPage() {
             <CardContent className="flex flex-1 flex-col py-4">
               <div className="flex items-start justify-between gap-2">
                 <h2 className="font-heading text-sm font-medium text-foreground">{product.name}</h2>
-                <Badge tone={product.status === "active" ? "green" : "slate"}>{product.status}</Badge>
+                <Badge tone={product.status === "active" ? "green" : "slate"}>{labels(`catalogStatus.${product.status}`)}</Badge>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {supplierName(product.supplierId)} · {product.productType}
               </p>
               <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-border py-3 text-xs">
                 <div>
-                  <dt className="text-muted-foreground">Base cost</dt>
+                  <dt className="text-muted-foreground">{t("baseCost")}</dt>
                   <dd className="font-semibold tabular-nums text-foreground">
-                    {isQuoteOnly(product) ? QUOTE_PRICE_LABEL : formatMoney(product.baseCost, product.currency)}
+                    {isQuoteOnly(product) ? t("byQuote") : formatMoney(product.baseCost, product.currency, locale)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">{isQuoteOnly(product) ? "Minimum order" : "Per print area"}</dt>
+                  <dt className="text-muted-foreground">{isQuoteOnly(product) ? t("minimumOrder") : t("perArea")}</dt>
                   <dd className="font-semibold tabular-nums text-foreground">
                     {isQuoteOnly(product)
-                      ? formatQuantity(product.bulkSourcing.minimumOrderQuantity)
-                      : formatMoney(product.customizationCostPerArea, product.currency)}
+                      ? t("units", { count: product.bulkSourcing.minimumOrderQuantity })
+                      : formatMoney(product.customizationCostPerArea, product.currency, locale)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Variants</dt>
+                  <dt className="text-muted-foreground">{t("variants")}</dt>
                   <dd className="font-semibold text-foreground">{product.variants.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Availability</dt>
-                  <dd className="font-semibold text-foreground">{product.availability}</dd>
+                  <dt className="text-muted-foreground">{t("availability")}</dt>
+                  <dd className="font-semibold text-foreground">{labels(`catalogAvailability.${product.availability}`)}</dd>
                 </div>
               </dl>
               <p className="mt-3 text-xs text-muted-foreground">
@@ -103,7 +107,7 @@ export default async function AdminCatalogPage() {
               </p>
               <div className="mt-auto pt-4">
                 <Button asChild variant="outline" size="sm">
-                  <Link href={`/admin/catalog/${product.id}`}>Edit product</Link>
+                  <Link href={`/admin/catalog/${product.id}`}>{t("editProduct")}</Link>
                 </Button>
               </div>
             </CardContent>

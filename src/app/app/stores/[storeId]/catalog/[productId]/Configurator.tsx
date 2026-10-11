@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { startTransition, useActionState, useMemo, useRef, useState } from "react";
 import { attachArtwork, generateMockups, persistPlacement, removeArtwork } from "@/app/actions/products";
 import { ActionForm, FormStatus, SubmitButton } from "@/components/forms";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { ActionState } from "@/app/actions/stores";
+import { artworkIssueText } from "@/i18n/artwork-copy";
 import { placementBox, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
 import { renderMockup, sameOriginAsset } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
@@ -50,6 +52,7 @@ function UploadForm({
   });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const t = useTranslations("configurator");
   const busy = uploading || saving;
   const invalid = uploadError !== null || state.field === "artwork";
 
@@ -63,7 +66,7 @@ function UploadForm({
     setUploadError(null);
     if (file.size > maxFileMb * 1024 * 1024) {
       setUploadError(
-        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is ${maxFileMb} MB.`,
+        t("fileTooLarge", { size: (file.size / 1024 / 1024).toFixed(1), max: maxFileMb }),
       );
       return;
     }
@@ -78,7 +81,7 @@ function UploadForm({
       appendStoredImage(formData, "artwork", image);
       startTransition(() => formAction(formData));
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : "That file could not be uploaded.");
+      setUploadError(error instanceof Error ? error.message : t("uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -87,7 +90,7 @@ function UploadForm({
   return (
     <Card size="sm">
       <CardContent className="grid gap-1.5">
-        <Label htmlFor="artwork">Artwork for {areaName}</Label>
+        <Label htmlFor="artwork">{t("artworkFor", { area: areaName })}</Label>
         <Input
           id="artwork"
           type="file"
@@ -102,12 +105,12 @@ function UploadForm({
           )}
         />
         <p id="artwork-hint" className="text-xs text-muted-foreground">
-          PNG, JPG or WEBP up to {maxFileMb} MB.
-          {needsTransparency ? " This product needs a transparent background." : ""}
+          {t("fileHint", { max: maxFileMb })}
+          {needsTransparency ? t("needsTransparency") : ""}
         </p>
         {busy ? (
           <p role="status" aria-live="polite" className="mt-3 text-sm text-muted-foreground">
-            {uploading ? "Uploading…" : "Saving…"}
+            {uploading ? t("uploading") : t("saving")}
           </p>
         ) : uploadError ? (
           <p
@@ -135,6 +138,10 @@ export function Configurator({
   readOnly: boolean;
 }) {
   const [activeAreaId, setActiveAreaId] = useState(catalog.printAreas[0]?.id ?? "");
+  const t = useTranslations("configurator");
+  const issuesT = useTranslations("artworkIssues");
+  const locale = useLocale();
+  const issueText = (issue: ArtworkIssue) => artworkIssueText(issuesT, issue, locale);
   const [placements, setPlacements] = useState<Record<string, Placement>>(() =>
     Object.fromEntries(
       product.artworks.map((a) => [a.id, { x: a.x, y: a.y, scale: a.scale, rotation: a.rotation }]),
@@ -289,7 +296,7 @@ export function Configurator({
   if (!area || !base) {
     return (
       <p className="text-sm text-muted-foreground">
-        This product has no print areas set up.
+        {t("noPrintAreas")}
       </p>
     );
   }
@@ -300,7 +307,7 @@ export function Configurator({
         <ToggleGroup
           type="single"
           variant="outline"
-          aria-label="Print areas"
+          aria-label={t("printAreas")}
           value={area.id}
           // A print area is always being edited, so an empty value is ignored
           // rather than letting the canvas lose its subject.
@@ -326,7 +333,7 @@ export function Configurator({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={sameOriginAsset(base.url)}
-            alt={`${catalog.name}, ${area.name} view in ${base.colour}`}
+            alt={t("baseAlt", { product: catalog.name, area: area.name, colour: base.colour })}
             className="h-full w-full select-none object-cover"
             draggable={false}
           />
@@ -353,7 +360,7 @@ export function Configurator({
               <div
                 role="button"
                 tabIndex={0}
-                aria-label={`${liveArtwork.fileName} placement. Use arrow keys to move, plus and minus to resize.`}
+                aria-label={t("placementLabel", { file: liveArtwork.fileName })}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={endDrag}
@@ -383,7 +390,7 @@ export function Configurator({
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Print area {area.widthMm} × {area.heightMm} mm, minimum {area.minDpi} DPI
+          {t("printArea", { width: area.widthMm, height: area.heightMm, dpi: area.minDpi })}
         </p>
       </div>
 
@@ -400,7 +407,7 @@ export function Configurator({
                       {artwork.pixelWidth} × {artwork.pixelHeight} px
                     </span>{" "}
                     · <span className="tabular-nums">{(artwork.sizeBytes / 1024).toFixed(0)} KB</span> ·{" "}
-                    {artwork.hasAlpha ? "transparent" : "opaque"}
+                    {artwork.hasAlpha ? t("transparent") : t("opaque")}
                   </p>
                 </div>
                 {!readOnly ? (
@@ -409,7 +416,7 @@ export function Configurator({
                     <input type="hidden" name="productId" value={product.id} />
                     <input type="hidden" name="artworkId" value={artwork.id} />
                     <Button type="submit" variant="ghost" size="sm" className="text-rose-700">
-                      Remove
+                      {t("remove")}
                     </Button>
                   </form>
                 ) : null}
@@ -418,7 +425,7 @@ export function Configurator({
               <div className="mt-4 space-y-3">
                 <div>
                   <Label htmlFor="scale" className="flex items-center justify-between text-xs">
-                    <span>Size</span>
+                    <span>{t("size")}</span>
                     <span className="tabular-nums text-muted-foreground">
                       {box ? `${Math.round(box.printedWidthMm)} × ${Math.round(box.printedHeightMm)} mm` : ""}
                     </span>
@@ -437,7 +444,7 @@ export function Configurator({
                 </div>
                 <div>
                   <Label htmlFor="rotation" className="flex items-center justify-between text-xs">
-                    <span>Rotation</span>
+                    <span>{t("rotation")}</span>
                     <span className="tabular-nums text-muted-foreground">{placement.rotation}°</span>
                   </Label>
                   <input
@@ -455,7 +462,7 @@ export function Configurator({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1.5">
                     <Label htmlFor="pos-x" className="text-xs">
-                      Horizontal %
+                      {t("horizontal")}
                     </Label>
                     <Input
                       id="pos-x"
@@ -471,7 +478,7 @@ export function Configurator({
                   </div>
                   <div className="grid gap-1.5">
                     <Label htmlFor="pos-y" className="text-xs">
-                      Vertical %
+                      {t("vertical")}
                     </Label>
                     <Input
                       id="pos-y"
@@ -487,7 +494,7 @@ export function Configurator({
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-canvas px-3 py-2 text-xs">
-                  <span className="text-muted-foreground">Effective print resolution</span>
+                  <span className="text-muted-foreground">{t("resolution")}</span>
                   <span
                     className={classNames(
                       "font-semibold tabular-nums",
@@ -516,8 +523,8 @@ export function Configurator({
                       </span>
                     );
                   })}
-                  <SubmitButton className="w-full" pendingLabel="Saving placement…">
-                    {dirty ? "Save placement" : "Placement saved"}
+                  <SubmitButton className="w-full" pendingLabel={t("savingPlacement")}>
+                    {dirty ? t("savePlacement") : t("placementSaved")}
                   </SubmitButton>
                 </form>
               ) : null}
@@ -527,25 +534,27 @@ export function Configurator({
             <Card size="sm">
               <CardHeader>
                 <CardTitle asChild className="text-sm font-semibold">
-                  <h3>Supplier pre-flight</h3>
+                  <h3>{t("preflight")}</h3>
                 </CardTitle>
               </CardHeader>
               <CardContent>
               {errors.length === 0 && warnings.length === 0 ? (
                 <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-                  ✓ This placement passes every check for {catalog.name}.
+                  {t("passes", { product: catalog.name })}
                 </p>
               ) : null}
               {errors.length > 0 ? (
                 <div className="mt-2" role="alert">
                   <Badge tone="rose">
-                    {errors.length} blocking issue{errors.length === 1 ? "" : "s"}
+                    {t("blocking", { count: errors.length })}
                   </Badge>
                   <ul className="mt-2 space-y-2.5">
                     {errors.map((issue) => (
                       <li key={issue.code} className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                        <p className="text-sm font-medium text-rose-900">{issue.message}</p>
-                        <p className="mt-1 text-xs text-rose-800">How to fix: {issue.fix}</p>
+                        <p className="text-sm font-medium text-rose-900">{issueText(issue).message}</p>
+                        <p className="mt-1 text-xs text-rose-800">
+                          {t("howToFix", { fix: issueText(issue).fix })}
+                        </p>
                       </li>
                     ))}
                   </ul>
@@ -555,25 +564,25 @@ export function Configurator({
                 <ul className="mt-2 space-y-2.5">
                   {warnings.map((issue) => (
                     <li key={issue.code} className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                      <p className="text-sm font-medium text-amber-900">{issue.message}</p>
-                      <p className="mt-1 text-xs text-amber-800">{issue.fix}</p>
+                      <p className="text-sm font-medium text-amber-900">{issueText(issue).message}</p>
+                      <p className="mt-1 text-xs text-amber-800">{issueText(issue).fix}</p>
                     </li>
                   ))}
                 </ul>
               ) : null}
               <dl className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex justify-between gap-2">
-                  <dt>Accepted formats</dt>
+                  <dt>{t("formats")}</dt>
                   <dd className="text-foreground">{catalog.fileRequirements.formats.join(", ")}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt>Maximum file size</dt>
+                  <dt>{t("maxSize")}</dt>
                   <dd className="text-foreground">{catalog.fileRequirements.maxFileMb} MB</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt>Transparent background</dt>
+                  <dt>{t("transparentBackground")}</dt>
                   <dd className="text-foreground">
-                    {catalog.fileRequirements.transparentBackgroundRequired ? "Required" : "Optional"}
+                    {catalog.fileRequirements.transparentBackgroundRequired ? t("required") : t("optional")}
                   </dd>
                 </div>
               </dl>
@@ -584,10 +593,10 @@ export function Configurator({
           <Card size="sm">
             <CardHeader>
               <CardTitle asChild className="text-sm font-semibold">
-                <h3>No artwork on {area.name}</h3>
+                <h3>{t("noArtwork", { area: area.name })}</h3>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Upload a logo or design for this print area.
+                {t("noArtworkBody")}
               </p>
             </CardHeader>
           </Card>
@@ -610,24 +619,24 @@ export function Configurator({
           <ActionForm
             action={generateMockups}
             beforeSubmit={renderMockups}
-            submitLabel="Generate mockups"
-            pendingLabel="Rendering previews…"
+            submitLabel={t("generate")}
+            pendingLabel={t("rendering")}
             submitVariant="secondary" submitClassName="w-full"
             hidden={{ storeId: product.storeId, productId: product.id }}
             actionsClassName="px-(--card-spacing)"
           >
             <CardHeader>
               <CardTitle asChild className="text-sm font-semibold">
-                <h3>Mockups</h3>
+                <h3>{t("mockups")}</h3>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                                Generate previews for every decorated view.
+                {t("mockupsBody")}
               </p>
             </CardHeader>
             {dirty ? (
               <CardContent>
                 <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                  Save your placement changes first.
+                  {t("saveFirst")}
                 </p>
               </CardContent>
             ) : null}

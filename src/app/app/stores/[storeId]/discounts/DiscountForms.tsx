@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { createDiscount, saveDiscount } from "@/app/actions/discounts";
 import { ActionForm, Field } from "@/components/forms";
@@ -45,9 +46,10 @@ function Terms({
     active: boolean;
   };
 }) {
+  const t = useTranslations("discounts");
   return (
     <>
-      <Field label="Discount" htmlFor={`${prefix}-kind`}>
+      <Field label={t("discount")} htmlFor={`${prefix}-kind`}>
         <Select
           name="kind"
           value={kind}
@@ -57,18 +59,18 @@ function Terms({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="percentage">Percentage off</SelectItem>
-            <SelectItem value="fixed">Fixed amount off</SelectItem>
+            <SelectItem value="percentage">{t("percentage")}</SelectItem>
+            <SelectItem value="fixed">{t("fixed")}</SelectItem>
           </SelectContent>
         </Select>
       </Field>
       <Field
-        label={kind === "percentage" ? "Percentage off" : `Amount off (${currency})`}
+        label={kind === "percentage" ? t("percentage") : t("amountLabel", { currency })}
         htmlFor={`${prefix}-value`}
         hint={
           kind === "percentage"
-            ? `1 to ${MAX_DISCOUNT_PERCENTAGE}`
-            : "Converted to the shopper's currency."
+            ? t("percentHint", { max: MAX_DISCOUNT_PERCENTAGE })
+            : t("amountHint")
         }
       >
         <Input
@@ -81,9 +83,9 @@ function Terms({
         />
       </Field>
       <Field
-        label={`Minimum basket (${currency})`}
+        label={t("minimumLabel", { currency })}
         htmlFor={`${prefix}-minimumSubtotal`}
-        hint="Before shipping and tax. Optional."
+        hint={t("minimumHint")}
       >
         <Input
           id={`${prefix}-minimumSubtotal`}
@@ -94,7 +96,7 @@ function Terms({
           aria-invalid={state.field === "minimumSubtotal" ? true : undefined}
         />
       </Field>
-      <Field label="Expires" htmlFor={`${prefix}-expiresAt`} hint="Optional">
+      <Field label={t("expiresLabel")} htmlFor={`${prefix}-expiresAt`} hint={t("optional")}>
         <Input
           id={`${prefix}-expiresAt`}
           name="expiresAt"
@@ -104,7 +106,7 @@ function Terms({
           aria-invalid={state.field === "expiresAt" ? true : undefined}
         />
       </Field>
-      <Field label="Usage limit" htmlFor={`${prefix}-usageLimit`} hint="Optional">
+      <Field label={t("usageLimit")} htmlFor={`${prefix}-usageLimit`} hint={t("optional")}>
         <Input
           id={`${prefix}-usageLimit`}
           name="usageLimit"
@@ -123,7 +125,7 @@ function Terms({
             className="mt-0.5"
           />
           <Label htmlFor={`${prefix}-active`} className="block cursor-pointer font-normal">
-            Active
+            {t("active")}
           </Label>
         </div>
       </div>
@@ -133,22 +135,23 @@ function Terms({
 
 export function DiscountCreateForm({ storeId, currency }: { storeId: string; currency: string }) {
   const [kind, setKind] = useState<DiscountKind>("percentage");
+  const t = useTranslations("discounts");
 
   return (
     <Card asChild>
     <ActionForm
       action={createDiscount}
-      submitLabel="Create code"
-      pendingLabel="Creating…"
+      submitLabel={t("create")}
+      pendingLabel={t("creating")}
       hidden={{ storeId }}
       actionsClassName="px-(--card-spacing)"
     >
       {(state) => (
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="Code"
+            label={t("code")}
             htmlFor="code"
-            hint="Letters and numbers. Cannot be changed later."
+            hint={t("codeHint")}
           >
             <Input
               id="code"
@@ -175,11 +178,12 @@ export function DiscountCreateForm({ storeId, currency }: { storeId: string; cur
 
 export function DiscountEditForm({ code }: { code: DiscountCode }) {
   const [kind, setKind] = useState<DiscountKind>(code.kind);
+  const t = useTranslations("discounts");
 
   return (
     <ActionForm
       action={saveDiscount}
-      submitLabel="Save code"
+      submitLabel={t("save")}
       hidden={{ storeId: code.storeId, discountId: code.id }}
     >
       {(state) => (

@@ -103,7 +103,22 @@ export interface QuoteRequestInput {
 
 export type QuoteRequestCheck =
   | { ok: true; value: QuoteRequestInput }
-  | { ok: false; field: keyof QuoteRequestInput; message: string };
+  | { ok: false; field: keyof QuoteRequestInput; message: string; code: QuoteRequestRefusal; values?: Record<string, number> };
+
+/** Which rule an enquiry broke, for the workspace to word in its own language. */
+export type QuoteRequestRefusal =
+  | "productName"
+  | "description"
+  | "quantity"
+  | "belowMinimum"
+  | "aboveMaximum"
+  | "destination"
+  | "targetUnitCost"
+  | "neededByFormat"
+  | "neededByPast"
+  | "customisation"
+  | "contactName"
+  | "contactEmail";
 
 /** What the rules need to know about what is being asked about. */
 export interface QuoteRequestTarget {
@@ -152,19 +167,20 @@ export function checkQuoteRequest(
   // Without a catalog reference the words are all the factory has to go on.
   if (target.listingName === null) {
     if (described.length < 3) {
-      return { ok: false, field: "productName", message: "Name the product, or pick a catalog item to refer to." };
+      return { ok: false, field: "productName", message: "Name the product, or pick a catalog item to refer to.", code: "productName" };
     }
     if (description.length < 20) {
       return {
         ok: false,
         field: "description",
         message: "Describe the product: what it is, the material and weight, sizes or capacity.",
+        code: "description",
       };
     }
   }
 
   if (!Number.isFinite(quantity) || quantity <= 0) {
-    return { ok: false, field: "quantity", message: "Enter how many units this run is for." };
+    return { ok: false, field: "quantity", message: "Enter how many units this run is for.", code: "quantity" };
   }
   // The minimum is the supplier's, not ours: a request under it comes back
   // unanswered, so it is refused here with the number that would work.
@@ -173,6 +189,8 @@ export function checkQuoteRequest(
       ok: false,
       field: "quantity",
       message: `This listing is quoted from ${formatQuantity(moq)}. Ask for at least that many.`,
+      code: "belowMinimum",
+      values: { count: moq },
     };
   }
   if (quantity > LIMITS.quantity) {
@@ -180,10 +198,12 @@ export function checkQuoteRequest(
       ok: false,
       field: "quantity",
       message: `Runs above ${formatQuantity(LIMITS.quantity)} are agreed directly with the supplier.`,
+      code: "aboveMaximum",
+      values: { count: LIMITS.quantity },
     };
   }
   if (!target.regions.includes(destination)) {
-    return { ok: false, field: "destination", message: "Choose the market the run is delivered to." };
+    return { ok: false, field: "destination", message: "Choose the market the run is delivered to.", code: "destination" };
   }
 
   // The target price is optional, but a number that cannot be read would be
@@ -192,15 +212,15 @@ export function checkQuoteRequest(
   if (targetText) {
     targetUnitCost = parseMoney(targetText, target.currency);
     if (targetUnitCost === null || targetUnitCost <= 0) {
-      return { ok: false, field: "targetUnitCost", message: "Enter a target unit cost, or leave it blank." };
+      return { ok: false, field: "targetUnitCost", message: "Enter a target unit cost, or leave it blank.", code: "targetUnitCost" };
     }
   }
 
   if (neededBy) {
     const when = startOfDay(neededBy);
-    if (when === null) return { ok: false, field: "neededBy", message: "Enter the date as YYYY-MM-DD." };
+    if (when === null) return { ok: false, field: "neededBy", message: "Enter the date as YYYY-MM-DD.", code: "neededByFormat" };
     if (when < todayMidnight(today)) {
-      return { ok: false, field: "neededBy", message: "That date has passed. Pick a delivery date ahead of today." };
+      return { ok: false, field: "neededBy", message: "That date has passed. Pick a delivery date ahead of today.", code: "neededByPast" };
     }
   }
 
@@ -222,13 +242,14 @@ export function checkQuoteRequest(
       ok: false,
       field: "customisation",
       message: "Describe the decoration, or enter “none”.",
+      code: "customisation",
     };
   }
   if (value.contactName.length < 2) {
-    return { ok: false, field: "contactName", message: "Tell the supplier who to reply to." };
+    return { ok: false, field: "contactName", message: "Tell the supplier who to reply to.", code: "contactName" };
   }
   if (!EMAIL.test(value.contactEmail)) {
-    return { ok: false, field: "contactEmail", message: "Enter an email address the supplier can reply to." };
+    return { ok: false, field: "contactEmail", message: "Enter an email address the supplier can reply to.", code: "contactEmail" };
   }
   return { ok: true, value };
 }

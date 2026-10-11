@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -14,7 +15,9 @@ import {
   recordAudit,
   updateGiftCampaign,
   updateGiftCatalogue,
+  getUserByEmail,
 } from "@/lib/data";
+import { isLocale } from "@/i18n/locales";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, giftApprovalEmail } from "@/lib/email-templates";
 import { routeOrder } from "@/lib/fulfillment";
@@ -32,6 +35,7 @@ import {
   approverLabel,
   approvalRemindersSent,
   daysAwaitingApproval,
+  type ApprovalCheck,
 } from "@/lib/gift-approval";
 import { parseRecipients, type ParsedRecipient } from "@/lib/gift-recipients";
 import {
@@ -81,9 +85,41 @@ async function freeCatalogueSlug(preferred: string): Promise<string> {
   return slug;
 }
 
+/** Why the approval could not be chased or handed over, in the workspace user's language. */
+async function refusalMessage(
+  check: Extract<ApprovalCheck, { ok: false }>,
+  campaign: GiftCampaign,
+  name = "",
+): Promise<string> {
+  const [t, labels, locale] = await Promise.all([
+    getTranslations("actions.gifting"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  switch (check.reason) {
+    case "settled": {
+      const status = labels(`campaignStatus.${campaign.status}`);
+      return t("refusal.settled", { code: campaign.code, status: locale === "en" ? status.toLowerCase() : status });
+    }
+    case "justSent": {
+      const { approverName, approverEmail } = campaign.approval;
+      const approver =
+        approverName && approverEmail
+          ? `${approverName} (${approverEmail})`
+          : approverName || approverEmail || t("theApprover");
+      return t("refusal.justSent", { approver });
+    }
+    case "alreadyApprover":
+      return t("refusal.alreadyApprover", { name, code: campaign.code });
+    default:
+      return t(`refusal.${check.reason}`);
+  }
+}
+
 export async function createGiftCatalogue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const t = await getTranslations("actions.gifting");
 
   const name = String(formData.get("name") ?? "").trim();
   const companyName = String(formData.get("companyName") ?? "").trim();
@@ -92,11 +128,11 @@ export async function createGiftCatalogue(_prev: ActionState, formData: FormData
   const access = String(formData.get("access") ?? "link") === "invite" ? "invite" : "link";
   const spendLimit = parseMoney(String(formData.get("spendLimit") ?? ""), store.defaultCurrency);
 
-  if (name.length < 3) return fail("Give the catalogue a name of at least 3 characters.", "name");
-  if (companyName.length < 2) return fail("Name the company this catalogue is for.", "companyName");
-  if (spendLimit === null) return fail("Enter the spend limit per recipient, or 0 for no limit.", "spendLimit");
+  if (name.length < 3) return fail(t("nameTooShort"), "name");
+  if (companyName.length < 2) return fail(t("companyRequired"), "companyName");
+  if (spendLimit === null) return fail(t("spendLimitInvalid"), "spendLimit");
   if (approverEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(approverEmail)) {
-    return fail("Enter a valid email address for the approver.", "approverEmail");
+    return fail(t("approverEmailInvalid"), "approverEmail");
   }
 
   const now = new Date().toISOString();
@@ -143,6 +179,7 @@ export async function saveGiftCatalogue(_prev: ActionState, formData: FormData):
   const catalogueId = String(formData.get("catalogueId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
+  const t = await getTranslations("actions.gifting");
 
   const name = String(formData.get("name") ?? "").trim();
   const companyName = String(formData.get("companyName") ?? "").trim();
@@ -152,11 +189,11 @@ export async function saveGiftCatalogue(_prev: ActionState, formData: FormData):
   const approvalRequired = formData.get("approvalRequired") === "on";
   const spendLimit = parseMoney(String(formData.get("spendLimit") ?? ""), catalogue.currency);
 
-  if (name.length < 3) return fail("Give the catalogue a name of at least 3 characters.", "name");
-  if (companyName.length < 2) return fail("Name the company this catalogue is for.", "companyName");
-  if (spendLimit === null) return fail("Enter the spend limit per recipient, or 0 for no limit.", "spendLimit");
+  if (name.length < 3) return fail(t("nameTooShort"), "name");
+  if (companyName.length < 2) return fail(t("companyRequired"), "companyName");
+  if (spendLimit === null) return fail(t("spendLimitInvalid"), "spendLimit");
   if (approvalRequired && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(approverEmail)) {
-    return fail("An approval step needs the approver's email address.", "approverEmail");
+    return fail(t("approverEmailRequired"), "approverEmail");
   }
 
   await updateGiftCatalogue(catalogueId, {
@@ -181,7 +218,7 @@ export async function saveGiftCatalogue(_prev: ActionState, formData: FormData):
     meta: { spendLimit, approvalRequired },
   });
   refreshCatalogue(storeId, catalogueId);
-  return ok("Gift catalogue saved.");
+  return ok(t("saved"));
 }
 
 export async function saveGiftAccess(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -189,6 +226,7 @@ export async function saveGiftAccess(_prev: ActionState, formData: FormData): Pr
   const catalogueId = String(formData.get("catalogueId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
+  const t = await getTranslations("actions.gifting");
 
   const access = String(formData.get("access") ?? "link") === "invite" ? "invite" : "link";
   const raw = String(formData.get("invitedEmails") ?? "");
@@ -201,9 +239,9 @@ export async function saveGiftAccess(_prev: ActionState, formData: FormData): Pr
     ),
   ];
   const invalid = invitedEmails.find((email) => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email));
-  if (invalid) return fail(`“${invalid}” is not a valid email address.`, "invitedEmails");
+  if (invalid) return fail(t("invalidEmail", { email: invalid }), "invitedEmails");
   if (access === "invite" && invitedEmails.length === 0) {
-    return fail("Add at least one address, or switch the catalogue back to link access.", "invitedEmails");
+    return fail(t("addressRequired"), "invitedEmails");
   }
 
   await updateGiftCatalogue(catalogueId, { access, invitedEmails });
@@ -223,7 +261,7 @@ export async function saveGiftAccess(_prev: ActionState, formData: FormData): Pr
     meta: { access, invited: invitedEmails.length },
   });
   refreshCatalogue(storeId, catalogueId);
-  return ok(access === "invite" ? "Only the listed addresses can open this catalogue." : "Private link access saved.");
+  return ok(access === "invite" ? t("inviteSaved") : t("linkSaved"));
 }
 
 export async function saveGiftProducts(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -231,6 +269,7 @@ export async function saveGiftProducts(_prev: ActionState, formData: FormData): 
   const catalogueId = String(formData.get("catalogueId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
+  const t = await getTranslations("actions.gifting");
 
   const published = await listPublishedProducts(storeId);
   const live = new Set(published.map((p) => p.id));
@@ -239,7 +278,7 @@ export async function saveGiftProducts(_prev: ActionState, formData: FormData): 
     .map((value) => String(value))
     .filter((id) => live.has(id));
   if (productIds.length === 0) {
-    return fail("Choose at least one product for the gift catalogue.", "productIds");
+    return fail(t("productRequired"), "productIds");
   }
 
   await updateGiftCatalogue(catalogueId, { productIds });
@@ -256,7 +295,7 @@ export async function saveGiftProducts(_prev: ActionState, formData: FormData): 
     meta: { products: productIds.length },
   });
   refreshCatalogue(storeId, catalogueId);
-  return ok(`${productIds.length} ${productIds.length === 1 ? "product is" : "products are"} in the catalogue.`);
+  return ok(t("productsSaved", { count: productIds.length }));
 }
 
 export async function regenerateGiftLink(formData: FormData): Promise<void> {
@@ -319,7 +358,10 @@ async function emailApprovalRequest(
   const to = campaign.approval.approverEmail.trim();
   if (!to) return;
   try {
-    const origin = await siteOrigin();
+    // Written in the approver's own language when they have a Parcelith
+    // account, otherwise in the store's.
+    const [origin, approver] = await Promise.all([siteOrigin(), getUserByEmail(to)]);
+    const language = isLocale(approver?.uiLanguage) ? approver.uiLanguage : store.defaultLanguage;
     const link = campaignPath(
       catalogue.slug,
       campaign.code,
@@ -328,7 +370,7 @@ async function emailApprovalRequest(
     );
     sendEmail({
       to,
-      message: giftApprovalEmail(brandFor(store), {
+      message: giftApprovalEmail({ ...brandFor(store), language }, {
         approverName: campaign.approval.approverName,
         buyerName: campaign.buyer.name,
         campaignName: campaign.name,
@@ -380,7 +422,11 @@ export async function resendApprovalRequest(_prev: ActionState, formData: FormDa
   const check = approvalResendCheck(campaign, now);
   // A retried submission finds the chase it already recorded rather than
   // writing a second one, so a double click reads as the one request it was.
-  if (!check.ok) return check.duplicate ? ok(check.message) : fail(check.message);
+  const t = await getTranslations("actions.gifting");
+  if (!check.ok) {
+    const message = await refusalMessage(check, campaign);
+    return check.duplicate ? ok(message) : fail(message);
+  }
 
   const at = now.toISOString();
   const waited = daysAwaitingApproval(campaign, now);
@@ -414,7 +460,7 @@ export async function resendApprovalRequest(_prev: ActionState, formData: FormDa
   if (catalogue) await emailApprovalRequest(store, catalogue, campaign);
 
   refreshCampaign(storeId, campaign);
-  return ok(`Approval request resent to ${approver}.`);
+  return ok(t("resent", { approver }));
 }
 
 /**
@@ -436,10 +482,12 @@ export async function changeCampaignApprover(_prev: ActionState, formData: FormD
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 200);
 
   const check = approverChangeCheck(campaign, { name, email });
+  const t = await getTranslations("actions.gifting");
   if (!check.ok) {
+    const message = await refusalMessage(check, campaign, name);
     return check.duplicate
-      ? ok(check.message)
-      : fail(check.message, check.message.includes("email") ? "approverEmail" : "approverName");
+      ? ok(message)
+      : fail(message, check.reason === "emailInvalid" ? "approverEmail" : "approverName");
   }
 
   const previous = approverLabel(campaign);
@@ -486,7 +534,7 @@ export async function changeCampaignApprover(_prev: ActionState, formData: FormD
   }
 
   refreshCampaign(storeId, campaign);
-  return ok(`${name} is now the approver. The request has been sent.`);
+  return ok(t("approverChanged", { name }));
 }
 
 /* -------------------------------------------------------------- gift portal */

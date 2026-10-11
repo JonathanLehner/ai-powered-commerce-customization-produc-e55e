@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { applySuggestion, dismissSuggestion } from "@/app/actions/ai";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
@@ -8,18 +8,12 @@ import { listCatalogProducts, listStoreProducts, listSuggestions, listSuppliers 
 import { requireStoreAccess } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import type { AiSuggestion } from "@/lib/types";
-import { formatDate, formatDateTime, relativeTime } from "@/lib/util";
+import { formatAgo } from "@/i18n/format";
+import { formatDate, formatDateTime } from "@/lib/util";
 import { CopyForm, IdeaForm, PriceForm, SupplierForm } from "./AssistantForms";
 
-const KIND_LABELS: Record<AiSuggestion["kind"], string> = {
-  product_idea: "Product idea",
-  supplier: "Supplier",
-  description: "Description",
-  tags: "Tags",
-  price: "Price",
-};
-
-function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
+async function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
+  const t = await getTranslations("assistant");
   const payload = suggestion.payload as Record<string, unknown>;
   if (suggestion.kind === "description") {
     return (
@@ -43,7 +37,7 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
   if (suggestion.kind === "price") {
     return (
       <p className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
-        Proposed price: <span className="font-semibold tabular-nums text-foreground">{String(payload.priceMajor ?? "")}</span>
+        {t("proposedPrice")} <span className="font-semibold tabular-nums text-foreground">{String(payload.priceMajor ?? "")}</span>
       </p>
     );
   }
@@ -51,10 +45,10 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
     return (
       <div className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
         <p>
-          Recommended partner:{" "}
+          {t("recommendedPartner")}{" "}
           <span className="font-semibold text-foreground">{String(payload.supplierName ?? "")}</span>
         </p>
-        {payload.risk ? <p className="mt-1.5 text-xs text-muted-foreground">Trade-off: {String(payload.risk)}</p> : null}
+        {payload.risk ? <p className="mt-1.5 text-xs text-muted-foreground">{t("tradeOff", { risk: String(payload.risk) })}</p> : null}
       </div>
     );
   }
@@ -62,8 +56,10 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
     <div className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
       <p className="whitespace-pre-line">{String(payload.description ?? "")}</p>
       <p className="mt-2 text-xs text-muted-foreground">
-        Proposed price {String(payload.suggestedPriceMajor ?? "–")} · tags{" "}
-        {Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : "–"}
+        {t("ideaMeta", {
+          price: String(payload.suggestedPriceMajor ?? "–"),
+          tags: Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : "–",
+        })}
       </p>
     </div>
   );
@@ -86,12 +82,22 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
   const decided = suggestions.filter((s) => s.status !== "pending");
   // A store can hold two copies of the same supplier product, so a name on its
   // own is not enough to choose between them — the SKU and import date are.
+  const [pages, t, locale, format] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("assistant"),
+    getLocale(),
+    getFormatter(),
+  ]);
+  const now = new Date();
   const productOptions = products.map((p) => ({
     id: p.id,
-    label: `${p.name} · ${storeSku(p, store.channelCode)} · imported ${formatDate(p.importedAt)}`,
+    label: t("productOption", {
+      name: p.name,
+      sku: storeSku(p, store.channelCode),
+      date: formatDate(p.importedAt, locale),
+    }),
   }));
 
-  const pages = await getTranslations("pages.store");
   return (
     <div className="space-y-6">
       <PageHeader
@@ -103,7 +109,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
         <h2 className="text-base font-semibold text-foreground">
           {/* The count is the Badge's own text, not a span inside it: a child
               element of the Badge is a flex item, which reads as its own line. */}
-          Pending review{" "}
+          {t("pendingReview")}{" "}
           {pending.length > 0 ? (
             <Badge tone="amber" className="tabular-nums">
               {pending.length}
@@ -113,8 +119,8 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
         {pending.length === 0 ? (
           <div className="mt-3">
             <EmptyState
-              title="No pending suggestions"
-              description="Request a suggestion below."
+              title={t("noPending")}
+              description={t("noPendingBody")}
             />
           </div>
         ) : (
@@ -126,11 +132,11 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                   <Card className="h-full">
                   <CardHeader>
                     <div className="min-w-0">
-                      <Badge tone="iris">{KIND_LABELS[suggestion.kind]}</Badge>
+                      <Badge tone="iris">{t(`kind.${suggestion.kind}`)}</Badge>
                       <h3 className="mt-2 text-sm font-semibold text-foreground">{suggestion.title}</h3>
                       {product ? (
                         <p className="text-xs text-muted-foreground">
-                          For{" "}
+                          {t("for")}{" "}
                           <Link
                             href={`/app/stores/${storeId}/catalog/${product.id}`}
                             className="hover:underline"
@@ -143,7 +149,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                     </div>
                     <CardAction>
                       <span className="text-xs text-muted-foreground">
-                        {relativeTime(suggestion.createdAt)}
+                        {formatAgo(format, suggestion.createdAt, now)}
                       </span>
                     </CardAction>
                   </CardHeader>
@@ -157,14 +163,14 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                         <input type="hidden" name="storeId" value={storeId} />
                         <input type="hidden" name="suggestionId" value={suggestion.id} />
                         <Button type="submit" size="sm">
-                          Apply this change
+                          {t("apply")}
                         </Button>
                       </form>
                       <form action={dismissSuggestion}>
                         <input type="hidden" name="storeId" value={storeId} />
                         <input type="hidden" name="suggestionId" value={suggestion.id} />
                         <Button type="submit" variant="outline" size="sm">
-                          Dismiss
+                          {t("dismiss")}
                         </Button>
                       </form>
                     </div>
@@ -186,7 +192,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
 
       {decided.length > 0 ? (
         <section>
-          <h2 className="text-base font-semibold text-foreground">Decision history</h2>
+          <h2 className="text-base font-semibold text-foreground">{t("history")}</h2>
           <Card className="mt-3 py-0">
           <ul className="divide-y divide-border">
             {decided.map((suggestion) => (
@@ -194,16 +200,16 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
                 <div className="min-w-0">
                   <p className="truncate text-sm text-foreground">{suggestion.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {KIND_LABELS[suggestion.kind]} · drafted by {suggestion.createdBy}
+                    {t("draftedBy", { kind: t(`kind.${suggestion.kind}`), name: suggestion.createdBy })}
                   </p>
                 </div>
                 <div className="text-right">
                   <Badge tone={suggestion.status === "applied" ? "green" : "slate"}>
-                    {suggestion.status === "applied" ? "Applied" : "Dismissed"}
+                    {suggestion.status === "applied" ? t("applied") : t("dismissed")}
                   </Badge>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {suggestion.decidedBy} ·{" "}
-                    {suggestion.decidedAt ? formatDateTime(suggestion.decidedAt) : ""}
+                    {suggestion.decidedAt ? formatDateTime(suggestion.decidedAt, locale) : ""}
                   </p>
                 </div>
               </li>

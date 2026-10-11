@@ -1,6 +1,7 @@
 "use client";
 
 import { Editor, Frame, useEditor, useNode } from "@craftjs/core";
+import { useLocale, useTranslations } from "next-intl";
 import React, { createContext, useContext, useMemo, useState } from "react";
 import { publishStorefront, restoreVersion, saveStorefrontDraft } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
@@ -96,6 +97,7 @@ const RESOLVER = { PageCanvas, ...SECTION_COMPONENTS };
 
 function Toolbox() {
   const { connectors, actions, query } = useEditor();
+  const t = useTranslations("editor");
 
   function append(type: SectionType) {
     const element = React.createElement(SECTION_COMPONENTS[type], { ...SECTION_DEFS[type].defaults });
@@ -107,10 +109,10 @@ function Toolbox() {
     <Card size="sm">
       <CardHeader>
         <CardTitle asChild className="text-sm font-semibold">
-          <h2>Approved sections</h2>
+          <h2>{t("approvedSections")}</h2>
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Drag a section onto the canvas, or choose Add.
+          {t("dragHint")}
         </p>
       </CardHeader>
       <CardContent>
@@ -130,11 +132,11 @@ function Toolbox() {
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-foreground">{SECTION_DEFS[type].name}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{SECTION_DEFS[type].description}</p>
+                <p className="text-sm font-medium text-foreground">{t(`sections.${type}.name`)}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t(`sections.${type}.description`)}</p>
               </div>
               <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => append(type)}>
-                Add
+                {t("add")}
               </Button>
             </div>
           </li>
@@ -164,16 +166,20 @@ function SettingsPanel() {
   });
 
   const def = sectionType && sectionType in SECTION_DEFS ? SECTION_DEFS[sectionType] : null;
+  const t = useTranslations("editor");
+  // Field and option labels in the reader's language; the schema's English is the fallback.
+  const label = (key: string, fallback: string) =>
+    t.has(key as "add") ? t(key as "add") : fallback;
 
   if (!selectedId || selectedId === "ROOT" || !props || !def) {
     return (
       <Card size="sm">
         <CardHeader>
           <CardTitle asChild className="text-sm font-semibold">
-            <h2>Section settings</h2>
+            <h2>{t("sectionSettings")}</h2>
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Select a section to edit it.
+            {t("selectSection")}
           </p>
         </CardHeader>
       </Card>
@@ -184,7 +190,7 @@ function SettingsPanel() {
     <Card size="sm">
       <CardHeader>
         <CardTitle asChild className="text-sm font-semibold">
-          <h2>{def.name}</h2>
+          <h2>{t(`sections.${def.type}.name`)}</h2>
         </CardTitle>
         <CardAction className="flex gap-1">
           <Button
@@ -193,7 +199,7 @@ function SettingsPanel() {
             size="sm"
             disabled={!canMoveUp}
             onClick={() => actions.move(selectedId, "ROOT", index - 1)}
-            aria-label="Move section up"
+            aria-label={t("moveUp")}
           >
             ↑
           </Button>
@@ -203,7 +209,7 @@ function SettingsPanel() {
             size="sm"
             disabled={!canMoveDown}
             onClick={() => actions.move(selectedId, "ROOT", index + 2)}
-            aria-label="Move section down"
+            aria-label={t("moveDown")}
           >
             ↓
           </Button>
@@ -214,7 +220,7 @@ function SettingsPanel() {
             className="text-rose-700"
             onClick={() => actions.delete(selectedId)}
           >
-            Delete
+            {t("delete")}
           </Button>
         </CardAction>
       </CardHeader>
@@ -238,7 +244,7 @@ function SettingsPanel() {
                   className="mt-0.5"
                 />
                 <Label htmlFor={id} className="cursor-pointer text-sm font-normal">
-                  {field.label}
+                  {label(`sections.${def.type}.fields.${field.key}`, field.label)}
                 </Label>
               </div>
             );
@@ -246,7 +252,7 @@ function SettingsPanel() {
           return (
             <div key={field.key} className="grid gap-1.5">
               <Label htmlFor={id} className="text-xs">
-                {field.label}
+                {label(`sections.${def.type}.fields.${field.key}`, field.label)}
               </Label>
               {field.type === "textarea" ? (
                 <Textarea
@@ -275,7 +281,7 @@ function SettingsPanel() {
                   <SelectContent>
                     {field.options?.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {label(`options.${option.value}`, option.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -296,7 +302,11 @@ function SettingsPanel() {
                   className={field.type === "number" ? "tabular-nums" : undefined}
                 />
               )}
-              {field.help ? <p className="text-xs text-muted-foreground">{field.help}</p> : null}
+              {field.help ? (
+                <p className="text-xs text-muted-foreground">
+                  {label(`sections.${def.type}.fields.${field.key}Help`, field.help)}
+                </p>
+              ) : null}
             </div>
           );
         })}
@@ -312,19 +322,20 @@ function LayerList() {
   const { nodes, actions, selectedId } = useEditor((state) => ({
     nodes: (state.nodes.ROOT?.data.nodes ?? []).map((id) => ({
       id,
-      name: state.nodes[id]?.data.displayName ?? "Section",
+      type: state.nodes[id]?.data.name as SectionType | undefined,
     })),
     selectedId: [...state.events.selected][0],
   }));
+  const t = useTranslations("editor");
 
   return (
     <Card size="sm">
       <CardHeader>
         <CardTitle asChild className="text-sm font-semibold">
-          <h2>Page order</h2>
+          <h2>{t("pageOrder")}</h2>
         </CardTitle>
         {nodes.length === 0 ? (
-          <p className="text-xs text-muted-foreground">The page is empty. Add a section to begin.</p>
+          <p className="text-xs text-muted-foreground">{t("emptyPage")}</p>
         ) : null}
       </CardHeader>
       {nodes.length === 0 ? null : (
@@ -343,7 +354,7 @@ function LayerList() {
                 )}
               >
                 <span className="w-5 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
-                {node.name}
+                {node.type && node.type in SECTION_DEFS ? t(`sections.${node.type}.name`) : t("section")}
               </button>
             </li>
           ))}
@@ -357,9 +368,9 @@ function LayerList() {
 /* -------------------------------------------------------------- toolbar */
 
 const WIDTHS = [
-  { key: "desktop", label: "Desktop", width: "100%" },
-  { key: "tablet", label: "Tablet", width: "820px" },
-  { key: "mobile", label: "Phone", width: "390px" },
+  { key: "desktop", label: "desktop", width: "100%" },
+  { key: "tablet", label: "tablet", width: "820px" },
+  { key: "mobile", label: "phone", width: "390px" },
 ] as const;
 
 export interface EditorCanvasProps {
@@ -379,6 +390,8 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
   const [busy, setBusy] = useState<"save" | "publish" | null>(null);
   const [label, setLabel] = useState("");
+  const t = useTranslations("editor");
+  const locale = useLocale();
 
   async function run(kind: "save" | "publish") {
     if (busy) return;
@@ -388,14 +401,14 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
       const data = new FormData();
       data.set("storeId", props.storeId);
       data.set("tree", query.serialize());
-      if (kind === "publish") data.set("label", label || "Untitled version");
+      if (kind === "publish") data.set("label", label || t("untitled"));
       const result =
         kind === "save"
           ? await saveStorefrontDraft({ status: "idle" }, data)
           : await publishStorefront({ status: "idle" }, data);
       setStatus(result);
     } catch {
-      setStatus({ status: "error", message: "Something went wrong saving the layout. Try again." });
+      setStatus({ status: "error", message: t("saveFailed") });
     } finally {
       setBusy(null);
     }
@@ -408,13 +421,13 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
       <Card size="sm">
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Preview width</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("previewWidth")}</span>
             <ToggleGroup
               type="single"
               variant="outline"
               size="sm"
               spacing={0}
-              aria-label="Preview width"
+              aria-label={t("previewWidth")}
               value={device}
               // One width is always being previewed, so an empty value is
               // ignored rather than leaving the canvas unconstrained.
@@ -422,7 +435,7 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
             >
               {WIDTHS.map((option) => (
                 <ToggleGroupItem key={option.key} value={option.key}>
-                  {option.label}
+                  {t(option.label)}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
@@ -430,20 +443,20 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
 
           <div className="flex flex-wrap items-center gap-2">
             <Label htmlFor="version-label" className="sr-only">
-              Version name
+              {t("versionName")}
             </Label>
             <Input
               id="version-label"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="Version name, e.g. Autumn range"
+              placeholder={t("versionPlaceholder")}
               className="w-56"
             />
             <Button type="button" variant="outline" onClick={() => run("save")} disabled={busy !== null}>
-              {busy === "save" ? "Saving…" : "Save draft"}
+              {busy === "save" ? t("saving") : t("saveDraft")}
             </Button>
             <Button type="button" onClick={() => run("publish")} disabled={busy !== null}>
-              {busy === "publish" ? "Publishing…" : "Publish"}
+              {busy === "publish" ? t("publishing") : t("publish")}
             </Button>
           </div>
         </CardContent>
@@ -453,16 +466,16 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
 
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         <Badge tone={props.publishedAt ? "green" : "amber"}>
-          {props.publishedAt ? `Published by ${props.publishedBy}` : "Never published"}
+          {props.publishedAt ? t("publishedBy", { name: props.publishedBy ?? "" }) : t("neverPublished")}
         </Badge>
-        <span>Draft last saved {formatDateTime(props.draftUpdatedAt)}</span>
+        <span>{t("draftSaved", { date: formatDateTime(props.draftUpdatedAt, locale) })}</span>
         <a
           href={`/s/${props.storeSlug}`}
           target="_blank"
           rel="noreferrer"
           className="font-medium text-primary hover:underline"
         >
-          Open live storefront ↗
+          {t("openLive")}
         </a>
       </div>
 
@@ -492,10 +505,10 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
             <Card size="sm">
               <CardHeader>
                 <CardTitle asChild className="text-sm font-semibold">
-                  <h2>Version history</h2>
+                  <h2>{t("history")}</h2>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  Restored versions load into the draft.
+                  {t("historyBody")}
                 </p>
               </CardHeader>
               <CardContent>
@@ -504,13 +517,13 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
                     <li key={version.id} className="rounded-lg border border-border p-3">
                       <p className="font-medium text-foreground">{version.label}</p>
                       <p className="text-xs text-muted-foreground">
-                        {version.savedBy} · {formatDateTime(version.savedAt)}
+                        {version.savedBy} · {formatDateTime(version.savedAt, locale)}
                       </p>
                       <form action={restoreVersion} className="mt-2">
                         <input type="hidden" name="storeId" value={props.storeId} />
                         <input type="hidden" name="versionId" value={version.id} />
                         <Button type="submit" variant="outline" size="sm">
-                          Restore into draft
+                          {t("restore")}
                         </Button>
                       </form>
                     </li>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { deleteProduct, saveProductDetails, saveVariants } from "@/app/actions/products";
@@ -56,12 +57,14 @@ export function ProductDetailsForm({
   brackets: TaxBracket[];
 }) {
   const [bracket, setBracket] = useState(product.taxBracketId ?? NO_BRACKET);
+  const t = useTranslations("productForms");
+  const locale = useLocale();
 
   return (
     <Card asChild>
       <ActionForm
         action={saveProductDetails}
-        submitLabel="Save product details"
+        submitLabel={t("saveDetails")}
         hidden={{ storeId: product.storeId, productId: product.id }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -69,13 +72,13 @@ export function ProductDetailsForm({
           <>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Product details</h2>
+                <h2>{t("details")}</h2>
               </CardTitle>
             </CardHeader>
 
             <CardContent className="grid gap-5 lg:grid-cols-2">
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="name">Product name</Label>
+                <Label htmlFor="name">{t("name")}</Label>
                 <Input
                   id="name"
                   name="name"
@@ -87,7 +90,7 @@ export function ProductDetailsForm({
               </div>
 
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="price">Selling price ({product.currency})</Label>
+                <Label htmlFor="price">{t("price", { currency: product.currency })}</Label>
                 <Input
                   id="price"
                   name="price"
@@ -98,21 +101,20 @@ export function ProductDetailsForm({
                   aria-describedby="price-hint"
                 />
                 <p id="price-hint" className="text-xs text-muted-foreground">
-                  Landed cost is{" "}
-                  <span className="tabular-nums">
-                    {formatMoney(
+                  {t("landedHint", {
+                    cost: formatMoney(
                       product.costs.supplierCost +
                         product.costs.customizationCost +
                         product.costs.shippingEstimate,
                       product.currency,
-                    )}
-                  </span>{" "}
-                  per unit.
+                      locale,
+                    ),
+                  })}
                 </p>
               </div>
 
               <div className="grid gap-1.5 lg:col-span-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("description")}</Label>
                 <Textarea
                   id="description"
                   name="description"
@@ -124,27 +126,27 @@ export function ProductDetailsForm({
                   aria-describedby="description-hint"
                 />
                 <p id="description-hint" className="text-xs text-muted-foreground">
-                  Leave a blank line between paragraphs.
+                  {t("descriptionHint")}
                 </p>
               </div>
 
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="tags">Tags</Label>
+                <Label htmlFor="tags">{t("tags")}</Label>
                 <Input id="tags" name="tags" defaultValue={product.tags.join(", ")} aria-describedby="tags-hint" />
                 <p id="tags-hint" className="text-xs text-muted-foreground">
-                  Separate tags with commas.
+                  {t("tagsHint")}
                 </p>
               </div>
 
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="taxBracketId">Tax bracket</Label>
+                <Label htmlFor="taxBracketId">{t("taxBracket")}</Label>
                 <input type="hidden" name="taxBracketId" value={bracket === NO_BRACKET ? "" : bracket} />
                 <Select value={bracket} onValueChange={setBracket}>
                   <SelectTrigger id="taxBracketId" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_BRACKET}>No bracket selected</SelectItem>
+                    <SelectItem value={NO_BRACKET}>{t("noBracket")}</SelectItem>
                     {brackets.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.name} · {b.rate}%
@@ -156,12 +158,12 @@ export function ProductDetailsForm({
 
               <fieldset className="lg:col-span-2">
                 <legend className="text-sm leading-none font-medium text-foreground select-none">
-                  Storefront visibility
+                  {t("visibility")}
                 </legend>
                 <div className="mt-2 flex flex-wrap gap-2.5">
                   {[
-                    { value: "public", label: "Visible", hint: "Listed on the storefront." },
-                    { value: "hidden", label: "Hidden", hint: "Direct link only." },
+                    { value: "public", label: t("visible"), hint: t("visibleHint") },
+                    { value: "hidden", label: t("hidden"), hint: t("hiddenHint") },
                   ].map((option) => (
                     <Label
                       key={option.value}
@@ -184,7 +186,7 @@ export function ProductDetailsForm({
               </fieldset>
 
               <fieldset className="rounded-xl border border-border p-4 lg:col-span-2">
-                <legend className="px-1 text-sm font-semibold text-foreground">Shopper customisation</legend>
+                <legend className="px-1 text-sm font-semibold text-foreground">{t("shopperCustomisation")}</legend>
                 <div className="mt-3 space-y-3">
                   <div className="flex items-start gap-3">
                     <Switch
@@ -194,9 +196,9 @@ export function ProductDetailsForm({
                       className="mt-0.5"
                     />
                     <Label htmlFor="shopperArtwork" className="block cursor-pointer font-normal">
-                      <span className="block text-sm font-medium text-foreground">Allow artwork upload</span>
+                      <span className="block text-sm font-medium text-foreground">{t("allowArtwork")}</span>
                       <span className="text-xs text-muted-foreground">
-                                                Shoppers can upload their own image.
+                        {t("allowArtworkHint")}
                       </span>
                     </Label>
                   </div>
@@ -209,17 +211,17 @@ export function ProductDetailsForm({
                     />
                     <Label htmlFor="shopperText" className="block cursor-pointer font-normal">
                       <span className="block text-sm font-medium text-foreground">
-                        Allow a personalisation line
+                        {t("allowText")}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                                                Shoppers can add a line of text.
+                        {t("allowTextHint")}
                       </span>
                     </Label>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-1.5">
                       <Label htmlFor="textLabel" className="text-xs">
-                        Field label
+                        {t("fieldLabel")}
                       </Label>
                       <Input
                         id="textLabel"
@@ -229,7 +231,7 @@ export function ProductDetailsForm({
                     </div>
                     <div className="grid gap-1.5">
                       <Label htmlFor="maxTextLength" className="text-xs">
-                        Maximum characters
+                        {t("maxCharacters")}
                       </Label>
                       <Input
                         id="maxTextLength"
@@ -253,11 +255,14 @@ export function ProductDetailsForm({
 }
 
 export function VariantsForm({ product }: { product: StoreProduct }) {
+  const t = useTranslations("productForms");
+  const labels = useTranslations("labels");
+  const locale = useLocale();
   return (
     <Card asChild>
       <ActionForm
         action={saveVariants}
-        submitLabel="Save variants"
+        submitLabel={t("saveVariants")}
         hidden={{ storeId: product.storeId, productId: product.id }}
         actionsClassName="px-(--card-spacing)"
       >
@@ -265,10 +270,10 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
           <>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Variants</h2>
+                <h2>{t("variants")}</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Variant prices override the selling price.
+                {t("variantsHint")}
               </p>
             </CardHeader>
             <CardContent>
@@ -276,12 +281,12 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                 <Table className="min-w-[38rem]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className={TH}>Enabled</TableHead>
-                      <TableHead className={TH}>Variant</TableHead>
-                      <TableHead className={TH}>SKU</TableHead>
-                      <TableHead className={TH}>Supplier cost</TableHead>
-                      <TableHead className={TH}>Availability</TableHead>
-                      <TableHead className={TH}>Price ({product.currency})</TableHead>
+                      <TableHead className={TH}>{t("colEnabled")}</TableHead>
+                      <TableHead className={TH}>{t("colVariant")}</TableHead>
+                      <TableHead className={TH}>{t("colSku")}</TableHead>
+                      <TableHead className={TH}>{t("colCost")}</TableHead>
+                      <TableHead className={TH}>{t("colAvailability")}</TableHead>
+                      <TableHead className={TH}>{t("colPrice", { currency: product.currency })}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -289,7 +294,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                       <TableRow key={variant.id} className="hover:bg-transparent">
                         <TableCell className="px-0 py-2">
                           <Label htmlFor={`enabled_${variant.id}`} className="sr-only">
-                            Enable {variant.name}
+                            {t("enable", { name: variant.name })}
                           </Label>
                           <Switch
                             id={`enabled_${variant.id}`}
@@ -311,7 +316,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                           {variant.sku}
                         </TableCell>
                         <TableCell className="px-0 py-2 tabular-nums text-inksoft">
-                          {formatMoney(variant.baseCost, product.currency)}
+                          {formatMoney(variant.baseCost, product.currency, locale)}
                         </TableCell>
                         <TableCell className="px-0 py-2">
                           <span
@@ -323,12 +328,12 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                                   : "text-xs text-rose-700"
                             }
                           >
-                            {variant.availability.replace("_", " ")}
+                            {labels(`availability.${variant.availability}`)}
                           </span>
                         </TableCell>
                         <TableCell className="px-0 py-2">
                           <Label htmlFor={`price_${variant.id}`} className="sr-only">
-                            Price for {variant.name}
+                            {t("priceFor", { name: variant.name })}
                           </Label>
                           <Input
                             id={`price_${variant.id}`}
@@ -359,16 +364,17 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
  */
 export function DeleteProductForm({ product }: { product: StoreProduct }) {
   const formId = `delete-product-${product.id}`;
+  const t = useTranslations("productForms");
 
   return (
     <Card className="ring-rose-200" asChild>
       <section>
         <CardHeader>
           <CardTitle asChild>
-            <h2>Delete this product</h2>
+            <h2>{t("deleteTitle")}</h2>
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Removes the product from this store. Existing orders are not affected.
+            {t("deleteBody")}
           </p>
         </CardHeader>
         <CardContent>
@@ -387,25 +393,26 @@ function DeleteProductDialog({ formId, name }: { formId: string; name: string })
   // Inside the form, so the trigger locks itself the moment the dialog's own
   // action submits it.
   const { pending } = useFormStatus();
+  const t = useTranslations("productForms");
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button type="button" variant="destructive" size="sm" disabled={pending}>
-          {pending ? "Deleting…" : "Delete permanently"}
+          {pending ? t("deleting") : t("deletePermanently")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete this product</AlertDialogTitle>
+          <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            &ldquo;{name}&rdquo; and its artwork and mockups will be deleted. This cannot be undone.
+            {t("deleteConfirm", { name })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-            Delete permanently
+            {t("deletePermanently")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

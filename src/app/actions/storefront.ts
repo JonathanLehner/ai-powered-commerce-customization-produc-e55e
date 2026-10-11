@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { getStorefront, recordAudit, updateStorefront } from "@/lib/data";
 import { assertStoreAccess } from "@/lib/session";
@@ -22,9 +23,10 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
   const storeId = String(formData.get("storeId") ?? "");
   const raw = String(formData.get("tree") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.storefront");
+  const t = await getTranslations("actions.storefront");
 
   const tree = parseTree(raw);
-  if (!tree) return { status: "error", message: "The layout could not be read. Reload the editor and try again." };
+  if (!tree) return { status: "error", message: t("unreadable") };
 
   await updateStorefront(storeId, { draft: tree, draftUpdatedAt: new Date().toISOString() });
   recordAudit({
@@ -40,7 +42,7 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
     meta: {},
   });
   revalidatePath(`/app/stores/${storeId}/storefront`);
-  return { status: "success", message: "Draft saved." };
+  return { status: "success", message: t("draftSaved") };
 }
 
 export async function publishStorefront(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -54,14 +56,15 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
     getStorefront(storeId),
   ]);
 
+  const t = await getTranslations("actions.storefront");
   const tree = parseTree(raw);
-  if (!tree) return { status: "error", message: "The layout could not be read. Reload the editor and try again." };
+  if (!tree) return { status: "error", message: t("unreadable") };
   const sections = sectionsFromTree(tree);
   if (sections.length === 0) {
-    return { status: "error", message: "Add at least one section before publishing." };
+    return { status: "error", message: t("sectionRequired") };
   }
   if (store.status === "archived") {
-    return { status: "error", message: "Restore this store before publishing." };
+    return { status: "error", message: t("archived") };
   }
 
   const now = new Date().toISOString();
@@ -97,7 +100,7 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
 
   revalidatePath(`/app/stores/${storeId}/storefront`);
   revalidatePath(`/s/${store.slug}`);
-  return { status: "success", message: "Published." };
+  return { status: "success", message: t("published") };
 }
 
 export async function revertStorefront(formData: FormData): Promise<void> {

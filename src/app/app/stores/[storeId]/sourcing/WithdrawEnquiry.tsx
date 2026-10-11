@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormStatus } from "react-dom";
 import { withdrawQuoteRequest } from "@/app/actions/sourcing";
 import {
@@ -43,25 +44,27 @@ export function WithdrawEnquiry({
 
 function WithdrawDialog({ formId, code }: { formId: string; code: string }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("enquiries");
+  const common = useTranslations("common");
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button type="button" variant="ghost" size="sm" disabled={pending}>
-          {pending ? "Working…" : "Withdraw"}
+          {pending ? common("working") : t("withdraw")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Withdraw this enquiry?</AlertDialogTitle>
+          <AlertDialogTitle>{t("withdrawTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {code} will stop receiving quotes. Existing quotes can no longer be accepted.
+            {t("withdrawBody", { code })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-            Withdraw
+            {t("withdraw")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

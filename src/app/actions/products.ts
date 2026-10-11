@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -11,6 +12,7 @@ import {
   recordAudit,
   updateStoreProduct,
 } from "@/lib/data";
+import { artworkIssueText } from "@/i18n/artwork-copy";
 import { blockingIssues, validateArtwork } from "@/lib/artwork";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/mongo";
@@ -120,13 +122,14 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
   const textLabel = String(formData.get("textLabel") ?? "Personalisation").trim() || "Personalisation";
   const maxTextLength = Math.max(4, Math.min(40, Number(formData.get("maxTextLength") ?? 18) || 18));
 
-  if (name.length < 3) return { status: "error", message: "Give the product a name of at least 3 characters.", field: "name" };
+  const t = await getTranslations("actions.products");
+  if (name.length < 3) return { status: "error", message: t("nameTooShort"), field: "name" };
   if (description.length < 20) {
-    return { status: "error", message: "Add a description of at least one sentence.", field: "description" };
+    return { status: "error", message: t("descriptionTooShort"), field: "description" };
   }
   const price = parseMoney(priceRaw, product.currency);
   if (price === null || price <= 0) {
-    return { status: "error", message: "Enter a selling price greater than zero.", field: "price" };
+    return { status: "error", message: t("priceRequired"), field: "price" };
   }
 
   // Publishing already requires a bracket; clearing it afterwards would put a
@@ -134,7 +137,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
   if (!taxBracketId && (product.status === "published" || product.status === "in_review")) {
     return {
       status: "error",
-      message: "Choose a tax bracket.",
+      message: t("bracketRequired"),
       field: "taxBracketId",
     };
   }
@@ -196,7 +199,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
 
   revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
   revalidatePath(`/s/${store.slug}`);
-  return { status: "success", message: `Saved. Margin is now ${next.costs.marginPct.toFixed(1)}%.` };
+  return { status: "success", message: t("saved", { margin: next.costs.marginPct.toFixed(1) }) };
 }
 
 export async function saveVariants(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -211,14 +214,15 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
     return { ...variant, enabled, price: parsed ?? variant.price };
   });
 
+  const [t, locale] = await Promise.all([getTranslations("actions.products"), getLocale()]);
   if (!variants.some((v) => v.enabled)) {
-    return { status: "error", message: "Keep at least one variant enabled.", field: "variants" };
+    return { status: "error", message: t("variantRequired"), field: "variants" };
   }
   const bad = variants.find((v) => v.enabled && v.price <= v.baseCost);
   if (bad) {
     return {
       status: "error",
-      message: `“${bad.name}” is priced at or below its supplier cost of ${formatMoney(bad.baseCost, product.currency)}. Raise the price or disable the variant.`,
+      message: t("belowCost", { name: bad.name, cost: formatMoney(bad.baseCost, product.currency, locale) }),
       field: `price_${bad.id}`,
     };
   }
@@ -239,7 +243,7 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
     meta: { enabled: variants.filter((v) => v.enabled).length },
   });
   revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
-  return { status: "success", message: `${variants.filter((v) => v.enabled).length} variants enabled.` };
+  return { status: "success", message: t("variantsSaved", { count: variants.filter((v) => v.enabled).length }) };
 }
 
 /**
@@ -264,19 +268,23 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   const productId = String(formData.get("productId") ?? "");
   const printAreaId = String(formData.get("printAreaId") ?? "");
   const { user, store, product, catalog } = await loadEditable(storeId, productId);
-  if (!catalog) return { status: "error", message: "The supplier product behind this item is missing." };
+  const t = await getTranslations("actions.products");
+  if (!catalog) return { status: "error", message: t("supplierMissing") };
 
   const area = catalog.printAreas.find((a) => a.id === printAreaId);
-  if (!area) return { status: "error", message: "Choose a print area for the artwork." };
+  if (!area) return { status: "error", message: t("areaRequired") };
 
   const stored = readStoredImage(formData, "artwork", "artwork");
   if (!stored || !stored.pixelWidth || !stored.pixelHeight) {
-    return { status: "error", message: "Choose an artwork file to upload.", field: "artwork" };
+    return { status: "error", message: t("fileRequired"), field: "artwork" };
   }
   if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
     return {
       status: "error",
-      message: `That file is ${(stored.sizeBytes / 1024 / 1024).toFixed(1)} MB. The limit is ${catalog.fileRequirements.maxFileMb} MB.`,
+      message: t("fileTooLarge", {
+        size: (stored.sizeBytes / 1024 / 1024).toFixed(1),
+        max: catalog.fileRequirements.maxFileMb,
+      }),
       field: "artwork",
     };
   }
@@ -322,8 +330,8 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   return {
     status: "success",
     message: errors.length
-      ? `Uploaded. Fix ${errors.length} ${errors.length === 1 ? "issue" : "issues"} below before approval.`
-      : "Uploaded and placed in the centre of the print area. Adjust the position, then generate mockups.",
+      ? t("uploadedIssues", { count: errors.length })
+      : t("uploaded"),
   };
 }
 
@@ -364,11 +372,12 @@ export async function saveArtworkPlacement(_prev: ActionState, formData: FormDat
       artwork.rotation !== before.rotation
     );
   });
-  if (!moved) return { status: "success", message: "Placement saved." };
+  const t = await getTranslations("actions.products");
+  if (!moved) return { status: "success", message: t("placementSaved") };
 
   await updateStoreProduct(productId, { artworks, mockups: [] }, product);
   revalidateAfterArtworkChange(storeId, productId, store.slug);
-  return { status: "success", message: "Placement saved." };
+  return { status: "success", message: t("placementSaved") };
 }
 
 export async function removeArtwork(formData: FormData): Promise<void> {
@@ -404,9 +413,10 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const { user, store, product, catalog } = await loadEditable(storeId, productId);
-  if (!catalog) return { status: "error", message: "The supplier product behind this item is missing." };
+  const t = await getTranslations("actions.products");
+  if (!catalog) return { status: "error", message: t("supplierMissing") };
   if (product.artworks.length === 0) {
-    return { status: "error", message: "Add artwork to at least one print area before generating mockups." };
+    return { status: "error", message: t("artworkRequired") };
   }
 
   const colour = product.variants.find((v) => v.enabled)?.colour ?? catalog.variants[0]?.colour ?? "";
@@ -440,8 +450,7 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   if (mockups.length === 0) {
     return {
       status: "error",
-      message:
-        "No preview could be rendered. Check that each print area with artwork has supplier photography, then try again.",
+      message: t("noPreview"),
     };
   }
 
@@ -461,7 +470,7 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   revalidateAfterArtworkChange(storeId, productId, store.slug);
   return {
     status: "success",
-    message: `${mockups.length} ${mockups.length === 1 ? "mockup" : "mockups"} generated.`,
+    message: t("mockupsGenerated", { count: mockups.length }),
   };
 }
 
@@ -533,56 +542,47 @@ export interface PublishBlocker {
 
 /** Everything that must be true before a product can go live. */
 export async function publishBlockers(productId: string): Promise<PublishBlocker[]> {
+  const [t, issuesT, locale] = await Promise.all([
+    getTranslations("actions.products.blockers"),
+    getTranslations("artworkIssues"),
+    getLocale(),
+  ]);
   const product = await getStoreProduct(productId);
-  if (!product) return [{ reason: "Product not found.", fix: "Reload the page." }];
+  if (!product) return [{ reason: t("notFound"), fix: t("reload") }];
   const catalog = await getCatalogProduct(product.catalogProductId);
   const blockers: PublishBlocker[] = [];
 
   if (!catalog) {
-    blockers.push({
-      reason: "The supplier product behind this item has been retired.",
-      fix: "Import a replacement from the shared catalog.",
-    });
+    blockers.push({ reason: t("retired"), fix: t("retiredFix") });
     return blockers;
   }
   if (product.artworks.length === 0) {
-    blockers.push({
-      reason: "No artwork has been placed.",
-      fix: "Upload a logo or design into at least one print area.",
-    });
+    blockers.push({ reason: t("noArtwork"), fix: t("noArtworkFix") });
   }
   for (const artwork of product.artworks) {
     const area = catalog.printAreas.find((a) => a.id === artwork.printAreaId);
     if (!area) continue;
     for (const issue of blockingIssues(validateArtwork(artwork, area, catalog.fileRequirements))) {
-      blockers.push({ reason: `${area.name}: ${issue.message}`, fix: issue.fix });
+      const text = artworkIssueText(issuesT, issue, locale);
+      blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix });
     }
   }
   if (product.mockups.length === 0) {
-    blockers.push({
-      reason: "No mockups have been generated.",
-      fix: "Generate previews so the placement can be checked before production.",
-    });
+    blockers.push({ reason: t("noMockups"), fix: t("noMockupsFix") });
   } else if (product.mockups.some((m) => !m.approved)) {
-    blockers.push({
-      reason: "The generated mockups have not been approved.",
-      fix: "Review each preview and approve them.",
-    });
+    blockers.push({ reason: t("unapproved"), fix: t("unapprovedFix") });
   }
   if (!product.taxBracketId) {
-    blockers.push({
-      reason: "No tax bracket is selected.",
-      fix: "Pick the bracket this product falls into so tax is calculated at checkout.",
-    });
+    blockers.push({ reason: t("noBracket"), fix: t("noBracketFix") });
   }
   if (product.costs.marginAmount <= 0) {
     blockers.push({
-      reason: `The margin is ${formatMoney(product.costs.marginAmount, product.currency)}. This price is below cost.`,
-      fix: "Raise the selling price or choose a cheaper supplier product.",
+      reason: t("belowCost", { margin: formatMoney(product.costs.marginAmount, product.currency, locale) }),
+      fix: t("belowCostFix"),
     });
   }
   if (!product.variants.some((v) => v.enabled)) {
-    blockers.push({ reason: "Every variant is disabled.", fix: "Enable at least one size or colour." });
+    blockers.push({ reason: t("noVariants"), fix: t("noVariantsFix") });
   }
   return blockers;
 }

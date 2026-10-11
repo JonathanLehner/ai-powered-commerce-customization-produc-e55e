@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import {
   createDiscountCode,
@@ -39,7 +40,8 @@ interface Terms {
  * The fields both the create and the edit form post. Everything is checked here
  * rather than in the browser, because a code's value is money.
  */
-function readTerms(formData: FormData, store: Store): Terms | ActionState {
+async function readTerms(formData: FormData, store: Store): Promise<Terms | ActionState> {
+  const t = await getTranslations("actions.discounts");
   const kind: DiscountKind = String(formData.get("kind") ?? "percentage") === "fixed" ? "fixed" : "percentage";
   const rawValue = String(formData.get("value") ?? "").trim();
 
@@ -47,13 +49,13 @@ function readTerms(formData: FormData, store: Store): Terms | ActionState {
   if (kind === "percentage") {
     const percent = Number(rawValue);
     if (!Number.isInteger(percent) || percent < 1 || percent > MAX_DISCOUNT_PERCENTAGE) {
-      return fail(`Enter a whole percentage between 1 and ${MAX_DISCOUNT_PERCENTAGE}.`, "value");
+      return fail(t("percentRange", { max: MAX_DISCOUNT_PERCENTAGE }), "value");
     }
     value = percent;
   } else {
     const amount = parseMoney(rawValue, store.defaultCurrency);
     if (amount === null || amount <= 0) {
-      return fail(`Enter the amount to take off in ${store.defaultCurrency}.`, "value");
+      return fail(t("amountRequired", { currency: store.defaultCurrency }), "value");
     }
     value = amount;
   }
@@ -61,14 +63,14 @@ function readTerms(formData: FormData, store: Store): Terms | ActionState {
   const rawMinimum = String(formData.get("minimumSubtotal") ?? "").trim();
   const minimumSubtotal = rawMinimum === "" ? 0 : parseMoney(rawMinimum, store.defaultCurrency);
   if (minimumSubtotal === null) {
-    return fail("Enter a valid minimum basket value.", "minimumSubtotal");
+    return fail(t("minimumInvalid"), "minimumSubtotal");
   }
 
   const rawExpiry = String(formData.get("expiresAt") ?? "").trim();
   let expiresAt: string | null = null;
   if (rawExpiry !== "") {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(rawExpiry) || Number.isNaN(Date.parse(rawExpiry))) {
-      return fail("Enter a valid expiry date.", "expiresAt");
+      return fail(t("expiryInvalid"), "expiresAt");
     }
     expiresAt = rawExpiry;
   }
@@ -78,7 +80,7 @@ function readTerms(formData: FormData, store: Store): Terms | ActionState {
   if (rawLimit !== "") {
     const limit = Number(rawLimit);
     if (!Number.isInteger(limit) || limit < 1) {
-      return fail("Enter a usage limit of 1 or more.", "usageLimit");
+      return fail(t("limitInvalid"), "usageLimit");
     }
     usageLimit = limit;
   }
@@ -108,17 +110,18 @@ function refresh(storeId: string, slug: string) {
 export async function createDiscount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.discounts");
 
   const code = normalizeDiscountCode(String(formData.get("code") ?? ""));
-  if (code.length < 3) return fail("A code needs at least 3 letters or digits.", "code");
+  if (code.length < 3) return fail(t("codeTooShort"), "code");
 
-  const terms = readTerms(formData, store);
+  const terms = await readTerms(formData, store);
   if (isActionState(terms)) return terms;
 
   // Codes are looked up by store and code, so a store cannot hold two of the
   // same — the second would be unreachable.
   if (await getDiscountCodeByCode(storeId, code)) {
-    return fail(`${code} already exists in this store.`, "code");
+    return fail(t("exists", { code }), "code");
   }
 
   const now = new Date().toISOString();
@@ -156,23 +159,24 @@ export async function createDiscount(_prev: ActionState, formData: FormData): Pr
     },
   });
   refresh(storeId, store.slug);
-  return { status: "success", message: `${code} created.` };
+  return { status: "success", message: t("created", { code }) };
 }
 
 export async function saveDiscount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const discountId = String(formData.get("discountId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.discounts");
 
   const existing = await getDiscountCode(discountId);
-  if (!existing || existing.storeId !== storeId) return fail("That discount code no longer exists.");
+  if (!existing || existing.storeId !== storeId) return fail(t("gone"));
 
-  const terms = readTerms(formData, store);
+  const terms = await readTerms(formData, store);
   if (isActionState(terms)) return terms;
 
   if (terms.usageLimit !== null && terms.usageLimit < existing.timesUsed) {
     return fail(
-      `${existing.code} has already been used ${existing.timesUsed} times, so the limit cannot be lower than that.`,
+      t("limitBelowUsed", { code: existing.code, count: existing.timesUsed }),
       "usageLimit",
     );
   }
@@ -181,7 +185,7 @@ export async function saveDiscount(_prev: ActionState, formData: FormData): Prom
   // while a shopper is paying must not roll their redemption back.
   const saved = await updateDiscountCode(discountId, { timesUsed: existing.timesUsed }, terms);
   if (!saved) {
-    return fail("This code changed. Reload the page and try again.");
+    return fail(t("changed"));
   }
 
   const changes = describeChanges(existing, terms, store.defaultCurrency);
@@ -209,7 +213,7 @@ export async function saveDiscount(_prev: ActionState, formData: FormData): Prom
     },
   });
   refresh(storeId, store.slug);
-  return { status: "success", message: `${existing.code} saved.` };
+  return { status: "success", message: t("saved", { code: existing.code }) };
 }
 
 /** What actually changed, so the audit entry reads as a change rather than a dump. */

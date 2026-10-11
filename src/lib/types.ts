@@ -74,6 +74,8 @@ export interface Membership {
   acceptedAt: string | null;
   /** Single-use acceptance token, cleared once the invitation is accepted. */
   inviteToken?: string | null;
+  /** The language the invitation is written in, and the new account starts in. */
+  language?: string;
 }
 
 export interface CarrierAccount {

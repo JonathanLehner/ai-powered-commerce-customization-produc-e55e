@@ -40,14 +40,35 @@ export function parseJsonLoose<T>(text: string): T {
     .replace(/^\s*```(?:json)?/i, "")
     .replace(/```\s*$/, "")
     .trim();
-  try {
-    return JSON.parse(cleaned) as T;
-  } catch {
-    const start = cleaned.search(/[[{]/);
-    const end = Math.max(cleaned.lastIndexOf("}"), cleaned.lastIndexOf("]"));
-    if (start >= 0 && end > start) return JSON.parse(cleaned.slice(start, end + 1)) as T;
-    throw new Error("The assistant returned a response that was not valid JSON");
+  const start = cleaned.search(/[[{]/);
+  const end = Math.max(cleaned.lastIndexOf("}"), cleaned.lastIndexOf("]"));
+  const sliced = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
+  // Models sometimes put a raw line break inside a string value, which JSON
+  // forbids, so the last attempt escapes control characters inside strings.
+  for (const candidate of [cleaned, sliced, escapeControlCharacters(sliced)]) {
+    try {
+      return JSON.parse(candidate) as T;
+    } catch {
+      // try the next, more forgiving reading
+    }
   }
+  throw new Error("The assistant returned a response that was not valid JSON");
+}
+
+function escapeControlCharacters(json: string): string {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (const char of json) {
+    if (inString && !escaped && char < " ") {
+      out += char === "\n" ? "\\n" : char === "\r" ? "\\r" : char === "\t" ? "\\t" : "";
+      continue;
+    }
+    if (char === '"' && !escaped) inString = !inString;
+    escaped = inString && char === "\\" && !escaped;
+    out += char;
+  }
+  return out;
 }
 
 /** Uploads raw bytes to the platform asset store and returns a permanent URL. */

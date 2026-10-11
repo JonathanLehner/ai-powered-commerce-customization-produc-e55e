@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { setProductStatus } from "@/app/actions/products";
@@ -10,7 +10,8 @@ import { marginTone } from "@/lib/pricing";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import type { StoreProduct } from "@/lib/types";
-import { formatDate, formatMoney, formatPercent, relativeTime } from "@/lib/util";
+import { formatAgo } from "@/i18n/format";
+import { formatDate, formatMoney, formatPercent } from "@/lib/util";
 import { CatalogToolbar } from "./CatalogToolbar";
 
 const STATUS_TONES: Record<StoreProduct["status"], "green" | "amber" | "neutral" | "slate"> = {
@@ -18,13 +19,6 @@ const STATUS_TONES: Record<StoreProduct["status"], "green" | "amber" | "neutral"
   in_review: "amber",
   draft: "neutral",
   archived: "slate",
-};
-
-const STATUS_LABELS: Record<StoreProduct["status"], string> = {
-  published: "Published",
-  in_review: "In review",
-  draft: "Draft",
-  archived: "Archived",
 };
 
 export default async function StoreCatalogPage({
@@ -56,7 +50,14 @@ export default async function StoreCatalogPage({
       ? published.reduce((sum, p) => sum + p.costs.marginPct, 0) / published.length
       : 0;
 
-  const pages = await getTranslations("pages.store");
+  const [pages, t, labels, locale, format] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("catalog"),
+    getTranslations("labels"),
+    getLocale(),
+    getFormatter(),
+  ]);
+  const now = new Date();
   return (
     <div className="space-y-6">
       <PageHeader
@@ -64,24 +65,24 @@ export default async function StoreCatalogPage({
         actions={
           canEdit ? (
             <Button asChild>
-              <Link href={`/app/stores/${storeId}/sourcing`}>Import from supplier catalog</Link>
+              <Link href={`/app/stores/${storeId}/sourcing`}>{t("import")}</Link>
             </Button>
           ) : null
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Products" value={String(products.length)} />
-        <StatCard label="Published" value={String(published.length)} />
+        <StatCard label={t("products")} value={String(products.length)} />
+        <StatCard label={t("published")} value={String(published.length)} />
         <StatCard
-          label="Drafts and reviews"
+          label={t("drafts")}
           value={String(products.filter((p) => p.status !== "published" && p.status !== "archived").length)}
         />
         <StatCard
-          label="Average margin"
+          label={t("averageMargin")}
           value={formatPercent(avgMargin)}
           tone={marginTone(avgMargin) === "healthy" ? "green" : marginTone(avgMargin) === "thin" ? "amber" : "rose"}
-          sub="Published products"
+          sub={t("publishedProducts")}
         />
       </div>
 
@@ -89,16 +90,12 @@ export default async function StoreCatalogPage({
 
       {filtered.length === 0 ? (
         <EmptyState
-          title={products.length === 0 ? "No products yet" : "No matching products"}
-          description={
-            products.length === 0
-              ? "Import a product from the supplier catalog to get started."
-              : "Try different filters."
-          }
+          title={products.length === 0 ? t("noProducts") : t("noMatches")}
+          description={products.length === 0 ? t("noProductsBody") : t("tryFilters")}
           action={
             canEdit ? (
               <Button asChild>
-                <Link href={`/app/stores/${storeId}/sourcing`}>Browse the supplier catalog</Link>
+                <Link href={`/app/stores/${storeId}/sourcing`}>{t("browse")}</Link>
               </Button>
             ) : null
           }
@@ -115,7 +112,7 @@ export default async function StoreCatalogPage({
                     {cover ? (
                       <Image
                         src={cover.url}
-                        alt={`${product.name} mockup`}
+                        alt={t("mockupAlt", { name: product.name })}
                         width={640}
                         height={640}
                         loading="lazy"
@@ -128,15 +125,15 @@ export default async function StoreCatalogPage({
                         className="flex w-full items-center justify-center text-sm text-muted-foreground"
                         style={{ aspectRatio: "1 / 1" }}
                       >
-                        No mockup yet
+                        {t("noMockup")}
                       </div>
                     )}
                     <span className="absolute top-3 left-3">
-                      <Badge tone={STATUS_TONES[product.status]}>{STATUS_LABELS[product.status]}</Badge>
+                      <Badge tone={STATUS_TONES[product.status]}>{labels(`productStatus.${product.status}`)}</Badge>
                     </span>
                     {product.visibility === "hidden" ? (
                       <span className="absolute top-3 right-3">
-                        <Badge tone="slate">Hidden</Badge>
+                        <Badge tone="slate">{t("hidden")}</Badge>
                       </span>
                     ) : null}
                   </div>
@@ -152,35 +149,38 @@ export default async function StoreCatalogPage({
                     </p>
                     {product.manualFulfilment ? (
                       <p className="mt-1.5">
-                        <Badge tone="iris">Manual fulfilment · {product.manualFulfilment.quoteCode}</Badge>
+                        <Badge tone="iris">{t("manualFulfilment", { code: product.manualFulfilment.quoteCode })}</Badge>
                       </p>
                     ) : null}
                     <p className="mt-1 text-xs text-muted-foreground">
-                      <span className="tabular-nums">{product.variants.filter((v) => v.enabled).length}</span>{" "}
-                      variants · imported {formatDate(product.importedAt)} · updated{" "}
-                      {relativeTime(product.updatedAt)}
+                      {t("meta", {
+                        count: product.variants.filter((v) => v.enabled).length,
+                        imported: formatDate(product.importedAt, locale),
+                        updated: formatAgo(format, product.updatedAt, now),
+                      })}
                     </p>
 
                     <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-border py-3 text-xs">
                       <div>
-                        <dt className="text-muted-foreground">Price</dt>
+                        <dt className="text-muted-foreground">{t("price")}</dt>
                         <dd className="font-semibold tabular-nums text-foreground">
-                          {formatMoney(product.price, product.currency)}
+                          {formatMoney(product.price, product.currency, locale)}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">Cost</dt>
+                        <dt className="text-muted-foreground">{t("cost")}</dt>
                         <dd className="font-semibold tabular-nums text-foreground">
                           {formatMoney(
                             product.costs.supplierCost +
                               product.costs.customizationCost +
                               product.costs.shippingEstimate,
                             product.currency,
+                            locale,
                           )}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">Margin</dt>
+                        <dt className="text-muted-foreground">{t("margin")}</dt>
                         <dd
                           className={
                             tone === "healthy"
@@ -199,7 +199,7 @@ export default async function StoreCatalogPage({
                   <CardFooter className="mt-auto flex-wrap gap-2">
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/app/stores/${storeId}/catalog/${product.id}`}>
-                        {canEdit ? "Edit product" : "View product"}
+                        {canEdit ? t("edit") : t("view")}
                       </Link>
                     </Button>
                     {canEdit && product.status === "published" ? (
@@ -208,7 +208,7 @@ export default async function StoreCatalogPage({
                         <input type="hidden" name="productId" value={product.id} />
                         <input type="hidden" name="status" value="in_review" />
                         <Button type="submit" variant="ghost" size="sm">
-                          Unpublish
+                          {t("unpublish")}
                         </Button>
                       </form>
                     ) : null}
@@ -219,7 +219,7 @@ export default async function StoreCatalogPage({
                           target="_blank"
                           rel="noreferrer"
                         >
-                          View live ↗
+                          {t("viewLive")}
                         </Link>
                       </Button>
                     ) : null}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 import { flushSync } from "react-dom";
@@ -36,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { countryName, currencyName, languageOption } from "@/i18n/display";
 import { LANGUAGE_OPTIONS } from "@/lib/i18n";
 import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
@@ -54,6 +56,7 @@ function Step({
   done: boolean;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("settings");
   return (
     <Card asChild>
     <section id={`step-${index}`}>
@@ -75,7 +78,7 @@ function Step({
           </CardTitle>
           <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
           <CardAction>
-            <Badge tone={done ? "green" : "amber"}>{done ? "Complete" : "Needs attention"}</Badge>
+            <Badge tone={done ? "green" : "amber"}>{done ? t("stepComplete") : t("stepAttention")}</Badge>
           </CardAction>
         </CardHeader>
         <CardContent>{children}</CardContent>
@@ -105,6 +108,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const preview = uploaded?.url ?? store.logoUrl;
+  const t = useTranslations("settings");
 
   async function onChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
@@ -114,7 +118,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
 
     setError(null);
     if (file.size > LOGO_MAX_MB * 1024 * 1024) {
-      setError(`That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Logos must be under ${LOGO_MAX_MB} MB.`);
+      setError(t("logoTooLarge", { size: (file.size / 1024 / 1024).toFixed(1), max: LOGO_MAX_MB }));
       return;
     }
 
@@ -125,7 +129,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
       flushSync(() => setUploaded(stored));
       form?.requestSubmit();
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "That logo could not be uploaded.");
+      setError(uploadError instanceof Error ? uploadError.message : t("logoFailed"));
     } finally {
       setUploading(false);
     }
@@ -138,18 +142,18 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
         {preview ? (
           <Image
             src={preview}
-            alt={`${store.name} logo`}
+            alt={t("logoAlt", { name: store.name })}
             width={96}
             height={96}
             sizes="96px"
             className="h-full w-full object-contain p-2"
           />
         ) : (
-          <span className="px-2 text-center text-xs text-muted-foreground">No logo yet</span>
+          <span className="px-2 text-center text-xs text-muted-foreground">{t("noLogo")}</span>
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <Label htmlFor="logo">Client logo</Label>
+        <Label htmlFor="logo">{t("clientLogo")}</Label>
         <Input
           id="logo"
           type="file"
@@ -161,10 +165,10 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
           className="mt-1.5 file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
         />
         <p id="logo-hint" className="mt-1.5 text-xs text-muted-foreground">
-          PNG, JPG, WEBP or SVG up to {LOGO_MAX_MB} MB.
+          {t("logoHint", { max: LOGO_MAX_MB })}
         </p>
         <p role="status" aria-live="polite" className="mt-2 text-sm">
-          {uploading ? <span className="text-muted-foreground">Uploading…</span> : null}
+          {uploading ? <span className="text-muted-foreground">{t("uploading")}</span> : null}
           {error ? <span className="text-rose-700">{error}</span> : null}
         </p>
       </div>
@@ -200,6 +204,9 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
   );
   const [bracket, setBracket] = useState(store.defaultTaxBracketId ?? NO_BRACKET);
   const hidden = { storeId: store.id };
+  const t = useTranslations("settings");
+  const labels = useTranslations("labels");
+  const locale = useLocale();
 
   function toggleCurrency(code: string, on: boolean) {
     setCurrencies((prev) => (on ? [...new Set([...prev, code])] : prev.filter((c) => c !== code)));
@@ -209,18 +216,18 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
     <div className="space-y-5">
       <Step
         index={1}
-        title="Branding"
-        description="Logo and storefront theme."
+        title={t("branding")}
+        description={t("brandingDescription")}
         done={store.setup.branding}
       >
-        <ActionForm action={saveBranding} submitLabel="Save branding" hidden={hidden}>
+        <ActionForm action={saveBranding} submitLabel={t("saveBranding")} hidden={hidden}>
           {(state) => (
             <>
               <LogoField store={store} invalid={state.field === "logo"} />
 
               <fieldset className="mt-6">
                 <legend className="text-sm leading-none font-medium text-foreground select-none">
-                  Storefront theme
+                  {t("theme")}
                 </legend>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {themeKeys.map((key) => (
@@ -245,7 +252,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                           <span className="text-sm font-semibold text-foreground">{THEMES[key].name}</span>
                         </span>
                         <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                          {THEMES[key].description}
+                          {labels(`theme.${key}`)}
                         </span>
                       </span>
                     </Label>
@@ -259,16 +266,16 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={2}
-        title="Language and selling currencies"
-        description="Storefront language and the currencies shoppers can pay in."
+        title={t("localisation")}
+        description={t("localisationDescription")}
         done={store.setup.localisation}
       >
-        <ActionForm action={saveLocalisation} submitLabel="Save localisation" hidden={hidden}>
+        <ActionForm action={saveLocalisation} submitLabel={t("saveLocalisation")} hidden={hidden}>
           {(state) => (
             <>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="defaultLanguage">Default language</Label>
+                  <Label htmlFor="defaultLanguage">{t("defaultLanguage")}</Label>
                   <Select name="defaultLanguage" defaultValue={store.defaultLanguage}>
                     <SelectTrigger id="defaultLanguage" className="w-full">
                       <SelectValue />
@@ -276,14 +283,14 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     <SelectContent>
                       {LANGUAGE_OPTIONS.map((l) => (
                         <SelectItem key={l.code} value={l.code}>
-                          {l.label === l.endonym ? l.label : `${l.label} · ${l.endonym}`}
+                          {languageOption(locale, l.code, l.endonym)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="defaultCurrency">Default currency</Label>
+                  <Label htmlFor="defaultCurrency">{t("defaultCurrency")}</Label>
                   <Select name="defaultCurrency" defaultValue={store.defaultCurrency}>
                     <SelectTrigger
                       id="defaultCurrency"
@@ -300,16 +307,16 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">Must be one of the selling currencies below.</p>
+                  <p className="text-xs text-muted-foreground">{t("defaultCurrencyHint")}</p>
                 </div>
               </div>
 
               <fieldset className="mt-6">
                 <legend className="text-sm leading-none font-medium text-foreground select-none">
-                  Selling currencies
+                  {t("sellingCurrencies")}
                 </legend>
                 <p className="mt-1.5 mb-3 text-xs text-muted-foreground">
-                  <span className="tabular-nums">{currencies.length}</span> selected
+                  <span className="tabular-nums">{t("selected", { count: currencies.length })}</span>
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                   {CURRENCY_OPTIONS.map((c) => (
@@ -324,7 +331,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                         onCheckedChange={(checked) => toggleCurrency(c.code, checked === true)}
                       />
                       <span className="font-medium text-foreground">{c.code}</span>
-                      <span className="truncate text-xs font-normal text-muted-foreground">{c.label}</span>
+                      <span className="truncate text-xs font-normal text-muted-foreground">{currencyName(locale, c.code, c.label)}</span>
                     </Label>
                   ))}
                 </div>
@@ -336,15 +343,15 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={3}
-        title="Support contacts"
-        description="Shown to shoppers in the storefront footer and on order pages."
+        title={t("support")}
+        description={t("supportDescription")}
         done={store.setup.support}
       >
-        <ActionForm action={saveSupport} submitLabel="Save support contacts" hidden={hidden}>
+        <ActionForm action={saveSupport} submitLabel={t("saveSupport")} hidden={hidden}>
           {(state) => (
             <div className="grid max-w-2xl gap-5 sm:grid-cols-2">
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="supportEmail">Support email address</Label>
+                <Label htmlFor="supportEmail">{t("supportEmail")}</Label>
                 <Input
                   id="supportEmail"
                   name="supportEmail"
@@ -356,7 +363,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
               </div>
               <div className="grid content-start gap-1.5">
                 <Label htmlFor="supportPhone">
-                  Support phone number <span className="font-normal text-muted-foreground">(optional)</span>
+                  {t("supportPhone")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
                 </Label>
                 <Input
                   id="supportPhone"
@@ -374,15 +381,15 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={4}
-        title="Custom domain"
-        description="Serve the storefront from the client's own domain."
+        title={t("domain")}
+        description={t("domainDescription")}
         done={store.setup.domain}
       >
-        <ActionForm action={saveDomain} submitLabel="Save domain" hidden={hidden}>
+        <ActionForm action={saveDomain} submitLabel={t("saveDomain")} hidden={hidden}>
           {(state) => (
             <>
               <div className="grid max-w-md gap-1.5">
-                <Label htmlFor="customDomain">Domain</Label>
+                <Label htmlFor="customDomain">{t("domainLabel")}</Label>
                 <Input
                   id="customDomain"
                   name="customDomain"
@@ -392,23 +399,26 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   aria-describedby="domain-hint"
                 />
                 <p id="domain-hint" className="text-xs text-muted-foreground">
-                  Leave empty to serve the store from <span className="font-mono">/s/{store.slug}</span>.
+                  {t.rich("domainHint", {
+                    slug: store.slug,
+                    code: (chunks) => <span className="font-mono">{chunks}</span>,
+                  })}
                 </p>
               </div>
 
               <div className="mt-4 rounded-lg border border-border bg-canvas p-4 text-sm">
-                <p className="font-medium text-foreground">DNS record to add</p>
+                <p className="font-medium text-foreground">{t("dnsRecord")}</p>
                 <p className="mt-1.5 font-mono text-xs text-inksoft">
                   CNAME {store.customDomain ?? "shop"} → stores.parcelith.net
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Current status:{" "}
+                  {t("currentStatus")}{" "}
                   <Badge tone={store.domainStatus === "verified" ? "green" : store.domainStatus === "pending" ? "amber" : "neutral"}>
                     {store.domainStatus === "verified"
-                      ? "Verified"
+                      ? t("domainVerified")
                       : store.domainStatus === "pending"
-                        ? "Awaiting verification"
-                        : "No custom domain"}
+                        ? t("domainPending")
+                        : t("domainNone")}
                   </Badge>
                 </p>
               </div>
@@ -419,43 +429,45 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
           <input type="hidden" name="storeId" value={store.id} />
           <input type="hidden" name="customDomain" value={store.customDomain ?? ""} />
           <input type="hidden" name="intent" value="verify" />
-          <SubmitButton variant="outline" size="sm" pendingLabel="Checking DNS…" disabled={!store.customDomain}>
-            Run verification
+          <SubmitButton variant="outline" size="sm" pendingLabel={t("checkingDns")} disabled={!store.customDomain}>
+            {t("runVerification")}
           </SubmitButton>
         </form>
       </Step>
 
       <Step
         index={5}
-        title="Stripe account"
-        description="Connect the client's Stripe account to accept payments."
+        title={t("stripe")}
+        description={t("stripeDescription")}
         done={store.setup.payments}
       >
         {store.stripe.connected ? (
           <div>
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm">
               <p className="font-medium text-emerald-900">
-                Connected: <span className="font-mono">{store.stripe.accountId}</span>
+                {t("connected")} <span className="font-mono">{store.stripe.accountId}</span>
               </p>
               <p className="mt-1 text-emerald-800">
-                Country {store.stripe.country} · charges enabled · connected{" "}
-                {store.stripe.connectedAt ? new Date(store.stripe.connectedAt).toLocaleDateString("en-US") : "–"}
+                {t("stripeStatus", {
+                  country: countryName(locale, store.stripe.country),
+                  date: store.stripe.connectedAt ? new Date(store.stripe.connectedAt).toLocaleDateString(locale) : "–",
+                })}
               </p>
             </div>
             <form action={disconnectStripe} className="mt-4">
               <input type="hidden" name="storeId" value={store.id} />
               <input type="hidden" name="intent" value="disconnect" />
-              <SubmitButton variant="destructive" size="sm" pendingLabel="Disconnecting…">
-                Disconnect Stripe
+              <SubmitButton variant="destructive" size="sm" pendingLabel={t("disconnecting")}>
+                {t("disconnect")}
               </SubmitButton>
             </form>
           </div>
         ) : (
-          <ActionForm action={saveStripe} submitLabel="Connect Stripe account" hidden={hidden}>
+          <ActionForm action={saveStripe} submitLabel={t("connect")} hidden={hidden}>
             {(state) => (
               <div className="grid max-w-2xl gap-5 sm:grid-cols-2">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="accountId">Stripe account ID</Label>
+                  <Label htmlFor="accountId">{t("accountId")}</Label>
                   <Input
                     id="accountId"
                     name="accountId"
@@ -464,11 +476,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     aria-describedby="accountId-hint"
                   />
                   <p id="accountId-hint" className="text-xs text-muted-foreground">
-                    Find it in Stripe under Settings → Account details.
+                    {t("accountIdHint")}
                   </p>
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="country">Account country</Label>
+                  <Label htmlFor="country">{t("accountCountry")}</Label>
                   <Select name="country" defaultValue={store.stripe.country}>
                     <SelectTrigger id="country" className="w-full">
                       <SelectValue />
@@ -476,7 +488,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     <SelectContent>
                       {STRIPE_COUNTRIES.map((c) => (
                         <SelectItem key={c.code} value={c.code}>
-                          {c.label}
+                          {countryName(locale, c.code, c.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -490,11 +502,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={6}
-        title="Shipping carriers"
-        description="Enable the carriers the client has accounts with."
+        title={t("carriers")}
+        description={t("carriersDescription")}
         done={store.setup.shipping}
       >
-        <ActionForm action={saveCarriers} submitLabel="Save carriers" hidden={hidden}>
+        <ActionForm action={saveCarriers} submitLabel={t("saveCarriers")} hidden={hidden}>
           {(state) => (
             <div className="grid gap-4 lg:grid-cols-3">
               {store.carriers.map((carrier) => (
@@ -517,13 +529,13 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   </div>
                   <div className="mt-3 grid gap-1.5">
                     <Label htmlFor={`${carrier.carrier}_account`} className="text-xs">
-                      Account number
+                      {t("accountNumber")}
                     </Label>
                     <Input
                       id={`${carrier.carrier}_account`}
                       name={`${carrier.carrier}_account`}
                       defaultValue={carrier.accountNumber}
-                      placeholder="Required when enabled"
+                      placeholder={t("requiredWhenEnabled")}
                       disabled={!carrierEnabled[carrier.carrier]}
                       aria-invalid={state.field === `${carrier.carrier}_account` ? true : undefined}
                       className="disabled:bg-canvas disabled:text-muted-foreground"
@@ -539,15 +551,15 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={7}
-        title="Tax configuration"
-        description="Default tax bracket for this store. Products can use a different bracket."
+        title={t("tax")}
+        description={t("taxDescription")}
         done={store.setup.tax}
       >
-        <ActionForm action={saveTaxSettings} submitLabel="Save tax settings" hidden={hidden}>
+        <ActionForm action={saveTaxSettings} submitLabel={t("saveTax")} hidden={hidden}>
           {(state) => (
             <>
               <div className="grid max-w-xl gap-1.5">
-                <Label htmlFor="defaultTaxBracketId">Default tax bracket</Label>
+                <Label htmlFor="defaultTaxBracketId">{t("defaultBracket")}</Label>
                 <input
                   type="hidden"
                   name="defaultTaxBracketId"
@@ -562,7 +574,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_BRACKET}>Select a bracket…</SelectItem>
+                    <SelectItem value={NO_BRACKET}>{t("selectBracket")}</SelectItem>
                     {brackets.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.name} · {b.rate}% ({b.code})
@@ -580,10 +592,10 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                 />
                 <Label htmlFor="pricesIncludeTax" className="block cursor-pointer font-normal">
                   <span className="block text-sm font-medium text-foreground">
-                    Displayed prices include tax
+                    {t("pricesIncludeTax")}
                   </span>
                   <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                    Common in the UK and EU.
+                    {t("pricesIncludeTaxHint")}
                   </span>
                 </Label>
               </div>
@@ -591,9 +603,9 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                 <Table className="min-w-[30rem]">
                   <TableHeader className="bg-canvas">
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className={TH}>Bracket</TableHead>
-                      <TableHead className={TH}>Rate</TableHead>
-                      <TableHead className={TH}>Applies to</TableHead>
+                      <TableHead className={TH}>{t("colBracket")}</TableHead>
+                      <TableHead className={TH}>{t("colRate")}</TableHead>
+                      <TableHead className={TH}>{t("colAppliesTo")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -602,7 +614,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                         <TableCell className="px-3 py-2 font-medium text-foreground">{b.name}</TableCell>
                         <TableCell className="px-3 py-2 tabular-nums text-inksoft">{b.rate}%</TableCell>
                         <TableCell className="px-3 py-2 whitespace-normal text-muted-foreground">
-                          {b.regions.join(", ")}
+                          {b.regions
+                            .map((r) =>
+                              labels.has(`region.${r}` as "region.APAC") ? labels(`region.${r}` as "region.APAC") : r,
+                            )
+                            .join(", ")}
                         </TableCell>
                       </TableRow>
                     ))}

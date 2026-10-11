@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -14,7 +15,8 @@ import {
 } from "@/lib/data";
 import { languageLabel, resolveLanguage } from "@/lib/i18n";
 import { db } from "@/lib/mongo";
-import { storeAllowance, storeLimitMessage } from "@/lib/plans";
+import { storeLimitText } from "@/i18n/plan-copy";
+import { storeAllowance } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { isSupportEmail, isSupportPhone } from "@/lib/support";
@@ -39,12 +41,13 @@ function fail(message: string, field?: string): ActionState {
 
 export async function createStore(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const user = await getSessionUser();
-  if (!user) return fail("You are signed out. Sign in again to continue.");
+  const t = await getTranslations("actions.stores");
+  if (!user) return fail((await getTranslations("actions.common"))("signedOut"));
   if (user.platformRole !== "agency_admin" && user.platformRole !== "platform_admin") {
-    return fail("Only agency administrators can create stores.");
+    return fail(t("onlyAgencyAdmins"));
   }
   const agencyId = user.agencyId ?? String(formData.get("agencyId") ?? "");
-  if (!agencyId) return fail("Choose the agency this store belongs to.", "agencyId");
+  if (!agencyId) return fail(t("chooseAgency"), "agencyId");
 
   // The plan is checked before anything else: the create screen already refuses
   // at the limit, so reaching here means a stale tab or a second submission that
@@ -53,9 +56,9 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
     getAgency(agencyId),
     countActiveStoresForAgency(agencyId),
   ]);
-  if (!agency) return fail("That agency no longer exists. Ask the platform administrator.", "agencyId");
+  if (!agency) return fail(t("agencyGone"), "agencyId");
   const allowance = storeAllowance(agency.plan, activeStores);
-  if (allowance.atLimit) return fail(storeLimitMessage(allowance, agency.name));
+  if (allowance.atLimit) return fail(await storeLimitText(allowance, agency.name));
 
   const name = String(formData.get("name") ?? "").trim();
   const clientName = String(formData.get("clientName") ?? "").trim();
@@ -64,11 +67,11 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
   const defaultLanguage = resolveLanguage(String(formData.get("defaultLanguage") ?? ""));
   const theme = String(formData.get("theme") ?? "atelier") as ThemeKey;
 
-  if (name.length < 3) return fail("Give the store a name of at least 3 characters.", "name");
-  if (!clientName) return fail("Enter the client this store is for.", "clientName");
+  if (name.length < 3) return fail(t("nameTooShort"), "name");
+  if (!clientName) return fail(t("clientRequired"), "clientName");
 
   let slug = slugify(name);
-  if (!slug) return fail("That name cannot be turned into a web address. Use letters or numbers.", "name");
+  if (!slug) return fail(t("nameNotAddress"), "name");
   if (await getStoreBySlug(slug)) slug = `${slug}-${newId("x").slice(2, 6)}`;
 
   const now = new Date().toISOString();
@@ -149,8 +152,9 @@ export async function renameStore(_prev: ActionState, formData: FormData): Promi
   const storeId = String(formData.get("storeId") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   const clientName = String(formData.get("clientName") ?? "").trim();
-  if (name.length < 3) return fail("Give the store a name of at least 3 characters.", "name");
-  if (!clientName) return fail("Enter the client this store is for.", "clientName");
+  const t = await getTranslations("actions.stores");
+  if (name.length < 3) return fail(t("nameTooShort"), "name");
+  if (!clientName) return fail(t("clientRequired"), "clientName");
 
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
   await updateStore(storeId, { name, clientName });
@@ -168,7 +172,7 @@ export async function renameStore(_prev: ActionState, formData: FormData): Promi
   });
   revalidatePath("/app");
   revalidatePath(`/app/stores/${storeId}`);
-  return ok("Store name updated.");
+  return ok(t("renamed"));
 }
 
 export async function setStoreStatus(formData: FormData): Promise<void> {
@@ -219,6 +223,7 @@ export async function setStoreStatus(formData: FormData): Promise<void> {
 export async function saveBranding(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const theme = String(formData.get("theme") ?? store.theme) as ThemeKey;
   // The logo goes to /api/uploads before the form is submitted — a file posted
@@ -245,12 +250,13 @@ export async function saveBranding(_prev: ActionState, formData: FormData): Prom
   });
   revalidatePath(`/app/stores/${storeId}/setup`);
   revalidatePath(`/s/${store.slug}`);
-  return ok(logoUrl !== store.logoUrl ? "Logo uploaded and theme saved." : "Theme saved.");
+  return ok(logoUrl !== store.logoUrl ? t("logoAndTheme") : t("themeSaved"));
 }
 
 export async function saveLocalisation(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const defaultLanguage = resolveLanguage(
     String(formData.get("defaultLanguage") ?? store.defaultLanguage),
@@ -258,9 +264,9 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
   const currencies = formData.getAll("currencies").map(String);
   const defaultCurrency = String(formData.get("defaultCurrency") ?? "");
 
-  if (currencies.length === 0) return fail("Select at least one selling currency.", "currencies");
+  if (currencies.length === 0) return fail(t("currencyRequired"), "currencies");
   if (!currencies.includes(defaultCurrency)) {
-    return fail("The default currency must be one of the selected selling currencies.", "defaultCurrency");
+    return fail(t("defaultCurrencyRequired"), "defaultCurrency");
   }
 
   await updateStore(storeId, {
@@ -285,7 +291,7 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
   // The language decides the storefront's own copy and formatting, so every
   // page of it is stale once this saves.
   revalidatePath(`/s/${store.slug}`, "layout");
-  return ok("Language and currencies saved.");
+  return ok(t("localisationSaved"));
 }
 
 /**
@@ -297,18 +303,19 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
 export async function saveSupport(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const supportEmail = String(formData.get("supportEmail") ?? "").trim().toLowerCase();
   const supportPhone = String(formData.get("supportPhone") ?? "").trim();
 
   if (!supportEmail) {
-    return fail("Enter the address shoppers should write to about their orders.", "supportEmail");
+    return fail(t("supportEmailRequired"), "supportEmail");
   }
   if (!isSupportEmail(supportEmail)) {
-    return fail("Enter a valid email address, such as support@yourclient.com.", "supportEmail");
+    return fail(t("supportEmailInvalid"), "supportEmail");
   }
   if (supportPhone && !isSupportPhone(supportPhone)) {
-    return fail("Enter a phone number as it should be dialled, or leave it empty.", "supportPhone");
+    return fail(t("supportPhoneInvalid"), "supportPhone");
   }
 
   await updateStore(storeId, {
@@ -333,14 +340,15 @@ export async function saveSupport(_prev: ActionState, formData: FormData): Promi
   revalidatePath(`/s/${store.slug}`, "layout");
   return ok(
     supportPhone
-      ? "Support contacts saved. Shoppers can now email or call the store."
-      : "Support address saved. Shoppers can now email the store about their orders.",
+      ? t("supportBothSaved")
+      : t("supportEmailSaved"),
   );
 }
 
 export async function saveDomain(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const raw = String(formData.get("customDomain") ?? "").trim().toLowerCase();
   const verify = formData.get("intent") === "verify";
@@ -352,12 +360,12 @@ export async function saveDomain(_prev: ActionState, formData: FormData): Promis
       setup: { ...store.setup, domain: false },
     });
     revalidatePath(`/app/stores/${storeId}/setup`);
-    return ok("Custom domain removed. The store is served from its Parcelith address.");
+    return ok(t("domainRemoved"));
   }
 
   const domain = raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain)) {
-    return fail("Enter a domain like shop.yourclient.com.", "customDomain");
+    return fail(t("domainInvalid"), "customDomain");
   }
 
   const status = verify ? "verified" : "pending";
@@ -381,14 +389,15 @@ export async function saveDomain(_prev: ActionState, formData: FormData): Promis
   revalidatePath(`/app/stores/${storeId}/setup`);
   return ok(
     verify
-      ? `${domain} is verified and now serves this storefront.`
-      : `${domain} saved. Add the CNAME record below, then run verification.`,
+      ? t("domainVerified", { domain })
+      : t("domainSaved", { domain }),
   );
 }
 
 export async function saveStripe(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const intent = String(formData.get("intent") ?? "connect");
   if (intent === "disconnect") {
@@ -409,13 +418,13 @@ export async function saveStripe(_prev: ActionState, formData: FormData): Promis
       meta: {},
     });
     revalidatePath(`/app/stores/${storeId}/setup`);
-    return ok("Stripe disconnected. This store cannot take payments until it is reconnected.");
+    return ok(t("stripeDisconnected"));
   }
 
   const accountId = String(formData.get("accountId") ?? "").trim();
   const country = String(formData.get("country") ?? "US");
   if (!/^acct_[A-Za-z0-9]{6,}$/.test(accountId)) {
-    return fail("Stripe account IDs look like acct_1A2b3C4d5E6f. Copy it from the client's Stripe dashboard.", "accountId");
+    return fail(t("stripeInvalid"), "accountId");
   }
 
   await updateStore(storeId, {
@@ -441,12 +450,13 @@ export async function saveStripe(_prev: ActionState, formData: FormData): Promis
     meta: { accountId, country },
   });
   revalidatePath(`/app/stores/${storeId}/setup`);
-  return ok(`${accountId} connected. Charges settle directly into the client's account.`);
+  return ok(t("stripeConnected", { account: accountId }));
 }
 
 export async function saveCarriers(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const carriers = store.carriers.map((c) => {
     const enabled = formData.get(`${c.carrier}_enabled`) === "on";
@@ -457,12 +467,12 @@ export async function saveCarriers(_prev: ActionState, formData: FormData): Prom
   const missing = carriers.find((c) => c.enabled && !c.accountNumber);
   if (missing) {
     return fail(
-      `Add the account number for ${missing.carrier.toUpperCase()}, or turn the carrier off.`,
+      t("carrierAccount", { carrier: missing.carrier.toUpperCase() }),
       `${missing.carrier}_account`,
     );
   }
   if (!carriers.some((c) => c.enabled)) {
-    return fail("Enable at least one carrier so paid orders can be dispatched.", "dhl_enabled");
+    return fail(t("carrierRequired"), "dhl_enabled");
   }
 
   await updateStore(storeId, { carriers, setup: { ...store.setup, shipping: true } });
@@ -479,16 +489,17 @@ export async function saveCarriers(_prev: ActionState, formData: FormData): Prom
     meta: {},
   });
   revalidatePath(`/app/stores/${storeId}/setup`);
-  return ok("Carrier settings saved.");
+  return ok(t("carriersSaved"));
 }
 
 export async function saveTaxSettings(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
 
   const defaultTaxBracketId = String(formData.get("defaultTaxBracketId") ?? "");
   const pricesIncludeTax = formData.get("pricesIncludeTax") === "on";
-  if (!defaultTaxBracketId) return fail("Choose the default tax bracket for this store.", "defaultTaxBracketId");
+  if (!defaultTaxBracketId) return fail(t("taxRequired"), "defaultTaxBracketId");
 
   await updateStore(storeId, {
     defaultTaxBracketId,
@@ -508,7 +519,7 @@ export async function saveTaxSettings(_prev: ActionState, formData: FormData): P
     meta: { defaultTaxBracketId, pricesIncludeTax },
   });
   revalidatePath(`/app/stores/${storeId}/setup`);
-  return ok("Tax configuration saved.");
+  return ok(t("taxSaved"));
 }
 
 export async function ensureStoreExists(storeId: string) {

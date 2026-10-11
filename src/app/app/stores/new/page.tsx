@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
@@ -6,7 +6,7 @@ import { Badge, Breadcrumbs, Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { agencyStoreAllowance, getAgency, listAgencies } from "@/lib/data";
-import { planStoreLabel, storeLimitMessage, storeUsageLabel } from "@/lib/plans";
+import { planStoresText, storeLimitText, storeUsageText } from "@/i18n/plan-copy";
 import { accessibleStores, requireUser } from "@/lib/session";
 import { formatDate } from "@/lib/util";
 import { ArchiveStoreForm } from "./ArchiveStoreForm";
@@ -30,19 +30,22 @@ export default async function NewStorePage() {
         .filter((store) => store.agencyId === agency.id && store.status === "active")
     : [];
 
-  const pages = await getTranslations("pages.store");
+  const [pages, t, locale] = await Promise.all([getTranslations("pages.store"), getTranslations("newStore"), getLocale()]);
+  const usage = allowance ? await storeUsageText(allowance) : "";
+  const limitText = allowance?.atLimit && agency ? await storeLimitText(allowance, agency.name) : "";
+  const nextPlanStores = allowance?.nextPlan ? await planStoresText(allowance.nextPlan) : "";
   return (
     <>
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-7 sm:px-6">
-        <Breadcrumbs items={[{ label: "Stores", href: "/app" }, { label: "New store" }]} />
+        <Breadcrumbs items={[{ label: t("stores"), href: "/app" }, { label: t("newStore") }]} />
         <PageHeader
           title={pages("newStoreTitle")}
           description={agency?.name}
           actions={
             allowance ? (
               <Badge tone={allowance.atLimit ? "amber" : "neutral"}>
-                {allowance.plan.name} · {storeUsageLabel(allowance)}
+                {allowance.plan.name} · {usage}
               </Badge>
             ) : null
           }
@@ -50,23 +53,23 @@ export default async function NewStorePage() {
 
         <div className="mt-6">
           {!agency || !allowance ? (
-            <Callout tone="amber" title="No agency assigned">
-              Ask a platform administrator to add your account to an agency.
+            <Callout tone="amber" title={t("noAgencyTitle")}>
+              {t("noAgencyBody")}
             </Callout>
           ) : allowance.atLimit ? (
             <div className="space-y-5">
-              <Callout tone="amber" title={`${allowance.plan.name} plan limit reached`}>
-                {storeLimitMessage(allowance, agency.name)}
+              <Callout tone="amber" title={t("limitTitle", { plan: allowance.plan.name })}>
+                {limitText}
               </Callout>
 
               <Card asChild>
               <section>
                 <CardHeader>
                 <CardTitle asChild>
-                  <h2>Archive a store</h2>
+                  <h2>{t("archiveTitle")}</h2>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Archived stores go offline and do not count toward your plan. You can restore them later.
+                  {t("archiveBody")}
                 </p>
                 </CardHeader>
                 <CardContent>
@@ -81,7 +84,7 @@ export default async function NewStorePage() {
                           {store.name}
                         </Link>
                         <span className="block truncate text-xs text-muted-foreground">
-                          {store.clientName} · live since {formatDate(store.createdAt)}
+                          {t("liveSince", { client: store.clientName, date: formatDate(store.createdAt, locale) })}
                         </span>
                       </span>
                       <ArchiveStoreForm storeId={store.id} storeName={store.name} />
@@ -89,7 +92,7 @@ export default async function NewStorePage() {
                   ))}
                   {liveStores.length === 0 ? (
                     <li className="py-2.5 text-muted-foreground">
-                      No live stores.
+                      {t("noLiveStores")}
                     </li>
                   ) : null}
                 </ul>
@@ -101,26 +104,26 @@ export default async function NewStorePage() {
               <section>
                 <CardHeader>
                 <CardTitle asChild>
-                  <h2>Move up a plan</h2>
+                  <h2>{t("moveUpTitle")}</h2>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   {allowance.nextPlan
-                    ? `${allowance.nextPlan.name} includes ${planStoreLabel(allowance.nextPlan).toLowerCase()}.`
-                    : "Contact sales to add more stores."}
+                    ? t("nextPlanIncludes", { plan: allowance.nextPlan.name, stores: nextPlanStores })
+                    : t("contactSales")}
                 </p>
                 </CardHeader>
                 <CardContent>
                 <div className="flex flex-wrap items-center gap-2">
                   <Button asChild variant="outline" size="sm">
-                    <Link href="/pricing">Compare plans</Link>
+                    <Link href="/pricing">{t("comparePlans")}</Link>
                   </Button>
                   {user.platformRole === "platform_admin" ? (
                     <Button asChild size="sm">
-                      <Link href="/admin/agencies">Change this agency&rsquo;s plan</Link>
+                      <Link href="/admin/agencies">{t("changePlan")}</Link>
                     </Button>
                   ) : (
                     <span className="text-xs text-muted-foreground">
-                      Plan changes are made by a platform administrator.
+                      {t("planChangesBy")}
                     </span>
                   )}
                 </div>
@@ -133,8 +136,8 @@ export default async function NewStorePage() {
               agencyId={agency.id}
               allowanceNote={
                 allowance.limit === null
-                  ? `${allowance.plan.name} plan · no live-store limit`
-                  : `${allowance.plan.name} plan · ${storeUsageLabel(allowance)}`
+                  ? t("noLimitNote", { plan: allowance.plan.name })
+                  : t("usageNote", { plan: allowance.plan.name, usage })
               }
             />
           )}

@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { getOrder, getSupplier, recordAudit, updateOrder } from "@/lib/data";
 import { sendEmail, siteOrigin } from "@/lib/email";
@@ -88,12 +89,13 @@ export async function rerouteToSupplier(_prev: ActionState, formData: FormData):
   const orderId = String(formData.get("orderId") ?? "");
   const supplierId = String(formData.get("supplierId") ?? "").trim();
   const reason = String(formData.get("reason") ?? "").trim();
+  const t = await getTranslations("actions.orders");
 
   if (!supplierId) {
-    return { status: "error", message: "Choose the supplier that will produce this order.", field: "supplierId" };
+    return { status: "error", message: t("chooseSupplier"), field: "supplierId" };
   }
   if (reason.length < 4) {
-    return { status: "error", message: "Enter a reason.", field: "reason" };
+    return { status: "error", message: t("reasonRequired"), field: "reason" };
   }
 
   const { user, store, order } = await load(storeId, orderId);
@@ -107,13 +109,17 @@ export async function rerouteToSupplier(_prev: ActionState, formData: FormData):
   ) {
     return {
       status: "success",
-      message: `${order.code} is already with ${order.fulfillment.supplierName} (${order.fulfillment.supplierOrderRef}).`,
+      message: t("alreadyWith", {
+        code: order.code,
+        supplier: order.fulfillment.supplierName ?? "",
+        reference: order.fulfillment.supplierOrderRef ?? "",
+      }),
     };
   }
 
   const supplier = await getSupplier(supplierId);
   if (!supplier) {
-    return { status: "error", message: "That supplier is no longer on the platform.", field: "supplierId" };
+    return { status: "error", message: t("supplierGone"), field: "supplierId" };
   }
 
   const decision = await submitToSupplier(order, store, supplier);
@@ -175,7 +181,7 @@ export async function rerouteToSupplier(_prev: ActionState, formData: FormData):
   refresh(storeId, orderId);
   return {
     status: "success",
-    message: `${supplier.name} accepted ${order.code} as ${decision.supplierOrderRef}.`,
+    message: t("accepted", { supplier: supplier.name, code: order.code, reference: decision.supplierOrderRef ?? "" }),
   };
 }
 
@@ -183,8 +189,9 @@ export async function recordManualSubmission(_prev: ActionState, formData: FormD
   const storeId = String(formData.get("storeId") ?? "");
   const orderId = String(formData.get("orderId") ?? "");
   const reference = String(formData.get("reference") ?? "").trim();
+  const t = await getTranslations("actions.orders");
   if (reference.length < 3) {
-    return { status: "error", message: "Enter the supplier's purchase order reference.", field: "reference" };
+    return { status: "error", message: t("referenceRequired"), field: "reference" };
   }
 
   const { user, store, order } = await load(storeId, orderId);
@@ -213,7 +220,7 @@ export async function recordManualSubmission(_prev: ActionState, formData: FormD
     meta: { reference },
   });
   refresh(storeId, orderId);
-  return { status: "success", message: `${order.code} is now in production against ${reference}.` };
+  return { status: "success", message: t("inProduction", { code: order.code, reference }) };
 }
 
 export async function addTracking(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -221,9 +228,10 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
   const orderId = String(formData.get("orderId") ?? "");
   const carrier = String(formData.get("carrier") ?? "") as "dhl" | "fedex" | "ups";
   let trackingNumber = String(formData.get("trackingNumber") ?? "").trim();
+  const t = await getTranslations("actions.orders");
 
   if (!["dhl", "fedex", "ups"].includes(carrier)) {
-    return { status: "error", message: "Choose the carrier that collected the parcel.", field: "carrier" };
+    return { status: "error", message: t("chooseCarrier"), field: "carrier" };
   }
 
   const { user, store, order } = await load(storeId, orderId);
@@ -231,13 +239,13 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
   if (!enabled) {
     return {
       status: "error",
-      message: `${CARRIER_LABELS[carrier]} is not enabled for this store. Turn it on in store settings first.`,
+      message: t("carrierDisabled", { carrier: CARRIER_LABELS[carrier] }),
       field: "carrier",
     };
   }
   if (!trackingNumber) trackingNumber = trackingNumberFor(carrier, order.code);
   if (trackingNumber.length < 6) {
-    return { status: "error", message: "Tracking numbers are at least 6 characters.", field: "trackingNumber" };
+    return { status: "error", message: t("trackingTooShort"), field: "trackingNumber" };
   }
 
   const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
@@ -287,7 +295,7 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
   }
 
   refresh(storeId, orderId);
-  return { status: "success", message: "Tracking added. The customer has been notified." };
+  return { status: "success", message: t("trackingAdded") };
 }
 
 export async function advanceStatus(formData: FormData): Promise<void> {
@@ -336,8 +344,9 @@ export async function raiseException(_prev: ActionState, formData: FormData): Pr
   const storeId = String(formData.get("storeId") ?? "");
   const orderId = String(formData.get("orderId") ?? "");
   const note = String(formData.get("note") ?? "").trim();
+  const t = await getTranslations("actions.orders");
   if (note.length < 5) {
-    return { status: "error", message: "Describe the problem.", field: "note" };
+    return { status: "error", message: t("describeProblem"), field: "note" };
   }
 
   const { user, store, order } = await load(storeId, orderId);
@@ -359,7 +368,7 @@ export async function raiseException(_prev: ActionState, formData: FormData): Pr
     meta: {},
   });
   refresh(storeId, orderId);
-  return { status: "success", message: "Exception recorded." };
+  return { status: "success", message: t("exceptionRecorded") };
 }
 
 export async function resolveException(formData: FormData): Promise<void> {
@@ -396,23 +405,24 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
   const cancel = formData.get("cancel") === "on";
 
   const { user, store, order } = await load(storeId, orderId);
+  const [t, locale] = await Promise.all([getTranslations("actions.orders"), getLocale()]);
   const amount = parseMoney(amountRaw, order.currency);
   if (amount === null || amount <= 0) {
-    return { status: "error", message: "Enter the refund amount.", field: "amount" };
+    return { status: "error", message: t("amountRequired"), field: "amount" };
   }
   const alreadyRefunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
   if (amount + alreadyRefunded > order.total) {
     return {
       status: "error",
-      message: `That would refund more than the order total of ${formatMoney(order.total, order.currency)}.`,
+      message: t("overTotal", { total: formatMoney(order.total, order.currency, locale) }),
       field: "amount",
     };
   }
   if (reason.length < 4) {
-    return { status: "error", message: "Enter a reason.", field: "reason" };
+    return { status: "error", message: t("reasonRequired"), field: "reason" };
   }
   if (order.payment.status !== "succeeded" && order.payment.status !== "refunded") {
-    return { status: "error", message: "This order has no captured payment to refund." };
+    return { status: "error", message: t("noPayment") };
   }
 
   // Money first: nothing is recorded unless the gateway actually returned it.
@@ -425,7 +435,19 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     currency: order.currency,
     idempotencyKey: `${order.id}:${alreadyRefunded}:${amount}`,
   });
-  if (!gateway.ok) return { status: "error", message: gateway.message };
+  if (!gateway.ok) {
+    const message =
+      gateway.code === "account_not_ready"
+        ? t("accountNotReady")
+        : gateway.code === "no_payment_intent"
+          ? t("noPayment")
+          : gateway.code === "invalid_amount"
+            ? t("amountRequired")
+            : gateway.code === "currency_unsupported"
+              ? t("currencyUnsupported", { currency: order.currency })
+              : gateway.message;
+    return { status: "error", message };
+  }
 
   const refunds = [
     ...order.refunds,
@@ -461,7 +483,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     // The order moved under us. The gateway call was idempotent, so the refund
     // that did land is already on the reloaded order.
     refresh(storeId, orderId);
-    return { status: "error", message: "This order changed. Reload and check the refunds before trying again." };
+    return { status: "error", message: t("orderChanged") };
   }
   recordAudit({
     category: "order_routing",
@@ -478,6 +500,9 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
   refresh(storeId, orderId);
   return {
     status: "success",
-    message: `${formatMoney(amount, order.currency)} refunded${cancel ? " and order cancelled" : ""} (${gateway.refundId}).`,
+    message: t(cancel ? "refundedCancelled" : "refunded", {
+      amount: formatMoney(amount, order.currency, locale),
+      reference: gateway.refundId ?? "",
+    }),
   };
 }

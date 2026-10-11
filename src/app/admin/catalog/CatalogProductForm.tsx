@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { saveCatalogItem } from "@/app/actions/admin";
 import { ActionForm } from "@/components/forms";
@@ -24,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { currencyName } from "@/i18n/display";
 import type { CatalogProduct, MockupView, Supplier } from "@/lib/types";
 import { VIEW_LABELS } from "@/lib/types";
 import { CURRENCY_OPTIONS, REGION_OPTIONS, toMajorString } from "@/lib/util";
@@ -102,6 +104,9 @@ export function CatalogProductForm({
   defaultSupplierId?: string;
 }) {
   const creating = !item;
+  const t = useTranslations("admin.catalogForm");
+  const labels = useTranslations("labels");
+  const locale = useLocale();
   const [currency, setCurrency] = useState(item?.currency ?? "USD");
   const [areas, setAreas] = useState<AreaRow[]>(() =>
     item ? areaRows(item) : [
@@ -131,8 +136,8 @@ export function CatalogProductForm({
   return (
     <ActionForm
       action={saveCatalogItem}
-      submitLabel={creating ? "Create catalog product" : "Save catalog product"}
-      pendingLabel={creating ? "Creating…" : "Saving…"}
+      submitLabel={creating ? t("create") : t("save")}
+      pendingLabel={creating ? t("creating") : t("saving")}
       hidden={{
         catalogId: item?.id ?? "",
         // The row tables are posted as JSON: how many rows there are is decided
@@ -167,19 +172,19 @@ export function CatalogProductForm({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Product</h2>
+                <h2>{t("product")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 lg:grid-cols-2">
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="supplierId">Supplier</Label>
+                <Label htmlFor="supplierId">{t("supplier")}</Label>
                 <Select name="supplierId" defaultValue={item?.supplierId ?? defaultSupplierId ?? undefined}>
                   <SelectTrigger
                     id="supplierId"
                     className="w-full"
                     aria-invalid={state.field === "supplierId" ? true : undefined}
                   >
-                    <SelectValue placeholder="Choose a supplier…" />
+                    <SelectValue placeholder={t("chooseSupplier")} />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map((supplier) => (
@@ -192,17 +197,17 @@ export function CatalogProductForm({
                 </Select>
               </div>
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="productType">Product type</Label>
+                <Label htmlFor="productType">{t("productType")}</Label>
                 <Input
                   id="productType"
                   name="productType"
                   defaultValue={item?.productType ?? ""}
-                  placeholder="T-shirt, 180 gsm"
+                  placeholder={t("productTypePlaceholder")}
                   aria-invalid={state.field === "productType" ? true : undefined}
                 />
               </div>
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("name")}</Label>
                 <Input
                   id="name"
                   name="name"
@@ -213,46 +218,46 @@ export function CatalogProductForm({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="availability">Availability</Label>
+                  <Label htmlFor="availability">{t("availability")}</Label>
                   <Select name="availability" defaultValue={item?.availability ?? "available"}>
                     <SelectTrigger id="availability" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="available">Available</SelectItem>
-                      <SelectItem value="limited">Limited</SelectItem>
-                      <SelectItem value="discontinued">Discontinued</SelectItem>
+                      <SelectItem value="available">{labels("catalogAvailability.available")}</SelectItem>
+                      <SelectItem value="limited">{labels("catalogAvailability.limited")}</SelectItem>
+                      <SelectItem value="discontinued">{labels("catalogAvailability.discontinued")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="status">Catalog status</Label>
+                  <Label htmlFor="status">{t("catalogStatus")}</Label>
                   <Select name="status" defaultValue={item?.status ?? "active"}>
                     <SelectTrigger id="status" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="retired">Retired</SelectItem>
+                      <SelectItem value="active">{labels("catalogStatus.active")}</SelectItem>
+                      <SelectItem value="retired">{labels("catalogStatus.retired")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">{t("category")}</Label>
                   <Select name="category" defaultValue={item?.category ?? "apparel"}>
                     <SelectTrigger id="category" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="apparel">Apparel</SelectItem>
-                      <SelectItem value="drinkware">Drinkware</SelectItem>
+                      <SelectItem value="apparel">{t("apparel")}</SelectItem>
+                      <SelectItem value="drinkware">{t("drinkware")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="currency">Currency</Label>
+                  <Label htmlFor="currency">{t("currency")}</Label>
                   {creating ? (
                     <Select name="currency" value={currency} onValueChange={setCurrency}>
                       <SelectTrigger id="currency" className="w-full">
@@ -261,7 +266,7 @@ export function CatalogProductForm({
                       <SelectContent>
                         {CURRENCY_OPTIONS.map((option) => (
                           <SelectItem key={option.code} value={option.code}>
-                            {option.code} · {option.label}
+                            {option.code} · {currencyName(locale, option.code, option.label)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -274,7 +279,7 @@ export function CatalogProductForm({
                 </div>
               </div>
               <div className="grid content-start gap-1.5 lg:col-span-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t("description")}</Label>
                 <Textarea
                   id="description"
                   name="description"
@@ -292,12 +297,12 @@ export function CatalogProductForm({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Costs ({currency})</h2>
+                <h2>{t("costs", { currency })}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-3">
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="baseCost">Base cost</Label>
+                <Label htmlFor="baseCost">{t("baseCost")}</Label>
                 <Input
                   id="baseCost"
                   name="baseCost"
@@ -308,7 +313,7 @@ export function CatalogProductForm({
                 />
               </div>
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="customizationCost">Customisation per print area</Label>
+                <Label htmlFor="customizationCost">{t("customisation")}</Label>
                 <Input
                   id="customizationCost"
                   name="customizationCost"
@@ -319,7 +324,7 @@ export function CatalogProductForm({
                 />
               </div>
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="shippingEstimate">Estimated shipping</Label>
+                <Label htmlFor="shippingEstimate">{t("shipping")}</Label>
                 <Input
                   id="shippingEstimate"
                   name="shippingEstimate"
@@ -337,10 +342,10 @@ export function CatalogProductForm({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Print areas</h2>
+                <h2>{t("printAreas")}</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Size and minimum resolution.
+                {t("printAreasBody")}
               </p>
             </CardHeader>
             <CardContent>
@@ -348,13 +353,13 @@ export function CatalogProductForm({
                 <Table className="min-w-[40rem]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className={TH}>Area</TableHead>
-                      <TableHead className={TH}>View</TableHead>
-                      <TableHead className={TH}>Width (mm)</TableHead>
-                      <TableHead className={TH}>Height (mm)</TableHead>
-                      <TableHead className={TH}>Minimum DPI</TableHead>
+                      <TableHead className={TH}>{t("colArea")}</TableHead>
+                      <TableHead className={TH}>{t("colView")}</TableHead>
+                      <TableHead className={TH}>{t("colWidth")}</TableHead>
+                      <TableHead className={TH}>{t("colHeight")}</TableHead>
+                      <TableHead className={TH}>{t("colDpi")}</TableHead>
                       <TableHead className={TH}>
-                        <span className="sr-only">Remove</span>
+                        <span className="sr-only">{t("remove")}</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -363,19 +368,19 @@ export function CatalogProductForm({
                       <TableRow key={area.key} className="hover:bg-transparent">
                         <TableCell className={TD}>
                           <Label htmlFor={`area_name_${area.key}`} className="sr-only">
-                            Name for print area {index + 1}
+                            {t("areaName", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`area_name_${area.key}`}
                             value={area.name}
                             onChange={(event) => updateArea(area.key, { name: event.target.value })}
-                            placeholder="Front chest"
+                            placeholder={t("areaNamePlaceholder")}
                             className="w-36"
                           />
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`area_view_${area.key}`} className="sr-only">
-                            View for print area {index + 1}
+                            {t("areaView", { index: index + 1 })}
                           </Label>
                           <Select
                             value={area.view}
@@ -387,7 +392,7 @@ export function CatalogProductForm({
                             <SelectContent>
                               {(Object.keys(VIEW_LABELS) as MockupView[]).map((view) => (
                                 <SelectItem key={view} value={view}>
-                                  {VIEW_LABELS[view]}
+                                  {labels(`view.${view}`)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -395,7 +400,7 @@ export function CatalogProductForm({
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`area_width_${area.key}`} className="sr-only">
-                            Width for print area {index + 1}
+                            {t("areaWidth", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`area_width_${area.key}`}
@@ -408,7 +413,7 @@ export function CatalogProductForm({
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`area_height_${area.key}`} className="sr-only">
-                            Height for print area {index + 1}
+                            {t("areaHeight", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`area_height_${area.key}`}
@@ -421,7 +426,7 @@ export function CatalogProductForm({
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`area_dpi_${area.key}`} className="sr-only">
-                            Minimum DPI for print area {index + 1}
+                            {t("areaDpi", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`area_dpi_${area.key}`}
@@ -439,7 +444,7 @@ export function CatalogProductForm({
                             size="sm"
                             onClick={() => setAreas((rows) => rows.filter((row) => row.key !== area.key))}
                           >
-                            Remove
+                            {t("remove")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -447,7 +452,7 @@ export function CatalogProductForm({
                     {areas.length === 0 ? (
                       <TableRow className="hover:bg-transparent">
                         <TableCell colSpan={6} className="px-0 py-3 text-sm text-muted-foreground">
-                          No print areas yet. A product needs at least one.
+                          {t("noAreas")}
                         </TableCell>
                       </TableRow>
                     ) : null}
@@ -474,7 +479,7 @@ export function CatalogProductForm({
                     ])
                   }
                 >
-                  Add print area
+                  {t("addArea")}
                 </Button>
               </div>
               {state.field === "printAreas" ? (
@@ -488,10 +493,10 @@ export function CatalogProductForm({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Variants and availability</h2>
+                <h2>{t("variants")}</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Each variant needs a unique SKU.
+                {t("variantsBody")}
               </p>
             </CardHeader>
             <CardContent>
@@ -499,14 +504,14 @@ export function CatalogProductForm({
                 <Table className="min-w-[44rem]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className={TH}>Colour</TableHead>
-                      <TableHead className={TH}>Swatch</TableHead>
-                      <TableHead className={TH}>Size</TableHead>
-                      <TableHead className={TH}>SKU</TableHead>
-                      <TableHead className={TH}>Base cost</TableHead>
-                      <TableHead className={TH}>Stock</TableHead>
+                      <TableHead className={TH}>{t("colColour")}</TableHead>
+                      <TableHead className={TH}>{t("colSwatch")}</TableHead>
+                      <TableHead className={TH}>{t("colSize")}</TableHead>
+                      <TableHead className={TH}>{t("colSku")}</TableHead>
+                      <TableHead className={TH}>{t("colCost")}</TableHead>
+                      <TableHead className={TH}>{t("colStock")}</TableHead>
                       <TableHead className={TH}>
-                        <span className="sr-only">Remove</span>
+                        <span className="sr-only">{t("remove")}</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -515,19 +520,19 @@ export function CatalogProductForm({
                       <TableRow key={variant.key} className="hover:bg-transparent">
                         <TableCell className={TD}>
                           <Label htmlFor={`variant_colour_${variant.key}`} className="sr-only">
-                            Colour for variant {index + 1}
+                            {t("variantColour", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`variant_colour_${variant.key}`}
                             value={variant.colour}
                             onChange={(event) => updateVariant(variant.key, { colour: event.target.value })}
-                            placeholder="White"
+                            placeholder={t("colourPlaceholder")}
                             className="w-28"
                           />
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`variant_hex_${variant.key}`} className="sr-only">
-                            Swatch colour for variant {index + 1}
+                            {t("variantSwatch", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`variant_hex_${variant.key}`}
@@ -539,19 +544,19 @@ export function CatalogProductForm({
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`variant_size_${variant.key}`} className="sr-only">
-                            Size for variant {index + 1}
+                            {t("variantSize", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`variant_size_${variant.key}`}
                             value={variant.size}
                             onChange={(event) => updateVariant(variant.key, { size: event.target.value })}
-                            placeholder="M"
+                            placeholder={t("sizePlaceholder")}
                             className="w-20"
                           />
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`variant_sku_${variant.key}`} className="sr-only">
-                            SKU for variant {index + 1}
+                            {t("variantSku", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`variant_sku_${variant.key}`}
@@ -563,7 +568,7 @@ export function CatalogProductForm({
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`variant_cost_${variant.key}`} className="sr-only">
-                            Base cost for variant {index + 1}
+                            {t("variantCost", { index: index + 1 })}
                           </Label>
                           <Input
                             id={`variant_cost_${variant.key}`}
@@ -575,7 +580,7 @@ export function CatalogProductForm({
                         </TableCell>
                         <TableCell className={TD}>
                           <Label htmlFor={`variant_stock_${variant.key}`} className="sr-only">
-                            Stock for variant {index + 1}
+                            {t("variantStock", { index: index + 1 })}
                           </Label>
                           <Select
                             value={variant.availability}
@@ -589,9 +594,9 @@ export function CatalogProductForm({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="in_stock">In stock</SelectItem>
-                              <SelectItem value="low_stock">Low stock</SelectItem>
-                              <SelectItem value="out_of_stock">Out of stock</SelectItem>
+                              <SelectItem value="in_stock">{labels("availability.in_stock")}</SelectItem>
+                              <SelectItem value="low_stock">{labels("availability.low_stock")}</SelectItem>
+                              <SelectItem value="out_of_stock">{labels("availability.out_of_stock")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -602,7 +607,7 @@ export function CatalogProductForm({
                             size="sm"
                             onClick={() => setVariants((rows) => rows.filter((row) => row.key !== variant.key))}
                           >
-                            Remove
+                            {t("remove")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -610,7 +615,7 @@ export function CatalogProductForm({
                     {variants.length === 0 ? (
                       <TableRow className="hover:bg-transparent">
                         <TableCell colSpan={7} className="px-0 py-3 text-sm text-muted-foreground">
-                          No variants yet. A product needs at least one.
+                          {t("noVariants")}
                         </TableCell>
                       </TableRow>
                     ) : null}
@@ -638,7 +643,7 @@ export function CatalogProductForm({
                     ])
                   }
                 >
-                  Add variant
+                  {t("addVariant")}
                 </Button>
               </div>
               {state.field === "variants" ? (
@@ -653,10 +658,10 @@ export function CatalogProductForm({
             <CardContent>
               <fieldset>
                 <legend className="font-heading text-base leading-snug font-medium text-foreground">
-                  Fulfilment regions
+                  {t("regions")}
                 </legend>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Orders outside these regions need manual routing.
+                  {t("regionsBody")}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {REGION_OPTIONS.map((region) => (
@@ -669,12 +674,12 @@ export function CatalogProductForm({
                         value={region}
                         defaultChecked={item ? item.fulfillmentRegions.includes(region) : false}
                       />
-                      {region}
+                      {labels(`region.${region}` as "region.APAC")}
                     </Label>
                   ))}
                 </div>
                 {state.field === "regions" ? (
-                  <p className="mt-1.5 text-xs text-destructive">Choose at least one region.</p>
+                  <p className="mt-1.5 text-xs text-destructive">{t("regionRequired")}</p>
                 ) : null}
               </fieldset>
             </CardContent>

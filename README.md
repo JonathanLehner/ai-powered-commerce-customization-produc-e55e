@@ -56,9 +56,12 @@ gifting, orders, team, guided setup, activity.
   (`npm run locale-check`). What a store's own people wrote — product names and
   descriptions, storefront section copy, order timeline notes — is shown as they
   wrote it.
-- **Parcelith in nine languages.** The public site, sign-in and the workspace
-  shell use next-intl with one message file per language in `messages/`
-  (English is the source). Marketing pages are prerendered per language, with
+- **Parcelith in nine languages.** The public site, sign-in, every workspace
+  and platform-admin screen, server action messages and toasts use next-intl
+  with one message file per language in `messages/` (English is the source).
+  Invitation and approval emails go out in the recipient's language: their
+  saved preference if they have an account, else the language picked when
+  inviting (approvals fall back to the store's language). Marketing pages are prerendered per language, with
   English at the root and `/de/pricing` and so on for the rest, hreflang
   alternates and a footer language switcher. Signed-in users pick their language
   in the user menu; otherwise the browser's language is used, then English.

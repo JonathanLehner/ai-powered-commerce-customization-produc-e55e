@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { declineQuoteRequest, recordSupplierQuote } from "@/app/actions/sourcing";
 import { ActionForm, Field, SubmissionKey } from "@/components/forms";
 import { Input } from "@/components/ui/input";
@@ -23,23 +24,25 @@ export function AddQuoteForm({
   catalogOptions: { id: string; label: string }[];
 }) {
   const id = (name: string) => `${name}-${request.id}`;
+  const t = useTranslations("admin.quoteDesk");
+  const locale = useLocale();
   const invalid = (field: string, error: string | undefined) => (error === field ? true : undefined);
   return (
     <ActionForm
       action={recordSupplierQuote}
       hidden={{ requestId: request.id }}
-      submitLabel={(request.quotes ?? []).length > 0 ? "Add another quote" : "Record the quote"}
-      pendingLabel="Saving…"
+      submitLabel={(request.quotes ?? []).length > 0 ? t("addAnother") : t("record")}
+      pendingLabel={t("saving")}
       submitSize="sm"
       footer={
-        <span className="text-xs text-muted-foreground">The store sees it beside the print-on-demand options and can accept it.</span>
+        <span className="text-xs text-muted-foreground">{t("storeSees")}</span>
       }
     >
       {(state) => (
         <div className="grid gap-3 sm:grid-cols-3">
           <SubmissionKey status={state.status} prefix="qte" />
           <Field
-            label="Supplier"
+            label={t("supplier")}
             htmlFor={id("supplierLabel")}
             error={state.field === "supplierLabel"}
             className="sm:col-span-2"
@@ -52,7 +55,7 @@ export function AddQuoteForm({
             />
           </Field>
           <Field
-            label={`Unit cost (${request.currency})`}
+            label={t("unitCost", { currency: request.currency })}
             htmlFor={id("unitCost")}
             error={state.field === "unitCost"}
           >
@@ -65,10 +68,10 @@ export function AddQuoteForm({
             />
           </Field>
           <Field
-            label="Minimum order"
+            label={t("minimumOrder")}
             htmlFor={id("minimumOrderQuantity")}
             error={state.field === "minimumOrderQuantity"}
-            hint={`Blank = the ${request.quantity.toLocaleString("en-US")} asked for.`}
+            hint={t("minimumHint", { count: request.quantity.toLocaleString(locale) })}
           >
             <Input
               id={id("minimumOrderQuantity")}
@@ -79,7 +82,7 @@ export function AddQuoteForm({
             />
           </Field>
           <Field
-            label="Production days"
+            label={t("productionDays")}
             htmlFor={id("leadTimeDays")}
             error={state.field === "leadTimeDays"}
           >
@@ -92,10 +95,10 @@ export function AddQuoteForm({
             />
           </Field>
           <Field
-            label="Valid until"
+            label={t("validUntil")}
             htmlFor={id("validUntil")}
             error={state.field === "validUntil"}
-            hint="Optional."
+            hint={t("optional")}
           >
             <Input
               id={id("validUntil")}
@@ -107,7 +110,7 @@ export function AddQuoteForm({
           </Field>
           {request.catalogProductId ? null : (
             <Field
-              label="Built on catalog listing"
+              label={t("builtOn")}
               htmlFor={id("baseCatalogProductId")}
               error={state.field === "baseCatalogProductId"}
               className="sm:col-span-3"
@@ -118,7 +121,7 @@ export function AddQuoteForm({
                   className="mt-1.5 w-full"
                   aria-invalid={invalid("baseCatalogProductId", state.field)}
                 >
-                  <SelectValue placeholder="Choose the closest listing" />
+                  <SelectValue placeholder={t("closestListing")} />
                 </SelectTrigger>
                 <SelectContent>
                   {catalogOptions.map((option) => (
@@ -131,10 +134,10 @@ export function AddQuoteForm({
             </Field>
           )}
           <Field
-            label="What the supplier said"
+            label={t("notes")}
             htmlFor={id("notes")}
             className="sm:col-span-3"
-            hint="Terms, sampling cost and freight. Visible to the store."
+            hint={t("notesHint")}
           >
             <Textarea id={id("notes")} name="notes" rows={2} className="mt-1.5" />
           </Field>
@@ -146,18 +149,19 @@ export function AddQuoteForm({
 
 /** No supplier took the run on. The reason goes back to the store. */
 export function DeclineQuoteForm({ request }: { request: QuoteRequest }) {
+  const t = useTranslations("admin.quoteDesk");
   return (
     <ActionForm
       action={declineQuoteRequest}
       hidden={{ requestId: request.id }}
-      submitLabel="Mark declined"
-      pendingLabel="Saving…"
+      submitLabel={t("markDeclined")}
+      pendingLabel={t("saving")}
       submitVariant="outline"
       submitSize="sm"
     >
       {(state) => (
         <Field
-          label="Why it was declined"
+          label={t("whyDeclined")}
           htmlFor={`reason-${request.id}`}
           error={state.field === "reason"}
         >

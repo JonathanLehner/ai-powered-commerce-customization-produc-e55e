@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { setAgencyPlan } from "@/app/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PLAN_KEYS } from "@/lib/plans";
+import { PLAN_KEYS, PLANS } from "@/lib/plans";
 import type { Agency } from "@/lib/types";
 
 /**
@@ -19,11 +20,12 @@ import type { Agency } from "@/lib/types";
  * while the rest of the page stays a server render.
  */
 export function AgencyPlanForm({ agency }: { agency: Agency }) {
+  const t = useTranslations("admin.agencies");
   return (
     <form action={setAgencyPlan} className="flex items-center gap-2">
       <input type="hidden" name="agencyId" value={agency.id} />
       <Label htmlFor={`plan-${agency.id}`} className="sr-only">
-        Plan for {agency.name}
+        {t("planFor", { name: agency.name })}
       </Label>
       <Select name="plan" defaultValue={agency.plan}>
         <SelectTrigger id={`plan-${agency.id}`} size="sm" className="w-32">
@@ -32,13 +34,13 @@ export function AgencyPlanForm({ agency }: { agency: Agency }) {
         <SelectContent>
           {PLAN_KEYS.map((plan) => (
             <SelectItem key={plan} value={plan}>
-              {plan}
+              {PLANS[plan].name}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
       <Button type="submit" variant="outline" size="sm">
-        Set plan
+        {t("setPlan")}
       </Button>
     </form>
   );

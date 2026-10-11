@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { Card } from "@/components/ui/card";
@@ -16,9 +16,10 @@ import {
   type AuditParams,
 } from "@/lib/audit-log";
 import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
-import { auditExportMessage, planFor } from "@/lib/plans";
+import { auditExportText } from "@/i18n/plan-copy";
+import { planFor } from "@/lib/plans";
 import { requireStoreAccess } from "@/lib/session";
-import { AUDIT_CATEGORY_LABELS, type AuditCategory } from "@/lib/types";
+import type { AuditCategory } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 const TONES: Record<AuditCategory, "brand" | "iris" | "green" | "amber" | "slate" | "neutral"> = {
@@ -77,8 +78,14 @@ export default async function ActivityPage({
   const page = pageAuditEntries(matched, filters.page);
   const base = `/app/stores/${storeId}/activity`;
 
-  const pages = await getTranslations("pages.store");
-  const roles = await getTranslations("roles");
+  const [pages, roles, t, labels, locale] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("roles"),
+    getTranslations("audit"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const exportNote = plan.auditExport ? undefined : await auditExportText(plan, agency?.name);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -91,13 +98,13 @@ export default async function ActivityPage({
         filters={filters}
         actors={actors}
         exportHref={plan.auditExport ? `${base}/export${auditQuery(filters, { page: 1 })}` : null}
-        exportNote={plan.auditExport ? undefined : auditExportMessage(plan, agency?.name ?? "This agency")}
+        exportNote={exportNote}
       />
 
       {page.total === 0 ? (
         <EmptyState
-          title={hasAuditFilters(filters) ? "No matching entries" : "No activity yet"}
-                    description={hasAuditFilters(filters) ? "Try different filters." : undefined}
+          title={hasAuditFilters(filters) ? t("noMatches") : t("noActivity")}
+          description={hasAuditFilters(filters) ? t("tryFilters") : undefined}
         />
       ) : (
         <div className="space-y-3">
@@ -110,7 +117,7 @@ export default async function ActivityPage({
                 <li key={entry.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone={TONES[entry.category]}>{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
+                      <Badge tone={TONES[entry.category]}>{labels(`auditCategory.${entry.category}`)}</Badge>
                       <span className="font-mono text-xs text-muted-foreground">{entry.action}</span>
                     </div>
                     <p className="mt-1.5 text-sm text-foreground">{entry.summary}</p>
@@ -118,7 +125,7 @@ export default async function ActivityPage({
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm text-inksoft">{entry.actorName}</p>
-                    <p className="text-xs text-muted-foreground">{formatDateTime(entry.at)}</p>
+                    <p className="text-xs text-muted-foreground">{formatDateTime(entry.at, locale)}</p>
                   </div>
                 </li>
               );

@@ -10,7 +10,24 @@ import type { CatalogVariant, FileRequirements, MockupView, PrintArea } from "./
 import { newId, parseMoney } from "./util";
 
 /** What a parser returns: the rows it accepted, or the message the person sees. */
-export type RowResult<T> = T | { error: string };
+export type RowResult<T> = T | { error: string; code: RowRefusal; values?: Record<string, string> };
+
+/** Which rule a row broke, for the admin screens to word in their own language. */
+export type RowRefusal =
+  | "areasUnreadable"
+  | "areasEmpty"
+  | "areasTooMany"
+  | "areaName"
+  | "areaView"
+  | "areaSize"
+  | "areaDpi"
+  | "variantsUnreadable"
+  | "variantsEmpty"
+  | "variantsTooMany"
+  | "variantSku"
+  | "variantSkuDuplicate"
+  | "variantOption"
+  | "variantCost";
 
 const VIEWS: MockupView[] = ["front", "back", "left", "right"];
 const STOCK: CatalogVariant["availability"][] = ["in_stock", "low_stock", "out_of_stock"];
@@ -66,24 +83,24 @@ export function parsePrintAreas(
   existing: PrintArea[],
 ): RowResult<{ areas: PrintArea[] }> {
   const posted = postedRows<Record<string, unknown>>(raw);
-  if (!posted) return { error: "The print areas could not be read. Reload the page and try again." };
-  if (posted.length === 0) return { error: "Add at least one print area." };
-  if (posted.length > 8) return { error: "A product carries at most eight print areas." };
+  if (!posted) return { error: "The print areas could not be read. Reload the page and try again.", code: "areasUnreadable" };
+  if (posted.length === 0) return { error: "Add at least one print area.", code: "areasEmpty" };
+  if (posted.length > 8) return { error: "A product carries at most eight print areas.", code: "areasTooMany" };
 
   const areas: PrintArea[] = [];
   const used = new Set<string>();
   for (const row of posted) {
     const name = text(row.name);
-    if (name.length < 2) return { error: "Give every print area a name, such as “Front chest”." };
+    if (name.length < 2) return { error: "Give every print area a name, such as “Front chest”.", code: "areaName" };
     const view = VIEWS.find((v) => v === text(row.view));
-    if (!view) return { error: `Choose which view “${name}” is printed on.` };
+    if (!view) return { error: `Choose which view “${name}” is printed on.`, code: "areaView", values: { name } };
     const widthMm = measurement(row.widthMm, 10, 2000);
     const heightMm = measurement(row.heightMm, 10, 2000);
     if (widthMm === null || heightMm === null) {
-      return { error: `“${name}” needs a width and a height between 10 and 2000 mm.` };
+      return { error: `“${name}” needs a width and a height between 10 and 2000 mm.`, code: "areaSize", values: { name } };
     }
     const minDpi = measurement(row.minDpi, 72, 1200);
-    if (minDpi === null) return { error: `“${name}” needs a minimum DPI between 72 and 1200.` };
+    if (minDpi === null) return { error: `“${name}” needs a minimum DPI between 72 and 1200.`, code: "areaDpi", values: { name } };
 
     const kept = existing.find((area) => area.id === text(row.id) && !used.has(area.id));
     if (kept) used.add(kept.id);
@@ -108,9 +125,9 @@ export function parseVariants(
   currency: string,
 ): RowResult<{ variants: CatalogVariant[] }> {
   const posted = postedRows<Record<string, unknown>>(raw);
-  if (!posted) return { error: "The variants could not be read. Reload the page and try again." };
-  if (posted.length === 0) return { error: "Add at least one variant." };
-  if (posted.length > 200) return { error: "A product carries at most 200 variants." };
+  if (!posted) return { error: "The variants could not be read. Reload the page and try again.", code: "variantsUnreadable" };
+  if (posted.length === 0) return { error: "Add at least one variant.", code: "variantsEmpty" };
+  if (posted.length > 200) return { error: "A product carries at most 200 variants.", code: "variantsTooMany" };
 
   const variants: CatalogVariant[] = [];
   const skus = new Set<string>();
@@ -118,17 +135,20 @@ export function parseVariants(
   for (const row of posted) {
     const sku = text(row.sku).toUpperCase();
     if (!/^[A-Z0-9][A-Z0-9._-]{1,39}$/.test(sku)) {
-      return { error: "Every variant needs a SKU of 2–40 letters, numbers, dots, dashes or underscores." };
+      return {
+        error: "Every variant needs a SKU of 2–40 letters, numbers, dots, dashes or underscores.",
+        code: "variantSku",
+      };
     }
-    if (skus.has(sku)) return { error: `SKU ${sku} is used by more than one variant.` };
+    if (skus.has(sku)) return { error: `SKU ${sku} is used by more than one variant.`, code: "variantSkuDuplicate", values: { sku } };
     skus.add(sku);
 
     const colour = text(row.colour);
     const size = text(row.size);
-    if (!colour && !size) return { error: `Add a colour or size to variant ${sku}.` };
+    if (!colour && !size) return { error: `Add a colour or size to variant ${sku}.`, code: "variantOption", values: { sku } };
     const hex = text(row.colourHex);
     const baseCost = parseMoney(text(row.baseCost), currency);
-    if (baseCost === null || baseCost <= 0) return { error: `Enter the supplier's base cost for variant ${sku}.` };
+    if (baseCost === null || baseCost <= 0) return { error: `Enter the supplier's base cost for variant ${sku}.`, code: "variantCost", values: { sku } };
     const availability = STOCK.find((s) => s === text(row.availability)) ?? "in_stock";
 
     const kept = existing.find((variant) => variant.id === text(row.id) && !used.has(variant.id));

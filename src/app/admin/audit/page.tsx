@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AuditCoverageNote, AuditFilterBar, AuditPager } from "@/components/AuditControls";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { Card } from "@/components/ui/card";
@@ -24,7 +24,7 @@ import {
   type AuditParams,
 } from "@/lib/audit-log";
 import { listAllStores, listSuppliers, loadAuditWindow } from "@/lib/data";
-import { AUDIT_CATEGORY_LABELS, type AuditLog } from "@/lib/types";
+import type { AuditLog } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
 
 /** The column-head style every table in the workspace shares. */
@@ -32,8 +32,13 @@ const TH = "px-4 text-xs font-semibold tracking-wide uppercase text-muted-foregr
 
 export default async function AdminAuditPage({ searchParams }: { searchParams: Promise<AuditParams> }) {
   const filters = parseAuditFilters(await searchParams);
-  const stores = await listAllStores();
-  const storeName = (id: string | null) => (id ? (stores.find((s) => s.id === id)?.name ?? id) : "Platform");
+  const [stores, t, labels, locale] = await Promise.all([
+    listAllStores(),
+    getTranslations("audit"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const storeName = (id: string | null) => (id ? (stores.find((s) => s.id === id)?.name ?? id) : t("platform"));
   // The log spans every store, so an amount is read in the currency of the store
   // whose entry it is.
   const suppliers = await listSuppliers();
@@ -85,12 +90,8 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
 
       {page.total === 0 ? (
         <EmptyState
-          title={hasAuditFilters(filters) ? "Nothing matches those filters" : "No entries"}
-          description={
-            hasAuditFilters(filters)
-              ? "Try a wider date range, another person, or clear the search."
-              : "Nothing has been recorded on the platform yet."
-          }
+          title={hasAuditFilters(filters) ? t("noMatchesPlatform") : t("noEntries")}
+          description={hasAuditFilters(filters) ? t("tryWider") : t("nothingRecorded")}
         />
       ) : (
         <div className="space-y-3">
@@ -99,10 +100,10 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
             <Table className="min-w-[52rem]">
               <TableHeader className="bg-muted">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className={TH}>When</TableHead>
-                  <TableHead className={TH}>Scope</TableHead>
-                  <TableHead className={TH}>Action</TableHead>
-                  <TableHead className={TH}>Actor</TableHead>
+                  <TableHead className={TH}>{t("colWhen")}</TableHead>
+                  <TableHead className={TH}>{t("colScope")}</TableHead>
+                  <TableHead className={TH}>{t("colAction")}</TableHead>
+                  <TableHead className={TH}>{t("colActor")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -111,10 +112,10 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
                   return (
                     <TableRow key={entry.id} className="align-top hover:bg-transparent">
                       <TableCell className="px-4 py-3 whitespace-nowrap text-muted-foreground">
-                        {formatDateTime(entry.at)}
+                        {formatDateTime(entry.at, locale)}
                       </TableCell>
                       <TableCell className="px-4 py-3 whitespace-normal">
-                        <Badge tone="neutral">{AUDIT_CATEGORY_LABELS[entry.category]}</Badge>
+                        <Badge tone="neutral">{labels(`auditCategory.${entry.category}`)}</Badge>
                         <p className="mt-1 text-xs text-muted-foreground">{storeName(entry.storeId)}</p>
                       </TableCell>
                       <TableCell className="px-4 py-3 whitespace-normal">

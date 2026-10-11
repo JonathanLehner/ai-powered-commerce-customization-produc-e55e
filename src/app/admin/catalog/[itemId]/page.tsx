@@ -1,11 +1,12 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminNotFoundView } from "@/components/NotFoundViews";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCatalogProduct, listSuppliers } from "@/lib/data";
-import { formatQuantity, indicativeRange, isQuoteOnly, QUOTE_PRICE_LABEL } from "@/lib/sourcing";
-import { VIEW_LABELS } from "@/lib/types";
+import { isQuoteOnly } from "@/lib/sourcing";
+import { formatMoney } from "@/lib/util";
 import { CatalogProductForm } from "../CatalogProductForm";
 
 export default async function AdminCatalogItemPage({
@@ -20,29 +21,39 @@ export default async function AdminCatalogItemPage({
   if (!item) return <AdminNotFoundView />;
   const suppliers = await listSuppliers();
   const supplier = suppliers.find((s) => s.id === item.supplierId) ?? null;
+  const [t, catalogT, labels, locale] = await Promise.all([
+    getTranslations("admin.catalogItem"),
+    getTranslations("admin.catalog"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
 
   return (
     <div className="space-y-6">
       <Breadcrumbs
         items={[
-          { label: "Shared catalog", href: "/admin/catalog" },
+          { label: catalogT("sharedCatalog"), href: "/admin/catalog" },
           { label: item.name },
         ]}
       />
       <PageHeader
         title={item.name}
-        description={`${supplier ? `${supplier.name} · ` : ""}${item.productType} · ${item.variants.length} variants · ${item.printAreas.length} print areas`}
+        description={`${supplier ? `${supplier.name} · ` : ""}${t("description", {
+          type: item.productType,
+          variants: item.variants.length,
+          areas: item.printAreas.length,
+        })}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {isQuoteOnly(item) ? <Badge tone="iris">{QUOTE_PRICE_LABEL}</Badge> : null}
-            <Badge tone={item.status === "active" ? "green" : "slate"}>{item.status}</Badge>
+            {isQuoteOnly(item) ? <Badge tone="iris">{catalogT("byQuote")}</Badge> : null}
+            <Badge tone={item.status === "active" ? "green" : "slate"}>{labels(`catalogStatus.${item.status}`)}</Badge>
           </div>
         }
       />
 
       {created ? (
-        <Callout tone="green" title="Product added to the shared catalog">
-          Add supplier photography so stores can generate mockups.
+        <Callout tone="green" title={t("addedTitle")}>
+          {t("addedBody")}
         </Callout>
       ) : null}
 
@@ -53,30 +64,40 @@ export default async function AdminCatalogItemPage({
             <section>
               <CardHeader>
                 <CardTitle asChild>
-                  <h2 className="text-sm">Priced by quote</h2>
+                  <h2 className="text-sm">{t("pricedByQuote")}</h2>
                 </CardTitle>
                 <p className="max-w-2xl text-sm text-muted-foreground">
-                                    Bulk listing. Suppliers quote each run.
+                  {t("bulkBody")}
                 </p>
               </CardHeader>
               <CardContent>
                 <DataList
                   rows={[
                     {
-                      label: "Minimum order",
-                      value: formatQuantity(item.bulkSourcing.minimumOrderQuantity),
+                      label: t("minimumOrder"),
+                      value: catalogT("units", { count: item.bulkSourcing.minimumOrderQuantity }),
                     },
-                    { label: "Indicative", value: indicativeRange(item) },
                     {
-                      label: "Supplier response",
-                      value: `${item.bulkSourcing.responseDays[0]}–${item.bulkSourcing.responseDays[1]} business days`,
+                      label: t("indicative"),
+                      value: t("indicativeValue", {
+                        low: formatMoney(item.bulkSourcing.indicativeUnitCost[0], item.currency, locale),
+                        high: formatMoney(item.bulkSourcing.indicativeUnitCost[1], item.currency, locale),
+                        quantity: catalogT("units", { count: item.bulkSourcing.minimumOrderQuantity }),
+                      }),
                     },
-                    { label: "Terms shown to buyers", value: item.bulkSourcing.quoteNotes },
+                    {
+                      label: t("response"),
+                      value: t("responseDays", {
+                        min: item.bulkSourcing.responseDays[0],
+                        max: item.bulkSourcing.responseDays[1],
+                      }),
+                    },
+                    { label: t("terms"), value: item.bulkSourcing.quoteNotes },
                   ]}
                 />
                                 <p className="mt-4 text-sm">
                   <Link href="/admin/quotes" className="font-medium underline underline-offset-2">
-                    View quote requests
+                    {t("viewQuotes")}
                   </Link>
                 </p>
               </CardContent>
@@ -92,11 +113,11 @@ export default async function AdminCatalogItemPage({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2 className="text-sm">Supplier photography</h2>
+                <h2 className="text-sm">{t("photography")}</h2>
               </CardTitle>
               {item.mockups.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  None yet. Required for mockups.
+                  {t("noPhotography")}
                 </p>
               ) : null}
             </CardHeader>
@@ -106,7 +127,7 @@ export default async function AdminCatalogItemPage({
                 <li key={`${mockup.view}-${mockup.colour}`} className="overflow-hidden rounded-lg border border-border">
                   <Image
                     src={mockup.url}
-                    alt={`${item.name}, ${VIEW_LABELS[mockup.view]}, ${mockup.colour}`}
+                    alt={t("photoAlt", { name: item.name, view: labels(`view.${mockup.view}`), colour: mockup.colour })}
                     width={320}
                     height={320}
                     loading="lazy"
@@ -115,7 +136,7 @@ export default async function AdminCatalogItemPage({
                     style={{ aspectRatio: "1 / 1" }}
                   />
                   <p className="px-2 py-1.5 text-[11px] text-muted-foreground">
-                    {VIEW_LABELS[mockup.view]} · {mockup.colour}
+                    {labels(`view.${mockup.view}`)} · {mockup.colour}
                   </p>
                 </li>
               ))}
@@ -128,22 +149,22 @@ export default async function AdminCatalogItemPage({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2 className="text-sm">File requirements</h2>
+                <h2 className="text-sm">{t("fileRequirements")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
             <DataList
               rows={[
-                { label: "Formats", value: item.fileRequirements.formats.join(", ") },
-                { label: "Maximum size", value: `${item.fileRequirements.maxFileMb} MB` },
-                { label: "Minimum DPI", value: `${item.fileRequirements.minDpi}` },
+                { label: t("formats"), value: item.fileRequirements.formats.join(", ") },
+                { label: t("maxSize"), value: `${item.fileRequirements.maxFileMb} MB` },
+                { label: t("minDpi"), value: `${item.fileRequirements.minDpi}` },
                 {
-                  label: "Megapixel ceiling",
+                  label: t("megapixels"),
                   value: `${(item.fileRequirements.maxPixels / 1_000_000).toFixed(0)} MP`,
                 },
                 {
-                  label: "Transparency",
-                  value: item.fileRequirements.transparentBackgroundRequired ? "Required" : "Optional",
+                  label: t("transparency"),
+                  value: item.fileRequirements.transparentBackgroundRequired ? t("required") : t("optional"),
                 },
               ]}
             />
@@ -155,16 +176,16 @@ export default async function AdminCatalogItemPage({
           <section>
             <CardHeader>
               <CardTitle asChild>
-                <h2 className="text-sm">Production</h2>
+                <h2 className="text-sm">{t("production")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
             <DataList
               rows={[
-                { label: "Supplier", value: supplier?.name ?? "–" },
-                { label: "Integration", value: supplier?.integration === "api" ? "Order API" : "Manual" },
-                { label: "Lead time", value: `${item.leadTimeDays[0]}–${item.leadTimeDays[1]} days` },
-                { label: "Currency", value: item.currency },
+                { label: t("supplier"), value: supplier?.name ?? "–" },
+                { label: t("integration"), value: supplier?.integration === "api" ? t("orderApi") : t("manual") },
+                { label: t("leadTime"), value: t("days", { min: item.leadTimeDays[0], max: item.leadTimeDays[1] }) },
+                { label: t("currency"), value: item.currency },
               ]}
             />
             </CardContent>

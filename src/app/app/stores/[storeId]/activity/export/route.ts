@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { NextRequest } from "next/server";
 import {
   auditCsv,
@@ -10,7 +11,9 @@ import {
   AUDIT_EXPORT_CAP,
 } from "@/lib/audit-log";
 import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
-import { auditExportMessage, planFor } from "@/lib/plans";
+import { auditCsvLabels } from "@/i18n/audit-copy";
+import { auditExportText } from "@/i18n/plan-copy";
+import { planFor } from "@/lib/plans";
 import { assertStoreAccess } from "@/lib/session";
 
 /**
@@ -26,13 +29,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     ({ store, viaPlatform } = await assertStoreAccess(storeId, "store.view"));
   } catch (error) {
-    return new Response(error instanceof Error ? error.message : "Access denied.", { status: 403 });
+    return new Response(error instanceof Error ? error.message : (await getTranslations("audit"))("accessDenied"), { status: 403 });
   }
 
   const agency = await getAgency(store.agencyId);
   const plan = planFor(agency?.plan);
   if (!plan.auditExport) {
-    return new Response(auditExportMessage(plan, agency?.name ?? "This agency"), { status: 403 });
+    return new Response(await auditExportText(plan, agency?.name), { status: 403 });
   }
 
   const filters = parseAuditFilters(Object.fromEntries(request.nextUrl.searchParams));
@@ -50,10 +53,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const readable = viaPlatform ? platformAuditEntries(entries) : entries;
   const suppliers = await listSuppliers();
   const csv = auditCsv(readable.filter((entry) => matchesAuditFilters(entry, filters)), {
+    ...(await auditCsvLabels()),
     detail: {
       currency: store.defaultCurrency,
       supplierName: (id) => suppliers.find((supplier) => supplier.id === id)?.name,
     },
   });
-  return auditCsvResponse(csv, auditFileName(`${store.name} activity`, filters, now.toISOString().slice(0, 10)));
+  return auditCsvResponse(csv, auditFileName((await getTranslations("audit"))("fileActivity", { store: store.name }), filters, now.toISOString().slice(0, 10)));
 }

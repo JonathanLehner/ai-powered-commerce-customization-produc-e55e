@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormStatus } from "react-dom";
 import { changeMemberRole, removeMember } from "@/app/actions/team";
 import {
@@ -22,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { STORE_ROLE_LABELS, type StoreRole } from "@/lib/types";
+import type { StoreRole } from "@/lib/types";
 
 const ROLES: StoreRole[] = ["store_admin", "catalog_manager", "order_manager", "viewer"];
 
@@ -37,12 +38,14 @@ export function MemberRoleForm({
   name: string;
   role: StoreRole;
 }) {
+  const t = useTranslations("team");
+  const roles = useTranslations("roles");
   return (
     <form action={changeMemberRole} className="flex items-center gap-2">
       <input type="hidden" name="storeId" value={storeId} />
       <input type="hidden" name="membershipId" value={membershipId} />
       <Label htmlFor={`role-${membershipId}`} className="sr-only">
-        Role for {name}
+        {t("roleFor", { name })}
       </Label>
       <Select name="role" defaultValue={role}>
         <SelectTrigger id={`role-${membershipId}`} size="sm" className="w-48">
@@ -51,13 +54,13 @@ export function MemberRoleForm({
         <SelectContent>
           {ROLES.map((option) => (
             <SelectItem key={option} value={option}>
-              {STORE_ROLE_LABELS[option]}
+              {roles(option)}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
       <Button type="submit" variant="outline" size="sm">
-        Update
+        {t("update")}
       </Button>
     </form>
   );
@@ -90,25 +93,27 @@ export function RemoveMemberForm({
 
 function RemoveDialog({ formId, name }: { formId: string; name: string }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("team");
+  const common = useTranslations("common");
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button type="button" variant="destructive" size="sm" disabled={pending}>
-          {pending ? "Working…" : "Remove"}
+          {pending ? common("working") : t("remove")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Remove from this store</AlertDialogTitle>
+          <AlertDialogTitle>{t("removeTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {name} will lose access to this store immediately.
+            {t("removeBody", { name })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel />
           <AlertDialogAction type="submit" form={formId} variant="destructive" disabled={pending}>
-            Remove
+            {t("remove")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

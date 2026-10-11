@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { suggestCopy, suggestPrice, suggestProductIdeas, suggestSupplier, type DraftSuggestion } from "@/lib/ai";
 import {
@@ -44,18 +45,19 @@ async function store(storeId: string, drafts: DraftSuggestion[], productId: stri
   return docs.length;
 }
 
-function friendly(error: unknown): string {
+async function friendly(error: unknown): Promise<string> {
   const message = error instanceof Error ? error.message : String(error);
-  if (message.includes("not valid JSON")) {
-    return "The assistant returned an unexpected response. Please try again.";
-  }
-  return `The assistant could not complete that request: ${message}`;
+  const t = await getTranslations("actions.ai");
+  if (message.includes("not valid JSON")) return t("unexpected");
+  console.error("Assistant request failed", error);
+  return t("failed");
 }
 
 export async function requestProductIdeas(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const brief = String(formData.get("brief") ?? "").trim();
   const { user, store: storeDoc } = await assertStoreAccess(storeId, "store.catalog");
+  const t = await getTranslations("actions.ai");
 
   try {
     const [catalog, existing, suppliers] = await Promise.all([
@@ -68,16 +70,16 @@ export async function requestProductIdeas(_prev: ActionState, formData: FormData
     const drafts = await suggestProductIdeas(storeDoc, available, existing, brief);
     const valid = drafts.filter((d) => available.some((c) => c.id === d.payload.catalogId));
     if (valid.length === 0) {
-      return { status: "error", message: "No matching products found. Try a more specific brief." };
+      return { status: "error", message: t("noMatches") };
     }
     const count = await store(storeId, valid, null, user.name);
     revalidatePath(`/app/stores/${storeId}/assistant`);
     return {
       status: "success",
-      message: `${count} product ${count === 1 ? "idea" : "ideas"} drafted.`,
+      message: t("ideas", { count }),
     };
   } catch (error) {
-    return { status: "error", message: friendly(error) };
+    return { status: "error", message: await friendly(error) };
   }
 }
 
@@ -86,8 +88,9 @@ export async function requestCopy(_prev: ActionState, formData: FormData): Promi
   const productId = String(formData.get("productId") ?? "");
   const { user, store: storeDoc } = await assertStoreAccess(storeId, "store.catalog");
   const product = await getStoreProduct(productId);
+  const t = await getTranslations("actions.ai");
   if (!product || product.storeId !== storeId) {
-    return { status: "error", message: "Choose a product in this store first.", field: "productId" };
+    return { status: "error", message: t("chooseProduct"), field: "productId" };
   }
 
   try {
@@ -96,10 +99,10 @@ export async function requestCopy(_prev: ActionState, formData: FormData): Promi
     revalidatePath(`/app/stores/${storeId}/assistant`);
     return {
       status: "success",
-      message: `Drafted a description and tags for “${product.name}”. Review them below before applying.`,
+      message: t("copyDrafted", { name: product.name }),
     };
   } catch (error) {
-    return { status: "error", message: friendly(error) };
+    return { status: "error", message: await friendly(error) };
   }
 }
 
@@ -108,8 +111,9 @@ export async function requestPrice(_prev: ActionState, formData: FormData): Prom
   const productId = String(formData.get("productId") ?? "");
   const { user, store: storeDoc } = await assertStoreAccess(storeId, "store.catalog");
   const product = await getStoreProduct(productId);
+  const t = await getTranslations("actions.ai");
   if (!product || product.storeId !== storeId) {
-    return { status: "error", message: "Choose a product in this store first.", field: "productId" };
+    return { status: "error", message: t("chooseProduct"), field: "productId" };
   }
 
   try {
@@ -117,9 +121,9 @@ export async function requestPrice(_prev: ActionState, formData: FormData): Prom
     const draft = await suggestPrice(product, storeDoc, landed);
     await store(storeId, [draft], productId, user.name);
     revalidatePath(`/app/stores/${storeId}/assistant`);
-    return { status: "success", message: `Price suggestion drafted for “${product.name}”.` };
+    return { status: "success", message: t("priceDrafted", { name: product.name }) };
   } catch (error) {
-    return { status: "error", message: friendly(error) };
+    return { status: "error", message: await friendly(error) };
   }
 }
 
@@ -130,16 +134,17 @@ export async function requestSupplier(_prev: ActionState, formData: FormData): P
   const { user } = await assertStoreAccess(storeId, "store.catalog");
 
   const catalog = await getCatalogProduct(catalogId);
-  if (!catalog) return { status: "error", message: "Choose a supplier product to compare.", field: "catalogId" };
+  const t = await getTranslations("actions.ai");
+  if (!catalog) return { status: "error", message: t("chooseCatalog"), field: "catalogId" };
 
   try {
     const suppliers = (await listSuppliers()).filter((s) => s.status === "approved");
     const draft = await suggestSupplier(catalog, suppliers, destination);
     await store(storeId, [draft], null, user.name);
     revalidatePath(`/app/stores/${storeId}/assistant`);
-    return { status: "success", message: `Supplier recommendation drafted for ${catalog.name}.` };
+    return { status: "success", message: t("supplierDrafted", { name: catalog.name }) };
   } catch (error) {
-    return { status: "error", message: friendly(error) };
+    return { status: "error", message: await friendly(error) };
   }
 }
 

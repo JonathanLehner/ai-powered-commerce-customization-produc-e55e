@@ -1,3 +1,4 @@
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { auditRunSummary, platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
+import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import {
   agencyStoreAllowance,
   getAgency,
@@ -21,21 +22,12 @@ import {
   listStoreProducts,
 } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
-import { storeLimitMessage } from "@/lib/plans";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { isOpenEnquiry, QUOTE_STATUS_LABELS, QUOTE_STATUS_TONES } from "@/lib/sourcing";
-import { ORDER_STATUS_LABELS, SETUP_STEPS, THEMES } from "@/lib/types";
-import { formatMoney, formatDate, relativeTime } from "@/lib/util";
-
-const SETUP_LABELS: Record<(typeof SETUP_STEPS)[number], string> = {
-  branding: "Logo and theme",
-  localisation: "Language and currencies",
-  support: "Support contacts",
-  domain: "Custom domain",
-  payments: "Stripe account",
-  shipping: "Shipping carriers",
-  tax: "Tax configuration",
-};
+import { formatAgo } from "@/i18n/format";
+import { storeLimitText } from "@/i18n/plan-copy";
+import { isOpenEnquiry, QUOTE_STATUS_TONES } from "@/lib/sourcing";
+import { SETUP_STEPS, THEMES } from "@/lib/types";
+import { formatMoney, formatDate } from "@/lib/util";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 8;
@@ -78,35 +70,45 @@ export default async function StoreOverviewPage({
   const recentOrders = orders.slice(0, 6);
   const theme = THEMES[store.theme];
 
+  const [t, labels, dashboard, locale, format] = await Promise.all([
+    getTranslations("overview"),
+    getTranslations("labels"),
+    getTranslations("dashboard"),
+    getLocale(),
+    getFormatter(),
+  ]);
+  const limitText = allowance && agency ? await storeLimitText(allowance, agency.name) : "";
+  const now = new Date();
+
   return (
     <div className="space-y-7">
       {denied ? (
         <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {viaPlatform
-            ? "That page is not available with platform access."
-            : "You do not have permission to view that page."}
+            ? t("deniedPlatform")
+            : t("denied")}
         </p>
       ) : null}
 
       {allowance && agency ? (
-        <Callout tone="amber" title={`${allowance.plan.name} plan limit reached`}>
-          This store was not restored. {storeLimitMessage(allowance, agency.name)}{" "}
+        <Callout tone="amber" title={t("limitTitle", { plan: allowance.plan.name })}>
+          {t("notRestored")} {limitText}{" "}
           <Link href="/pricing" className="font-medium underline">
-            Compare plans
+            {t("comparePlans")}
           </Link>
           .
         </Callout>
       ) : null}
 
       {store.status === "archived" ? (
-        <Callout tone="slate" title="This store is archived">
-          The storefront is offline.{" "}
+        <Callout tone="slate" title={t("archivedTitle")}>
+          {t("archivedOffline")}{" "}
           {roleCan(role, "store.settings") ? (
             <Link href={`/app/stores/${store.id}/setup`} className="font-medium underline">
-              Restore it from Settings
+              {t("restoreFromSettings")}
             </Link>
           ) : (
-            <span>A store administrator can restore it from Settings</span>
+            <span>{t("adminCanRestore")}</span>
           )}
           .
         </Callout>
@@ -117,15 +119,15 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Finish setup</h2>
+                <h2>{t("finishSetup")}</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                {progress.done} of {progress.total} steps complete
+                {t("stepsComplete", { done: progress.done, total: progress.total })}
               </p>
               {roleCan(role, "store.settings") ? (
                 <CardAction>
                   <Button asChild>
-                    <Link href={`/app/stores/${store.id}/setup`}>Continue setup</Link>
+                    <Link href={`/app/stores/${store.id}/setup`}>{t("continueSetup")}</Link>
                   </Button>
                 </CardAction>
               ) : null}
@@ -136,7 +138,7 @@ export default async function StoreOverviewPage({
                 {SETUP_STEPS.map((key) => (
                   <li key={key}>
                     <Badge tone={store.setup[key] ? "green" : "amber"}>
-                      {store.setup[key] ? "✓" : "•"} {SETUP_LABELS[key]}
+                      {store.setup[key] ? "✓" : "•"} {labels(`setupStep.${key}`)}
                     </Badge>
                   </li>
                 ))}
@@ -150,33 +152,33 @@ export default async function StoreOverviewPage({
         {/* Money is the store's own; platform access counts orders instead. */}
         {viaPlatform ? (
           <>
-            <StatCard label="Orders, last 30 days" value={String(metrics.last30Orders)} />
-            <StatCard label="Orders, lifetime" value={String(metrics.orderCount)} sub={`${metrics.paidOrders} paid`} />
+            <StatCard label={t("orders30")} value={String(metrics.last30Orders)} />
+            <StatCard label={t("ordersLifetime")} value={String(metrics.orderCount)} sub={t("paid", { count: metrics.paidOrders })} />
           </>
         ) : (
           <>
             <StatCard
-              label="Sales, last 30 days"
-              value={formatMoney(metrics.last30Sales, store.defaultCurrency)}
-              sub={`${metrics.last30Orders} orders`}
+              label={t("sales30")}
+              value={formatMoney(metrics.last30Sales, store.defaultCurrency, locale)}
+              sub={t("ordersCount", { count: metrics.last30Orders })}
             />
             <StatCard
-              label="Lifetime sales"
-              value={formatMoney(metrics.grossSales, store.defaultCurrency)}
-              sub={`${metrics.paidOrders} paid orders`}
+              label={t("lifetimeSales")}
+              value={formatMoney(metrics.grossSales, store.defaultCurrency, locale)}
+              sub={t("paidOrders", { count: metrics.paidOrders })}
             />
           </>
         )}
         <StatCard
-          label="Published products"
+          label={t("published")}
           value={String(metrics.publishedProducts)}
-          sub={`${metrics.draftProducts} in draft or review`}
+          sub={t("inDraft", { count: metrics.draftProducts })}
         />
         <StatCard
-          label="Needs attention"
+          label={t("attention")}
           value={String(metrics.awaitingAction)}
           tone={metrics.awaitingAction > 0 ? "amber" : "green"}
-          sub={`${metrics.exceptions} exceptions · ${metrics.manualRouting} manual routing`}
+          sub={t("attentionSub", { exceptions: metrics.exceptions, manual: metrics.manualRouting })}
         />
       </section>
 
@@ -185,32 +187,32 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Recent orders</h2>
+                <h2>{t("recentOrders")}</h2>
               </CardTitle>
               <CardAction>
                 <Link
                   href={`/app/stores/${store.id}/orders`}
                   className="text-sm font-medium text-primary hover:underline"
                 >
-                  All orders
+                  {t("allOrders")}
                 </Link>
               </CardAction>
             </CardHeader>
             <CardContent>
               {recentOrders.length === 0 ? (
                 <EmptyState
-                  title="No orders yet"
-                  description="Orders will appear here."
+                  title={t("noOrders")}
+                  description={t("noOrdersBody")}
                 />
               ) : (
                 <div className="relative overflow-x-auto">
                   <Table className="min-w-[34rem]">
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
-                        <TableHead className={TH}>Order</TableHead>
-                        <TableHead className={TH}>Placed</TableHead>
-                        <TableHead className={TH}>Status</TableHead>
-                        {viaPlatform ? null : <TableHead className={`${TH} text-right`}>Total</TableHead>}
+                        <TableHead className={TH}>{t("colOrder")}</TableHead>
+                        <TableHead className={TH}>{t("colPlaced")}</TableHead>
+                        <TableHead className={TH}>{t("colStatus")}</TableHead>
+                        {viaPlatform ? null : <TableHead className={`${TH} text-right`}>{t("colTotal")}</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -228,7 +230,7 @@ export default async function StoreOverviewPage({
                             )}
                           </TableCell>
                           <TableCell className="px-0 py-2.5 align-top text-muted-foreground">
-                            {formatDate(order.createdAt)}
+                            {formatDate(order.createdAt, locale)}
                           </TableCell>
                           <TableCell className="px-0 py-2.5 align-top">
                             <Badge
@@ -242,12 +244,12 @@ export default async function StoreOverviewPage({
                                       : "brand"
                               }
                             >
-                              {ORDER_STATUS_LABELS[order.status]}
+                              {labels(`orderStatus.${order.status}`)}
                             </Badge>
                           </TableCell>
                           {viaPlatform ? null : (
                             <TableCell className="px-0 py-2.5 text-right align-top font-medium tabular-nums text-foreground">
-                              {formatMoney(order.total, order.currency)}
+                              {formatMoney(order.total, order.currency, locale)}
                             </TableCell>
                           )}
                         </TableRow>
@@ -264,18 +266,18 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Fulfilment</h2>
+                <h2>{t("fulfilment")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <DataList
                 rows={[
-                  { label: ORDER_STATUS_LABELS.in_production, value: metrics.inProduction },
-                  { label: ORDER_STATUS_LABELS.shipped, value: metrics.shipped },
-                  { label: ORDER_STATUS_LABELS.delivered, value: metrics.delivered },
-                  { label: ORDER_STATUS_LABELS.cancelled, value: metrics.cancelled },
+                  { label: labels("orderStatus.in_production"), value: metrics.inProduction },
+                  { label: labels("orderStatus.shipped"), value: metrics.shipped },
+                  { label: labels("orderStatus.delivered"), value: metrics.delivered },
+                  { label: labels("orderStatus.cancelled"), value: metrics.cancelled },
                   {
-                    label: ORDER_STATUS_LABELS.exception,
+                    label: labels("orderStatus.exception"),
                     value:
                       metrics.exceptions > 0 ? (
                         <span className="text-rose-700">{metrics.exceptions}</span>
@@ -285,7 +287,7 @@ export default async function StoreOverviewPage({
                   },
                   ...(viaPlatform
                     ? []
-                    : [{ label: "Refunded", value: formatMoney(metrics.refunded, store.defaultCurrency) }]),
+                    : [{ label: t("refunded"), value: formatMoney(metrics.refunded, store.defaultCurrency, locale) }]),
                 ]}
               />
             </CardContent>
@@ -295,14 +297,14 @@ export default async function StoreOverviewPage({
             <Card>
               <CardHeader>
                 <CardTitle asChild>
-                  <h2>Bulk sourcing enquiries</h2>
+                  <h2>{t("enquiries")}</h2>
                 </CardTitle>
                 <CardAction>
                   <Link
                     href={`/app/stores/${store.id}/sourcing${enquiries.length > 0 ? "#enquiries" : "?rfq=new#rfq"}`}
                     className="text-sm font-medium text-primary hover:underline"
                   >
-                    {enquiries.length > 0 ? "All enquiries" : "Start one"}
+                    {enquiries.length > 0 ? t("allEnquiries") : t("startOne")}
                   </Link>
                 </CardAction>
               </CardHeader>
@@ -310,8 +312,8 @@ export default async function StoreOverviewPage({
                 {openEnquiries.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     {enquiries.length > 0
-                      ? "No open enquiries."
-                      : "No enquiries yet."}
+                      ? t("noOpenEnquiries")
+                      : t("noEnquiries")}
                   </p>
                 ) : (
                   <ul className="divide-y divide-border text-sm">
@@ -323,8 +325,8 @@ export default async function StoreOverviewPage({
                         </span>
                         <Badge tone={QUOTE_STATUS_TONES[request.status]}>
                           {request.status === "quoted"
-                            ? `${(request.quotes ?? []).length} to review`
-                            : QUOTE_STATUS_LABELS[request.status]}
+                            ? t("toReview", { count: (request.quotes ?? []).length })
+                            : labels(`quoteStatus.${request.status}`)}
                         </Badge>
                       </li>
                     ))}
@@ -337,14 +339,19 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Storefront</h2>
+                <h2>{t("storefront")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 {storefront?.published
-                  ? `Published ${formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt)} by ${storefront.publishedBy ?? "the store team"}.`
-                  : "Not published yet."}
+                  ? storefront.publishedBy
+                    ? t("publishedBy", {
+                        date: formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt, locale),
+                        name: storefront.publishedBy,
+                      })
+                    : t("publishedByTeam", { date: formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt, locale) })
+                  : t("notPublished")}
               </p>
               <div className="flex items-center gap-2">
                 <span
@@ -352,17 +359,17 @@ export default async function StoreOverviewPage({
                   className="h-5 w-5 rounded border border-border"
                   style={{ background: theme.accent }}
                 />
-                <span className="text-sm text-inksoft">{theme.name} theme</span>
+                <span className="text-sm text-inksoft">{labels("themeName", { name: theme.name })}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {roleCan(role, "store.storefront") ? (
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/app/stores/${store.id}/storefront`}>Open editor</Link>
+                    <Link href={`/app/stores/${store.id}/storefront`}>{t("openEditor")}</Link>
                   </Button>
                 ) : null}
                 <Button asChild variant="ghost" size="sm">
                   <Link href={`/s/${store.slug}`} target="_blank" rel="noreferrer">
-                    View storefront ↗
+                    {t("viewStorefront")}
                   </Link>
                 </Button>
               </div>
@@ -376,24 +383,24 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Product performance</h2>
+                <h2>{t("performance")}</h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {metrics.topProducts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No paid orders yet.</p>
+                <p className="text-sm text-muted-foreground">{t("noPaidOrders")}</p>
               ) : (
                 <ol className="divide-y divide-border text-sm">
                   {metrics.topProducts.map((product) => (
                     <li key={product.name} className="flex items-center justify-between gap-3 py-2.5">
                       <span className="min-w-0 truncate text-foreground">{product.name}</span>
                       <span className="shrink-0 text-muted-foreground">
-                        <span className="tabular-nums">{product.units}</span> units
+                        <span className="tabular-nums">{t("units", { count: product.units })}</span>
                         {viaPlatform ? null : (
                           <>
                             {" · "}
                             <span className="font-medium tabular-nums text-foreground">
-                              {formatMoney(product.revenue, store.defaultCurrency)}
+                              {formatMoney(product.revenue, store.defaultCurrency, locale)}
                             </span>
                           </>
                         )}
@@ -410,27 +417,27 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Recent activity</h2>
+                <h2>{t("recentActivity")}</h2>
               </CardTitle>
               <CardAction>
                 <Link
                   href={`/app/stores/${store.id}/activity`}
                   className="text-sm font-medium text-primary hover:underline"
                 >
-                  Full history
+                  {t("fullHistory")}
                 </Link>
               </CardAction>
             </CardHeader>
             <CardContent>
               {activity.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No activity yet.</p>
+                <p className="text-sm text-muted-foreground">{t("noActivity")}</p>
               ) : (
                 <ol className="divide-y divide-border text-sm">
                   {activity.map((run) => (
                     <li key={run.entry.id} className="py-2.5">
-                      <p className="text-foreground">{auditRunSummary(run)}</p>
+                      <p className="text-foreground">{run.count > 1 ? dashboard("repeated", { summary: run.entry.summary, count: run.count }) : run.entry.summary}</p>
                       <p className="text-xs text-muted-foreground">
-                        {run.entry.actorName} · {relativeTime(run.entry.at)}
+                        {run.entry.actorName} · {formatAgo(format, run.entry.at, now)}
                       </p>
                     </li>
                   ))}

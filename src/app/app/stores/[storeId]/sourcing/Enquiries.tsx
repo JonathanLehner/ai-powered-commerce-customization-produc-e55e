@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { acceptQuote, copyAcceptedQuote } from "@/app/actions/sourcing";
 import { SubmitButton } from "@/components/forms";
@@ -7,10 +8,7 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/componen
 import { WithdrawEnquiry } from "./WithdrawEnquiry";
 import {
   canAcceptQuote,
-  formatQuantity,
   isOpenEnquiry,
-  QUOTE_STATUS_LABELS,
-  QUOTE_STATUS_NOTES,
   QUOTE_STATUS_TONES,
   quoteIsLive,
 } from "@/lib/sourcing";
@@ -29,12 +27,13 @@ function EnquiryFields({ storeId, request, quote }: { storeId: string; request: 
 }
 
 /** What the store does with an enquiry that has an accepted quote. */
-export function AcceptedQuoteAction({ storeId, request }: { storeId: string; request: QuoteRequest }) {
+export async function AcceptedQuoteAction({ storeId, request }: { storeId: string; request: QuoteRequest }) {
+  const t = await getTranslations("enquiries");
   if (request.storeProductId) {
     return (
       <Button asChild variant="outline" size="sm">
         <Link href={`/app/stores/${storeId}/catalog/${request.storeProductId}`}>
-          Open the catalog product
+          {t("openProduct")}
         </Link>
       </Button>
     );
@@ -42,15 +41,15 @@ export function AcceptedQuoteAction({ storeId, request }: { storeId: string; req
   return (
     <form action={copyAcceptedQuote}>
       <EnquiryFields storeId={storeId} request={request} />
-      <SubmitButton size="sm" pendingLabel="Copying…">
-        Copy into catalog
+      <SubmitButton size="sm" pendingLabel={t("copying")}>
+        {t("copyIntoCatalog")}
       </SubmitButton>
     </form>
   );
 }
 
 /** Accept button for one quote, shown only while it can still be accepted. */
-export function AcceptQuoteButton({
+export async function AcceptQuoteButton({
   storeId,
   request,
   quote,
@@ -60,17 +59,18 @@ export function AcceptQuoteButton({
   quote: SupplierQuote;
 }) {
   if (!canAcceptQuote(request, quote)) return null;
+  const t = await getTranslations("enquiries");
   return (
     <form action={acceptQuote}>
       <EnquiryFields storeId={storeId} request={request} quote={quote} />
-      <SubmitButton size="sm" pendingLabel="Accepting…">
-        Accept quote
+      <SubmitButton size="sm" pendingLabel={t("accepting")}>
+        {t("acceptQuote")}
       </SubmitButton>
     </form>
   );
 }
 
-function QuoteLine({
+async function QuoteLine({
   storeId,
   request,
   quote,
@@ -85,14 +85,19 @@ function QuoteLine({
   compareHref: (key: string) => string;
   comparing: boolean;
 }) {
+  const [t, sourcing, locale] = await Promise.all([
+    getTranslations("enquiries"),
+    getTranslations("sourcing"),
+    getLocale(),
+  ]);
   const accepted = request.acceptedQuoteId === quote.id;
   const live = quoteIsLive(quote);
   const vsTarget =
     request.targetUnitCost === null
       ? null
       : quote.unitCost <= request.targetUnitCost
-        ? "at or under target"
-        : `${formatMoney(quote.unitCost - request.targetUnitCost, request.currency)} over target`;
+        ? t("underTarget")
+        : t("overTarget", { amount: formatMoney(quote.unitCost - request.targetUnitCost, request.currency, locale) });
   return (
     <li
       className={
@@ -105,24 +110,29 @@ function QuoteLine({
         <div className="min-w-0">
           <p className="text-sm text-foreground">
             <span className="font-semibold">{quote.supplierLabel}</span> ·{" "}
-            <span className="font-semibold tabular-nums">{formatMoney(quote.unitCost, request.currency)}</span> a
-            unit
+            <span className="font-semibold tabular-nums">
+              {t("aUnit", { amount: formatMoney(quote.unitCost, request.currency, locale) })}
+            </span>
             {vsTarget ? <span className="text-muted-foreground"> ({vsTarget})</span> : null}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Minimum <span className="tabular-nums">{formatQuantity(quote.minimumOrderQuantity)}</span> ·{" "}
-            <span className="tabular-nums">{quote.leadTimeDays} days</span> production · built on{" "}
-            {catalogName(quote.baseCatalogProductId)}
-            {quote.validUntil ? ` · ${live ? "valid until" : "expired"} ${formatDate(quote.validUntil)}` : ""}
+            {t("quoteMeta", {
+              quantity: sourcing("units", { count: quote.minimumOrderQuantity }),
+              days: quote.leadTimeDays,
+              base: catalogName(quote.baseCatalogProductId),
+            })}
+            {quote.validUntil
+              ? t(live ? "validUntil" : "expired", { date: formatDate(quote.validUntil, locale) })
+              : ""}
           </p>
           {quote.notes ? <p className="mt-1 text-xs text-inksoft">{quote.notes}</p> : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {accepted ? <Badge tone="green">Accepted</Badge> : null}
+          {accepted ? <Badge tone="green">{t("accepted")}</Badge> : null}
           <AcceptQuoteButton storeId={storeId} request={request} quote={quote} />
           <Button asChild variant="outline" size="sm">
             <Link href={compareHref(quote.id)} scroll={false}>
-              {comparing ? "Remove from compare" : "Compare"}
+              {comparing ? t("removeCompare") : t("compare")}
             </Link>
           </Button>
         </div>
@@ -135,7 +145,7 @@ function QuoteLine({
  * One bulk sourcing enquiry in the store's own list: what was asked for, where
  * it has got to, and every quote that came back.
  */
-function EnquiryRow({
+async function EnquiryRow({
   storeId,
   request,
   catalogName,
@@ -149,6 +159,15 @@ function EnquiryRow({
   compareIds: string[];
 }) {
   const quotes = request.quotes ?? [];
+  const [t, sourcing, labels, locale] = await Promise.all([
+    getTranslations("enquiries"),
+    getTranslations("sourcing"),
+    getTranslations("labels"),
+    getLocale(),
+  ]);
+  const destination = labels.has(`region.${request.destination}` as "region.APAC")
+    ? labels(`region.${request.destination}` as "region.APAC")
+    : request.destination;
   return (
     <li className="py-4 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -156,24 +175,28 @@ function EnquiryRow({
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-xs text-muted-foreground">{request.code}</span>
             <h3 className="text-sm font-semibold text-foreground">{request.productName}</h3>
-            <Badge tone={QUOTE_STATUS_TONES[request.status]}>{QUOTE_STATUS_LABELS[request.status]}</Badge>
+            <Badge tone={QUOTE_STATUS_TONES[request.status]}>{labels(`quoteStatus.${request.status}`)}</Badge>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {formatQuantity(request.quantity)} to {request.destination}
+            {t("quantityTo", { quantity: sourcing("units", { count: request.quantity }), destination })}
             {request.targetUnitCost === null
               ? ""
-              : ` · target ${formatMoney(request.targetUnitCost, request.currency)} a unit`}{" "}
-            · {request.catalogProductId ? `refers to ${catalogName(request.catalogProductId)}` : "described by the store"}{" "}
-            · via {request.supplierName} · asked by {request.requestedBy} on {formatDate(request.createdAt)}
-            {request.neededBy ? ` · needed by ${formatDate(request.neededBy)}` : ""}
+              : t("targetUnit", { amount: formatMoney(request.targetUnitCost, request.currency, locale) })}{" "}
+            ·{" "}
+            {request.catalogProductId
+              ? t("refersTo", { name: catalogName(request.catalogProductId) })
+              : t("describedByStore")}{" "}
+            · {t("via", { supplier: request.supplierName })} ·{" "}
+            {t("askedBy", { name: request.requestedBy, date: formatDate(request.createdAt, locale) })}
+            {request.neededBy ? t("neededBy", { date: formatDate(request.neededBy, locale) }) : ""}
           </p>
           {request.description ? <p className="mt-1 text-xs text-inksoft">{request.description}</p> : null}
           <p className="mt-1 text-xs text-inksoft">
-            <span className="font-medium text-foreground">Decoration:</span> {request.customisation}
+            <span className="font-medium text-foreground">{t("decoration")}</span> {request.customisation}
           </p>
-          <p className="mt-2 text-sm text-inksoft">{QUOTE_STATUS_NOTES[request.status]}</p>
+          <p className="mt-2 text-sm text-inksoft">{labels(`quoteStatusNote.${request.status}`)}</p>
           {request.status === "declined" && request.declineReason ? (
-            <p className="mt-1 text-xs text-muted-foreground">Reason: {request.declineReason}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("reason", { reason: request.declineReason })}</p>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -202,7 +225,7 @@ function EnquiryRow({
   );
 }
 
-export function Enquiries({
+export async function Enquiries({
   storeId,
   requests,
   catalogName,
@@ -218,21 +241,21 @@ export function Enquiries({
   startHref: string;
 }) {
   const open = requests.filter(isOpenEnquiry).length;
+  const t = await getTranslations("enquiries");
   return (
     <Card asChild className="scroll-mt-6">
     <section id="enquiries">
         <CardHeader>
           <CardTitle asChild>
-            <h2>Bulk sourcing enquiries</h2>
+            <h2>{t("title")}</h2>
           </CardTitle>
           <p className="max-w-3xl text-sm text-inksoft">
-            <span className="tabular-nums">{open}</span> open ·{" "}
-            <span className="tabular-nums">{requests.length}</span> total
+            <span className="tabular-nums">{t("counts", { open, total: requests.length })}</span>
           </p>
           <CardAction>
             <Button asChild variant="outline" size="sm">
               <Link href={startHref} scroll={false}>
-                Start a bulk enquiry
+                {t("start")}
               </Link>
             </Button>
           </CardAction>

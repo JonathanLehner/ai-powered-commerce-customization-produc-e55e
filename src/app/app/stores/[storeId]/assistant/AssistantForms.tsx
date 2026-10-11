@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { requestCopy, requestPrice, requestProductIdeas, requestSupplier } from "@/app/actions/ai";
 import { ActionForm } from "@/components/forms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,12 +40,13 @@ function ProductPicker({
   options: { id: string; label: string }[];
   invalid: boolean;
 }) {
+  const t = useTranslations("assistant");
   return (
     <div className="grid gap-1.5">
-      <Label htmlFor={id}>Product</Label>
+      <Label htmlFor={id}>{t("product")}</Label>
       <Select name="productId" required>
         <SelectTrigger id={id} className="w-full" aria-invalid={invalid ? true : undefined}>
-          <SelectValue placeholder="Choose a product…" />
+          <SelectValue placeholder={t("chooseProduct")} />
         </SelectTrigger>
         <SelectContent>
           {options.map((p) => (
@@ -59,31 +61,32 @@ function ProductPicker({
 }
 
 export function IdeaForm({ storeId }: { storeId: string }) {
+  const t = useTranslations("assistant");
   return (
     <Card asChild>
       <ActionForm
         action={requestProductIdeas}
-        submitLabel="Draft product ideas"
-        pendingLabel="Drafting…"
+        submitLabel={t("ideasSubmit")}
+        pendingLabel={t("drafting")}
         submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
         <Panel
-          title="Product ideas"
-          description="Three product ideas from the supplier catalog."
+          title={t("ideasTitle")}
+          description={t("ideasBody")}
         >
           <div className="grid gap-1.5">
-            <Label htmlFor="brief">Brief (optional)</Label>
+            <Label htmlFor="brief">{t("brief")}</Label>
             <Textarea
               id="brief"
               name="brief"
               rows={3}
-              placeholder="Winter campaign for the field team; budget under $40 per unit; must ship inside the EU."
+              placeholder={t("briefPlaceholder")}
               aria-describedby="brief-hint"
             />
             <p id="brief-hint" className="text-xs text-muted-foreground">
-              Audience, budget or markets.
+              {t("briefHint")}
             </p>
           </div>
         </Panel>
@@ -100,20 +103,21 @@ export function CopyForm({
   /** Labelled with SKU and import date, so two copies of one item are tellable apart. */
   products: { id: string; label: string }[];
 }) {
+  const t = useTranslations("assistant");
   return (
     <Card asChild>
       <ActionForm
         action={requestCopy}
-        submitLabel="Draft description and tags"
-        pendingLabel="Writing…"
+        submitLabel={t("copySubmit")}
+        pendingLabel={t("writing")}
         submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
         {(state) => (
           <Panel
-            title="Description and tags"
-            description="New storefront description and tags for a product."
+            title={t("copyTitle")}
+            description={t("copyBody")}
           >
             <ProductPicker id="copy-product" options={products} invalid={state.field === "productId"} />
           </Panel>
@@ -131,20 +135,21 @@ export function PriceForm({
   /** Labelled with SKU and import date, so two copies of one item are tellable apart. */
   products: { id: string; label: string }[];
 }) {
+  const t = useTranslations("assistant");
   return (
     <Card asChild>
       <ActionForm
         action={requestPrice}
-        submitLabel="Draft a price"
-        pendingLabel="Calculating…"
+        submitLabel={t("priceSubmit")}
+        pendingLabel={t("calculating")}
         submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
         {(state) => (
           <Panel
-            title="Pricing"
-            description="A suggested retail price based on landed cost."
+            title={t("priceTitle")}
+            description={t("priceBody")}
           >
             <ProductPicker id="price-product" options={products} invalid={state.field === "productId"} />
           </Panel>
@@ -161,31 +166,33 @@ export function SupplierForm({
   storeId: string;
   catalog: { id: string; name: string }[];
 }) {
+  const t = useTranslations("assistant");
+  const labels = useTranslations("labels");
   return (
     <Card asChild>
       <ActionForm
         action={requestSupplier}
-        submitLabel="Recommend a partner"
-        pendingLabel="Comparing suppliers…"
+        submitLabel={t("supplierSubmit")}
+        pendingLabel={t("comparing")}
         submitVariant="secondary"
         hidden={{ storeId }}
         actionsClassName="px-(--card-spacing)"
       >
         {(state) => (
           <Panel
-            title="Supplier comparison"
-            description="The best production partner for a destination."
+            title={t("supplierTitle")}
+            description={t("supplierBody")}
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="supplier-catalog">Supplier product</Label>
+                <Label htmlFor="supplier-catalog">{t("supplierProduct")}</Label>
                 <Select name="catalogId" required>
                   <SelectTrigger
                     id="supplier-catalog"
                     className="w-full"
                     aria-invalid={state.field === "catalogId" ? true : undefined}
                   >
-                    <SelectValue placeholder="Choose a product…" />
+                    <SelectValue placeholder={t("chooseProduct")} />
                   </SelectTrigger>
                   <SelectContent>
                     {catalog.map((c) => (
@@ -197,7 +204,7 @@ export function SupplierForm({
                 </Select>
               </div>
               <div className="grid content-start gap-1.5">
-                <Label htmlFor="destination">Main destination</Label>
+                <Label htmlFor="destination">{t("destination")}</Label>
                 <Select name="destination" defaultValue="North America">
                   <SelectTrigger id="destination" className="w-full">
                     <SelectValue />
@@ -205,7 +212,7 @@ export function SupplierForm({
                   <SelectContent>
                     {REGION_OPTIONS.map((region) => (
                       <SelectItem key={region} value={region}>
-                        {region}
+                        {labels(`region.${region}` as "region.APAC")}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -8,20 +8,14 @@ import { Separator } from "@/components/ui/separator";
 import { listCatalogProducts, listSuppliers } from "@/lib/data";
 import { AddSupplierForm, SupplierRegionsForm } from "./SupplierForms";
 
-const CAPABILITY_LABELS: Record<string, string> = {
-  catalog: "Catalog",
-  quotes: "Quotes",
-  inventory: "Inventory",
-  mockups: "Mockups",
-  orderSubmission: "Order API",
-  tracking: "Tracking",
-  cancellation: "Cancellation",
-};
-
 export default async function AdminSuppliersPage() {
   const [suppliers, catalog] = await Promise.all([listSuppliers(), listCatalogProducts()]);
 
-  const pages = await getTranslations("pages.admin");
+  const [pages, t, labels] = await Promise.all([
+    getTranslations("pages.admin"),
+    getTranslations("admin.suppliers"),
+    getTranslations("labels"),
+  ]);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -47,36 +41,40 @@ export default async function AdminSuppliersPage() {
                         supplier.status === "approved" ? "green" : supplier.status === "disabled" ? "rose" : "amber"
                       }
                     >
-                      {supplier.status.replace("_", " ")}
+                      {labels(`supplierStatus.${supplier.status}`)}
                     </Badge>
-                    <Badge tone="neutral">{supplier.integration === "api" ? "Order API" : "Manual orders"}</Badge>
-                    <Badge tone="neutral">{supplier.kind.replace(/_/g, " ")}</Badge>
+                    <Badge tone="neutral">{supplier.integration === "api" ? t("orderApi") : t("manualOrders")}</Badge>
+                    <Badge tone="neutral">{labels(`supplierKind.${supplier.kind}`)}</Badge>
                   </div>
                   <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{supplier.summary}</p>
                   <p className="mt-2 text-xs text-muted-foreground">
                     <a href={supplier.website} target="_blank" rel="noreferrer" className="hover:underline">
                       {supplier.website.replace("https://", "")} ↗
                     </a>{" "}
-                    · lead time {supplier.leadTimeDays[0]}–{supplier.leadTimeDays[1]} days · {products.length}{" "}
-                    catalog products
+                    ·{" "}
+                    {t("meta", {
+                      min: supplier.leadTimeDays[0],
+                      max: supplier.leadTimeDays[1],
+                      count: products.length,
+                    })}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   {supplier.kind === "sourcing_marketplace" ? (
                     <Button asChild variant="outline" size="sm">
-                      <Link href="/admin/quotes">Quote requests</Link>
+                      <Link href="/admin/quotes">{t("quoteRequests")}</Link>
                     </Button>
                   ) : null}
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/admin/catalog/new?supplierId=${supplier.id}`}>Add catalog product</Link>
+                    <Link href={`/admin/catalog/new?supplierId=${supplier.id}`}>{t("addProduct")}</Link>
                   </Button>
                   {supplier.status !== "approved" ? (
                     <form action={setSupplierStatus}>
                       <input type="hidden" name="supplierId" value={supplier.id} />
                       <input type="hidden" name="status" value="approved" />
                       <Button type="submit" size="sm">
-                        Approve
+                        {t("approve")}
                       </Button>
                     </form>
                   ) : null}
@@ -85,7 +83,7 @@ export default async function AdminSuppliersPage() {
                       <input type="hidden" name="supplierId" value={supplier.id} />
                       <input type="hidden" name="status" value="pending_review" />
                       <Button type="submit" variant="outline" size="sm">
-                        Return to review
+                        {t("returnToReview")}
                       </Button>
                     </form>
                   ) : null}
@@ -94,7 +92,7 @@ export default async function AdminSuppliersPage() {
                       <input type="hidden" name="supplierId" value={supplier.id} />
                       <input type="hidden" name="status" value="disabled" />
                       <Button type="submit" variant="destructive" size="sm">
-                        Disable
+                        {t("disable")}
                       </Button>
                     </form>
                   ) : null}
@@ -106,7 +104,7 @@ export default async function AdminSuppliersPage() {
                   {Object.entries(supplier.capabilities).map(([key, value]) => (
                     <li key={key}>
                       <Badge tone={value ? "green" : "slate"}>
-                        {value ? "✓" : "✕"} {CAPABILITY_LABELS[key] ?? key}
+                        {value ? "✓" : "✕"} {t.has(`capability.${key}` as "capability.catalog") ? t(`capability.${key}` as "capability.catalog") : key}
                       </Badge>
                     </li>
                   ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { changeCampaignApprover, resendApprovalRequest } from "@/app/actions/gifting";
 import { ActionForm, CopyField, Field } from "@/components/forms";
@@ -18,6 +19,7 @@ export interface ApprovalPanelProps {
   approvalLink: string;
   /** “Waiting 4 days”, worked out on the server so both sides agree. */
   waitLabel: string;
+  waitDays: number;
   requestedAt: string;
   lastSentAt: string;
   reminders: number;
@@ -34,6 +36,7 @@ export function ApprovalPanel({
   approverEmail,
   approvalLink,
   waitLabel,
+  waitDays,
   requestedAt,
   lastSentAt,
   reminders,
@@ -41,12 +44,13 @@ export function ApprovalPanel({
   canManage,
 }: ApprovalPanelProps) {
   const [changing, setChanging] = useState(false);
+  const t = useTranslations("campaign");
 
   const mailto = approverEmail
     ? `mailto:${encodeURIComponent(approverEmail)}?subject=${encodeURIComponent(
-        `Approval needed: gift campaign ${campaignCode}`,
+        t("mailSubject", { code: campaignCode }),
       )}&body=${encodeURIComponent(
-        `Hello${approverName ? ` ${approverName}` : ""},\n\nGift campaign ${campaignCode} is waiting for your approval. The list and its total are on your own link:\n\n${approvalLink}\n\nThank you.`,
+        t("mailBody", { name: approverName ? ` ${approverName}` : "", code: campaignCode, link: approvalLink }),
       )}`
     : null;
 
@@ -54,7 +58,7 @@ export function ApprovalPanel({
     <Card>
       <CardHeader>
         <CardTitle asChild>
-          <h2>Approval</h2>
+          <h2>{t("approval")}</h2>
         </CardTitle>
         <CardAction>
           <Badge tone={stale ? "rose" : "amber"}>{waitLabel}</Badge>
@@ -63,7 +67,7 @@ export function ApprovalPanel({
 
       <CardContent>
       <p className="text-sm text-inksoft">
-        <span className="font-medium text-foreground">{approverName || "No approver named"}</span>
+        <span className="font-medium text-foreground">{approverName || t("noApprover")}</span>
         {approverEmail ? (
           <>
             {" · "}
@@ -74,18 +78,18 @@ export function ApprovalPanel({
         ) : null}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Sent for approval on {requestedAt}. Last request {lastSentAt}
-        {reminders > 0 ? ` · asked again ${reminders} ${reminders === 1 ? "time" : "times"}` : ""}.
+        {t("sentOn", { requested: requestedAt, last: lastSentAt })}
+        {reminders > 0 ? t("askedAgain", { count: reminders }) : ""}.
       </p>
       {stale ? (
         <p className="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          No decision for {waitLabel.toLowerCase().replace("waiting ", "")}. Resend the request or change the approver.
+          {t("staleNote", { days: waitDays })}
         </p>
       ) : null}
 
       <div className="mt-4">
         <p className="text-sm leading-none font-medium text-foreground select-none">
-          The approver&rsquo;s link
+          {t("approverLink")}
         </p>
         <CopyField value={approvalLink} />
       </div>
@@ -95,21 +99,20 @@ export function ApprovalPanel({
           <ActionForm
             action={resendApprovalRequest}
             hidden={{ storeId, campaignId }}
-            submitLabel="Resend approval request"
-            pendingLabel="Recording…"
+            submitLabel={t("resend")}
+            pendingLabel={t("recording")}
             submitVariant="outline" submitSize="sm"
             className="mt-5 border-t border-border pt-5"
             footer={
               mailto ? (
                 <Button asChild variant="ghost" size="sm">
-                  <a href={mailto}>Open in your mail app</a>
+                  <a href={mailto}>{t("openMail")}</a>
                 </Button>
               ) : null
             }
           >
             <p className="text-sm text-muted-foreground">
-              The request is emailed to the approver again, and recorded in this campaign&rsquo;s history and the
-              store&rsquo;s audit log. The link above is theirs alone if you would rather send it yourself.
+              {t("resendNote")}
             </p>
           </ActionForm>
 
@@ -118,19 +121,19 @@ export function ApprovalPanel({
               <ActionForm
                 action={changeCampaignApprover}
                 hidden={{ storeId, campaignId }}
-                submitLabel="Change the approver"
-                pendingLabel="Saving…"
+                submitLabel={t("changeApprover")}
+                pendingLabel={t("saving")}
                 submitSize="sm"
                 footer={
                   <Button type="button" variant="ghost" size="sm" onClick={() => setChanging(false)}>
-                    Cancel
+                    {t("cancel")}
                   </Button>
                 }
               >
                 {(state) => (
                   <div className="space-y-4">
-                                        <p className="text-sm text-muted-foreground">The new approver is emailed the request.</p>
-                    <Field label="New approver" htmlFor="approverName">
+                    <p className="text-sm text-muted-foreground">{t("newApproverNote")}</p>
+                    <Field label={t("newApprover")} htmlFor="approverName">
                       <Input
                         id="approverName"
                         name="approverName"
@@ -140,7 +143,7 @@ export function ApprovalPanel({
                         aria-invalid={state.field === "approverName" ? true : undefined}
                       />
                     </Field>
-                    <Field label="Their email address" htmlFor="approverEmail">
+                    <Field label={t("theirEmail")} htmlFor="approverEmail">
                       <Input
                         id="approverEmail"
                         name="approverEmail"
@@ -151,14 +154,14 @@ export function ApprovalPanel({
                       />
                     </Field>
                     <Field
-                      label="Reason"
+                      label={t("reason")}
                       htmlFor="reason"
-                      hint="Optional"
+                      hint={t("optional")}
                     >
                       <Input
                         id="reason"
                         name="reason"
-                        placeholder="Dana has left the company"
+                        placeholder={t("reasonPlaceholder")}
                         className="mt-1.5"
                       />
                     </Field>
@@ -167,7 +170,7 @@ export function ApprovalPanel({
               </ActionForm>
             ) : (
               <Button type="button" variant="ghost" size="sm" onClick={() => setChanging(true)}>
-                Change the approver
+                {t("changeApprover")}
               </Button>
             )}
           </div>
