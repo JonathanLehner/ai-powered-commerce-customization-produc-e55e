@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
@@ -104,10 +104,16 @@ export async function readCurrency(fallback: string, allowed: string[]): Promise
   return value && allowed.includes(value) ? value : fallback;
 }
 
+/**
+ * Remembers the shopper's display currency. The header picker calls this in
+ * place: setting the cookie re-renders the page the shopper is on, so its path,
+ * search and the variant they picked are kept. The no-JavaScript form is a full
+ * post, so it is sent back to the page it came from.
+ */
 export async function setCurrency(formData: FormData): Promise<void> {
   const currency = String(formData.get("currency") ?? "");
   const slug = String(formData.get("slug") ?? "");
-  const back = String(formData.get("back") ?? `/s/${slug}`);
+  const back = (await refererPath()) ?? String(formData.get("back") ?? `/s/${slug}`);
   const store = await getStore(String(formData.get("storeId") ?? ""));
   if (store && store.currencies.includes(currency)) {
     const jar = await cookies();
@@ -118,7 +124,22 @@ export async function setCurrency(formData: FormData): Promise<void> {
       secure: process.env.NODE_ENV === "production",
     });
   }
+  if (formData.get("inPlace") === "1") return;
   redirect(back);
+}
+
+/** The path and search of the page that posted, when it is on this site. */
+async function refererPath(): Promise<string | null> {
+  const list = await headers();
+  const referer = list.get("referer");
+  if (!referer) return null;
+  try {
+    const url = new URL(referer);
+    if (url.host !== list.get("host")) return null;
+    return url.pathname + url.search;
+  } catch {
+    return null;
+  }
 }
 
 async function loadCart(storeId: string, create: boolean): Promise<Cart | null> {

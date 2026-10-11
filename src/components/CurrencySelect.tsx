@@ -17,7 +17,9 @@ import {
  * operating system, so it is the one control on a storefront that cannot carry
  * the client's brand — and it is in the header of every page. The choice is
  * applied as soon as it is made: the enclosing form's fields are posted to the
- * same `setCurrency` action with the picked code. Radix's own hidden select is
+ * same `setCurrency` action with the picked code, in place, so the page the
+ * shopper is on re-renders in the new currency with its address and state
+ * kept. Radix's own hidden select is
  * not relied on for this, because it carries no options until the list has
  * been opened, so a currency picked by typing on the closed trigger would be
  * lost. The picker is locked while the change is applied, so it cannot race
@@ -43,6 +45,7 @@ export function CurrencySelect({
     if (!form || next === defaultValue) return;
     const formData = new FormData(form);
     formData.set("currency", next);
+    formData.set("inPlace", "1");
     startTransition(() => setCurrency(formData));
   }
 
