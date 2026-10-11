@@ -18,6 +18,7 @@ import { storeMetrics } from "@/lib/metrics";
 import {
   filterOrders,
   hasOrderFilters,
+  needsAttention,
   orderListQuery,
   pageOrders,
   parseOrderFilters,
@@ -66,7 +67,7 @@ export default async function OrdersPage({
     return {
       campaign: c,
       orders: own.length,
-      exceptions: own.filter((o) => o.status === "exception" || o.fulfillment.routing === "manual_required").length,
+      exceptions: own.filter(needsAttention).length,
       delivered: own.filter((o) => o.status === "delivered").length,
     };
   });

@@ -632,7 +632,6 @@
     "statOrders": "Commandes",
     "statPublished": "Produits publiés",
     "statAttention": "À traiter",
-    "statAttentionSub": "Exceptions et acheminement manuel",
     "clientStores": "Boutiques clients",
     "emptyTitle": "Aucune boutique pour le moment",
     "emptyBody": "Créez votre première boutique client pour commencer.",
@@ -844,7 +843,6 @@
     "published": "Produits publiés",
     "inDraft": "{count} en brouillon ou en revue",
     "attention": "À traiter",
-    "attentionSub": "{exceptions} exceptions · {manual} acheminements manuels",
     "recentOrders": "Commandes récentes",
     "allOrders": "Toutes les commandes",
     "noOrders": "Aucune commande",
@@ -3353,5 +3351,28 @@
     "shipping": "## Production\nChaque article est fabriqué après votre commande. La production prend généralement 2 à 5 jours ouvrés. Les grosses commandes peuvent prendre plus de temps ; nous vous préviendrons le cas échéant.\n\n## Livraison\nUne fois votre commande expédiée, la livraison prend généralement 3 à 7 jours ouvrés selon la destination. Le montant total, frais de livraison compris, est affiché au paiement avant que vous ne payiez.\n\n## Suivi\nVous pouvez suivre votre commande à tout moment sur la page de suivi de commande, avec votre numéro de commande et votre adresse e-mail.\n\n## Douane et droits d’importation\nLes commandes envoyées dans un autre pays peuvent être soumises à des droits ou taxes à l’arrivée. Ils ne sont pas inclus dans le prix et sont à la charge du destinataire.\n\n## Colis en retard ou perdus\nSi votre colis n’est pas arrivé 10 jours ouvrés après son expédition, contactez-nous avec votre numéro de commande et nous ouvrirons une enquête auprès du transporteur.\n\n## Adresse de livraison\nVérifiez votre adresse de livraison avant de payer. Nous ne pouvons plus rediriger une commande une fois expédiée.",
     "terms": "## À propos de ces conditions\nCes conditions s’appliquent à toute commande passée auprès de {store}. En passant commande, vous les acceptez.\n\n## Commandes\nVotre commande est confirmée dès que le paiement est accepté et que vous recevez un numéro de commande. Si nous ne pouvons pas honorer une commande, nous l’annulons et vous remboursons intégralement.\n\n## Prix et paiement\nLes prix sont affichés dans la devise de votre choix et les taxes au moment du paiement. Le paiement est prélevé lorsque vous passez commande.\n\n## Personnalisation\nVous êtes responsable des textes et visuels que vous ajoutez à un produit et confirmez avoir le droit de les utiliser. Nous pouvons annuler une commande dont le contenu est illégal, offensant ou porte atteinte aux droits d’autrui. Les couleurs imprimées peuvent légèrement différer de leur rendu à l’écran.\n\n## Livraison, retours et remboursements\nLa livraison est régie par notre politique d’expédition, les retours et remboursements par notre politique de remboursement.\n\n## Responsabilité\nCes conditions ne limitent aucune responsabilité qui ne peut être limitée par la loi. Pour le reste, notre responsabilité pour une commande est limitée au montant que vous avez payé.\n\n## Modifications\nNous pouvons mettre à jour ces conditions. Les conditions affichées au moment de votre commande s’appliquent à celle-ci.",
     "privacy": "## Ce que nous collectons\nLorsque vous commandez chez {store}, nous collectons votre nom, votre adresse e-mail, votre adresse de livraison, votre numéro de téléphone si vous le fournissez, les articles commandés et les textes ou visuels que vous y ajoutez.\n\n## Comment nous les utilisons\nNous utilisons ces informations pour fabriquer et livrer votre commande, vous en informer et répondre à vos questions. Nous ne vendons pas vos données personnelles.\n\n## Paiements\nLes paiements par carte sont traités par notre prestataire de paiement. Nous ne conservons pas votre numéro de carte complet.\n\n## Avec qui nous les partageons\nNous ne partageons que le nécessaire avec les partenaires qui fabriquent et livrent votre commande, comme les partenaires de production et les transporteurs.\n\n## Durée de conservation\nNous conservons les données de commande aussi longtemps que nécessaire pour traiter votre commande et respecter nos obligations légales et comptables.\n\n## Vos droits\nVous pouvez demander à consulter, corriger ou supprimer les données personnelles que nous détenons sur vous. Contactez-nous depuis l’adresse e-mail utilisée pour commander.\n\n## Cookies\nCette boutique utilise des cookies pour mémoriser votre panier, votre langue et votre devise."
+  },
+  "attention": {
+    "title": "À traiter",
+    "description": "{count, plural, one {# commande} other {# commandes}} dans {stores, plural, one {# boutique} other {# boutiques}}",
+    "parts": {
+      "exception": "{count, plural, one {# exception} other {# exceptions}}",
+      "manual_routing": "{count} acheminement manuel",
+      "awaiting_production": "{count} en attente de production"
+    },
+    "none": "Rien en attente",
+    "reason": {
+      "exception": "Exception",
+      "manual_routing": "Acheminement manuel",
+      "awaiting_production": "En attente de production"
+    },
+    "viewInOrders": "Voir dans Commandes",
+    "emptyTitle": "Rien à traiter",
+    "emptyBody": "Les exceptions, l'acheminement manuel et les commandes payées en attente de production apparaissent ici.",
+    "colOrder": "Commande",
+    "colCustomer": "Client",
+    "colReason": "Motif",
+    "colTotal": "Total",
+    "back": "Tableau de bord"
   }
 }

@@ -17,6 +17,7 @@ import {
   refundedTotal,
   ORDERS_PAGE_SIZE,
 } from "../src/lib/order-list.ts";
+import { addBreakdowns, attentionBreakdown, attentionReason } from "../src/lib/attention.ts";
 
 let counter = 0;
 function order(overrides = {}) {
@@ -145,6 +146,23 @@ assert.deepEqual(
   "an exception and an order still to be made, not the ones already on their way",
 );
 assert.equal(needsAttention(order({ status: "shipped", fulfillment: { routing: "manual_required" } })), true);
+
+// One definition of "needs attention" everywhere, and every order counted under
+// one reason, so a subtitle's parts add up to the figure above it.
+{
+  const queue = [
+    order({ status: "exception" }),
+    order({ status: "exception", fulfillment: { routing: "manual_required" } }),
+    order({ status: "paid", fulfillment: { routing: "manual_required" } }),
+    order({ status: "paid" }),
+    order({ status: "shipped" }),
+  ];
+  const breakdown = attentionBreakdown(queue);
+  assert.deepEqual(breakdown, { exception: 2, manual_routing: 1, awaiting_production: 1, total: 4 });
+  assert.equal(breakdown.total, filterOrders(queue, parseOrderFilters({ view: "attention" })).length);
+  assert.equal(attentionReason(queue[1]), "exception", "an exception held for routing is counted once");
+  assert.deepEqual(addBreakdowns([breakdown, breakdown]), { exception: 4, manual_routing: 2, awaiting_production: 2, total: 8 });
+}
 
 // The filters narrow together rather than replacing one another.
 assert.deepEqual(filterOrders(all, parseOrderFilters({ view: "attention", status: "paid" })).map((o) => o.code), [

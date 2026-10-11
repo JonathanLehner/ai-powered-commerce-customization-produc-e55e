@@ -632,7 +632,6 @@
     "statOrders": "Bestellingen",
     "statPublished": "Gepubliceerde producten",
     "statAttention": "Vraagt aandacht",
-    "statAttentionSub": "Uitzonderingen en handmatig doorsturen",
     "clientStores": "Klantwinkels",
     "emptyTitle": "Nog geen winkels",
     "emptyBody": "Maak je eerste klantwinkel aan om te beginnen.",
@@ -844,7 +843,6 @@
     "published": "Gepubliceerde producten",
     "inDraft": "{count} in concept of beoordeling",
     "attention": "Vraagt aandacht",
-    "attentionSub": "{exceptions} uitzonderingen · {manual} handmatige routering",
     "recentOrders": "Recente bestellingen",
     "allOrders": "Alle bestellingen",
     "noOrders": "Nog geen bestellingen",
@@ -3353,5 +3351,28 @@
     "shipping": "## Productie\nElk artikel wordt gemaakt nadat je hebt besteld. De productie duurt meestal 2 tot 5 werkdagen. Grote bestellingen kunnen langer duren; we laten het je weten als dat zo is.\n\n## Levering\nNa verzending duurt de levering meestal 3 tot 7 werkdagen, afhankelijk van de bestemming. Het totaalbedrag, inclusief eventuele verzendkosten, zie je bij het afrekenen voordat je betaalt.\n\n## Volgen\nJe kunt je bestelling altijd volgen op de pagina met de bestelstatus, met je bestelnummer en e-mailadres.\n\n## Douane en invoerrechten\nVoor bestellingen naar een ander land kunnen bij aankomst invoerrechten of belastingen worden geheven. Die zitten niet in de prijs en worden door de ontvanger betaald.\n\n## Vertraagde of verloren pakketten\nIs je pakket 10 werkdagen na verzending nog niet aangekomen? Neem contact met ons op met je bestelnummer, dan zoeken we het samen met de vervoerder uit.\n\n## Bezorgadres\nControleer je bezorgadres voordat je betaalt. Na verzending kunnen we een bestelling niet meer omleiden.",
     "terms": "## Over deze voorwaarden\nDeze voorwaarden gelden voor elke bestelling bij {store}. Door te bestellen ga je ermee akkoord.\n\n## Bestellingen\nJe bestelling is bevestigd zodra de betaling is geaccepteerd en je een bestelnummer ontvangt. Kunnen we een bestelling niet leveren, dan annuleren we die en betalen we het volledige bedrag terug.\n\n## Prijzen en betaling\nPrijzen worden getoond in de valuta die je kiest, belasting bij het afrekenen. De betaling vindt plaats wanneer je bestelt.\n\n## Personalisatie\nJe bent verantwoordelijk voor de tekst en ontwerpen die je aan een product toevoegt en bevestigt dat je ze mag gebruiken. We kunnen een bestelling annuleren als de inhoud onrechtmatig of aanstootgevend is of inbreuk maakt op rechten van anderen. Gedrukte kleuren kunnen iets afwijken van het scherm.\n\n## Levering, retouren en terugbetalingen\nLevering valt onder ons verzendbeleid, retouren en terugbetalingen onder ons retourbeleid.\n\n## Aansprakelijkheid\nNiets in deze voorwaarden beperkt aansprakelijkheid die wettelijk niet beperkt kan worden. Verder is onze aansprakelijkheid voor een bestelling beperkt tot het bedrag dat je ervoor hebt betaald.\n\n## Wijzigingen\nWe kunnen deze voorwaarden bijwerken. Op een bestelling zijn de voorwaarden van toepassing die golden toen je bestelde.",
     "privacy": "## Wat we verzamelen\nAls je bij {store} bestelt, verzamelen we je naam, e-mailadres, bezorgadres, telefoonnummer als je dat opgeeft, de bestelde artikelen en de tekst of ontwerpen die je toevoegt.\n\n## Hoe we het gebruiken\nWe gebruiken deze gegevens om je bestelling te maken en te leveren, je op de hoogte te houden en je vragen te beantwoorden. We verkopen je persoonsgegevens niet.\n\n## Betalingen\nKaartbetalingen worden verwerkt door onze betaalprovider. We bewaren je volledige kaartnummer niet.\n\n## Met wie we het delen\nWe delen alleen wat nodig is met de partners die je bestelling maken en leveren, zoals productiepartners en vervoerders.\n\n## Hoe lang we het bewaren\nWe bewaren bestelgegevens zo lang als nodig is om je bestelling af te ronden en aan onze wettelijke en boekhoudkundige verplichtingen te voldoen.\n\n## Je rechten\nJe kunt vragen om de persoonsgegevens die we over je hebben in te zien, te corrigeren of te verwijderen. Neem contact met ons op vanaf het e-mailadres waarmee je hebt besteld.\n\n## Cookies\nDeze winkel gebruikt cookies om je winkelmand, taal en valuta te onthouden."
+  },
+  "attention": {
+    "title": "Actie vereist",
+    "description": "{count, plural, one {# bestelling} other {# bestellingen}} in {stores, plural, one {# winkel} other {# winkels}}",
+    "parts": {
+      "exception": "{count, plural, one {# uitzondering} other {# uitzonderingen}}",
+      "manual_routing": "{count} handmatige routering",
+      "awaiting_production": "{count} wacht op productie"
+    },
+    "none": "Niets openstaand",
+    "reason": {
+      "exception": "Uitzondering",
+      "manual_routing": "Handmatige routering",
+      "awaiting_production": "Wacht op productie"
+    },
+    "viewInOrders": "Bekijken in Bestellingen",
+    "emptyTitle": "Geen actie vereist",
+    "emptyBody": "Uitzonderingen, handmatige routering en betaalde bestellingen die op productie wachten verschijnen hier.",
+    "colOrder": "Bestelling",
+    "colCustomer": "Klant",
+    "colReason": "Reden",
+    "colTotal": "Totaal",
+    "back": "Dashboard"
   }
 }

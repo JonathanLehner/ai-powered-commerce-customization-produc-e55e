@@ -632,7 +632,6 @@
     "statOrders": "Orders",
     "statPublished": "Published products",
     "statAttention": "Needs attention",
-    "statAttentionSub": "Exceptions and manual routing",
     "clientStores": "Client stores",
     "emptyTitle": "No stores yet",
     "emptyBody": "Create your first client store to get started.",
@@ -844,7 +843,6 @@
     "published": "Published products",
     "inDraft": "{count} in draft or review",
     "attention": "Needs attention",
-    "attentionSub": "{exceptions} exceptions · {manual} manual routing",
     "recentOrders": "Recent orders",
     "allOrders": "All orders",
     "noOrders": "No orders yet",
@@ -3353,5 +3351,28 @@
     "shipping": "## Production\nEvery item is made after you order. Production usually takes 2 to 5 business days. Large orders can take longer, and we will tell you if they do.\n\n## Delivery\nOnce your order ships, delivery usually takes 3 to 7 business days depending on the destination. The total you pay, including any shipping, is shown at checkout before you pay.\n\n## Tracking\nYou can follow your order at any time on the order status page with your order number and email address.\n\n## Customs and import duties\nOrders sent to another country may be charged import duties or taxes on arrival. These are not included in the price and are paid by the recipient.\n\n## Delayed or lost parcels\nIf your parcel has not arrived 10 business days after it shipped, contact us with your order number and we will trace it with the carrier.\n\n## Delivery address\nPlease check your delivery address before you pay. We cannot redirect an order once it has shipped.",
     "terms": "## About these terms\nThese terms apply to every order placed with {store}. By placing an order you agree to them.\n\n## Orders\nYour order is confirmed once payment is accepted and you receive an order number. If we cannot fulfil an order, we will cancel it and refund you in full.\n\n## Prices and payment\nPrices are shown in the currency you choose, and tax is shown at checkout. Payment is taken when you place your order.\n\n## Personalisation\nYou are responsible for the text and artwork you add to a product and confirm that you have the right to use it. We may cancel an order whose content is unlawful, offensive or infringes the rights of others. Printed colours can differ slightly from how they look on screen.\n\n## Delivery, returns and refunds\nDelivery is covered by our shipping policy. Returns and refunds are covered by our refund policy.\n\n## Liability\nNothing in these terms limits liability that cannot be limited by law. Otherwise our liability for an order is limited to the amount you paid for it.\n\n## Changes\nWe may update these terms. The terms shown when you placed your order apply to that order.",
     "privacy": "## What we collect\nWhen you order from {store}, we collect your name, email address, delivery address, phone number if you give one, the items you order and any text or artwork you add to them.\n\n## How we use it\nWe use this information to make and deliver your order, to send you updates about it and to answer your questions. We do not sell your personal information.\n\n## Payments\nCard payments are processed by our payment provider. We do not store your full card number.\n\n## Who we share it with\nWe share only what is needed with the partners who make and deliver your order, such as production partners and carriers.\n\n## How long we keep it\nWe keep order records for as long as needed to complete your order and to meet our legal and accounting obligations.\n\n## Your rights\nYou can ask to see, correct or delete the personal information we hold about you. Contact us from the email address you used to order.\n\n## Cookies\nThis shop uses cookies to remember your basket, language and currency."
+  },
+  "attention": {
+    "title": "Needs attention",
+    "description": "{count, plural, one {# order} other {# orders}} across {stores, plural, one {# store} other {# stores}}",
+    "parts": {
+      "exception": "{count, plural, one {# exception} other {# exceptions}}",
+      "manual_routing": "{count} manual routing",
+      "awaiting_production": "{count} awaiting production"
+    },
+    "none": "Nothing waiting",
+    "reason": {
+      "exception": "Exception",
+      "manual_routing": "Manual routing",
+      "awaiting_production": "Awaiting production"
+    },
+    "viewInOrders": "View in Orders",
+    "emptyTitle": "Nothing needs attention",
+    "emptyBody": "Exceptions, manual routing and paid orders waiting for production show up here.",
+    "colOrder": "Order",
+    "colCustomer": "Customer",
+    "colReason": "Reason",
+    "colTotal": "Total",
+    "back": "Dashboard"
   }
 }

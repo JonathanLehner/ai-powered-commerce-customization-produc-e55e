@@ -137,11 +137,14 @@ export function StatCard({
   value,
   sub,
   tone = "neutral",
+  href,
 }: {
   label: string;
   value: string;
   sub?: string;
   tone?: Tone;
+  /** Makes the whole card a link to the list behind the figure. */
+  href?: string;
 }) {
   const accents: Record<Tone, string> = {
     neutral: "text-foreground",
@@ -152,8 +155,8 @@ export function StatCard({
     rose: "text-rose-700",
     slate: "text-muted-foreground",
   };
-  return (
-    <Card size="sm" className="border border-border ring-0">
+  const card = (
+    <Card size="sm" className={cn("border border-border ring-0", href && "h-full transition-colors group-hover:bg-muted/50")}>
       <CardContent>
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <p className={cn("mt-1 text-2xl font-semibold tracking-tight tabular-nums", accents[tone])}>
@@ -162,6 +165,13 @@ export function StatCard({
         {sub ? <p className="mt-1 text-xs text-muted-foreground">{sub}</p> : null}
       </CardContent>
     </Card>
+  );
+  return href ? (
+    <Link href={href} className="group block rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+      {card}
+    </Link>
+  ) : (
+    card
   );
 }
 

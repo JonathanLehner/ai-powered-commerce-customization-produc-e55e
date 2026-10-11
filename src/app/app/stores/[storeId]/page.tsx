@@ -23,6 +23,7 @@ import {
 } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { requireStoreAccess, roleCan } from "@/lib/session";
+import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo } from "@/i18n/format";
 import { storeLimitText } from "@/i18n/plan-copy";
 import { isOpenEnquiry, QUOTE_STATUS_TONES } from "@/lib/sourcing";
@@ -78,6 +79,7 @@ export default async function StoreOverviewPage({
     getFormatter(),
   ]);
   const limitText = allowance && agency ? await storeLimitText(allowance, agency.name) : "";
+  const attentionSub = await attentionSummary(metrics.attention);
   const now = new Date();
 
   return (
@@ -178,7 +180,8 @@ export default async function StoreOverviewPage({
           label={t("attention")}
           value={String(metrics.awaitingAction)}
           tone={metrics.awaitingAction > 0 ? "amber" : "green"}
-          sub={t("attentionSub", { exceptions: metrics.exceptions, manual: metrics.manualRouting })}
+          sub={attentionSub}
+          href={`/app/stores/${store.id}/orders?view=attention`}
         />
       </section>
 

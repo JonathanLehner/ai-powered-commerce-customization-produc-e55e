@@ -632,7 +632,6 @@
     "statOrders": "Encomendas",
     "statPublished": "Produtos publicados",
     "statAttention": "Precisam de atenção",
-    "statAttentionSub": "Exceções e encaminhamento manual",
     "clientStores": "Lojas de clientes",
     "emptyTitle": "Ainda não há lojas",
     "emptyBody": "Crie a sua primeira loja de cliente para começar.",
@@ -844,7 +843,6 @@
     "published": "Produtos publicados",
     "inDraft": "{count} em rascunho ou revisão",
     "attention": "Precisam de atenção",
-    "attentionSub": "{exceptions} exceções · {manual} encaminhamento manual",
     "recentOrders": "Encomendas recentes",
     "allOrders": "Todas as encomendas",
     "noOrders": "Ainda não há encomendas",
@@ -3353,5 +3351,28 @@
     "shipping": "## Produção\nCada artigo é feito depois da sua encomenda. A produção demora normalmente 2 a 5 dias úteis. Encomendas grandes podem demorar mais e, nesse caso, avisamos.\n\n## Entrega\nDepois do envio, a entrega demora normalmente 3 a 7 dias úteis, consoante o destino. O total, incluindo portes, é apresentado no checkout antes de pagar.\n\n## Seguimento\nPode acompanhar a sua encomenda a qualquer momento na página de estado da encomenda, com o número da encomenda e o email.\n\n## Alfândega e direitos de importação\nEncomendas enviadas para outro país podem estar sujeitas a direitos ou impostos à chegada. Não estão incluídos no preço e são pagos pelo destinatário.\n\n## Encomendas atrasadas ou perdidas\nSe a encomenda não tiver chegado 10 dias úteis após o envio, contacte-nos com o número da encomenda e faremos o seguimento com a transportadora.\n\n## Morada de entrega\nVerifique a morada de entrega antes de pagar. Não podemos redirecionar uma encomenda depois de enviada.",
     "terms": "## Sobre estes termos\nEstes termos aplicam-se a todas as encomendas feitas na {store}. Ao fazer uma encomenda, aceita-os.\n\n## Encomendas\nA encomenda fica confirmada quando o pagamento é aceite e recebe um número de encomenda. Se não pudermos cumprir uma encomenda, cancelamo-la e reembolsamos o valor total.\n\n## Preços e pagamento\nOs preços são apresentados na moeda que escolher e os impostos no checkout. O pagamento é cobrado quando faz a encomenda.\n\n## Personalização\nÉ responsável pelo texto e pela arte que adiciona a um produto e confirma que tem direito a usá-los. Podemos cancelar uma encomenda cujo conteúdo seja ilegal, ofensivo ou viole direitos de terceiros. As cores impressas podem diferir ligeiramente das do ecrã.\n\n## Entrega, devoluções e reembolsos\nA entrega rege-se pela nossa política de envio e as devoluções e reembolsos pela nossa política de reembolso.\n\n## Responsabilidade\nNada nestes termos limita a responsabilidade que não pode ser limitada por lei. De resto, a nossa responsabilidade por uma encomenda limita-se ao valor que pagou por ela.\n\n## Alterações\nPodemos atualizar estes termos. A cada encomenda aplicam-se os termos em vigor quando foi feita.",
     "privacy": "## O que recolhemos\nQuando encomenda na {store}, recolhemos o seu nome, email, morada de entrega, telefone se o indicar, os artigos que encomenda e o texto ou arte que lhes adiciona.\n\n## Como usamos\nUsamos estes dados para produzir e entregar a sua encomenda, enviar-lhe atualizações e responder às suas perguntas. Não vendemos os seus dados pessoais.\n\n## Pagamentos\nOs pagamentos com cartão são processados pelo nosso fornecedor de pagamentos. Não guardamos o número completo do seu cartão.\n\n## Com quem partilhamos\nPartilhamos apenas o necessário com os parceiros que produzem e entregam a sua encomenda, como parceiros de produção e transportadoras.\n\n## Durante quanto tempo guardamos\nGuardamos os dados das encomendas durante o tempo necessário para concluir a encomenda e cumprir as nossas obrigações legais e contabilísticas.\n\n## Os seus direitos\nPode pedir para ver, corrigir ou apagar os dados pessoais que temos sobre si. Contacte-nos a partir do email que usou para encomendar.\n\n## Cookies\nEsta loja usa cookies para memorizar o seu carrinho, idioma e moeda."
+  },
+  "attention": {
+    "title": "Requer atenção",
+    "description": "{count, plural, one {# pedido} other {# pedidos}} em {stores, plural, one {# loja} other {# lojas}}",
+    "parts": {
+      "exception": "{count, plural, one {# exceção} other {# exceções}}",
+      "manual_routing": "{count} encaminhamento manual",
+      "awaiting_production": "{count} aguardando produção"
+    },
+    "none": "Nada pendente",
+    "reason": {
+      "exception": "Exceção",
+      "manual_routing": "Encaminhamento manual",
+      "awaiting_production": "Aguardando produção"
+    },
+    "viewInOrders": "Ver em Pedidos",
+    "emptyTitle": "Nada requer atenção",
+    "emptyBody": "Exceções, encaminhamento manual e pedidos pagos aguardando produção aparecem aqui.",
+    "colOrder": "Pedido",
+    "colCustomer": "Cliente",
+    "colReason": "Motivo",
+    "colTotal": "Total",
+    "back": "Painel"
   }
 }

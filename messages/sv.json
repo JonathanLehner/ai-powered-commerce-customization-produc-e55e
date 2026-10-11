@@ -632,7 +632,6 @@
     "statOrders": "Ordrar",
     "statPublished": "Publicerade produkter",
     "statAttention": "Kräver åtgärd",
-    "statAttentionSub": "Avvikelser och manuell vidarebefordran",
     "clientStores": "Kundbutiker",
     "emptyTitle": "Inga butiker än",
     "emptyBody": "Skapa din första kundbutik för att komma igång.",
@@ -844,7 +843,6 @@
     "published": "Publicerade produkter",
     "inDraft": "{count} som utkast eller under granskning",
     "attention": "Kräver åtgärd",
-    "attentionSub": "{exceptions} avvikelser · {manual} manuell routning",
     "recentOrders": "Senaste ordrar",
     "allOrders": "Alla ordrar",
     "noOrders": "Inga ordrar ännu",
@@ -3353,5 +3351,28 @@
     "shipping": "## Produktion\nVarje vara tillverkas efter att du beställt. Produktionen tar vanligtvis 2 till 5 arbetsdagar. Stora beställningar kan ta längre tid, och då meddelar vi dig.\n\n## Leverans\nNär beställningen har skickats tar leveransen vanligtvis 3 till 7 arbetsdagar beroende på destination. Totalbeloppet, inklusive eventuell frakt, visas i kassan innan du betalar.\n\n## Spårning\nDu kan när som helst följa din beställning på sidan för orderstatus med ditt ordernummer och din e-postadress.\n\n## Tull och importavgifter\nBeställningar som skickas till ett annat land kan beläggas med tull eller skatt vid ankomst. Dessa ingår inte i priset och betalas av mottagaren.\n\n## Försenade eller borttappade paket\nOm ditt paket inte har kommit fram 10 arbetsdagar efter att det skickades, kontakta oss med ditt ordernummer så spårar vi det hos transportören.\n\n## Leveransadress\nKontrollera leveransadressen innan du betalar. Vi kan inte omdirigera en beställning när den har skickats.",
     "terms": "## Om dessa villkor\nDessa villkor gäller för alla beställningar hos {store}. Genom att beställa godkänner du dem.\n\n## Beställningar\nDin beställning är bekräftad när betalningen har godkänts och du har fått ett ordernummer. Om vi inte kan leverera en beställning avbryter vi den och återbetalar hela beloppet.\n\n## Priser och betalning\nPriser visas i den valuta du väljer och skatt visas i kassan. Betalningen dras när du lägger beställningen.\n\n## Personlig utformning\nDu ansvarar för text och motiv som du lägger till på en produkt och bekräftar att du har rätt att använda dem. Vi kan avbryta en beställning vars innehåll är olagligt, stötande eller gör intrång i någon annans rättigheter. Tryckta färger kan skilja sig något från hur de ser ut på skärmen.\n\n## Leverans, returer och återbetalningar\nLeverans omfattas av vår fraktpolicy och returer och återbetalningar av vår returpolicy.\n\n## Ansvar\nIngenting i dessa villkor begränsar ansvar som inte kan begränsas enligt lag. I övrigt är vårt ansvar för en beställning begränsat till det belopp du betalat för den.\n\n## Ändringar\nVi kan uppdatera dessa villkor. För en beställning gäller de villkor som visades när du beställde.",
     "privacy": "## Vad vi samlar in\nNär du beställer från {store} samlar vi in ditt namn, din e-postadress, leveransadress, telefonnummer om du anger det, de varor du beställer och text eller motiv du lägger till.\n\n## Hur vi använder uppgifterna\nVi använder uppgifterna för att tillverka och leverera din beställning, skicka uppdateringar och svara på dina frågor. Vi säljer inte dina personuppgifter.\n\n## Betalningar\nKortbetalningar hanteras av vår betalleverantör. Vi sparar inte ditt fullständiga kortnummer.\n\n## Vem vi delar med\nVi delar bara det som behövs med de partner som tillverkar och levererar din beställning, till exempel produktionspartner och transportörer.\n\n## Hur länge vi sparar uppgifterna\nVi sparar orderuppgifter så länge det behövs för att slutföra din beställning och uppfylla våra rättsliga och bokföringsmässiga skyldigheter.\n\n## Dina rättigheter\nDu kan begära att få se, rätta eller radera de personuppgifter vi har om dig. Kontakta oss från den e-postadress du beställde med.\n\n## Cookies\nDen här butiken använder cookies för att komma ihåg din varukorg, ditt språk och din valuta."
+  },
+  "attention": {
+    "title": "Kräver åtgärd",
+    "description": "{count, plural, one {# order} other {# ordrar}} i {stores, plural, one {# butik} other {# butiker}}",
+    "parts": {
+      "exception": "{count, plural, one {# avvikelse} other {# avvikelser}}",
+      "manual_routing": "{count} manuell routning",
+      "awaiting_production": "{count} väntar på produktion"
+    },
+    "none": "Inget väntar",
+    "reason": {
+      "exception": "Avvikelse",
+      "manual_routing": "Manuell routning",
+      "awaiting_production": "Väntar på produktion"
+    },
+    "viewInOrders": "Visa i Ordrar",
+    "emptyTitle": "Inget kräver åtgärd",
+    "emptyBody": "Avvikelser, manuell routning och betalda ordrar som väntar på produktion visas här.",
+    "colOrder": "Order",
+    "colCustomer": "Kund",
+    "colReason": "Orsak",
+    "colTotal": "Summa",
+    "back": "Översikt"
   }
 }

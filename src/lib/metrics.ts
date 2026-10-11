@@ -1,3 +1,4 @@
+import { attentionBreakdown, type AttentionBreakdown } from "./attention";
 import { SETUP_STEPS, type Order, type StoreProduct, type StoreSetupState } from "./types";
 
 export interface StoreMetrics {
@@ -12,6 +13,8 @@ export interface StoreMetrics {
   exceptions: number;
   manualRouting: number;
   awaitingAction: number;
+  /** `awaitingAction` split by reason; the parts add up to it. */
+  attention: AttentionBreakdown;
   refunded: number;
   publishedProducts: number;
   draftProducts: number;
@@ -56,6 +59,7 @@ export function storeMetrics(orders: Order[], products: StoreProduct[], currency
   }
 
   const count = (status: string) => orders.filter((o) => o.status === status).length;
+  const attention = attentionBreakdown(orders);
 
   return {
     orderCount: orders.length,
@@ -68,9 +72,8 @@ export function storeMetrics(orders: Order[], products: StoreProduct[], currency
     cancelled: count("cancelled"),
     exceptions: count("exception"),
     manualRouting: orders.filter((o) => o.fulfillment.routing === "manual_required").length,
-    awaitingAction: orders.filter(
-      (o) => o.status === "exception" || o.fulfillment.routing === "manual_required" || o.status === "paid",
-    ).length,
+    awaitingAction: attention.total,
+    attention,
     refunded,
     publishedProducts: products.filter((p) => p.status === "published").length,
     draftProducts: products.filter((p) => p.status === "draft" || p.status === "in_review").length,

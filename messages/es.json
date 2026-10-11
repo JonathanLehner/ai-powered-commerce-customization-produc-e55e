@@ -632,7 +632,6 @@
     "statOrders": "Pedidos",
     "statPublished": "Productos publicados",
     "statAttention": "Requieren atención",
-    "statAttentionSub": "Incidencias y envío manual",
     "clientStores": "Tiendas de clientes",
     "emptyTitle": "Aún no hay tiendas",
     "emptyBody": "Crea tu primera tienda de cliente para empezar.",
@@ -844,7 +843,6 @@
     "published": "Productos publicados",
     "inDraft": "{count} en borrador o revisión",
     "attention": "Requieren atención",
-    "attentionSub": "{exceptions} incidencias · {manual} enrutamiento manual",
     "recentOrders": "Pedidos recientes",
     "allOrders": "Todos los pedidos",
     "noOrders": "Aún no hay pedidos",
@@ -3353,5 +3351,28 @@
     "shipping": "## Producción\nCada artículo se fabrica después de tu pedido. La producción suele tardar de 2 a 5 días hábiles. Los pedidos grandes pueden tardar más y te avisaremos si es así.\n\n## Entrega\nUna vez enviado, la entrega suele tardar de 3 a 7 días hábiles según el destino. El total, incluido el envío, se muestra en la página de pago antes de pagar.\n\n## Seguimiento\nPuedes seguir tu pedido en cualquier momento en la página de estado del pedido con tu número de pedido y tu correo electrónico.\n\n## Aduanas y aranceles\nLos pedidos enviados a otro país pueden estar sujetos a aranceles o impuestos a la llegada. No están incluidos en el precio y los paga el destinatario.\n\n## Paquetes retrasados o perdidos\nSi tu paquete no ha llegado 10 días hábiles después del envío, contáctanos con tu número de pedido y lo rastrearemos con el transportista.\n\n## Dirección de entrega\nRevisa tu dirección de entrega antes de pagar. No podemos redirigir un pedido una vez enviado.",
     "terms": "## Sobre estas condiciones\nEstas condiciones se aplican a todos los pedidos realizados en {store}. Al hacer un pedido, las aceptas.\n\n## Pedidos\nTu pedido se confirma cuando se acepta el pago y recibes un número de pedido. Si no podemos completar un pedido, lo cancelaremos y te reembolsaremos el importe completo.\n\n## Precios y pago\nLos precios se muestran en la moneda que elijas y los impuestos en la página de pago. El cobro se realiza al hacer el pedido.\n\n## Personalización\nEres responsable del texto y los diseños que añades a un producto y confirmas que tienes derecho a usarlos. Podemos cancelar un pedido cuyo contenido sea ilegal, ofensivo o infrinja derechos de terceros. Los colores impresos pueden variar ligeramente respecto a la pantalla.\n\n## Entrega, devoluciones y reembolsos\nLa entrega se rige por nuestra política de envíos, y las devoluciones y reembolsos por nuestra política de reembolsos.\n\n## Responsabilidad\nNada en estas condiciones limita la responsabilidad que la ley no permite limitar. En lo demás, nuestra responsabilidad por un pedido se limita al importe que pagaste por él.\n\n## Cambios\nPodemos actualizar estas condiciones. Cada pedido se rige por las condiciones vigentes cuando se realizó.",
     "privacy": "## Qué datos recopilamos\nCuando haces un pedido en {store}, recopilamos tu nombre, correo electrónico, dirección de entrega, teléfono si lo indicas, los artículos que pides y los textos o diseños que añades.\n\n## Cómo los usamos\nUsamos estos datos para fabricar y entregar tu pedido, enviarte novedades sobre él y responder a tus preguntas. No vendemos tus datos personales.\n\n## Pagos\nLos pagos con tarjeta los procesa nuestro proveedor de pagos. No guardamos el número completo de tu tarjeta.\n\n## Con quién los compartimos\nSolo compartimos lo necesario con los socios que fabrican y entregan tu pedido, como socios de producción y transportistas.\n\n## Cuánto tiempo los conservamos\nConservamos los datos de pedido el tiempo necesario para completar tu pedido y cumplir nuestras obligaciones legales y contables.\n\n## Tus derechos\nPuedes pedir ver, corregir o eliminar los datos personales que tenemos sobre ti. Contáctanos desde el correo electrónico que usaste para comprar.\n\n## Cookies\nEsta tienda usa cookies para recordar tu cesta, tu idioma y tu moneda."
+  },
+  "attention": {
+    "title": "Requiere atención",
+    "description": "{count, plural, one {# pedido} other {# pedidos}} en {stores, plural, one {# tienda} other {# tiendas}}",
+    "parts": {
+      "exception": "{count, plural, one {# incidencia} other {# incidencias}}",
+      "manual_routing": "{count} enrutamiento manual",
+      "awaiting_production": "{count} pendientes de producción"
+    },
+    "none": "Nada pendiente",
+    "reason": {
+      "exception": "Incidencia",
+      "manual_routing": "Enrutamiento manual",
+      "awaiting_production": "Pendiente de producción"
+    },
+    "viewInOrders": "Ver en Pedidos",
+    "emptyTitle": "Nada requiere atención",
+    "emptyBody": "Aquí aparecen las incidencias, el enrutamiento manual y los pedidos pagados pendientes de producción.",
+    "colOrder": "Pedido",
+    "colCustomer": "Cliente",
+    "colReason": "Motivo",
+    "colTotal": "Total",
+    "back": "Panel"
   }
 }

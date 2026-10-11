@@ -7,6 +7,7 @@
  * download read the same query string through the same functions, which is what
  * keeps a filtered view and its download describing the same orders.
  */
+import { attentionReason } from "./attention";
 import { csvDocument } from "./audit-log";
 import { countryName } from "./countries";
 import { ORDER_STATUS_LABELS, type Order, type OrderStatus } from "./types";
@@ -76,9 +77,7 @@ export function orderListQuery(
 
 /** Whether an order still needs somebody on the store team to act on it. */
 export function needsAttention(order: Order): boolean {
-  return (
-    order.status === "exception" || order.fulfillment.routing === "manual_required" || order.status === "paid"
-  );
+  return attentionReason(order) !== null;
 }
 
 export interface OrderFilterOptions {

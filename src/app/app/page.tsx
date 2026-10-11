@@ -7,6 +7,7 @@ import { RevenueSparkline } from "@/app/app/RevenueSparkline";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
+import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo, formatMinorUnits } from "@/i18n/format";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from
 import { loadSparklines } from "@/lib/analytics-data";
 import { recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
+import { addBreakdowns } from "@/lib/attention";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
 import { storeAllowance } from "@/lib/plans";
 import { accessibleStores, requireUser } from "@/lib/session";
@@ -41,8 +43,9 @@ export default async function AgencyDashboard({
 }) {
   const { denied } = await searchParams;
   const user = await requireUser();
-  const [t, shell, roles, format] = await Promise.all([
+  const [t, attention, shell, roles, format] = await Promise.all([
     getTranslations("dashboard"),
+    getTranslations("attention"),
     getTranslations("shell"),
     getTranslations("roles"),
     getFormatter(),
@@ -107,7 +110,9 @@ export default async function AgencyDashboard({
   const money = (minor: number, currency: string) => formatMinorUnits(format, minor, currency);
 
   const totalOrders = active.reduce((sum, r) => sum + r.metrics.orderCount, 0);
-  const openIssues = active.reduce((sum, r) => sum + r.metrics.exceptions + r.metrics.manualRouting, 0);
+  // Each store counted on its own, then the counts summed: no orders are mixed.
+  const openIssues = addBreakdowns(active.map((r) => r.metrics.attention));
+  const openIssuesSub = await attentionSummary(openIssues);
   const publishedProducts = active.reduce((sum, r) => sum + r.metrics.publishedProducts, 0);
 
   return (
@@ -151,9 +156,10 @@ export default async function AgencyDashboard({
           <StatCard label={t("statPublished")} value={format.number(publishedProducts)} />
           <StatCard
             label={t("statAttention")}
-            value={format.number(openIssues)}
-            sub={t("statAttentionSub")}
-            tone={openIssues > 0 ? "amber" : "green"}
+            value={format.number(openIssues.total)}
+            sub={openIssuesSub}
+            tone={openIssues.total > 0 ? "amber" : "green"}
+            href="/app/attention"
           />
         </div>
 
@@ -264,17 +270,32 @@ export default async function AgencyDashboard({
                         <p className="text-xs text-muted-foreground">
                           {t("inProduction", { count: metrics.inProduction })} ·{" "}
                           {t("shipped", { count: metrics.shipped })} · {t("delivered", { count: metrics.delivered })}
-                          {metrics.exceptions > 0 ? (
-                            <span className="text-destructive">
+                          {metrics.attention.total > 0 ? (
+                            <>
                               {" · "}
-                              {t("exceptions", { count: metrics.exceptions })}
-                            </span>
-                          ) : null}
-                          {metrics.manualRouting > 0 ? (
-                            <span className="text-amber-700">
-                              {" · "}
-                              {t("manual", { count: metrics.manualRouting })}
-                            </span>
+                              <Link
+                                href={`/app/stores/${store.id}/orders?view=attention`}
+                                className="hover:underline"
+                              >
+                                {metrics.attention.exception > 0 ? (
+                                  <span className="text-destructive">
+                                    {t("exceptions", { count: metrics.attention.exception })}
+                                  </span>
+                                ) : null}
+                                {metrics.attention.manual_routing > 0 ? (
+                                  <span className="text-amber-700">
+                                    {metrics.attention.exception > 0 ? " · " : ""}
+                                    {t("manual", { count: metrics.attention.manual_routing })}
+                                  </span>
+                                ) : null}
+                                {metrics.attention.awaiting_production > 0 ? (
+                                  <span className="text-amber-700">
+                                    {metrics.attention.exception + metrics.attention.manual_routing > 0 ? " · " : ""}
+                                    {attention("parts.awaiting_production", { count: metrics.attention.awaiting_production })}
+                                  </span>
+                                ) : null}
+                              </Link>
+                            </>
                           ) : null}
                         </p>
 

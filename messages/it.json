@@ -632,7 +632,6 @@
     "statOrders": "Ordini",
     "statPublished": "Prodotti pubblicati",
     "statAttention": "Da gestire",
-    "statAttentionSub": "Eccezioni e inoltro manuale",
     "clientStores": "Negozi clienti",
     "emptyTitle": "Ancora nessun negozio",
     "emptyBody": "Crea il tuo primo negozio cliente per iniziare.",
@@ -844,7 +843,6 @@
     "published": "Prodotti pubblicati",
     "inDraft": "{count} in bozza o in revisione",
     "attention": "Da gestire",
-    "attentionSub": "{exceptions} eccezioni · {manual} instradamento manuale",
     "recentOrders": "Ordini recenti",
     "allOrders": "Tutti gli ordini",
     "noOrders": "Ancora nessun ordine",
@@ -3353,5 +3351,28 @@
     "shipping": "## Produzione\nOgni articolo viene realizzato dopo l’ordine. La produzione richiede di solito da 2 a 5 giorni lavorativi. Gli ordini più grandi possono richiedere più tempo e in quel caso ti avviseremo.\n\n## Consegna\nDopo la spedizione, la consegna richiede di solito da 3 a 7 giorni lavorativi a seconda della destinazione. Il totale, spedizione inclusa, è indicato al checkout prima del pagamento.\n\n## Tracciamento\nPuoi seguire il tuo ordine in qualsiasi momento nella pagina dello stato dell’ordine con il numero d’ordine e l’indirizzo email.\n\n## Dogana e dazi\nGli ordini spediti in un altro paese possono essere soggetti a dazi o imposte all’arrivo. Non sono inclusi nel prezzo e sono a carico del destinatario.\n\n## Pacchi in ritardo o smarriti\nSe il pacco non è arrivato 10 giorni lavorativi dopo la spedizione, contattaci con il numero d’ordine e lo rintracceremo con il corriere.\n\n## Indirizzo di consegna\nControlla l’indirizzo di consegna prima di pagare. Non possiamo reindirizzare un ordine già spedito.",
     "terms": "## Informazioni su queste condizioni\nQueste condizioni si applicano a ogni ordine effettuato presso {store}. Effettuando un ordine le accetti.\n\n## Ordini\nL’ordine è confermato quando il pagamento viene accettato e ricevi un numero d’ordine. Se non possiamo evadere un ordine, lo annulliamo e ti rimborsiamo l’intero importo.\n\n## Prezzi e pagamento\nI prezzi sono indicati nella valuta che scegli e le imposte al checkout. Il pagamento viene addebitato quando effettui l’ordine.\n\n## Personalizzazione\nSei responsabile dei testi e delle grafiche che aggiungi a un prodotto e confermi di avere il diritto di usarli. Possiamo annullare un ordine il cui contenuto sia illecito, offensivo o violi i diritti di terzi. I colori stampati possono differire leggermente da quelli a schermo.\n\n## Consegna, resi e rimborsi\nLa consegna è regolata dalla nostra politica di spedizione, resi e rimborsi dalla nostra politica di rimborso.\n\n## Responsabilità\nNulla in queste condizioni limita la responsabilità che non può essere limitata per legge. Per il resto, la nostra responsabilità per un ordine è limitata all’importo pagato.\n\n## Modifiche\nPossiamo aggiornare queste condizioni. A ogni ordine si applicano le condizioni in vigore al momento dell’ordine.",
     "privacy": "## Quali dati raccogliamo\nQuando ordini da {store}, raccogliamo nome, indirizzo email, indirizzo di consegna, numero di telefono se lo fornisci, gli articoli ordinati e i testi o le grafiche che aggiungi.\n\n## Come li usiamo\nUsiamo questi dati per realizzare e consegnare l’ordine, inviarti aggiornamenti e rispondere alle tue domande. Non vendiamo i tuoi dati personali.\n\n## Pagamenti\nI pagamenti con carta sono gestiti dal nostro fornitore di pagamenti. Non conserviamo il numero completo della tua carta.\n\n## Con chi li condividiamo\nCondividiamo solo il necessario con i partner che realizzano e consegnano l’ordine, come partner di produzione e corrieri.\n\n## Per quanto tempo li conserviamo\nConserviamo i dati degli ordini per il tempo necessario a completare l’ordine e a rispettare i nostri obblighi legali e contabili.\n\n## I tuoi diritti\nPuoi chiedere di vedere, correggere o cancellare i dati personali che conserviamo su di te. Contattaci dall’indirizzo email usato per ordinare.\n\n## Cookie\nQuesto negozio usa i cookie per ricordare carrello, lingua e valuta."
+  },
+  "attention": {
+    "title": "Da gestire",
+    "description": "{count, plural, one {# ordine} other {# ordini}} in {stores, plural, one {# negozio} other {# negozi}}",
+    "parts": {
+      "exception": "{count, plural, one {# eccezione} other {# eccezioni}}",
+      "manual_routing": "{count} instradamento manuale",
+      "awaiting_production": "{count} in attesa di produzione"
+    },
+    "none": "Niente in sospeso",
+    "reason": {
+      "exception": "Eccezione",
+      "manual_routing": "Instradamento manuale",
+      "awaiting_production": "In attesa di produzione"
+    },
+    "viewInOrders": "Vedi in Ordini",
+    "emptyTitle": "Niente da gestire",
+    "emptyBody": "Qui compaiono eccezioni, instradamento manuale e ordini pagati in attesa di produzione.",
+    "colOrder": "Ordine",
+    "colCustomer": "Cliente",
+    "colReason": "Motivo",
+    "colTotal": "Totale",
+    "back": "Dashboard"
   }
 }

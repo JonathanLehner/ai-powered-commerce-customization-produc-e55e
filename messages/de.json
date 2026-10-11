@@ -632,7 +632,6 @@
     "statOrders": "Bestellungen",
     "statPublished": "Veröffentlichte Produkte",
     "statAttention": "Handlungsbedarf",
-    "statAttentionSub": "Ausnahmen und manuelle Weiterleitung",
     "clientStores": "Kundenshops",
     "emptyTitle": "Noch keine Shops",
     "emptyBody": "Legen Sie Ihren ersten Kundenshop an.",
@@ -844,7 +843,6 @@
     "published": "Veröffentlichte Produkte",
     "inDraft": "{count} im Entwurf oder in Prüfung",
     "attention": "Handlungsbedarf",
-    "attentionSub": "{exceptions} Ausnahmen · {manual} manuelles Routing",
     "recentOrders": "Neueste Bestellungen",
     "allOrders": "Alle Bestellungen",
     "noOrders": "Noch keine Bestellungen",
@@ -3353,5 +3351,28 @@
     "shipping": "## Produktion\nJeder Artikel wird nach Ihrer Bestellung gefertigt. Die Produktion dauert in der Regel 2 bis 5 Werktage. Große Bestellungen können länger dauern; wir informieren Sie in diesem Fall.\n\n## Lieferung\nNach dem Versand dauert die Lieferung je nach Ziel in der Regel 3 bis 7 Werktage. Der Gesamtbetrag einschließlich Versand wird an der Kasse angezeigt, bevor Sie bezahlen.\n\n## Sendungsverfolgung\nAuf der Seite zum Bestellstatus können Sie Ihre Bestellung jederzeit mit Bestellnummer und E-Mail-Adresse verfolgen.\n\n## Zoll und Einfuhrabgaben\nBei Lieferungen in ein anderes Land können bei Ankunft Zölle oder Steuern anfallen. Diese sind nicht im Preis enthalten und werden vom Empfänger bezahlt.\n\n## Verspätete oder verlorene Pakete\nIst Ihr Paket 10 Werktage nach dem Versand noch nicht angekommen, kontaktieren Sie uns mit Ihrer Bestellnummer. Wir klären den Verbleib mit dem Versanddienstleister.\n\n## Lieferadresse\nBitte prüfen Sie Ihre Lieferadresse, bevor Sie bezahlen. Nach dem Versand können wir eine Bestellung nicht mehr umleiten.",
     "terms": "## Über diese Bedingungen\nDiese Bedingungen gelten für jede Bestellung bei {store}. Mit Ihrer Bestellung stimmen Sie ihnen zu.\n\n## Bestellungen\nIhre Bestellung ist bestätigt, sobald die Zahlung akzeptiert wurde und Sie eine Bestellnummer erhalten. Können wir eine Bestellung nicht ausführen, stornieren wir sie und erstatten den vollen Betrag.\n\n## Preise und Zahlung\nPreise werden in der von Ihnen gewählten Währung angezeigt, Steuern an der Kasse. Die Zahlung erfolgt bei Aufgabe der Bestellung.\n\n## Personalisierung\nSie sind für die Texte und Motive verantwortlich, die Sie einem Produkt hinzufügen, und bestätigen, dass Sie diese verwenden dürfen. Wir können Bestellungen stornieren, deren Inhalte rechtswidrig oder anstößig sind oder Rechte Dritter verletzen. Gedruckte Farben können leicht von der Darstellung am Bildschirm abweichen.\n\n## Lieferung, Rückgabe und Erstattung\nFür die Lieferung gilt unsere Versandrichtlinie, für Rückgaben und Erstattungen unsere Rückerstattungsrichtlinie.\n\n## Haftung\nDiese Bedingungen schränken keine Haftung ein, die gesetzlich nicht eingeschränkt werden kann. Im Übrigen ist unsere Haftung für eine Bestellung auf den dafür gezahlten Betrag begrenzt.\n\n## Änderungen\nWir können diese Bedingungen aktualisieren. Für eine Bestellung gelten die Bedingungen, die bei ihrer Aufgabe angezeigt wurden.",
     "privacy": "## Welche Daten wir erheben\nWenn Sie bei {store} bestellen, erheben wir Ihren Namen, Ihre E-Mail-Adresse, Ihre Lieferadresse, Ihre Telefonnummer, falls angegeben, die bestellten Artikel sowie Texte oder Motive, die Sie hinzufügen.\n\n## Wofür wir sie verwenden\nWir verwenden diese Daten, um Ihre Bestellung zu fertigen und zu liefern, Sie über den Status zu informieren und Ihre Fragen zu beantworten. Wir verkaufen Ihre personenbezogenen Daten nicht.\n\n## Zahlungen\nKartenzahlungen werden von unserem Zahlungsanbieter abgewickelt. Wir speichern Ihre vollständige Kartennummer nicht.\n\n## An wen wir sie weitergeben\nWir geben nur die nötigen Daten an die Partner weiter, die Ihre Bestellung fertigen und liefern, etwa Produktionspartner und Versanddienstleister.\n\n## Wie lange wir sie aufbewahren\nWir bewahren Bestelldaten so lange auf, wie es für die Abwicklung Ihrer Bestellung und unsere gesetzlichen und buchhalterischen Pflichten nötig ist.\n\n## Ihre Rechte\nSie können Auskunft über Ihre bei uns gespeicherten Daten verlangen und sie berichtigen oder löschen lassen. Kontaktieren Sie uns dazu von der E-Mail-Adresse, mit der Sie bestellt haben.\n\n## Cookies\nDieser Shop verwendet Cookies, um Ihren Warenkorb, Ihre Sprache und Ihre Währung zu speichern."
+  },
+  "attention": {
+    "title": "Handlungsbedarf",
+    "description": "{count, plural, one {# Bestellung} other {# Bestellungen}} in {stores, plural, one {# Shop} other {# Shops}}",
+    "parts": {
+      "exception": "{count, plural, one {# Ausnahme} other {# Ausnahmen}}",
+      "manual_routing": "{count} manuelles Routing",
+      "awaiting_production": "{count} warten auf Produktion"
+    },
+    "none": "Nichts offen",
+    "reason": {
+      "exception": "Ausnahme",
+      "manual_routing": "Manuelles Routing",
+      "awaiting_production": "Wartet auf Produktion"
+    },
+    "viewInOrders": "In Bestellungen ansehen",
+    "emptyTitle": "Kein Handlungsbedarf",
+    "emptyBody": "Ausnahmen, manuelles Routing und bezahlte Bestellungen vor der Produktion erscheinen hier.",
+    "colOrder": "Bestellung",
+    "colCustomer": "Kunde",
+    "colReason": "Grund",
+    "colTotal": "Summe",
+    "back": "Dashboard"
   }
 }
