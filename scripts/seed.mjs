@@ -16,6 +16,7 @@ import { hashSync } from "bcryptjs";
 import sharp from "sharp";
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
 import { openDatabase } from "./mongo.mjs";
+import { seedCollections } from "./seed-collections.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
 import { productContent, productFieldsFor, storeContent, withStoreContent } from "./store-content.mjs";
 
@@ -802,7 +803,7 @@ async function main() {
     "agencies", "users", "stores", "memberships", "suppliers", "catalog_products",
     "store_products", "tax_brackets", "orders", "storefronts", "audit_logs",
     "ai_suggestions", "carts", "gift_catalogues", "gift_campaigns", "quote_requests",
-    "discount_codes", "customers",
+    "discount_codes", "customers", "product_collections",
   ]) {
     await clear(c);
   }
@@ -1306,6 +1307,8 @@ async function main() {
   // The gifting demo reads the store and its published products back out of the
   // database, so it runs once everything above has been written.
   await seedGifting(dbCall);
+  // Collections read the stores, products and storefronts back the same way.
+  await seedCollections(dbCall);
 
   console.log(
     `done — ${stores.length} stores, ${storeProducts.length} store products, ${orders.length} orders, ${auditLogs.length} audit entries`,

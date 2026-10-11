@@ -14,7 +14,8 @@ import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { localizedPath } from "@/i18n/locales";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { getCart, getStorefront, getStoreBySlug } from "@/lib/data";
+import { collectionProducts, localizeCollection, navCollectionIds } from "@/lib/collections";
+import { getCart, getStorefront, getStoreBySlug, listProductCollections } from "@/lib/data";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
@@ -86,10 +87,19 @@ export default async function StorefrontLayout({
   const theme = THEMES[store.theme];
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { locales, defaultLocale } = storeLanguages(store);
-  const [messages, storefront] = await Promise.all([shopperMessages(store, locale), getStorefront(store.id)]);
+  const [messages, storefront, collections] = await Promise.all([
+    shopperMessages(store, locale),
+    getStorefront(store.id),
+    listProductCollections(store.id),
+  ]);
   // The announcement, navigation labels and footer note the store published,
   // in the shopper's language. An empty label keeps the built-in one.
   const site = siteContent(storefront?.published, locale, defaultLocale);
+  // The collections the published header links to, in the order chosen there.
+  // One deleted since is skipped.
+  const navCollections = collectionProducts(navCollectionIds(storefront?.published), collections).map((c) =>
+    localizeCollection(c, locale, defaultLocale),
+  );
   const support = storeSupport(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const session = await readShopperSession();
@@ -132,13 +142,25 @@ export default async function StorefrontLayout({
                 </span>
               </Link>
 
-              <nav aria-label={t("chrome.shop")} className="flex items-center gap-1">
+              <nav
+                aria-label={t("chrome.shop")}
+                className="no-scrollbar -mx-1 flex max-w-full min-w-0 items-center gap-1 overflow-x-auto px-1"
+              >
                 <Link
                   href={`${base}/products`}
                   className={buttonVariants({ variant: "ghost", size: "lg" })}
                 >
                   {site.navShop || t("chrome.shop")}
                 </Link>
+                {navCollections.map((collection) => (
+                  <Link
+                    key={collection.id}
+                    href={`${base}/collections/${collection.handle}`}
+                    className={buttonVariants({ variant: "ghost", size: "lg" })}
+                  >
+                    {collection.name}
+                  </Link>
+                ))}
                 <Link
                   href={`${base}/orders`}
                   className={buttonVariants({ variant: "ghost", size: "lg" })}

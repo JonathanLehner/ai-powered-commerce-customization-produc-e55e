@@ -5,6 +5,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { ShopperMessages } from "@/i18n/shopper-copy";
+import { collectionProducts } from "@/lib/collections";
 import type { SectionType } from "@/lib/storefront-schema";
 import type { ThemeKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,15 @@ export interface StorefrontProductCard {
   tagline: string;
 }
 
+/** A collection a Product grid can draw from, with its products in collection order. */
+export interface StorefrontCollection {
+  id: string;
+  handle: string;
+  productIds: string[];
+  /** In the language being shown. The editor lists collections by it. */
+  name?: string;
+}
+
 export interface StorefrontContext {
   storeName: string;
   clientName: string;
@@ -27,6 +37,8 @@ export interface StorefrontContext {
   logoUrl: string | null;
   theme: ThemeKey;
   products: StorefrontProductCard[];
+  /** The store's collections, for a Product grid set to show one. */
+  collections?: StorefrontCollection[];
   /** When true the section renders inside the editor and links are inert. */
   preview: boolean;
   /** The built-in section copy in the shopper's language, from the messages files. */
@@ -186,7 +198,12 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
   const columns = str(props, "columns", "3") === "2" ? 2 : str(props, "columns", "3") === "4" ? 4 : 3;
   const limit = num(props, "limit", 6);
   const showPrice = props.showPrice !== false;
-  const products = ctx.products.slice(0, limit);
+  // A grid set to a collection shows its products in the collection's order.
+  // One whose collection has since been deleted falls back to all products.
+  const collection = ctx.collections?.find((c) => c.id === str(props, "source"));
+  const source = collection ? collectionProducts(collection.productIds, ctx.products) : ctx.products;
+  const products = source.slice(0, limit);
+  const viewAll = ctx.preview ? "#" : collection ? `${ctx.base}/collections/${collection.handle}` : href(ctx, "products");
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
@@ -201,7 +218,7 @@ export function ProductGrid({ props, ctx }: { props: Record<string, unknown>; ct
             <p className="mt-2 max-w-xl text-sm text-inksoft">{str(props, "subtitle")}</p>
           ) : null}
         </div>
-        <Link href={href(ctx, "products")} className={buttonVariants({ variant: "ghost", size: "lg" })}>
+        <Link href={viewAll} className={buttonVariants({ variant: "ghost", size: "lg" })}>
           {ctx.t.viewAll}
         </Link>
       </div>

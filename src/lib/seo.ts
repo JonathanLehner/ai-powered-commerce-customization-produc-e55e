@@ -105,15 +105,17 @@ export function marketingSitemap(): SitemapEntry[] {
 }
 
 type SitemapProduct = { slug: string; updatedAt: string; mockups: { url: string }[] };
+type SitemapCollection = { handle: string; updatedAt: string; imageUrl: string | null };
 
 /**
  * A storefront's pages in every enabled language: the home page, the shop,
- * each product on sale and the legal pages the footer links to. An archived
- * store lists nothing.
+ * each collection, each product on sale and the legal pages the footer links
+ * to. An archived store lists nothing.
  */
 export function storeSitemap(
   store: StoreAddress & { status: "active" | "archived" },
   products: SitemapProduct[],
+  collections: SitemapCollection[] = [],
 ): SitemapEntry[] {
   if (store.status === "archived") return [];
   const { locales } = storeLanguages(store);
@@ -135,6 +137,12 @@ export function storeSitemap(
   return [
     ...page("", latest ? { lastModified: latest } : {}),
     ...page("/products", latest ? { lastModified: latest } : {}),
+    ...collections.flatMap((collection) =>
+      page(`/collections/${encodeURIComponent(collection.handle)}`, {
+        lastModified: collection.updatedAt,
+        ...(collection.imageUrl ? { images: [collection.imageUrl] } : {}),
+      }),
+    ),
     ...products.flatMap((product) =>
       page(`/products/${encodeURIComponent(product.slug)}`, {
         lastModified: product.updatedAt,

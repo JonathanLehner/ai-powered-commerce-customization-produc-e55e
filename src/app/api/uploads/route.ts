@@ -23,7 +23,7 @@ function fail(message: string, status: number): Response {
 async function authorise(scope: UploadScope, params: URLSearchParams): Promise<string | null> {
   const storeId = params.get("storeId") ?? "";
 
-  if (scope === "artwork" || scope === "mockup") {
+  if (scope === "artwork" || scope === "mockup" || scope === "collection") {
     await assertStoreAccess(storeId, "store.catalog");
     return null;
   }

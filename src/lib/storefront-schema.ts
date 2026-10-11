@@ -116,6 +116,7 @@ export const SECTION_DEFS: Record<SectionType, SectionDef> = {
     defaults: {
       title: "Featured products",
       subtitle: "Customisable apparel and drinkware, made to order.",
+      source: "all",
       columns: 3,
       limit: 6,
       showPrice: true,
@@ -123,6 +124,13 @@ export const SECTION_DEFS: Record<SectionType, SectionDef> = {
     fields: [
       { key: "title", label: "Section title", type: "text" },
       { key: "subtitle", label: "Subtitle", type: "textarea" },
+      {
+        // The store's collections are added to these options in the editor.
+        key: "source",
+        label: "Source",
+        type: "select",
+        options: [{ value: "all", label: "All products" }],
+      },
       {
         key: "columns",
         label: "Columns",

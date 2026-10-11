@@ -5,7 +5,14 @@ import { routing } from "@/i18n/routing";
 import { negotiateShopperLocale } from "@/i18n/shopper-negotiation";
 import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing";
 import { isLive } from "@/lib/artwork";
-import { getGiftCatalogueBySlug, getStore, getStoreByDomain, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
+import {
+  getGiftCatalogueBySlug,
+  getProductCollectionByHandle,
+  getStore,
+  getStoreByDomain,
+  getStoreBySlug,
+  getStoreProductBySlug,
+} from "@/lib/data";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
 import { SITE_ORIGIN } from "@/lib/seo";
 import type { Store } from "@/lib/types";
@@ -259,10 +266,16 @@ async function shopperMissing(
   if (isMissing(pathname)) return true;
   if (store === undefined) return false;
   if (!store) return true;
-  if (!pathname.startsWith("/s/") || rest[0] !== "products" || rest.length !== 2) return false;
+  if (!pathname.startsWith("/s/") || rest.length !== 2) return false;
   try {
-    const product = await getStoreProductBySlug(store.id, decodeSegment(rest[1]));
-    return !(product != null && isLive(product));
+    if (rest[0] === "products") {
+      const product = await getStoreProductBySlug(store.id, decodeSegment(rest[1]));
+      return !(product != null && isLive(product));
+    }
+    if (rest[0] === "collections") {
+      return (await getProductCollectionByHandle(store.id, decodeSegment(rest[1]))) == null;
+    }
+    return false;
   } catch {
     return false;
   }

@@ -17,7 +17,7 @@ FedEx or UPS tracking.
 | Marketing | `/`, `/how-it-works`, `/pricing`, `/contact`, `/legal/terms`, `/legal/privacy` |
 | Agency workspace | `/app`, `/app/stores/new`, `/app/stores/[storeId]/…` |
 | Platform administration | `/admin/…` — suppliers, shared catalog, tax brackets, agencies, audit |
-| Client storefronts | `/s/[slug]/…` — catalog, product, basket, checkout, order status |
+| Client storefronts | `/s/[slug]/…` — catalog, collections, product, basket, checkout, order status |
 | Corporate gift portals | `/g/[slug]/…` — private gift catalogue, bulk order, campaign |
 
 Store sections: overview, catalog, sourcing, AI assistant, storefront editor,
@@ -79,6 +79,19 @@ gifting, orders, team, guided setup, activity.
   panel overrides any built-in shopper string per store and language; overrides
   are merged over the next-intl messages at request time (`src/lib/shop-text.ts`,
   `npm run translation-check`).
+- **Collections.** Catalog → Collections groups a store's products into pages
+  at `/s/<slug>/collections/<handle>` (and `/de/collections/…` and so on). A
+  collection has a name, an address handle, a description and an image; the
+  team creates them, drags them into order, and adds, removes and drags the
+  products inside each one (`@dnd-kit`, with keyboard support). A product can
+  be in any number of collections. The storefront page shows the header, the
+  tag filter and four sorts (featured, which is the team's order, price low to
+  high, price high to low, newest), and only products on sale. Names and
+  descriptions are translated in the storefront editor's Collections tab and
+  by "Translate missing"; the editor's Header and footer panel picks which
+  collections the header links to, and the Product grid section's Source
+  shows all products or one collection. Collections are in the store's
+  sitemap (`src/lib/collections.ts`, `npm run collections-check`).
 - **Shared supplier catalog.** Platform admins curate supplier-backed apparel and
   mugs: variants, base costs, print areas in millimetres, minimum DPI, file rules,
   availability and fulfilment regions. Store managers search, filter, compare
@@ -252,6 +265,14 @@ exception to work) and a second campaign sitting with its approver. It reads the
 store and its products back out of the database and does nothing if the
 catalogue is already there, so it is safe to run on its own; `seed.mjs` calls it
 at the end.
+
+`scripts/seed-collections.mjs` adds the demo collections (Northwind: Apparel,
+Drinkware, New hires; Lumen, Ferro and Rivet a set each), with their German,
+French or English translations where the store has that language, their header
+images from `image-manifest.json`, and header links on a storefront that has
+none yet. It looks stores and products up by slug and skips any handle a store
+already has, so it is additive and safe to re-run, including on a live
+database; `seed.mjs` calls it at the end.
 
 `scripts/seed-bulk-sourcing.mjs` writes the three Alibaba.com bulk-sourcing
 listings into the shared catalog of a database that is already live, leaving

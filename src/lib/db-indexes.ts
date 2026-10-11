@@ -52,6 +52,7 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   quote_requests: [byId, { key: { submissionKey: 1 } }, { key: { storeId: 1, createdAt: -1 } }, { key: { createdAt: -1 } }],
   discount_codes: [byId, { key: { storeId: 1, code: 1 } }, { key: { storeId: 1, createdAt: -1 } }],
   customers: [byId, { key: { storeId: 1, email: 1 }, unique: true }, { key: { storeId: 1, lastOrderAt: -1 } }],
+  product_collections: [byId, { key: { storeId: 1, handle: 1 }, unique: true }, { key: { storeId: 1, position: 1 } }],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

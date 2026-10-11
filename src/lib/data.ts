@@ -14,6 +14,7 @@ import type {
   Cart,
   CatalogProduct,
   DiscountCode,
+  ProductCollection,
   GiftCampaign,
   GiftCatalogue,
   Membership,
@@ -48,6 +49,7 @@ export const COLLECTIONS = {
   quoteRequests: "quote_requests",
   discounts: "discount_codes",
   customers: "customers",
+  productCollections: "product_collections",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */
@@ -247,6 +249,46 @@ export async function updateStoreProduct(id: string, patch: Partial<StoreProduct
     { id },
     { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
   );
+}
+
+/* ------------------------------------------------------------- collections */
+
+/** A store's collections in the order the team arranged them. */
+export function listProductCollections(storeId: string) {
+  return db.find<ProductCollection>(COLLECTIONS.productCollections, { storeId }, { sort: { position: 1, createdAt: 1 } });
+}
+
+export function getProductCollection(id: string) {
+  return db.findOne<ProductCollection>(COLLECTIONS.productCollections, { id });
+}
+
+export function getProductCollectionByHandle(storeId: string, handle: string) {
+  return db.findOne<ProductCollection>(COLLECTIONS.productCollections, { storeId, handle });
+}
+
+export async function createProductCollection(collection: ProductCollection): Promise<void> {
+  await db.insertOne(COLLECTIONS.productCollections, collection as unknown as Record<string, unknown>);
+}
+
+/**
+ * A guarded write, in the shape of `updateDiscountCode`: it applies only while
+ * the collection still matches `where`, and says whether it did.
+ */
+export async function updateProductCollection(
+  id: string,
+  where: Record<string, unknown>,
+  patch: Partial<ProductCollection>,
+): Promise<boolean> {
+  const result = (await db.updateOne(
+    COLLECTIONS.productCollections,
+    { ...where, id },
+    { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
+  )) as { matchedCount?: number } | null;
+  return (result?.matchedCount ?? 0) > 0;
+}
+
+export async function deleteProductCollection(id: string): Promise<void> {
+  await db.deleteOne(COLLECTIONS.productCollections, { id });
 }
 
 /* ------------------------------------------------------------ tax brackets */

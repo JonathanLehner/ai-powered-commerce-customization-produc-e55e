@@ -1168,6 +1168,18 @@
         "variantOption": "バリエーション {sku} にカラーまたはサイズを追加してください。",
         "variantCost": "バリエーション {sku} のサプライヤー基本原価を入力してください。"
       }
+    },
+    "collections": {
+      "nameRequired": "コレクション名は2文字以上で入力してください。",
+      "nameTooLong": "名前は80文字以内で入力してください。",
+      "descriptionTooLong": "説明は600文字以内で入力してください。",
+      "handleInvalid": "ハンドルには半角英小文字、数字、ハイフンを使用してください。",
+      "handleTaken": "このハンドルは別のコレクションで使用されています。",
+      "notFound": "このストアにコレクションが見つかりません。",
+      "saved": "コレクションを保存しました。",
+      "orderSaved": "並び順を保存しました。",
+      "productsAdded": "{count, plural, =0 {追加された商品はありません。} other {#点の商品を追加しました。}}",
+      "productRemoved": "商品を削除しました。"
     }
   },
   "settings": {
@@ -2270,7 +2282,8 @@
           "subtitle": "サブタイトル",
           "columns": "列数",
           "limit": "最大商品数",
-          "showPrice": "価格を表示"
+          "showPrice": "価格を表示",
+          "source": "表示する商品"
         }
       },
       "PromoBanner": {
@@ -2332,7 +2345,8 @@
       "accent": "アクセント",
       "light": "ライト",
       "dark": "ダーク",
-      "right": "右"
+      "right": "右",
+      "all": "すべての商品"
     },
     "revert": "下書きを公開版に戻す",
     "noProductsTitle": "まだ公開中の商品はありません",
@@ -2380,7 +2394,8 @@
     "tabs": {
       "page": "ページ",
       "products": "商品",
-      "portals": "ギフトポータル"
+      "portals": "ギフトポータル",
+      "collections": "コレクション"
     },
     "site": {
       "title": "ヘッダーとフッター",
@@ -2390,7 +2405,9 @@
         "navShop": "ショップリンクのラベル",
         "navOrders": "注文状況リンクのラベル",
         "footerNote": "フッターの注記"
-      }
+      },
+      "navCollections": "ヘッダーに表示するコレクション",
+      "noCollections": "コレクションはまだありません。カタログで作成してください。"
     },
     "seo": {
       "title": "検索と共有",
@@ -2430,7 +2447,9 @@
       "seo": "SEO",
       "seoDescription": "検索結果とリンクプレビューに表示されます。",
       "seoFallback": "空欄の場合は商品名と説明を使用します。",
-      "saveSeo": "保存"
+      "saveSeo": "保存",
+      "collection": "コレクション",
+      "noCollections": "コレクションはまだありません。"
     },
     "shopText": {
       "open": "ショップのテキスト",
@@ -2741,7 +2760,8 @@
       "homeDescription": "{client} の公式ストア {store}。受注生産で世界中へお届けします。",
       "taglineDescription": "{tagline} {client} の公式ストア {store}。",
       "shopTitle": "ショップ",
-      "shopDescription": "{store} の全商品。"
+      "shopDescription": "{store} の全商品。",
+      "collectionDescription": "{store}の{collection}。"
     },
     "home": {
       "closedTitle": "このストアは閉店しました",
@@ -2766,7 +2786,15 @@
       "noMatchBody": "別のキーワードでお試しください。",
       "clearFilters": "絞り込みを解除",
       "personalise": "カスタマイズ可",
-      "previewSoon": "プレビューは近日公開"
+      "previewSoon": "プレビューは近日公開",
+      "sortLabel": "並べ替え",
+      "sortFeatured": "おすすめ",
+      "sortPriceAsc": "価格の安い順",
+      "sortPriceDesc": "価格の高い順",
+      "sortNewest": "新着順",
+      "sortApply": "並べ替え",
+      "productCount": "{count, plural, other {#点の商品}}",
+      "collectionEmptyTitle": "このコレクションにはまだ商品がありません"
     },
     "product": {
       "breadcrumb": "パンくずリスト",
@@ -3175,5 +3203,71 @@
       "errorHome": "{store} に戻る",
       "errorReference": "参照番号 {digest}"
     }
+  },
+  "collections": {
+    "tabProducts": "商品",
+    "tabCollections": "コレクション",
+    "tabsLabel": "カタログの表示",
+    "title": "コレクション",
+    "description": "商品をまとめてストアのページにします。1つの商品を複数のコレクションに入れられます。",
+    "newCollection": "新しいコレクション",
+    "name": "名前",
+    "namePlaceholder": "アパレル",
+    "optional": "任意",
+    "create": "コレクションを作成",
+    "creating": "作成中…",
+    "emptyTitle": "コレクションはまだありません",
+    "emptyBody": "上で作成してから、商品を追加してください。",
+    "listTitle": "{count, plural, other {#件のコレクション}}",
+    "reorderHint": "ドラッグして並べ替えます。",
+    "productCount": "{count, plural, other {#点の商品}}",
+    "liveCount": "{count}点が販売中",
+    "edit": "編集",
+    "view": "表示",
+    "orderSaved": "並び順を保存しました。",
+    "orderFailed": "並び順を保存できませんでした。もう一度お試しください。",
+    "breadcrumb": "パンくずリスト",
+    "viewLive": "ストアで見る ↗",
+    "createdTitle": "コレクションを作成しました",
+    "createdBody": "商品を追加して、ストアエディターでリンクを設定してください。",
+    "details": "詳細",
+    "detailsHint": "名前と説明の翻訳はストアエディターで行います。",
+    "handle": "URLハンドル",
+    "handleHint": "半角英小文字、数字、ハイフンのみ。",
+    "image": "画像",
+    "imageHint": "PNG、JPG、WebP（最大{max} MB）。",
+    "removeImage": "画像を削除",
+    "uploading": "アップロード中…",
+    "imageTooLarge": "ファイルサイズは{size} MBです。上限は{max} MBです。",
+    "imageFailed": "画像をアップロードできませんでした。もう一度お試しください。",
+    "save": "コレクションを保存",
+    "deleteTitle": "コレクションを削除",
+    "deleteBody": "商品はカタログに残ります。",
+    "delete": "コレクションを削除",
+    "deleteConfirm": "削除",
+    "productsTitle": "商品（{count}）",
+    "productsHint": "ドラッグして「おすすめ」順の並びを決めます。",
+    "productsHintReadOnly": "「おすすめ」順ではこの順番で表示されます。",
+    "addProducts": "商品を追加",
+    "addDescription": "このストアのカタログから商品を選びます。",
+    "searchProducts": "名前またはSKUで検索",
+    "noProductsFound": "商品が見つかりません。",
+    "cancel": "キャンセル",
+    "adding": "追加中…",
+    "addCount": "{count, plural, =0 {商品を追加} other {#点の商品を追加}}",
+    "remove": "{name}を削除",
+    "noProductsInCollection": "このコレクションにはまだ商品がありません。",
+    "notOnSale": "販売停止中",
+    "saved": "保存しました。",
+    "saveFailed": "保存できませんでした。もう一度お試しください。",
+    "drag": {
+      "instructions": "スペースキーで行をつかみ、矢印キーで移動し、スペースキーで置きます。Escキーでキャンセルします。",
+      "picked": "{name}をつかみました。{total}件中{position}番目です。",
+      "moved": "{name}を{total}件中{position}番目に移動しました。",
+      "dropped": "{name}を{total}件中{position}番目に置きました。",
+      "cancelled": "移動をキャンセルしました。{name}は元の位置に戻りました。",
+      "handle": "{name}を並べ替え"
+    },
+    "descriptionLabel": "説明"
   }
 }

@@ -3,7 +3,8 @@ import { revertStorefront } from "@/app/actions/storefront";
 import { Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import type { StorefrontContext } from "@/components/sections";
-import { getStorefront, listGiftCatalogues, listStoreProducts } from "@/lib/data";
+import { collectionFields, localizeCollection } from "@/lib/collections";
+import { getStorefront, listGiftCatalogues, listProductCollections, listStoreProducts } from "@/lib/data";
 import { formatMinorUnits } from "@/i18n/format";
 import { isLocale } from "@/i18n/locales";
 import { shopperMessages } from "@/i18n/storefront";
@@ -24,10 +25,11 @@ export default async function StorefrontEditorPage({
 }) {
   const [{ storeId }, { lang }] = await Promise.all([params, searchParams]);
   const { store } = await requireStoreAccess(storeId, "store.storefront");
-  const [storefront, products, catalogues] = await Promise.all([
+  const [storefront, products, catalogues, collections] = await Promise.all([
     getStorefront(storeId),
     listStoreProducts(storeId),
     listGiftCatalogues(storeId),
+    listProductCollections(storeId),
   ]);
 
   const published = products.filter((p) => p.status === "published");
@@ -61,6 +63,12 @@ export default async function StorefrontEditorPage({
             imageUrl: p.mockups[0]?.url ?? null,
             tagline: p.description.split("\n")[0].slice(0, 110),
           })),
+        collections: collections.map((c) => ({
+          id: c.id,
+          handle: c.handle,
+          productIds: c.productIds,
+          name: localizeCollection(c, locale, defaultLocale).name,
+        })),
       };
       const storefrontMessages = builtIn.storefront as unknown as Record<string, unknown>;
       return {
@@ -129,6 +137,13 @@ export default async function StorefrontEditorPage({
             fields: productFields(p),
             translations: p.translations ?? {},
           }))}
+        collections={collections.map((c) => ({
+          id: c.id,
+          name: c.name,
+          href: `/app/stores/${storeId}/catalog/collections/${c.id}`,
+          fields: collectionFields(c),
+          translations: c.translations ?? {},
+        }))}
         portals={catalogues.map((c) => ({
           id: c.id,
           name: c.name,

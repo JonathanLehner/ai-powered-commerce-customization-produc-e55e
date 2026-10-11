@@ -32,6 +32,8 @@ export const UPLOAD_SCOPES: Record<UploadScope, UploadScopeRules> = {
   mockup: { types: RASTER, maxBytes: 8 * 1024 * 1024, requireDimensions: true },
   // Store branding. SVG is allowed here and has no pixel dimensions.
   logo: { types: [...RASTER, "image/svg+xml"], maxBytes: 8 * 1024 * 1024, requireDimensions: false },
+  // A collection's header image on the storefront.
+  collection: { types: RASTER, maxBytes: 8 * 1024 * 1024, requireDimensions: true },
   // Artwork a shopper attaches to a personalised line on the storefront.
   shopperArtwork: { types: RASTER, maxBytes: 25 * 1024 * 1024, requireDimensions: true },
   shopperPreview: { types: RASTER, maxBytes: 8 * 1024 * 1024, requireDimensions: false },

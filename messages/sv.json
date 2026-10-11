@@ -1168,6 +1168,18 @@
         "variantOption": "Lägg till en färg eller storlek för variant {sku}.",
         "variantCost": "Ange leverantörens baskostnad för variant {sku}."
       }
+    },
+    "collections": {
+      "nameRequired": "Ge kollektionen ett namn på minst 2 tecken.",
+      "nameTooLong": "Namnet får vara högst 80 tecken.",
+      "descriptionTooLong": "Beskrivningen får vara högst 600 tecken.",
+      "handleInvalid": "Använd små bokstäver, siffror och bindestreck i handtaget.",
+      "handleTaken": "En annan kollektion använder redan det här handtaget.",
+      "notFound": "Kollektionen finns inte i den här butiken.",
+      "saved": "Kollektionen har sparats.",
+      "orderSaved": "Ordningen har sparats.",
+      "productsAdded": "{count, plural, =0 {Inga produkter tillagda.} one {# produkt tillagd.} other {# produkter tillagda.}}",
+      "productRemoved": "Produkten har tagits bort."
     }
   },
   "settings": {
@@ -2270,7 +2282,8 @@
           "subtitle": "Underrubrik",
           "columns": "Kolumner",
           "limit": "Max antal produkter",
-          "showPrice": "Visa priser"
+          "showPrice": "Visa priser",
+          "source": "Källa"
         }
       },
       "PromoBanner": {
@@ -2332,7 +2345,8 @@
       "accent": "Accent",
       "light": "Ljus",
       "dark": "Mörk",
-      "right": "Höger"
+      "right": "Höger",
+      "all": "Alla produkter"
     },
     "revert": "Återställ utkastet till publicerad version",
     "noProductsTitle": "Inga publicerade produkter ännu",
@@ -2380,7 +2394,8 @@
     "tabs": {
       "page": "Sida",
       "products": "Produkter",
-      "portals": "Presentportaler"
+      "portals": "Presentportaler",
+      "collections": "Kollektioner"
     },
     "site": {
       "title": "Sidhuvud och sidfot",
@@ -2390,7 +2405,9 @@
         "navShop": "Etikett för butikslänk",
         "navOrders": "Etikett för orderstatuslänk",
         "footerNote": "Notis i sidfoten"
-      }
+      },
+      "navCollections": "Kollektioner i sidhuvudet",
+      "noCollections": "Inga kollektioner ännu. Skapa dem under Katalog."
     },
     "seo": {
       "title": "Sök och delning",
@@ -2430,7 +2447,9 @@
       "seo": "SEO",
       "seoDescription": "Visas i sökresultat och länkförhandsvisningar.",
       "seoFallback": "Lämna tomt för att använda produktnamn och beskrivning.",
-      "saveSeo": "Spara"
+      "saveSeo": "Spara",
+      "collection": "Kollektion",
+      "noCollections": "Inga kollektioner ännu."
     },
     "shopText": {
       "open": "Butikstexter",
@@ -2741,7 +2760,8 @@
       "homeDescription": "Handla hos {store}, den officiella butiken för {client}. Tryckt på beställning och skickad över hela världen.",
       "taglineDescription": "{tagline} Handla hos {store}, den officiella butiken för {client}.",
       "shopTitle": "Butik",
-      "shopDescription": "Alla produkter från {store}."
+      "shopDescription": "Alla produkter från {store}.",
+      "collectionDescription": "{collection} från {store}."
     },
     "home": {
       "closedTitle": "Den här butiken är stängd",
@@ -2766,7 +2786,15 @@
       "noMatchBody": "Prova en annan sökning.",
       "clearFilters": "Rensa filter",
       "personalise": "Kan personaliseras",
-      "previewSoon": "Förhandsvisning kommer snart"
+      "previewSoon": "Förhandsvisning kommer snart",
+      "sortLabel": "Sortera efter",
+      "sortFeatured": "Utvalda",
+      "sortPriceAsc": "Pris, lägst först",
+      "sortPriceDesc": "Pris, högst först",
+      "sortNewest": "Nyast",
+      "sortApply": "Sortera",
+      "productCount": "{count, plural, one {# produkt} other {# produkter}}",
+      "collectionEmptyTitle": "Inga produkter i den här kollektionen ännu"
     },
     "product": {
       "breadcrumb": "Brödsmulor",
@@ -3175,5 +3203,71 @@
       "errorHome": "Tillbaka till {store}",
       "errorReference": "Referens {digest}"
     }
+  },
+  "collections": {
+    "tabProducts": "Produkter",
+    "tabCollections": "Kollektioner",
+    "tabsLabel": "Katalogvyer",
+    "title": "Kollektioner",
+    "description": "Samla produkter på egna sidor i butiken. En produkt kan ingå i flera kollektioner.",
+    "newCollection": "Ny kollektion",
+    "name": "Namn",
+    "namePlaceholder": "Kläder",
+    "optional": "Valfritt",
+    "create": "Skapa kollektion",
+    "creating": "Skapar…",
+    "emptyTitle": "Inga kollektioner ännu",
+    "emptyBody": "Skapa en ovan och lägg sedan till produkter.",
+    "listTitle": "{count, plural, one {# kollektion} other {# kollektioner}}",
+    "reorderHint": "Dra för att ändra ordningen.",
+    "productCount": "{count, plural, one {# produkt} other {# produkter}}",
+    "liveCount": "{count} till salu",
+    "edit": "Redigera",
+    "view": "Visa",
+    "orderSaved": "Ordningen har sparats.",
+    "orderFailed": "Det gick inte att spara ordningen. Försök igen.",
+    "breadcrumb": "Brödsmulor",
+    "viewLive": "Visa live ↗",
+    "createdTitle": "Kollektionen har skapats",
+    "createdBody": "Lägg till produkter och länka den sedan i butiksredigeraren.",
+    "details": "Uppgifter",
+    "detailsHint": "Översätt namn och beskrivning i butiksredigeraren.",
+    "handle": "URL-handtag",
+    "handleHint": "Små bokstäver, siffror och bindestreck.",
+    "image": "Bild",
+    "imageHint": "PNG, JPG eller WebP, upp till {max} MB.",
+    "removeImage": "Ta bort bild",
+    "uploading": "Laddar upp…",
+    "imageTooLarge": "Filen är {size} MB. Gränsen är {max} MB.",
+    "imageFailed": "Det gick inte att ladda upp bilden. Försök igen.",
+    "save": "Spara kollektion",
+    "deleteTitle": "Ta bort kollektion",
+    "deleteBody": "Produkterna finns kvar i katalogen.",
+    "delete": "Ta bort kollektion",
+    "deleteConfirm": "Ta bort",
+    "productsTitle": "Produkter ({count})",
+    "productsHint": "Dra för att ange ordningen som visas under Utvalda.",
+    "productsHintReadOnly": "Visas i den här ordningen under Utvalda.",
+    "addProducts": "Lägg till produkter",
+    "addDescription": "Välj produkter ur butikens katalog.",
+    "searchProducts": "Sök på namn eller SKU",
+    "noProductsFound": "Inga produkter hittades.",
+    "cancel": "Avbryt",
+    "adding": "Lägger till…",
+    "addCount": "{count, plural, =0 {Lägg till produkter} one {Lägg till # produkt} other {Lägg till # produkter}}",
+    "remove": "Ta bort {name}",
+    "noProductsInCollection": "Inga produkter i den här kollektionen ännu.",
+    "notOnSale": "Inte till salu",
+    "saved": "Sparat.",
+    "saveFailed": "Det gick inte att spara. Försök igen.",
+    "drag": {
+      "instructions": "Tryck på blanksteg för att ta upp en rad. Flytta med piltangenterna, tryck på blanksteg för att släppa eller Escape för att avbryta.",
+      "picked": "{name} har tagits upp. Plats {position} av {total}.",
+      "moved": "{name} flyttad till plats {position} av {total}.",
+      "dropped": "{name} släppt på plats {position} av {total}.",
+      "cancelled": "Flytten avbröts. {name} är tillbaka på sin plats.",
+      "handle": "Flytta {name}"
+    },
+    "descriptionLabel": "Beskrivning"
   }
 }

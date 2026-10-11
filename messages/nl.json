@@ -1168,6 +1168,18 @@
         "variantOption": "Voeg een kleur of maat toe aan variant {sku}.",
         "variantCost": "Vul de basisprijs van de leverancier in voor variant {sku}."
       }
+    },
+    "collections": {
+      "nameRequired": "Geef de collectie een naam van minstens 2 tekens.",
+      "nameTooLong": "Houd de naam onder de 80 tekens.",
+      "descriptionTooLong": "Houd de beschrijving onder de 600 tekens.",
+      "handleInvalid": "Gebruik kleine letters, cijfers en koppeltekens voor de handle.",
+      "handleTaken": "Een andere collectie gebruikt deze handle al.",
+      "notFound": "Collectie niet gevonden in deze winkel.",
+      "saved": "Collectie opgeslagen.",
+      "orderSaved": "Volgorde opgeslagen.",
+      "productsAdded": "{count, plural, =0 {Geen producten toegevoegd.} one {# product toegevoegd.} other {# producten toegevoegd.}}",
+      "productRemoved": "Product verwijderd."
     }
   },
   "settings": {
@@ -2270,7 +2282,8 @@
           "subtitle": "Ondertitel",
           "columns": "Kolommen",
           "limit": "Maximaal aantal producten",
-          "showPrice": "Prijzen tonen"
+          "showPrice": "Prijzen tonen",
+          "source": "Bron"
         }
       },
       "PromoBanner": {
@@ -2332,7 +2345,8 @@
       "accent": "Accent",
       "light": "Licht",
       "dark": "Donker",
-      "right": "Rechts"
+      "right": "Rechts",
+      "all": "Alle producten"
     },
     "revert": "Concept terugzetten naar gepubliceerde versie",
     "noProductsTitle": "Nog geen gepubliceerde producten",
@@ -2380,7 +2394,8 @@
     "tabs": {
       "page": "Pagina",
       "products": "Producten",
-      "portals": "Cadeauportalen"
+      "portals": "Cadeauportalen",
+      "collections": "Collecties"
     },
     "site": {
       "title": "Koptekst en voettekst",
@@ -2390,7 +2405,9 @@
         "navShop": "Label winkellink",
         "navOrders": "Label bestelstatuslink",
         "footerNote": "Voettekstnotitie"
-      }
+      },
+      "navCollections": "Collecties in de koptekst",
+      "noCollections": "Nog geen collecties. Maak ze aan onder Catalogus."
     },
     "seo": {
       "title": "Zoeken en delen",
@@ -2430,7 +2447,9 @@
       "seo": "SEO",
       "seoDescription": "Wordt getoond in zoekresultaten en linkvoorbeelden.",
       "seoFallback": "Laat leeg om de productnaam en beschrijving te gebruiken.",
-      "saveSeo": "Opslaan"
+      "saveSeo": "Opslaan",
+      "collection": "Collectie",
+      "noCollections": "Nog geen collecties."
     },
     "shopText": {
       "open": "Winkelteksten",
@@ -2741,7 +2760,8 @@
       "homeDescription": "Shop bij {store}, de officiële winkel van {client}. Op bestelling gedrukt en wereldwijd verzonden.",
       "taglineDescription": "{tagline} Shop bij {store}, de officiële winkel van {client}.",
       "shopTitle": "Shop",
-      "shopDescription": "Alle producten van {store}."
+      "shopDescription": "Alle producten van {store}.",
+      "collectionDescription": "{collection} van {store}."
     },
     "home": {
       "closedTitle": "Deze winkel is gesloten",
@@ -2766,7 +2786,15 @@
       "noMatchBody": "Probeer een andere zoekopdracht.",
       "clearFilters": "Filters wissen",
       "personalise": "Personaliseerbaar",
-      "previewSoon": "Voorbeeld volgt binnenkort"
+      "previewSoon": "Voorbeeld volgt binnenkort",
+      "sortLabel": "Sorteren op",
+      "sortFeatured": "Aanbevolen",
+      "sortPriceAsc": "Prijs, laag naar hoog",
+      "sortPriceDesc": "Prijs, hoog naar laag",
+      "sortNewest": "Nieuwste",
+      "sortApply": "Sorteren",
+      "productCount": "{count, plural, one {# product} other {# producten}}",
+      "collectionEmptyTitle": "Nog geen producten in deze collectie"
     },
     "product": {
       "breadcrumb": "Kruimelpad",
@@ -3175,5 +3203,71 @@
       "errorHome": "Terug naar {store}",
       "errorReference": "Referentie {digest}"
     }
+  },
+  "collections": {
+    "tabProducts": "Producten",
+    "tabCollections": "Collecties",
+    "tabsLabel": "Catalogusweergaven",
+    "title": "Collecties",
+    "description": "Groepeer producten in pagina's in je winkel. Een product kan in meerdere collecties staan.",
+    "newCollection": "Nieuwe collectie",
+    "name": "Naam",
+    "namePlaceholder": "Kleding",
+    "optional": "Optioneel",
+    "create": "Collectie maken",
+    "creating": "Bezig met maken…",
+    "emptyTitle": "Nog geen collecties",
+    "emptyBody": "Maak er hierboven een en voeg er producten aan toe.",
+    "listTitle": "{count, plural, one {# collectie} other {# collecties}}",
+    "reorderHint": "Sleep om de volgorde te wijzigen.",
+    "productCount": "{count, plural, one {# product} other {# producten}}",
+    "liveCount": "{count} te koop",
+    "edit": "Bewerken",
+    "view": "Bekijken",
+    "orderSaved": "Volgorde opgeslagen.",
+    "orderFailed": "De volgorde kon niet worden opgeslagen. Probeer het opnieuw.",
+    "breadcrumb": "Kruimelpad",
+    "viewLive": "Live bekijken ↗",
+    "createdTitle": "Collectie gemaakt",
+    "createdBody": "Voeg producten toe en koppel de collectie in de winkeleditor.",
+    "details": "Gegevens",
+    "detailsHint": "Vertaal de naam en beschrijving in de winkeleditor.",
+    "handle": "URL-handle",
+    "handleHint": "Kleine letters, cijfers en koppeltekens.",
+    "image": "Afbeelding",
+    "imageHint": "PNG, JPG of WebP, tot {max} MB.",
+    "removeImage": "Afbeelding verwijderen",
+    "uploading": "Bezig met uploaden…",
+    "imageTooLarge": "Dat bestand is {size} MB. De limiet is {max} MB.",
+    "imageFailed": "De afbeelding kon niet worden geüpload. Probeer het opnieuw.",
+    "save": "Collectie opslaan",
+    "deleteTitle": "Collectie verwijderen",
+    "deleteBody": "De producten blijven in de catalogus.",
+    "delete": "Collectie verwijderen",
+    "deleteConfirm": "Verwijderen",
+    "productsTitle": "Producten ({count})",
+    "productsHint": "Sleep om de volgorde onder Aanbevolen te bepalen.",
+    "productsHintReadOnly": "In deze volgorde getoond onder Aanbevolen.",
+    "addProducts": "Producten toevoegen",
+    "addDescription": "Kies producten uit de catalogus van deze winkel.",
+    "searchProducts": "Zoeken op naam of SKU",
+    "noProductsFound": "Geen producten gevonden.",
+    "cancel": "Annuleren",
+    "adding": "Bezig met toevoegen…",
+    "addCount": "{count, plural, =0 {Producten toevoegen} one {# product toevoegen} other {# producten toevoegen}}",
+    "remove": "{name} verwijderen",
+    "noProductsInCollection": "Nog geen producten in deze collectie.",
+    "notOnSale": "Niet te koop",
+    "saved": "Opgeslagen.",
+    "saveFailed": "Opslaan mislukt. Probeer het opnieuw.",
+    "drag": {
+      "instructions": "Druk op Spatie om een rij op te pakken. Verplaats met de pijltjestoetsen, druk op Spatie om neer te zetten of op Escape om te annuleren.",
+      "picked": "{name} opgepakt. Positie {position} van {total}.",
+      "moved": "{name} verplaatst naar positie {position} van {total}.",
+      "dropped": "{name} neergezet op positie {position} van {total}.",
+      "cancelled": "Verplaatsen geannuleerd. {name} staat weer op zijn plek.",
+      "handle": "{name} verplaatsen"
+    },
+    "descriptionLabel": "Beschrijving"
   }
 }

@@ -371,7 +371,7 @@ export interface StoredImage {
 }
 
 /** Upload kinds, each with its own permission check and size/format rules. */
-export type UploadScope = "artwork" | "mockup" | "logo" | "shopperArtwork" | "shopperPreview";
+export type UploadScope = "artwork" | "mockup" | "logo" | "collection" | "shopperArtwork" | "shopperPreview";
 
 /** Where artwork sits inside a print area, as fractions of the print area box. */
 export interface ArtworkPlacement {
@@ -506,6 +506,30 @@ export interface StoreProduct {
   } | null;
   updatedAt: string;
   publishedAt: string | null;
+}
+
+/**
+ * A hand-picked group of a store's products, shown on the storefront at
+ * `/collections/<handle>`. Products are listed in `productIds` order, and a
+ * product can belong to any number of collections. Name and description are
+ * written in the store's default language with translations beside them.
+ */
+export interface ProductCollection {
+  id: string;
+  storeId: string;
+  name: string;
+  /** The address segment, unique within the store. */
+  handle: string;
+  description: string;
+  imageUrl: string | null;
+  productIds: string[];
+  /** Order among the store's collections, lowest first. */
+  position: number;
+  translations?: FieldTranslations;
+  /** The key of the form that created it, so a resubmission finds it again. */
+  submissionKey?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TaxBracket {

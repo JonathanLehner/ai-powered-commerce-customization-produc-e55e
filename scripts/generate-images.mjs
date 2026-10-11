@@ -108,6 +108,52 @@ const IMAGES = [
     prompt:
       "Lifestyle photograph of folded blank pastel apparel and a plain white mug arranged on a linen surface beside dried flowers, warm morning light, soft shadows, creator-brand aesthetic. No readable text, no logos.",
   },
+  // Collection headers on the demo storefronts, landscape 3:2.
+  {
+    key: "collection-northwind-apparel",
+    prompt:
+      "Editorial landscape photograph of plain navy and white cotton t-shirts and a navy pullover hoodie, neatly folded and stacked on a light oak shelf in a bright modern office. Soft daylight, calm muted palette, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-northwind-drinkware",
+    prompt:
+      "Editorial landscape photograph of three plain white ceramic coffee mugs on a pale wooden desk beside a closed laptop and a small potted plant, morning window light. Calm muted palette, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-northwind-new-hires",
+    prompt:
+      "Editorial landscape photograph of a welcome kit for a new employee laid out on a clean desk: a folded plain navy hoodie, a folded plain white t-shirt and a plain white ceramic mug inside an open kraft gift box with tissue paper. Bright soft daylight, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-lumen-essentials",
+    prompt:
+      "Editorial landscape photograph of a folded plain pastel t-shirt and a plain matte white ceramic mug on a linen tablecloth beside dried flowers and a sketchbook, warm morning light, soft shadows, creator-studio aesthetic, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-lumen-apparel",
+    prompt:
+      "Editorial landscape photograph of plain pastel cotton t-shirts and an oatmeal hoodie hanging on a light wooden clothes rail against a warm white wall, soft daylight, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-ferro-mugs",
+    prompt:
+      "Editorial landscape photograph of plain matte black and glossy white ceramic coffee mugs on a dark walnut counter in a speciality coffee roastery, a pour-over kettle and coffee beans nearby, warm afternoon light, rich brown and cream palette, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-ferro-apparel",
+    prompt:
+      "Editorial landscape photograph of a folded plain black t-shirt and a plain charcoal hoodie on a hessian coffee sack beside a roasting drum in a European coffee roastery, warm light, rich brown and cream palette, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-ferro-starter",
+    prompt:
+      "Editorial landscape photograph of a coffee club starter set on a walnut counter: a folded plain black t-shirt, a plain white ceramic mug and a small paper bag of coffee beans without a label, warm afternoon light, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "collection-rivet-apparel",
+    prompt:
+      "Editorial landscape photograph of plain heather grey and black crew-neck t-shirts folded on a steel workbench in a clean hardware workshop, tools softly out of focus in the background, cool daylight, 3:2 composition. No people, no readable text, no logos, no printed graphics.",
+  },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

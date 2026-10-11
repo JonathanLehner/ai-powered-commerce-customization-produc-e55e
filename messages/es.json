@@ -1168,6 +1168,18 @@
         "variantOption": "Añade un color o una talla a la variante {sku}.",
         "variantCost": "Introduce el coste base del proveedor para la variante {sku}."
       }
+    },
+    "collections": {
+      "nameRequired": "Pon a la colección un nombre de al menos 2 caracteres.",
+      "nameTooLong": "El nombre debe tener menos de 80 caracteres.",
+      "descriptionTooLong": "La descripción debe tener menos de 600 caracteres.",
+      "handleInvalid": "Usa minúsculas, números y guiones en el identificador.",
+      "handleTaken": "Otra colección ya usa este identificador.",
+      "notFound": "No se encontró la colección en esta tienda.",
+      "saved": "Colección guardada.",
+      "orderSaved": "Orden guardado.",
+      "productsAdded": "{count, plural, =0 {No se añadió ningún producto.} one {# producto añadido.} other {# productos añadidos.}}",
+      "productRemoved": "Producto quitado."
     }
   },
   "settings": {
@@ -2270,7 +2282,8 @@
           "subtitle": "Subtítulo",
           "columns": "Columnas",
           "limit": "Máximo de productos",
-          "showPrice": "Mostrar precios"
+          "showPrice": "Mostrar precios",
+          "source": "Origen"
         }
       },
       "PromoBanner": {
@@ -2332,7 +2345,8 @@
       "accent": "Acento",
       "light": "Claro",
       "dark": "Oscuro",
-      "right": "Derecha"
+      "right": "Derecha",
+      "all": "Todos los productos"
     },
     "revert": "Volver a la versión publicada",
     "noProductsTitle": "Aún no hay productos publicados",
@@ -2380,7 +2394,8 @@
     "tabs": {
       "page": "Página",
       "products": "Productos",
-      "portals": "Portales de regalos"
+      "portals": "Portales de regalos",
+      "collections": "Colecciones"
     },
     "site": {
       "title": "Encabezado y pie de página",
@@ -2390,7 +2405,9 @@
         "navShop": "Etiqueta del enlace Tienda",
         "navOrders": "Etiqueta del enlace Estado del pedido",
         "footerNote": "Nota del pie de página"
-      }
+      },
+      "navCollections": "Colecciones en el encabezado",
+      "noCollections": "Aún no hay colecciones. Créalas en Catálogo."
     },
     "seo": {
       "title": "Búsqueda y compartir",
@@ -2430,7 +2447,9 @@
       "seo": "SEO",
       "seoDescription": "Se muestra en los resultados de búsqueda y en las vistas previas de enlaces.",
       "seoFallback": "Déjalo vacío para usar el nombre y la descripción del producto.",
-      "saveSeo": "Guardar"
+      "saveSeo": "Guardar",
+      "collection": "Colección",
+      "noCollections": "Aún no hay colecciones."
     },
     "shopText": {
       "open": "Textos de la tienda",
@@ -2741,7 +2760,8 @@
       "homeDescription": "Compra en {store}, la tienda oficial de {client}. Impreso bajo demanda y enviado a todo el mundo.",
       "taglineDescription": "{tagline} Compra en {store}, la tienda oficial de {client}.",
       "shopTitle": "Tienda",
-      "shopDescription": "Todos los productos de {store}."
+      "shopDescription": "Todos los productos de {store}.",
+      "collectionDescription": "{collection} de {store}."
     },
     "home": {
       "closedTitle": "Esta tienda está cerrada",
@@ -2766,7 +2786,15 @@
       "noMatchBody": "Prueba con otra búsqueda.",
       "clearFilters": "Quitar filtros",
       "personalise": "Personalizable",
-      "previewSoon": "Vista previa muy pronto"
+      "previewSoon": "Vista previa muy pronto",
+      "sortLabel": "Ordenar por",
+      "sortFeatured": "Destacados",
+      "sortPriceAsc": "Precio: de menor a mayor",
+      "sortPriceDesc": "Precio: de mayor a menor",
+      "sortNewest": "Novedades",
+      "sortApply": "Ordenar",
+      "productCount": "{count, plural, one {# producto} other {# productos}}",
+      "collectionEmptyTitle": "Aún no hay productos en esta colección"
     },
     "product": {
       "breadcrumb": "Ruta de navegación",
@@ -3175,5 +3203,71 @@
       "errorHome": "Volver a {store}",
       "errorReference": "Referencia {digest}"
     }
+  },
+  "collections": {
+    "tabProducts": "Productos",
+    "tabCollections": "Colecciones",
+    "tabsLabel": "Vistas del catálogo",
+    "title": "Colecciones",
+    "description": "Agrupa productos en páginas de tu tienda. Un producto puede estar en varias colecciones.",
+    "newCollection": "Nueva colección",
+    "name": "Nombre",
+    "namePlaceholder": "Ropa",
+    "optional": "Opcional",
+    "create": "Crear colección",
+    "creating": "Creando…",
+    "emptyTitle": "Aún no hay colecciones",
+    "emptyBody": "Crea una arriba y añade productos.",
+    "listTitle": "{count, plural, one {# colección} other {# colecciones}}",
+    "reorderHint": "Arrastra para cambiar el orden.",
+    "productCount": "{count, plural, one {# producto} other {# productos}}",
+    "liveCount": "{count} a la venta",
+    "edit": "Editar",
+    "view": "Ver",
+    "orderSaved": "Orden guardado.",
+    "orderFailed": "No se pudo guardar el orden. Inténtalo de nuevo.",
+    "breadcrumb": "Ruta de navegación",
+    "viewLive": "Ver en la tienda ↗",
+    "createdTitle": "Colección creada",
+    "createdBody": "Añade productos y enlázala en el editor de la tienda.",
+    "details": "Detalles",
+    "detailsHint": "Traduce el nombre y la descripción en el editor de la tienda.",
+    "handle": "Identificador de URL",
+    "handleHint": "Minúsculas, números y guiones.",
+    "image": "Imagen",
+    "imageHint": "PNG, JPG o WebP, hasta {max} MB.",
+    "removeImage": "Quitar imagen",
+    "uploading": "Subiendo…",
+    "imageTooLarge": "El archivo ocupa {size} MB. El límite es {max} MB.",
+    "imageFailed": "No se pudo subir la imagen. Inténtalo de nuevo.",
+    "save": "Guardar colección",
+    "deleteTitle": "Eliminar colección",
+    "deleteBody": "Los productos siguen en el catálogo.",
+    "delete": "Eliminar colección",
+    "deleteConfirm": "Eliminar",
+    "productsTitle": "Productos ({count})",
+    "productsHint": "Arrastra para fijar el orden que se muestra en Destacados.",
+    "productsHintReadOnly": "Se muestran en este orden en Destacados.",
+    "addProducts": "Añadir productos",
+    "addDescription": "Elige productos del catálogo de esta tienda.",
+    "searchProducts": "Buscar por nombre o SKU",
+    "noProductsFound": "No se encontraron productos.",
+    "cancel": "Cancelar",
+    "adding": "Añadiendo…",
+    "addCount": "{count, plural, =0 {Añadir productos} one {Añadir # producto} other {Añadir # productos}}",
+    "remove": "Quitar {name}",
+    "noProductsInCollection": "Aún no hay productos en esta colección.",
+    "notOnSale": "No está a la venta",
+    "saved": "Guardado.",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "drag": {
+      "instructions": "Pulsa Espacio para seleccionar una fila. Muévela con las flechas, pulsa Espacio para soltarla o Escape para cancelar.",
+      "picked": "{name} seleccionado. Posición {position} de {total}.",
+      "moved": "{name} movido a la posición {position} de {total}.",
+      "dropped": "{name} soltado en la posición {position} de {total}.",
+      "cancelled": "Movimiento cancelado. {name} vuelve a su sitio.",
+      "handle": "Mover {name}"
+    },
+    "descriptionLabel": "Descripción"
   }
 }

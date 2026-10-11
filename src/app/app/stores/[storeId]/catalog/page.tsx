@@ -12,6 +12,7 @@ import { storeSku } from "@/lib/sku";
 import type { StoreProduct } from "@/lib/types";
 import { formatAgo } from "@/i18n/format";
 import { formatDate, formatMoney, formatPercent } from "@/lib/util";
+import { CatalogTabs } from "./CatalogTabs";
 import { CatalogToolbar } from "./CatalogToolbar";
 
 const STATUS_TONES: Record<StoreProduct["status"], "green" | "amber" | "neutral" | "slate"> = {
@@ -60,6 +61,7 @@ export default async function StoreCatalogPage({
   const now = new Date();
   return (
     <div className="space-y-6">
+      <CatalogTabs storeId={storeId} active="products" />
       <PageHeader
         title={pages("productsTitle")}
         actions={

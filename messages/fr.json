@@ -1168,6 +1168,18 @@
         "variantOption": "Ajoutez une couleur ou une taille à la variante {sku}.",
         "variantCost": "Saisissez le coût de base du fournisseur pour la variante {sku}."
       }
+    },
+    "collections": {
+      "nameRequired": "Donnez à la collection un nom d'au moins 2 caractères.",
+      "nameTooLong": "Le nom doit faire moins de 80 caractères.",
+      "descriptionTooLong": "La description doit faire moins de 600 caractères.",
+      "handleInvalid": "Utilisez des lettres minuscules, des chiffres et des tirets pour l'identifiant.",
+      "handleTaken": "Une autre collection utilise déjà cet identifiant.",
+      "notFound": "Collection introuvable dans cette boutique.",
+      "saved": "Collection enregistrée.",
+      "orderSaved": "Ordre enregistré.",
+      "productsAdded": "{count, plural, =0 {Aucun produit ajouté.} one {# produit ajouté.} other {# produits ajoutés.}}",
+      "productRemoved": "Produit retiré."
     }
   },
   "settings": {
@@ -2270,7 +2282,8 @@
           "subtitle": "Sous-titre",
           "columns": "Colonnes",
           "limit": "Nombre maximal de produits",
-          "showPrice": "Afficher les prix"
+          "showPrice": "Afficher les prix",
+          "source": "Source"
         }
       },
       "PromoBanner": {
@@ -2332,7 +2345,8 @@
       "accent": "Accent",
       "light": "Clair",
       "dark": "Sombre",
-      "right": "Droite"
+      "right": "Droite",
+      "all": "Tous les produits"
     },
     "revert": "Rétablir la version publiée",
     "noProductsTitle": "Aucun produit publié",
@@ -2380,7 +2394,8 @@
     "tabs": {
       "page": "Page",
       "products": "Produits",
-      "portals": "Portails cadeaux"
+      "portals": "Portails cadeaux",
+      "collections": "Collections"
     },
     "site": {
       "title": "En-tête et pied de page",
@@ -2390,7 +2405,9 @@
         "navShop": "Libellé du lien Boutique",
         "navOrders": "Libellé du lien Suivi de commande",
         "footerNote": "Note de pied de page"
-      }
+      },
+      "navCollections": "Collections dans l'en-tête",
+      "noCollections": "Aucune collection. Créez-en dans Catalogue."
     },
     "seo": {
       "title": "Recherche et partage",
@@ -2430,7 +2447,9 @@
       "seo": "SEO",
       "seoDescription": "Affiché dans les résultats de recherche et les aperçus de liens.",
       "seoFallback": "Laissez vide pour utiliser le nom et la description du produit.",
-      "saveSeo": "Enregistrer"
+      "saveSeo": "Enregistrer",
+      "collection": "Collection",
+      "noCollections": "Aucune collection."
     },
     "shopText": {
       "open": "Textes de la boutique",
@@ -2741,7 +2760,8 @@
       "homeDescription": "Découvrez {store}, la boutique officielle de {client}. Imprimé à la demande et expédié dans le monde entier.",
       "taglineDescription": "{tagline} Découvrez {store}, la boutique officielle de {client}.",
       "shopTitle": "Boutique",
-      "shopDescription": "Tous les produits de {store}."
+      "shopDescription": "Tous les produits de {store}.",
+      "collectionDescription": "{collection} chez {store}."
     },
     "home": {
       "closedTitle": "Cette boutique est fermée",
@@ -2766,7 +2786,15 @@
       "noMatchBody": "Essayez une autre recherche.",
       "clearFilters": "Effacer les filtres",
       "personalise": "Personnalisable",
-      "previewSoon": "Aperçu bientôt disponible"
+      "previewSoon": "Aperçu bientôt disponible",
+      "sortLabel": "Trier par",
+      "sortFeatured": "En vedette",
+      "sortPriceAsc": "Prix croissant",
+      "sortPriceDesc": "Prix décroissant",
+      "sortNewest": "Nouveautés",
+      "sortApply": "Trier",
+      "productCount": "{count, plural, one {# produit} other {# produits}}",
+      "collectionEmptyTitle": "Aucun produit dans cette collection"
     },
     "product": {
       "breadcrumb": "Fil d’Ariane",
@@ -3175,5 +3203,71 @@
       "errorHome": "Retour à {store}",
       "errorReference": "Référence {digest}"
     }
+  },
+  "collections": {
+    "tabProducts": "Produits",
+    "tabCollections": "Collections",
+    "tabsLabel": "Vues du catalogue",
+    "title": "Collections",
+    "description": "Regroupez des produits en pages sur votre boutique. Un produit peut figurer dans plusieurs collections.",
+    "newCollection": "Nouvelle collection",
+    "name": "Nom",
+    "namePlaceholder": "Vêtements",
+    "optional": "Facultatif",
+    "create": "Créer la collection",
+    "creating": "Création…",
+    "emptyTitle": "Aucune collection",
+    "emptyBody": "Créez-en une ci-dessus, puis ajoutez-y des produits.",
+    "listTitle": "{count, plural, one {# collection} other {# collections}}",
+    "reorderHint": "Faites glisser pour changer l'ordre.",
+    "productCount": "{count, plural, one {# produit} other {# produits}}",
+    "liveCount": "{count} en vente",
+    "edit": "Modifier",
+    "view": "Voir",
+    "orderSaved": "Ordre enregistré.",
+    "orderFailed": "Impossible d'enregistrer l'ordre. Réessayez.",
+    "breadcrumb": "Fil d'Ariane",
+    "viewLive": "Voir en ligne ↗",
+    "createdTitle": "Collection créée",
+    "createdBody": "Ajoutez des produits, puis liez-la dans l'éditeur de boutique.",
+    "details": "Détails",
+    "detailsHint": "Traduisez le nom et la description dans l'éditeur de boutique.",
+    "handle": "Identifiant d'URL",
+    "handleHint": "Lettres minuscules, chiffres et tirets.",
+    "image": "Image",
+    "imageHint": "PNG, JPG ou WebP, jusqu'à {max} Mo.",
+    "removeImage": "Retirer l'image",
+    "uploading": "Envoi…",
+    "imageTooLarge": "Ce fichier fait {size} Mo. La limite est de {max} Mo.",
+    "imageFailed": "Impossible d'envoyer l'image. Réessayez.",
+    "save": "Enregistrer la collection",
+    "deleteTitle": "Supprimer la collection",
+    "deleteBody": "Les produits restent dans le catalogue.",
+    "delete": "Supprimer la collection",
+    "deleteConfirm": "Supprimer",
+    "productsTitle": "Produits ({count})",
+    "productsHint": "Faites glisser pour définir l'ordre affiché sous « En vedette ».",
+    "productsHintReadOnly": "Affichés dans cet ordre sous « En vedette ».",
+    "addProducts": "Ajouter des produits",
+    "addDescription": "Choisissez des produits dans le catalogue de cette boutique.",
+    "searchProducts": "Rechercher par nom ou SKU",
+    "noProductsFound": "Aucun produit trouvé.",
+    "cancel": "Annuler",
+    "adding": "Ajout…",
+    "addCount": "{count, plural, =0 {Ajouter des produits} one {Ajouter # produit} other {Ajouter # produits}}",
+    "remove": "Retirer {name}",
+    "noProductsInCollection": "Aucun produit dans cette collection.",
+    "notOnSale": "Pas en vente",
+    "saved": "Enregistré.",
+    "saveFailed": "Échec de l'enregistrement. Réessayez.",
+    "drag": {
+      "instructions": "Appuyez sur Espace pour saisir une ligne. Déplacez-la avec les flèches, appuyez sur Espace pour la déposer ou sur Échap pour annuler.",
+      "picked": "{name} saisi. Position {position} sur {total}.",
+      "moved": "{name} déplacé en position {position} sur {total}.",
+      "dropped": "{name} déposé en position {position} sur {total}.",
+      "cancelled": "Déplacement annulé. {name} est revenu à sa place.",
+      "handle": "Déplacer {name}"
+    },
+    "descriptionLabel": "Description"
   }
 }

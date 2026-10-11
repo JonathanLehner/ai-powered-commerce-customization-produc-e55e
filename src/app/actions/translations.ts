@@ -8,14 +8,18 @@ import { storeLanguages } from "@/i18n/storefront-routing";
 import {
   COLLECTIONS,
   getGiftCatalogue,
+  getProductCollection,
   getStoreProduct,
   listGiftCatalogues,
+  listProductCollections,
   listStoreProducts,
   recordAudit,
   updateGiftCatalogue,
+  updateProductCollection,
   updateStorefront,
   updateStoreProduct,
 } from "@/lib/data";
+import { collectionFields } from "@/lib/collections";
 import { db } from "@/lib/mongo";
 import { SEO_LIMITS } from "@/lib/seo";
 import { assertStoreAccess } from "@/lib/session";
@@ -173,6 +177,41 @@ export async function saveCatalogueTranslation(input: {
   return { status: "success", message: t("translationSaved"), translations };
 }
 
+/** Saves a collection's name and description in one language, as products are saved. */
+export async function saveCollectionTranslation(input: {
+  storeId: string;
+  collectionId: string;
+  locale: string;
+  values: Record<string, string>;
+}): Promise<TranslationResult> {
+  const [{ user, store }, collection] = await Promise.all([
+    assertStoreAccess(input.storeId, "store.storefront"),
+    getProductCollection(input.collectionId),
+  ]);
+  const t = await getTranslations("actions.storefront");
+  const locale = translationLocale(store, input.locale);
+  if (!locale) return { status: "error", message: t("languageUnavailable") };
+  if (!collection || collection.storeId !== store.id) return { status: "error", message: t("notFound") };
+
+  let translations = collection.translations ?? {};
+  for (const field of collectionFields(collection)) {
+    if (!(field.key in input.values)) continue;
+    translations = withTranslation(translations, locale, field.key, String(input.values[field.key] ?? "").trim());
+  }
+  await updateProductCollection(collection.id, {}, { translations });
+  audit(
+    store,
+    user,
+    "storefront.collection_translated",
+    `Saved the ${languageName("en", locale)} translation of the collection “${collection.name}”`,
+    "collection",
+    collection.id,
+    { locale },
+  );
+  refresh(store);
+  return { status: "success", message: t("translationSaved"), translations };
+}
+
 /* ---------------------------------------------------------------- shop text */
 
 export interface ShopTextResult extends ActionState {
@@ -244,12 +283,14 @@ export interface TranslateMissingResult extends ActionState {
   tree?: Record<string, unknown>;
   products?: Record<string, FieldTranslations>;
   catalogues?: Record<string, FieldTranslations>;
+  collections?: Record<string, FieldTranslations>;
 }
 
 /**
  * Fills every untranslated field in one language with the platform text model:
  * the page in the editor (which is then saved as the draft), product names,
- * descriptions and option labels, and gift portal intros. Results are marked
+ * descriptions and option labels, collection names and descriptions, and gift
+ * portal intros. Results are marked
  * machine-translated, and a field that has a translation is never touched, so
  * running it twice changes nothing the first run wrote.
  */
@@ -271,7 +312,11 @@ export async function translateMissing(input: {
   }
   if (!tree) return { status: "error", message: t("unreadable") };
 
-  const [products, catalogues] = await Promise.all([listStoreProducts(store.id), listGiftCatalogues(store.id)]);
+  const [products, catalogues, collections] = await Promise.all([
+    listStoreProducts(store.id),
+    listGiftCatalogues(store.id),
+    listProductCollections(store.id),
+  ]);
   const pending: Record<string, string> = { ...missingTreeFields(tree, locale) };
   for (const product of products) {
     if (product.status === "archived") continue;
@@ -282,6 +327,13 @@ export async function translateMissing(input: {
   for (const catalogue of catalogues) {
     if (catalogue.intro.trim() && !translationOf(catalogue.translations, locale, "intro")) {
       pending[`portal:${catalogue.id}`] = catalogue.intro;
+    }
+  }
+  for (const collection of collections) {
+    for (const field of collectionFields(collection)) {
+      if (field.source.trim() && !translationOf(collection.translations, locale, field.key)) {
+        pending[`collection:${collection.id}:${field.key}`] = field.source;
+      }
     }
   }
   if (Object.keys(pending).length === 0) {
@@ -299,6 +351,7 @@ export async function translateMissing(input: {
   const treeValues: Record<string, string> = {};
   const productValues = new Map<string, Record<string, string>>();
   const portalValues = new Map<string, string>();
+  const collectionValues = new Map<string, Record<string, string>>();
   for (const [key, value] of Object.entries(results)) {
     if (key.startsWith("section:") || key.startsWith("site:")) {
       treeValues[key] = value;
@@ -307,6 +360,9 @@ export async function translateMissing(input: {
       productValues.set(id, { ...(productValues.get(id) ?? {}), [field.join(":")]: value });
     } else if (key.startsWith("portal:")) {
       portalValues.set(key.slice("portal:".length), value);
+    } else if (key.startsWith("collection:")) {
+      const [, id, field] = key.split(":");
+      collectionValues.set(id, { ...(collectionValues.get(id) ?? {}), [field]: value });
     }
   }
 
@@ -335,6 +391,19 @@ export async function translateMissing(input: {
     catalogueTranslations[catalogue.id] = translations;
     writes.push(updateGiftCatalogue(catalogue.id, { translations }));
   }
+  const collectionTranslations: Record<string, FieldTranslations> = {};
+  for (const collection of collections) {
+    const values = collectionValues.get(collection.id);
+    if (!values) continue;
+    let translations = collection.translations ?? {};
+    for (const [key, value] of Object.entries(values)) {
+      if (!translationOf(translations, locale, key)) {
+        translations = withTranslation(translations, locale, key, value, true);
+      }
+    }
+    collectionTranslations[collection.id] = translations;
+    writes.push(updateProductCollection(collection.id, {}, { translations }));
+  }
   await Promise.all(writes);
 
   const count = Object.keys(results).length;
@@ -354,5 +423,6 @@ export async function translateMissing(input: {
     tree: nextTree,
     products: productTranslations,
     catalogues: catalogueTranslations,
+    collections: collectionTranslations,
   };
 }

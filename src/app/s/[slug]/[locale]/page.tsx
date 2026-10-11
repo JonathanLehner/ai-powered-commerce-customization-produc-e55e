@@ -7,7 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { getStoreBySlug, getStorefront, listPublishedProducts } from "@/lib/data";
+import { getStoreBySlug, getStorefront, listProductCollections, listPublishedProducts } from "@/lib/data";
 import { convert } from "@/lib/pricing";
 import { sectionsFromTree } from "@/lib/storefront-schema";
 import { organizationJsonLd, storeUrl } from "@/lib/seo";
@@ -48,9 +48,10 @@ export default async function StorefrontHome({
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;
 
-  const [storefront, products] = await Promise.all([
+  const [storefront, products, collections] = await Promise.all([
     getStorefront(store.id),
     listPublishedProducts(store.id),
+    listProductCollections(store.id),
   ]);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
@@ -79,6 +80,7 @@ export default async function StorefrontHome({
       imageUrl: p.mockups[0]?.url ?? null,
       tagline: p.description.split("\n")[0],
     })),
+    collections: collections.map(({ id, handle, productIds }) => ({ id, handle, productIds })),
   };
 
   if (store.status === "archived") {

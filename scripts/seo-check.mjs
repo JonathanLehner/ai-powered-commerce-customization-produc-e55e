@@ -169,6 +169,28 @@ assert.deepEqual(onDomain.find((e) => e.url.endsWith("/products/field-tee")).ima
 ]);
 assert.equal(onDomain[0].lastModified, "2026-10-03T10:00:00.000Z", "the home page changes with its newest product");
 
+// Collections are pages of their own, in every language, with their image.
+const collections = [
+  { handle: "apparel", updatedAt: "2026-10-02T10:00:00.000Z", imageUrl: "https://assets.clawcorp.ai/c/apparel.webp" },
+  { handle: "new-hires", updatedAt: "2026-10-04T10:00:00.000Z", imageUrl: null },
+];
+const withCollections = storeSitemap(northwind, products, collections);
+assert.equal(withCollections.length, onDomain.length + collections.length * 2, "each collection, per language");
+checkSitemap(
+  withCollections.filter((e) => !e.url.startsWith(SITE_ORIGIN)),
+  {
+    host: "shop.northwind.example",
+    languages: ["en", "de"],
+    toRoute: (url) => `/s/northwind-supply${url.pathname === "/" ? "" : url.pathname}`,
+  },
+);
+const apparel = withCollections.find((e) => e.url === "https://shop.northwind.example/de/collections/apparel");
+assert.ok(apparel, "the German collection page is listed");
+assert.deepEqual(apparel.images, ["https://assets.clawcorp.ai/c/apparel.webp"]);
+assert.equal(apparel.lastModified, "2026-10-02T10:00:00.000Z");
+assert.equal(withCollections.find((e) => e.url.endsWith("/collections/new-hires")).images, undefined);
+assert.deepEqual(storeSitemap({ ...northwind, status: "archived" }, products, collections), []);
+
 // No domain, or one not verified yet: the platform address is canonical.
 for (const domain of [
   { customDomain: null, domainStatus: "unset" },

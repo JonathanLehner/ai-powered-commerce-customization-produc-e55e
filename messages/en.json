@@ -1168,6 +1168,18 @@
         "variantOption": "Add a colour or size to variant {sku}.",
         "variantCost": "Enter the supplier's base cost for variant {sku}."
       }
+    },
+    "collections": {
+      "nameRequired": "Give the collection a name of at least 2 characters.",
+      "nameTooLong": "Keep the name under 80 characters.",
+      "descriptionTooLong": "Keep the description under 600 characters.",
+      "handleInvalid": "Use lowercase letters, numbers and hyphens for the handle.",
+      "handleTaken": "Another collection already uses this handle.",
+      "notFound": "Collection not found in this store.",
+      "saved": "Collection saved.",
+      "orderSaved": "Order saved.",
+      "productsAdded": "{count, plural, =0 {No products added.} one {# product added.} other {# products added.}}",
+      "productRemoved": "Product removed."
     }
   },
   "settings": {
@@ -2270,7 +2282,8 @@
           "subtitle": "Subtitle",
           "columns": "Columns",
           "limit": "Maximum products",
-          "showPrice": "Show prices"
+          "showPrice": "Show prices",
+          "source": "Source"
         }
       },
       "PromoBanner": {
@@ -2332,7 +2345,8 @@
       "accent": "Accent",
       "light": "Light",
       "dark": "Dark",
-      "right": "Right"
+      "right": "Right",
+      "all": "All products"
     },
     "revert": "Revert draft to published",
     "noProductsTitle": "No published products yet",
@@ -2380,7 +2394,8 @@
     "tabs": {
       "page": "Page",
       "products": "Products",
-      "portals": "Gift portals"
+      "portals": "Gift portals",
+      "collections": "Collections"
     },
     "site": {
       "title": "Header and footer",
@@ -2390,7 +2405,9 @@
         "navShop": "Shop link label",
         "navOrders": "Order status link label",
         "footerNote": "Footer note"
-      }
+      },
+      "navCollections": "Collections in the header",
+      "noCollections": "No collections yet. Create them under Catalog."
     },
     "seo": {
       "title": "Search and sharing",
@@ -2430,7 +2447,9 @@
       "seo": "SEO",
       "seoDescription": "Shown in search results and link previews.",
       "seoFallback": "Leave empty to use the product name and description.",
-      "saveSeo": "Save"
+      "saveSeo": "Save",
+      "collection": "Collection",
+      "noCollections": "No collections yet."
     },
     "shopText": {
       "open": "Shop text",
@@ -2741,7 +2760,8 @@
       "homeDescription": "Shop {store}, the official store for {client}. Printed on demand and shipped worldwide.",
       "taglineDescription": "{tagline} Shop {store}, the official store for {client}.",
       "shopTitle": "Shop",
-      "shopDescription": "All products from {store}."
+      "shopDescription": "All products from {store}.",
+      "collectionDescription": "{collection} from {store}."
     },
     "home": {
       "closedTitle": "This store is closed",
@@ -2766,7 +2786,15 @@
       "noMatchBody": "Try a different search.",
       "clearFilters": "Clear filters",
       "personalise": "Personalise",
-      "previewSoon": "Preview coming soon"
+      "previewSoon": "Preview coming soon",
+      "sortLabel": "Sort by",
+      "sortFeatured": "Featured",
+      "sortPriceAsc": "Price, low to high",
+      "sortPriceDesc": "Price, high to low",
+      "sortNewest": "Newest",
+      "sortApply": "Sort",
+      "productCount": "{count, plural, one {# product} other {# products}}",
+      "collectionEmptyTitle": "No products in this collection yet"
     },
     "product": {
       "breadcrumb": "Breadcrumb",
@@ -3175,5 +3203,71 @@
       "errorHome": "Back to {store}",
       "errorReference": "Reference {digest}"
     }
+  },
+  "collections": {
+    "tabProducts": "Products",
+    "tabCollections": "Collections",
+    "tabsLabel": "Catalog views",
+    "title": "Collections",
+    "description": "Group products into pages on your storefront. A product can be in several collections.",
+    "newCollection": "New collection",
+    "name": "Name",
+    "namePlaceholder": "Apparel",
+    "optional": "Optional",
+    "create": "Create collection",
+    "creating": "Creating…",
+    "emptyTitle": "No collections yet",
+    "emptyBody": "Create one above, then add products to it.",
+    "listTitle": "{count, plural, one {# collection} other {# collections}}",
+    "reorderHint": "Drag to change the order.",
+    "productCount": "{count, plural, one {# product} other {# products}}",
+    "liveCount": "{count} on sale",
+    "edit": "Edit",
+    "view": "View",
+    "orderSaved": "Order saved.",
+    "orderFailed": "Could not save the order. Try again.",
+    "breadcrumb": "Breadcrumb",
+    "viewLive": "View live ↗",
+    "createdTitle": "Collection created",
+    "createdBody": "Add products, then link it in the storefront editor.",
+    "details": "Details",
+    "detailsHint": "Translate the name and description in the storefront editor.",
+    "handle": "URL handle",
+    "handleHint": "Lowercase letters, numbers and hyphens.",
+    "image": "Image",
+    "imageHint": "PNG, JPG or WebP, up to {max} MB.",
+    "removeImage": "Remove image",
+    "uploading": "Uploading…",
+    "imageTooLarge": "That file is {size} MB. The limit is {max} MB.",
+    "imageFailed": "Could not upload the image. Try again.",
+    "save": "Save collection",
+    "deleteTitle": "Delete collection",
+    "deleteBody": "Products stay in the catalog.",
+    "delete": "Delete collection",
+    "deleteConfirm": "Delete",
+    "productsTitle": "Products ({count})",
+    "productsHint": "Drag to set the order shoppers see under Featured.",
+    "productsHintReadOnly": "Shown in this order under Featured.",
+    "addProducts": "Add products",
+    "addDescription": "Choose products from this store's catalog.",
+    "searchProducts": "Search by name or SKU",
+    "noProductsFound": "No products found.",
+    "cancel": "Cancel",
+    "adding": "Adding…",
+    "addCount": "{count, plural, =0 {Add products} one {Add # product} other {Add # products}}",
+    "remove": "Remove {name}",
+    "noProductsInCollection": "No products in this collection yet.",
+    "notOnSale": "Not on sale",
+    "saved": "Saved.",
+    "saveFailed": "Could not save. Try again.",
+    "drag": {
+      "instructions": "Press Space to pick up a row. Use the arrow keys to move it, Space to drop and Escape to cancel.",
+      "picked": "Picked up {name}. Position {position} of {total}.",
+      "moved": "{name} moved to position {position} of {total}.",
+      "dropped": "{name} dropped at position {position} of {total}.",
+      "cancelled": "Move cancelled. {name} is back in place.",
+      "handle": "Reorder {name}"
+    },
+    "descriptionLabel": "Description"
   }
 }

@@ -11,6 +11,7 @@ import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -27,6 +28,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { languageName } from "@/i18n/display";
 import { localeBase } from "@/i18n/storefront-routing";
 import type { Locale } from "@/i18n/locales";
+import { NAV_COLLECTIONS_PROP, navCollectionIds } from "@/lib/collections";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
 import {
@@ -190,6 +192,7 @@ function SettingsPanel() {
   });
 
   const def = sectionType && sectionType in SECTION_DEFS ? SECTION_DEFS[sectionType] : null;
+  const collections = useCtx().collections ?? [];
   const t = useTranslations("editor");
   const { locale, defaultLocale } = useEditLocale();
   const isDefault = locale === defaultLocale;
@@ -297,7 +300,11 @@ function SettingsPanel() {
               {field.type === "select" ? (
                 <Select
                   disabled={!isDefault}
-                  value={String(value ?? "")}
+                  value={
+                    field.key === "source" && !collections.some((c) => c.id === value)
+                      ? String(field.options?.[0]?.value ?? "")
+                      : String(value ?? "")
+                  }
                   onValueChange={(next) =>
                     actions.setProp(selectedId, (p: Record<string, unknown>) => {
                       p[field.key] = next;
@@ -313,6 +320,14 @@ function SettingsPanel() {
                         {label(`options.${option.value}`, option.label)}
                       </SelectItem>
                     ))}
+                    {/* A Product grid can draw from any of the store's collections. */}
+                    {field.key === "source"
+                      ? collections.map((collection) => (
+                          <SelectItem key={collection.id} value={collection.id}>
+                            {collection.name}
+                          </SelectItem>
+                        ))
+                      : null}
                   </SelectContent>
                 </Select>
               ) : (
@@ -450,8 +465,21 @@ function SeoPanel() {
 
 /** The announcement bar, navigation labels and footer note, kept on the page's root node. */
 function SiteContentPanel() {
-  const props = useEditor((state) => ({ props: (state.nodes.ROOT?.data.props ?? {}) as Record<string, unknown> })).props;
+  const { props, actions } = useEditor((state) => ({
+    props: (state.nodes.ROOT?.data.props ?? {}) as Record<string, unknown>,
+  }));
   const t = useTranslations("editor.site");
+  const { locale, defaultLocale } = useEditLocale();
+  const collections = useCtx().collections ?? [];
+  const linked = navCollectionIds({ ROOT: { props } });
+
+  // The header lists the linked collections in the store's collection order.
+  function toggle(id: string, on: boolean) {
+    const next = collections.map((c) => c.id).filter((cid) => (cid === id ? on : linked.includes(cid)));
+    actions.setProp("ROOT", (p: Record<string, unknown>) => {
+      p[NAV_COLLECTIONS_PROP] = next;
+    });
+  }
 
   return (
     <Card size="sm">
@@ -472,6 +500,31 @@ function SiteContentPanel() {
             props={props}
           />
         ))}
+        <fieldset className="grid gap-2">
+          <legend className="text-xs font-medium text-foreground">{t("navCollections")}</legend>
+          {collections.length === 0 ? (
+            <p className="mt-1 text-xs text-muted-foreground">{t("noCollections")}</p>
+          ) : (
+            <ul className="mt-1 space-y-2">
+              {collections.map((collection) => {
+                const id = `nav-collection-${collection.id}`;
+                return (
+                  <li key={collection.id} className="flex items-center gap-2.5">
+                    <Checkbox
+                      id={id}
+                      disabled={locale !== defaultLocale}
+                      checked={linked.includes(collection.id)}
+                      onCheckedChange={(checked) => toggle(collection.id, checked === true)}
+                    />
+                    <Label htmlFor={id} className="cursor-pointer text-sm font-normal">
+                      {collection.name}
+                    </Label>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </fieldset>
       </CardContent>
     </Card>
   );
@@ -568,6 +621,7 @@ export interface EditorCanvasProps {
   /** The built-in header labels per language, shown when a store leaves its own empty. */
   chrome: Record<string, { shop: string; orderStatus: string }>;
   products: TranslatableItem[];
+  collections: TranslatableItem[];
   portals: TranslatableItem[];
   shopText: ShopTextData;
   publishedAt: string | null;
@@ -587,6 +641,8 @@ function SitePreview({ storeName, chrome, children }: { storeName: string; chrom
   const { locale, defaultLocale } = useEditLocale();
   const tree = useEditor((state) => ({ props: state.nodes.ROOT?.data.props ?? {} })).props;
   const site = siteContent({ ROOT: { props: tree } }, locale, defaultLocale);
+  const collections = useCtx().collections ?? [];
+  const linked = navCollectionIds({ ROOT: { props: tree } });
   return (
     <>
       {site.announcement ? (
@@ -595,6 +651,13 @@ function SitePreview({ storeName, chrome, children }: { storeName: string; chrom
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-b border-border px-4 py-3">
         <span className="font-heading text-base font-semibold tracking-tight text-foreground">{storeName}</span>
         <span className="text-sm font-medium text-foreground">{site.navShop || chrome.shop}</span>
+        {collections
+          .filter((c) => linked.includes(c.id))
+          .map((c) => (
+            <span key={c.id} className="text-sm font-medium text-foreground">
+              {c.name}
+            </span>
+          ))}
         <span className="text-sm font-medium text-foreground">{site.navOrders || chrome.orderStatus}</span>
       </div>
       {children}
@@ -626,6 +689,7 @@ function EditorShell(props: ShellProps) {
   const [label, setLabel] = useState("");
   const [products, setProducts] = useState(props.products);
   const [portals, setPortals] = useState(props.portals);
+  const [collections, setCollections] = useState(props.collections);
   const t = useTranslations("editor");
   const uiLocale = useLocale();
   const locale = props.locale;
@@ -634,7 +698,7 @@ function EditorShell(props: ShellProps) {
 
   const missingElsewhere = isDefault
     ? 0
-    : [...products, ...portals].reduce(
+    : [...products, ...collections, ...portals].reduce(
         (sum, item) =>
           sum +
           item.fields.filter(
@@ -680,6 +744,10 @@ function EditorShell(props: ShellProps) {
       if (result.products) {
         const updated = result.products;
         setProducts((list) => list.map((p) => (updated[p.id] ? { ...p, translations: updated[p.id] } : p)));
+      }
+      if (result.collections) {
+        const updated = result.collections;
+        setCollections((list) => list.map((c) => (updated[c.id] ? { ...c, translations: updated[c.id] } : c)));
       }
       if (result.catalogues) {
         const updated = result.catalogues;
@@ -790,6 +858,9 @@ function EditorShell(props: ShellProps) {
             <TabsTrigger value="products" className="px-3">
               {t("tabs.products")}
             </TabsTrigger>
+            <TabsTrigger value="collections" className="px-3">
+              {t("tabs.collections")}
+            </TabsTrigger>
             <TabsTrigger value="portals" className="px-3">
               {t("tabs.portals")}
             </TabsTrigger>
@@ -892,6 +963,20 @@ function EditorShell(props: ShellProps) {
             items={products}
             onSaved={(id, update) =>
               setProducts((list) => list.map((p) => (p.id === id ? applyUpdate(p, update) : p)))
+            }
+          />
+        </TabsContent>
+        <TabsContent value="collections">
+          <ContentTranslations
+            kind="collection"
+            storeId={props.storeId}
+            locale={locale}
+            defaultLocale={props.defaultLocale}
+            languageLabel={languageLabel(locale)}
+            sourceLabel={languageLabel(props.defaultLocale)}
+            items={collections}
+            onSaved={(id, update) =>
+              setCollections((list) => list.map((c) => (c.id === id ? applyUpdate(c, update) : c)))
             }
           />
         </TabsContent>

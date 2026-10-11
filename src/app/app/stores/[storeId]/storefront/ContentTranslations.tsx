@@ -3,7 +3,12 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
-import { saveCatalogueTranslation, saveProductSeo, saveProductTranslation } from "@/app/actions/translations";
+import {
+  saveCatalogueTranslation,
+  saveCollectionTranslation,
+  saveProductSeo,
+  saveProductTranslation,
+} from "@/app/actions/translations";
 import { Badge } from "@/components/ui";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,10 +64,12 @@ function rowState(item: TranslatableItem, locale: string, defaultLocale: string)
   return states.includes("translated") ? "translated" : "source";
 }
 
+type ContentKind = "product" | "collection" | "portal";
+
 /**
- * Products or gift portals in one language: what a shopper reads, whether it
- * is translated, and a sheet to translate it. In the default language the
- * source is edited where it lives, in the catalog or gifting.
+ * Products, collections or gift portals in one language: what a shopper reads,
+ * whether it is translated, and a sheet to translate it. In the default
+ * language the source is edited where it lives, in the catalog or gifting.
  */
 export function ContentTranslations({
   kind,
@@ -74,7 +81,7 @@ export function ContentTranslations({
   items,
   onSaved,
 }: {
-  kind: "product" | "portal";
+  kind: ContentKind;
   storeId: string;
   locale: string;
   defaultLocale: string;
@@ -91,7 +98,7 @@ export function ContentTranslations({
   if (items.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-        {kind === "product" ? t("noProducts") : t("noPortals")}
+        {kind === "product" ? t("noProducts") : kind === "collection" ? t("noCollections") : t("noPortals")}
       </p>
     );
   }
@@ -103,7 +110,9 @@ export function ContentTranslations({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-4">{kind === "product" ? t("product") : t("portal")}</TableHead>
+              <TableHead className="pl-4">
+                {kind === "product" ? t("product") : kind === "collection" ? t("collection") : t("portal")}
+              </TableHead>
               <TableHead>{t("status")}</TableHead>
               <TableHead className="pr-4 text-right">
                 <span className="sr-only">{t("edit")}</span>
@@ -113,7 +122,8 @@ export function ContentTranslations({
           <TableBody>
             {items.map((item) => {
               const state = rowState(item, locale, defaultLocale);
-              const shown = kind === "product" ? localized(item.name, item.translations, locale, defaultLocale, "name") : item.name;
+              const shown =
+                kind === "portal" ? item.name : localized(item.name, item.translations, locale, defaultLocale, "name");
               return (
                 <TableRow key={item.id}>
                   <TableCell className="pl-4 font-medium text-foreground">{shown}</TableCell>
@@ -140,7 +150,7 @@ export function ContentTranslations({
                           </Button>
                         ) : null}
                         <Link href={item.href} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                          {kind === "product" ? t("editSource") : t("editPortal")}
+                          {kind === "portal" ? t("editPortal") : t("editSource")}
                         </Link>
                       </div>
                     ) : (
@@ -203,7 +213,7 @@ function TranslationForm({
   item,
   onSaved,
 }: {
-  kind: "product" | "portal";
+  kind: ContentKind;
   storeId: string;
   locale: string;
   languageLabel: string;
@@ -243,7 +253,9 @@ function TranslationForm({
       const result =
         kind === "product"
           ? await saveProductTranslation({ storeId, productId: item.id, locale, values })
-          : await saveCatalogueTranslation({ storeId, catalogueId: item.id, locale, intro: values.intro ?? "" });
+          : kind === "collection"
+            ? await saveCollectionTranslation({ storeId, collectionId: item.id, locale, values })
+            : await saveCatalogueTranslation({ storeId, catalogueId: item.id, locale, intro: values.intro ?? "" });
       if (result.status === "error" || !result.translations) {
         setError(result.message ?? t("failed"));
         return;
