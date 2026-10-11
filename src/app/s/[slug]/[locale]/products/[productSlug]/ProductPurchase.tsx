@@ -90,6 +90,11 @@ export function ProductPurchase({
   const colourMockups = product.mockups.filter((m) => m.colour === colour);
   const gallery = colourMockups.length > 0 ? colourMockups : product.mockups;
   const activeMockup = (gallery.find((m) => m.view === activeView) ?? gallery[0])?.url ?? null;
+  // The photo of the side the personalisation prints on. It is drawn there and
+  // nowhere else, so the preview never shows it on the wrong side.
+  const area = product.printArea;
+  const areaMockup = area ? (gallery.find((m) => m.view === area.view)?.url ?? null) : null;
+  const onAreaView = Boolean(area && activeMockup && activeMockup === (areaMockup ?? gallery[0]?.url));
   const objectUrl = useRef<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const basket = useBasket();
@@ -121,7 +126,6 @@ export function ProductPurchase({
   );
 
   const variant = product.variants.find((v) => v.id === variantId) ?? product.variants[0];
-  const area = product.printArea;
   const rules = product.fileRules;
 
   /**
@@ -222,6 +226,7 @@ export function ProductPurchase({
     const url = URL.createObjectURL(file);
     objectUrl.current = url;
     setArtworkPreview(url);
+    if (area && areaMockup) setActiveView(area.view);
 
     setArtworkStatus("uploading");
     try {
@@ -314,7 +319,7 @@ export function ProductPurchase({
       variantName: variant.name,
       quantity,
       amount: variant.price * quantity,
-      previewUrl: (personalised ? activeMockup : variantPhoto(product, variant.id)) ?? null,
+      previewUrl: (personalised ? (areaMockup ?? gallery[0]?.url) : variantPhoto(product, variant.id)) ?? null,
       // Drawn over the photo until the composite is ready, and kept if it never is.
       previewOverlay:
         personalised && area
@@ -335,7 +340,8 @@ export function ProductPurchase({
 
   async function renderPreview(formData: FormData, onDrawn?: (url: string) => void) {
     if (artwork) appendStoredImage(formData, "artwork", artwork);
-    if (!area || !activeMockup || (!artwork && !text)) return;
+    const mockup = areaMockup ?? gallery[0]?.url;
+    if (!area || !mockup || (!artwork && !text)) return;
     const layers: MockupLayer[] = [];
     if (artwork && artworkPreview) {
       layers.push({
@@ -355,7 +361,7 @@ export function ProductPurchase({
         textColour: personalisationTextColour(variant?.colourHex),
       });
     }
-    const blob = await renderMockup(activeMockup, area.rect, layers);
+    const blob = await renderMockup(mockup, area.rect, layers);
     onDrawn?.(URL.createObjectURL(blob));
     const stored = await uploadImage(
       new File([blob], "preview.webp", { type: blob.type || "image/webp" }),
@@ -381,7 +387,7 @@ export function ProductPurchase({
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{t("noPreview")}</div>
             )}
-            {area && artworkPreview ? (
+            {onAreaView && area && artworkPreview ? (
               <div
                 aria-hidden
                 className={classNames(
@@ -396,7 +402,7 @@ export function ProductPurchase({
                 }}
               />
             ) : null}
-            {area && (artworkPreview || text) ? (
+            {onAreaView && area && (artworkPreview || text) ? (
               <div
                 className="absolute"
                 style={{
@@ -582,7 +588,7 @@ export function ProductPurchase({
                   >
                     {option.size || option.name}
                     {option.availability === "low_stock" ? (
-                      <span className="ml-1 text-xs text-amber-700">{t("lowStock")}</span>
+                      <span className="ml-1.5 text-xs text-amber-700">{t("lowStock")}</span>
                     ) : null}
                   </ToggleGroupItem>
                 ))}
@@ -608,13 +614,21 @@ export function ProductPurchase({
               <div className="mt-5">
                 <Label htmlFor="text">
                   {product.shopperCustomization.textLabel}
+                  {area ? (
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      {t("printsOn", { area: area.name })}
+                    </span>
+                  ) : null}
                 </Label>
                 <Input
                   id="text"
                   name="text"
                   value={text}
                   maxLength={product.shopperCustomization.maxTextLength}
-                  onChange={(e) => setText(e.currentTarget.value)}
+                  onChange={(e) => {
+                    setText(e.currentTarget.value);
+                    if (area && areaMockup) setActiveView(area.view);
+                  }}
                   placeholder={t("textPlaceholder")}
                   aria-invalid={state.field === "text" ? true : undefined}
                   aria-describedby="text-hint"

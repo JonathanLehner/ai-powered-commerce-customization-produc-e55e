@@ -25,11 +25,12 @@ const NORTHWIND = {
   storeId: "str_northwind",
   slug: "northwind-supply",
   site: {
-    announcement: "Orders ship within 5 business days",
+    // The announcement bar and product pages show the shipping time from shipDays.
+    announcement: "",
+    shipDays: 5,
     footerNote: "Official merchandise of Northwind Technologies.",
     i18n: {
       de: {
-        announcement: "Versand innerhalb von 5 Werktagen",
         footerNote: "Offizielle Artikel von Northwind Technologies.",
       },
     },
@@ -152,13 +153,13 @@ const NORTHWIND = {
       description:
         "Our everyday crew neck tee in soft ring-spun cotton, with the Northwind logo on the chest and a large print on the back. Unisex fit, true to size from S to 2XL.\n\nMaterial: 100% ring-spun cotton\nWeight: 180 gsm\nCare: Machine wash cold, inside out",
       tags: ["t-shirts"],
-      textLabel: "Name on the sleeve",
+      textLabel: "Your name",
       i18n: {
         de: {
           name: "Northwind Field T-Shirt",
           description:
             "Unser T-Shirt für jeden Tag aus weicher, ringgesponnener Baumwolle, mit Northwind-Logo auf der Brust und großem Druck auf dem Rücken. Unisex, normale Passform von S bis 2XL.\n\nMaterial: 100 % ringgesponnene Baumwolle\nGewicht: 180 g/m²\nPflege: Auf links bei 30 °C waschen",
-          textLabel: "Name auf dem Ärmel",
+          textLabel: "Ihr Name",
           "colour:White": "Weiß",
           "colour:Black": "Schwarz",
           "tag:t-shirts": "T-Shirts",
@@ -170,13 +171,13 @@ const NORTHWIND = {
       description:
         "A heavyweight pullover hoodie in brushed fleece, with the Northwind logo on the chest. Double-layer hood, kangaroo pocket and ribbed cuffs. Unisex fit from S to 2XL.\n\nMaterial: 80% cotton, 20% polyester\nWeight: 320 gsm\nCare: Machine wash cold, inside out",
       tags: ["hoodies"],
-      textLabel: "Name on the sleeve",
+      textLabel: "Your name",
       i18n: {
         de: {
           name: "Northwind Ridge Hoodie",
           description:
             "Schwerer Hoodie aus angerautem Fleece, mit Northwind-Logo auf der Brust. Doppellagige Kapuze, Kängurutasche und gerippte Bündchen. Unisex von S bis 2XL.\n\nMaterial: 80 % Baumwolle, 20 % Polyester\nGewicht: 320 g/m²\nPflege: Auf links bei 30 °C waschen",
-          textLabel: "Name auf dem Ärmel",
+          textLabel: "Ihr Name",
           "colour:Navy": "Navy",
           "tag:hoodies": "Hoodies",
         },
@@ -204,13 +205,13 @@ const NORTHWIND = {
       description:
         "A soft crew neck tee in certified organic cotton, with the Northwind logo on the chest. Unisex fit, true to size from S to 2XL.\n\nMaterial: 100% organic cotton, GOTS certified\nWeight: 180 gsm\nCare: Machine wash cold, inside out",
       tags: ["t-shirts", "organic"],
-      textLabel: "Name on the sleeve",
+      textLabel: "Your name",
       i18n: {
         de: {
           name: "Northwind Bio-T-Shirt",
           description:
             "Weiches T-Shirt aus zertifizierter Bio-Baumwolle, mit Northwind-Logo auf der Brust. Unisex, normale Passform von S bis 2XL.\n\nMaterial: 100 % Bio-Baumwolle, GOTS-zertifiziert\nGewicht: 180 g/m²\nPflege: Auf links bei 30 °C waschen",
-          textLabel: "Name auf dem Ärmel",
+          textLabel: "Ihr Name",
           "colour:White": "Weiß",
           "colour:Black": "Schwarz",
           "tag:t-shirts": "T-Shirts",
@@ -237,7 +238,8 @@ const LUMEN = {
   storeId: "str_lumen",
   slug: "lumen-studio",
   site: {
-    announcement: "Orders ship within 5 working days",
+    announcement: "",
+    shipDays: 5,
     footerNote: "The studio shop of Lumen Creative.",
   },
   sections: [
@@ -281,7 +283,7 @@ const LUMEN = {
       description:
         "The Lumen house tee in black, with the studio logo printed in magenta on the chest. Unisex crew neck with a regular fit, sizes S to 2XL.\n\nMaterial: 100% ring-spun cotton\nWeight: 180 g/m²\nCare: Wash at 30°C, inside out",
       tags: ["t-shirts"],
-      textLabel: "Name on the sleeve",
+      textLabel: "Your name",
     },
     "lumen-matte-mug": {
       name: "Lumen Matte Mug",
@@ -295,7 +297,7 @@ const LUMEN = {
       description:
         "A pullover hoodie in recycled cotton and polyester, with the Lumen logo on the chest. Unisex fit, sizes S to 2XL.\n\nMaterial: Recycled cotton and polyester\nWeight: 280 g/m²\nCare: Wash at 30°C, inside out",
       tags: ["hoodies"],
-      textLabel: "Name on the sleeve",
+      textLabel: "Your name",
     },
   },
   gifts: {},
@@ -307,11 +309,11 @@ const FERRO = {
   // German is the store's language; English is offered beside it.
   languages: ["de", "en"],
   site: {
-    announcement: "Versand innerhalb von 5 Werktagen",
+    announcement: "",
+    shipDays: 5,
     footerNote: "Ferro Kaffeerösterei, Berlin",
     i18n: {
       en: {
-        announcement: "Orders ship within 5 working days",
         footerNote: "Ferro Kaffeerösterei, Berlin",
       },
     },
@@ -431,13 +433,13 @@ const FERRO = {
       description:
         "Das Shirt des Ferro Coffee Club aus Baumwolle, vorn mit dem Ferro-Schriftzug. Unisex geschnitten und größengetreu von S bis 2XL.\n\nMaterial: 100 % ringgesponnene Baumwolle\nGewicht: 180 g/m²\nPflege: Auf links bei 30 °C waschen",
       tags: ["Shirts"],
-      textLabel: "Name auf dem Ärmel",
+      textLabel: "Ihr Name",
       i18n: {
         en: {
           name: "Ferro Club Shirt",
           description:
             "The Ferro Coffee Club shirt in cotton, with the Ferro wordmark on the front. Unisex fit, true to size from S to 2XL.\n\nMaterial: 100% ring-spun cotton\nWeight: 180 g/m²\nCare: Wash inside out at 30°C",
-          textLabel: "Name on the sleeve",
+          textLabel: "Your name",
           "tag:Shirts": "shirts",
         },
       },
@@ -447,13 +449,13 @@ const FERRO = {
       description:
         "Warmer Hoodie aus angerautem Fleece, mit dem Ferro-Logo auf der Brust. Doppellagige Kapuze, Kängurutasche und gerippte Bündchen. Unisex von S bis 2XL.\n\nMaterial: 80 % Baumwolle, 20 % Polyester\nGewicht: 320 g/m²\nPflege: Auf links bei 30 °C waschen",
       tags: ["Hoodies"],
-      textLabel: "Name auf dem Ärmel",
+      textLabel: "Ihr Name",
       i18n: {
         en: {
           name: "Ferro Roastery Hoodie",
           description:
             "A warm hoodie in brushed fleece, with the Ferro logo on the chest. Double-layer hood, kangaroo pocket and ribbed cuffs. Unisex from S to 2XL.\n\nMaterial: 80% cotton, 20% polyester\nWeight: 320 g/m²\nCare: Wash inside out at 30°C",
-          textLabel: "Name on the sleeve",
+          textLabel: "Your name",
           "tag:Hoodies": "hoodies",
         },
       },
@@ -483,6 +485,7 @@ const RIVET = {
   slug: "rivet-hardware",
   site: {
     announcement: "",
+    shipDays: 5,
     footerNote: "Official Rivet Hardware merchandise.",
   },
   sections: [
@@ -506,7 +509,7 @@ const RIVET = {
       description:
         "The black crew neck tee worn at the Rivet trade counter, with the Rivet logo printed on the front. Unisex fit, true to size from S to 2XL.\n\nMaterial: 100% ring-spun cotton\nWeight: 180 gsm\nCare: Machine wash cold, inside out",
       tags: ["t-shirts"],
-      textLabel: "Name on the sleeve",
+      textLabel: "Your name",
     },
   },
   gifts: {},

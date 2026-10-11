@@ -2415,6 +2415,8 @@
         "navOrders": "Order status link label",
         "footerNote": "Footer note"
       },
+      "shipDays": "Ships within (business days)",
+      "shipDaysHint": "Shown on every product page, and in the announcement bar when it is empty.",
       "navCollections": "Collections in the header",
       "noCollections": "No collections yet. Create them under Catalog."
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "Basket ({count})",
       "allProducts": "All products",
       "orderStatus": "Order status",
+      "shipsWithin": "{days, plural, one {Orders ship within # business day} other {Orders ship within # business days}}",
       "help": "Help",
       "supportEmailLabel": "Email",
       "supportPhoneLabel": "Phone",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "Shop",
       "about": "About this product",
       "madeToOrder": "Made to order",
+      "shipsWithin": "{days, plural, one {Ships within # business day.} other {Ships within # business days.}}",
       "producedBy": "Ships in {lead}.",
       "leadDays": "{from}–{to} days",
       "leadUnknown": "a few days",
-      "printDetail": "Print area",
+      "printDetail": "{count, plural, one {Print area} other {Print areas}}",
       "printDetailBody": "{area}, {width} × {height} mm"
     },
     "purchase": {
@@ -2824,7 +2828,8 @@
       "option": "Option",
       "required": "Required",
       "quantity": "Quantity",
-      "lowStock": "low",
+      "lowStock": "Only a few left",
+      "printsOn": "Printed on {area}",
       "noPreview": "No preview available",
       "previewAlt": "{name} preview",
       "viewAlt": "{view} view",

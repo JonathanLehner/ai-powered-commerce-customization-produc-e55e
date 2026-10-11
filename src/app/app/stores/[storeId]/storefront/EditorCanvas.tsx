@@ -1,7 +1,7 @@
 "use client";
 
 import { Editor, Frame, useEditor, useNode } from "@craftjs/core";
-import { useLocale, useTranslations } from "next-intl";
+import { createTranslator, useLocale, useTranslations } from "next-intl";
 import React, { createContext, useContext, useMemo, useState } from "react";
 import { publishStorefront, restoreVersion, saveStorefrontDraft } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
@@ -30,6 +30,7 @@ import { localeBase } from "@/i18n/storefront-routing";
 import type { Locale } from "@/i18n/locales";
 import { NAV_COLLECTIONS_PROP, navCollectionIds } from "@/lib/collections";
 import { storeThemeStyle } from "@/lib/store-theme";
+import { MAX_SHIP_DAYS, SHIP_DAYS_PROP, shipDays } from "@/lib/shipping-promise";
 import { SECTION_DEFS, SECTION_ORDER, type SectionType } from "@/lib/storefront-schema";
 import {
   I18N_PROP,
@@ -500,6 +501,31 @@ function SiteContentPanel() {
             props={props}
           />
         ))}
+        <div className="grid gap-1.5">
+          <Label htmlFor="site-ship-days" className="text-xs">
+            {t("shipDays")}
+          </Label>
+          <Input
+            id="site-ship-days"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_SHIP_DAYS}
+            className="h-8 w-24"
+            disabled={locale !== defaultLocale}
+            value={shipDays({ ROOT: { props } }) ?? ""}
+            aria-describedby="site-ship-days-hint"
+            onChange={(event) => {
+              const value = event.currentTarget.value;
+              actions.setProp("ROOT", (p: Record<string, unknown>) => {
+                p[SHIP_DAYS_PROP] = value === "" ? null : Math.min(MAX_SHIP_DAYS, Math.max(1, Math.round(Number(value))));
+              });
+            }}
+          />
+          <p id="site-ship-days-hint" className="text-xs text-muted-foreground">
+            {t("shipDaysHint")}
+          </p>
+        </div>
         <fieldset className="grid gap-2">
           <legend className="text-xs font-medium text-foreground">{t("navCollections")}</legend>
           {collections.length === 0 ? (
@@ -619,7 +645,7 @@ export interface EditorCanvasProps {
   /** The preview context per language: built-in section copy and product cards. */
   contexts: Record<string, StorefrontContext>;
   /** The built-in header labels per language, shown when a store leaves its own empty. */
-  chrome: Record<string, { shop: string; orderStatus: string }>;
+  chrome: Record<string, SiteChrome>;
   products: TranslatableItem[];
   collections: TranslatableItem[];
   portals: TranslatableItem[];
@@ -636,17 +662,25 @@ type ShellProps = EditorCanvasProps & {
   setLocale: (locale: Locale) => void;
 };
 
+/** The built-in header copy per language, shown when a store leaves its own empty. */
+type SiteChrome = { shop: string; orderStatus: string; shipsWithin: string };
+
 /** The canvas's header and footer, drawn from the root node's copy in the selected language. */
-function SitePreview({ storeName, chrome, children }: { storeName: string; chrome: { shop: string; orderStatus: string }; children: React.ReactNode }) {
+function SitePreview({ storeName, chrome, children }: { storeName: string; chrome: SiteChrome; children: React.ReactNode }) {
   const { locale, defaultLocale } = useEditLocale();
   const tree = useEditor((state) => ({ props: state.nodes.ROOT?.data.props ?? {} })).props;
   const site = siteContent({ ROOT: { props: tree } }, locale, defaultLocale);
+  // Matches the storefront: an empty announcement shows the shipping time.
+  const days = shipDays({ ROOT: { props: tree } });
+  const announcement =
+    site.announcement ||
+    (days ? createTranslator({ locale: locale as Locale, messages: { shipsWithin: chrome.shipsWithin } })("shipsWithin", { days }) : "");
   const collections = useCtx().collections ?? [];
   const linked = navCollectionIds({ ROOT: { props: tree } });
   return (
     <>
-      {site.announcement ? (
-        <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">{site.announcement}</div>
+      {announcement ? (
+        <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">{announcement}</div>
       ) : null}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-b border-border px-4 py-3">
         <span className="font-heading text-base font-semibold tracking-tight text-foreground">{storeName}</span>

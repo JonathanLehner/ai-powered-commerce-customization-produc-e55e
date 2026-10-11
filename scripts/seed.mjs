@@ -927,7 +927,7 @@ async function main() {
         // The shopper types into this field, so it is written in the store's
         // language rather than derived from the English category name.
         textLabel:
-          plan.textLabel ?? (cat.category === "drinkware" ? "Name on the mug" : "Name on the sleeve"),
+          plan.textLabel ?? (cat.category === "drinkware" ? "Name on the mug" : "Your name"),
         maxTextLength: 18,
       },
       costs,

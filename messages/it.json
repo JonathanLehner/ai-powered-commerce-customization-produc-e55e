@@ -2415,6 +2415,8 @@
         "navOrders": "Etichetta link Stato ordine",
         "footerNote": "Nota a piè di pagina"
       },
+      "shipDays": "Spedizione entro (giorni lavorativi)",
+      "shipDaysHint": "Mostrato su ogni pagina prodotto e nella barra degli annunci quando è vuota.",
       "navCollections": "Collezioni nell'intestazione",
       "noCollections": "Nessuna collezione. Creale in Catalogo."
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "Carrello ({count})",
       "allProducts": "Tutti i prodotti",
       "orderStatus": "Stato dell’ordine",
+      "shipsWithin": "{days, plural, one {Ordini spediti entro # giorno lavorativo} other {Ordini spediti entro # giorni lavorativi}}",
       "help": "Assistenza",
       "supportEmailLabel": "E-mail",
       "supportPhoneLabel": "Telefono",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "Negozio",
       "about": "Informazioni sul prodotto",
       "madeToOrder": "Prodotto su ordinazione",
+      "shipsWithin": "{days, plural, one {Spedito entro # giorno lavorativo.} other {Spedito entro # giorni lavorativi.}}",
       "producedBy": "Spedito in {lead}.",
       "leadDays": "{from}–{to} giorni",
       "leadUnknown": "pochi giorni",
-      "printDetail": "Area di stampa",
+      "printDetail": "{count, plural, one {Area di stampa} other {Aree di stampa}}",
       "printDetailBody": "{area}, {width} × {height} mm"
     },
     "purchase": {
@@ -2824,7 +2828,8 @@
       "option": "Opzione",
       "required": "Obbligatorio",
       "quantity": "Quantità",
-      "lowStock": "scorte basse",
+      "lowStock": "Ne restano pochi",
+      "printsOn": "Stampato su {area}",
       "noPreview": "Nessuna anteprima disponibile",
       "previewAlt": "Anteprima di {name}",
       "viewAlt": "Vista {view}",

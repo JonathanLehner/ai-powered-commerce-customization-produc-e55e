@@ -7,9 +7,10 @@ import { Badge, Breadcrumbs } from "@/components/ui";
 import { isLive } from "@/lib/artwork";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale } from "@/i18n/storefront";
-import { getCatalogProduct, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
+import { getCatalogProduct, getStorefront, getStoreBySlug, getStoreProductBySlug } from "@/lib/data";
 import { convert } from "@/lib/pricing";
 import { breadcrumbJsonLd, metaDescription, productJsonLd, storeUrl } from "@/lib/seo";
+import { shipDays } from "@/lib/shipping-promise";
 import { storeSku } from "@/lib/sku";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { localizeProduct } from "@/lib/translations";
@@ -58,12 +59,25 @@ export default async function StorefrontProductPage({
   // store's language and inside its header and footer.
   if (!stored || !isLive(stored)) return <StorefrontNotFoundView store={store} locale={requested} />;
 
-  const catalog = await getCatalogProduct(stored.catalogProductId);
+  const [catalog, storefront] = await Promise.all([
+    getCatalogProduct(stored.catalogProductId),
+    getStorefront(store.id),
+  ]);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   // Name, description, colours and the personalisation label in the shopper's language.
   const product = localizeProduct(stored, locale, storeLanguages(store).defaultLocale);
+  // Shopper text and artwork go on the first print area.
   const area = catalog?.printAreas[0] ?? null;
+  // Every area the product's own artwork is printed on, which is what the
+  // description talks about. A product with no artwork yet lists the area the
+  // shopper's personalisation goes on.
+  const printed = catalog
+    ? catalog.printAreas.filter((a) => product.artworks.some((art) => art.printAreaId === a.id))
+    : [];
+  const printAreas = printed.length > 0 ? printed : area ? [area] : [];
+  // The same shipping time the announcement bar shows.
+  const days = shipDays(storefront?.published);
 
   const purchase: PurchaseProduct = {
     id: product.id,
@@ -159,28 +173,36 @@ export default async function StorefrontProductPage({
             <CardContent>
               <h2 className="text-sm font-semibold text-foreground">{t("product.madeToOrder")}</h2>
               <p className="mt-1.5 text-muted-foreground">
-                {t("product.producedBy", {
-                  lead: catalog
-                    ? t("product.leadDays", {
-                        from: catalog.leadTimeDays[0],
-                        to: catalog.leadTimeDays[1],
-                      })
-                    : t("product.leadUnknown"),
-                })}
+                {days
+                  ? t("product.shipsWithin", { days })
+                  : t("product.producedBy", {
+                      lead: catalog
+                        ? t("product.leadDays", {
+                            from: catalog.leadTimeDays[0],
+                            to: catalog.leadTimeDays[1],
+                          })
+                        : t("product.leadUnknown"),
+                    })}
               </p>
             </CardContent>
           </Card>
-          {area ? (
+          {printAreas.length > 0 ? (
             <Card size="sm">
               <CardContent>
-                <h2 className="text-sm font-semibold text-foreground">{t("product.printDetail")}</h2>
-                <p className="mt-1.5 text-muted-foreground">
-                  {t("product.printDetailBody", {
-                    area: area.name,
-                    width: area.widthMm,
-                    height: area.heightMm,
-                  })}
-                </p>
+                <h2 className="text-sm font-semibold text-foreground">
+                  {t("product.printDetail", { count: printAreas.length })}
+                </h2>
+                <ul className="mt-1.5 space-y-0.5 text-muted-foreground">
+                  {printAreas.map((a) => (
+                    <li key={a.id}>
+                      {t("product.printDetailBody", {
+                        area: a.name,
+                        width: a.widthMm,
+                        height: a.heightMm,
+                      })}
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           ) : null}

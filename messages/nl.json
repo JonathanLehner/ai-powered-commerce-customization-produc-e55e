@@ -2415,6 +2415,8 @@
         "navOrders": "Label bestelstatuslink",
         "footerNote": "Voettekstnotitie"
       },
+      "shipDays": "Verzonden binnen (werkdagen)",
+      "shipDaysHint": "Getoond op elke productpagina, en in de aankondigingsbalk als die leeg is.",
       "navCollections": "Collecties in de koptekst",
       "noCollections": "Nog geen collecties. Maak ze aan onder Catalogus."
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "Winkelmand ({count})",
       "allProducts": "Alle producten",
       "orderStatus": "Bestelstatus",
+      "shipsWithin": "{days, plural, one {Bestellingen worden binnen # werkdag verzonden} other {Bestellingen worden binnen # werkdagen verzonden}}",
       "help": "Hulp",
       "supportEmailLabel": "E-mail",
       "supportPhoneLabel": "Telefoon",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "Shop",
       "about": "Over dit product",
       "madeToOrder": "Op bestelling gemaakt",
+      "shipsWithin": "{days, plural, one {Verzonden binnen # werkdag.} other {Verzonden binnen # werkdagen.}}",
       "producedBy": "Verzonden binnen {lead}.",
       "leadDays": "{from}–{to} dagen",
       "leadUnknown": "een paar dagen",
-      "printDetail": "Printgebied",
+      "printDetail": "{count, plural, one {Printgebied} other {Printgebieden}}",
       "printDetailBody": "{area}, {width} × {height} mm"
     },
     "purchase": {
@@ -2824,7 +2828,8 @@
       "option": "Optie",
       "required": "Verplicht",
       "quantity": "Aantal",
-      "lowStock": "bijna op",
+      "lowStock": "Nog maar een paar",
+      "printsOn": "Geprint op {area}",
       "noPreview": "Geen voorbeeld beschikbaar",
       "previewAlt": "Voorbeeld van {name}",
       "viewAlt": "Aanzicht {view}",

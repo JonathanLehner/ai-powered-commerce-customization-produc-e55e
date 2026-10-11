@@ -74,7 +74,11 @@ export default async function StorefrontEditorPage({
       return {
         locale,
         context,
-        chrome: { shop: merged.storefront.chrome.shop, orderStatus: merged.storefront.chrome.orderStatus },
+        chrome: {
+          shop: merged.storefront.chrome.shop,
+          orderStatus: merged.storefront.chrome.orderStatus,
+          shipsWithin: merged.storefront.chrome.shipsWithin,
+        },
         entries: shopTextEntries(storefrontMessages),
       };
     }),

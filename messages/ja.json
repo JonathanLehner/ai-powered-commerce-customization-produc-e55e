@@ -2415,6 +2415,8 @@
         "navOrders": "注文状況リンクのラベル",
         "footerNote": "フッターの注記"
       },
+      "shipDays": "発送までの日数(営業日)",
+      "shipDaysHint": "すべての商品ページと、空欄のときはお知らせバーに表示されます。",
       "navCollections": "ヘッダーに表示するコレクション",
       "noCollections": "コレクションはまだありません。カタログで作成してください。"
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "カート（{count}）",
       "allProducts": "すべての商品",
       "orderStatus": "注文状況",
+      "shipsWithin": "{days, plural, other {ご注文は#営業日以内に発送します}}",
       "help": "お問い合わせ",
       "supportEmailLabel": "メール",
       "supportPhoneLabel": "電話",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "ショップ",
       "about": "この商品について",
       "madeToOrder": "受注生産",
+      "shipsWithin": "{days, plural, other {#営業日以内に発送します。}}",
       "producedBy": "{lead}で発送します。",
       "leadDays": "{from}〜{to} 日",
       "leadUnknown": "数日",
-      "printDetail": "印刷範囲",
+      "printDetail": "{count, plural, other {印刷範囲}}",
       "printDetailBody": "{area}、{width} × {height} mm"
     },
     "purchase": {
@@ -2825,6 +2829,7 @@
       "required": "必須",
       "quantity": "数量",
       "lowStock": "残りわずか",
+      "printsOn": "印刷位置:{area}",
       "noPreview": "プレビューはありません",
       "previewAlt": "{name} のプレビュー",
       "viewAlt": "{view} のビュー",

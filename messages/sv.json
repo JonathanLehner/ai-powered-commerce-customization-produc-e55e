@@ -2415,6 +2415,8 @@
         "navOrders": "Etikett för orderstatuslänk",
         "footerNote": "Notis i sidfoten"
       },
+      "shipDays": "Skickas inom (arbetsdagar)",
+      "shipDaysHint": "Visas på varje produktsida och i meddelandefältet när det är tomt.",
       "navCollections": "Kollektioner i sidhuvudet",
       "noCollections": "Inga kollektioner ännu. Skapa dem under Katalog."
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "Varukorg ({count})",
       "allProducts": "Alla produkter",
       "orderStatus": "Orderstatus",
+      "shipsWithin": "{days, plural, one {Beställningar skickas inom # arbetsdag} other {Beställningar skickas inom # arbetsdagar}}",
       "help": "Hjälp",
       "supportEmailLabel": "E-post",
       "supportPhoneLabel": "Telefon",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "Butik",
       "about": "Om produkten",
       "madeToOrder": "Tillverkas på beställning",
+      "shipsWithin": "{days, plural, one {Skickas inom # arbetsdag.} other {Skickas inom # arbetsdagar.}}",
       "producedBy": "Skickas inom {lead}.",
       "leadDays": "{from}–{to} dagar",
       "leadUnknown": "några dagar",
-      "printDetail": "Tryckyta",
+      "printDetail": "{count, plural, one {Tryckyta} other {Tryckytor}}",
       "printDetailBody": "{area}, {width} × {height} mm"
     },
     "purchase": {
@@ -2824,7 +2828,8 @@
       "option": "Variant",
       "required": "Obligatoriskt",
       "quantity": "Antal",
-      "lowStock": "få kvar",
+      "lowStock": "Endast ett fåtal kvar",
+      "printsOn": "Tryck på {area}",
       "noPreview": "Ingen förhandsvisning tillgänglig",
       "previewAlt": "Förhandsvisning av {name}",
       "viewAlt": "Vy {view}",

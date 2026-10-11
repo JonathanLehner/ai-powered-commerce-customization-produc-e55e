@@ -18,6 +18,7 @@ import { collectionProducts, localizeCollection, navCollectionIds } from "@/lib/
 import { getCart, getStorefront, getStoreBySlug, listProductCollections } from "@/lib/data";
 import { variantPhoto } from "@/lib/line-preview";
 import { POLICY_KEYS, policyPath } from "@/lib/policies";
+import { shipDays } from "@/lib/shipping-promise";
 import { storeThemeStyle } from "@/lib/store-theme";
 import { storefrontMetadata, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
@@ -97,6 +98,9 @@ export default async function StorefrontLayout({
   // The announcement, navigation labels and footer note the store published,
   // in the shopper's language. An empty label keeps the built-in one.
   const site = siteContent(storefront?.published, locale, defaultLocale);
+  // An empty announcement shows the shipping time the product pages promise.
+  const days = shipDays(storefront?.published);
+  const announcement = site.announcement || (days ? t("chrome.shipsWithin", { days }) : "");
   // The collections the published header links to, in the order chosen there.
   // One deleted since is skipped.
   const navCollections = collectionProducts(navCollectionIds(storefront?.published), collections).map((c) =>
@@ -181,9 +185,9 @@ export default async function StorefrontLayout({
       >
         <BasketProvider lines={basketLines} subtotal={subtotal} currency={currency} base={base}>
           <div className="flex min-h-full flex-col bg-background">
-            {site.announcement ? (
+            {announcement ? (
               <div className="bg-primary px-4 py-2 text-center text-sm text-primary-foreground">
-                {site.announcement}
+                {announcement}
               </div>
             ) : null}
             <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">

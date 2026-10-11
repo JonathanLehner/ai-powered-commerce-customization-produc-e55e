@@ -2415,6 +2415,8 @@
         "navOrders": "Bezeichnung Bestellstatus-Link",
         "footerNote": "Hinweis in der Fußzeile"
       },
+      "shipDays": "Versand innerhalb (Werktage)",
+      "shipDaysHint": "Wird auf jeder Produktseite angezeigt und in der Hinweisleiste, wenn sie leer ist.",
       "navCollections": "Kollektionen in der Kopfzeile",
       "noCollections": "Noch keine Kollektionen. Legen Sie sie unter Katalog an."
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "Warenkorb ({count})",
       "allProducts": "Alle Produkte",
       "orderStatus": "Bestellstatus",
+      "shipsWithin": "{days, plural, one {Versand innerhalb von # Werktag} other {Versand innerhalb von # Werktagen}}",
       "help": "Hilfe",
       "supportEmailLabel": "E-Mail",
       "supportPhoneLabel": "Telefon",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "Shop",
       "about": "Über dieses Produkt",
       "madeToOrder": "Auf Bestellung gefertigt",
+      "shipsWithin": "{days, plural, one {Versand innerhalb von # Werktag.} other {Versand innerhalb von # Werktagen.}}",
       "producedBy": "Versand in {lead}.",
       "leadDays": "{from}–{to} Tagen",
       "leadUnknown": "wenigen Tagen",
-      "printDetail": "Druckbereich",
+      "printDetail": "{count, plural, one {Druckbereich} other {Druckbereiche}}",
       "printDetailBody": "{area}, {width} × {height} mm"
     },
     "purchase": {
@@ -2824,7 +2828,8 @@
       "option": "Variante",
       "required": "Erforderlich",
       "quantity": "Menge",
-      "lowStock": "wenige",
+      "lowStock": "Nur noch wenige",
+      "printsOn": "Druck auf {area}",
       "noPreview": "Keine Vorschau verfügbar",
       "previewAlt": "Vorschau von {name}",
       "viewAlt": "Ansicht {view}",

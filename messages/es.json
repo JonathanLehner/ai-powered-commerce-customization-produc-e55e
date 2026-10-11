@@ -2415,6 +2415,8 @@
         "navOrders": "Etiqueta del enlace Estado del pedido",
         "footerNote": "Nota del pie de página"
       },
+      "shipDays": "Envío en (días hábiles)",
+      "shipDaysHint": "Se muestra en cada página de producto y en la barra de anuncios cuando está vacía.",
       "navCollections": "Colecciones en el encabezado",
       "noCollections": "Aún no hay colecciones. Créalas en Catálogo."
     },
@@ -2758,6 +2760,7 @@
       "basketWithCount": "Cesta ({count})",
       "allProducts": "Todos los productos",
       "orderStatus": "Estado del pedido",
+      "shipsWithin": "{days, plural, one {Los pedidos se envían en # día hábil} other {Los pedidos se envían en # días hábiles}}",
       "help": "Ayuda",
       "supportEmailLabel": "Correo electrónico",
       "supportPhoneLabel": "Teléfono",
@@ -2809,10 +2812,11 @@
       "breadcrumbShop": "Tienda",
       "about": "Sobre este producto",
       "madeToOrder": "Fabricado bajo pedido",
+      "shipsWithin": "{days, plural, one {Se envía en # día hábil.} other {Se envía en # días hábiles.}}",
       "producedBy": "Se envía en {lead}.",
       "leadDays": "{from}–{to} días",
       "leadUnknown": "unos días",
-      "printDetail": "Área de impresión",
+      "printDetail": "{count, plural, one {Área de impresión} other {Áreas de impresión}}",
       "printDetailBody": "{area}, {width} × {height} mm"
     },
     "purchase": {
@@ -2824,7 +2828,8 @@
       "option": "Opción",
       "required": "Obligatorio",
       "quantity": "Cantidad",
-      "lowStock": "pocas",
+      "lowStock": "Quedan pocas",
+      "printsOn": "Impreso en {area}",
       "noPreview": "No hay vista previa disponible",
       "previewAlt": "Vista previa de {name}",
       "viewAlt": "Vista {view}",
