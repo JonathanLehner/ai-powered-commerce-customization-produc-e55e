@@ -48,15 +48,15 @@ export function checkEnquiry(raw: Partial<Record<keyof EnquiryInput, string | bo
     submissionKey: clamp(String(raw.submissionKey ?? ""), LIMITS.submissionKey),
   };
 
-  if (value.name.length < 2) return { ok: false, field: "name", message: "Tell us who you are." };
+  if (value.name.length < 2) return { ok: false, field: "name", message: "Enter your name." };
   if (!EMAIL.test(value.email)) {
-    return { ok: false, field: "email", message: "Enter an email address we can reply to." };
+    return { ok: false, field: "email", message: "Enter your email address." };
   }
   if (!value.company) {
-    return { ok: false, field: "company", message: "Enter the agency or company this is for." };
+    return { ok: false, field: "company", message: "Enter your company name." };
   }
   if (!PLAN_ENQUIRY_CHOICES.includes(value.plan)) {
-    return { ok: false, field: "plan", message: "Choose which plan this is about." };
+    return { ok: false, field: "plan", message: "Choose a plan." };
   }
   return { ok: true, value };
 }

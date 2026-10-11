@@ -24,11 +24,10 @@ export default function GlobalError({
           <img src="/logo.png" alt="Parcelith" width={28} height={32} style={{ width: "auto", height: 32 }} />
           <p className="mt-8 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Error</p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-            Something went wrong at our end
+            Something went wrong
           </h1>
           <p className="mt-3 text-sm leading-6 text-inksoft">
-            This page could not be loaded. Try again, and if it keeps happening come back in a few
-            minutes.
+            This page could not be loaded. Please try again.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-2.5">
             <Button type="button" onClick={unstable_retry}>

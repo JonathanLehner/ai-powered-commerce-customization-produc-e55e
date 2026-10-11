@@ -92,8 +92,7 @@ export default async function AdminOverviewPage() {
               <h2>Stores across the platform</h2>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Platform administrators can see that a store exists and who operates it. Order and customer
-              records stay with the store team.
+              Customer and order details are hidden.
             </p>
           </CardHeader>
           <CardContent>
@@ -121,7 +120,7 @@ export default async function AdminOverviewPage() {
                         <p className="text-xs text-muted-foreground">{store.clientName}</p>
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
-                        {agencies.find((a) => a.id === store.agencyId)?.name ?? "—"}
+                        {agencies.find((a) => a.id === store.agencyId)?.name ?? "–"}
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
                         {store.currencies.join(", ")}
@@ -150,10 +149,7 @@ export default async function AdminOverviewPage() {
               <CardTitle asChild>
                 <h2>Plan enquiries</h2>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Left on the public pricing page. Nothing here creates an agency or a login — someone has to
-                reply and open the workspace.
-              </p>
+                            <p className="text-sm text-muted-foreground">Sent from the contact page.</p>
             </CardHeader>
             <CardContent>
               <ul className="divide-y divide-border">

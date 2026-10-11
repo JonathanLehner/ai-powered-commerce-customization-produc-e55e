@@ -42,8 +42,7 @@ export default async function AdminCatalogItemPage({
 
       {created ? (
         <Callout tone="green" title="Product added to the shared catalog">
-          Stores can import it while it is active. Add supplier photography with the supplier’s own imagery so
-          imported products can render mockups before they are published.
+          Add supplier photography so stores can generate mockups.
         </Callout>
       ) : null}
 
@@ -57,10 +56,7 @@ export default async function AdminCatalogItemPage({
                   <h2 className="text-sm">Priced by quote</h2>
                 </CardTitle>
                 <p className="max-w-2xl text-sm text-muted-foreground">
-                  This is a bulk-sourcing listing, so it carries no unit cost, no per-area customisation charge
-                  and no shipping estimate: a factory prices each run against the specification the store sends.
-                  The cost editor does not apply to it, and a price entered here would be one no supplier has
-                  given.
+                                    Bulk listing. Suppliers quote each run.
                 </p>
               </CardHeader>
               <CardContent>
@@ -73,17 +69,15 @@ export default async function AdminCatalogItemPage({
                     { label: "Indicative", value: indicativeRange(item) },
                     {
                       label: "Supplier response",
-                      value: `${item.bulkSourcing.responseDays[0]}–${item.bulkSourcing.responseDays[1]} working days`,
+                      value: `${item.bulkSourcing.responseDays[0]}–${item.bulkSourcing.responseDays[1]} business days`,
                     },
                     { label: "Terms shown to buyers", value: item.bulkSourcing.quoteNotes },
                   ]}
                 />
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Requests raised against it, and the prices recorded back, sit in the{" "}
+                                <p className="mt-4 text-sm">
                   <Link href="/admin/quotes" className="font-medium underline underline-offset-2">
-                    quote queue
+                    View quote requests
                   </Link>
-                  .
                 </p>
               </CardContent>
             </section>
@@ -102,8 +96,7 @@ export default async function AdminCatalogItemPage({
               </CardTitle>
               {item.mockups.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  None yet. Costs, print areas and variants all work without it, but a store cannot generate or
-                  approve mockups until this product has photography for each print area’s view.
+                  None yet. Required for mockups.
                 </p>
               ) : null}
             </CardHeader>
@@ -168,7 +161,7 @@ export default async function AdminCatalogItemPage({
             <CardContent>
             <DataList
               rows={[
-                { label: "Supplier", value: supplier?.name ?? "—" },
+                { label: "Supplier", value: supplier?.name ?? "–" },
                 { label: "Integration", value: supplier?.integration === "api" ? "Order API" : "Manual" },
                 { label: "Lead time", value: `${item.leadTimeDays[0]}–${item.leadTimeDays[1]} days` },
                 { label: "Currency", value: item.currency },

@@ -86,7 +86,7 @@ export function storefrontMetadata(store: Store, tagline: string | null): Metada
  * every catalogue is private to one company.
  */
 export function giftPortalMetadata(catalogue: GiftCatalogue, store: Store): Metadata {
-  const title = `${catalogue.name} — gift catalogue`;
+  const title = `${catalogue.name} | Gift catalogue`;
   // Who runs the catalogue comes first: it is the part a share preview must
   // keep, and a long intro would otherwise push it past the clamp. A company
   // that runs its own programme is named once rather than twice in a row.

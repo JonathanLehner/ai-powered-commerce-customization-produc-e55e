@@ -61,8 +61,8 @@ function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
     <div className="mt-3 rounded-lg bg-canvas p-3 text-sm text-inksoft">
       <p className="whitespace-pre-line">{String(payload.description ?? "")}</p>
       <p className="mt-2 text-xs text-muted-foreground">
-        Proposed price {String(payload.suggestedPriceMajor ?? "—")} · tags{" "}
-        {Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : "—"}
+        Proposed price {String(payload.suggestedPriceMajor ?? "–")} · tags{" "}
+        {Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : "–"}
       </p>
     </div>
   );
@@ -87,14 +87,14 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
   // own is not enough to choose between them — the SKU and import date are.
   const productOptions = products.map((p) => ({
     id: p.id,
-    label: `${p.name} — ${storeSku(p, store.channelCode)} · imported ${formatDate(p.importedAt)}`,
+    label: `${p.name} · ${storeSku(p, store.channelCode)} · imported ${formatDate(p.importedAt)}`,
   }));
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Assistant"
-        description="Suggestions stay pending until you apply one. Applying is recorded in the audit history."
+        description="Suggestions stay pending until you apply one."
       />
 
       <section>
@@ -111,8 +111,8 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
         {pending.length === 0 ? (
           <div className="mt-3">
             <EmptyState
-              title="Nothing waiting for a decision"
-              description="Use one of the request panels below to draft product ideas, copy, tags, pricing or a supplier recommendation."
+              title="No pending suggestions"
+              description="Request a suggestion below."
             />
           </div>
         ) : (
@@ -176,7 +176,7 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
       </section>
 
       <section className="grid gap-5 lg:grid-cols-2">
-        <IdeaForm storeId={storeId} storeName={store.name} />
+        <IdeaForm storeId={storeId} />
         <SupplierForm storeId={storeId} catalog={availableCatalog.map((c) => ({ id: c.id, name: c.name }))} />
         <CopyForm storeId={storeId} products={productOptions} />
         <PriceForm storeId={storeId} products={productOptions} />

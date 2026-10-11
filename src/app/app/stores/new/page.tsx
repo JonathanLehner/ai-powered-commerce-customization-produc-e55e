@@ -36,7 +36,7 @@ export default async function NewStorePage() {
         <Breadcrumbs items={[{ label: "Stores", href: "/app" }, { label: "New store" }]} />
         <PageHeader
           title="Create a client store"
-          description={`${agency ? `${agency.name} · ` : ""}A store is an isolated commerce channel: its own catalog, customers, orders, currencies, tax settings, storefront and Stripe account.`}
+          description={agency?.name}
           actions={
             allowance ? (
               <Badge tone={allowance.atLimit ? "amber" : "neutral"}>
@@ -49,8 +49,7 @@ export default async function NewStorePage() {
         <div className="mt-6">
           {!agency || !allowance ? (
             <Callout tone="amber" title="No agency assigned">
-              Your account is not linked to an agency yet, so there is nowhere to create the store. Ask the
-              platform administrator to add you to one.
+              Ask a platform administrator to add your account to an agency.
             </Callout>
           ) : allowance.atLimit ? (
             <div className="space-y-5">
@@ -65,9 +64,7 @@ export default async function NewStorePage() {
                   <h2>Archive a store</h2>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Archiving takes that storefront offline and stops new orders. Its products, orders and audit
-                  history are kept, and it can be restored later — archived stores do not count against the
-                  plan.
+                  Archived stores go offline and do not count toward your plan. You can restore them later.
                 </p>
                 </CardHeader>
                 <CardContent>
@@ -90,8 +87,7 @@ export default async function NewStorePage() {
                   ))}
                   {liveStores.length === 0 ? (
                     <li className="py-2.5 text-muted-foreground">
-                      No live stores are visible from this account. Ask the platform administrator to review
-                      the agency&rsquo;s plan.
+                      No live stores.
                     </li>
                   ) : null}
                 </ul>
@@ -107,8 +103,8 @@ export default async function NewStorePage() {
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   {allowance.nextPlan
-                    ? `${allowance.nextPlan.name} runs ${planStoreLabel(allowance.nextPlan).toLowerCase()} on the same workspace — nothing is migrated and no store is interrupted.`
-                    : "This is the top plan. Talk to us about running more stores under one agreement."}
+                    ? `${allowance.nextPlan.name} includes ${planStoreLabel(allowance.nextPlan).toLowerCase()}.`
+                    : "Contact sales to add more stores."}
                 </p>
                 </CardHeader>
                 <CardContent>
@@ -122,7 +118,7 @@ export default async function NewStorePage() {
                     </Button>
                   ) : (
                     <span className="text-xs text-muted-foreground">
-                      A platform administrator applies the change to {agency.name}.
+                      Plan changes are made by a platform administrator.
                     </span>
                   )}
                 </div>
@@ -133,25 +129,15 @@ export default async function NewStorePage() {
           ) : (
             <NewStoreForm
               agencyId={agency.id}
-              agencyName={agency.name}
               allowanceNote={
                 allowance.limit === null
-                  ? `${allowance.plan.name} plan · no live-store limit.`
-                  : `${allowance.plan.name} plan · ${storeUsageLabel(allowance)}, ${allowance.remaining} ${allowance.remaining === 1 ? "place" : "places"} left.`
+                  ? `${allowance.plan.name} plan · no live-store limit`
+                  : `${allowance.plan.name} plan · ${storeUsageLabel(allowance)}`
               }
             />
           )}
         </div>
 
-        {allowance?.atLimit ? null : (
-          <div className="mt-6">
-            <Callout tone="brand" title="What happens next">
-              You will land on the seven-step setup checklist: branding, language and currencies, shopper
-              support contacts, custom domain, Stripe, carriers and tax. The storefront stays offline until
-              payments and shipping are connected.
-            </Callout>
-          </div>
-        )}
       </div>
     </>
   );

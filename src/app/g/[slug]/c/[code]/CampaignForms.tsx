@@ -1,10 +1,11 @@
 "use client";
 
+import { LockIcon } from "lucide-react";
 import { useActionState } from "react";
 import { cancelCampaign, decideCampaign, payCampaign } from "@/app/actions/gifting";
 import type { ActionState } from "@/app/actions/stores";
 import { ActionForm, ConfirmSubmit, FormStatus, SubmitButton } from "@/components/forms";
-import { fmt, fmtAround, type StorefrontCopy } from "@/lib/i18n";
+import { fmt, type StorefrontCopy } from "@/lib/i18n";
 import { TEST_CARDS } from "@/lib/stripe";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,7 +89,6 @@ export function PaymentForm({
   code,
   token,
   total,
-  stripeAccountId,
   t,
   card,
 }: {
@@ -96,15 +96,10 @@ export function PaymentForm({
   code: string;
   token: string;
   total: string;
-  stripeAccountId: string | null;
   t: StorefrontCopy["gift"];
   /** The card fields are the checkout's, so they share its copy. */
   card: StorefrontCopy["checkout"];
 }) {
-  // The account id is rendered as a node, so the sentence is split around it
-  // and each half keeps its own language's word order.
-  const [payBefore, payAfter] = fmtAround(t.paymentIntro, "account");
-
   return (
     <ActionForm
       action={payCampaign}
@@ -114,10 +109,9 @@ export function PaymentForm({
     >
       {(state) => (
         <>
-          <p className="text-sm text-muted-foreground">
-            {payBefore}
-            {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
-            {payAfter}
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <LockIcon aria-hidden className="size-3.5" />
+            {t.paymentIntro} {card.paymentNote}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -170,7 +164,7 @@ export function PaymentForm({
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((entry) => (
                 <li key={entry.number}>
-                  <span className="font-mono">{entry.number}</span> —{" "}
+                  <span className="font-mono">{entry.number}</span> ·{" "}
                   {card[TEST_CARD_LABELS[entry.number]] ?? entry.label}
                 </li>
               ))}

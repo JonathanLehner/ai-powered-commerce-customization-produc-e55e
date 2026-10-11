@@ -67,8 +67,8 @@ function Terms({
         htmlFor={`${prefix}-value`}
         hint={
           kind === "percentage"
-            ? `A whole number from 1 to ${MAX_DISCOUNT_PERCENTAGE}.`
-            : "Converted into whatever currency the shopper is buying in."
+            ? `1 to ${MAX_DISCOUNT_PERCENTAGE}`
+            : "Converted to the shopper's currency."
         }
       >
         <Input
@@ -83,7 +83,7 @@ function Terms({
       <Field
         label={`Minimum basket (${currency})`}
         htmlFor={`${prefix}-minimumSubtotal`}
-        hint="Leave empty for no minimum. Checked against the goods, before shipping and tax."
+        hint="Before shipping and tax. Optional."
       >
         <Input
           id={`${prefix}-minimumSubtotal`}
@@ -94,7 +94,7 @@ function Terms({
           aria-invalid={state.field === "minimumSubtotal" ? true : undefined}
         />
       </Field>
-      <Field label="Expires" htmlFor={`${prefix}-expiresAt`} hint="The code works to the end of this day. Empty for no expiry.">
+      <Field label="Expires" htmlFor={`${prefix}-expiresAt`} hint="Optional">
         <Input
           id={`${prefix}-expiresAt`}
           name="expiresAt"
@@ -104,7 +104,7 @@ function Terms({
           aria-invalid={state.field === "expiresAt" ? true : undefined}
         />
       </Field>
-      <Field label="Usage limit" htmlFor={`${prefix}-usageLimit`} hint="Total redemptions allowed. Empty for no limit.">
+      <Field label="Usage limit" htmlFor={`${prefix}-usageLimit`} hint="Optional">
         <Input
           id={`${prefix}-usageLimit`}
           name="usageLimit"
@@ -124,9 +124,6 @@ function Terms({
           />
           <Label htmlFor={`${prefix}-active`} className="block cursor-pointer font-normal">
             Active
-            <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-              An inactive code is refused in the basket and at checkout, and drops off any basket holding it.
-            </span>
           </Label>
         </div>
       </div>
@@ -151,7 +148,7 @@ export function DiscountCreateForm({ storeId, currency }: { storeId: string; cur
           <Field
             label="Code"
             htmlFor="code"
-            hint="Letters and digits only — what the shopper types. It cannot be changed later."
+            hint="Letters and numbers. Cannot be changed later."
           >
             <Input
               id="code"

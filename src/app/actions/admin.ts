@@ -86,7 +86,7 @@ export async function addSupplier(_prev: ActionState, formData: FormData): Promi
     return { status: "error", message: "Enter the supplier's website, including https://.", field: "website" };
   }
   if (summary.length < 20) {
-    return { status: "error", message: "Write a sentence describing what this supplier is for.", field: "summary" };
+    return { status: "error", message: "Add a short summary.", field: "summary" };
   }
   if (regions.length === 0) {
     return { status: "error", message: "Choose at least one fulfilment region.", field: "regions" };
@@ -129,7 +129,7 @@ export async function addSupplier(_prev: ActionState, formData: FormData): Promi
   revalidatePath("/admin/suppliers");
   return {
     status: "success",
-    message: `${name} added in review. Approve it before stores can source from it.`,
+    message: `${name} added for review.`,
   };
 }
 
@@ -157,7 +157,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
   if (item && isQuoteOnly(item)) {
     return {
       status: "error",
-      message: `“${item.name}” is priced by quote. Its run price is recorded against each request in the quote queue, not here.`,
+      message: `“${item.name}” is priced by quote. Record prices in Quote requests.`,
     };
   }
 
@@ -187,7 +187,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
   }
   if (name.length < 3) return { status: "error", message: "Enter a product name.", field: "name" };
   if (description.length < 20) {
-    return { status: "error", message: "Describe the product — store managers rely on this when comparing.", field: "description" };
+    return { status: "error", message: "Add a product description.", field: "description" };
   }
   if (baseCost === null || baseCost <= 0) {
     return { status: "error", message: "Enter the supplier's base cost.", field: "baseCost" };
@@ -343,7 +343,7 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
 
   revalidatePath("/admin/catalog");
   revalidatePath(`/admin/catalog/${item.id}`);
-  return { status: "success", message: "Shared catalog product updated. Stores see the change on their next import." };
+  return { status: "success", message: "Product updated." };
 }
 
 /* ------------------------------------------------------------ tax brackets */
@@ -388,7 +388,7 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
       meta: { from: existing.rate, to: rate },
     });
     revalidatePath("/admin/tax");
-    return { status: "success", message: `${name} saved at ${rate}%. Stores using it recalculate immediately.` };
+    return { status: "success", message: `${name} saved at ${rate}%.` };
   }
 
   const bracket: TaxBracket = {
@@ -412,7 +412,7 @@ export async function saveTaxBracket(_prev: ActionState, formData: FormData): Pr
     meta: { rate },
   });
   revalidatePath("/admin/tax");
-  return { status: "success", message: `${name} created. Stores can now select it per product.` };
+  return { status: "success", message: `${name} created.` };
 }
 
 export async function deleteTaxBracket(formData: FormData): Promise<void> {

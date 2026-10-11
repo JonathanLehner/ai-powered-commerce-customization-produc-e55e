@@ -1,4 +1,4 @@
-import { Badge, Callout, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { Badge, DataList, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { listAllQuoteRequests, listCatalogProducts } from "@/lib/data";
@@ -25,31 +25,26 @@ export default async function AdminQuotesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk sourcing enquiries"
-        description="Requests for quote raised by stores, newest first. Record every supplier quote that comes back."
+        title="Quote requests"
+        description="Record supplier quotes for store requests."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Awaiting quotes" value={String(open.length)} sub="Working the suppliers" />
-        <StatCard label="With the store" value={String(quoted.length)} sub="Quotes to review" />
-        <StatCard label="Accepted" value={String(accepted.length)} sub="Purchase order to raise" />
+        <StatCard label="Awaiting quotes" value={String(open.length)} />
+        <StatCard label="With the store" value={String(quoted.length)} />
+        <StatCard label="Accepted" value={String(accepted.length)} />
         <StatCard
           label="Units requested"
           value={open.reduce((sum, r) => sum + r.quantity, 0).toLocaleString("en-US")}
-          sub="Across enquiries awaiting quotes"
+          sub="Awaiting quotes"
         />
       </div>
 
-      <Callout tone="neutral" title="These orders stay manual">
-        A quote recorded here is offered to the store that asked. Accepting it does not open an order: sourcing
-        marketplaces have no order submission API, so the product the store copies in is flagged for manual
-        fulfilment and a buyer raises the purchase order and confirms Trade Assurance terms.
-      </Callout>
 
       {requests.length === 0 ? (
         <EmptyState
           title="No enquiries yet"
-          description="Stores raise these from their Sourcing page, against a catalog item or in their own words."
+          description="Stores request quotes from the Sourcing page."
         />
       ) : null}
 
@@ -128,7 +123,7 @@ export default async function AdminQuotesPage() {
                 <p className="mt-3 text-sm text-muted-foreground">The store withdrew this enquiry, so nothing is owed to it.</p>
               ) : request.status === "accepted" ? (
                 <p className="mt-3 text-sm text-muted-foreground">
-                  The store accepted a quote. Raise the purchase order with that supplier when orders arrive.
+                  Quote accepted. Raise a purchase order when orders arrive.
                 </p>
               ) : (
                 <>

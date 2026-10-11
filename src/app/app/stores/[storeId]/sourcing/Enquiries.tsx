@@ -227,9 +227,7 @@ export function Enquiries({
           </CardTitle>
           <p className="max-w-3xl text-sm text-inksoft">
             <span className="tabular-nums">{open}</span> open ·{" "}
-            <span className="tabular-nums">{requests.length}</span> in total, newest first. Quotes the
-            sourcing desk records land here and can be compared side by side with the print-on-demand
-            listings above.
+            <span className="tabular-nums">{requests.length}</span> total
           </p>
           <CardAction>
             <Button asChild variant="outline" size="sm">

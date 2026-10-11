@@ -117,10 +117,9 @@ export default async function ProductEditorPage({
       />
 
       {imported === "copy" ? (
-        <Callout tone="amber" title="A second copy — give it a name of its own">
-          {store.name} already held this supplier product, so this copy was saved as “{product.name}” with SKU{" "}
-          <span className="font-mono">{sku}</span>. Rename it to something the team will recognise — the
-          earlier copy and the shared catalog record are both untouched.{" "}
+        <Callout tone="amber" title="Saved as a second copy">
+          This store already has this product. The copy was saved as “{product.name}” (
+          <span className="font-mono">{sku}</span>). Rename it to tell them apart.{" "}
           {canEdit ? (
             <a href="#name" className="font-medium underline underline-offset-2">
               Rename it now
@@ -129,18 +128,16 @@ export default async function ProductEditorPage({
         </Callout>
       ) : imported ? (
         <Callout tone="green" title="Copied into this store">
-          A private copy now sits in {store.name} as <span className="font-mono">{sku}</span>. Place artwork,
-          generate mockups and check the margin — the shared catalog record is untouched.
+          Saved as <span className="font-mono">{sku}</span>. Add artwork, generate mockups and set a price.
         </Callout>
       ) : null}
 
       {product.manualFulfilment ? (
         <Callout tone="neutral" title="Flagged for manual fulfilment">
-          Sourced under accepted quote {product.manualFulfilment.quoteCode} from{" "}
-          {product.manualFulfilment.supplierLabel} at{" "}
-          {formatMoney(product.manualFulfilment.unitCost, product.currency)} a unit, minimum{" "}
-          {product.manualFulfilment.minimumOrderQuantity.toLocaleString("en-US")} units. Orders for it are not
-          sent to a supplier API: each one is held for a buyer to raise the purchase order against that quote.
+          Quote {product.manualFulfilment.quoteCode} from {product.manualFulfilment.supplierLabel}:{" "}
+          {formatMoney(product.manualFulfilment.unitCost, product.currency)} per unit, minimum{" "}
+          {product.manualFulfilment.minimumOrderQuantity.toLocaleString("en-US")} units. Orders need a manual
+          purchase order.
         </Callout>
       ) : null}
 
@@ -155,8 +152,8 @@ export default async function ProductEditorPage({
               {product.status === "published"
                 ? "This product is live on the storefront."
                 : blockers.length === 0
-                  ? "Every pre-flight check passes. This product is ready to sell."
-                  : `${blockers.length} thing${blockers.length === 1 ? "" : "s"} must be resolved before this product can be published.`}
+                  ? "Ready to publish."
+                  : `${blockers.length} ${blockers.length === 1 ? "issue" : "issues"} to resolve before publishing.`}
             </p>
             {canEdit ? (
               <CardAction className="flex flex-wrap gap-2">
@@ -206,8 +203,7 @@ export default async function ProductEditorPage({
             <CardContent className="space-y-4">
               {artworkChanged ? (
                 <Callout tone="amber" title="Taken off the storefront">
-                  This product was taken off the storefront because the artwork changed. Regenerate the
-                  previews and approve them to republish.
+                  The artwork changed. Regenerate and approve the mockups to republish.
                 </Callout>
               ) : null}
 
@@ -233,18 +229,13 @@ export default async function ProductEditorPage({
             <CardTitle asChild>
               <h2>Artwork and print areas</h2>
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Position the design inside the printable rectangle. Every check below reflects the
-              supplier&rsquo;s own file and resolution requirements.
-            </p>
           </CardHeader>
           <CardContent>
             {catalog ? (
               <Configurator product={product} catalog={catalog} readOnly={!canEdit} />
             ) : (
               <Callout tone="rose" title="Supplier product retired">
-                The shared catalog entry behind this product no longer exists, so artwork cannot be
-                pre-flighted. Import a replacement from the supplier catalog.
+                This supplier product is no longer available. Import a replacement from the supplier catalog.
               </Callout>
             )}
           </CardContent>
@@ -260,10 +251,10 @@ export default async function ProductEditorPage({
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               {product.mockups.length === 0
-                ? "No previews yet. Generate them from the artwork panel above."
+                ? "No mockups yet. Generate them from the artwork panel."
                 : mockupsApproved
                   ? `Approved by ${product.mockups[0].approvedBy} on ${formatDateTime(product.mockups[0].approvedAt ?? product.mockups[0].generatedAt)}.`
-                  : "Review each view. Approval is required before the product can be published."}
+                  : "Approval is required before the product can be published."}
             </p>
             {canEdit && product.mockups.length > 0 ? (
               <CardAction className="flex gap-2">
@@ -323,10 +314,6 @@ export default async function ProductEditorPage({
             <CardTitle asChild>
               <h2>Cost, tax and margin</h2>
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Everything a decision needs before publishing. Margin is measured against net revenue, because
-              the seller remits the tax.
-            </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-6 lg:grid-cols-2">
@@ -410,8 +397,8 @@ export default async function ProductEditorPage({
             {tone !== "healthy" ? (
               <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
                 {tone === "negative"
-                  ? "This product would sell at a loss. Raise the price or pick a cheaper supplier product."
-                  : "Margin is under 25%. Fine for a loss-leader, thin for a core line."}
+                  ? "This price is below cost."
+                  : "Margin is under 25%."}
               </p>
             ) : null}
           </CardContent>

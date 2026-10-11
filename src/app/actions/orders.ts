@@ -93,7 +93,7 @@ export async function rerouteToSupplier(_prev: ActionState, formData: FormData):
     return { status: "error", message: "Choose the supplier that will produce this order.", field: "supplierId" };
   }
   if (reason.length < 4) {
-    return { status: "error", message: "Give a short reason — it appears in the audit history.", field: "reason" };
+    return { status: "error", message: "Enter a reason.", field: "reason" };
   }
 
   const { user, store, order } = await load(storeId, orderId);
@@ -124,8 +124,8 @@ export async function rerouteToSupplier(_prev: ActionState, formData: FormData):
   const from = order.fulfillment.supplierName;
   const at = new Date().toISOString();
   const summary = from
-    ? `Rerouted from ${from} to ${supplier.name} — ${reason}.`
-    : `Routed to ${supplier.name} — ${reason}.`;
+    ? `Rerouted from ${from} to ${supplier.name}: ${reason}.`
+    : `Routed to ${supplier.name}: ${reason}.`;
 
   await updateOrder(orderId, {
     status: "in_production",
@@ -287,7 +287,7 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
   }
 
   refresh(storeId, orderId);
-  return { status: "success", message: `Tracking added. The shipping notification to ${order.customer.email} is queued.` };
+  return { status: "success", message: "Tracking added. The customer has been notified." };
 }
 
 export async function advanceStatus(formData: FormData): Promise<void> {
@@ -337,7 +337,7 @@ export async function raiseException(_prev: ActionState, formData: FormData): Pr
   const orderId = String(formData.get("orderId") ?? "");
   const note = String(formData.get("note") ?? "").trim();
   if (note.length < 5) {
-    return { status: "error", message: "Describe the problem so whoever picks this up has context.", field: "note" };
+    return { status: "error", message: "Describe the problem.", field: "note" };
   }
 
   const { user, store, order } = await load(storeId, orderId);
@@ -359,7 +359,7 @@ export async function raiseException(_prev: ActionState, formData: FormData): Pr
     meta: {},
   });
   refresh(storeId, orderId);
-  return { status: "success", message: "Exception recorded. The order now shows in the attention queue." };
+  return { status: "success", message: "Exception recorded." };
 }
 
 export async function resolveException(formData: FormData): Promise<void> {
@@ -409,7 +409,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     };
   }
   if (reason.length < 4) {
-    return { status: "error", message: "Give a short reason — it appears in the audit history.", field: "reason" };
+    return { status: "error", message: "Enter a reason.", field: "reason" };
   }
   if (order.payment.status !== "succeeded" && order.payment.status !== "refunded") {
     return { status: "error", message: "This order has no captured payment to refund." };
@@ -450,7 +450,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
         ...order.events,
         event(
           cancel ? "Cancelled and refunded" : "Refund issued",
-          `${formatMoney(amount, order.currency)} refunded (${gateway.refundId}) — ${reason}`,
+          `${formatMoney(amount, order.currency)} refunded (${gateway.refundId}): ${reason}`,
           user.name,
         ),
       ],
@@ -461,12 +461,12 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
     // The order moved under us. The gateway call was idempotent, so the refund
     // that did land is already on the reloaded order.
     refresh(storeId, orderId);
-    return { status: "error", message: "The order changed while this refund was being recorded. Reload and check the refund list before trying again." };
+    return { status: "error", message: "This order changed. Reload and check the refunds before trying again." };
   }
   recordAudit({
     category: "order_routing",
     action: cancel ? "order.cancelled_refunded" : "order.refunded",
-    summary: `${cancel ? "Cancelled and refunded" : "Refunded"} ${formatMoney(amount, order.currency)} on ${order.code} — ${reason}`,
+    summary: `${cancel ? "Cancelled and refunded" : "Refunded"} ${formatMoney(amount, order.currency)} on ${order.code}: ${reason}`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
@@ -478,6 +478,6 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
   refresh(storeId, orderId);
   return {
     status: "success",
-    message: `${formatMoney(amount, order.currency)} refunded${cancel ? " and the order was cancelled" : ""} — ${gateway.refundId}.`,
+    message: `${formatMoney(amount, order.currency)} refunded${cancel ? " and order cancelled" : ""} (${gateway.refundId}).`,
   };
 }

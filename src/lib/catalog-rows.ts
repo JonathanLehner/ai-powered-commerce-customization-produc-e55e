@@ -67,7 +67,7 @@ export function parsePrintAreas(
 ): RowResult<{ areas: PrintArea[] }> {
   const posted = postedRows<Record<string, unknown>>(raw);
   if (!posted) return { error: "The print areas could not be read. Reload the page and try again." };
-  if (posted.length === 0) return { error: "Add at least one print area — artwork has nowhere to go without one." };
+  if (posted.length === 0) return { error: "Add at least one print area." };
   if (posted.length > 8) return { error: "A product carries at most eight print areas." };
 
   const areas: PrintArea[] = [];
@@ -109,7 +109,7 @@ export function parseVariants(
 ): RowResult<{ variants: CatalogVariant[] }> {
   const posted = postedRows<Record<string, unknown>>(raw);
   if (!posted) return { error: "The variants could not be read. Reload the page and try again." };
-  if (posted.length === 0) return { error: "Add at least one variant — a product with none cannot be ordered." };
+  if (posted.length === 0) return { error: "Add at least one variant." };
   if (posted.length > 200) return { error: "A product carries at most 200 variants." };
 
   const variants: CatalogVariant[] = [];
@@ -125,7 +125,7 @@ export function parseVariants(
 
     const colour = text(row.colour);
     const size = text(row.size);
-    if (!colour && !size) return { error: `Give variant ${sku} at least one option value — a colour or a size.` };
+    if (!colour && !size) return { error: `Add a colour or size to variant ${sku}.` };
     const hex = text(row.colourHex);
     const baseCost = parseMoney(text(row.baseCost), currency);
     if (baseCost === null || baseCost <= 0) return { error: `Enter the supplier's base cost for variant ${sku}.` };

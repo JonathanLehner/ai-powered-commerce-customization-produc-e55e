@@ -23,7 +23,7 @@ import {
   type OrderListParams,
 } from "@/lib/order-list";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/types";
+import { ORDER_STATUS_LABELS, PLATFORM_ACCESS_NOTE, type OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
 import { OrdersToolbar } from "./OrdersToolbar";
 
@@ -84,15 +84,13 @@ export default async function OrdersPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : `${orders.length} orders`}
+                title={activeCampaign ? `${activeCampaign.code} · ${activeCampaign.name}` : "Orders"}
         description={
           activeCampaign
-            ? viaPlatform
-              ? `Every order in this gift campaign, ${activeCampaign.recipients.length} recipients.`
-              : `Every order in this gift campaign, ${activeCampaign.recipients.length} recipients from ${activeCampaign.buyer.name}.`
+            ? `${activeCampaign.recipients.length} recipients`
             : viaPlatform
-              ? "Production and delivery status for every order placed on this store. Shopper records stay with the store team."
-              : "Production and delivery status for every order placed on this store."
+              ? PLATFORM_ACCESS_NOTE
+              : undefined
         }
         actions={
           <Button asChild variant={view === "attention" ? "default" : "outline"} size="sm">
@@ -182,9 +180,8 @@ export default async function OrdersPage({
                     href={`/app/stores/${storeId}/orders/campaigns/${activeCampaign.id}`}
                     className="font-medium text-primary hover:underline"
                   >
-                    Work the campaign recipient by recipient
+                                        View campaign
                   </Link>
-                  .
                 </p>
               ) : null}
             </CardContent>
@@ -204,12 +201,8 @@ export default async function OrdersPage({
 
       {page.total === 0 ? (
         <EmptyState
-          title={orders.length === 0 ? "No orders yet" : "Nothing matches that filter"}
-          description={
-            orders.length === 0
-              ? "Orders appear here the moment a shopper pays. Each one carries its production status, carrier tracking and any supplier exception."
-              : "Try a different status or clear the search."
-          }
+          title={orders.length === 0 ? "No orders yet" : "No matching orders"}
+                    description={orders.length === 0 ? undefined : "Try different filters."}
         />
       ) : (
         <div className="space-y-3">

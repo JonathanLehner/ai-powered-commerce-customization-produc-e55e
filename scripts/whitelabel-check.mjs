@@ -105,8 +105,11 @@ for (const { code } of LANGUAGES) {
     assert.ok(value, `${code} produced an empty metadata field`);
     assert.ok(!value.includes("Parcelith"), `${code} storefront metadata still names the platform: ${value}`);
   }
-  // The footer credit is the one place the platform is still named, and it stays.
-  assert.ok(copyFor(code).chrome.legal.includes("Parcelith"), `${code} lost the powered-by credit`);
+  // Store footers carry the store's own name, support and legal links only.
+  for (const key of ["legal", "terms", "privacy"]) {
+    assert.ok(!copyFor(code).chrome[key].includes("Parcelith"), `${code} footer still names the platform`);
+  }
+  assert.ok(!copyFor(code).gift.legal.includes("Parcelith"), `${code} gift portal footer still names the platform`);
 }
 
 for (const value of strings(gift)) {

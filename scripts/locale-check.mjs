@@ -225,7 +225,7 @@ assert.equal(fmt("Hello {name}", {}), "Hello {name}", "an unfilled placeholder i
 assert.deepEqual(fmtAround("before {x} after", "x"), ["before ", " after"]);
 assert.deepEqual(fmtAround("no placeholder", "x"), ["no placeholder", ""]);
 // Word order is the translation's, not English's.
-assert.deepEqual(fmtAround(copyFor("ja").checkout.paymentNote, "account")[0].includes("Stripe"), true);
+assert.deepEqual(fmtAround(copyFor("ja").order.confirmedFindAgain, "email")[0].includes("注文コード"), true);
 
 assert.equal(joinList(["a"], "and"), "a");
 assert.equal(joinList(["a", "b"], "and"), "a and b");

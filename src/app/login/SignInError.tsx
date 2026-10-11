@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Callout } from "@/components/ui";
 
 const MESSAGES: Record<string, string> = {
-  "unknown-user": "No account uses that email address. Pick one of the accounts above instead.",
+  "unknown-user": "No account uses that email address.",
   "bad-credentials": "That email address and password do not match an account.",
   // Auth.js's own name for the same thing, used when its endpoint is posted to directly.
   CredentialsSignin: "That email address and password do not match an account.",

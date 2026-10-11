@@ -55,8 +55,7 @@ function WithdrawDialog({ formId, code }: { formId: string; code: string }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw this enquiry?</AlertDialogTitle>
           <AlertDialogDescription>
-            {code} is closed to further quotes and the sourcing desk stops work on it. Any quote already
-            recorded can no longer be accepted.
+            {code} will stop receiving quotes. Existing quotes can no longer be accepted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

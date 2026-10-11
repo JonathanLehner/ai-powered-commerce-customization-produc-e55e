@@ -79,8 +79,7 @@ export function ApprovalPanel({
       </p>
       {stale ? (
         <p className="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          Nothing has been decided for {waitLabel.toLowerCase().replace("waiting ", "")}. Send the request again,
-          or hand the campaign to somebody else at the company.
+          No decision for {waitLabel.toLowerCase().replace("waiting ", "")}. Resend the request or change the approver.
         </p>
       ) : null}
 
@@ -130,10 +129,7 @@ export function ApprovalPanel({
               >
                 {(state) => (
                   <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      For an approver who has left or cannot be reached. The link stays the same — it belongs to
-                      the campaign — and the new person is emailed the request as soon as you save this.
-                    </p>
+                                        <p className="text-sm text-muted-foreground">The new approver is emailed the request.</p>
                     <Field label="New approver" htmlFor="approverName">
                       <Input
                         id="approverName"
@@ -155,9 +151,9 @@ export function ApprovalPanel({
                       />
                     </Field>
                     <Field
-                      label="Why it moved"
+                      label="Reason"
                       htmlFor="reason"
-                      hint="Optional. It is written into the campaign history and the audit log."
+                      hint="Optional"
                     >
                       <Input
                         id="reason"

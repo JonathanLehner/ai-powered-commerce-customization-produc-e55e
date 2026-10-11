@@ -200,7 +200,7 @@ export async function setStoreStatus(formData: FormData): Promise<void> {
     action: status === "archived" ? "store.archived" : "store.restored",
     summary:
       status === "archived"
-        ? `Archived store “${store.name}” — its storefront is now offline`
+        ? `Archived store “${store.name}”`
         : `Restored store “${store.name}” to active`,
     storeId,
     agencyId: store.agencyId,
@@ -234,7 +234,7 @@ export async function saveBranding(_prev: ActionState, formData: FormData): Prom
   recordAudit({
     category: "store_setup",
     action: "store.branding_updated",
-    summary: `Updated branding — theme “${theme}”${logoUrl !== store.logoUrl ? " and a new logo" : ""}`,
+    summary: `Updated branding: theme “${theme}”${logoUrl !== store.logoUrl ? " and a new logo" : ""}`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
@@ -357,7 +357,7 @@ export async function saveDomain(_prev: ActionState, formData: FormData): Promis
 
   const domain = raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain)) {
-    return fail("Enter a domain like shop.yourclient.com — no protocol, no path.", "customDomain");
+    return fail("Enter a domain like shop.yourclient.com.", "customDomain");
   }
 
   const status = verify ? "verified" : "pending";
@@ -399,7 +399,7 @@ export async function saveStripe(_prev: ActionState, formData: FormData): Promis
     recordAudit({
       category: "store_setup",
       action: "store.stripe_disconnected",
-      summary: "Disconnected the Stripe account — checkout is now unavailable",
+      summary: "Disconnected the Stripe account",
       storeId,
       agencyId: store.agencyId,
       actorId: user.id,

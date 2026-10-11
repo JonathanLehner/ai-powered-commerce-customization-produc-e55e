@@ -99,7 +99,7 @@ export async function requestQuote(_prev: ActionState, formData: FormData): Prom
     if (existing) {
       return {
         status: "success",
-        message: `Enquiry ${existing.code} is already with the sourcing desk. It is listed under Bulk sourcing enquiries.`,
+        message: `Enquiry ${existing.code} was already sent.`,
       };
     }
   }
@@ -326,7 +326,7 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
     return {
       status: "error",
       field: "baseCatalogProductId",
-      message: "Pick the catalog listing the quoted product is built on, so the store copy has variants and print areas.",
+      message: "Choose the catalog listing for this quote.",
     };
   }
 
@@ -369,7 +369,7 @@ export async function recordSupplierQuote(_prev: ActionState, formData: FormData
   revalidateEnquiry(request.storeId);
   return {
     status: "success",
-    message: `${quote.supplierLabel} at ${formatMoney(quote.unitCost, request.currency)} a unit is on ${request.code}. The store sees it beside the print-on-demand options.`,
+    message: `Quote from ${quote.supplierLabel} at ${formatMoney(quote.unitCost, request.currency)} per unit added to ${request.code}.`,
   };
 }
 
@@ -406,5 +406,5 @@ export async function declineQuoteRequest(_prev: ActionState, formData: FormData
   });
 
   revalidateEnquiry(request.storeId);
-  return { status: "success", message: `${request.code} is marked declined and the store can see why.` };
+  return { status: "success", message: `${request.code} declined.` };
 }

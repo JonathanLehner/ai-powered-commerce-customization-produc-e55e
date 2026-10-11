@@ -27,12 +27,8 @@ export function GateForm({ slug, t }: { slug: string; t: StorefrontCopy["gift"] 
             autoComplete="email"
             required
             aria-invalid={state.field === "email" ? true : undefined}
-            aria-describedby="email-hint"
             className="mt-1.5"
           />
-          <p id="email-hint" className="mt-1.5 text-xs text-muted-foreground">
-            {t.gateEmailHint}
-          </p>
         </div>
       )}
     </ActionForm>

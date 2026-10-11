@@ -94,12 +94,12 @@ export default async function AgencyDashboard({
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
-          title={`Good to see you, ${user.name.split(" ")[0]}`}
+          title="Dashboard"
           description={
             <>
               {agency ? `${agency.name} · ` : ""}
               {active.length} active {active.length === 1 ? "store" : "stores"}
-              {archived.length ? `, ${archived.length} archived` : ""}. Figures are shown per store.
+              {archived.length ? `, ${archived.length} archived` : ""}
               {/* The agency's own admin sees every store it runs, so the count on
                   this page is the one the plan limit is applied to. */}
               {planUsage ? <span className="mt-0.5 block">{planUsage}</span> : null}
@@ -117,15 +117,15 @@ export default async function AgencyDashboard({
         {denied ? (
           <p role="alert" className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             {denied === "1"
-              ? "You do not have access to that store. Ask an agency administrator for an invitation."
-              : "Your role does not allow that screen. Ask a store administrator if you need access."}
+              ? "You do not have access to that store."
+              : "You do not have permission to view that page."}
           </p>
         ) : null}
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Active stores" value={String(active.length)} sub={`${archived.length} archived`} />
-          <StatCard label="Orders across stores" value={String(totalOrders)} sub="Counted per store, never merged" />
-          <StatCard label="Published products" value={String(publishedProducts)} sub="Live on client storefronts" />
+          <StatCard label="Orders" value={String(totalOrders)} />
+          <StatCard label="Published products" value={String(publishedProducts)} />
           <StatCard
             label="Needs attention"
             value={String(openIssues)}
@@ -135,16 +135,13 @@ export default async function AgencyDashboard({
         </div>
 
         <section className="mt-9">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">Client stores</h2>
-            <p className="text-xs text-muted-foreground">Sales shown in each store&rsquo;s own currency</p>
-          </div>
+          <h2 className="text-base font-semibold text-foreground">Client stores</h2>
 
           {active.length === 0 ? (
             <div className="mt-4">
               <EmptyState
                 title="No stores yet"
-                description="Create the first client store to set up branding, payments, shipping and a catalog. It takes about five minutes."
+                description="Create your first client store to get started."
                 action={
                   <Button asChild>
                     <Link href="/app/stores/new">Create a client store</Link>
@@ -283,9 +280,6 @@ export default async function AgencyDashboard({
         {archived.length > 0 ? (
           <section className="mt-9">
             <h2 className="text-base font-semibold text-foreground">Archived stores</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Archived stores keep their records for reporting and audit. Their storefronts are offline.
-            </p>
             {/* Collapsed by default: the live stores above are what the page is
                 for, and an agency that has run for a while has more archived
                 than active. */}

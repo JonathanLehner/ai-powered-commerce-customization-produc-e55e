@@ -113,8 +113,8 @@ export default async function CampaignFulfilmentPage({
           title={`${campaign.code} · ${campaign.name}`}
           description={
             viaPlatform
-              ? `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}. Recipient records stay with the store team.`
-              : `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}, ordered by ${campaign.buyer.name} (${campaign.buyer.email}).`
+              ? `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"}`
+              : `${campaign.recipients.length} recipients for ${catalogue?.companyName ?? "the client"} · ordered by ${campaign.buyer.name} (${campaign.buyer.email})`
           }
           actions={
             <>
@@ -122,7 +122,7 @@ export default async function CampaignFulfilmentPage({
               {campaign.status === "ordered" ? (
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/app/stores/${storeId}/orders?campaign=${encodeURIComponent(campaign.code)}`}>
-                    Filter the order queue
+                    View orders
                   </Link>
                 </Button>
               ) : null}
@@ -138,8 +138,7 @@ export default async function CampaignFulfilmentPage({
 
       {exceptions.length > 0 ? (
         <Callout tone="rose" title={`${exceptions.length} of ${orders.length} gifts need attention`}>
-          Work them from the rows below — each one opens its own order, where routing, tracking and refunds behave
-          exactly as they do for a shopper order.
+          Open each order below to resolve it.
         </Callout>
       ) : null}
 
@@ -148,7 +147,6 @@ export default async function CampaignFulfilmentPage({
           <StatCard
             label="Payment"
             value={campaign.payment.status === "succeeded" ? "Paid" : "Not paid"}
-            sub="Values stay with the store team"
           />
         ) : (
           <StatCard
@@ -293,7 +291,7 @@ export default async function CampaignFulfilmentPage({
                               ) : null}
                             </>
                           ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
+                            <span className="text-xs text-muted-foreground">–</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -334,7 +332,7 @@ export default async function CampaignFulfilmentPage({
             <CardContent>
             <DataList
               rows={[
-                { label: "Company", value: catalogue?.companyName ?? "—" },
+                { label: "Company", value: catalogue?.companyName ?? "–" },
                 ...(viaPlatform
                   ? []
                   : [

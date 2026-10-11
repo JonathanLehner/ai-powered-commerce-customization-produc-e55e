@@ -30,11 +30,10 @@ export function StoreAdminPanel({ store }: { store: Store }) {
     <section>
       <CardHeader>
       <CardTitle asChild>
-        <h2>Store administration</h2>
+        <h2>Store details</h2>
       </CardTitle>
       <p className="text-sm text-muted-foreground">
-        Renaming a store changes how it appears in the workspace and on the storefront. Its web address
-        (<span className="font-mono text-xs">/s/{store.slug}</span>) stays the same so existing links keep working.
+        Store address: <span className="font-mono text-xs">/s/{store.slug}</span>
       </p>
       </CardHeader>
 
@@ -78,8 +77,8 @@ export function StoreAdminPanel({ store }: { store: Store }) {
           </h3>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {archived
-              ? `Archived ${store.archivedAt ? formatDate(store.archivedAt) : ""}. Restoring puts the storefront back online and lets the store take orders again.`
-              : "Archiving takes the storefront offline and stops new orders. Products, orders and audit history are kept."}
+              ? `Archived ${store.archivedAt ? formatDate(store.archivedAt) : ""}`
+              : "Archived stores go offline. Records are kept."}
           </p>
           <form id={formId} action={setStoreStatus} className="mt-4">
             <input type="hidden" name="storeId" value={store.id} />
@@ -123,10 +122,9 @@ function ArchiveDialog({ formId }: { formId: string }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Take the storefront offline?</AlertDialogTitle>
+          <AlertDialogTitle>Archive this store?</AlertDialogTitle>
           <AlertDialogDescription>
-            No new orders can be taken while the store is archived. Products, orders and audit history are
-            kept, and the store can be restored from this page.
+            The storefront goes offline. You can restore it later.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

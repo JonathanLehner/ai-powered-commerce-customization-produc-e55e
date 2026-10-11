@@ -43,11 +43,10 @@ export function GiftPortalNotFound() {
     return (
       <FallbackPanel
         eyebrow="Gift portal"
-        title="We cannot find that page"
+        title="Page not found"
         description={
           <p>
-            The link may have expired, or the gift catalogue may have been closed by the company
-            that set it up. If someone sent you this link, ask them for a current one.
+            The link may have expired. Ask the sender for a new one.
           </p>
         }
         actions={
@@ -82,11 +81,10 @@ export function GiftPortalError({ digest, retry }: { digest?: string; retry: () 
     return (
       <FallbackPanel
         eyebrow="Gift portal"
-        title="Something went wrong at our end"
+        title="Something went wrong"
         description={
           <p>
-            This page could not be loaded. Nothing you have submitted has been lost — try again, and
-            if it keeps happening come back in a few minutes.
+            This page could not be loaded. Please try again.
           </p>
         }
         actions={

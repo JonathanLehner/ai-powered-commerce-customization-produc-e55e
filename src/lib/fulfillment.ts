@@ -42,7 +42,7 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
       supplierName: null,
       supplierOrderRef: null,
       message: "No supplier is attached to the items on this order.",
-      exception: "Order items have no supplier mapping — assign one before production.",
+      exception: "Order items have no supplier. Assign one before production.",
     };
   }
 
@@ -65,7 +65,7 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
       supplierName: supplier.name,
       supplierOrderRef: null,
       message: "Items on this order come from more than one supplier and must be split by hand.",
-      exception: "Multi-supplier order — split the job across suppliers before submitting.",
+      exception: "Multi-supplier order. Split the job across suppliers before submitting.",
     };
   }
 
@@ -225,7 +225,7 @@ export async function submitToSupplier(
         ? `${supplier.name} has no order submission API. Raise the purchase order manually and record the reference here.`
         : same
           ? `${supplier.name} already holds this job and could not produce it. Pick a different production partner.`
-          : `${supplier.name} cannot take this job — check it is approved, produces ${options.requirements.map((r) => r.label).join(", ")} for ${options.region}, and is not the partner this job already failed on.`,
+          : `${supplier.name} cannot take this job. Check it is approved, produces ${options.requirements.map((r) => r.label).join(", ")} for ${options.region}, and is not the partner this job already failed on.`,
       exception: null,
     };
   }

@@ -61,14 +61,14 @@ function readTerms(formData: FormData, store: Store): Terms | ActionState {
   const rawMinimum = String(formData.get("minimumSubtotal") ?? "").trim();
   const minimumSubtotal = rawMinimum === "" ? 0 : parseMoney(rawMinimum, store.defaultCurrency);
   if (minimumSubtotal === null) {
-    return fail("Enter a minimum basket value, or leave it empty for none.", "minimumSubtotal");
+    return fail("Enter a valid minimum basket value.", "minimumSubtotal");
   }
 
   const rawExpiry = String(formData.get("expiresAt") ?? "").trim();
   let expiresAt: string | null = null;
   if (rawExpiry !== "") {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(rawExpiry) || Number.isNaN(Date.parse(rawExpiry))) {
-      return fail("Enter the expiry date as a date, or leave it empty.", "expiresAt");
+      return fail("Enter a valid expiry date.", "expiresAt");
     }
     expiresAt = rawExpiry;
   }
@@ -78,7 +78,7 @@ function readTerms(formData: FormData, store: Store): Terms | ActionState {
   if (rawLimit !== "") {
     const limit = Number(rawLimit);
     if (!Number.isInteger(limit) || limit < 1) {
-      return fail("Enter a usage limit of 1 or more, or leave it empty for no limit.", "usageLimit");
+      return fail("Enter a usage limit of 1 or more.", "usageLimit");
     }
     usageLimit = limit;
   }
@@ -138,7 +138,7 @@ export async function createDiscount(_prev: ActionState, formData: FormData): Pr
   recordAudit({
     category: "discounts",
     action: "discount.created",
-    summary: `Created discount code ${code} — ${worthLabel(terms.kind, terms.value, store.defaultCurrency)}`,
+    summary: `Created discount code ${code}: ${worthLabel(terms.kind, terms.value, store.defaultCurrency)}`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
@@ -156,7 +156,7 @@ export async function createDiscount(_prev: ActionState, formData: FormData): Pr
     },
   });
   refresh(storeId, store.slug);
-  return { status: "success", message: `${code} is ready to hand out.` };
+  return { status: "success", message: `${code} created.` };
 }
 
 export async function saveDiscount(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -181,7 +181,7 @@ export async function saveDiscount(_prev: ActionState, formData: FormData): Prom
   // while a shopper is paying must not roll their redemption back.
   const saved = await updateDiscountCode(discountId, { timesUsed: existing.timesUsed }, terms);
   if (!saved) {
-    return fail("The code was used while this was being saved. Reload the page and try again.");
+    return fail("This code changed. Reload the page and try again.");
   }
 
   const changes = describeChanges(existing, terms, store.defaultCurrency);

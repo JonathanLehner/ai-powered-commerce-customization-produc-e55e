@@ -71,10 +71,6 @@ export function ProductDetailsForm({
               <CardTitle asChild>
                 <h2>Product details</h2>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                These values belong to this store only. The same supplier product can be named and priced
-                differently in another client&rsquo;s catalog.
-              </p>
             </CardHeader>
 
             <CardContent className="grid gap-5 lg:grid-cols-2">
@@ -128,7 +124,7 @@ export function ProductDetailsForm({
                   aria-describedby="description-hint"
                 />
                 <p id="description-hint" className="text-xs text-muted-foreground">
-                  Shown on the storefront product page. Blank lines start a new paragraph.
+                  Leave a blank line between paragraphs.
                 </p>
               </div>
 
@@ -136,7 +132,7 @@ export function ProductDetailsForm({
                 <Label htmlFor="tags">Tags</Label>
                 <Input id="tags" name="tags" defaultValue={product.tags.join(", ")} aria-describedby="tags-hint" />
                 <p id="tags-hint" className="text-xs text-muted-foreground">
-                  Comma separated. Used for storefront search and merchandising.
+                  Separate tags with commas.
                 </p>
               </div>
 
@@ -151,14 +147,11 @@ export function ProductDetailsForm({
                     <SelectItem value={NO_BRACKET}>No bracket selected</SelectItem>
                     {brackets.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
-                        {b.name} — {b.rate}%
+                        {b.name} · {b.rate}%
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  Rates are set globally by the platform administrator.
-                </p>
               </div>
 
               <fieldset className="lg:col-span-2">
@@ -167,8 +160,8 @@ export function ProductDetailsForm({
                 </legend>
                 <div className="mt-2 flex flex-wrap gap-2.5">
                   {[
-                    { value: "public", label: "Visible", hint: "Listed and searchable on the storefront." },
-                    { value: "hidden", label: "Hidden", hint: "Reachable by direct link only." },
+                    { value: "public", label: "Visible", hint: "Listed on the storefront." },
+                    { value: "hidden", label: "Hidden", hint: "Direct link only." },
                   ].map((option) => (
                     <Label
                       key={option.value}
@@ -192,9 +185,6 @@ export function ProductDetailsForm({
 
               <fieldset className="rounded-xl border border-border p-4 lg:col-span-2">
                 <legend className="px-1 text-sm font-semibold text-foreground">Shopper customisation</legend>
-                <p className="text-sm text-muted-foreground">
-                  What a shopper may change on this product before adding it to the cart.
-                </p>
                 <div className="mt-3 space-y-3">
                   <div className="flex items-start gap-3">
                     <Switch
@@ -206,8 +196,7 @@ export function ProductDetailsForm({
                     <Label htmlFor="shopperArtwork" className="block cursor-pointer font-normal">
                       <span className="block text-sm font-medium text-foreground">Allow artwork upload</span>
                       <span className="text-xs text-muted-foreground">
-                        The shopper&rsquo;s image is pre-flighted against the same print area rules and
-                        rendered into a preview before checkout.
+                                                Shoppers can upload their own image.
                       </span>
                     </Label>
                   </div>
@@ -223,7 +212,7 @@ export function ProductDetailsForm({
                         Allow a personalisation line
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        A short piece of text printed with the design.
+                                                Shoppers can add a line of text.
                       </span>
                     </Label>
                   </div>
@@ -279,8 +268,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                 <h2>Variants</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Disable the sizes or colours this client does not want to offer. Variant prices override the
-                base selling price.
+                Variant prices override the selling price.
               </p>
             </CardHeader>
             <CardContent>
@@ -380,8 +368,7 @@ export function DeleteProductForm({ product }: { product: StoreProduct }) {
             <h2>Delete this product</h2>
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Removes it from this store only. The shared catalog entry and any other client&rsquo;s copy are
-            unaffected. Existing orders keep their own record of what was bought.
+            Removes the product from this store. Existing orders are not affected.
           </p>
         </CardHeader>
         <CardContent>
@@ -412,8 +399,7 @@ function DeleteProductDialog({ formId, name }: { formId: string; name: string })
         <AlertDialogHeader>
           <AlertDialogTitle>Delete this product</AlertDialogTitle>
           <AlertDialogDescription>
-            &ldquo;{name}&rdquo; is removed from this store&rsquo;s catalog along with its artwork placements
-            and mockups. This cannot be undone.
+            &ldquo;{name}&rdquo; and its artwork and mockups will be deleted. This cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

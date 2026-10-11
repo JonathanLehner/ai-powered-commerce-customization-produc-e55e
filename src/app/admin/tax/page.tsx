@@ -1,5 +1,5 @@
 import { deleteTaxBracket } from "@/app/actions/admin";
-import { Badge, Callout, PageHeader } from "@/components/ui";
+import { Badge, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -20,14 +20,10 @@ export default async function AdminTaxPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Global tax brackets"
-        description="Rates are defined once for the whole platform. A store picks a default bracket and each product can point at a different one."
+        title="Tax brackets"
+        description="Platform-wide rates. Stores choose a default bracket."
       />
 
-      <Callout tone="neutral" title="Who owns the tax">
-        Sellers are the merchant of record for their own stores, so they remit the tax collected. These
-        brackets calculate the amount; they do not transfer the obligation.
-      </Callout>
 
       <ul className="space-y-4">
         {brackets.map((bracket) => {
@@ -57,7 +53,7 @@ export default async function AdminTaxPage() {
                     </Button>
                   </form>
                 ) : (
-                  <Badge tone="amber">In use — cannot delete</Badge>
+                  <Badge tone="amber">In use</Badge>
                 )}
               </CardHeader>
               <CardContent>

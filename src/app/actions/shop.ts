@@ -570,7 +570,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     recordAudit({
       category: "discounts",
       action: "discount.redeemed",
-      summary: `${discount.code} redeemed on ${code} — ${formatMoney(discount.amount, currency)} off`,
+      summary: `${discount.code} redeemed on ${code}: ${formatMoney(discount.amount, currency)} off`,
       storeId,
       agencyId: store.agencyId,
       actorId: "system",

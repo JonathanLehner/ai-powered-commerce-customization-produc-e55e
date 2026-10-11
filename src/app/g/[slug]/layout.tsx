@@ -96,10 +96,9 @@ export default async function GiftPortalLayout({
         <footer className="mt-16 border-t border-border bg-muted/60">
           <div className="mx-auto w-full max-w-6xl px-4 py-10 text-sm text-muted-foreground sm:px-6">
             <p className="font-heading font-semibold text-foreground">{catalogue.name}</p>
-            <p className="mt-1">{fmt(t.gift.operatedBy, { client: store.clientName })}</p>
             {support.email || support.phone ? (
-              <p className="mt-3">
-                {t.gift.supportTitle}{" "}
+              <p className="mt-2">
+                {t.gift.supportTitle}:{" "}
                 {support.email ? (
                   <a href={supportMailto(support.email)} className="text-foreground hover:underline">
                     {support.email}
@@ -112,14 +111,20 @@ export default async function GiftPortalLayout({
                   </a>
                 ) : null}
               </p>
-            ) : (
-              <p className="mt-3">{fmt(t.gift.supportPending, { client: store.clientName })}</p>
-            )}
+            ) : null}
           </div>
           <Separator />
-          <p className="mx-auto w-full max-w-6xl px-4 py-5 text-xs text-muted-foreground sm:px-6">
-            {fmt(t.gift.legal, { year: new Date().getFullYear(), client: store.clientName })}
-          </p>
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-muted-foreground sm:px-6">
+            <p>{fmt(t.gift.legal, { year: new Date().getFullYear(), client: store.clientName })}</p>
+            <div className="flex gap-4">
+              <Link href="/legal/terms" className="hover:text-foreground hover:underline">
+                {t.chrome.terms}
+              </Link>
+              <Link href="/legal/privacy" className="hover:text-foreground hover:underline">
+                {t.chrome.privacy}
+              </Link>
+            </div>
+          </div>
         </footer>
       </div>
     </Document>

@@ -48,20 +48,15 @@ function NoSuchStore() {
   return (
     <FallbackPanel
       eyebrow="Parcelith"
-      title="This shop is not available at this address"
+      title="Shop not found"
       description={
         <>
           <p>
-            Nothing is published at{" "}
+            No shop exists at{" "}
             <code className="rounded bg-canvas px-1.5 py-0.5 font-mono text-[13px] text-ink">
               {pathname}
             </code>
-            . The shop may have been renamed, moved to a different address, or closed by the
-            business that ran it.
-          </p>
-          <p className="mt-3">
-            Parcelith hosts shops like this one. If you were sent this link, ask the business for
-            its current address.
+            .
           </p>
         </>
       }
@@ -69,9 +64,6 @@ function NoSuchStore() {
         <>
           <Link href="/" className={buttonVariants()}>
             Go to Parcelith
-          </Link>
-          <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
-            How Parcelith works
           </Link>
         </>
       }
@@ -115,8 +107,8 @@ export function StorefrontError({ digest, retry }: { digest?: string; retry: () 
     return (
       <FallbackPanel
         eyebrow="Parcelith"
-        title="Something went wrong at our end"
-        description={<p>This page could not be loaded. Try again, or come back in a few minutes.</p>}
+        title="Something went wrong"
+        description={<p>This page could not be loaded. Please try again.</p>}
         actions={
           <>
             <Button type="button" onClick={retry}>

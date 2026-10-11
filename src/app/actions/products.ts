@@ -122,7 +122,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
 
   if (name.length < 3) return { status: "error", message: "Give the product a name of at least 3 characters.", field: "name" };
   if (description.length < 20) {
-    return { status: "error", message: "Write at least a sentence of description — shoppers see this on the product page.", field: "description" };
+    return { status: "error", message: "Add a description of at least one sentence.", field: "description" };
   }
   const price = parseMoney(priceRaw, product.currency);
   if (price === null || price <= 0) {
@@ -134,7 +134,7 @@ export async function saveProductDetails(_prev: ActionState, formData: FormData)
   if (!taxBracketId && (product.status === "published" || product.status === "in_review")) {
     return {
       status: "error",
-      message: "Pick the tax bracket this product falls into — a live product cannot sell untaxed.",
+      message: "Choose a tax bracket.",
       field: "taxBracketId",
     };
   }
@@ -212,7 +212,7 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
   });
 
   if (!variants.some((v) => v.enabled)) {
-    return { status: "error", message: "Keep at least one variant enabled, or the product cannot be bought.", field: "variants" };
+    return { status: "error", message: "Keep at least one variant enabled.", field: "variants" };
   }
   const bad = variants.find((v) => v.enabled && v.price <= v.baseCost);
   if (bad) {
@@ -276,7 +276,7 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
     return {
       status: "error",
-      message: `That file is ${(stored.sizeBytes / 1024 / 1024).toFixed(1)} MB. ${catalog.name} accepts up to ${catalog.fileRequirements.maxFileMb} MB.`,
+      message: `That file is ${(stored.sizeBytes / 1024 / 1024).toFixed(1)} MB. The limit is ${catalog.fileRequirements.maxFileMb} MB.`,
       field: "artwork",
     };
   }
@@ -322,7 +322,7 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   return {
     status: "success",
     message: errors.length
-      ? `Uploaded. ${errors.length} issue${errors.length === 1 ? "" : "s"} must be corrected before approval — see the checks below.`
+      ? `Uploaded. Fix ${errors.length} ${errors.length === 1 ? "issue" : "issues"} below before approval.`
       : "Uploaded and placed in the centre of the print area. Adjust the position, then generate mockups.",
   };
 }
@@ -368,7 +368,7 @@ export async function saveArtworkPlacement(_prev: ActionState, formData: FormDat
 
   await updateStoreProduct(productId, { artworks, mockups: [] }, product);
   revalidateAfterArtworkChange(storeId, productId, store.slug);
-  return { status: "success", message: "Placement saved. Generate mockups to preview the result." };
+  return { status: "success", message: "Placement saved." };
 }
 
 export async function removeArtwork(formData: FormData): Promise<void> {
@@ -461,7 +461,7 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   revalidateAfterArtworkChange(storeId, productId, store.slug);
   return {
     status: "success",
-    message: `${mockups.length} preview${mockups.length === 1 ? "" : "s"} generated. Review them and approve before publishing.`,
+    message: `${mockups.length} ${mockups.length === 1 ? "mockup" : "mockups"} generated.`,
   };
 }
 
@@ -577,7 +577,7 @@ export async function publishBlockers(productId: string): Promise<PublishBlocker
   }
   if (product.costs.marginAmount <= 0) {
     blockers.push({
-      reason: `The margin is ${formatMoney(product.costs.marginAmount, product.currency)} — this product would sell at a loss.`,
+      reason: `The margin is ${formatMoney(product.costs.marginAmount, product.currency)}. This price is below cost.`,
       fix: "Raise the selling price or choose a cheaper supplier product.",
     });
   }

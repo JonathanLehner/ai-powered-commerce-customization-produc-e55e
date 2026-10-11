@@ -188,7 +188,7 @@ export default async function CampaignPage({
       {campaign.status === "approved" && !payable && isBuyer ? (
         <div className="mt-6">
           <Callout tone="amber" title={t.gift.unpayableTitle}>
-            {fmt(t.gift.unpayableBody, { client: store.clientName })}
+            {t.gift.unpayableBody}
           </Callout>
         </div>
       ) : null}
@@ -323,7 +323,6 @@ export default async function CampaignPage({
                   code={campaign.code}
                   token={buyerToken as string}
                   total={money(campaign.totals.total, campaign.currency)}
-                  stripeAccountId={store.stripe.accountId}
                   t={t.gift}
                   card={t.checkout}
                 />

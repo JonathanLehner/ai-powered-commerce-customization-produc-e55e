@@ -541,7 +541,7 @@ export function recentAuditReadSize(rows: number): number {
 
 /** e.g. `Approved 2 mockups for “Northwind Field Tee” — 8 times`. */
 export function auditRunSummary(run: AuditRun): string {
-  return run.count > 1 ? `${run.entry.summary} — ${run.count} times` : run.entry.summary;
+  return run.count > 1 ? `${run.entry.summary} (${run.count} times)` : run.entry.summary;
 }
 
 export interface AuditActor {

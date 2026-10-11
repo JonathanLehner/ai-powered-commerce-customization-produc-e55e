@@ -63,7 +63,7 @@ function UploadForm({
     setUploadError(null);
     if (file.size > maxFileMb * 1024 * 1024) {
       setUploadError(
-        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. This supplier accepts up to ${maxFileMb} MB.`,
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. The limit is ${maxFileMb} MB.`,
       );
       return;
     }
@@ -102,7 +102,7 @@ function UploadForm({
           )}
         />
         <p id="artwork-hint" className="text-xs text-muted-foreground">
-          PNG, JPG or WEBP up to {maxFileMb} MB. Uploads as soon as you choose a file.
+          PNG, JPG or WEBP up to {maxFileMb} MB.
           {needsTransparency ? " This product needs a transparent background." : ""}
         </p>
         {busy ? (
@@ -289,7 +289,7 @@ export function Configurator({
   if (!area || !base) {
     return (
       <p className="text-sm text-muted-foreground">
-        This supplier product has no print areas or product photography configured.
+        This product has no print areas set up.
       </p>
     );
   }
@@ -326,7 +326,7 @@ export function Configurator({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={sameOriginAsset(base.url)}
-            alt={`${catalog.name} — ${area.name} view in ${base.colour}`}
+            alt={`${catalog.name}, ${area.name} view in ${base.colour}`}
             className="h-full w-full select-none object-cover"
             draggable={false}
           />
@@ -383,8 +383,7 @@ export function Configurator({
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Printable area {area.widthMm} × {area.heightMm} mm at {area.minDpi} DPI minimum. Drag the artwork, or
-          focus it and use the arrow keys.
+          Print area {area.widthMm} × {area.heightMm} mm, minimum {area.minDpi} DPI
         </p>
       </div>
 
@@ -588,8 +587,7 @@ export function Configurator({
                 <h3>No artwork on {area.name}</h3>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Upload the client&rsquo;s logo or a design for this print area. It is placed in the centre and
-                you can move it from there.
+                Upload a logo or design for this print area.
               </p>
             </CardHeader>
           </Card>
@@ -623,14 +621,13 @@ export function Configurator({
                 <h3>Mockups</h3>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Renders the saved placement onto the supplier photography for every decorated view. Approving
-                the result is required before publishing.
+                                Generate previews for every decorated view.
               </p>
             </CardHeader>
             {dirty ? (
               <CardContent>
                 <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                  You have unsaved placement changes — save them first so the preview matches.
+                  Save your placement changes first.
                 </p>
               </CardContent>
             ) : null}

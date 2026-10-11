@@ -21,35 +21,35 @@ const PERSONAS = [
     email: "alex@northlight.studio",
     name: "Alex Moreau",
     title: "Agency director, Northlight Studio",
-    blurb: "Full control of four client stores: settings, team, catalog, orders and publishing.",
+    blurb: "Full access to four client stores.",
     tone: "brand" as const,
   },
   {
     email: "sam@northlight.studio",
     name: "Sam Okafor",
     title: "Catalog producer",
-    blurb: "Catalog manager on Northwind and Lumen, store admin on Ferro. No access to Rivet.",
+    blurb: "Catalog manager on Northwind and Lumen, store admin on Ferro.",
     tone: "iris" as const,
   },
   {
     email: "ines@northlight.studio",
     name: "Inés Duarte",
     title: "Fulfilment lead",
-    blurb: "Order manager on Northwind only — orders and exceptions, read-only catalog.",
+    blurb: "Order manager on Northwind.",
     tone: "amber" as const,
   },
   {
     email: "dana@northwind.example",
     name: "Dana Whitfield",
     title: "Client stakeholder",
-    blurb: "Viewer on Northwind Supply Co. Can read, cannot change anything.",
+    blurb: "Read-only access to Northwind Supply Co.",
     tone: "slate" as const,
   },
   {
     email: "ops@parcelith.com",
     name: "Priya Raman",
     title: "Platform operations",
-    blurb: "Platform admin: suppliers, shared catalog, global tax brackets, agencies and access.",
+    blurb: "Suppliers, shared catalog, tax brackets and agencies.",
     tone: "green" as const,
   },
 ];
@@ -71,11 +71,9 @@ export default function LoginPage() {
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
         <section>
           <h1 className="font-heading text-xl font-semibold tracking-tight text-foreground">
-            Pick an account
+            Sign in
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Permissions are enforced per role, so what you can change depends on who you continue as.
-          </p>
+                    <p className="mt-1.5 text-sm text-muted-foreground">Choose a demo account.</p>
           <Suspense fallback={null}>
             <SignInError />
           </Suspense>
@@ -146,7 +144,7 @@ export default function LoginPage() {
           <form action={signInAs}>
               <CardContent>
                 <Label htmlFor="signin-email">
-                  Accepted an invitation? Sign in with that email address
+                  Sign in with an invited email address
                 </Label>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Input
@@ -165,10 +163,7 @@ export default function LoginPage() {
           </form>
           </Card>
 
-          <p className="mt-5 text-xs text-muted-foreground">
-            Shopper storefronts are public — no sign-in needed. Open a store from the agency dashboard to
-            browse, customise and check out as a customer would.
-          </p>
+          
         </section>
       </main>
     </div>

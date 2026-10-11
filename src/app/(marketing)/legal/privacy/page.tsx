@@ -13,14 +13,14 @@ const SECTIONS = [
     heading: "Who controls what",
     body: [
       "For agency and store team accounts, Parcelith is the controller of the account record: name, work email, role and the actions attributed to that person in the audit history.",
-      "For shopper data — order contact details, delivery address, artwork uploaded at checkout and personalisation text — the store operating the sale is the controller. Parcelith processes that data on the store's instruction so the order can be produced and delivered.",
+      "For shopper data (order contact details, delivery address, artwork uploaded at checkout and personalisation text), the store operating the sale is the controller. Parcelith processes that data on the store's instruction so the order can be produced and delivered.",
     ],
   },
   {
     heading: "What is stored",
     body: [
       "Account records: name, email, role, agency, and store memberships.",
-      "Store configuration: branding, currencies, domain, connected payment account identifier, carrier account numbers and tax settings. Card details are never stored — payment credentials go directly to Stripe.",
+      "Store configuration: branding, currencies, domain, connected payment account identifier, carrier account numbers and tax settings. Payment credentials go directly to Stripe.",
       "Commerce records: products, artwork files and their placement, generated mockups, orders, fulfilment events, tracking numbers and refunds.",
       "Audit history: who changed what and when, across store setup, imports, pricing, AI approvals, publishing, order routing and administration.",
     ],
@@ -36,7 +36,7 @@ const SECTIONS = [
     heading: "Third parties",
     body: [
       "Stripe processes payments on behalf of each store under that store's own account.",
-      "Production partners — Printful, Gelato and Printify — receive the delivery address, the item specification and the artwork file needed to make and ship the order. Sourcing enquiries raised through Alibaba.com are made by the seller directly.",
+      "Production partners (Printful, Gelato and Printify) receive the delivery address, the item specification and the artwork file needed to make and ship the order. Sourcing enquiries raised through Alibaba.com are made by the seller directly.",
       "DHL, FedEx and UPS receive the delivery address to carry the parcel and return tracking events.",
       "The commerce assistant sends product and catalog context to a third-party AI provider to draft suggestions. Shopper personal data is not included in those prompts.",
     ],
@@ -51,7 +51,7 @@ const SECTIONS = [
   {
     heading: "Your rights",
     body: [
-      "Team members can ask their agency administrator to correct or remove their account. Shoppers should contact the store they bought from — the store team can export or erase an order record and its artwork from the order screen.",
+      "Team members can ask their agency administrator to correct or remove their account. Shoppers should contact the store they bought from. The store team can export or erase an order record and its artwork from the order screen.",
     ],
   },
 ];

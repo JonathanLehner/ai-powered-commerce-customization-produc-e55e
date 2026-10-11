@@ -5,7 +5,7 @@
  *
  * Only active stores count. An archived store keeps its records but its
  * storefront is offline, which is what the pricing page means by "unlimited
- * drafts" — archiving is the way back under a limit without losing anything.
+ * draft stores": archiving is the way back under a limit without losing anything.
  */
 
 export type PlanKey = "starter" | "studio" | "scale";
@@ -15,6 +15,8 @@ export const PLAN_KEYS = ["starter", "studio", "scale"] as const;
 export interface Plan {
   key: PlanKey;
   name: string;
+  /** List price in whole US dollars per month on monthly billing. `null` is priced by sales. */
+  monthlyPrice: number | null;
   /** Active stores an agency may run at once. `null` is no ceiling. */
   storeLimit: number | null;
   /** Downloading the audit history as a spreadsheet. Reading it is on every plan. */
@@ -22,10 +24,35 @@ export interface Plan {
 }
 
 export const PLANS: Record<PlanKey, Plan> = {
-  starter: { key: "starter", name: "Starter", storeLimit: 3, auditExport: false },
-  studio: { key: "studio", name: "Studio", storeLimit: 15, auditExport: true },
-  scale: { key: "scale", name: "Scale", storeLimit: null, auditExport: true },
+  starter: { key: "starter", name: "Starter", monthlyPrice: 39, storeLimit: 3, auditExport: false },
+  studio: { key: "studio", name: "Studio", monthlyPrice: 149, storeLimit: 15, auditExport: true },
+  scale: { key: "scale", name: "Scale", monthlyPrice: null, storeLimit: null, auditExport: true },
 };
+
+export type BillingCycle = "monthly" | "yearly";
+
+/** Yearly billing takes this share off twelve monthly payments. */
+export const YEARLY_DISCOUNT = 0.2;
+
+export interface PlanPrice {
+  /** What a month costs on this cycle, rounded to whole dollars. */
+  perMonth: number;
+  /** What is charged per invoice: one month, or the whole year. */
+  billed: number;
+}
+
+/** A plan's price on a billing cycle, or null for a plan priced by sales. */
+export function planPrice(plan: Plan, cycle: BillingCycle): PlanPrice | null {
+  if (plan.monthlyPrice === null) return null;
+  if (cycle === "monthly") return { perMonth: plan.monthlyPrice, billed: plan.monthlyPrice };
+  const yearly = Math.round(plan.monthlyPrice * 12 * (1 - YEARLY_DISCOUNT));
+  return { perMonth: Math.round(yearly / 12), billed: yearly };
+}
+
+/** "$1,430" */
+export function formatDollars(amount: number): string {
+  return `$${amount.toLocaleString("en-US")}`;
+}
 
 /** Resolves a stored plan value, falling back to the smallest plan. */
 export function planFor(plan: string | null | undefined): Plan {
@@ -42,11 +69,6 @@ export function planStoreLabel(plan: Plan): string {
   return plan.storeLimit === null ? "Unlimited live stores" : `${plan.storeLimit} live stores`;
 }
 
-/** How a plan's audit entitlement is sold, and what the workspace then allows. */
-export function planAuditLabel(plan: Plan): string {
-  return plan.auditExport ? "Full audit history export" : "Audit history on screen";
-}
-
 /** The cheapest plan the download comes with. */
 export function firstPlanWithAuditExport(): Plan {
   return PLANS[PLAN_KEYS.find((key) => PLANS[key].auditExport) ?? "scale"];
@@ -55,7 +77,7 @@ export function firstPlanWithAuditExport(): Plan {
 /** Shown where the download would be, on a plan that does not include it. */
 export function auditExportMessage(plan: Plan, agencyName: string): string {
   const upgrade = firstPlanWithAuditExport();
-  return `${agencyName} is on the ${plan.name} plan, which shows the full audit history on screen. Downloading it as a spreadsheet comes with ${upgrade.name}.`;
+  return `${agencyName} is on the ${plan.name} plan. Export is available on ${upgrade.name} and above.`;
 }
 
 export interface StoreAllowance {
@@ -105,7 +127,7 @@ export function storeLimitMessage(allowance: StoreAllowance, agencyName: string)
       ? `${used} are active, which is already over the limit.`
       : `All ${used} of them are in use.`;
   const wayOut = nextPlan
-    ? `Archive a store you no longer run, or move up to ${nextPlan.name} for ${planStoreLabel(nextPlan).toLowerCase()}.`
-    : "Archive a store you no longer run to free a place.";
+    ? `Archive a store, or move up to ${nextPlan.name} for ${planStoreLabel(nextPlan).toLowerCase()}.`
+    : "Archive a store to free a place.";
   return `${included} ${inUse} ${wayOut}`;
 }

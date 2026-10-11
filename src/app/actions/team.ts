@@ -29,10 +29,10 @@ export async function inviteTeamMember(_prev: ActionState, formData: FormData): 
   const role = String(formData.get("role") ?? "viewer") as StoreRole;
 
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { status: "error", message: "Enter a valid email address for the person you are inviting.", field: "email" };
+    return { status: "error", message: "Enter a valid email address.", field: "email" };
   }
   if (name.length < 2) {
-    return { status: "error", message: "Enter the person's name so the team list is readable.", field: "name" };
+    return { status: "error", message: "Enter a name.", field: "name" };
   }
   if (!ROLES.includes(role)) {
     return { status: "error", message: "Choose one of the four store roles.", field: "role" };

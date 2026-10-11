@@ -110,7 +110,7 @@ function Toolbox() {
           <h2>Approved sections</h2>
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Drag a section onto the canvas, or use Add to append it to the bottom of the page.
+          Drag a section onto the canvas, or choose Add.
         </p>
       </CardHeader>
       <CardContent>
@@ -173,7 +173,7 @@ function SettingsPanel() {
             <h2>Section settings</h2>
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Select a section on the canvas — or in the page order list — to edit its copy, imagery and layout.
+            Select a section to edit it.
           </p>
         </CardHeader>
       </Card>
@@ -495,7 +495,7 @@ function EditorShell(props: EditorCanvasProps & { data: string }) {
                   <h2>Version history</h2>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  Restoring loads a version into the draft. It only goes live when you publish.
+                  Restored versions load into the draft.
                 </p>
               </CardHeader>
               <CardContent>

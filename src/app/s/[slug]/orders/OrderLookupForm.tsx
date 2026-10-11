@@ -39,12 +39,8 @@ export function OrderLookupForm({
                 placeholder="ORD-12345678"
                 required
                 aria-invalid={state.field === "code" ? true : undefined}
-                aria-describedby="code-hint"
                 className="mt-1.5"
               />
-              <p id="code-hint" className="mt-1.5 text-xs text-muted-foreground">
-                {t.orderCodeHint}
-              </p>
             </div>
             <div>
               <Label htmlFor="email">
@@ -59,7 +55,6 @@ export function OrderLookupForm({
                 aria-invalid={state.field === "email" ? true : undefined}
                 className="mt-1.5"
               />
-              <p className="mt-1.5 text-xs text-muted-foreground">{t.emailHint}</p>
             </div>
           </div>
         </>

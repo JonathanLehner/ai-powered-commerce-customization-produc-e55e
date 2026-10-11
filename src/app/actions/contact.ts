@@ -34,7 +34,7 @@ export async function submitPlanEnquiry(_prev: ActionState, formData: FormData):
     if (existing) {
       return {
         status: "success",
-        message: `Thanks ${firstName} — we already have this one. We reply to every enquiry within one working day.`,
+        message: `Thanks ${firstName}. We already have your enquiry and will reply within one business day.`,
       };
     }
   }

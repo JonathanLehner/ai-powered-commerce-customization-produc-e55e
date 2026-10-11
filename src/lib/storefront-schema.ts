@@ -49,8 +49,8 @@ export const SECTION_DEFS: Record<SectionType, SectionDef> = {
     icon: "hero",
     defaults: {
       eyebrow: "New collection",
-      headline: "Merch your customers actually keep",
-      body: "Designed, printed and shipped on demand — no minimums, no warehouse.",
+      headline: "Branded merchandise, made to order",
+      body: "Printed on demand and shipped worldwide.",
       ctaLabel: "Shop the collection",
       ctaHref: "products",
       imageUrl: "",
@@ -87,12 +87,12 @@ export const SECTION_DEFS: Record<SectionType, SectionDef> = {
   ValueProps: {
     type: "ValueProps",
     name: "Value props",
-    description: "Three short reasons to buy — sizing, printing and delivery promises.",
+    description: "Three short reasons to buy.",
     icon: "grid",
     defaults: {
       title: "Why shop with us",
       itemOneTitle: "Printed on demand",
-      itemOneBody: "Every item is made after you order, so nothing is wasted.",
+      itemOneBody: "Every item is made when you order it.",
       itemTwoTitle: "Tracked worldwide",
       itemTwoBody: "DHL, FedEx and UPS tracking on every parcel, in over 190 countries.",
       itemThreeTitle: "Made to last",
@@ -170,7 +170,7 @@ export const SECTION_DEFS: Record<SectionType, SectionDef> = {
     icon: "split",
     defaults: {
       heading: "Your logo, printed properly",
-      body: "We pre-flight every design against the supplier's print area, resolution and colour requirements before anything reaches production.",
+      body: "Every design is checked for print quality before production.",
       imageUrl: "",
       imageSide: "left",
     },

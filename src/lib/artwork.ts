@@ -177,7 +177,7 @@ export function validateArtwork(
     issues.push({
       code: "dpi_close_to_limit",
       severity: "warning",
-      message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI — only just above the ${requiredDpi} DPI minimum.`,
+      message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI, just above the ${requiredDpi} DPI minimum.`,
       fix: "Fine detail and thin lines may soften. A larger source file gives a cleaner print.",
     });
   }

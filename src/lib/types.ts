@@ -23,7 +23,7 @@ export const STORE_ROLE_LABELS: Record<StoreRole, string> = {
 export const PLATFORM_ACCESS_LABEL = "Platform access";
 
 export const PLATFORM_ACCESS_NOTE =
-  "Platform access shows operational status only. Shopper names, email addresses, delivery addresses and order values stay with the store team.";
+    "Customer details and order values are hidden with platform access.";
 
 /** What to call the access a person holds over a store, on badges and lists. */
 export function storeAccessLabel(role: StoreRole, viaPlatform: boolean): string {
@@ -31,11 +31,10 @@ export function storeAccessLabel(role: StoreRole, viaPlatform: boolean): string 
 }
 
 export const STORE_ROLE_DESCRIPTIONS: Record<StoreRole, string> = {
-  store_admin: "Full control of the store: settings, team, catalog, orders and publishing.",
-  catalog_manager:
-    "Import, customise, price and publish products, and run gift catalogues. No access to store settings.",
-  order_manager: "Work orders, fulfilment, refunds and supplier exceptions. Read-only catalog.",
-  viewer: "Read-only access to catalog, orders and analytics.",
+  store_admin: "Full access, including settings and team.",
+    catalog_manager: "Products, pricing, publishing and gift catalogues.",
+  order_manager: "Orders, fulfilment, refunds and supplier exceptions.",
+  viewer: "Read-only access.",
 };
 
 export interface Agency {
@@ -158,7 +157,7 @@ export const THEMES: Record<
 > = {
   atelier: {
     name: "Atelier",
-    description: "Editorial layout with generous whitespace — suits apparel drops.",
+    description: "Editorial layout with generous whitespace.",
     accent: "#0d9488",
     surface: "#f8fafc",
     ink: "#0f172a",
@@ -182,7 +181,7 @@ export const THEMES: Record<
   },
   bloom: {
     name: "Bloom",
-    description: "Warm and friendly — creator stores and community merch.",
+    description: "Warm and friendly.",
     accent: "#e11d48",
     surface: "#fff1f2",
     ink: "#4c0519",

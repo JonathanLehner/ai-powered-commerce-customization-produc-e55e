@@ -64,7 +64,7 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
       <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">{t.home.closedTitle}</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          {fmt(t.home.closedBody, { client: store.clientName, store: store.name })}
+          {t.home.closedBody}
         </p>
       </div>
     );
@@ -76,10 +76,9 @@ export default async function StorefrontHome({ params }: { params: Promise<{ slu
         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
           {fmt(t.home.comingSoonTitle, { store: store.name })}
         </h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          {t.home.comingSoonBody}{" "}
-          {products.length > 0 ? t.home.comingSoonWithProducts : t.home.comingSoonNoProducts}
-        </p>
+        {products.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t.home.comingSoonNoProducts}</p>
+        ) : null}
         {products.length> 0 ? (
           <Link href={`/s/${store.slug}/products`} className={cn(buttonVariants({ size: "lg" }), "mt-6")}>
             {fmt(t.home.browseProducts, { count: products.length })}

@@ -269,7 +269,7 @@ export async function regenerateGiftLink(formData: FormData): Promise<void> {
   recordAudit({
     category: "gifting",
     action: "gifting.link_regenerated",
-    summary: `Regenerated the private link for “${catalogue.name}” — every earlier link stopped working`,
+    summary: `Regenerated the private link for “${catalogue.name}”`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
@@ -414,7 +414,7 @@ export async function resendApprovalRequest(_prev: ActionState, formData: FormDa
   if (catalogue) await emailApprovalRequest(store, catalogue, campaign);
 
   refreshCampaign(storeId, campaign);
-  return ok(`The approval request is on its way to ${approver} again. The link is also below.`);
+  return ok(`Approval request resent to ${approver}.`);
 }
 
 /**
@@ -486,7 +486,7 @@ export async function changeCampaignApprover(_prev: ActionState, formData: FormD
   }
 
   refreshCampaign(storeId, campaign);
-  return ok(`${name} is now the approver and the request is on its way to them. The link is also below.`);
+  return ok(`${name} is now the approver. The request has been sent.`);
 }
 
 /* -------------------------------------------------------------- gift portal */
@@ -587,7 +587,7 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
   const { catalogue, store } = found;
 
   if (catalogue.status !== "active" || store.status !== "active") {
-    return fail("This gift catalogue is paused. Your programme owner can reopen it.");
+    return fail("This gift catalogue is paused.");
   }
   const access = await readGiftAccess(catalogue);
   if (!access) return fail("Your access to this catalogue has expired. Open the private link again.");
@@ -607,7 +607,7 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
   const published = await listPublishedProducts(store.id);
   const products = giftProductOptions(catalogue, published, store.channelCode);
   if (products.length === 0) {
-    return fail("This catalogue has no products available right now. Ask your programme owner to add some.");
+    return fail("This catalogue has no products available.");
   }
 
   const parsed = parseRecipients(list, {
@@ -719,7 +719,7 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
   recordAudit({
     category: "gifting",
     action: "gifting.campaign_created",
-    summary: `${buyerName} submitted gift campaign ${campaign.code} “${campaignName}” — ${recipients.length} recipients`,
+    summary: `${buyerName} submitted gift campaign ${campaign.code} “${campaignName}” with ${recipients.length} recipients`,
     storeId: store.id,
     agencyId: store.agencyId,
     actorId: "gifting",
@@ -763,7 +763,7 @@ export async function decideCampaign(_prev: ActionState, formData: FormData): Pr
   }
   if (decision !== "approve" && decision !== "decline") return fail("Choose approve or decline.");
   if (decision === "decline" && note.length < 4) {
-    return fail("Tell the buyer why it was declined so they can correct it.", "note");
+    return fail("Add a reason for declining.", "note");
   }
 
   const now = new Date().toISOString();
@@ -859,7 +859,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   const { campaign, catalogue, store } = loaded;
 
   if (!(await verifyCampaignToken(campaign.id, "buyer", token))) {
-    return fail("This campaign link is not valid. Ask your programme owner to send it again.");
+    return fail("This campaign link is not valid.");
   }
   const key = `gift_${campaign.id}`;
   if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(store.id, `${key}:0`))) {
@@ -972,7 +972,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
         {
           at: now,
           status: "Payment captured",
-          note: `Part of gift campaign ${campaign.code} — ${formatMoney(quote.total, campaign.currency)} charged in one payment.`,
+          note: `Part of gift campaign ${campaign.code}.`,
           actor: "Stripe",
         },
         ...(recipient.note
@@ -1062,7 +1062,7 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   recordAudit({
     category: "gifting",
     action: "gifting.campaign_ordered",
-    summary: `Gift campaign ${campaign.code} paid — ${orders.length} orders raised${held > 0 ? `, ${held} awaiting manual routing` : ""}`,
+    summary: `Gift campaign ${campaign.code} paid: ${orders.length} orders raised${held > 0 ? `, ${held} awaiting manual routing` : ""}`,
     storeId: store.id,
     agencyId: store.agencyId,
     actorId: "gifting",

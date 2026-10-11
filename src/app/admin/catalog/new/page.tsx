@@ -20,14 +20,13 @@ export default async function AdminCatalogNewPage({
       />
       <PageHeader
         title="Add a catalog product"
-        description="Everything set here is inherited by every store that imports the product: costs, print areas, variants and the regions it can be fulfilled to."
       />
 
       {preselected ? (
         <Callout tone="neutral" title={`Adding a product for ${preselected.name}`}>
           {preselected.status === "approved"
-            ? "This partner is approved, so stores can import the product as soon as it is active."
-            : "This partner is not approved yet. The product can be prepared now, but stores only see it once the supplier is approved."}
+            ? "Stores can import it once it is active."
+            : "Stores can import it once this supplier is approved."}
         </Callout>
       ) : null}
 

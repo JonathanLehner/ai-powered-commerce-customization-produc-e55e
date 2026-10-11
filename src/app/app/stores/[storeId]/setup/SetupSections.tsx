@@ -161,7 +161,7 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
           className="mt-1.5 file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm"
         />
         <p id="logo-hint" className="mt-1.5 text-xs text-muted-foreground">
-          PNG, JPG, WEBP or SVG up to {LOGO_MAX_MB} MB. Uploads as soon as you choose a file.
+          PNG, JPG, WEBP or SVG up to {LOGO_MAX_MB} MB.
         </p>
         <p role="status" aria-live="polite" className="mt-2 text-sm">
           {uploading ? <span className="text-muted-foreground">Uploading…</span> : null}
@@ -210,7 +210,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={1}
         title="Branding"
-        description="The client's logo appears in the storefront header and on order confirmations. The theme sets the storefront's colour and typography."
+        description="Logo and storefront theme."
         done={store.setup.branding}
       >
         <ActionForm action={saveBranding} submitLabel="Save branding" hidden={hidden}>
@@ -260,7 +260,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={2}
         title="Language and selling currencies"
-        description="The storefront is written in the default language and its amounts and dates follow that language's conventions. Shoppers see prices in the currency they choose from this list, so zero-decimal currencies such as JPY are handled correctly."
+        description="Storefront language and the currencies shoppers can pay in."
         done={store.setup.localisation}
       >
         <ActionForm action={saveLocalisation} submitLabel="Save localisation" hidden={hidden}>
@@ -276,15 +276,11 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     <SelectContent>
                       {LANGUAGE_OPTIONS.map((l) => (
                         <SelectItem key={l.code} value={l.code}>
-                          {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
+                          {l.label === l.endonym ? l.label : `${l.label} · ${l.endonym}`}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Used for the storefront&rsquo;s own copy, its number and date formatting, and the language its
-                    pages are marked with.
-                  </p>
                 </div>
                 <div className="grid content-start gap-1.5">
                   <Label htmlFor="defaultCurrency">Default currency</Label>
@@ -313,8 +309,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   Selling currencies
                 </legend>
                 <p className="mt-1.5 mb-3 text-xs text-muted-foreground">
-                  <span className="tabular-nums">{currencies.length}</span> selected. Shoppers can switch
-                  between them on the storefront.
+                  <span className="tabular-nums">{currencies.length}</span> selected
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                   {CURRENCY_OPTIONS.map((c) => (
@@ -341,8 +336,8 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
 
       <Step
         index={3}
-        title="Shopper support contacts"
-        description="Where a shopper with a problem reaches the client. The address is shown on the order status page and in the storefront footer, and is what the “Contact the store” button writes to — so it has to be one somebody reads."
+        title="Support contacts"
+        description="Shown to shoppers in the storefront footer and on order pages."
         done={store.setup.support}
       >
         <ActionForm action={saveSupport} submitLabel="Save support contacts" hidden={hidden}>
@@ -357,11 +352,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   defaultValue={store.supportEmail ?? ""}
                   placeholder="support@yourclient.com"
                   aria-invalid={state.field === "supportEmail" ? true : undefined}
-                  aria-describedby="supportEmail-hint"
-                />
-                <p id="supportEmail-hint" className="text-xs text-muted-foreground">
-                  Required. Shoppers write here about deliveries, personalisation and refunds.
-                </p>
+                                  />
               </div>
               <div className="grid content-start gap-1.5">
                 <Label htmlFor="supportPhone">
@@ -374,11 +365,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                   defaultValue={store.supportPhone ?? ""}
                   placeholder="+1 503 555 0142"
                   aria-invalid={state.field === "supportPhone" ? true : undefined}
-                  aria-describedby="supportPhone-hint"
-                />
-                <p id="supportPhone-hint" className="text-xs text-muted-foreground">
-                  Leave empty if the client does not answer a phone. Shown exactly as you type it.
-                </p>
+                                  />
               </div>
             </div>
           )}
@@ -388,7 +375,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={4}
         title="Custom domain"
-        description="Point the client's own subdomain at this storefront. Until it is verified, the store is served from its Parcelith address."
+        description="Serve the storefront from the client's own domain."
         done={store.setup.domain}
       >
         <ActionForm action={saveDomain} submitLabel="Save domain" hidden={hidden}>
@@ -441,7 +428,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={5}
         title="Stripe account"
-        description="Payments settle directly into the client's own Stripe account — they are the merchant of record. Parcelith never holds the funds."
+        description="Connect the client's Stripe account to accept payments."
         done={store.setup.payments}
       >
         {store.stripe.connected ? (
@@ -452,7 +439,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
               </p>
               <p className="mt-1 text-emerald-800">
                 Country {store.stripe.country} · charges enabled · connected{" "}
-                {store.stripe.connectedAt ? new Date(store.stripe.connectedAt).toLocaleDateString("en-US") : "—"}
+                {store.stripe.connectedAt ? new Date(store.stripe.connectedAt).toLocaleDateString("en-US") : "–"}
               </p>
             </div>
             <form action={disconnectStripe} className="mt-4">
@@ -477,7 +464,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     aria-describedby="accountId-hint"
                   />
                   <p id="accountId-hint" className="text-xs text-muted-foreground">
-                    Copy it from the client&rsquo;s Stripe dashboard under Settings → Account details.
+                    Find it in Stripe under Settings → Account details.
                   </p>
                 </div>
                 <div className="grid content-start gap-1.5">
@@ -494,7 +481,6 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">Determines which currencies can be settled.</p>
                 </div>
               </div>
             )}
@@ -505,7 +491,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={6}
         title="Shipping carriers"
-        description="Enable the carriers the client has accounts with. Tracking links shown to shoppers use the carrier chosen for each shipment."
+        description="Enable the carriers the client has accounts with."
         done={store.setup.shipping}
       >
         <ActionForm action={saveCarriers} submitLabel="Save carriers" hidden={hidden}>
@@ -554,7 +540,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
       <Step
         index={7}
         title="Tax configuration"
-        description="Tax rates are set globally by the platform administrator. The store picks a default bracket, and each product can point at a different one."
+        description="Default tax bracket for this store. Products can use a different bracket."
         done={store.setup.tax}
       >
         <ActionForm action={saveTaxSettings} submitLabel="Save tax settings" hidden={hidden}>
@@ -579,7 +565,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     <SelectItem value={NO_BRACKET}>Select a bracket…</SelectItem>
                     {brackets.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
-                        {b.name} — {b.rate}% ({b.code})
+                        {b.name} · {b.rate}% ({b.code})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -597,8 +583,7 @@ export function SetupSections({ store, brackets }: { store: Store; brackets: Tax
                     Displayed prices include tax
                   </span>
                   <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                    Standard for UK and EU storefronts. Leave off to add tax at checkout, as is normal in the
-                    US.
+                    Common in the UK and EU.
                   </span>
                 </Label>
               </div>

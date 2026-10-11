@@ -11,124 +11,76 @@ export const dynamic = "force-static";
 const PILLARS = [
   {
     icon: LayersIcon,
-    title: "One workspace, many client stores",
-    body: "Every client gets an isolated store with its own catalog, customers, orders, currencies, domain and Stripe account. Switch between them in a keystroke; nothing leaks across the boundary.",
+    title: "Separate client stores",
+    body: "Each client gets its own catalog, customers, orders, currencies, domain and payments.",
   },
   {
     icon: LibraryBigIcon,
-    title: "A shared catalog you actually control",
-    body: "Platform admins curate supplier-backed apparel and drinkware — costs, print areas, availability and fulfilment regions. Store managers copy what they need into their own catalog.",
+    title: "Shared supplier catalog",
+    body: "Supplier-backed apparel and mugs with costs, print areas and fulfilment regions. Copy what you need into any store.",
   },
   {
     icon: ShieldCheckIcon,
-    title: "Nothing publishes without a human",
-    body: "Artwork pre-flight, mockup approval, margin review and every AI suggestion require an explicit confirmation before the change is applied.",
+    title: "Approval before publishing",
+    body: "Artwork, mockups, margins and AI suggestions all need sign-off before they go live.",
   },
 ];
 
 const FEATURES = [
   {
-    title: "Compare production partners before you commit",
-    body: "Search the shared catalog by category, supplier, cost and fulfilment region, then put candidates side by side. Printful, Gelato and Printify expose production APIs, so orders route automatically. Alibaba.com sits in the same comparison for bulk sourcing and RFQs — flagged for manual handling, because transaction APIs vary supplier by supplier.",
+    title: "Compare suppliers side by side",
+    body: "Filter the shared catalog by category, supplier, cost and region, then compare the options.",
     points: [
-      "Base cost, customisation cost and lead time per supplier",
-      "Fulfilment region coverage checked against the store's markets",
-      "Copy into a store catalog without touching the shared record",
+      "Base cost, print cost and lead time",
+      "Fulfilment region coverage",
+      "Copy into a store catalog",
     ],
     image: IMAGES["marketing-sourcing"],
     alt: "Blank merchandise samples and fabric swatches arranged on a pale surface",
   },
   {
-    title: "Artwork that is checked before it reaches production",
-    body: "Upload a logo, drag it inside the print area, scale and rotate it, and watch the effective print resolution update as you go. Anything that breaks the supplier's rules blocks approval and tells you exactly how to fix it — the file format, the megapixel ceiling, the transparent background, the design hanging over the seam.",
+    title: "Artwork checked before production",
+    body: "Place a logo in the print area, then scale and rotate it while the print resolution updates.",
     points: [
-      "2D print areas defined in millimetres, not guesswork",
-      "Live DPI, bounds and file-requirement checks",
-      "Front, back and side mockups generated from the real placement",
+      "Print areas in millimetres",
+      "Resolution, bounds and file checks",
+      "Front, back and side mockups",
     ],
     image: IMAGES["marketing-mockup"],
     alt: "Hands positioning a transfer sheet over a folded blank t-shirt",
   },
   {
-    title: "Paid orders become production jobs",
-    body: "When a shopper pays through the store's own Stripe account, the order is routed to the selected supplier and the submission result is recorded. Jobs that need a human — an unsupported destination, a multi-supplier basket, a sourcing marketplace — are flagged rather than silently dropped.",
+    title: "Paid orders go to production",
+    body: "Each order is sent to its supplier. Orders that need attention are flagged in the order queue.",
     points: [
-      "DHL, FedEx and UPS tracking surfaced to teams and shoppers",
-      "Refunds, cancellations and supplier exceptions handled in one queue",
-      "Every routing decision written to the audit log",
+      "DHL, FedEx and UPS tracking",
+      "Refunds, cancellations and exceptions",
+      "Full audit log",
     ],
     image: IMAGES["marketing-fulfilment"],
     alt: "Kraft parcel boxes, packing tape and a barcode scanner on a workbench",
   },
 ];
 
-/**
- * The gifting portal, told in the order the two people outside the workspace
- * meet it: the buyer builds the list, the approver signs it off on a link of
- * their own, and only then does a payment become one order per recipient.
- */
 const GIFT_FLOW = [
-  {
-    step: "01",
-    title: "The store publishes a catalogue",
-    body: "A private gift range per company, drawn from that store's own published products, open to anyone with the link or only to invited addresses.",
-  },
-  {
-    step: "02",
-    title: "The buyer brings the recipient list",
-    body: "Paste it or upload the spreadsheet HR already has. Every row is checked — address, country, a size that is actually made, the spend limit per person — before anything is created.",
-  },
-  {
-    step: "03",
-    title: "The approver signs it off",
-    body: "The list goes to the company's approver on a link of their own, showing every recipient and the total. They approve or decline with a note; the buyer cannot pay until they do.",
-  },
-  {
-    step: "04",
-    title: "One campaign, one order each",
-    body: "A single payment raises an order per recipient, grouped under the campaign in the store's order queue, so production and exceptions are worked per programme.",
-  },
+  { step: "01", title: "Publish a catalogue", body: "Choose gifts from the store's published products." },
+  { step: "02", title: "Add recipients", body: "Paste a list or upload a CSV." },
+  { step: "03", title: "Approve", body: "An approver reviews the list and the total." },
+  { step: "04", title: "Pay once", body: "Each recipient gets their own order and tracking." },
 ];
 
 const GIFT_POINTS = [
-  "Gated by private link or by invited email address, revocable at any time",
-  "Up to 100 recipients a campaign, validated row by row before submission",
-  "Approval, payment and every per-recipient order kept under one campaign",
+  "Private link or invite-only access",
+  "Up to 100 recipients per campaign",
+  "Spend limit per recipient",
 ];
 
 const LIFECYCLE = [
-  { step: "01", title: "Create the store", body: "Name it, upload the client's logo, pick a theme, choose selling currencies and map a custom domain." },
-  { step: "02", title: "Connect money and shipping", body: "The client's own Stripe account, their carrier accounts, and the tax bracket each product falls into." },
-  { step: "03", title: "Import and customise", body: "Copy supplier products into the store catalog, place artwork, approve the mockups, review the margin." },
-  { step: "04", title: "Build the storefront", body: "Drag approved sections into place, preview at phone and desktop widths, publish or revert." },
-  { step: "05", title: "Sell and fulfil", body: "Shoppers customise, pay and track. Orders route to production and exceptions land in the order queue." },
-];
-
-const FAQ = [
-  {
-    q: "Who is the merchant of record?",
-    a: "Each seller is. Payments settle into the store's own connected Stripe account, and the seller owns tax, refunds and supplier liabilities. Parcelith never takes custody of the funds.",
-  },
-  {
-    q: "How isolated is a client store really?",
-    a: "A store is a separate commerce channel. Products, prices, customers, carts, orders, storefront layouts and team members belong to it alone. An agency sees performance across its stores, but shopper data is never combined between them.",
-  },
-  {
-    q: "What can the AI assistant do on its own?",
-    a: "Nothing. It drafts ideas, supplier picks, copy, tags and prices as pending suggestions. Applying one is a separate, audited step.",
-  },
-  {
-    q: "Who can open a company's gift catalogue?",
-    a: "Whoever the store decides. A catalogue is either open to anyone holding its private link or restricted to a list of invited email addresses, and regenerating the link closes every link handed out so far. It is never indexed and never appears in the client's public storefront.",
-  },
-  {
-    q: "How do gift orders reach fulfilment?",
-    a: "The same way every other order does. One approved, paid campaign becomes one order per recipient in the store's queue, each with its own address, shipping and tax, all grouped under the campaign so a programme is worked as a whole.",
-  },
-  {
-    q: "Which products are supported at launch?",
-    a: "Apparel with 2D print areas — tees and hoodies — plus 11oz and 15oz ceramic mugs. Each product declares its printable rectangle in millimetres along with the supplier's minimum DPI and file rules.",
-  },
+  { step: "01", title: "Create the store", body: "Logo, theme, currencies and domain." },
+  { step: "02", title: "Connect payments", body: "Stripe, carriers and tax." },
+  { step: "03", title: "Add products", body: "Import, place artwork and approve mockups." },
+  { step: "04", title: "Build the storefront", body: "Arrange sections, preview and publish." },
+  { step: "05", title: "Sell and fulfil", body: "Orders go to production with tracking." },
 ];
 
 /** A numbered step, used by the gifting flow and the lifecycle. */
@@ -153,29 +105,27 @@ export default function LandingPage() {
         <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center lg:gap-14">
           <div>
             <h1 className="font-heading max-w-[22ch] text-[2rem] leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
-              Launch a branded product store for every client, without a warehouse
+              Branded merchandise stores for every client
             </h1>
             <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Parcelith gives agencies one workspace for isolated client stores, a curated catalog of
-              supplier-backed apparel and mugs, an artwork configurator that pre-flights every design, and
-              order routing that ends at a tracked parcel.
+              Source, customise and sell print-on-demand products from one agency workspace.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="px-4">
                 <Link href="/login">Open the workspace</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="px-4">
-                <Link href="/how-it-works">See how it works</Link>
+                <Link href="/how-it-works">How it works</Link>
               </Button>
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 text-sm">
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Print areas</dt>
-                <dd className="mt-1 font-heading text-base font-semibold text-foreground">Defined in mm</dd>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Products</dt>
+                <dd className="mt-1 font-heading text-base font-semibold text-foreground">Apparel and mugs</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Payments</dt>
-                <dd className="mt-1 font-heading text-base font-semibold text-foreground">Seller&rsquo;s Stripe</dd>
+                <dt className="text-xs text-muted-foreground uppercase tracking-wide">Languages</dt>
+                <dd className="mt-1 font-heading text-base font-semibold text-foreground">9</dd>
               </div>
               <div>
                 <dt className="text-xs text-muted-foreground uppercase tracking-wide">Carriers</dt>
@@ -199,7 +149,7 @@ export default function LandingPage() {
       </section>
 
       <Section tone="muted">
-        <SectionHeading>Built around how agencies actually work</SectionHeading>
+        <SectionHeading>Built for agencies</SectionHeading>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {PILLARS.map((pillar) => (
             <Card key={pillar.title} className="h-full">
@@ -248,24 +198,21 @@ export default function LandingPage() {
           <div>
             <p className="text-xs font-semibold tracking-wide text-primary uppercase">Corporate gifting</p>
             <SectionHeading className="mt-3">
-              A gifting portal each company can run on its own
+              Private gift portals for companies
             </SectionHeading>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Every store can open a private gift catalogue for the companies it supplies: its own web
-              address, its own branded product range, a spend limit per recipient and an approver who has to
-              sign the list off before a card is charged. The buyer never sees the workspace, and the store
-              never re-keys a spreadsheet.
+              Give each company its own gift catalogue with bulk recipient lists and approval before payment.
             </p>
             <CheckList items={GIFT_POINTS} className="mt-6" />
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Button asChild variant="outline" size="lg" className="px-4">
-                <Link href="/how-it-works#gifting">See the gifting walkthrough</Link>
+                <Link href="/how-it-works#gifting">How gifting works</Link>
               </Button>
               <Link
                 href="/pricing"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                On every plan
+                Included on every plan
                 <ArrowRightIcon aria-hidden className="size-4" />
               </Link>
             </div>
@@ -292,11 +239,7 @@ export default function LandingPage() {
       </Section>
 
       <Section>
-        <SectionHeading
-          lead="The whole product lifecycle sits in one place, so nothing depends on a spreadsheet handover between the person who designs the range and the person who ships it."
-        >
-          From brief to delivered parcel
-        </SectionHeading>
+        <SectionHeading>From brief to delivery</SectionHeading>
         <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {LIFECYCLE.map((item) => (
             <StepCard key={item.step} {...item} />
@@ -304,28 +247,13 @@ export default function LandingPage() {
         </ol>
       </Section>
 
-      <Section tone="muted">
-        <SectionHeading>Common questions</SectionHeading>
-        <dl className="mt-8 grid gap-4 md:grid-cols-2">
-          {FAQ.map((item) => (
-            <Card key={item.q} className="h-full">
-              <CardContent>
-                <dt className="font-heading text-base font-medium text-foreground">{item.q}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
-              </CardContent>
-            </Card>
-          ))}
-        </dl>
-      </Section>
-
       <Section>
         <div className="rounded-xl bg-primary/5 px-6 py-12 text-center ring-1 ring-primary/20 sm:px-12">
           <h2 className="font-heading mx-auto max-w-[24ch] text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl">
-            Open the workspace with demo data
+            Try the demo workspace
           </h2>
           <p className="mx-auto mt-3 max-w-[60ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Four client stores, a shared supplier catalog, live artwork pre-flight and a full order queue are
-            already populated. Sign in as an agency director, a catalog producer or the platform admin.
+            Four sample client stores with products, orders and gift campaigns.
           </p>
           <Button asChild size="lg" className="mt-8 px-4">
             <Link href="/login">Sign in to the demo</Link>

@@ -102,8 +102,7 @@ function RemoveDialog({ formId, name }: { formId: string; name: string }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Remove from this store</AlertDialogTitle>
           <AlertDialogDescription>
-            {name} loses access to this store straight away. Their work stays on the record, and they can be
-            invited again later.
+            {name} will lose access to this store immediately.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

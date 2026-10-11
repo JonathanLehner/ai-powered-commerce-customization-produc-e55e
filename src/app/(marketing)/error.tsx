@@ -15,11 +15,10 @@ export default function MarketingError({
   return (
     <FallbackPanel
       eyebrow="Error"
-      title="Something went wrong at our end"
+      title="Something went wrong"
       description={
         <p>
-          This page could not be loaded. It is not something you did — try again, and if it keeps
-          happening come back in a few minutes.
+          This page could not be loaded. Please try again.
         </p>
       }
       actions={

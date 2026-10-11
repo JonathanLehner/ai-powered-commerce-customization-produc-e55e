@@ -112,7 +112,7 @@ export function AuditFilterBar({
                   id="audit-q"
                   name="q"
                   defaultValue={filters.q}
-                  placeholder="Anything in the entry — product, order, setting"
+                  placeholder="Product, order or setting"
                   className="pl-8"
                 />
               </div>
@@ -255,7 +255,7 @@ export function AuditPager({
 export function AuditCoverageNote({ coveredFrom }: { coveredFrom: string }) {
   return (
     <p className="text-xs text-muted-foreground">
-      Loaded back to {formatDate(coveredFrom)}. Older activity is still recorded — set a date range to read it.
+      Showing activity since {formatDate(coveredFrom)}. Set a date range to see older entries.
     </p>
   );
 }

@@ -46,7 +46,7 @@ function RegenerateDialog({ formId }: { formId: string }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Regenerate access</AlertDialogTitle>
           <AlertDialogDescription>
-            Every link already sent stops working and everyone signed in is signed out.
+            Existing links stop working and everyone is signed out.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

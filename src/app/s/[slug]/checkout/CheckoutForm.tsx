@@ -1,5 +1,6 @@
 "use client";
 
+import { LockIcon } from "lucide-react";
 import { useState } from "react";
 import { placeOrder } from "@/app/actions/shop";
 import { CountrySelect } from "@/components/CountrySelect";
@@ -9,11 +10,10 @@ import { Card } from "@/components/ui/card";
 import {
   isCountryCode,
   localCountryName,
-  regionForCountry,
   suppliersOutsideRegion,
   type FulfillmentSource,
 } from "@/lib/countries";
-import { fmt, fmtAround, joinList, type StorefrontCopy } from "@/lib/i18n";
+import { fmt, joinList, type StorefrontCopy } from "@/lib/i18n";
 import { TEST_CARDS } from "@/lib/stripe";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +36,6 @@ export function CheckoutForm({
   storeId,
   currencies,
   currency,
-  stripeAccountId,
   defaultCountry,
   fulfillmentSources,
   localeTag,
@@ -45,7 +44,6 @@ export function CheckoutForm({
   storeId: string;
   currencies: string[];
   currency: string;
-  stripeAccountId: string | null;
   /** The store's Stripe account country — where most of its shoppers are. */
   defaultCountry: string;
   fulfillmentSources: FulfillmentSource[];
@@ -60,7 +58,6 @@ export function CheckoutForm({
   );
   const unfulfilled = suppliersOutsideRegion(country, fulfillmentSources);
   const destination = localCountryName(country, localeTag);
-  const [payBefore, payAfter] = fmtAround(t.paymentNote, "account");
 
   return (
     <Card asChild className="block overflow-visible p-5">
@@ -100,12 +97,8 @@ export function CheckoutForm({
                 autoComplete="email"
                 required
                 aria-invalid={state.field === "email" ? true : undefined}
-                aria-describedby="email-hint"
                 className="mt-1.5"
               />
-              <p id="email-hint" className="mt-1.5 text-xs text-muted-foreground">
-                {t.emailHint}
-              </p>
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="line1">
@@ -156,15 +149,11 @@ export function CheckoutForm({
                 value={country}
                 onChange={setCountry}
                 invalid={state.field === "country"}
-                describedBy="country-hint"
                 localeTag={localeTag}
                 label={t.country}
                 searchPlaceholder={t.countrySearchPlaceholder}
                 noMatch={t.countryNoMatch}
               />
-              <p id="country-hint" className="mt-1.5 text-xs text-muted-foreground">
-                {t.countryHint}
-              </p>
             </div>
             <div>
               <Label htmlFor="currency">
@@ -191,30 +180,24 @@ export function CheckoutForm({
             {unfulfilled.length > 0 ? (
               <div className="sm:col-span-2">
                 <Callout tone="amber" title={fmt(t.manualRoutingTitle, { country: destination })}>
-                  <ul className="space-y-1">
-                    {unfulfilled.map((source) => (
-                      <li key={source.supplierId}>
-                        {fmt(t.manualRoutingLine, {
-                          supplier: source.supplierName,
-                          products: joinList(source.productNames, t.productJoin),
-                          country: destination,
-                          region: regionForCountry(country),
-                        })}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-2">{t.manualRoutingBody}</p>
+                  {fmt(t.manualRoutingLine, {
+                    products: joinList(
+                      unfulfilled.flatMap((source) => source.productNames),
+                      t.productJoin,
+                    ),
+                  })}
                 </Callout>
               </div>
             ) : null}
           </div>
 
-          <h2 className="font-heading mt-8 text-base font-semibold text-foreground">{t.paymentTitle}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {payBefore}
-            {stripeAccountId ? <span className="font-mono text-xs">{stripeAccountId}</span> : null}
-            {payAfter}
-          </p>
+          <div className="mt-8 flex items-center justify-between gap-3">
+            <h2 className="font-heading text-base font-semibold text-foreground">{t.paymentTitle}</h2>
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <LockIcon aria-hidden className="size-3.5" />
+              {t.paymentNote}
+            </p>
+          </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="cardNumber">
@@ -267,7 +250,7 @@ export function CheckoutForm({
             <ul className="mt-1.5 space-y-1">
               {TEST_CARDS.map((card) => (
                 <li key={card.number}>
-                  <span className="font-mono">{card.number}</span> —{" "}
+                  <span className="font-mono">{card.number}</span> ·{" "}
                   {t[TEST_CARD_LABELS[card.number]] ?? card.label}
                 </li>
               ))}

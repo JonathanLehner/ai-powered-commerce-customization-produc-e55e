@@ -26,7 +26,7 @@ const SECTIONS = [
   {
     heading: "3. Supplier orders",
     body: [
-      "Production partners are independent third parties. Where a partner exposes an order submission API, paid orders may be routed automatically. Where no such API exists — including sourcing marketplaces such as Alibaba.com — the order is flagged for manual handling and the seller raises the purchase order directly with the supplier under that supplier's own terms.",
+      "Production partners are independent third parties. Where a partner exposes an order submission API, paid orders may be routed automatically. Where no such API exists, including sourcing marketplaces such as Alibaba.com, the order is flagged for manual handling and the seller raises the purchase order directly with the supplier under that supplier's own terms.",
       "Lead times, availability and fulfilment regions shown in the shared catalog are supplied by the partner and may change without notice. Parcelith does not warrant them.",
     ],
   },
@@ -34,7 +34,7 @@ const SECTIONS = [
     heading: "4. Artwork and intellectual property",
     body: [
       "You retain ownership of artwork you upload. You warrant that you hold the rights to reproduce it on physical goods, and you indemnify Parcelith and its production partners against claims arising from artwork you supply.",
-      "Pre-flight checks — print area bounds, effective resolution, file format, file size and transparency — are automated quality controls. Passing pre-flight is not an assessment of whether you are entitled to print the design.",
+      "Pre-flight checks (print area bounds, effective resolution, file format, file size and transparency) are automated quality controls. Passing pre-flight is not an assessment of whether you are entitled to print the design.",
     ],
   },
   {

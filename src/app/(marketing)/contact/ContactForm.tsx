@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { submitPlanEnquiry } from "@/app/actions/contact";
 import { ActionForm, Field } from "@/components/forms";
 import { UNDECIDED } from "@/lib/enquiry";
-import { PLANS } from "@/lib/plans";
+import { PLANS, formatDollars, planPrice, type Plan } from "@/lib/plans";
 import type { ActionState } from "@/app/actions/stores";
 import { newId } from "@/lib/util";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,11 +24,16 @@ import { Textarea } from "@/components/ui/textarea";
  * values the action accepts — a button pointing at a plan this list does not
  * carry falls back to "not sure yet" rather than sending something unreadable.
  */
+function planLabel(plan: Plan) {
+  const price = planPrice(plan, "monthly");
+  return `${plan.name}, ${price ? `${formatDollars(price.perMonth)}/month` : "custom pricing"}`;
+}
+
 const PLAN_OPTIONS = [
-  { value: "starter", label: `${PLANS.starter.name} — $89 a month` },
-  { value: "studio", label: `${PLANS.studio.name} — $249 a month` },
-  { value: "scale", label: `${PLANS.scale.name} — annual agreement` },
-  { value: UNDECIDED, label: "Not sure yet — help me pick" },
+  { value: "starter", label: planLabel(PLANS.starter) },
+  { value: "studio", label: planLabel(PLANS.studio) },
+  { value: "scale", label: planLabel(PLANS.scale) },
+  { value: UNDECIDED, label: "Not sure yet" },
 ];
 
 function subscribeToAddress(onChange: () => void) {
@@ -98,7 +103,7 @@ export function ContactForm() {
       action={submitPlanEnquiry}
       submitLabel="Send enquiry"
       pendingLabel="Sending…"
-      footer={<span className="text-xs text-muted-foreground">We reply within one working day.</span>}
+      footer={<span className="text-xs text-muted-foreground">We reply within one business day.</span>}
     >
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -128,20 +133,20 @@ export function ContactForm() {
               className="mt-1.5"
             />
           </Field>
-          <Field label="Which plan" htmlFor="plan" hint="You can change plan later; nothing is charged today.">
+          <Field label="Plan" htmlFor="plan">
             <PlanSelect error={state.field === "plan"} />
           </Field>
           <Field
-            label="What are you looking to run?"
+            label="Message"
             htmlFor="message"
             className="sm:col-span-2"
-            hint="How many client stores, which products, and whether you need corporate gifting programmes."
+            hint="Number of client stores, products and gifting needs."
           >
             <Textarea id="message" name="message" rows={5} className="mt-1.5" />
           </Field>
           <Label className="flex cursor-pointer items-center gap-2.5 text-sm font-normal text-muted-foreground sm:col-span-2">
             <Checkbox name="wantsCall" />
-            I would rather have a call than an email
+            I prefer a call
           </Label>
         </div>
       )}

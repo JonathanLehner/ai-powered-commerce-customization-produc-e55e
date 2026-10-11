@@ -50,7 +50,7 @@ export default async function StorefrontEditorPage({
     <div className="space-y-6">
       <PageHeader
         title="Page editor"
-        description="Arrange sections, edit their copy and preview at three widths. Shoppers keep seeing the published version until you publish."
+        description="Changes go live when you publish."
         actions={
           storefront?.published ? (
             <form action={revertStorefront}>
@@ -65,7 +65,7 @@ export default async function StorefrontEditorPage({
 
       {published.length === 0 ? (
         <Callout tone="amber" title="No published products yet">
-          Product grid sections will render empty until at least one product in this store is published.
+          Product sections stay empty until you publish a product.
         </Callout>
       ) : null}
 

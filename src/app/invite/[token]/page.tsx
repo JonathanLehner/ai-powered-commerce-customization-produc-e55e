@@ -47,8 +47,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
               This link is no longer valid
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              An acceptance link works once. If it has already been used, sign in with the email address it was
-              sent to. Otherwise ask the person who invited you for a new link.
+              This link may have been used already. Sign in, or ask for a new invitation.
             </p>
             <Button asChild variant="outline" size="sm" className="mt-5">
               <Link href="/login">Go to sign in</Link>
@@ -73,7 +72,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
             Accepting creates a Parcelith account for {membership.email} and signs you in.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{STORE_ROLE_LABELS[membership.role]}</span> —{" "}
+            <span className="font-medium text-foreground">{STORE_ROLE_LABELS[membership.role]}</span> ·{" "}
             {STORE_ROLE_DESCRIPTIONS[membership.role]}
           </p>
           <p className="mt-2 text-xs text-muted-foreground">Invited {formatDate(membership.invitedAt)}.</p>

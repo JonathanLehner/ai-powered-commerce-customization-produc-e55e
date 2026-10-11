@@ -14,8 +14,8 @@ export default async function AdminCatalogPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Supplier-backed products"
-        description="Apparel and drinkware every store can copy from. Base costs, print areas, availability and fulfilment regions are set here and inherited on import. Bulk-sourcing listings carry a minimum order quantity and are priced by quote instead."
+        title="Shared catalog"
+        description="Products every store can import."
         actions={
           <Button asChild size="sm">
             <Link href="/admin/catalog/new">Add product</Link>
@@ -36,8 +36,8 @@ export default async function AdminCatalogPage() {
 
       {catalog.length === 0 ? (
         <EmptyState
-          title="No products in the shared catalog"
-          description="Add the first supplier-backed product so stores have something to import."
+          title="No products yet"
+          description="Add a product so stores can import it."
           action={
             <Button asChild>
               <Link href="/admin/catalog/new">Add product</Link>

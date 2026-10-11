@@ -56,8 +56,7 @@ export function SiteFooter() {
         <div className="md:col-span-2">
           <Logo />
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-            Parcelith is the commerce operating system agencies use to launch, customise and run branded
-            product stores for every client — from artwork pre-flight to tracked delivery.
+            Branded merchandise stores for agencies and their clients.
           </p>
         </div>
         <div>
@@ -65,7 +64,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
             <li><Link href="/how-it-works" className="hover:text-ink hover:underline">How it works</Link></li>
             <li><Link href="/pricing" className="hover:text-ink hover:underline">Pricing</Link></li>
-            <li><Link href="/contact" className="hover:text-ink hover:underline">Talk to us</Link></li>
+            <li><Link href="/contact" className="hover:text-ink hover:underline">Contact sales</Link></li>
             <li><Link href="/login" className="hover:text-ink hover:underline">Sign in</Link></li>
           </ul>
         </div>
@@ -73,14 +72,13 @@ export function SiteFooter() {
           <h2 className={SECTION_TITLE}>Legal</h2>
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
             <li><Link href="/legal/terms" className="hover:text-ink hover:underline">Terms of service</Link></li>
-            <li><Link href="/legal/privacy" className="hover:text-ink hover:underline">Privacy notice</Link></li>
+            <li><Link href="/legal/privacy" className="hover:text-ink hover:underline">Privacy policy</Link></li>
           </ul>
         </div>
       </div>
       <div className="border-t border-line">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Parcelith. Sellers are the merchant of record for their own stores.</p>
-          <p>Production partners: Printful · Gelato · Printify · Alibaba.com sourcing</p>
+          <p>© {new Date().getFullYear()} Parcelith</p>
         </div>
       </div>
     </footer>

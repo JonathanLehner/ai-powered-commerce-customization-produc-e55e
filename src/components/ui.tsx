@@ -116,7 +116,7 @@ export function EmptyState({
   icon,
 }: {
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
   icon?: ReactNode;
 }) {
@@ -125,7 +125,7 @@ export function EmptyState({
       <CardContent className="flex flex-col items-center justify-center px-6 py-14 text-center">
         {icon ? <div className="mb-3 text-primary">{icon}</div> : null}
         <h3 className="font-heading text-base font-medium text-foreground">{title}</h3>
-        <p className="mt-1.5 max-w-md text-sm text-muted-foreground">{description}</p>
+        {description ? <p className="mt-1.5 max-w-md text-sm text-muted-foreground">{description}</p> : null}
         {action ? <div className="mt-5">{action}</div> : null}
       </CardContent>
     </Card>

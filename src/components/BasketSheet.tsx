@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -59,17 +58,18 @@ export function BasketSheet({
           {triggerLabel}
         </Button>
       </SheetTrigger>
-      <SheetContent className="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+      <SheetContent
+        aria-describedby={undefined}
+        className="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md"
+      >
         <SheetHeader>
           <SheetTitle>{t.title}</SheetTitle>
-          <SheetDescription>{t.drawerIntro}</SheetDescription>
         </SheetHeader>
         <Separator />
 
         {lines.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
             <p className="font-heading text-base text-foreground">{t.emptyTitle}</p>
-            <p className="text-sm text-muted-foreground">{t.emptyBody}</p>
             <Link
               href={`/s/${slug}/products`}
               onClick={() => setOpen(false)}

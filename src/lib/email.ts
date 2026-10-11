@@ -79,7 +79,7 @@ async function deliver(dispatch: EmailDispatch): Promise<void> {
     record(
       dispatch,
       "email.logged",
-      `No email provider configured — the ${dispatch.kind} email to ${to} was logged, not sent`,
+      `No email provider configured. The ${dispatch.kind} email to ${to} was logged, not sent`,
       to,
     );
     return;

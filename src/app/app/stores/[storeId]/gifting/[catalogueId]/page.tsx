@@ -77,7 +77,7 @@ export default async function GiftCataloguePage({
         />
         <PageHeader
           title={catalogue.name}
-          description={`Private gift catalogue for ${catalogue.companyName}. Buyers order for a list of recipients inside the rules set here.`}
+          description={catalogue.companyName}
           actions={
             <>
               <Badge tone={catalogue.status === "active" ? "green" : "slate"}>
@@ -101,11 +101,9 @@ export default async function GiftCataloguePage({
       </div>
 
       {missing.length > 0 ? (
-        <Callout tone="amber" title="Some chosen products are no longer live">
-          {missing.length} {missing.length === 1 ? "product is" : "products are"} unpublished or waiting on preview
-          approval, so buyers cannot order {missing.length === 1 ? "it" : "them"}. Publish{" "}
-          {missing.length === 1 ? "it" : "them"} again or take {missing.length === 1 ? "it" : "them"} out of the
-          catalogue below.
+        <Callout tone="amber" title="Some products are unavailable">
+          {missing.length} {missing.length === 1 ? "product is" : "products are"} not published. Republish or remove{" "}
+          {missing.length === 1 ? "it" : "them"} below.
         </Callout>
       ) : null}
 
@@ -113,14 +111,10 @@ export default async function GiftCataloguePage({
       <section>
         <CardHeader>
         <CardTitle asChild>
-          <h2>The portal</h2>
+          <h2>Portal link</h2>
         </CardTitle>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          This is the whole catalogue for the company: the private address, the products it offers and the bulk
-          order screen. It is never linked from the public storefront.{" "}
-          {catalogue.access === "invite"
-            ? "Anyone opening it is asked for their work email and let in only if it is on the invitation list."
-            : "Anyone holding this link can open it, so send it to the buying team rather than a mailing list."}
+                <p className="max-w-2xl text-sm text-muted-foreground">
+          {catalogue.access === "invite" ? "Invited email addresses only" : "Anyone with the link"}
         </p>
         </CardHeader>
         <CardContent>
@@ -146,10 +140,6 @@ export default async function GiftCataloguePage({
               <CardTitle asChild>
                 <h2>Programme rules</h2>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                The spend limit is per recipient, not per campaign, and it is enforced when the list is read
-                and again before the card is charged.
-              </p>
             </CardHeader>
             <CardContent>
               <CatalogueDetailsForm catalogue={catalogue} />
@@ -163,10 +153,6 @@ export default async function GiftCataloguePage({
               <CardTitle asChild>
                 <h2>Access</h2>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                A gifting buyer has no Parcelith account: access is the private link, or their work email
-                against the invitation list.
-              </p>
             </CardHeader>
             <CardContent>
               <CatalogueAccessForm catalogue={catalogue} />
@@ -179,12 +165,8 @@ export default async function GiftCataloguePage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>Products in the catalogue</h2>
+              <h2>Products</h2>
             </CardTitle>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Drawn from this store&rsquo;s published products. Anything unpublished later simply drops out of
-              the portal — a recipient list naming it is rejected with the row that has to change.
-            </p>
           </CardHeader>
           <CardContent>
             <CatalogueProductsForm catalogue={catalogue} products={published} />
@@ -197,7 +179,7 @@ export default async function GiftCataloguePage({
         {mine.length === 0 ? (
           <EmptyState
             title="No campaigns yet"
-            description="Once a buyer submits a recipient list it appears here, with its approval state and every order it produced."
+            description="Campaigns appear here when a buyer submits a recipient list."
           />
         ) : (
           <ul className="space-y-3">
@@ -232,15 +214,13 @@ export default async function GiftCataloguePage({
                     <p className="text-xs text-muted-foreground">
                       Approval link for{" "}
                       {campaign.approval.approverName || campaign.approval.approverEmail} ·{" "}
-                      {approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()}. Chasing it, and moving it
-                      to somebody else, are on{" "}
+                      {approvalWaitLabel(daysAwaitingApproval(campaign)).toLowerCase()} ·{" "}
                       <Link
                         href={`/app/stores/${storeId}/orders/campaigns/${campaign.id}`}
                         className="font-medium text-primary hover:underline"
                       >
-                        the campaign page
+                                                Manage approval
                       </Link>
-                      .
                     </p>
                     <div className="mt-2">
                       <CopyField value={approverLinks.get(campaign.id) as string} label="Copy approval link" />

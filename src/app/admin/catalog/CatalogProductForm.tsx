@@ -232,8 +232,8 @@ export function CatalogProductForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active — stores can import</SelectItem>
-                      <SelectItem value="retired">Retired — hidden from sourcing</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="retired">Retired</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -261,7 +261,7 @@ export function CatalogProductForm({
                       <SelectContent>
                         {CURRENCY_OPTIONS.map((option) => (
                           <SelectItem key={option.code} value={option.code}>
-                            {option.code} — {option.label}
+                            {option.code} · {option.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -340,7 +340,7 @@ export function CatalogProductForm({
                 <h2>Print areas</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Physical size and minimum resolution. Store artwork is pre-flighted against these numbers.
+                Size and minimum resolution.
               </p>
             </CardHeader>
             <CardContent>
@@ -491,7 +491,7 @@ export function CatalogProductForm({
                 <h2>Variants and availability</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Every variant needs its own SKU. Option values are what shoppers pick from on the storefront.
+                Each variant needs a unique SKU.
               </p>
             </CardHeader>
             <CardContent>
@@ -656,8 +656,7 @@ export function CatalogProductForm({
                   Fulfilment regions
                 </legend>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Orders shipping outside these regions are flagged for manual routing instead of being
-                  submitted.
+                  Orders outside these regions need manual routing.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {REGION_OPTIONS.map((region) => (

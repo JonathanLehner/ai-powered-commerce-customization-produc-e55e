@@ -6,7 +6,7 @@ import { Callout } from "@/components/ui";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess, GIFT_LINK_HOLDER } from "@/lib/gift-access";
 import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
-import { fmt, storefrontLocale } from "@/lib/i18n";
+import { storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { sizesFor } from "@/lib/gift-recipients";
 import { BulkOrderForm } from "./BulkOrderForm";
@@ -61,15 +61,13 @@ export default async function BulkOrderPage({ params }: { params: Promise<{ slug
       </Link>
       <h1 className="font-heading mt-3 text-3xl font-semibold tracking-tight text-foreground">{t.gift.orderTitle}</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-inksoft">
-        {fmt(t.gift.orderIntro, {
-          approval: catalogue.approvalRequired ? t.gift.orderIntroApproval : "",
-        })}
+        {t.gift.orderIntro}
       </p>
 
       {!store.stripe.connected || !store.stripe.chargesEnabled ? (
         <div className="mt-6">
           <Callout tone="amber" title={t.gift.paymentPendingTitle}>
-            {fmt(t.gift.paymentPendingBody, { client: store.clientName })}
+            {t.gift.paymentPendingBody}
           </Callout>
         </div>
       ) : null}

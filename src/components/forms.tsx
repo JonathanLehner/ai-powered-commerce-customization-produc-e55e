@@ -385,9 +385,9 @@ export function CopyField({ value, label = "Copy link" }: { value: string; label
         </Button>
         <span role="status" aria-live="polite" className="text-xs text-muted-foreground">
           {result === "copied"
-            ? "Copied to the clipboard."
+            ? "Copied"
             : result === "failed"
-              ? "This browser would not let the page copy it — the address is selected, copy it by hand."
+              ? "Could not copy. Select the text and copy it manually."
               : ""}
         </span>
       </div>

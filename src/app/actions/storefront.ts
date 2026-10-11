@@ -40,7 +40,7 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
     meta: {},
   });
   revalidatePath(`/app/stores/${storeId}/storefront`);
-  return { status: "success", message: "Draft saved. Shoppers still see the published version." };
+  return { status: "success", message: "Draft saved." };
 }
 
 export async function publishStorefront(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -58,10 +58,10 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
   if (!tree) return { status: "error", message: "The layout could not be read. Reload the editor and try again." };
   const sections = sectionsFromTree(tree);
   if (sections.length === 0) {
-    return { status: "error", message: "Add at least one section before publishing — an empty page is not useful to shoppers." };
+    return { status: "error", message: "Add at least one section before publishing." };
   }
   if (store.status === "archived") {
-    return { status: "error", message: "This store is archived, so its storefront cannot be published. Restore the store first." };
+    return { status: "error", message: "Restore this store before publishing." };
   }
 
   const now = new Date().toISOString();
@@ -97,7 +97,7 @@ export async function publishStorefront(_prev: ActionState, formData: FormData):
 
   revalidatePath(`/app/stores/${storeId}/storefront`);
   revalidatePath(`/s/${store.slug}`);
-  return { status: "success", message: `Published. ${sections.length} sections are now live on the storefront.` };
+  return { status: "success", message: "Published." };
 }
 
 export async function revertStorefront(formData: FormData): Promise<void> {

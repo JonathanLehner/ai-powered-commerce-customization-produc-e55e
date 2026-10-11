@@ -58,7 +58,7 @@ function ProductPicker({
   );
 }
 
-export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: string }) {
+export function IdeaForm({ storeId }: { storeId: string }) {
   return (
     <Card asChild>
       <ActionForm
@@ -71,7 +71,7 @@ export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: s
       >
         <Panel
           title="Product ideas"
-          description={`Three products for ${storeName}, each mapped to a real item in the approved supplier catalog.`}
+          description="Three product ideas from the supplier catalog."
         >
           <div className="grid gap-1.5">
             <Label htmlFor="brief">Brief (optional)</Label>
@@ -83,7 +83,7 @@ export function IdeaForm({ storeId, storeName }: { storeId: string; storeName: s
               aria-describedby="brief-hint"
             />
             <p id="brief-hint" className="text-xs text-muted-foreground">
-              Mention the audience, budget or markets. Leave empty for a general range.
+              Audience, budget or markets.
             </p>
           </div>
         </Panel>
@@ -113,7 +113,7 @@ export function CopyForm({
         {(state) => (
           <Panel
             title="Description and tags"
-            description="Rewrites storefront copy using the product’s real category and configured variants."
+            description="New storefront description and tags for a product."
           >
             <ProductPicker id="copy-product" options={products} invalid={state.field === "productId"} />
           </Panel>
@@ -144,7 +144,7 @@ export function PriceForm({
         {(state) => (
           <Panel
             title="Pricing"
-            description="Suggests a retail price against the product’s landed cost and explains the reasoning."
+            description="A suggested retail price based on landed cost."
           >
             <ProductPicker id="price-product" options={products} invalid={state.field === "productId"} />
           </Panel>
@@ -174,7 +174,7 @@ export function SupplierForm({
         {(state) => (
           <Panel
             title="Supplier comparison"
-            description="Compares approved production partners for a destination, weighing lead time, regions and whether they expose an order API."
+            description="The best production partner for a destination."
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid content-start gap-1.5">

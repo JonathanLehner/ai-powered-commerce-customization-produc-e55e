@@ -5,20 +5,11 @@ import { Badge, Callout, EmptyState } from "@/components/ui";
 import { getGiftCatalogueBySlug, getStore, listPublishedProducts } from "@/lib/data";
 import { readGiftAccess } from "@/lib/gift-access";
 import { giftProductOptions, MAX_RECIPIENTS } from "@/lib/gifting";
-import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
+import { fmt, storefrontLocale } from "@/lib/i18n";
 import { convert } from "@/lib/pricing";
 import { GateForm } from "./GateForm";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-
-/** The four steps of a campaign, in the store's own language. */
-const steps = (t: StorefrontCopy["gift"]) => [
-  { title: t.step1Title, detail: t.step1Body },
-  { title: t.step2Title, detail: t.step2Body },
-  { title: t.step3Title, detail: t.step3Body },
-  { title: t.step4Title, detail: t.step4Body },
-];
 
 export default async function GiftCataloguePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -175,28 +166,6 @@ export default async function GiftCataloguePage({ params }: { params: Promise<{ 
         </div>
       ) : null}
 
-      <section className="mt-16 rounded-xl border border-border bg-muted/60 p-6 sm:p-8">
-        <h2 className="font-heading text-base font-semibold text-foreground">{t.gift.howItWorks}</h2>
-        <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {steps(t.gift).map((step, index) => (
-            <li key={step.title}>
-              <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {index + 1}
-              </span>
-              <p className="mt-3 text-sm font-semibold text-foreground">{step.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{step.detail}</p>
-            </li>
-          ))}
-        </ol>
-        {available.length > 0 ? (
-          <Link
-            href={`/g/${catalogue.slug}/order`}
-            className={cn(buttonVariants({ size: "lg" }), "mt-8 inline-flex")}
-          >
-            {t.gift.startOrder}
-          </Link>
-        ) : null}
-      </section>
     </div>
   );
 }

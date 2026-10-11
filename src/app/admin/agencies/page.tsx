@@ -17,8 +17,7 @@ export default async function AdminAgenciesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Agencies and store access"
-        description="Which agency operates which stores, and who inside each agency can reach them."
+        title="Agencies"
       />
 
       <ul className="space-y-5">

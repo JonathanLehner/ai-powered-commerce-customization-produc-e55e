@@ -25,15 +25,15 @@ const geistMono = Geist_Mono({
 /** Shared by every root layout, so the title template is identical across them. */
 export const siteMetadata: Metadata = {
   title: {
-    default: "Parcelith — the operating system for product commerce",
+    default: "Parcelith: branded merchandise stores for agencies",
     template: "%s · Parcelith",
   },
   description:
-    "Parcelith lets agencies launch and run branded merch stores for every client: isolated storefronts, a shared print-on-demand catalog, an artwork configurator with supplier pre-flight, and end-to-end fulfilment.",
+    "Source, customise and sell print-on-demand products for every client from one agency workspace.",
   openGraph: {
-    title: "Parcelith — the operating system for product commerce",
+    title: "Parcelith: branded merchandise stores for agencies",
     description:
-      "Launch isolated client stores, customise supplier-backed apparel and mugs, and route paid orders straight into production.",
+      "Source, customise and sell print-on-demand products for every client from one agency workspace.",
     type: "website",
   },
 };

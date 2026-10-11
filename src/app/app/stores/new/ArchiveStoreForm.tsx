@@ -41,10 +41,9 @@ function ArchiveDialog({ formId, storeName }: { formId: string; storeName: strin
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Take {storeName} offline?</AlertDialogTitle>
+          <AlertDialogTitle>Archive {storeName}?</AlertDialogTitle>
           <AlertDialogDescription>
-            Its storefront stops serving shoppers and no new orders can be taken. Products, orders and audit
-            history are kept, and the store can be restored later.
+            The storefront goes offline. You can restore it later.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

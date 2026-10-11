@@ -83,8 +83,8 @@ export default async function StoreOverviewPage({
       {denied ? (
         <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {viaPlatform
-            ? "Platform access does not include that screen. It stays with the store team."
-            : `Your role (${role.replace("_", " ")}) does not include that screen.`}
+            ? "That page is not available with platform access."
+            : "You do not have permission to view that page."}
         </p>
       ) : null}
 
@@ -100,14 +100,13 @@ export default async function StoreOverviewPage({
 
       {store.status === "archived" ? (
         <Callout tone="slate" title="This store is archived">
-          Its storefront is offline and no new orders can be taken. Records stay readable for reporting and
-          audit.{" "}
+          The storefront is offline.{" "}
           {roleCan(role, "store.settings") ? (
             <Link href={`/app/stores/${store.id}/setup`} className="font-medium underline">
               Restore it from Settings
             </Link>
           ) : (
-            <span>A store administrator can restore it from the store&rsquo;s Settings tab</span>
+            <span>A store administrator can restore it from Settings</span>
           )}
           .
         </Callout>
@@ -118,11 +117,10 @@ export default async function StoreOverviewPage({
           <Card>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Finish setting up this store</h2>
+                <h2>Finish setup</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                {progress.done} of {progress.total} steps complete. The storefront cannot take payments until
-                Stripe and a carrier are connected.
+                {progress.done} of {progress.total} steps complete
               </p>
               {roleCan(role, "store.settings") ? (
                 <CardAction>
@@ -152,7 +150,7 @@ export default async function StoreOverviewPage({
         {/* Money is the store's own; platform access counts orders instead. */}
         {viaPlatform ? (
           <>
-            <StatCard label="Orders, last 30 days" value={String(metrics.last30Orders)} sub="Placed on this store" />
+            <StatCard label="Orders, last 30 days" value={String(metrics.last30Orders)} />
             <StatCard label="Orders, lifetime" value={String(metrics.orderCount)} sub={`${metrics.paidOrders} paid`} />
           </>
         ) : (
@@ -202,7 +200,7 @@ export default async function StoreOverviewPage({
               {recentOrders.length === 0 ? (
                 <EmptyState
                   title="No orders yet"
-                  description="Once the storefront is published and a shopper checks out, orders appear here with their production and delivery status."
+                  description="Orders will appear here."
                 />
               ) : (
                 <div className="relative overflow-x-auto">
@@ -312,8 +310,8 @@ export default async function StoreOverviewPage({
                 {openEnquiries.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     {enquiries.length > 0
-                      ? "Nothing open. Past enquiries stay on the Sourcing page."
-                      : "No enquiries yet. Ask Alibaba.com suppliers to quote on a bulk run from the Sourcing page."}
+                      ? "No open enquiries."
+                      : "No enquiries yet."}
                   </p>
                 ) : (
                   <ul className="divide-y divide-border text-sm">
@@ -346,7 +344,7 @@ export default async function StoreOverviewPage({
               <p className="text-sm text-muted-foreground">
                 {storefront?.published
                   ? `Published ${formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt)} by ${storefront.publishedBy ?? "the store team"}.`
-                  : "Not published yet — the storefront shows a placeholder until you publish a layout."}
+                  : "Not published yet."}
               </p>
               <div className="flex items-center gap-2">
                 <span
@@ -383,7 +381,7 @@ export default async function StoreOverviewPage({
             </CardHeader>
             <CardContent>
               {metrics.topProducts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No paid orders yet, so there is nothing to rank.</p>
+                <p className="text-sm text-muted-foreground">No paid orders yet.</p>
               ) : (
                 <ol className="divide-y divide-border text-sm">
                   {metrics.topProducts.map((product) => (
@@ -425,7 +423,7 @@ export default async function StoreOverviewPage({
             </CardHeader>
             <CardContent>
               {activity.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nothing recorded for this store yet.</p>
+                <p className="text-sm text-muted-foreground">No activity yet.</p>
               ) : (
                 <ol className="divide-y divide-border text-sm">
                   {activity.map((run) => (

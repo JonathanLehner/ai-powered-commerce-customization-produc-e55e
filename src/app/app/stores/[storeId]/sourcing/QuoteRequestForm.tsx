@@ -59,7 +59,7 @@ export function QuoteRequestForm({
       pendingLabel="Sending…"
       footer={
         <span className="text-xs text-muted-foreground">
-          Nothing is ordered or paid today. The quotes that come back appear beside the print-on-demand options.
+          No payment is taken.
         </span>
       }
     >
@@ -72,7 +72,7 @@ export function QuoteRequestForm({
                 label="Refer to a catalog item"
                 htmlFor="catalogId"
                 className="sm:col-span-2"
-                hint="Optional. Pick one to have it made in bulk, or leave this and describe the product below."
+                hint="Optional"
               >
                 <input
                   type="hidden"
@@ -84,7 +84,7 @@ export function QuoteRequestForm({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_REFERENCE}>None — I will describe it</SelectItem>
+                    <SelectItem value={NO_REFERENCE}>None</SelectItem>
                     {catalogOptions?.map((option) => (
                       <SelectItem key={option.id} value={option.id}>
                         {option.label}
@@ -97,7 +97,7 @@ export function QuoteRequestForm({
                 label="Product"
                 htmlFor="productName"
                 error={state.field === "productName"}
-                hint="Needed when no catalog item is picked, e.g. “Recycled canvas tote”."
+                hint="Required if no catalog item is selected."
               >
                 <Input
                   id="productName"
@@ -164,7 +164,7 @@ export function QuoteRequestForm({
             label={`Target unit cost (${currency})`}
             htmlFor="targetUnitCost"
             error={state.field === "targetUnitCost"}
-            hint="Optional. Suppliers quote closer to a number they can work against."
+            hint="Optional"
           >
             <Input
               id="targetUnitCost"
@@ -179,7 +179,7 @@ export function QuoteRequestForm({
             label="Needed by"
             htmlFor="neededBy"
             error={state.field === "neededBy"}
-            hint="Optional. Sea freight adds four to six weeks on top of production."
+            hint="Optional"
           >
             <Input
               id="neededBy"
@@ -194,7 +194,7 @@ export function QuoteRequestForm({
             htmlFor="customisation"
             className="sm:col-span-2"
             error={state.field === "customisation"}
-            hint="Print or embroidery, placement and colours, labels and packaging — or “none, blank stock”."
+            hint="Print method, placement, colours, labels and packaging."
           >
             <Textarea
               id="customisation"

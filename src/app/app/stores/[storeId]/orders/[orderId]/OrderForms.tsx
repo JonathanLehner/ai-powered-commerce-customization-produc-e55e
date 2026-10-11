@@ -42,7 +42,7 @@ const SUPPLIER_KINDS: Record<SupplierChoice["kind"], string> = {
 
 function choiceLabel(choice: SupplierChoice): string {
   const lead = `${choice.leadTimeDays[0]}–${choice.leadTimeDays[1]} day lead time`;
-  return `${choice.name} — ${SUPPLIER_KINDS[choice.kind]}, ${lead}`;
+  return `${choice.name} · ${SUPPLIER_KINDS[choice.kind]}, ${lead}`;
 }
 
 /**
@@ -66,38 +66,24 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
     return (
       <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
         <p className="font-semibold">
-          No approved partner produces this product family{needs ? ` (${needs})` : ""} for{" "}
-          {options.destination}.
+          No approved supplier delivers {needs || "these items"} to {options.destination}.
         </p>
-        <p className="mt-1">
-          Every approved supplier was checked against the product records this order was sourced from, and
-          none of them fulfils {needs || "these items"} to {options.region}
-          {current
-            ? `, including ${current}, which ${held ? "the job has already failed on" : "it is with now"}`
-            : ""}
-          .
-          {options.manualOnly.length > 0 ? (
-            <>
-              {" "}
-              {options.manualOnly.map((s) => s.name).join(", ")} cover
-              {options.manualOnly.length === 1 ? "s" : ""} this order but{" "}
-              {options.manualOnly.length === 1 ? "has" : "have"} no order submission API, so{" "}
-              {options.manualOnly.length === 1 ? "it takes" : "they take"} a purchase order raised by hand.
-            </>
-          ) : null}
-        </p>
-        <p className="mt-2 font-semibold">The routes forward are:</p>
+                {options.manualOnly.length > 0 ? (
+          <p className="mt-1">
+            Manual purchase order only: {options.manualOnly.map((s) => s.name).join(", ")}
+          </p>
+        ) : null}
+        {current ? <p className="mt-1">Current supplier: {current}</p> : null}
+        <p className="mt-2 font-semibold">Options:</p>
         <ul className="mt-1 list-disc space-y-1 pl-4">
           {held ? (
             <li>
-              Raise the purchase order with a partner yourself and record its reference under
-              “Purchase order raised by hand” below.
+                            Raise a purchase order manually and record the reference below.
             </li>
           ) : null}
-          <li>Cancel the order and refund the shopper from “Refund or cancel” further down this page.</li>
+          <li>Cancel and refund the order below.</li>
           <li>
-            Ask a platform administrator to widen an approved supplier’s coverage so it produces{" "}
-            {needs || "these items"} for {options.region}, then re-run routing.
+                        Ask a platform administrator to add a supplier for {options.region}, then re-run routing.
           </li>
         </ul>
       </div>
@@ -136,29 +122,22 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
               </SelectContent>
             </Select>
             <p id="supplierId-hint" className="text-xs text-muted-foreground">
-              Approved partners whose own product records fulfil {needs || "these items"} to{" "}
-              {options.region}. {held ? "The supplier this job failed on" : "The supplier it is with now"} is
-              not offered.
+                            Approved suppliers that deliver to {options.region}.
             </p>
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="reroute-reason">Why is it moving?</Label>
+            <Label htmlFor="reroute-reason">Reason</Label>
             <Input
               id="reroute-reason"
               name="reason"
               required
               placeholder="Original supplier does not fulfil to this destination"
               aria-invalid={state.field === "reason" ? true : undefined}
-              aria-describedby="reroute-reason-hint"
-            />
-            <p id="reroute-reason-hint" className="text-xs text-muted-foreground">
-              Recorded against your name in the fulfilment timeline and the audit history.
-            </p>
+                          />
           </div>
           {!options.carriersEnabled ? (
             <p className="text-xs text-destructive">
-              No carrier is enabled for this store, so no supplier can dispatch the parcel. Turn one on in
-              store settings first.
+              Enable a carrier in store settings first.
             </p>
           ) : null}
         </div>
@@ -184,11 +163,7 @@ export function ManualSubmissionForm({ order }: { order: Order }) {
             required
             placeholder="e.g. ALB-2049117"
             aria-invalid={state.field === "reference" ? true : undefined}
-            aria-describedby="reference-hint"
-          />
-          <p id="reference-hint" className="text-xs text-muted-foreground">
-            Use this once the purchase order has been raised with the supplier by hand.
-          </p>
+                      />
         </div>
       )}
     </ActionForm>
@@ -340,8 +315,7 @@ export function RefundForm({ order }: { order: Order }) {
             <AlertDialogHeader>
               <AlertDialogTitle>Record refund</AlertDialogTitle>
               <AlertDialogDescription>
-                The amount you entered is returned on the store&rsquo;s own Stripe account and recorded
-                against your name in the audit history. This cannot be undone.
+                The amount will be refunded to the customer. This cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

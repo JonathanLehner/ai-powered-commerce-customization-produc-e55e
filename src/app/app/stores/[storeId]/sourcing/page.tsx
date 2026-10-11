@@ -85,7 +85,7 @@ function ConfirmCopyAgain({
   return (
     <div className="w-full rounded-lg border border-amber-200 bg-amber-50 p-3" role="group">
       <p className="text-sm font-semibold text-amber-900">
-        Copy this in again? It is already in this store.
+        This product is already in the store. Copy it again?
       </p>
       <ul className="mt-2 space-y-1.5">
         {copies.map((copy) => (
@@ -101,10 +101,7 @@ function ConfirmCopyAgain({
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-xs text-amber-800">
-        A second copy is a separate product with its own artwork, price and SKU. It is named for you so the
-        two never look alike, and you can rename it straight away.
-      </p>
+            <p className="mt-2 text-xs text-amber-800">The new copy gets its own name and SKU.</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <form action={importCatalogProduct}>
           <CopyFields storeId={storeId} catalogId={catalogId} filters={filters} confirmed />
@@ -158,9 +155,9 @@ const COMPARE_ROWS: { label: string; value: (c: CompareColumn) => ReactNode }[] 
 
 function listingTerms(c: CatalogProduct | undefined) {
   return {
-    variants: c ? `${c.variants.length}` : "—",
-    printAreas: c ? c.printAreas.map((a) => `${a.name} (${a.widthMm}×${a.heightMm} mm)`).join(", ") : "—",
-    minDpi: c ? `${c.fileRequirements.minDpi}` : "—",
+    variants: c ? `${c.variants.length}` : "–",
+    printAreas: c ? c.printAreas.map((a) => `${a.name} (${a.widthMm}×${a.heightMm} mm)`).join(", ") : "–",
+    minDpi: c ? `${c.fileRequirements.minDpi}` : "–",
   };
 }
 
@@ -389,14 +386,13 @@ export default async function SourcingPage({
   const supplierFilter = filters.supplier ? suppliers.find((s) => s.id === filters.supplier) : undefined;
   const bulkHint =
     supplierFilter?.kind === "sourcing_marketplace"
-      ? `${supplierFilter.name} prices bulk runs per enquiry. Start an enquiry for the product you need — describe it or refer to any catalog item — and the quotes that come back appear here beside the print-on-demand options.`
-      : "Try a different category, supplier or fulfilment region. The platform team curates which suppliers are available to stores.";
+      ? `${supplierFilter.name} quotes bulk runs per enquiry. Start an enquiry to request quotes.`
+      : "Try a different category, supplier or region.";
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Shared supplier catalog"
-        description="Curated by the platform team. Copying one in creates an independent store product."
+        title="Supplier catalog"
         actions={
           marketplace ? (
             <Button asChild variant="outline">
@@ -432,12 +428,11 @@ export default async function SourcingPage({
               {asking ? (
                 <>
                   <CardTitle asChild>
-                    <h2>Request a quote — {asking.name}</h2>
+                    <h2>Request a quote: {asking.name}</h2>
                   </CardTitle>
                   <p className="mt-1 max-w-2xl text-sm text-inksoft">
-                    {supplierName(asking.supplierId)} prices bulk runs per enquiry, so there is no unit cost to
-                    copy. Comparable runs have come in at {indicativeRange(asking)}, and suppliers answer in{" "}
-                    {asking.bulkSourcing.responseDays[0]}–{asking.bulkSourcing.responseDays[1]} working days.
+                    {supplierName(asking.supplierId)} · typical price {indicativeRange(asking)} · reply in{" "}
+                    {asking.bulkSourcing.responseDays[0]}–{asking.bulkSourcing.responseDays[1]} business days
                   </p>
                   <p className="mt-1 max-w-2xl text-xs text-muted-foreground">{asking.bulkSourcing.quoteNotes}</p>
                 </>
@@ -447,9 +442,7 @@ export default async function SourcingPage({
                     <h2>Start a bulk sourcing enquiry</h2>
                   </CardTitle>
                   <p className="mt-1 max-w-2xl text-sm text-inksoft">
-                    Refer to any catalog item to have it made in bulk, or describe the product yourself.{" "}
-                    {marketplace?.name} suppliers quote on it, and every quote appears under Bulk sourcing
-                    enquiries and in the side-by-side comparison.
+                    Choose a catalog item or describe the product.
                   </p>
                 </>
               )}
@@ -584,8 +577,8 @@ export default async function SourcingPage({
         <EmptyState
           title={
             supplierFilter?.kind === "sourcing_marketplace"
-              ? `${supplierFilter.name} quotes per enquiry — no listings match these filters`
-              : "Nothing matches those filters"
+              ? `${supplierFilter.name} quotes per enquiry`
+              : "No matching products"
           }
           description={bulkHint}
           action={
@@ -758,10 +751,7 @@ export default async function SourcingPage({
       )}
 
       <Callout tone="neutral" title="Bulk sourcing">
-        Alibaba.com listings are quoted per enquiry rather than priced per unit. Start an enquiry against a
-        listing, any other catalog item or a product you describe; the sourcing desk records each supplier
-        quote, you compare them here with the print-on-demand options and accept one, and it is copied into
-        the catalog flagged for manual fulfilment — a buyer raises the purchase order by hand.
+        Request quotes for bulk production runs.
         {marketplace ? (
           <>
             {" "}

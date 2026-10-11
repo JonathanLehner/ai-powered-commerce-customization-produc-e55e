@@ -34,7 +34,7 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
     >
       {(state) => (
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Catalogue name" htmlFor="name" hint="What the company sees at the top of its portal.">
+          <Field label="Catalogue name" htmlFor="name">
             <Input
               id="name"
               name="name"
@@ -55,7 +55,7 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
           <Field
             label={`Spend limit per recipient (${currency})`}
             htmlFor="spendLimit"
-            hint="0 for no limit. Checked on every recipient when a list is submitted and again before payment."
+            hint="0 for no limit."
           >
             <Input
               id="spendLimit"
@@ -77,7 +77,7 @@ export function CatalogueCreateForm({ storeId, currency }: { storeId: string; cu
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Approver name" htmlFor="approverName" hint="Leave the email empty to order without approval.">
+          <Field label="Approver name" htmlFor="approverName" hint="Leave empty if no approval is needed.">
             <Input
               id="approverName"
               name="approverName"
@@ -134,7 +134,7 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
             label="Welcome message"
             htmlFor="intro"
             className="sm:col-span-2"
-            hint="Shown to buyers at the top of the portal — the programme rules, who to ask, what the deadline is."
+            hint="Shown at the top of the portal."
           >
             <Textarea
               id="intro"
@@ -169,10 +169,7 @@ export function CatalogueDetailsForm({ catalogue }: { catalogue: GiftCatalogue }
                 className="mt-0.5"
               />
               <Label htmlFor="approvalRequired" className="block cursor-pointer font-normal">
-                Require approval before a campaign can be paid for
-                <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                  The buyer cannot reach the payment step until the approver has signed the list off.
-                </span>
+                Require approval before payment
               </Label>
             </div>
           </div>
@@ -225,12 +222,12 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
                   {
                     value: "link",
                     title: "Anyone with the private link",
-                    detail: "Good for a small buying team. Regenerating the link closes every copy already sent.",
+                    detail: "Regenerating the link disables old copies.",
                   },
                   {
                     value: "invite",
                     title: "Only invited email addresses",
-                    detail: "Each buyer states their work email and is let in only if it is on the list below.",
+                    detail: "Buyers enter their work email to sign in.",
                   },
                 ] as const
               ).map((option) => (
@@ -258,7 +255,7 @@ export function CatalogueAccessForm({ catalogue }: { catalogue: GiftCatalogue })
           <Field
             label="Invited addresses"
             htmlFor="invitedEmails"
-            hint="One per line, or separated by commas. Removing an address closes the catalogue to it on their next visit."
+            hint="One per line or separated by commas."
           >
             <Textarea
               id="invitedEmails"
@@ -299,7 +296,7 @@ export function CatalogueProductsForm({
         <div>
           {products.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              This store has no published products with approved previews, so there is nothing to offer yet.
+              No published products yet.
             </p>
           ) : (
             <ul

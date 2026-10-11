@@ -35,16 +35,14 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
     <div className="space-y-6">
       <PageHeader
         title="Discount codes"
-        description="Codes shoppers enter in the basket or at checkout. Each one takes a percentage or a fixed amount off the goods, and can carry a minimum basket, an expiry date and a cap on how many times it may be used."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Codes" value={String(codes.length)} sub={`${live.length} working right now`} />
-        <StatCard label="Redemptions" value={String(redemptions)} sub="Across every code" />
+        <StatCard label="Codes" value={String(codes.length)} sub={`${live.length} active`} />
+        <StatCard label="Redemptions" value={String(redemptions)} />
         <StatCard
-          label="Stated in"
+          label="Currency"
           value={store.defaultCurrency}
-          sub="Fixed amounts are converted at checkout"
         />
       </div>
 
@@ -53,7 +51,7 @@ export default async function DiscountsPage({ params }: { params: Promise<{ stor
         {codes.length === 0 ? (
           <EmptyState
             title="No discount codes yet"
-            description="Create one below. A code works the moment it is active, and shoppers enter it themselves in the basket or at checkout — the discount is checked again when the card is charged."
+            description="Create a code below."
           />
         ) : (
           <ul className="space-y-4">

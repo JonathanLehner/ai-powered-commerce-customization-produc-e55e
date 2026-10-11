@@ -23,12 +23,8 @@ export function InviteForm({ storeId }: { storeId: string }) {
           <>
             <CardHeader>
               <CardTitle asChild>
-                <h2>Invite someone to this store</h2>
+                <h2>Invite a team member</h2>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Access is scoped to this store only. The same person can hold a different role in another
-                client store.
-              </p>
             </CardHeader>
 
             <CardContent>

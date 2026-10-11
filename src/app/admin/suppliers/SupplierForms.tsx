@@ -80,7 +80,7 @@ export function AddSupplierForm() {
                 <h2>Add a supplier</h2>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                New suppliers land in review. Stores cannot source from them until they are approved.
+                New suppliers need approval before stores can use them.
               </p>
             </CardHeader>
 
@@ -130,11 +130,11 @@ export function AddSupplierForm() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Manual suppliers flag every order for a human.
+                    Manual suppliers need a purchase order for each order.
                   </p>
                 </div>
                 <div className="grid content-start gap-1.5 sm:col-span-2">
-                  <Label htmlFor="supplier-summary">What is this supplier for?</Label>
+                  <Label htmlFor="supplier-summary">Summary</Label>
                   <Textarea
                     id="supplier-summary"
                     name="summary"

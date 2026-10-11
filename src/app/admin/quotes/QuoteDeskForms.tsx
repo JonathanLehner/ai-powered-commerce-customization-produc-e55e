@@ -43,7 +43,6 @@ export function AddQuoteForm({
             htmlFor={id("supplierLabel")}
             error={state.field === "supplierLabel"}
             className="sm:col-span-2"
-            hint="The factory or seller as named on the marketplace."
           >
             <Input
               id={id("supplierLabel")}
@@ -112,7 +111,6 @@ export function AddQuoteForm({
               htmlFor={id("baseCatalogProductId")}
               error={state.field === "baseCatalogProductId"}
               className="sm:col-span-3"
-              hint="The store copy takes its variants, print areas and mockups from this listing."
             >
               <Select name="baseCatalogProductId">
                 <SelectTrigger
@@ -136,7 +134,7 @@ export function AddQuoteForm({
             label="What the supplier said"
             htmlFor={id("notes")}
             className="sm:col-span-3"
-            hint="Trade Assurance terms, sampling cost, freight basis — the store reads this."
+            hint="Terms, sampling cost and freight. Visible to the store."
           >
             <Textarea id={id("notes")} name="notes" rows={2} className="mt-1.5" />
           </Field>
@@ -162,7 +160,6 @@ export function DeclineQuoteForm({ request }: { request: QuoteRequest }) {
           label="Why it was declined"
           htmlFor={`reason-${request.id}`}
           error={state.field === "reason"}
-          hint="Run too small, specification unclear, no factory covering the destination."
         >
           <Textarea
             id={`reason-${request.id}`}

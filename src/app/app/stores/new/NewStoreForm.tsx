@@ -18,11 +18,9 @@ import { CURRENCY_OPTIONS } from "@/lib/util";
 
 export function NewStoreForm({
   agencyId,
-  agencyName,
   allowanceNote,
 }: {
   agencyId: string;
-  agencyName: string;
   /** Where the agency stands against its plan's live-store limit. */
   allowanceNote?: string;
 }) {
@@ -32,19 +30,14 @@ export function NewStoreForm({
     <Card asChild>
     <ActionForm
       action={createStore}
-      submitLabel="Create store and continue to setup"
+      submitLabel="Create store and continue"
       pendingLabel="Creating store…"
       hidden={{ agencyId }}
       actionsClassName="px-(--card-spacing)"
     >
       {(state) => (
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            The store is created under <span className="font-medium text-foreground">{agencyName}</span>.
-            Everything
-            below can be changed later in store settings.
-            {allowanceNote ? <span className="mt-1 block text-xs">{allowanceNote}</span> : null}
-          </p>
+          {allowanceNote ? <p className="text-sm text-muted-foreground">{allowanceNote}</p> : null}
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <div className="grid content-start gap-1.5">
@@ -56,11 +49,7 @@ export function NewStoreForm({
                 minLength={3}
                 placeholder="Northwind Supply Co"
                 aria-invalid={state.field === "name" ? true : undefined}
-                aria-describedby="name-hint"
-              />
-              <p id="name-hint" className="text-xs text-muted-foreground">
-                Shown in the workspace and on the storefront.
-              </p>
+                              />
             </div>
 
             <div className="grid content-start gap-1.5">
@@ -71,11 +60,7 @@ export function NewStoreForm({
                 required
                 placeholder="Northwind Technologies"
                 aria-invalid={state.field === "clientName" ? true : undefined}
-                aria-describedby="clientName-hint"
-              />
-              <p id="clientName-hint" className="text-xs text-muted-foreground">
-                The company this store belongs to.
-              </p>
+                              />
             </div>
 
             <div className="grid content-start gap-1.5">
@@ -87,12 +72,11 @@ export function NewStoreForm({
                 <SelectContent>
                   {CURRENCY_OPTIONS.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
-                      {c.code} — {c.label}
+                      {c.code} · {c.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">More currencies can be added during setup.</p>
             </div>
 
             <div className="grid content-start gap-1.5">
@@ -104,24 +88,18 @@ export function NewStoreForm({
                 <SelectContent>
                   {LANGUAGE_OPTIONS.map((l) => (
                     <SelectItem key={l.code} value={l.code}>
-                      {l.label === l.endonym ? l.label : `${l.label} — ${l.endonym}`}
+                      {l.label === l.endonym ? l.label : `${l.label} · ${l.endonym}`}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                The storefront is written and formatted in this language, and its pages are marked with it.
-              </p>
             </div>
           </div>
 
           <fieldset className="mt-6">
-            <legend className="text-sm leading-none font-medium text-foreground select-none">
+            <legend className="mb-3 text-sm leading-none font-medium text-foreground select-none">
               Storefront theme
             </legend>
-            <p className="mt-1.5 mb-3 text-xs text-muted-foreground">
-              You can change this at any time and preview before publishing.
-            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {themeKeys.map((key, index) => (
                 <Label

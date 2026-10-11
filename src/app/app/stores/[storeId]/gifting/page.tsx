@@ -56,25 +56,23 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
     <div className="space-y-6">
       <PageHeader
         title="Corporate gifting"
-        description="Private gift catalogues for the companies this store supplies: a gated portal drawn from the published catalog, bulk ordering from a recipient list, a spend limit per person and an approval step before anything is paid for."
+        description="Private gift catalogues for corporate clients."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Gift catalogues" value={String(catalogues.length)} sub={`${published.length} products publishable`} />
+        <StatCard label="Gift catalogues" value={String(catalogues.length)} sub={`${published.length} products available`} />
         <StatCard
           label="Awaiting approval"
           value={String(awaiting.length)}
           tone={awaiting.length > 0 ? "amber" : "neutral"}
-          sub="With the company's approver"
         />
-        <StatCard label="Approved, unpaid" value={String(approved.length)} sub="Waiting on the buyer" />
+        <StatCard label="Approved, unpaid" value={String(approved.length)} />
         <StatCard label="Gifts ordered" value={String(gifted)} sub={`${ordered.length} campaigns paid`} />
       </div>
 
       {published.length === 0 ? (
-        <Callout tone="amber" title="Nothing to put in a gift catalogue yet">
-          A gift catalogue offers this store&rsquo;s own published products. Publish at least one product first —
-          drafts and products with unapproved previews are never offered to a gifting buyer.
+        <Callout tone="amber" title="No published products">
+          Publish a product to add it to a gift catalogue.
         </Callout>
       ) : null}
 
@@ -82,8 +80,8 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
         <h2 className="text-base font-semibold text-foreground">Catalogues</h2>
         {catalogues.length === 0 ? (
           <EmptyState
-            title="No gift catalogue yet"
-            description="A gift catalogue is a private, link- or invite-gated shop for one company. Create one below, choose the products it offers and share the link with the people who buy for that company."
+            title="No gift catalogues yet"
+            description="Create one below."
           />
         ) : (
           <ul className="grid gap-4 lg:grid-cols-2">
@@ -172,7 +170,7 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
         {campaigns.length === 0 ? (
           <EmptyState
             title="No campaigns yet"
-            description="A campaign is one bulk order: a buyer's recipient list, the approval on it and every order it produced. They appear here as soon as a buyer submits one."
+            description="Campaigns appear here when a buyer submits a recipient list."
           />
         ) : (
           <Card className="relative overflow-x-auto py-0">
@@ -233,10 +231,6 @@ export default async function GiftingPage({ params }: { params: Promise<{ storeI
             <CardTitle asChild>
               <h2>New gift catalogue</h2>
             </CardTitle>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              One catalogue per company. You choose which published products it offers, how much may be spent
-              on each recipient and who signs a campaign off before it is paid for.
-            </p>
           </CardHeader>
           <CardContent className="max-w-2xl">
             <CatalogueCreateForm storeId={storeId} currency={store.defaultCurrency} />

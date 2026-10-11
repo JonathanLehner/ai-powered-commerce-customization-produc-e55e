@@ -47,7 +47,7 @@ async function store(storeId: string, drafts: DraftSuggestion[], productId: stri
 function friendly(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   if (message.includes("not valid JSON")) {
-    return "The assistant replied in an unexpected format. Try again — nothing was applied.";
+    return "The assistant returned an unexpected response. Please try again.";
   }
   return `The assistant could not complete that request: ${message}`;
 }
@@ -68,13 +68,13 @@ export async function requestProductIdeas(_prev: ActionState, formData: FormData
     const drafts = await suggestProductIdeas(storeDoc, available, existing, brief);
     const valid = drafts.filter((d) => available.some((c) => c.id === d.payload.catalogId));
     if (valid.length === 0) {
-      return { status: "error", message: "The assistant did not return any product that maps to the approved catalog. Try a more specific brief." };
+      return { status: "error", message: "No matching products found. Try a more specific brief." };
     }
     const count = await store(storeId, valid, null, user.name);
     revalidatePath(`/app/stores/${storeId}/assistant`);
     return {
       status: "success",
-      message: `${count} product idea${count === 1 ? "" : "s"} drafted. Nothing has been created — review each one and apply the ones you want.`,
+      message: `${count} product ${count === 1 ? "idea" : "ideas"} drafted.`,
     };
   } catch (error) {
     return { status: "error", message: friendly(error) };
@@ -176,7 +176,7 @@ export async function applySuggestion(formData: FormData): Promise<void> {
         ...(patch as Partial<StoreProduct>),
         costs: breakdownFor(updated, catalog, bracket, storeDoc.pricesIncludeTax),
       });
-      summary = `Applied AI product idea “${suggestion.title}” — imported ${catalog.name} as a draft product`;
+      summary = `Applied AI product idea “${suggestion.title}”: imported ${catalog.name} as a draft`;
     }
   } else if (suggestion.productId) {
     const product = await getStoreProduct(suggestion.productId);

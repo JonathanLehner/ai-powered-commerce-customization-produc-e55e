@@ -23,7 +23,7 @@ import {
   sortAuditEntries,
   AUDIT_PAGE_SIZE,
 } from "../src/lib/audit-log.ts";
-import { PLANS, auditExportMessage, planAuditLabel } from "../src/lib/plans.ts";
+import { PLANS, auditExportMessage } from "../src/lib/plans.ts";
 
 let counter = 0;
 function entry(overrides = {}) {
@@ -173,7 +173,7 @@ assert.equal(collapsed[1].count, 1);
 // The row the summary panels draw carries the count in its own wording.
 assert.equal(
   auditRunSummary(collapsed[0]),
-  "Approved 2 mockups for “Northwind Field Tee” — 8 times",
+  "Approved 2 mockups for “Northwind Field Tee” (8 times)",
 );
 assert.equal(auditRunSummary(collapsed[1]), "Updated product details for “Northwind Organic Tee”");
 
@@ -415,8 +415,6 @@ assert.ok(!/[^a-z0-9.\-]/.test(auditFileName("Ferro Coffee Club · Activity/2", 
 assert.equal(PLANS.starter.auditExport, false);
 assert.equal(PLANS.studio.auditExport, true);
 assert.equal(PLANS.scale.auditExport, true);
-assert.equal(planAuditLabel(PLANS.studio), "Full audit history export");
-assert.notEqual(planAuditLabel(PLANS.starter), planAuditLabel(PLANS.studio));
 assert.match(auditExportMessage(PLANS.starter, "Cobalt & Co"), /Cobalt & Co is on the Starter plan/);
 assert.match(auditExportMessage(PLANS.starter, "Cobalt & Co"), /Studio/);
 

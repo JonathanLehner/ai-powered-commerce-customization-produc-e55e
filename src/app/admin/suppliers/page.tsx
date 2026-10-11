@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { setSupplierStatus } from "@/app/actions/admin";
-import { Badge, Callout, PageHeader } from "@/components/ui";
+import { Badge, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -23,20 +23,10 @@ export default async function AdminSuppliersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Approved production partners"
-        description="Only approved suppliers appear in store sourcing. Capabilities decide whether a paid order can be routed automatically or must be raised by hand."
+        title="Suppliers"
+        description="Only approved suppliers are available to stores."
       />
 
-      <Callout tone="neutral" title="Why some partners are manual">
-        Print-on-demand networks expose documented order and tracking APIs. Sourcing marketplaces such as
-        Alibaba.com do not offer a single transactional API across their suppliers, so their listings are
-        priced by quote and those orders are flagged for a buyer to confirm specification, minimum order
-        quantity and Trade Assurance terms. Requests stores raise sit in the{" "}
-        <Link href="/admin/quotes" className="font-medium underline underline-offset-2">
-          quote queue
-        </Link>
-        .
-      </Callout>
 
       <ul className="space-y-4">
         {suppliers.map((supplier) => {

@@ -63,20 +63,15 @@ export function UnknownStoreView({ slug }: { slug: string }) {
   return (
     <FallbackPanel
       eyebrow="Parcelith"
-      title="This shop is not available at this address"
+      title="Shop not found"
       description={
         <>
           <p>
-            We do not recognise the shop address{" "}
+            No shop exists at{" "}
             <code className="rounded bg-canvas px-1.5 py-0.5 font-mono text-[13px] text-ink">
               /s/{slug}
             </code>
-            . The shop may have been renamed, moved to a different address, or closed by the
-            business that ran it.
-          </p>
-          <p className="mt-3">
-            Parcelith hosts shops like this one. If you were sent this link, ask the business for
-            its current address.
+            .
           </p>
         </>
       }
@@ -84,9 +79,6 @@ export function UnknownStoreView({ slug }: { slug: string }) {
         <>
           <Link href="/" className={buttonVariants()}>
             Go to Parcelith
-          </Link>
-          <Link href="/how-it-works" className={buttonVariants({ variant: "outline" })}>
-            How Parcelith works
           </Link>
         </>
       }
@@ -127,18 +119,16 @@ export function UnknownGiftPortalView({ slug }: { slug: string }) {
   return (
     <FallbackPanel
       eyebrow="Gift portal"
-      title="This gift portal is not available at this address"
+      title="Gift portal not found"
       description={
         <>
           <p>
-            We do not recognise the portal address{" "}
+            No gift portal exists at{" "}
             <code className="rounded bg-canvas px-1.5 py-0.5 font-mono text-[13px] text-ink">
               /g/{slug}
             </code>
-            . The link may have expired, or the gift catalogue may have been closed by the company
-            that set it up.
+            . The link may have expired.
           </p>
-          <p className="mt-3">If someone sent you this link, ask them for a current one.</p>
         </>
       }
       actions={
@@ -155,11 +145,10 @@ export function WorkspaceNotFoundView() {
   return (
     <FallbackPanel
       eyebrow="404"
-      title="We cannot find that page"
+      title="Page not found"
       description={
         <p>
-          The address may be mistyped, or the store, product or order it pointed at may have been
-          removed. Everything you have access to is on the dashboard.
+          This page does not exist or was removed.
         </p>
       }
       actions={
@@ -181,11 +170,10 @@ export function StoreWorkspaceNotFoundView({ base }: { base: string }) {
   return (
     <FallbackPanel
       eyebrow="404"
-      title="We cannot find that page"
+      title="Page not found"
       description={
         <p>
-          The record may have been deleted, or the address may be mistyped. The store overview lists
-          everything that is still there.
+          This record does not exist or was removed.
         </p>
       }
       actions={
@@ -207,11 +195,10 @@ export function AdminNotFoundView() {
   return (
     <FallbackPanel
       eyebrow="404"
-      title="We cannot find that page"
+      title="Page not found"
       description={
         <p>
-          The address may be mistyped, or the supplier, catalog item or agency it pointed at may
-          have been removed.
+          This page does not exist or was removed.
         </p>
       }
       actions={

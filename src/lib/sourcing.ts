@@ -43,7 +43,7 @@ export const QUOTE_STATUS_TONES: Record<QuoteRequestStatus, "amber" | "green" | 
 export const QUOTE_STATUS_NOTES: Record<QuoteRequestStatus, string> = {
   submitted: "With the sourcing desk. Suppliers answer bulk enquiries in a few working days.",
   quoted: "Quotes came back. Compare them with the print-on-demand options, then accept the one to go with.",
-  accepted: "Accepted. Copy it into the catalog to price and sell it — orders for it are raised by hand.",
+  accepted: "Accepted. Copy it into the catalog to sell it.",
   declined: "No supplier took this one on. Change the run size or the specification and ask again.",
   withdrawn: "Cancelled by the store. Raise a new enquiry when the run is confirmed.",
 };
@@ -221,7 +221,7 @@ export function checkQuoteRequest(
     return {
       ok: false,
       field: "customisation",
-      message: "Say what decoration is needed — print or embroidery, placement, colours — or “none, blank stock”.",
+      message: "Describe the decoration, or enter “none”.",
     };
   }
   if (value.contactName.length < 2) {

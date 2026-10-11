@@ -80,11 +80,7 @@ export default async function ActivityPage({
     <div className="space-y-6">
       <PageHeader
         title="Audit history"
-        description={
-          viaPlatform
-            ? `Every recorded change in ${store.name}, one row per record. ${PLATFORM_ACCESS_NOTE}`
-            : `Every recorded change in ${store.name}, one row per record — repeats are only collapsed in the overview summary.`
-        }
+                description={viaPlatform ? PLATFORM_ACCESS_NOTE : undefined}
       />
 
       <AuditFilterBar
@@ -97,12 +93,8 @@ export default async function ActivityPage({
 
       {page.total === 0 ? (
         <EmptyState
-          title={hasAuditFilters(filters) ? "Nothing matches those filters" : "Nothing recorded here yet"}
-          description={
-            hasAuditFilters(filters)
-              ? "Try a wider date range, another person, or clear the search."
-              : "Audit entries are written automatically whenever someone changes settings, imports a product, changes a price, approves an AI suggestion, publishes, or routes an order."
-          }
+          title={hasAuditFilters(filters) ? "No matching entries" : "No activity yet"}
+                    description={hasAuditFilters(filters) ? "Try different filters." : undefined}
         />
       ) : (
         <div className="space-y-3">

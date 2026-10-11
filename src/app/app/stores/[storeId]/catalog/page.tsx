@@ -58,8 +58,7 @@ export default async function StoreCatalogPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${store.name} products`}
-        description="Price, artwork, tax bracket and publication state are set per store."
+        title="Products"
         actions={
           canEdit ? (
             <Button asChild>
@@ -70,18 +69,17 @@ export default async function StoreCatalogPage({
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Products" value={String(products.length)} sub="In this store" />
-        <StatCard label="Published" value={String(published.length)} sub="Visible on the storefront" />
+        <StatCard label="Products" value={String(products.length)} />
+        <StatCard label="Published" value={String(published.length)} />
         <StatCard
           label="Drafts and reviews"
           value={String(products.filter((p) => p.status !== "published" && p.status !== "archived").length)}
-          sub="Not yet live"
         />
         <StatCard
           label="Average margin"
           value={formatPercent(avgMargin)}
           tone={marginTone(avgMargin) === "healthy" ? "green" : marginTone(avgMargin) === "thin" ? "amber" : "rose"}
-          sub="Across published products"
+          sub="Published products"
         />
       </div>
 
@@ -89,11 +87,11 @@ export default async function StoreCatalogPage({
 
       {filtered.length === 0 ? (
         <EmptyState
-          title={products.length === 0 ? "This catalog is empty" : "Nothing matches that filter"}
+          title={products.length === 0 ? "No products yet" : "No matching products"}
           description={
             products.length === 0
-              ? "Copy a product from the shared supplier catalog to get started. You will place artwork, review the mockups and set a price before it can be published."
-              : "Try a different status or search term."
+              ? "Import a product from the supplier catalog to get started."
+              : "Try different filters."
           }
           action={
             canEdit ? (
@@ -128,7 +126,7 @@ export default async function StoreCatalogPage({
                         className="flex w-full items-center justify-center text-sm text-muted-foreground"
                         style={{ aspectRatio: "1 / 1" }}
                       >
-                        No mockup generated yet
+                        No mockup yet
                       </div>
                     )}
                     <span className="absolute top-3 left-3">

@@ -357,7 +357,7 @@ export function parseRecipients(text: string, options: ParseOptions): ParseResul
     let quantity = quantityInput ? Number(quantityInput.replace(/[^0-9]/g, "")) : 1;
     if (!Number.isFinite(quantity) || quantity < 1) quantity = 1;
     if (quantity > maxQuantity) {
-      issues.push(`Gifts are capped at ${maxQuantity} per recipient — this row asks for ${quantity}.`);
+      issues.push(`Gifts are capped at ${maxQuantity} per recipient. This row asks for ${quantity}.`);
       quantity = maxQuantity;
     }
 

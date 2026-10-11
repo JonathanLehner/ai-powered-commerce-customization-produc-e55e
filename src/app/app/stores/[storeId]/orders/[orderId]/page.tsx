@@ -5,7 +5,7 @@ import { advanceStatus, resolveException, routeToSupplier } from "@/app/actions/
 import { Breadcrumbs, Callout, DataList, Dot, PageHeader } from "@/components/ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { countryName } from "@/lib/countries";
 import { getOrder, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
@@ -88,7 +88,7 @@ export default async function OrderDetailPage({
       {order.fulfillment.exception ? (
         <Callout tone="rose" title="Supplier exception">
           {viaPlatform
-            ? "The store team has the detail of this exception."
+            ? "Details are visible to the store team."
             : order.fulfillment.exception}
           {canManage ? (
             <form action={resolveException} className="mt-3">
@@ -179,7 +179,7 @@ export default async function OrderDetailPage({
                 <div className="mt-4 border-t border-border pt-4">
                   {viaPlatform ? (
                     <p className="text-sm text-muted-foreground">
-                      Order values stay with the store team. {order.items.length}{" "}
+                      {order.items.length}{" "}
                       {order.items.length === 1 ? "line" : "lines"} on this order.
                     </p>
                   ) : (
@@ -252,9 +252,6 @@ export default async function OrderDetailPage({
                   <CardTitle asChild>
                     <h2>Manual fulfilment steps</h2>
                   </CardTitle>
-                  <CardDescription>
-                    Use these when a supplier has no order API, or when something needs correcting by hand.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="rounded-xl border border-border p-4">
@@ -333,8 +330,7 @@ export default async function OrderDetailPage({
                   <div className="rounded-xl border border-destructive/30 p-4">
                     <h3 className="text-sm font-semibold text-foreground">Refund or cancel</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Refunds are issued against the store&rsquo;s own Stripe account. Already refunded:{" "}
-                      {formatMoney(refunded, order.currency)}.
+                      Refunded so far: {formatMoney(refunded, order.currency)}
                     </p>
                     <div className="mt-3">
                       <RefundForm order={order} />
@@ -422,16 +418,12 @@ export default async function OrderDetailPage({
                       ? []
                       : [
                           {
-                            label: "Account",
-                            value: <span className="font-mono text-xs">{order.payment.stripeAccountId}</span>,
-                          },
-                          {
                             label: "Intent",
                             value: <span className="font-mono text-xs">{order.payment.paymentIntentId}</span>,
                           },
-                          { label: "Card", value: order.payment.last4 ? `•••• ${order.payment.last4}` : "—" },
+                          { label: "Card", value: order.payment.last4 ? `•••• ${order.payment.last4}` : "–" },
                         ]),
-                    { label: "Paid", value: order.payment.paidAt ? formatDateTime(order.payment.paidAt) : "—" },
+                    { label: "Paid", value: order.payment.paidAt ? formatDateTime(order.payment.paidAt) : "–" },
                   ]}
                 />
               </CardContent>
@@ -451,7 +443,7 @@ export default async function OrderDetailPage({
                     { label: "Supplier", value: order.fulfillment.supplierName ?? "Not assigned" },
                     {
                       label: "Integration",
-                      value: supplier ? (supplier.integration === "api" ? "Order API" : "Manual") : "—",
+                      value: supplier ? (supplier.integration === "api" ? "Order API" : "Manual") : "–",
                     },
                     {
                       label: "Routing",
@@ -470,14 +462,14 @@ export default async function OrderDetailPage({
                         </Badge>
                       ),
                     },
-                    { label: "Supplier reference", value: order.fulfillment.supplierOrderRef ?? "—" },
+                    { label: "Supplier reference", value: order.fulfillment.supplierOrderRef ?? "–" },
                     {
                       label: "Submitted",
-                      value: order.fulfillment.submittedAt ? formatDateTime(order.fulfillment.submittedAt) : "—",
+                      value: order.fulfillment.submittedAt ? formatDateTime(order.fulfillment.submittedAt) : "–",
                     },
                     {
                       label: "Lead time",
-                      value: supplier ? `${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} days` : "—",
+                      value: supplier ? `${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} days` : "–",
                     },
                     ...(order.fulfillment.reroute
                       ? [

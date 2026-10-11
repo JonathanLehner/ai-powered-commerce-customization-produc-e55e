@@ -201,7 +201,7 @@ export async function refundCharge(input: RefundInput): Promise<RefundResult> {
 }
 
 export const TEST_CARDS = [
-  { number: "4242 4242 4242 4242", label: "Visa — succeeds" },
-  { number: "4000 0000 0000 0002", label: "Visa — declined by issuer" },
-  { number: "4000 0000 0000 9995", label: "Visa — insufficient funds" },
+  { number: "4242 4242 4242 4242", label: "Payment succeeds" },
+  { number: "4000 0000 0000 0002", label: "Card declined" },
+  { number: "4000 0000 0000 9995", label: "Insufficient funds" },
 ];

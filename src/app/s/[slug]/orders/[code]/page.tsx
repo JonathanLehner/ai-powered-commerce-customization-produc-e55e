@@ -6,6 +6,7 @@ import { localCountryName } from "@/lib/countries";
 import { getOrderByCode, getStoreBySlug } from "@/lib/data";
 import { fmt, storefrontLocale, type StorefrontCopy } from "@/lib/i18n";
 import { verifyOrderToken } from "@/lib/order-access";
+import { shopperTimeline } from "@/lib/order-timeline";
 import { orderTaxRows } from "@/lib/pricing";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import type { OrderStatus } from "@/lib/types";
@@ -80,6 +81,7 @@ export default async function OrderStatusPage({
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
   const support = storeSupport(store);
   const contactSubject = fmt(t.order.contactSubject, { code: order.code });
+  const timeline = shopperTimeline(order.events);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
@@ -210,9 +212,6 @@ export default async function OrderStatusPage({
             · {order.payment.status === "refunded" ? t.order.refundedWord : t.order.paidWord} ·{" "}
             {order.payment.paidAt ? dateTime(order.payment.paidAt) : ""}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {fmt(t.order.merchantOfRecord, { client: store.clientName })}
-          </p>
         </div>
       </section>
 
@@ -222,8 +221,8 @@ export default async function OrderStatusPage({
             rail, and the one the order is sitting on now is ringed so the
             shopper can see where it has got to at a glance. */}
         <ol className="mt-4">
-          {order.events.map((entry, index) => {
-            const current = index === order.events.length - 1;
+          {timeline.map((entry, index) => {
+            const current = index === timeline.length - 1;
             return (
               <li key={index} className="relative flex gap-4 pb-6 last:pb-0">
                 {current ? null : (
@@ -240,8 +239,9 @@ export default async function OrderStatusPage({
                   )}
                 />
                 <div className="min-w-0 pb-0.5">
-                  <p className="text-sm font-medium text-foreground">{entry.status}</p>
-                  <p className="mt-0.5 text-sm text-inksoft">{entry.note}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {entry.milestone === "refunded" ? t.order.refunded : t.status[entry.milestone]}
+                  </p>
                   <p className="mt-1 text-xs tabular-nums text-muted-foreground">{dateTime(entry.at)}</p>
                 </div>
               </li>
@@ -250,9 +250,9 @@ export default async function OrderStatusPage({
         </ol>
       </section>
 
-      <section className="mt-10 rounded-xl border border-border bg-muted/60 px-4 py-4">
-        <h2 className="font-heading text-base font-semibold text-foreground">{t.order.supportTitle}</h2>
-        {support.email || support.phone ? (
+      {support.email || support.phone ? (
+        <section className="mt-10 rounded-xl border border-border bg-muted/60 px-4 py-4">
+          <h2 className="font-heading text-base font-semibold text-foreground">{t.order.supportTitle}</h2>
           <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
             {support.email ? (
               <>
@@ -275,12 +275,8 @@ export default async function OrderStatusPage({
               </>
             ) : null}
           </dl>
-        ) : (
-          // Better an honest gap than a button that writes to an address
-          // nobody reads: the store has not published one yet.
-          <p className="mt-2 text-sm text-muted-foreground">{t.chrome.supportPending}</p>
-        )}
       </section>
+      ) : null}
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link

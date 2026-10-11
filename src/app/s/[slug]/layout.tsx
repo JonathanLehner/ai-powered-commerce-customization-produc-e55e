@@ -67,7 +67,7 @@ export default async function StorefrontLayout({
   // the server's HTML.
   if (!store) {
     return (
-      <PlainDocument note="Parcelith hosts branded shops for agencies and their clients. Each shop has its own web address.">
+      <PlainDocument note="© Parcelith">
         {children}
       </PlainDocument>
     );
@@ -186,12 +186,9 @@ export default async function StorefrontLayout({
         </main>
 
         <footer className="mt-16 border-t border-border bg-muted/60">
-          <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+          <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6">
             <div>
               <p className="font-heading text-sm font-semibold text-foreground">{store.name}</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {fmt(t.chrome.operatedBy, { client: store.clientName })}
-              </p>
             </div>
             <div>
               <p className={SECTION_TITLE}>{t.chrome.shop}</p>
@@ -213,9 +210,9 @@ export default async function StorefrontLayout({
                 </li>
               </ul>
             </div>
-            <div>
-              <p className={SECTION_TITLE}>{t.chrome.help}</p>
-              {support.email || support.phone ? (
+            {support.email || support.phone ? (
+              <div>
+                <p className={SECTION_TITLE}>{t.chrome.help}</p>
                 <ul className="mt-3 space-y-2 text-sm text-inksoft">
                   {support.email ? (
                     <li>
@@ -234,32 +231,21 @@ export default async function StorefrontLayout({
                     </li>
                   ) : null}
                 </ul>
-              ) : (
-                <p className="mt-3 text-sm text-muted-foreground">{t.chrome.supportPending}</p>
-              )}
-            </div>
-            <div>
-              <p className={SECTION_TITLE}>{t.chrome.delivery}</p>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {store.carriers
-                  .filter((c) => c.enabled)
-                  .map((c) => c.carrier.toUpperCase())
-                  .join(" · ") || t.chrome.carriersPending}
-                .{" "}
-                {fmt(t.chrome.pricesShownIn, {
-                  currency,
-                  tax: store.pricesIncludeTax ? t.chrome.taxIncluded : t.chrome.taxAtCheckout,
-                })}
-              </p>
-            </div>
+              </div>
+            ) : null}
           </div>
           <Separator />
-          <p className="mx-auto w-full max-w-6xl px-4 py-5 text-xs text-muted-foreground sm:px-6">
-            {fmt(t.chrome.legal, {
-              year: new Date().getFullYear(),
-              client: store.clientName,
-            })}
-          </p>
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-muted-foreground sm:px-6">
+            <p>{fmt(t.chrome.legal, { year: new Date().getFullYear(), client: store.clientName })}</p>
+            <div className="flex gap-4">
+              <Link href="/legal/terms" className="hover:text-foreground hover:underline">
+                {t.chrome.terms}
+              </Link>
+              <Link href="/legal/privacy" className="hover:text-foreground hover:underline">
+                {t.chrome.privacy}
+              </Link>
+            </div>
+          </div>
         </footer>
       </div>
     </Document>

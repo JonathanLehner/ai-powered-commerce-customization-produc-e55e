@@ -48,7 +48,6 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
         <div className="mt-8">
           <EmptyState
             title={t.basket.emptyTitle}
-            description={t.basket.emptyBody}
             action={
               <Link href={`/s/${store.slug}/products`} className={buttonVariants({ size: "lg" })}>
                 {t.basket.browseShop}

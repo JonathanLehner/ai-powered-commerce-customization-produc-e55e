@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Page not found · Parcelith",
-  description: "That address is not part of the Parcelith site.",
+  description: "This page does not exist.",
 };
 
 /**
@@ -26,12 +26,10 @@ export default function RootNotFound() {
         <main className="flex-1">
           <FallbackPanel
             eyebrow="404"
-            title="We cannot find that page"
+            title="Page not found"
             description={
               <p>
-                The address may be mistyped, or the page may have moved. Client shops live at their
-                own addresses, so a shop link that no longer works is worth checking with the
-                business that sent it.
+                Check the address and try again.
               </p>
             }
             actions={

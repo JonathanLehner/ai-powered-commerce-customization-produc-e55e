@@ -84,11 +84,10 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
-          title={`Good to see you, ${user.name.split(" ")[0]}`}
+          title="Dashboard"
           description={
             <>
-              Platform access across {agencies.length} {agencies.length === 1 ? "agency" : "agencies"}. Stores
-              are listed under the agency that operates them and nothing is counted across agencies.
+              {agencies.length} {agencies.length === 1 ? "agency" : "agencies"}
               <span className="mt-0.5 block">{PLATFORM_ACCESS_NOTE}</span>
             </>
           }
@@ -111,7 +110,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
           <div className="mt-6">
             <EmptyState
               title="No agencies yet"
-              description="Agencies and their stores appear here once the first one is set up in the platform admin."
+              description="Add an agency in platform admin to get started."
               action={
                 <Button asChild>
                   <Link href="/admin/agencies">Open platform admin</Link>
@@ -136,8 +135,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
               <p className="text-xs text-muted-foreground">
                 <span className="tabular-nums">{group.active.length}</span> active{" "}
                 {group.active.length === 1 ? "store" : "stores"}
-                {group.archived.length ? `, ${group.archived.length} archived` : ""} · counted within this
-                agency only
+                {group.archived.length ? `, ${group.archived.length} archived` : ""}
               </p>
             </div>
 
@@ -272,9 +270,6 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
 
         <section className="mt-9 pb-4">
           <h2 className="text-base font-semibold text-foreground">Recent platform activity</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Who did what, across every agency. Order and customer records are not part of it.
-          </p>
           {activity.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Nothing recorded yet.</p>
           ) : (
