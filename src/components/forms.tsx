@@ -187,14 +187,23 @@ export function SuccessToast({ state }: { state: ActionState }) {
 }
 
 export function FormStatus({ state }: { state: ActionState }) {
+  const messageRef = useRef<HTMLParagraphElement>(null);
+  // Each result is a new object, so a second identical rejection still moves
+  // focus here and a screen reader announces it again.
+  useEffect(() => {
+    if (state.status === "error") messageRef.current?.focus();
+  }, [state]);
+
   if (state.status === "idle" || !state.message) return null;
   const error = state.status === "error";
   return (
     <p
+      ref={messageRef}
       role="status"
       aria-live="polite"
+      tabIndex={error ? -1 : undefined}
       className={cn(
-        "mt-4 rounded-lg border px-3 py-2 text-sm",
+        "mt-4 rounded-lg border px-3 py-2 text-sm outline-none",
         error
           ? "border-destructive/30 bg-destructive/10 text-destructive"
           : "border-emerald-200 bg-emerald-50 text-emerald-800",
@@ -223,6 +232,7 @@ export function ActionForm({
   submitDisabled,
   beforeSubmit,
   actionsClassName,
+  ref,
   ...rest
 }: Omit<React.ComponentProps<"form">, "action" | "children" | "hidden"> & {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -248,10 +258,20 @@ export function ActionForm({
 }) {
   const [{ state, attempt }, formAction] = useSubmission<ActionState>(action, { status: "idle" });
   const { formRef, capture } = useValueRestore(state.status, attempt);
+  // A wrapper such as `<Card asChild>` hands its own ref in; it has to share the
+  // form with the restore rather than replace it.
+  const setForm = React.useCallback(
+    (node: HTMLFormElement | null) => {
+      formRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [formRef, ref],
+  );
 
   return (
     <form
-      ref={formRef}
+      ref={setForm}
       action={async (formData: FormData) => {
         capture(formData);
         if (beforeSubmit) {
