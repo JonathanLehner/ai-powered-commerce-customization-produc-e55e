@@ -18,6 +18,7 @@
     "previousPage": "Zur vorherigen Seite",
     "nextPage": "Zur nächsten Seite",
     "morePages": "Weitere Seiten",
+    "more": "Mehr",
     "pages": "Seiten",
     "pageOf": "Seite {page} von {pages}",
     "breadcrumb": "Navigationspfad",
@@ -27,7 +28,9 @@
     "tryAgain": "Erneut versuchen",
     "reference": "Referenz {digest}",
     "notFoundTitle": "Seite nicht gefunden",
-    "backToHomepage": "Zur Startseite"
+    "backToHomepage": "Zur Startseite",
+    "commandPalette": "Befehlspalette",
+    "commandPaletteHint": "Nach einem Befehl suchen"
   },
   "site": {
     "mainNav": "Hauptnavigation",

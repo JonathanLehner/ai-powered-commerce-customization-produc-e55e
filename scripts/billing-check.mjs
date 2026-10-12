@@ -71,8 +71,8 @@ for (const locale of LOCALES) {
 assert.match(source("src/app/[locale]/pricing/contact-sales/page.tsx"), /selfServe=\{false\}/);
 assert.match(source("src/app/[locale]/pricing/page.tsx"), /selfServe \/>/);
 const view = source("src/app/[locale]/pricing/view.tsx");
-assert.match(view, /cta: selfServe && PLANS\[key\]\.monthlyPrice !== null \? t\("getStarted"\) : t\("contactSales"\)/);
-assert.match(view, /href: selfServe && PLANS\[key\]\.monthlyPrice !== null \? `\/signup\?plan=\$\{key\}` : `\/contact\?plan=\$\{key\}`/);
+assert.match(view, /cta: selfServe && PLANS\[key\]\.prices !== null \? t\("getStarted"\) : t\("contactSales"\)/);
+assert.match(view, /href: selfServe && PLANS\[key\]\.prices !== null \? `\/signup\?plan=\$\{key\}` : `\/contact\?plan=\$\{key\}`/);
 const unavailable = source("src/app/[locale]/signup/contact-sales/page.tsx");
 assert.match(unavailable, /href="\/contact"/);
 assert.doesNotMatch(unavailable, /SignupForm|createAccount/, "the contact-sales page has no sign-up form");
@@ -109,6 +109,7 @@ assert.equal(form.get("mode"), "subscription");
 assert.equal(form.get("locale"), "de");
 assert.equal(form.get("line_items[0][price_data][recurring][interval]"), "year");
 assert.equal(form.get("line_items[0][price_data][currency]"), "eur");
+assert.equal(form.get("line_items[0][price_data][unit_amount]"), "143000", "Studio yearly is charged €1,430");
 assert.equal(form.get("subscription_data[trial_period_days]"), "14");
 assert.equal(form.get("metadata[agencyId]"), "agy_1");
 
@@ -117,6 +118,13 @@ assert.equal(requests[1].method, "GET");
 assert.equal(requests[1].url, "https://api.stripe.com/v1/checkout/sessions/cs_test_123");
 assert.equal(await getCheckoutSession("not-a-session"), null, "odd ids never reach Stripe");
 assert.equal(requests.length, 2);
+
+// The same plan paid in dollars is charged the dollar list price.
+await startPlanCheckout({ ...checkout, agency: { ...agency, billing: { ...agency.billing, plan: "starter", cycle: "monthly", currency: "USD" } } });
+const usd = new URLSearchParams(requests[2].body);
+assert.equal(usd.get("line_items[0][price_data][currency]"), "usd");
+assert.equal(usd.get("line_items[0][price_data][unit_amount]"), "3900");
+assert.equal(usd.get("line_items[0][price_data][recurring][interval]"), "month");
 
 globalThis.fetch = realFetch;
 console.log("billing-check ok");

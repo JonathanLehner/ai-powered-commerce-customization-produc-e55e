@@ -18,6 +18,7 @@
     "previousPage": "Go to previous page",
     "nextPage": "Go to next page",
     "morePages": "More pages",
+    "more": "More",
     "pages": "Pages",
     "pageOf": "Page {page} of {pages}",
     "breadcrumb": "Breadcrumb",
@@ -27,7 +28,9 @@
     "tryAgain": "Try again",
     "reference": "Reference {digest}",
     "notFoundTitle": "Page not found",
-    "backToHomepage": "Back to the homepage"
+    "backToHomepage": "Back to the homepage",
+    "commandPalette": "Command palette",
+    "commandPaletteHint": "Search for a command to run"
   },
   "site": {
     "mainNav": "Main",

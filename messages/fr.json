@@ -18,6 +18,7 @@
     "previousPage": "Page précédente",
     "nextPage": "Page suivante",
     "morePages": "Autres pages",
+    "more": "Plus",
     "pages": "Pages",
     "pageOf": "Page {page} sur {pages}",
     "breadcrumb": "Fil d’Ariane",
@@ -27,7 +28,9 @@
     "tryAgain": "Réessayer",
     "reference": "Référence {digest}",
     "notFoundTitle": "Page introuvable",
-    "backToHomepage": "Retour à l’accueil"
+    "backToHomepage": "Retour à l’accueil",
+    "commandPalette": "Palette de commandes",
+    "commandPaletteHint": "Rechercher une commande à exécuter"
   },
   "site": {
     "mainNav": "Navigation principale",

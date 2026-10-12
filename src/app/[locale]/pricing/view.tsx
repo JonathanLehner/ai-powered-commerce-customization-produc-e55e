@@ -9,7 +9,7 @@ import { SecurityBlock, TrustStrip } from "../trust";
 import { PlanCards, type PlanCard } from "./PlanCards";
 
 function prices(plan: Plan): PlanCard["prices"] {
-  if (plan.monthlyPrice === null) return null;
+  if (plan.prices === null) return null;
   return Object.fromEntries(
     PLAN_CURRENCIES.map((currency) => [
       currency,
@@ -81,8 +81,8 @@ export async function PricingView({ locale, selfServe }: { locale: Locale; selfS
     name: PLANS[key].name,
     summary: t(`summaries.${key}`),
     features: [storeLabel(PLANS[key]), ...PLAN_FEATURES[key].map((feature) => t(`features.${feature}`))],
-    cta: selfServe && PLANS[key].monthlyPrice !== null ? t("getStarted") : t("contactSales"),
-    href: selfServe && PLANS[key].monthlyPrice !== null ? `/signup?plan=${key}` : `/contact?plan=${key}`,
+    cta: selfServe && PLANS[key].prices !== null ? t("getStarted") : t("contactSales"),
+    href: selfServe && PLANS[key].prices !== null ? `/signup?plan=${key}` : `/contact?plan=${key}`,
     highlighted: key === "studio",
     prices: prices(PLANS[key]),
   }));

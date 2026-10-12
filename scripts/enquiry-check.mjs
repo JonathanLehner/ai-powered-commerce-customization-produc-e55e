@@ -48,11 +48,18 @@ assert.equal(defaultPlanCurrency("ja"), "USD");
 for (const key of PLAN_KEYS) {
   for (const currency of PLAN_CURRENCIES) {
     const price = planPrice(PLANS[key], "monthly", currency);
-    if (PLANS[key].monthlyPrice === null) assert.equal(price, null);
+    if (PLANS[key].prices === null) assert.equal(price, null);
     else assert.ok(price.perMonth > 0, `${key} has no ${currency} price`);
   }
 }
-assert.deepEqual(planPrice(PLANS.studio, "monthly", "EUR"), { perMonth: 139, billed: 139 });
+// Round euro list prices, set per plan and cycle rather than converted from dollars.
+assert.deepEqual(planPrice(PLANS.starter, "monthly", "EUR"), { perMonth: 39, billed: 39 });
+assert.deepEqual(planPrice(PLANS.starter, "yearly", "EUR"), { perMonth: 31, billed: 374 });
+assert.deepEqual(planPrice(PLANS.studio, "monthly", "EUR"), { perMonth: 149, billed: 149 });
+assert.deepEqual(planPrice(PLANS.studio, "yearly", "EUR"), { perMonth: 119, billed: 1430 });
+assert.deepEqual(planPrice(PLANS.starter, "monthly", "USD"), { perMonth: 39, billed: 39 });
+assert.deepEqual(planPrice(PLANS.studio, "yearly", "USD"), { perMonth: 119, billed: 1430 });
+assert.equal(planPrice(PLANS.scale, "yearly", "EUR"), null);
 
 /* ------------------------------------------------------ what is refused */
 

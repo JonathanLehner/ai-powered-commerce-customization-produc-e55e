@@ -18,6 +18,7 @@
     "previousPage": "前のページへ",
     "nextPage": "次のページへ",
     "morePages": "その他のページ",
+    "more": "その他",
     "pages": "ページ",
     "pageOf": "{page} / {pages} ページ",
     "breadcrumb": "パンくずリスト",
@@ -27,7 +28,9 @@
     "tryAgain": "再試行",
     "reference": "参照番号 {digest}",
     "notFoundTitle": "ページが見つかりません",
-    "backToHomepage": "ホームに戻る"
+    "backToHomepage": "ホームに戻る",
+    "commandPalette": "コマンドパレット",
+    "commandPaletteHint": "実行するコマンドを検索"
   },
   "site": {
     "mainNav": "メインナビゲーション",

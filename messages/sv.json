@@ -18,6 +18,7 @@
     "previousPage": "Till föregående sida",
     "nextPage": "Till nästa sida",
     "morePages": "Fler sidor",
+    "more": "Mer",
     "pages": "Sidor",
     "pageOf": "Sida {page} av {pages}",
     "breadcrumb": "Brödsmulor",
@@ -27,7 +28,9 @@
     "tryAgain": "Försök igen",
     "reference": "Referens {digest}",
     "notFoundTitle": "Sidan hittades inte",
-    "backToHomepage": "Tillbaka till startsidan"
+    "backToHomepage": "Tillbaka till startsidan",
+    "commandPalette": "Kommandopalett",
+    "commandPaletteHint": "Sök efter ett kommando att köra"
   },
   "site": {
     "mainNav": "Huvudmeny",

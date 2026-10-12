@@ -194,10 +194,10 @@ export function Callout({
 
 export function Breadcrumbs({
   items,
-  label = "Breadcrumb",
+  label,
 }: {
   items: { label: string; href?: string }[];
-  /** The landmark's own name, translated on a storefront. */
+  /** The landmark's own name; defaults to the translated "Breadcrumb". */
   label?: string;
 }) {
   return (

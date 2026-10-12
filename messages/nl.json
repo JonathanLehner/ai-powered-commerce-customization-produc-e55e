@@ -18,6 +18,7 @@
     "previousPage": "Naar de vorige pagina",
     "nextPage": "Naar de volgende pagina",
     "morePages": "Meer pagina’s",
+    "more": "Meer",
     "pages": "Pagina’s",
     "pageOf": "Pagina {page} van {pages}",
     "breadcrumb": "Kruimelpad",
@@ -27,7 +28,9 @@
     "tryAgain": "Opnieuw proberen",
     "reference": "Referentie {digest}",
     "notFoundTitle": "Pagina niet gevonden",
-    "backToHomepage": "Terug naar de homepage"
+    "backToHomepage": "Terug naar de homepage",
+    "commandPalette": "Opdrachtpalet",
+    "commandPaletteHint": "Zoek een opdracht om uit te voeren"
   },
   "site": {
     "mainNav": "Hoofdmenu",
