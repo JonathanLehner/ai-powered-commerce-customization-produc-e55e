@@ -210,6 +210,50 @@ export function shippingNotificationEmail(
   });
 }
 
+export interface SignInLinkInput {
+  url: string;
+  /** Minutes the link stays valid. */
+  minutes: number;
+}
+
+/** The magic link a shopper signs in to their account with. */
+export function signInLinkEmail(brand: EmailBrand, copy: EmailCopy, link: SignInLinkInput): BuiltEmail {
+  const { t } = copy;
+  return render(brand, copy, t("signInSubject", { store: brand.storeName }), {
+    heading: t("signInHeading", { store: brand.storeName }),
+    paragraphs: [t("signInBody", { minutes: link.minutes }), t("signInIgnore")],
+    action: { label: t("signInCta"), url: link.url },
+  });
+}
+
+export interface GiftCardEmailInput {
+  recipientName: string;
+  code: string;
+  amount: number;
+  currency: string;
+  /** Formatted already, in the reader's language; null when the card does not expire. */
+  expires: string | null;
+  note: string;
+  shopUrl: string;
+}
+
+/** A gift card someone bought or the store issued, with its code. */
+export function giftCardEmail(brand: EmailBrand, copy: EmailCopy, card: GiftCardEmailInput): BuiltEmail {
+  const { t } = copy;
+  const amount = formatMinorUnits(copy.format, card.amount, card.currency);
+  return render(brand, copy, t("giftCardSubject", { amount, store: brand.storeName }), {
+    heading: t("giftCardHeading", { amount }),
+    greetingName: card.recipientName || undefined,
+    paragraphs: [t("giftCardBody", { store: brand.storeName }), ...(card.note ? [card.note] : [])],
+    rows: [
+      { label: t("giftCardCodeLabel"), value: card.code },
+      { label: t("giftCardValueLabel"), value: amount },
+      ...(card.expires ? [{ label: t("giftCardExpiresLabel"), value: card.expires }] : []),
+    ],
+    action: { label: t("giftCardCta"), url: card.shopUrl },
+  });
+}
+
 /* -------------------------------------------------------------------- team */
 
 export interface TeamInviteInput {

@@ -26,7 +26,9 @@ import {
 } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
 import { addressRegionKind, localCountryName } from "@/lib/countries";
-import { stripeAllowedCountries, zoneFor } from "@/lib/shipping";
+import { EMAIL_DELIVERY_RATE_ID, stripeAllowedCountries, zoneFor } from "@/lib/shipping";
+import { getGiftCardByCode, holdGiftCard, releaseGiftCardHold } from "@/lib/gift-card-data";
+import { basketGiftCardCover, giftCardRefusal, looksLikeGiftCode } from "@/lib/gift-cards";
 import { formatMinorUnits } from "@/i18n/format";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { shopperLocale, shopperTranslator } from "@/i18n/storefront";
@@ -180,6 +182,15 @@ async function saveCartDiscount(cart: Cart, code: string | null) {
     COLLECTIONS.carts,
     { id: cart.id },
     { $set: { discountCode: code, updatedAt: new Date().toISOString() } },
+  );
+}
+
+/** Puts a gift card code on the basket, or takes it off again with null. */
+async function saveCartGiftCard(cart: Cart, code: string | null) {
+  await db.updateOne(
+    COLLECTIONS.carts,
+    { id: cart.id },
+    { $set: { giftCardCode: code, updatedAt: new Date().toISOString() } },
   );
 }
 
@@ -452,6 +463,46 @@ export async function removeDiscount(formData: FormData): Promise<void> {
   refreshBasket(store.slug);
 }
 
+/* ------------------------------------------------------------- gift cards */
+
+/**
+ * Puts a gift card on the basket. As with a discount code, only the code is
+ * stored: the balance is read again on every render and once more, with a
+ * guarded hold, when the order is placed.
+ */
+export async function applyGiftCard(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const store = await getStore(storeId);
+  const { t, format } = await shopperCopy(store);
+  if (!store || store.status !== "active") return { status: "error", message: t("actions.storeClosed") };
+
+  const raw = String(formData.get("code") ?? "");
+  if (!raw.trim()) return { status: "error", message: t("giftCard.enterCode"), field: "code" };
+  if (!looksLikeGiftCode(raw)) return { status: "error", message: t("giftCard.unknown"), field: "code" };
+
+  const cart = await loadCart(storeId, false);
+  if (!cart || cart.items.length === 0) return { status: "error", message: t("actions.basketEmpty") };
+
+  const card = await getGiftCardByCode(storeId, raw);
+  const refusal = giftCardRefusal(card);
+  if (refusal || !card) return { status: "error", message: t(`giftCard.${refusal ?? "unknown"}`), field: "code" };
+
+  await saveCartGiftCard(cart, card.code);
+  refreshBasket(store.slug);
+  return {
+    status: "success",
+    message: t("giftCard.applied", { last4: card.last4, balance: formatMinorUnits(format, card.balance, card.currency) }),
+  };
+}
+
+export async function removeGiftCard(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const [store, cart] = await Promise.all([getStore(storeId), loadCart(storeId, false)]);
+  if (!store || !cart) return;
+  await saveCartGiftCard(cart, null);
+  refreshBasket(store.slug);
+}
+
 /* ------------------------------------------------------------------ checkout */
 
 export async function placeOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -507,14 +558,6 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   if (!/^[A-Z]{2}$/.test(country)) {
     return { status: "error", message: t("actions.chooseCountry"), field: "country" };
   }
-  // A store with shipping zones ships only to their countries.
-  if (zones.length > 0 && !zoneFor(zones, country)) {
-    return {
-      status: "error",
-      message: t("actions.noShippingTo", { country: localCountryName(country, locale) }),
-      field: "country",
-    };
-  }
   if (addressRegionKind(country) && region.length < 2) {
     return { status: "error", message: t("actions.enterRegion"), field: "region" };
   }
@@ -546,7 +589,17 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     options,
     shippingOption,
     stripeTax,
+    digitalOnly,
   } = await basketTotals(store, cart.items, currency, discountCode, undefined, { zones, country, rateId });
+  // A store with shipping zones ships only to their countries. Gift cards on
+  // their own ship nothing, so any address will do.
+  if (!digitalOnly && zones.length > 0 && !zoneFor(zones, country)) {
+    return {
+      status: "error",
+      message: t("actions.noShippingTo", { country: localCountryName(country, locale) }),
+      field: "country",
+    };
+  }
   if (!shippingOption) {
     return { status: "error", message: t("actions.noShippingRate"), field: "shippingRate" };
   }
@@ -570,11 +623,37 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     }
   }
 
+  // The gift card's share is held on the card before payment, with a write
+  // guarded on its balance, so two baskets cannot both spend the last of it.
+  // An order that is never paid gives it back.
+  const orderId = newId("ord");
+  let giftCard: Order["giftCard"] = null;
+  let giftCoversAll = false;
+  if (cart.giftCardCode) {
+    const card = await getGiftCardByCode(storeId, cart.giftCardCode);
+    const cover =
+      card && !giftCardRefusal(card)
+        ? basketGiftCardCover(card, { total, shipping, stripeTax }, currency, mode === "stripe" ? "stripe" : "demo")
+        : null;
+    if (!card || !cover || cover.amount <= 0 || !(await holdGiftCard(storeId, card.id, orderId, cover.cardAmount))) {
+      if (claimed && discount) await releaseDiscountUse(discount.codeId);
+      await saveCartGiftCard(cart, null);
+      refreshBasket(store.slug);
+      return { status: "error", message: t("giftCard.dropped") };
+    }
+    giftCard = { cardId: card.id, last4: card.last4, amount: cover.amount, cardAmount: cover.cardAmount };
+    giftCoversAll = cover.coversAll;
+  }
+  const releaseGift = () =>
+    giftCard ? releaseGiftCardHold({ id: orderId, storeId, code: "", giftCard }) : Promise.resolve(false);
+  const due = total - (giftCard?.amount ?? 0);
+
   // The units are held before the shopper pays, with a conditional write per
   // variant, so two shoppers checking out the last one cannot both have it.
   const reservation = await reserveStock(cart.items);
   if (!reservation.ok) {
     if (claimed && discount) await releaseDiscountUse(discount.codeId);
+    await releaseGift();
     const line = cart.items.find((i) => i.variantId === reservation.variantId);
     const variant = line ? `${line.productName} (${line.variantName})` : "";
     return {
@@ -591,10 +670,10 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   // A demo store checks the test card before anything is written, so a
   // refused card leaves the form as it was.
   let simulated: Awaited<ReturnType<typeof chargeCard>> | null = null;
-  if (mode === "demo") {
+  if (mode === "demo" && !giftCoversAll) {
     simulated = await chargeCard({
       store,
-      amount: total,
+      amount: due,
       currency,
       cardNumber: String(formData.get("cardNumber") ?? ""),
       expiry: String(formData.get("expiry") ?? ""),
@@ -606,6 +685,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     if (!simulated.ok) {
       if (claimed && discount) await releaseDiscountUse(discount.codeId);
       if (held) await releaseLines(held.lines);
+      await releaseGift();
       return {
         status: "error",
         message: simulated.message,
@@ -624,7 +704,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const now = new Date().toISOString();
   const code = orderCode();
   const order: Order = {
-    id: newId("ord"),
+    id: orderId,
     storeId,
     code,
     status: "awaiting_payment",
@@ -667,12 +747,15 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       zoneId: shippingOption.zoneId,
       zoneName: shippingOption.zoneName,
       rateId: shippingOption.rateId,
-      name: shippingOption.name || t("checkout.standardShipping"),
+      name:
+        shippingOption.name ||
+        (shippingOption.rateId === EMAIL_DELIVERY_RATE_ID ? t("checkout.emailDelivery") : t("checkout.standardShipping")),
       minDays: shippingOption.minDays,
       maxDays: shippingOption.maxDays,
       amount: shippingOption.amount,
     },
     discount,
+    giftCard,
     // With Stripe Tax the amount is only known once the shopper has paid; the webhook records it.
     taxAmount,
     taxRate: taxRows.length === 1 ? taxRows[0].rate : 0,
@@ -683,7 +766,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       provider: "stripe",
       status: "requires_payment",
       paymentIntentId: null,
-      stripeAccountId: mode === "stripe" ? store.stripe.accountId : null,
+      stripeAccountId: mode === "stripe" && !giftCoversAll ? store.stripe.accountId : null,
       last4: null,
       failureMessage: null,
       paidAt: null,
@@ -707,7 +790,11 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       {
         at: now,
         status: "Order placed",
-        note: mode === "demo" ? "Demo store: payment is simulated." : "Awaiting payment on Stripe Checkout.",
+        note: giftCoversAll
+          ? `Paid with the gift card ending ${giftCard?.last4}.`
+          : mode === "demo"
+            ? "Demo store: payment is simulated."
+            : "Awaiting payment on Stripe Checkout.",
         actor: "Shopper",
       },
     ],
@@ -718,11 +805,20 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   await db.insertOne(COLLECTIONS.orders, order as unknown as Record<string, unknown>);
   const token = await signOrderToken(storeId, code);
 
+  if (giftCoversAll && giftCard) {
+    await confirmOrderPayment(order, store, {
+      paymentIntentId: null,
+      last4: null,
+      note: `${formatMoney(total, currency)} paid with the gift card ending ${giftCard.last4}.`,
+    });
+    redirect(orderStatusUrl(base, code, token, "&new=1"));
+  }
+
   if (simulated) {
     await confirmOrderPayment(order, store, {
       paymentIntentId: simulated.paymentIntentId,
       last4: simulated.last4,
-      note: `${formatMoney(total, currency)} paid on a demo store. No money moved.`,
+      note: `${formatMoney(due, currency)} paid on a demo store${giftCard ? ` and ${formatMoney(giftCard.amount, currency)} with the gift card ending ${giftCard.last4}` : ""}. No money moved.`,
     });
     redirect(orderStatusUrl(base, code, token, "&new=1"));
   }
@@ -752,10 +848,10 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     // The shopper's choice first, so Checkout opens on it. The zone's other
     // rates only go beside it under Stripe Tax, which taxes whichever is picked;
     // manual tax lines were worked out for the chosen rate's shipping.
-    shippingOptions: [
-      shippingOption,
-      ...(stripeTax ? options.filter((option) => option.rateId !== shippingOption.rateId) : []),
-    ].map(
+    shippingOptions: (digitalOnly
+      ? []
+      : [shippingOption, ...(stripeTax ? options.filter((option) => option.rateId !== shippingOption.rateId) : [])]
+    ).map(
       (option) => ({
         label: option.name || t("checkout.standardShipping"),
         amount: option.amount,
@@ -764,9 +860,18 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
         metadata: { zoneId: option.zoneId, rateId: option.rateId },
       }),
     ),
-    allowedCountries: zones.length > 0 ? stripeAllowedCountries(zones) : undefined,
+    allowedCountries: zones.length > 0 && !digitalOnly ? stripeAllowedCountries(zones) : undefined,
     automaticTax: stripeTax ? { inclusive: store.pricesIncludeTax } : null,
-    discount: discount ? { code: discount.code, amount: discount.amount } : null,
+    // Stripe Checkout takes one coupon, so a code and a gift card go on it together.
+    discount:
+      discount || giftCard
+        ? {
+            code: [discount?.code, giftCard ? t("giftCard.couponName", { last4: giftCard.last4 }) : null]
+              .filter(Boolean)
+              .join(" + "),
+            amount: (discount?.amount ?? 0) + (giftCard?.amount ?? 0),
+          }
+        : null,
     successUrl: `${origin}${orderStatusUrl(base, code, token, "&paid=1")}`,
     cancelUrl: `${origin}${base}/cart`,
   });

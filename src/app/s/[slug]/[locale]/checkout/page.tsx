@@ -3,12 +3,19 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { readCurrency } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
+import { GiftCardEntry } from "@/components/GiftCardEntry";
+import { checkoutPrefill } from "@/lib/account-rules";
+import { getShopperAccount } from "@/lib/accounts";
+import { getCustomerByEmail } from "@/lib/customer-data";
+import { getGiftCardByCode } from "@/lib/gift-card-data";
+import { giftCardRefusal } from "@/lib/gift-cards";
+import { convert } from "@/lib/pricing";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { Callout } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
 import { isCountryCode, type FulfillmentSource } from "@/lib/countries";
-import { shippingCountries, shippingOptions } from "@/lib/shipping";
+import { emailDeliveryOption, shippingCountries, shippingOptions } from "@/lib/shipping";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getSupplier } from "@/lib/data";
@@ -50,26 +57,44 @@ export default async function CheckoutPage({
   if (!basket || !cart || cart.items.length === 0) redirect(`${base}/cart`);
 
   const mode = paymentMode(store);
-  const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  // The checkout opens on the store's own country when it ships there, else on
-  // the first country it does ship to.
+  const [currency, account, giftCardRecord] = await Promise.all([
+    readCurrency(store.defaultCurrency, store.currencies),
+    getShopperAccount(),
+    cart.giftCardCode ? getGiftCardByCode(store.id, cart.giftCardCode) : Promise.resolve(null),
+  ]);
+  // A signed-in shopper starts from their default address.
+  const customer = account ? await getCustomerByEmail(store.id, account.email) : null;
+  const prefill = account ? checkoutPrefill(account.email, customer?.name ?? "", customer?.addresses) : null;
+  // The checkout opens on the shopper's own country, then the store's when it
+  // ships there, else on the first country it does ship to.
   const shippable = shippingCountries(zones);
   const home = isCountryCode(store.stripe.country) ? store.stripe.country.toUpperCase() : "US";
-  const defaultCountry = zones.length === 0 || shippable.includes(home) ? home : shippable[0];
-  const { products, lines, discount, discountRefusal, discountMinimum, options, basis, weightGrams } =
+  const preferred = prefill?.country && isCountryCode(prefill.country) ? prefill.country : home;
+  const defaultCountry =
+    zones.length === 0 || shippable.includes(preferred) ? preferred : shippable.includes(home) ? home : shippable[0];
+  const { products, lines, discount, discountRefusal, discountMinimum, options, basis, weightGrams, digitalOnly } =
     await basketTotals(store, cart.items, currency, basket.discountCode, basket, { zones, country: defaultCountry });
   const quote: CheckoutQuote = {
     currency,
     basis,
     zones:
-      zones.length > 0
+      zones.length > 0 && !digitalOnly
         ? zones.map((zone) => ({
             countries: zone.countries,
             options: shippingOptions([zone], zone.countries[0], { weightGrams, subtotal: basis.goods, currency }),
           }))
         : null,
-    standard: zones.length > 0 ? null : (options[0] ?? null),
+    standard: digitalOnly
+      ? { ...emailDeliveryOption(), name: t("checkout.emailDelivery") }
+      : zones.length > 0
+        ? null
+        : (options[0] ?? null),
   };
+  // The card on the basket, as the summary prices it for whichever rate is picked.
+  const giftCard =
+    giftCardRecord && !giftCardRefusal(giftCardRecord)
+      ? { last4: giftCardRecord.last4, balance: giftCardRecord.balance, currency: giftCardRecord.currency }
+      : null;
 
   // Which supplier stands behind each basket line, so the form can tell the
   // shopper their destination is out of region before the card is charged.
@@ -146,7 +171,11 @@ export default async function CheckoutPage({
                   ))}
                 </ul>
                 <Separator className="my-4" />
-                <SummaryTotals discount={discount ? { code: discount.code, amount: discount.amount } : null} />
+                <SummaryTotals
+                  discount={discount ? { code: discount.code, amount: discount.amount } : null}
+                  giftCard={giftCard}
+                  payment={mode === "stripe" ? "stripe" : "demo"}
+                />
                 <DiscountEntry
                   storeId={store.id}
                   code={cart.discountCode ?? null}
@@ -156,11 +185,26 @@ export default async function CheckoutPage({
                       : null
                   }
                 />
+                <GiftCardEntry
+                  storeId={store.id}
+                  card={giftCardRecord ? { last4: giftCardRecord.last4, balance: money(convert(giftCardRecord.balance, giftCardRecord.currency, currency), currency) } : null}
+                  note={cart.giftCardCode && !giftCard ? t("giftCard.notUsable") : null}
+                />
               </CardContent>
             </section>
           </Card>
 
+          {!account ? (
+            <p className="text-sm text-muted-foreground">
+              {t("account.checkoutPrompt")}{" "}
+              <Link href={`${base}/account/login`} className="font-medium text-primary hover:underline">
+                {t("account.signIn")}
+              </Link>
+            </p>
+          ) : null}
           <CheckoutForm
+            prefill={prefill}
+            digitalOnly={digitalOnly}
             mode={mode}
             storeId={store.id}
             currencies={store.currencies}

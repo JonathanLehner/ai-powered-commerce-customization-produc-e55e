@@ -60,6 +60,13 @@ export const COLLECTIONS = {
   inventoryLevels: "inventory_levels",
   inventoryAdjustments: "inventory_adjustments",
   shippingZones: "shipping_zones",
+  content: "content_entries",
+  giftCards: "gift_cards",
+  reviews: "product_reviews",
+  shopperAccounts: "shopper_accounts",
+  shopperAccountLinks: "shopper_account_links",
+  shopperSessions: "shopper_sessions",
+  shopperVerificationTokens: "shopper_verification_tokens",
 } as const;
 
 /* ------------------------------------------------------------------ paging */

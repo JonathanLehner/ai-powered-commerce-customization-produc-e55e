@@ -6,6 +6,7 @@ import { db } from "./mongo";
 import { POLICY_KEYS, storePolicyText, type PolicyKey } from "./policies";
 import type {
   Cart,
+  ContentEntry,
   CatalogProduct,
   DiscountCode,
   ProductCollection,
@@ -46,6 +47,13 @@ export interface StorefrontData {
   collections: ProductCollection[];
   basket: Basket | null;
   shippingZones: ShippingZone[];
+  /** What the header and footer menus link to: published pages and posts, and the products named in a menu. */
+  menuLinks: MenuLinkRecords;
+}
+
+export interface MenuLinkRecords {
+  entries: Pick<ContentEntry, "id" | "kind" | "handle">[];
+  products: Pick<StoreProduct, "id" | "slug" | "status" | "visibility" | "giftCard" | "mockups" | "artworks">[];
 }
 
 export interface StorefrontProduct {
@@ -63,6 +71,8 @@ type StoreRow = Store & {
   storefront: Storefront[];
   collections: ProductCollection[];
   shippingZones: ShippingZone[];
+  menuEntries: MenuLinkRecords["entries"];
+  menuProducts: MenuLinkRecords["products"];
   cart?: BasketRow[];
 };
 
@@ -88,6 +98,41 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
         foreignField: "storeId",
         pipeline: [{ $sort: { position: 1, createdAt: 1 } }, WITHOUT_ID],
         as: "collections",
+      },
+    },
+    {
+      $lookup: {
+        from: COLLECTIONS.content,
+        localField: "id",
+        foreignField: "storeId",
+        pipeline: [{ $match: { status: "published" } }, { $project: { _id: 0, id: 1, kind: 1, handle: 1 } }],
+        as: "menuEntries",
+      },
+    },
+    {
+      $lookup: {
+        from: COLLECTIONS.storeProducts,
+        let: {
+          ids: {
+            $concatArrays: [{ $ifNull: ["$menus.header.targetId", []] }, { $ifNull: ["$menus.footer.targetId", []] }],
+          },
+        },
+        pipeline: [
+          { $match: { $expr: { $in: ["$id", "$$ids"] } } },
+          {
+            $project: {
+              _id: 0,
+              id: 1,
+              slug: 1,
+              status: 1,
+              visibility: 1,
+              giftCard: 1,
+              "mockups.approved": 1,
+              "artworks.id": 1,
+            },
+          },
+        ],
+        as: "menuProducts",
       },
     },
     {
@@ -148,7 +193,7 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
 }
 
 function toStorefrontData(row: StoreRow): StorefrontData {
-  const { storefront, collections, shippingZones, cart, ...store } = row;
+  const { storefront, collections, shippingZones, cart, menuEntries, menuProducts, ...store } = row;
   const found = cart?.[0];
   let basket: Basket | null = null;
   if (found) {
@@ -161,7 +206,14 @@ function toStorefrontData(row: StoreRow): StorefrontData {
       rates: new Map(taxBrackets.map((b) => [b.id, b.rate])),
     };
   }
-  return { store: store as Store, storefront: storefront[0] ?? null, collections, basket, shippingZones };
+  return {
+    store: store as Store,
+    storefront: storefront[0] ?? null,
+    collections,
+    basket,
+    shippingZones,
+    menuLinks: { entries: menuEntries ?? [], products: menuProducts ?? [] },
+  };
 }
 
 async function loadBySlug(slug: string, session: string | null): Promise<StorefrontData | null> {

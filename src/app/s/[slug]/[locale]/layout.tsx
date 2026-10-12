@@ -10,6 +10,10 @@ import { LanguageSelect } from "@/components/LanguageSelect";
 import { PlainDocument } from "@/components/SiteChrome";
 import { StoreMark } from "@/components/StoreMark";
 import { StorefrontMenu } from "@/components/StorefrontMenu";
+import { StoreSearch } from "@/components/StoreSearch";
+import { UserRoundIcon } from "lucide-react";
+import { BLOG_PATH, resolveMenu, storeMenus } from "@/lib/content";
+import { menuLookups } from "@/lib/storefront-menus";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { basketTotals } from "@/lib/basket";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
@@ -87,7 +91,7 @@ export default async function StorefrontLayout({
     );
   }
 
-  const { store, storefront, collections, basket } = data;
+  const { store, storefront, collections, basket, menuLinks } = data;
   const theme = THEMES[store.theme];
   const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { locales, defaultLocale } = storeLanguages(store);
@@ -130,11 +134,31 @@ export default async function StorefrontLayout({
     plainVariantId: item.text || item.artworkUrl ? null : item.variantId,
   }));
 
+  // The header menu the store built, or the built-in links when it has none:
+  // Shop, the collections chosen in the storefront editor and Order status.
+  const menus = storeMenus(store);
+  const lookups = menuLookups(data);
+  const customHeader = resolveMenu(menus.header, base, lookups, locale, defaultLocale);
+  const footerLinks = resolveMenu(menus.footer, base, lookups, locale, defaultLocale);
+  const hasBlog = menuLinks.entries.some((entry) => entry.kind === "post");
+  const headerLinks =
+    customHeader.length > 0
+      ? customHeader
+      : [
+          { id: "shop", href: `${base}/products`, label: site.navShop || t("chrome.shop"), external: false },
+          ...navCollections.map((c) => ({
+            id: c.id,
+            href: `${base}/collections/${c.handle}`,
+            label: c.name,
+            external: false,
+          })),
+          { id: "orders", href: `${base}/orders`, label: site.navOrders || t("chrome.orderStatus"), external: false },
+        ];
   // On small screens the header is one row and the links move into the menu.
-  const menuLinks = [
-    { href: `${base}/products`, label: site.navShop || t("chrome.shop") },
-    ...navCollections.map((c) => ({ href: `${base}/collections/${c.handle}`, label: c.name })),
-    { href: `${base}/orders`, label: site.navOrders || t("chrome.orderStatus") },
+  const mobileLinks = [
+    ...headerLinks.map(({ href, label }) => ({ href, label })),
+    { href: `${base}/search`, label: t("search.title") },
+    { href: `${base}/account`, label: t("account.title") },
   ];
 
   // The currency picker, in the desktop header and in the small-screen menu.
@@ -203,30 +227,29 @@ export default async function StorefrontLayout({
                   aria-label={t("chrome.shop")}
                   className="no-scrollbar -mx-1 hidden max-w-full min-w-0 items-center gap-1 overflow-x-auto px-1 md:flex"
                 >
-                  <Link
-                    href={`${base}/products`}
-                    className={buttonVariants({ variant: "ghost", size: "lg" })}
-                  >
-                    {site.navShop || t("chrome.shop")}
-                  </Link>
-                  {navCollections.map((collection) => (
-                    <Link
-                      key={collection.id}
-                      href={`${base}/collections/${collection.handle}`}
-                      className={buttonVariants({ variant: "ghost", size: "lg" })}
-                    >
-                      {collection.name}
-                    </Link>
-                  ))}
-                  <Link
-                    href={`${base}/orders`}
-                    className={buttonVariants({ variant: "ghost", size: "lg" })}
-                  >
-                    {site.navOrders || t("chrome.orderStatus")}
-                  </Link>
+                  {headerLinks.map((link) =>
+                    link.external ? (
+                      <a key={link.id} href={link.href} className={buttonVariants({ variant: "ghost", size: "lg" })}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link key={link.id} href={link.href} className={buttonVariants({ variant: "ghost", size: "lg" })}>
+                        {link.label}
+                      </Link>
+                    ),
+                  )}
                 </nav>
 
                 <div className="ml-auto flex shrink-0 items-center gap-2">
+                  <StoreSearch storeId={store.id} base={base} className="hidden w-44 lg:block xl:w-56" />
+                  <Link
+                    href={`${base}/account`}
+                    aria-label={t("account.title")}
+                    title={t("account.title")}
+                    className={`${buttonVariants({ variant: "ghost", size: "icon-lg" })} hidden md:inline-flex`}
+                  >
+                    <UserRoundIcon aria-hidden />
+                  </Link>
                   {locales.length > 1 ? (
                     <div className="hidden md:block">
                       <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
@@ -234,7 +257,7 @@ export default async function StorefrontLayout({
                   ) : null}
                   {currencyForm("store-currency", "hidden md:flex", true)}
                   <div className="md:hidden">
-                    <StorefrontMenu links={menuLinks}>
+                    <StorefrontMenu links={mobileLinks}>
                       {locales.length > 1 ? (
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm text-muted-foreground">{t("chrome.languageLabel")}</span>
@@ -265,7 +288,7 @@ export default async function StorefrontLayout({
             </main>
 
             <footer className="mt-16 border-t border-border bg-muted/60">
-              <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6">
+              <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
                 <div>
                   <p className="font-heading text-sm font-semibold text-foreground">{store.name}</p>
                   {site.footerNote ? (
@@ -290,8 +313,40 @@ export default async function StorefrontLayout({
                         {t("chrome.orderStatus")}
                       </Link>
                     </li>
+                    <li>
+                      <Link href={`${base}/account`} className="hover:text-foreground hover:underline">
+                        {t("account.title")}
+                      </Link>
+                    </li>
+                    {hasBlog ? (
+                      <li>
+                        <Link href={`${base}${BLOG_PATH}`} className="hover:text-foreground hover:underline">
+                          {t("blog.title")}
+                        </Link>
+                      </li>
+                    ) : null}
                   </ul>
                 </div>
+                {footerLinks.length > 0 ? (
+                  <div>
+                    <p className={SECTION_TITLE}>{t("chrome.information")}</p>
+                    <ul className="mt-3 space-y-2 text-sm text-inksoft">
+                      {footerLinks.map((link) => (
+                        <li key={link.id}>
+                          {link.external ? (
+                            <a href={link.href} className="hover:text-foreground hover:underline">
+                              {link.label}
+                            </a>
+                          ) : (
+                            <Link href={link.href} className="hover:text-foreground hover:underline">
+                              {link.label}
+                            </Link>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 {support.email || support.phone ? (
                   <div>
                     <p className={SECTION_TITLE}>{t("chrome.help")}</p>

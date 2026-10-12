@@ -3,7 +3,18 @@ import { storeUrl } from "../seo";
 import { storeSku } from "../sku";
 import { isQuoteOnly } from "../sourcing";
 import { storeSupport } from "../support";
-import type { CatalogProduct, Order, ProductCollection, ShippingZone, Store, StoreProduct } from "../types";
+import { contentPath } from "../content";
+import type {
+  CatalogProduct,
+  ContentEntry,
+  GiftCard,
+  Order,
+  ProductCollection,
+  ProductReview,
+  ShippingZone,
+  Store,
+  StoreProduct,
+} from "../types";
 
 /**
  * Records as the API returns them. The keys that make a resubmitted form land
@@ -93,4 +104,21 @@ export function presentShippingZone(zone: ShippingZone) {
       return plain;
     }),
   };
+}
+
+export function presentContentEntry(entry: ContentEntry) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { submissionKey: _submissionKey, ...rest } = entry;
+  return { ...rest, path: contentPath(entry.kind, entry.handle), translations: entry.translations ?? {} };
+}
+
+/** A gift card without its code: only the last four characters ever go out after it is issued. */
+export function presentGiftCard(card: GiftCard) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { code: _code, submissionKey: _submissionKey, orderItemKey: _orderItemKey, holds, ...rest } = card;
+  return { ...rest, held: holds.reduce((sum, hold) => sum + hold.amount, 0) };
+}
+
+export function presentReview(review: ProductReview) {
+  return review;
 }

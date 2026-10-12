@@ -201,7 +201,17 @@ export async function anonymiseCustomer(store: StoreRef, customer: Customer): Pr
   await db.updateOne(
     COLLECTIONS.customers,
     { storeId: store.id, id: customer.id },
-    { $set: { email: anonymous, name: "", anonymisedAt: at, updatedAt: new Date().toISOString() } },
+    {
+      $set: {
+        email: anonymous,
+        name: "",
+        addresses: [],
+        account: null,
+        marketing: null,
+        anonymisedAt: at,
+        updatedAt: new Date().toISOString(),
+      },
+    },
   );
   await syncCustomers(store, [anonymous]);
   return { orders: orderIds.length };
