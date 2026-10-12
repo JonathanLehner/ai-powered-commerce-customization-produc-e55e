@@ -3,6 +3,7 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { formatMinorUnits } from "@/i18n/format";
+import { basketGiftCardCover } from "@/lib/gift-cards";
 import { pickOption, quoteTotals, zoneFor, type Quote, type QuoteBasis, type ShippingOption } from "@/lib/shipping";
 import { cn } from "@/lib/utils";
 
@@ -90,11 +91,23 @@ export function useDeliveryEstimate() {
 }
 
 /** Shipping, discount, tax and total rows of the order summary. */
-export function SummaryTotals({ discount }: { discount: { code: string; amount: number } | null }) {
+export function SummaryTotals({
+  discount,
+  giftCard = null,
+  payment = "stripe",
+}: {
+  discount: { code: string; amount: number } | null;
+  /** The card on the basket and what it holds, in its own currency. */
+  giftCard?: { last4: string; balance: number; currency: string } | null;
+  payment?: "stripe" | "demo";
+}) {
   const t = useTranslations("storefront");
   const format = useFormatter();
   const { quote, option, currency, stripeTax, inclusive } = useCheckoutDelivery();
   const money = (minor: number) => formatMinorUnits(format, minor, currency);
+  const cover = giftCard
+    ? basketGiftCardCover(giftCard, { total: quote.total, shipping: quote.shipping, stripeTax }, currency, payment)
+    : null;
   return (
     <dl className="space-y-2 text-sm">
       <div className="flex justify-between gap-3">
@@ -130,6 +143,18 @@ export function SummaryTotals({ discount }: { discount: { code: string; amount: 
         <dt className="font-semibold text-foreground">{t("checkout.total")}</dt>
         <dd className="text-base font-semibold tabular-nums text-foreground">{money(quote.total)}</dd>
       </div>
+      {giftCard && cover && cover.amount > 0 ? (
+        <>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">{t("giftCard.row", { last4: giftCard.last4 })}</dt>
+            <dd className="tabular-nums text-emerald-700">− {money(cover.amount)}</dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="font-semibold text-foreground">{t("giftCard.toPay")}</dt>
+            <dd className="text-base font-semibold tabular-nums text-foreground">{money(quote.total - cover.amount)}</dd>
+          </div>
+        </>
+      ) : null}
     </dl>
   );
 }

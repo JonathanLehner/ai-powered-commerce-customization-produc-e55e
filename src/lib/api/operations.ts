@@ -65,11 +65,21 @@ import { ApiError } from "./auth";
 import {
   presentCatalogProduct,
   presentCollection,
+  presentContentEntry,
+  presentGiftCard,
   presentOrder,
   presentProduct,
+  presentReview,
   presentShippingZone,
   presentStore,
 } from "./present";
+import { CONTENT_FIELDS, CONTENT_KINDS, MENU_LINK_KINDS, MENU_NAMES, storeMenus } from "../content";
+import { listContentEntries } from "../content-data";
+import { createEntry, deleteEntry, findEntry, saveEntry, saveEntryTranslation, saveMenu } from "../operations/content";
+import { findGiftCard, findGiftCardProduct, issueGiftCard, saveGiftCardProduct, updateGiftCard } from "../operations/gift-cards";
+import { deleteReview, findReview, moderateReview } from "../operations/reviews";
+import { REVIEW_STATUSES } from "../reviews";
+import type { ContentEntry, GiftCard, ProductReview } from "../types";
 
 /**
  * Every operation of the Admin API, described once.
@@ -96,6 +106,10 @@ export const API_TAGS = [
   "Orders",
   "Customers",
   "Discounts",
+  "Gift cards",
+  "Reviews",
+  "Content",
+  "Navigation",
   "Storefront",
   "Translations",
 ] as const;
@@ -1238,7 +1252,7 @@ const customers = [
     scope: "customers:read",
     tag: "Customers",
     summary: "Get a customer",
-    description: "One customer with their figures and the store team's notes.",
+    description: "One customer with their figures, linked shopper account, saved addresses, marketing email consent and the store team's notes.",
     input: z.object({ customerId: id("customer") }),
     run: async (ctx, input) => customer(ctx, input.customerId),
   }),
@@ -1612,6 +1626,353 @@ const translations = [
   }),
 ];
 
+/* ------------------------------------------------------------- content */
+
+async function entry(ctx: OperationContext, entryId: string): Promise<ContentEntry> {
+  return (await findEntry(ctx.store.id, entryId)) ?? notFound("Page or post");
+}
+
+const entryFields = {
+  title: z.string().optional().describe("Up to 120 characters."),
+  handle: z.string().optional().describe("The address segment: lowercase letters, digits and hyphens."),
+  body: z.string().optional().describe("HTML. Headings, paragraphs, lists, links, quotes and images are kept; anything else is removed."),
+  excerpt: z.string().optional().describe("A short summary for the blog list and previews, up to 400 characters."),
+  seoTitle: z.string().optional().describe("The title search engines show, up to 120 characters. Empty uses the title."),
+  seoDescription: z.string().optional().describe("The meta description, up to 320 characters. Empty uses the summary."),
+  coverImageUrl: assetUrl.nullable().optional().describe("An uploaded image, or null to remove it."),
+  published: z.boolean().optional().describe("Visible on the storefront."),
+};
+
+type EntryFields = { [K in keyof typeof entryFields]?: z.output<(typeof entryFields)[K]> };
+
+function mergeEntry(current: ContentEntry, input: EntryFields) {
+  return {
+    title: input.title ?? current.title,
+    handle: input.handle ?? current.handle,
+    body: input.body ?? current.body,
+    excerpt: input.excerpt ?? current.excerpt,
+    seoTitle: input.seoTitle ?? current.seoTitle,
+    seoDescription: input.seoDescription ?? current.seoDescription,
+    coverImageUrl: input.coverImageUrl === undefined ? current.coverImageUrl : input.coverImageUrl,
+    status: input.published === undefined ? current.status : input.published ? ("published" as const) : ("draft" as const),
+  };
+}
+
+const content = [
+  define({
+    id: "listContent",
+    method: "GET",
+    path: "/content",
+    scope: "content:read",
+    tag: "Content",
+    summary: "List pages and blog posts",
+    description: "The store's pages (About, FAQ, Contact) and blog posts, most recently edited first. Filter by kind.",
+    input: z.object({ kind: z.enum(CONTENT_KINDS).optional().describe("page or post.") }),
+    run: async (ctx, input) => ({ data: (await listContentEntries(ctx.store.id, input.kind)).map(presentContentEntry) }),
+  }),
+  define({
+    id: "getContent",
+    method: "GET",
+    path: "/content/{entryId}",
+    scope: "content:read",
+    tag: "Content",
+    summary: "Get a page or blog post",
+    description: "One page or post with its HTML body, search listing, cover image and translations.",
+    input: z.object({ entryId: id("page or post") }),
+    run: async (ctx, input) => presentContentEntry(await entry(ctx, input.entryId)),
+  }),
+  define({
+    id: "createContent",
+    method: "POST",
+    path: "/content",
+    scope: "content:write",
+    tag: "Content",
+    summary: "Create a page or blog post",
+    description: "Creates a page or post with an address made from its title. It stays hidden until published is true.",
+    status: 201,
+    input: z.object({
+      kind: z.enum(CONTENT_KINDS).describe("page or post."),
+      ...entryFields,
+      title: z.string().describe("Up to 120 characters."),
+      idempotencyKey,
+    }),
+    run: async (ctx, { kind, idempotencyKey: key, ...fields }) => {
+      const { entry: created } = await createEntry(ctx, { kind, title: fields.title, submissionKey: key ?? null });
+      const rest = { ...fields, title: undefined };
+      const changed = Object.values(rest).some((value) => value !== undefined);
+      return presentContentEntry(changed ? await saveEntry(ctx, created, mergeEntry(created, fields)) : created);
+    },
+  }),
+  define({
+    id: "updateContent",
+    method: "PATCH",
+    path: "/content/{entryId}",
+    scope: "content:write",
+    tag: "Content",
+    summary: "Update a page or blog post",
+    description: "Changes a page's or post's fields, or publishes and hides it. Fields left out keep their value.",
+    input: z.object({ entryId: id("page or post"), ...entryFields }),
+    run: async (ctx, { entryId, ...fields }) => {
+      const current = await entry(ctx, entryId);
+      return presentContentEntry(await saveEntry(ctx, current, mergeEntry(current, fields)));
+    },
+  }),
+  define({
+    id: "deleteContent",
+    method: "DELETE",
+    path: "/content/{entryId}",
+    scope: "content:write",
+    tag: "Content",
+    summary: "Delete a page or blog post",
+    description: "Deletes the page or post and removes menu links to it.",
+    destructive: true,
+    input: z.object({ entryId: id("page or post") }),
+    run: async (ctx, input) => {
+      await deleteEntry(ctx, await entry(ctx, input.entryId));
+      return { deleted: true, id: input.entryId };
+    },
+  }),
+  define({
+    id: "updateContentTranslation",
+    method: "PUT",
+    path: "/content/{entryId}/translations/{language}",
+    scope: "content:write",
+    tag: "Content",
+    summary: "Translate a page or blog post",
+    description: `Saves a page's or post's fields in one of the store's other languages. Keys are ${CONTENT_FIELDS.join(", ")}; body is HTML. An empty value removes that translation.`,
+    input: z.object({
+      entryId: id("page or post"),
+      language: locale,
+      values: z.record(z.string(), z.string()).describe('Such as { "title": "Über uns" }.'),
+    }),
+    run: async (ctx, input) => ({
+      translations: await saveEntryTranslation(ctx, await entry(ctx, input.entryId), input.language, input.values),
+    }),
+  }),
+];
+
+/* ---------------------------------------------------------- navigation */
+
+const menuItem = z.object({
+  id: z.string().optional().describe("Keep the id of an existing link so its translations stay with it."),
+  label: z.string().describe("Up to 40 characters."),
+  kind: z.enum(MENU_LINK_KINDS).describe("home, products (all products), collection, product, page, blog, post or url."),
+  targetId: z.string().nullable().optional().describe("The collection, product, page or post id, for those kinds."),
+  url: z.string().nullable().optional().describe("A full https:// address, mailto: or tel:, for url."),
+  translations: z
+    .record(z.string(), z.object({ label: z.object({ value: z.string() }) }))
+    .optional()
+    .describe('The label per language, such as { "de": { "label": { "value": "Über uns" } } }.'),
+});
+
+const navigation = [
+  define({
+    id: "getMenus",
+    method: "GET",
+    path: "/menus",
+    scope: "content:read",
+    tag: "Navigation",
+    summary: "Get the header and footer menus",
+    description: "The links in the storefront's header and footer, in order. An empty header shows the built-in links.",
+    input: z.object({}),
+    run: async (ctx) => storeMenus(ctx.store),
+  }),
+  define({
+    id: "updateMenu",
+    method: "PUT",
+    path: "/menus/{menu}",
+    scope: "content:write",
+    tag: "Navigation",
+    summary: "Replace a menu",
+    description: "Replaces the header or footer menu with the links given, in that order. Up to 20 links.",
+    input: z.object({
+      menu: z.enum(MENU_NAMES).describe("header or footer."),
+      items: z.array(menuItem).max(20),
+    }),
+    run: async (ctx, input) => saveMenu(ctx, input.menu, input.items),
+  }),
+];
+
+/* ---------------------------------------------------------- gift cards */
+
+async function giftCard(ctx: OperationContext, giftCardId: string): Promise<GiftCard> {
+  return (await findGiftCard(ctx.store.id, giftCardId)) ?? notFound("Gift card");
+}
+
+const giftCards = [
+  define({
+    id: "listGiftCards",
+    method: "GET",
+    path: "/gift-cards",
+    scope: "gift_cards:read",
+    tag: "Gift cards",
+    summary: "List gift cards",
+    description: "The store's gift cards, newest first, with their balance, history and the last four characters of the code.",
+    input: z.object({ ...paging }),
+    run: async (ctx, input) =>
+      page(
+        await pageRecords<GiftCard>(COLLECTIONS.giftCards, { storeId: ctx.store.id }, "createdAt", input.limit, decodeCursor(input.cursor)),
+        presentGiftCard,
+      ),
+  }),
+  define({
+    id: "getGiftCard",
+    method: "GET",
+    path: "/gift-cards/{giftCardId}",
+    scope: "gift_cards:read",
+    tag: "Gift cards",
+    summary: "Get a gift card",
+    description: "One gift card with its balance, the amount held by checkouts in progress and its history.",
+    input: z.object({ giftCardId: id("gift card") }),
+    run: async (ctx, input) => presentGiftCard(await giftCard(ctx, input.giftCardId)),
+  }),
+  define({
+    id: "issueGiftCard",
+    method: "POST",
+    path: "/gift-cards",
+    scope: "gift_cards:write",
+    tag: "Gift cards",
+    summary: "Issue a gift card",
+    description: "Issues a gift card by hand and, with send, emails the code to the recipient. The full code is in this answer only.",
+    status: 201,
+    input: z.object({
+      amount: money("The value"),
+      currency: z.string().describe("One of the store's currencies, such as EUR."),
+      recipientEmail: z.string().default(""),
+      recipientName: z.string().default(""),
+      note: z.string().default("").describe("A message in the email, up to 500 characters."),
+      expiresOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null).describe("Last day it can be used, YYYY-MM-DD."),
+      send: z.boolean().default(false).describe("Email the code to recipientEmail."),
+      idempotencyKey,
+    }),
+    run: async (ctx, { idempotencyKey: key, ...input }) => {
+      const card = await issueGiftCard(ctx, { ...input, submissionKey: key ?? null });
+      return { ...presentGiftCard(card), code: card.code };
+    },
+  }),
+  define({
+    id: "updateGiftCard",
+    method: "PATCH",
+    path: "/gift-cards/{giftCardId}",
+    scope: "gift_cards:write",
+    tag: "Gift cards",
+    summary: "Update a gift card",
+    description: "Disables or re-enables a gift card, or changes its note or expiry. A disabled card cannot be used at checkout.",
+    input: z.object({
+      giftCardId: id("gift card"),
+      status: z.enum(["active", "disabled"]).optional(),
+      note: z.string().optional(),
+      expiresOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+    }),
+    run: async (ctx, { giftCardId, ...input }) => presentGiftCard(await updateGiftCard(ctx, await giftCard(ctx, giftCardId), input)),
+  }),
+  define({
+    id: "getGiftCardProduct",
+    method: "GET",
+    path: "/gift-cards/product",
+    scope: "gift_cards:read",
+    tag: "Gift cards",
+    summary: "Get the gift card product",
+    description: "The product shoppers buy gift cards with, one variant per amount, or null when the store has none.",
+    input: z.object({}),
+    run: async (ctx) => {
+      const product = await findGiftCardProduct(ctx.store.id);
+      return { product: product ? presentProduct(product, ctx.store) : null };
+    },
+  }),
+  define({
+    id: "updateGiftCardProduct",
+    method: "PUT",
+    path: "/gift-cards/product",
+    scope: "gift_cards:write",
+    tag: "Gift cards",
+    summary: "Sell gift cards",
+    description: "Creates or updates the gift card product: its name, description, amounts in the store's default currency, and whether it is on sale.",
+    input: z.object({
+      name: z.string().describe("2 to 120 characters."),
+      description: z.string().default(""),
+      denominations: z.array(money("An amount")).min(1).max(8),
+      published: z.boolean().describe("On sale on the storefront."),
+    }),
+    run: async (ctx, input) => ({ product: presentProduct(await saveGiftCardProduct(ctx, input), ctx.store) }),
+  }),
+];
+
+/* ------------------------------------------------------------- reviews */
+
+async function review(ctx: OperationContext, reviewId: string): Promise<ProductReview> {
+  return (await findReview(ctx.store.id, reviewId)) ?? notFound("Review");
+}
+
+const reviews = [
+  define({
+    id: "listReviews",
+    method: "GET",
+    path: "/reviews",
+    scope: "reviews:read",
+    tag: "Reviews",
+    summary: "List product reviews",
+    description: "Reviews from verified buyers, newest first. Filter by status or product.",
+    input: z.object({
+      status: z.enum(REVIEW_STATUSES).optional().describe("pending, approved or rejected."),
+      productId: z.string().optional(),
+      ...paging,
+    }),
+    run: async (ctx, input) =>
+      page(
+        await pageRecords<ProductReview>(
+          COLLECTIONS.reviews,
+          {
+            storeId: ctx.store.id,
+            ...(input.status ? { status: input.status } : {}),
+            ...(input.productId ? { productId: input.productId } : {}),
+          },
+          "createdAt",
+          input.limit,
+          decodeCursor(input.cursor),
+        ),
+        presentReview,
+      ),
+  }),
+  define({
+    id: "getReview",
+    method: "GET",
+    path: "/reviews/{reviewId}",
+    scope: "reviews:read",
+    tag: "Reviews",
+    summary: "Get a review",
+    description: "One review with its rating, text, order and status.",
+    input: z.object({ reviewId: id("review") }),
+    run: async (ctx, input) => presentReview(await review(ctx, input.reviewId)),
+  }),
+  define({
+    id: "moderateReview",
+    method: "PATCH",
+    path: "/reviews/{reviewId}",
+    scope: "reviews:write",
+    tag: "Reviews",
+    summary: "Approve or reject a review",
+    description: "Approved reviews show on the product page and count towards its rating.",
+    input: z.object({ reviewId: id("review"), status: z.enum(REVIEW_STATUSES) }),
+    run: async (ctx, input) => presentReview(await moderateReview(ctx, await review(ctx, input.reviewId), input.status)),
+  }),
+  define({
+    id: "deleteReview",
+    method: "DELETE",
+    path: "/reviews/{reviewId}",
+    scope: "reviews:write",
+    tag: "Reviews",
+    summary: "Delete a review",
+    description: "Deletes the review for good.",
+    destructive: true,
+    input: z.object({ reviewId: id("review") }),
+    run: async (ctx, input) => {
+      await deleteReview(ctx, await review(ctx, input.reviewId));
+      return { deleted: true, id: input.reviewId };
+    },
+  }),
+];
+
 export const API_OPERATIONS: ApiOperation[] = [
   ...store,
   ...products,
@@ -1623,6 +1984,10 @@ export const API_OPERATIONS: ApiOperation[] = [
   ...orders,
   ...customers,
   ...discounts,
+  ...giftCards,
+  ...reviews,
+  ...content,
+  ...navigation,
   ...storefront,
   ...translations,
 ];

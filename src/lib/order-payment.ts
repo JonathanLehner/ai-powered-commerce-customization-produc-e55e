@@ -5,7 +5,8 @@ import { COLLECTIONS, recordAudit, releaseDiscountUse, updateOrder } from "./dat
 import { brandFor, orderConfirmationEmail } from "./email-templates";
 import { sendEmail, siteOrigin } from "./email";
 import { localCountryName } from "./countries";
-import { routeOrder } from "./fulfillment";
+import { routeOrder, type RoutingDecision } from "./fulfillment";
+import { commitGiftCardHold, giftCardLineIds, issueOrderGiftCards, releaseGiftCardHold } from "./gift-card-data";
 import { commitOrderStock, releaseOrderStock } from "./inventory";
 import { db } from "./mongo";
 import { orderInvoiceUrl, orderStatusUrl, signOrderToken } from "./order-access";
@@ -81,7 +82,21 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
   };
 
   // Route the paid order to production and record the result on the order.
-  const decision = await routeOrder(paid, store);
+  // Gift cards are not made by anyone: they go out by email once this lands,
+  // and an order of nothing else is done when they have.
+  const giftLines = await giftCardLineIds(order);
+  const physical = paid.items.filter((item) => !giftLines.has(item.id));
+  const decision: RoutingDecision =
+    physical.length > 0
+      ? await routeOrder({ ...paid, items: physical }, store)
+      : {
+          routing: "submitted",
+          supplierId: null,
+          supplierName: null,
+          supplierOrderRef: null,
+          message: "Gift cards are sent by email.",
+          exception: null,
+        };
   paid.fulfillment = {
     ...paid.fulfillment,
     supplierId: decision.supplierId,
@@ -94,11 +109,16 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
   };
   paid.events.push({
     at: now,
-    status: decision.routing === "submitted" ? "Sent to supplier" : "Manual handling required",
+    status:
+      physical.length === 0
+        ? "Gift cards sent"
+        : decision.routing === "submitted"
+          ? "Sent to supplier"
+          : "Manual handling required",
     note: decision.message,
     actor: "Parcelith routing",
   });
-  if (decision.routing === "submitted") paid.status = "in_production";
+  if (decision.routing === "submitted") paid.status = physical.length === 0 ? "delivered" : "in_production";
   if (decision.exception) paid.status = "exception";
 
   const written = await updateOrder(
@@ -108,6 +128,8 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
   );
   if (!written) return false;
   await commitOrderStock(order, store);
+  await commitGiftCardHold(order);
+  if (giftLines.size > 0) await issueOrderGiftCards(order, store);
 
   const { code, storeId, currency, total, discount } = order;
   if (order.cartId) {
@@ -225,6 +247,7 @@ export async function abandonOrderPayment(
   if (!written) return false;
   if (order.discount) await releaseDiscountUse(order.discount.codeId);
   await releaseOrderStock(order);
+  await releaseGiftCardHold(order);
   recordAudit({
     category: "order_routing",
     action: reason === "failed" ? "order.payment_failed" : "order.checkout_expired",

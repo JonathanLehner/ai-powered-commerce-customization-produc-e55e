@@ -17,6 +17,7 @@ import {
 } from "@/lib/countries";
 import { policyPath } from "@/lib/policies";
 import { DemoCardFields } from "@/components/DemoCardFields";
+import type { CheckoutPrefill } from "@/lib/account-rules";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -34,6 +35,8 @@ const REGION_LABELS = {
 } as const;
 
 export function CheckoutForm({
+  prefill = null,
+  digitalOnly = false,
   mode,
   storeId,
   currencies,
@@ -41,6 +44,10 @@ export function CheckoutForm({
   fulfillmentSources,
   base,
 }: {
+  /** A signed-in shopper's email and default address. */
+  prefill?: CheckoutPrefill | null;
+  /** Gift cards only: nothing ships, the address is for billing. */
+  digitalOnly?: boolean;
   /** A live store sends the shopper on to Stripe Checkout; a demo store simulates payment here. */
   mode: "stripe" | "demo";
   storeId: string;
@@ -82,7 +89,9 @@ export function CheckoutForm({
     >
       {(state) => (
         <>
-          <h2 className="font-heading text-base font-semibold text-foreground">{t("deliveryDetails")}</h2>
+          <h2 className="font-heading text-base font-semibold text-foreground">
+            {digitalOnly ? t("billingDetails") : t("deliveryDetails")}
+          </h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="name">
@@ -91,6 +100,7 @@ export function CheckoutForm({
               <Input
                 id="name"
                 name="name"
+                defaultValue={prefill?.name || undefined}
                 autoComplete="name"
                 required
                 aria-invalid={state.field === "name" ? true : undefined}
@@ -104,6 +114,7 @@ export function CheckoutForm({
               <Input
                 id="email"
                 name="email"
+                defaultValue={prefill?.email || undefined}
                 type="email"
                 autoComplete="email"
                 required
@@ -118,6 +129,7 @@ export function CheckoutForm({
               <Input
                 id="line1"
                 name="line1"
+                defaultValue={prefill?.line1 || undefined}
                 autoComplete="address-line1"
                 required
                 aria-invalid={state.field === "line1" ? true : undefined}
@@ -131,6 +143,7 @@ export function CheckoutForm({
               <Input
                 id="line2"
                 name="line2"
+                defaultValue={prefill?.line2 || undefined}
                 autoComplete="address-line2"
                 aria-invalid={state.field === "line2" ? true : undefined}
                 className="mt-1.5"
@@ -143,6 +156,7 @@ export function CheckoutForm({
               <Input
                 id="city"
                 name="city"
+                defaultValue={prefill?.city || undefined}
                 autoComplete="address-level2"
                 required
                 aria-invalid={state.field === "city" ? true : undefined}
@@ -156,6 +170,7 @@ export function CheckoutForm({
               <Input
                 id="postalCode"
                 name="postalCode"
+                defaultValue={prefill?.postalCode || undefined}
                 autoComplete="postal-code"
                 required
                 aria-invalid={state.field === "postalCode" ? true : undefined}
@@ -183,6 +198,7 @@ export function CheckoutForm({
                 <Input
                   id="region"
                   name="region"
+                defaultValue={prefill?.region || undefined}
                   autoComplete="address-level1"
                   required
                   aria-invalid={state.field === "region" ? true : undefined}
@@ -197,6 +213,7 @@ export function CheckoutForm({
               <Input
                 id="phone"
                 name="phone"
+                defaultValue={prefill?.phone || undefined}
                 type="tel"
                 autoComplete="tel"
                 aria-invalid={state.field === "phone" ? true : undefined}

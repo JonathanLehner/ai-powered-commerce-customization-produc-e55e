@@ -73,6 +73,27 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   shipping_zones: [byId, { key: { storeId: 1, createdAt: 1 } }],
   inventory_levels: [byId, { key: { storeId: 1 } }, { key: { productId: 1 } }],
   inventory_adjustments: [byId, { key: { storeId: 1, at: -1, id: -1 } }, { key: { storeId: 1, variantId: 1, at: -1 } }],
+  content_entries: [
+    byId,
+    { key: { storeId: 1, kind: 1, handle: 1 }, unique: true },
+    { key: { storeId: 1, kind: 1, status: 1, publishedAt: -1 } },
+  ],
+  gift_cards: [
+    byId,
+    { key: { storeId: 1, code: 1 }, unique: true },
+    { key: { storeId: 1, createdAt: -1, id: -1 } },
+    { key: { orderItemKey: 1 } },
+    { key: { "holds.orderId": 1 } },
+  ],
+  product_reviews: [
+    byId,
+    { key: { storeId: 1, orderId: 1, productId: 1 }, unique: true },
+    { key: { storeId: 1, productId: 1, status: 1, createdAt: -1 } },
+    { key: { storeId: 1, createdAt: -1, id: -1 } },
+  ],
+  // Shopper sign-in, kept by Auth.js's MongoDB adapter under its own ObjectIds.
+  shopper_accounts: [{ key: { email: 1 }, unique: true }],
+  shopper_verification_tokens: [{ key: { identifier: 1, token: 1 }, unique: true }],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

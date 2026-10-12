@@ -101,6 +101,13 @@ export function standardOption(amount: number): ShippingOption {
   return { zoneId: "", zoneName: "", rateId: STANDARD_RATE_ID, name: "", amount, minDays: 0, maxDays: 0 };
 }
 
+/** The rate id of a basket of gift cards only, which ships nothing: the codes go out by email. */
+export const EMAIL_DELIVERY_RATE_ID = "email";
+
+export function emailDeliveryOption(): ShippingOption {
+  return { zoneId: "", zoneName: "", rateId: EMAIL_DELIVERY_RATE_ID, name: "", amount: 0, minDays: 0, maxDays: 0 };
+}
+
 /** The options of one zone for an order, cheapest first. */
 export function zoneOptions(zone: ShippingZone, measure: OrderMeasure, currency: string): ShippingOption[] {
   return zone.rates

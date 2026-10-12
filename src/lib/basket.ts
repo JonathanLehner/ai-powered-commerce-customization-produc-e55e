@@ -4,6 +4,7 @@ import { paymentMode } from "./payment-mode";
 import { convert, parcelShipping, type TaxRow } from "./pricing";
 import {
   basketWeight,
+  emailDeliveryOption,
   pickOption,
   quoteTotals,
   shippingOptions,
@@ -62,6 +63,8 @@ export interface BasketTotals {
   weightGrams: number;
   /** What the checkout form needs to work the totals out again for another country or rate. */
   basis: QuoteBasis;
+  /** Every line is a gift card: nothing ships, so there is no delivery to charge or restrict. */
+  digitalOnly: boolean;
 }
 
 /** Where the basket is going and how it ships there. */
@@ -144,8 +147,10 @@ export async function basketTotals(
   const weightGrams = basketWeight(
     items.map((item, index) => ({ quantity: item.quantity, variantId: item.variantId, product: products[index] })),
   );
-  const options =
-    delivery.zones.length > 0
+  const digitalOnly = items.length > 0 && products.every((product) => product?.giftCard === true);
+  const options = digitalOnly
+    ? [emailDeliveryOption()]
+    : delivery.zones.length > 0
       ? shippingOptions(delivery.zones, country, { weightGrams, subtotal: goods, currency })
       : items.length > 0
         ? [standardOption(parcelShipping(items.map((i) => i.productName), currency))]
@@ -169,5 +174,6 @@ export async function basketTotals(
     stripeTax: basis.stripeTax,
     weightGrams,
     basis,
+    digitalOnly,
   };
 }

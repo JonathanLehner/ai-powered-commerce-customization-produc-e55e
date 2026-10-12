@@ -7,6 +7,7 @@ import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing
 import { isLive } from "@/lib/artwork";
 import { billingConfigured } from "@/lib/billing-config";
 import { getGiftCatalogueBySlug, getStore, getStoreByDomain, getStoreBySlug } from "@/lib/data";
+import { getPublishedEntry } from "@/lib/content-data";
 import { isPolicyKey } from "@/lib/policies";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
 import { SITE_ORIGIN } from "@/lib/seo";
@@ -322,6 +323,10 @@ async function shopperMissing(
     if (rest[0] === "collections") {
       const handle = decodeSegment(rest[1]);
       return !collections?.some((c) => c.handle === handle);
+    }
+    if (rest[0] === "pages" || rest[0] === "blog") {
+      const entry = await getPublishedEntry(store.id, rest[0] === "pages" ? "page" : "post", decodeSegment(rest[1]));
+      return entry === null;
     }
     return false;
   } catch {

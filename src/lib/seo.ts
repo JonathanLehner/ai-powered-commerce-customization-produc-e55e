@@ -13,6 +13,7 @@
  */
 import { DEFAULT_LOCALE, LOCALES, MARKETING_PATHS, localizedPath, type Locale } from "@/i18n/locales";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
+import { BLOG_PATH, contentPath } from "./content";
 import { POLICY_KEYS } from "./policies";
 import { currencyDecimals } from "./util";
 
@@ -107,13 +108,23 @@ type SitemapCollection = { handle: string; updatedAt: string; imageUrl: string |
 
 /**
  * A storefront's pages in every enabled language: the home page, the shop,
- * each collection, each product on sale and the store's policies. An archived
+ * each collection, each product on sale, the published pages and blog posts
+ * and the store's policies. An archived
  * store lists nothing.
  */
+/** A published page or blog post, as the sitemap needs it. */
+export interface SitemapContent {
+  kind: "page" | "post";
+  handle: string;
+  updatedAt: string;
+  coverImageUrl: string | null;
+}
+
 export function storeSitemap(
   store: StoreAddress & { status: "active" | "archived" },
   products: SitemapProduct[],
   collections: SitemapCollection[] = [],
+  content: SitemapContent[] = [],
 ): SitemapEntry[] {
   if (store.status === "archived") return [];
   const { locales } = storeLanguages(store);
@@ -136,6 +147,15 @@ export function storeSitemap(
         images: product.mockups.slice(0, 4).map((m) => m.url),
       }),
     ),
+    ...content.flatMap((entry) =>
+      page(contentPath(entry.kind, entry.handle), {
+        lastModified: entry.updatedAt,
+        ...(entry.coverImageUrl ? { images: [entry.coverImageUrl] } : {}),
+      }),
+    ),
+    ...(content.some((entry) => entry.kind === "post")
+      ? page(BLOG_PATH, { lastModified: content.filter((e) => e.kind === "post").map((e) => e.updatedAt).sort().at(-1) })
+      : []),
     ...POLICY_KEYS.flatMap((key) => page(`/policies/${key}`)),
   ];
 }

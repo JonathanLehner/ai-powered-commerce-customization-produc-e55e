@@ -15,9 +15,13 @@ import { orderInvoiceUrl, verifyOrderToken } from "@/lib/order-access";
 import { shopperTimeline } from "@/lib/order-timeline";
 import { orderTax } from "@/lib/shipping";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
-import type { OrderStatus } from "@/lib/types";
+import type { OrderStatus, ProductReview, StoreProduct } from "@/lib/types";
 import { CARRIER_LABELS } from "@/lib/util";
 import { OrderLookupForm } from "../OrderLookupForm";
+import { ReviewForm } from "./ReviewForm";
+import { getStoreProductsByIds } from "@/lib/data";
+import { reviewsForOrder } from "@/lib/review-data";
+import { reviewableItems, reviewerName } from "@/lib/reviews";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -88,6 +92,16 @@ export default async function OrderStatusPage({
   if (!order) return <StorefrontNotFoundView store={store} locale={requested} />;
 
   const status = SHOPPER_STATUS[order.status];
+  // A delivered order invites a review of each product on it, gift cards aside.
+  const [orderProducts, written] =
+    order.status === "delivered"
+      ? await Promise.all([getStoreProductsByIds(order.items.map((item) => item.storeProductId)), reviewsForOrder(store.id, order.id)])
+      : [new Map<string, StoreProduct>(), [] as ProductReview[]];
+  const reviewable = reviewableItems(
+    order,
+    new Set([...orderProducts.values()].filter((p) => p.giftCard).map((p) => p.id)),
+  );
+  const reviewed = new Set(written.map((review) => review.productId));
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
   const support = storeSupport(store);
   const contactSubject = t("order.contactSubject", { code: order.code });
@@ -300,6 +314,35 @@ export default async function OrderStatusPage({
           })}
         </ol>
       </section>
+
+      {reviewable.length > 0 ? (
+        <section className="mt-10" aria-labelledby="review-heading">
+          <h2 id="review-heading" className="font-heading text-base font-semibold text-foreground">
+            {t("reviews.writeTitle")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("reviews.writeBody")}</p>
+          <ul className="mt-4 space-y-4">
+            {reviewable.map((item) => (
+              <li key={item.productId}>
+                {reviewed.has(item.productId) ? (
+                  <p className="rounded-lg border border-border bg-muted/60 px-4 py-3 text-sm text-inksoft">
+                    {t("reviews.alreadyReviewed", { product: item.productName })}
+                  </p>
+                ) : (
+                  <ReviewForm
+                    storeId={store.id}
+                    code={order.code}
+                    token={token ?? ""}
+                    productId={item.productId}
+                    productName={item.productName}
+                    defaultName={reviewerName(order.customer.name)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {support.email || support.phone ? (
         <section className="mt-10 rounded-xl border border-border bg-muted/60 px-4 py-4">

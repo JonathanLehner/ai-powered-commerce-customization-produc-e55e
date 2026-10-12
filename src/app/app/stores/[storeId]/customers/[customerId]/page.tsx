@@ -164,11 +164,47 @@ export default async function CustomerDetailPage({
                     { label: t("refunded"), value: formatMoney(customer.refundedTotal, customer.currency, locale) },
                     { label: t("language"), value: languageName(locale, customer.preferredLanguage) },
                     { label: t("currency"), value: currencyName(locale, customer.preferredCurrency) },
+                    {
+                      label: t("account"),
+                      value: customer.account
+                        ? t("accountSince", { date: formatDate(customer.account.linkedAt, locale) })
+                        : t("accountNone"),
+                    },
+                    {
+                      label: t("marketing"),
+                      value: customer.marketing?.subscribed
+                        ? t("marketingYes", { date: formatDate(customer.marketing.updatedAt, locale) })
+                        : t("marketingNo"),
+                    },
                   ]}
                 />
               </CardContent>
             </Card>
           </section>
+
+          {!deleted && (customer.addresses ?? []).length > 0 ? (
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle asChild>
+                    <h2>{t("addresses")}</h2>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-sm">
+                    {(customer.addresses ?? []).map((address) => (
+                      <li key={address.id} className="text-inksoft">
+                        {address.isDefault ? <span className="mb-0.5 block text-xs font-medium text-foreground">{t("defaultAddress")}</span> : null}
+                        {[address.name, address.line1, address.line2, address.city, address.region, address.postalCode, countryName(locale, address.country)]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </section>
+          ) : null}
 
           <section>
             <Card>
