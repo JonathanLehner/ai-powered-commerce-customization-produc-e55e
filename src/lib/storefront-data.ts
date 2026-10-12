@@ -9,6 +9,7 @@ import type {
   CatalogProduct,
   DiscountCode,
   ProductCollection,
+  ShippingZone,
   Store,
   Storefront,
   StoreProduct,
@@ -44,6 +45,7 @@ export interface StorefrontData {
   /** In the order the team arranged them. */
   collections: ProductCollection[];
   basket: Basket | null;
+  shippingZones: ShippingZone[];
 }
 
 export interface StorefrontProduct {
@@ -57,7 +59,12 @@ export const SHOPPER_COOKIE = "cc_shopper";
 const WITHOUT_ID = { $project: { _id: 0 } };
 
 type BasketRow = Cart & { products: StoreProduct[]; taxBrackets: TaxBracket[]; discount: DiscountCode[] };
-type StoreRow = Store & { storefront: Storefront[]; collections: ProductCollection[]; cart?: BasketRow[] };
+type StoreRow = Store & {
+  storefront: Storefront[];
+  collections: ProductCollection[];
+  shippingZones: ShippingZone[];
+  cart?: BasketRow[];
+};
 
 /** One aggregate: the store, its storefront and collections, and the shopper's basket. */
 async function readStorefront(match: Record<string, unknown>, session: string | null): Promise<StoreRow[]> {
@@ -81,6 +88,15 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
         foreignField: "storeId",
         pipeline: [{ $sort: { position: 1, createdAt: 1 } }, WITHOUT_ID],
         as: "collections",
+      },
+    },
+    {
+      $lookup: {
+        from: COLLECTIONS.shippingZones,
+        localField: "id",
+        foreignField: "storeId",
+        pipeline: [{ $sort: { createdAt: 1, id: 1 } }, WITHOUT_ID],
+        as: "shippingZones",
       },
     },
     ...(session
@@ -132,7 +148,7 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
 }
 
 function toStorefrontData(row: StoreRow): StorefrontData {
-  const { storefront, collections, cart, ...store } = row;
+  const { storefront, collections, shippingZones, cart, ...store } = row;
   const found = cart?.[0];
   let basket: Basket | null = null;
   if (found) {
@@ -145,7 +161,7 @@ function toStorefrontData(row: StoreRow): StorefrontData {
       rates: new Map(taxBrackets.map((b) => [b.id, b.rate])),
     };
   }
-  return { store: store as Store, storefront: storefront[0] ?? null, collections, basket };
+  return { store: store as Store, storefront: storefront[0] ?? null, collections, basket, shippingZones };
 }
 
 async function loadBySlug(slug: string, session: string | null): Promise<StorefrontData | null> {

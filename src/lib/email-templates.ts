@@ -50,6 +50,8 @@ interface EmailBody {
   paragraphs: string[];
   rows?: { label: string; value: string }[];
   action?: { label: string; url: string };
+  /** A second, quieter link under the button. */
+  link?: { label: string; url: string };
 }
 
 function escape(value: string): string {
@@ -102,6 +104,11 @@ ${
 <p style="margin:0 0 12px;font-size:12px;line-height:1.6;color:#64748b;word-break:break-all">${escape(body.action.url)}</p>`
     : ""
 }
+${
+  body.link
+    ? `<p style="margin:0 0 12px;font-size:14px;line-height:1.6"><a href="${escape(body.link.url)}" style="color:#0f172a">${escape(body.link.label)}</a></p>`
+    : ""
+}
 ${support ? `<p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#64748b">${escape(support)}</p>` : ""}
 <p style="margin:20px 0 0;padding-top:16px;border-top:1px solid #e2e8f0;font-size:12px;line-height:1.6;color:#94a3b8">${escape(footer)}</p>
 </div></body></html>`;
@@ -115,6 +122,7 @@ ${support ? `<p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#647
     ...body.paragraphs,
     ...(body.rows ?? []).map((row) => `${row.label}: ${row.value}`),
     ...(body.action ? ["", `${body.action.label}: ${body.action.url}`] : []),
+    ...(body.link ? [`${body.link.label}: ${body.link.url}`] : []),
     ...(support ? ["", support] : []),
     "",
     footer,
@@ -132,6 +140,13 @@ export interface OrderConfirmationInput {
   currency: string;
   deliveryAddress: string;
   statusUrl: string;
+  /** The rate the order ships with and what it cost. */
+  shipping?: { name: string; amount: number };
+  /** One row per rate; a null rate is a single amount from Stripe Tax. */
+  taxRows?: { rate: number | null; amount: number }[];
+  /** The tax is already in the prices rather than added to them. */
+  taxInclusive?: boolean;
+  invoiceUrl?: string;
 }
 
 export function orderConfirmationEmail(
@@ -145,10 +160,26 @@ export function orderConfirmationEmail(
     greetingName: order.customerName,
     paragraphs: [t("orderBody", { code: order.code })],
     rows: [
+      ...(order.shipping
+        ? [
+            {
+              label: t("orderShippingLabel", { rate: order.shipping.name }),
+              value: formatMinorUnits(copy.format, order.shipping.amount, order.currency),
+            },
+          ]
+        : []),
+      ...(order.taxRows ?? []).map((row) => {
+        const amount = formatMinorUnits(copy.format, row.amount, order.currency);
+        return {
+          label: row.rate === null ? t("orderTaxLabel") : t("orderTaxRateLabel", { rate: row.rate }),
+          value: order.taxInclusive ? t("orderTaxIncluded", { amount }) : amount,
+        };
+      }),
       { label: t("orderTotalLabel"), value: formatMinorUnits(copy.format, order.total, order.currency) },
       { label: t("orderDeliveryLabel"), value: order.deliveryAddress },
     ],
     action: { label: t("orderCta"), url: order.statusUrl },
+    ...(order.invoiceUrl ? { link: { label: t("orderInvoice"), url: order.invoiceUrl } } : {}),
   });
 }
 

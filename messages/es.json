@@ -328,7 +328,9 @@
       "Discounts": "Descuentos",
       "Storefront": "Escaparate",
       "Translations": "Textos de la tienda y traducciones",
-      "Inventory": "Inventario"
+      "Inventory": "Inventario",
+      "Shipping": "Envíos",
+      "Taxes": "Impuestos"
     },
     "ctaTitle": "Crea tu primera clave",
     "ctaBody": "Inicia sesión, abre los Ajustes de una tienda y elige Claves de API.",
@@ -718,7 +720,8 @@
       "discounts": "Descuentos",
       "team": "Equipo",
       "settings": "Ajustes",
-      "activity": "Actividad"
+      "activity": "Actividad",
+      "shipping": "Envíos e impuestos"
     },
     "adminTabs": {
       "overview": "Resumen",
@@ -762,7 +765,8 @@
       "discountsTitle": "Códigos de descuento",
       "teamTitle": "Equipo",
       "settingsTitle": "Ajustes",
-      "activityTitle": "Historial de auditoría"
+      "activityTitle": "Historial de auditoría",
+      "shippingTitle": "Envíos e impuestos"
     }
   },
   "dashboard": {
@@ -1255,8 +1259,11 @@
         "belowCost": "El margen es de {margin}. Este precio está por debajo del coste.",
         "belowCostFix": "Sube el precio de venta o elige un producto de proveedor más barato.",
         "noVariants": "Todas las variantes están desactivadas.",
-        "noVariantsFix": "Activa al menos una talla o un color."
-      }
+        "noVariantsFix": "Activa al menos una talla o un color.",
+        "noShippingZone": "La tienda no tiene zonas de envío.",
+        "noShippingZoneFix": "Añade una zona de envío en Envíos e impuestos."
+      },
+      "weightRange": "Introduce un peso para {name} en gramos enteros, hasta 1.000.000."
     },
     "sourcing": {
       "listingGone": "Ese artículo del catálogo ya no se ofrece. Elige otro o descríbelo.",
@@ -1399,6 +1406,36 @@
       "imported": "{count, plural, one {Se actualizó # variante.} other {Se actualizaron # variantes.}}",
       "importedWithProblems": "{count, plural, one {Se actualizó # variante.} other {Se actualizaron # variantes.}} {skipped, plural, one {Se omitió # fila} other {Se omitieron # filas}}; revisa la línea {lines}.",
       "settingsSaved": "Ajustes de inventario guardados."
+    },
+    "shipping": {
+      "zoneName": "Introduce un nombre de zona de 2 a 60 caracteres.",
+      "zoneCountries": "Añade al menos un país.",
+      "unknownCountry": "{code} no es un código de país.",
+      "countryTaken": "{code} ya está en {zone}.",
+      "rateName": "Introduce un nombre de tarifa de 2 a 60 caracteres.",
+      "rateKind": "Elige cómo se calcula la tarifa.",
+      "deliveryDays": "Introduce los días de entrega como números enteros, el primero no mayor que el segundo y como máximo {max}.",
+      "ratePrice": "Introduce un precio de 0 o más.",
+      "threshold": "Introduce el importe del pedido a partir del cual el envío es gratis.",
+      "tierCount": "Añade entre 1 y {max} tramos de precio.",
+      "tierPrice": "Introduce un precio de 0 o más en la fila {row}.",
+      "tierOpenEnd": "Solo la última fila puede quedar sin límite superior.",
+      "tierOrder": "La fila {row} necesita un límite superior mayor que la fila anterior.",
+      "taxCountryTwice": "{code} tiene más de un tipo impositivo.",
+      "taxRate": "Introduce un tipo impositivo entre 0 y {max} %.",
+      "tooManyZones": "Una tienda puede tener hasta {max} zonas de envío.",
+      "tooManyRates": "Una zona puede tener hasta {max} tarifas.",
+      "rateGone": "Esta tarifa ya no existe. Vuelve a cargar la página.",
+      "zoneGone": "Esta zona ya no existe. Vuelve a cargar la página.",
+      "stripeTaxNeedsStripe": "Conecta los pagos de Stripe antes de activar Stripe Tax.",
+      "stripeTaxPending": "Stripe Tax aún no está activo. Termina la configuración en tu Dashboard de Stripe.",
+      "stripeTaxUnavailable": "Stripe Tax no está disponible en tu cuenta de Stripe.",
+      "taxMode": "Elige cómo se calculan los impuestos.",
+      "zoneCreated": "{name} añadida.",
+      "zoneSaved": "{name} guardada.",
+      "rateCreated": "{name} añadida.",
+      "rateSaved": "{name} guardada.",
+      "taxSaved": "Configuración de impuestos guardada."
     }
   },
   "settings": {
@@ -1898,7 +1935,12 @@
     "recordRefund": "Registrar reembolso",
     "refundBody": "Se reembolsará el importe al cliente. No se puede deshacer.",
     "dataDeleted": "Datos personales eliminados",
-    "restock": "Reponer {count, plural, one {# artículo} other {# artículos}} al inventario"
+    "restock": "Reponer {count, plural, one {# artículo} other {# artículos}} al inventario",
+    "invoice": "Factura",
+    "shippingWith": "Envío ({rate})",
+    "taxPlain": "Impuestos",
+    "taxIncludedPlain": "Impuestos (incluidos)",
+    "taxIncluded": "Impuestos {rate} % (incluidos)"
   },
   "customers": {
     "title": "Clientes",
@@ -2347,7 +2389,9 @@
     "setForAll": "Aplicar a todas",
     "setForSelected": "Aplicar a la selección",
     "bulkPriceInvalid": "Introduce un precio mayor que 0.",
-    "bulkPriceApplied": "{count, plural, one {# precio actualizado.} other {# precios actualizados.}} Guarda las variantes para conservar el cambio."
+    "bulkPriceApplied": "{count, plural, one {# precio actualizado.} other {# precios actualizados.}} Guarda las variantes para conservar el cambio.",
+    "colWeight": "Peso (g)",
+    "weightFor": "Peso en gramos de {name}"
   },
   "artworkIssues": {
     "edges": {
@@ -3299,7 +3343,10 @@
       "total": "Total",
       "checkout": "Pagar",
       "keepShopping": "Seguir comprando",
-      "viewBasket": "Ver la cesta"
+      "viewBasket": "Ver la cesta",
+      "atCheckout": "Se calcula en el pago",
+      "free": "Gratis",
+      "tax": "Impuestos"
     },
     "discount": {
       "title": "Código de descuento",
@@ -3363,7 +3410,16 @@
       "demoStore": "Tienda de demostración: sin pago real",
       "demoStoreBody": "Usa una tarjeta de prueba de abajo. No se cobra a nadie.",
       "continueToPayment": "Continuar al pago",
-      "redirecting": "Redirigiendo…"
+      "redirecting": "Redirigiendo…",
+      "shippingMethod": "Método de envío",
+      "standardShipping": "Envío estándar",
+      "shippingWith": "Envío ({rate})",
+      "free": "Gratis",
+      "tax": "Impuestos",
+      "taxAtPayment": "Se calcula al pagar",
+      "deliveryDays": "{min}–{max} días hábiles",
+      "deliveryDaysExact": "{days, plural, one {# día hábil} other {# días hábiles}}",
+      "noShippingOptions": "Todavía no enviamos a este país."
     },
     "order": {
       "title": "Estado del pedido",
@@ -3400,7 +3456,12 @@
       "lookupSubmit": "Ver mi pedido",
       "lookupPending": "Comprobando…",
       "processingTitle": "Confirmando tu pago",
-      "processingBody": "Esta página se actualizará en cuanto se confirme el pago."
+      "processingBody": "Esta página se actualizará en cuanto se confirme el pago.",
+      "shippingWith": "Envío ({rate})",
+      "tax": "Impuestos",
+      "taxIncludedPlain": "Impuestos (incluidos)",
+      "taxIncludedRow": "Impuesto {rate, number} % (incluido)",
+      "invoice": "Ver factura"
     },
     "status": {
       "awaitingPayment": "Pendiente de pago",
@@ -3444,7 +3505,9 @@
       "enterOrderEmail": "Introduce el correo electrónico del pedido.",
       "lookupFailed": "Ningún pedido coincide con ese código y correo electrónico.",
       "soldOut": "{variant} está agotado.",
-      "onlyLeft": "Solo quedan {count} de {variant}."
+      "onlyLeft": "Solo quedan {count} de {variant}.",
+      "noShippingTo": "No enviamos a {country}.",
+      "noShippingRate": "Elige un método de envío."
     },
     "artwork": {
       "lowDpi": "Esta imagen se imprimirá a {dpi} DPI, por debajo de los {required} DPI que necesita este producto.",
@@ -3513,7 +3576,12 @@
       "approvalBody": "{buyer} ha enviado «{campaign}» para {company}.",
       "approvalRecipientsLabel": "Destinatarios",
       "approvalTotalLabel": "Total",
-      "approvalCta": "Revisar la lista"
+      "approvalCta": "Revisar la lista",
+      "orderShippingLabel": "Envío ({rate})",
+      "orderTaxLabel": "Impuestos",
+      "orderTaxRateLabel": "Impuesto {rate, number} %",
+      "orderTaxIncluded": "{amount} (incluido)",
+      "orderInvoice": "Ver tu factura"
     },
     "gift": {
       "chromeSubtitle": "Catálogo de regalos · {store}",
@@ -3668,6 +3736,20 @@
       "privacy": "Política de privacidad",
       "agreement": "Al hacer tu pedido, aceptas las <terms>condiciones de venta</terms> y la <refunds>política de reembolsos</refunds>.",
       "questions": "¿Preguntas sobre esta política?"
+    },
+    "invoice": {
+      "title": "Factura {code}",
+      "heading": "Factura",
+      "number": "Número de factura",
+      "date": "Fecha",
+      "billTo": "Facturar a",
+      "item": "Artículo",
+      "quantity": "Cant.",
+      "unitPrice": "Precio unitario",
+      "amount": "Importe",
+      "total": "Total",
+      "print": "Imprimir o guardar como PDF",
+      "backToOrder": "Volver al pedido"
     }
   },
   "collections": {
@@ -3988,5 +4070,92 @@
     "saveSettings": "Guardar",
     "thresholdValue": "{count, plural, one {Stock bajo con # unidad o menos.} other {Stock bajo con # unidades o menos.}}",
     "activityLink": "Ver actividad del inventario"
+  },
+  "shipping": {
+    "intro": "Adónde envías, cuánto pagan los clientes por la entrega y cómo se cobran los impuestos.",
+    "zonesTitle": "Zonas de envío",
+    "emptyTitle": "Añade una zona de envío para empezar a vender",
+    "emptyBody": "Los productos no se pueden publicar hasta que la tienda envíe al menos a un país.",
+    "countryCount": "{count, plural, one {# país} other {# países}}",
+    "countriesMore": "{list} y {count} más",
+    "noRatesBadge": "Sin tarifas",
+    "noRates": "Añade una tarifa para que los clientes de estos países puedan comprar.",
+    "colRate": "Tarifa",
+    "colPrice": "Precio",
+    "colDelivery": "Entrega",
+    "colActions": "Acciones",
+    "kinds": {
+      "flat": "Tarifa fija",
+      "weight": "Según el peso del pedido",
+      "subtotal": "Según el importe del pedido",
+      "free_over": "Gratis a partir de un importe"
+    },
+    "free": "Gratis",
+    "freeOver": "{price}, gratis desde {threshold}",
+    "tierUpTo": "Hasta {limit}: {price}",
+    "tierAbove": "Más: {price}",
+    "grams": "{value, number} g",
+    "deliveryDays": "{min}–{max} días hábiles",
+    "editRate": "Editar {name}",
+    "addRate": "Añadir tarifa",
+    "rateLimit": "Una zona puede tener hasta {max} tarifas.",
+    "editZone": "Editar {name}",
+    "createTitle": "Crear zona",
+    "createBody": "Las tarifas están en {currency}.",
+    "countries": "Países",
+    "noCountries": "No hay países añadidos",
+    "addCountry": "Añadir país",
+    "removeCountry": "Quitar {country}",
+    "takenHint": "Se omiten los países que ya están en otra zona.",
+    "clearCountries": "Quitar todos",
+    "zoneName": "Nombre de la zona",
+    "zoneNameHint": "Solo lo ves tú, por ejemplo Europa o Nacional.",
+    "createZone": "Crear zona",
+    "saveZone": "Guardar zona",
+    "saving": "Guardando…",
+    "deleteZone": "Eliminar zona",
+    "deleteZoneQuestion": "¿Eliminar {name} y sus tarifas? Los clientes de estos países no podrán comprar.",
+    "rateName": "Nombre de la tarifa",
+    "rateNameHint": "Se muestra en el pago, por ejemplo Estándar o Exprés.",
+    "rateKind": "Precio",
+    "price": "Precio ({currency})",
+    "priceBelow": "Precio por debajo del umbral ({currency})",
+    "priceHint": "Introduce 0 para envío gratis.",
+    "threshold": "Gratis desde ({currency})",
+    "thresholdHint": "Subtotal del pedido después de descuentos.",
+    "weightTiers": "Precio por peso",
+    "subtotalTiers": "Precio por subtotal",
+    "tiersHint": "Deja vacío el último límite para cubrir todo lo que lo supere.",
+    "upToGrams": "Hasta (g)",
+    "upToAmount": "Hasta ({currency})",
+    "andAbove": "o más",
+    "addTier": "Añadir tramo",
+    "removeTier": "Quitar fila {row}",
+    "minDays": "Entrega desde (días)",
+    "maxDays": "Entrega hasta (días)",
+    "daysHint": "Días hábiles, que los clientes ven como plazo de entrega estimado.",
+    "saveRate": "Guardar tarifa",
+    "deleteRate": "Eliminar",
+    "deleteRateQuestion": "¿Eliminar la tarifa {name}?",
+    "taxTitle": "Impuestos",
+    "taxMode": "Cálculo de impuestos",
+    "modes": {
+      "manual": "Tipos manuales",
+      "manualHint": "Define un tipo por país. Los demás países usan el tramo impositivo de cada producto.",
+      "stripe": "Stripe Tax",
+      "stripeHint": "Stripe calcula los impuestos en el pago según la dirección del cliente.",
+      "stripeNeedsPayments": "Conecta los pagos de Stripe para usar Stripe Tax."
+    },
+    "stripeTaxOn": "Stripe Tax calcula los impuestos en el pago.",
+    "stripeTaxPendingNote": "Stripe Tax aún no está activo en tu cuenta de Stripe. Mientras tanto se aplican los tipos manuales.",
+    "pricesIncludeTax": "Los precios incluyen impuestos",
+    "pricesIncludeTaxHint": "El impuesto forma parte del precio en lugar de sumarse en el pago.",
+    "countryRates": "Tipos impositivos por país",
+    "countryRatesHint": "Sustituye los tramos impositivos de los productos en pedidos enviados a ese país.",
+    "country": "País",
+    "ratePercent": "Tipo (%)",
+    "addTaxRow": "Añadir país",
+    "removeTaxRow": "Quitar este tipo",
+    "saveTax": "Guardar impuestos"
   }
 }

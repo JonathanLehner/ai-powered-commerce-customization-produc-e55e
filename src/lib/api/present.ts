@@ -3,7 +3,7 @@ import { storeUrl } from "../seo";
 import { storeSku } from "../sku";
 import { isQuoteOnly } from "../sourcing";
 import { storeSupport } from "../support";
-import type { CatalogProduct, Order, ProductCollection, Store, StoreProduct } from "../types";
+import type { CatalogProduct, Order, ProductCollection, ShippingZone, Store, StoreProduct } from "../types";
 
 /**
  * Records as the API returns them. The keys that make a resubmitted form land
@@ -79,5 +79,18 @@ export function presentOrder(order: Order) {
     ...rest,
     payment,
     refundedTotal: order.refunds.reduce((sum, refund) => sum + refund.amount, 0),
+  };
+}
+
+export function presentShippingZone(zone: ShippingZone) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { submissionKey: _submissionKey, rates, ...rest } = zone;
+  return {
+    ...rest,
+    rates: rates.map((rate) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { submissionKey: _key, ...plain } = rate;
+      return plain;
+    }),
   };
 }

@@ -328,7 +328,9 @@
       "Discounts": "割引",
       "Storefront": "ストアフロント",
       "Translations": "ショップテキストと翻訳",
-      "Inventory": "在庫"
+      "Inventory": "在庫",
+      "Shipping": "配送",
+      "Taxes": "税"
     },
     "ctaTitle": "最初のキーを作成",
     "ctaBody": "サインインし、ストアの設定を開いて API キーを選びます。",
@@ -718,7 +720,8 @@
       "discounts": "割引",
       "team": "チーム",
       "settings": "設定",
-      "activity": "アクティビティ"
+      "activity": "アクティビティ",
+      "shipping": "配送と税"
     },
     "adminTabs": {
       "overview": "概要",
@@ -762,7 +765,8 @@
       "discountsTitle": "割引コード",
       "teamTitle": "チーム",
       "settingsTitle": "設定",
-      "activityTitle": "監査履歴"
+      "activityTitle": "監査履歴",
+      "shippingTitle": "配送と税"
     }
   },
   "dashboard": {
@@ -1255,8 +1259,11 @@
         "belowCost": "利益は {margin} です。この価格は原価を下回っています。",
         "belowCostFix": "販売価格を上げるか、より安いサプライヤー商品を選んでください。",
         "noVariants": "すべてのバリエーションが無効です。",
-        "noVariantsFix": "サイズまたはカラーを 1 つ以上有効にしてください。"
-      }
+        "noVariantsFix": "サイズまたはカラーを 1 つ以上有効にしてください。",
+        "noShippingZone": "ストアに配送ゾーンがありません。",
+        "noShippingZoneFix": "「配送と税」で配送ゾーンを追加してください。"
+      },
+      "weightRange": "{name} の重量を 1,000,000 以下の整数のグラムで入力してください。"
     },
     "sourcing": {
       "listingGone": "このカタログ商品は提供されていません。別の商品を選ぶか、内容を記述してください。",
@@ -1399,6 +1406,36 @@
       "imported": "{count, plural, other {#件のバリエーションを更新しました。}}",
       "importedWithProblems": "{count, plural, other {#件のバリエーションを更新しました。}}{skipped, plural, other {#行をスキップしました}}（{lines}行目を確認してください）。",
       "settingsSaved": "在庫設定を保存しました。"
+    },
+    "shipping": {
+      "zoneName": "ゾーン名を 2〜60 文字で入力してください。",
+      "zoneCountries": "国を 1 つ以上追加してください。",
+      "unknownCountry": "{code} は国コードではありません。",
+      "countryTaken": "{code} はすでに {zone} に含まれています。",
+      "rateName": "料金名を 2〜60 文字で入力してください。",
+      "rateKind": "料金の計算方法を選択してください。",
+      "deliveryDays": "配送日数を整数で入力してください。最短は最長以下、最大 {max} 日です。",
+      "ratePrice": "0 以上の価格を入力してください。",
+      "threshold": "送料無料になる注文金額を入力してください。",
+      "tierCount": "価格の段階を 1〜{max} 件追加してください。",
+      "tierPrice": "{row} 行目に 0 以上の価格を入力してください。",
+      "tierOpenEnd": "上限を空欄にできるのは最後の行だけです。",
+      "tierOrder": "{row} 行目の上限は前の行より大きくしてください。",
+      "taxCountryTwice": "{code} に複数の税率があります。",
+      "taxRate": "税率を 0〜{max}% で入力してください。",
+      "tooManyZones": "ストアの配送ゾーンは最大 {max} 件です。",
+      "tooManyRates": "ゾーンの料金は最大 {max} 件です。",
+      "rateGone": "この料金はもう存在しません。ページを再読み込みしてください。",
+      "zoneGone": "このゾーンはもう存在しません。ページを再読み込みしてください。",
+      "stripeTaxNeedsStripe": "Stripe Tax を有効にする前に Stripe 決済を接続してください。",
+      "stripeTaxPending": "Stripe Tax はまだ有効ではありません。Stripe ダッシュボードで設定を完了してください。",
+      "stripeTaxUnavailable": "お使いの Stripe アカウントでは Stripe Tax を利用できません。",
+      "taxMode": "税の計算方法を選択してください。",
+      "zoneCreated": "{name} を追加しました。",
+      "zoneSaved": "{name} を保存しました。",
+      "rateCreated": "{name} を追加しました。",
+      "rateSaved": "{name} を保存しました。",
+      "taxSaved": "税の設定を保存しました。"
     }
   },
   "settings": {
@@ -1898,7 +1935,12 @@
     "recordRefund": "返金を記録",
     "refundBody": "この金額をお客様に返金します。この操作は取り消せません。",
     "dataDeleted": "個人データは削除されました",
-    "restock": "{count, plural, other {#点を在庫に戻す}}"
+    "restock": "{count, plural, other {#点を在庫に戻す}}",
+    "invoice": "請求書",
+    "shippingWith": "送料 ({rate})",
+    "taxPlain": "税",
+    "taxIncludedPlain": "税 （込）",
+    "taxIncluded": "税 {rate}% （込）"
   },
   "customers": {
     "title": "顧客",
@@ -2347,7 +2389,9 @@
     "setForAll": "すべてに設定",
     "setForSelected": "選択に設定",
     "bulkPriceInvalid": "0 より大きい価格を入力してください。",
-    "bulkPriceApplied": "{count} 件の価格を更新しました。変更を保持するにはバリエーションを保存してください。"
+    "bulkPriceApplied": "{count} 件の価格を更新しました。変更を保持するにはバリエーションを保存してください。",
+    "colWeight": "重量 (g)",
+    "weightFor": "{name} の重量 (グラム)"
   },
   "artworkIssues": {
     "edges": {
@@ -3299,7 +3343,10 @@
       "total": "合計",
       "checkout": "購入手続きへ",
       "keepShopping": "買い物を続ける",
-      "viewBasket": "カートを見る"
+      "viewBasket": "カートを見る",
+      "atCheckout": "チェックアウト時に計算",
+      "free": "無料",
+      "tax": "税"
     },
     "discount": {
       "title": "割引コード",
@@ -3363,7 +3410,16 @@
       "demoStore": "デモストア：実際の決済は行われません",
       "demoStoreBody": "以下のテストカードをご利用ください。請求は発生しません。",
       "continueToPayment": "お支払いへ進む",
-      "redirecting": "移動しています…"
+      "redirecting": "移動しています…",
+      "shippingMethod": "配送方法",
+      "standardShipping": "通常配送",
+      "shippingWith": "送料 ({rate})",
+      "free": "無料",
+      "tax": "税",
+      "taxAtPayment": "支払い時に計算",
+      "deliveryDays": "{min}〜{max} 営業日",
+      "deliveryDaysExact": "{days, plural, other {# 営業日}}",
+      "noShippingOptions": "この国への配送はまだ行っていません。"
     },
     "order": {
       "title": "注文状況",
@@ -3400,7 +3456,12 @@
       "lookupSubmit": "注文を表示する",
       "lookupPending": "確認中…",
       "processingTitle": "お支払いを確認しています",
-      "processingBody": "お支払いが確認されると、このページが更新されます。"
+      "processingBody": "お支払いが確認されると、このページが更新されます。",
+      "shippingWith": "送料 ({rate})",
+      "tax": "税",
+      "taxIncludedPlain": "税 （込）",
+      "taxIncludedRow": "税 {rate, number}% （込）",
+      "invoice": "請求書を表示"
     },
     "status": {
       "awaitingPayment": "お支払い待ち",
@@ -3444,7 +3505,9 @@
       "enterOrderEmail": "ご注文時のメールアドレスをご入力ください。",
       "lookupFailed": "このコードとメールアドレスに一致する注文はありません。",
       "soldOut": "{variant}は売り切れです。",
-      "onlyLeft": "{variant}は残り{count}点です。"
+      "onlyLeft": "{variant}は残り{count}点です。",
+      "noShippingTo": "{country} への配送は行っていません。",
+      "noShippingRate": "配送方法を選択してください。"
     },
     "artwork": {
       "lowDpi": "この画像は {dpi} DPI でプリントされ、この商品に必要な {required} DPI を下回ります。",
@@ -3513,7 +3576,12 @@
       "approvalBody": "{buyer} さんが {company} の「{campaign}」を提出しました。",
       "approvalRecipientsLabel": "受取人",
       "approvalTotalLabel": "合計",
-      "approvalCta": "リストを確認する"
+      "approvalCta": "リストを確認する",
+      "orderShippingLabel": "送料 ({rate})",
+      "orderTaxLabel": "税",
+      "orderTaxRateLabel": "税 {rate, number}%",
+      "orderTaxIncluded": "{amount} （込）",
+      "orderInvoice": "請求書を表示"
     },
     "gift": {
       "chromeSubtitle": "ギフトカタログ · {store}",
@@ -3668,6 +3736,20 @@
       "privacy": "プライバシーポリシー",
       "agreement": "ご注文により、<terms>販売規約</terms>と<refunds>返金ポリシー</refunds>に同意したものとみなされます。",
       "questions": "このポリシーについてのお問い合わせ"
+    },
+    "invoice": {
+      "title": "請求書 {code}",
+      "heading": "請求書",
+      "number": "請求書番号",
+      "date": "日付",
+      "billTo": "請求先",
+      "item": "商品",
+      "quantity": "数量",
+      "unitPrice": "単価",
+      "amount": "金額",
+      "total": "合計",
+      "print": "印刷または PDF で保存",
+      "backToOrder": "注文に戻る"
     }
   },
   "collections": {
@@ -3988,5 +4070,92 @@
     "saveSettings": "保存",
     "thresholdValue": "{count, plural, other {#点以下で在庫僅少}}",
     "activityLink": "在庫のアクティビティを見る"
+  },
+  "shipping": {
+    "intro": "配送先、購入者が支払う送料、税の計算方法を設定します。",
+    "zonesTitle": "配送ゾーン",
+    "emptyTitle": "配送ゾーンを追加して販売を始めましょう",
+    "emptyBody": "ストアが 1 か国以上に配送するまで商品を公開できません。",
+    "countryCount": "{count, plural, other {# か国}}",
+    "countriesMore": "{list} ほか {count} か国",
+    "noRatesBadge": "料金なし",
+    "noRates": "料金を追加すると、これらの国の購入者が注文できるようになります。",
+    "colRate": "料金",
+    "colPrice": "価格",
+    "colDelivery": "配送日数",
+    "colActions": "操作",
+    "kinds": {
+      "flat": "一律料金",
+      "weight": "注文重量に基づく",
+      "subtotal": "注文金額に基づく",
+      "free_over": "一定額以上で無料"
+    },
+    "free": "無料",
+    "freeOver": "{price}、{threshold} 以上で無料",
+    "tierUpTo": "{limit} まで: {price}",
+    "tierAbove": "それ以上: {price}",
+    "grams": "{value, number} g",
+    "deliveryDays": "{min}〜{max} 営業日",
+    "editRate": "{name} を編集",
+    "addRate": "料金を追加",
+    "rateLimit": "ゾーンの料金は最大 {max} 件です。",
+    "editZone": "{name} を編集",
+    "createTitle": "ゾーンを作成",
+    "createBody": "料金は {currency} で設定します。",
+    "countries": "国",
+    "noCountries": "国が追加されていません",
+    "addCountry": "国を追加",
+    "removeCountry": "{country} を削除",
+    "takenHint": "他のゾーンに含まれる国はスキップされます。",
+    "clearCountries": "すべて削除",
+    "zoneName": "ゾーン名",
+    "zoneNameHint": "管理用の名前です。例: ヨーロッパ、国内",
+    "createZone": "ゾーンを作成",
+    "saveZone": "ゾーンを保存",
+    "saving": "保存中…",
+    "deleteZone": "ゾーンを削除",
+    "deleteZoneQuestion": "{name} とその料金を削除しますか？これらの国の購入者は注文できなくなります。",
+    "rateName": "料金名",
+    "rateNameHint": "チェックアウトに表示されます。例: 通常配送、速達",
+    "rateKind": "料金設定",
+    "price": "価格 ({currency})",
+    "priceBelow": "基準額未満の価格 ({currency})",
+    "priceHint": "送料無料にするには 0 を入力します。",
+    "threshold": "無料になる金額 ({currency})",
+    "thresholdHint": "割引適用後の注文小計です。",
+    "weightTiers": "重量別の価格",
+    "subtotalTiers": "小計別の価格",
+    "tiersHint": "最後の上限を空欄にすると、それ以上すべてに適用されます。",
+    "upToGrams": "上限 (g)",
+    "upToAmount": "上限 ({currency})",
+    "andAbove": "以上",
+    "addTier": "段階を追加",
+    "removeTier": "{row} 行目を削除",
+    "minDays": "最短配送日数",
+    "maxDays": "最長配送日数",
+    "daysHint": "営業日数で、購入者にお届け予定として表示されます。",
+    "saveRate": "料金を保存",
+    "deleteRate": "削除",
+    "deleteRateQuestion": "料金「{name}」を削除しますか？",
+    "taxTitle": "税",
+    "taxMode": "税の計算",
+    "modes": {
+      "manual": "手動の税率",
+      "manualHint": "国ごとに税率を設定します。その他の国では各商品の税区分を使います。",
+      "stripe": "Stripe Tax",
+      "stripeHint": "購入者の住所に基づき、支払い時に Stripe が税を計算します。",
+      "stripeNeedsPayments": "Stripe Tax を使うには Stripe 決済を接続してください。"
+    },
+    "stripeTaxOn": "Stripe Tax がチェックアウト時に税を計算します。",
+    "stripeTaxPendingNote": "お使いの Stripe アカウントで Stripe Tax はまだ有効ではありません。有効になるまでは手動の税率が適用されます。",
+    "pricesIncludeTax": "価格に税を含める",
+    "pricesIncludeTaxHint": "税はチェックアウトで加算されず、価格に含まれます。",
+    "countryRates": "国別の税率",
+    "countryRatesHint": "その国への注文では、商品の税区分の代わりにこの税率を使います。",
+    "country": "国",
+    "ratePercent": "税率 (%)",
+    "addTaxRow": "国を追加",
+    "removeTaxRow": "この税率を削除",
+    "saveTax": "税の設定を保存"
   }
 }

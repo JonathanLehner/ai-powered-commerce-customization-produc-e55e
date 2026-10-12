@@ -328,7 +328,9 @@
       "Discounts": "Discounts",
       "Storefront": "Storefront",
       "Translations": "Shop text and translations",
-      "Inventory": "Inventory"
+      "Inventory": "Inventory",
+      "Shipping": "Shipping",
+      "Taxes": "Taxes"
     },
     "ctaTitle": "Create your first key",
     "ctaBody": "Sign in, open a store's Settings and choose API keys.",
@@ -718,7 +720,8 @@
       "discounts": "Discounts",
       "team": "Team",
       "settings": "Settings",
-      "activity": "Activity"
+      "activity": "Activity",
+      "shipping": "Shipping and taxes"
     },
     "adminTabs": {
       "overview": "Overview",
@@ -762,7 +765,8 @@
       "discountsTitle": "Discount codes",
       "teamTitle": "Team",
       "settingsTitle": "Settings",
-      "activityTitle": "Audit history"
+      "activityTitle": "Audit history",
+      "shippingTitle": "Shipping and taxes"
     }
   },
   "dashboard": {
@@ -1255,8 +1259,11 @@
         "belowCost": "The margin is {margin}. This price is below cost.",
         "belowCostFix": "Raise the selling price or choose a cheaper supplier product.",
         "noVariants": "Every variant is disabled.",
-        "noVariantsFix": "Enable at least one size or colour."
-      }
+        "noVariantsFix": "Enable at least one size or colour.",
+        "noShippingZone": "The store has no shipping zones.",
+        "noShippingZoneFix": "Add a shipping zone under Shipping and taxes."
+      },
+      "weightRange": "Enter a weight for {name} in whole grams, up to 1,000,000."
     },
     "sourcing": {
       "listingGone": "That catalog item is no longer offered. Pick another or describe it.",
@@ -1399,6 +1406,36 @@
       "imported": "{count, plural, one {Updated # variant.} other {Updated # variants.}}",
       "importedWithProblems": "{count, plural, one {Updated # variant.} other {Updated # variants.}} {skipped, plural, one {# row skipped} other {# rows skipped}}, check line {lines}.",
       "settingsSaved": "Inventory settings saved."
+    },
+    "shipping": {
+      "zoneName": "Enter a zone name of 2 to 60 characters.",
+      "zoneCountries": "Add at least one country.",
+      "unknownCountry": "{code} is not a country code.",
+      "countryTaken": "{code} is already in {zone}.",
+      "rateName": "Enter a rate name of 2 to 60 characters.",
+      "rateKind": "Choose how the rate is priced.",
+      "deliveryDays": "Enter delivery days as whole numbers, with the first no higher than the second and at most {max}.",
+      "ratePrice": "Enter a price of 0 or more.",
+      "threshold": "Enter the order amount shipping is free from.",
+      "tierCount": "Add between 1 and {max} price steps.",
+      "tierPrice": "Enter a price of 0 or more on row {row}.",
+      "tierOpenEnd": "Only the last row can be left without an upper limit.",
+      "tierOrder": "Row {row} needs an upper limit higher than the row above.",
+      "taxCountryTwice": "{code} has more than one tax rate.",
+      "taxRate": "Enter a tax rate between 0 and {max}%.",
+      "tooManyZones": "A store can have up to {max} shipping zones.",
+      "tooManyRates": "A zone can have up to {max} rates.",
+      "rateGone": "This rate no longer exists. Reload the page.",
+      "zoneGone": "This zone no longer exists. Reload the page.",
+      "stripeTaxNeedsStripe": "Connect Stripe payments before turning on Stripe Tax.",
+      "stripeTaxPending": "Stripe Tax is not active yet. Finish setting it up in your Stripe Dashboard.",
+      "stripeTaxUnavailable": "Stripe Tax is not available on your Stripe account.",
+      "taxMode": "Choose how tax is calculated.",
+      "zoneCreated": "{name} added.",
+      "zoneSaved": "{name} saved.",
+      "rateCreated": "{name} added.",
+      "rateSaved": "{name} saved.",
+      "taxSaved": "Tax settings saved."
     }
   },
   "settings": {
@@ -1898,7 +1935,12 @@
     "recordRefund": "Record refund",
     "refundBody": "The amount will be refunded to the customer. This cannot be undone.",
     "dataDeleted": "Personal data deleted",
-    "restock": "Restock {count, plural, one {# item} other {# items}}"
+    "restock": "Restock {count, plural, one {# item} other {# items}}",
+    "invoice": "Invoice",
+    "shippingWith": "Shipping ({rate})",
+    "taxPlain": "Tax",
+    "taxIncludedPlain": "Tax (included)",
+    "taxIncluded": "Tax {rate}% (included)"
   },
   "customers": {
     "title": "Customers",
@@ -2347,7 +2389,9 @@
     "setForAll": "Set for all",
     "setForSelected": "Set for selected",
     "bulkPriceInvalid": "Enter a price above 0.",
-    "bulkPriceApplied": "{count, plural, one {# price updated.} other {# prices updated.}} Save variants to keep the change."
+    "bulkPriceApplied": "{count, plural, one {# price updated.} other {# prices updated.}} Save variants to keep the change.",
+    "colWeight": "Weight (g)",
+    "weightFor": "Weight in grams for {name}"
   },
   "artworkIssues": {
     "edges": {
@@ -3299,7 +3343,10 @@
       "total": "Total",
       "checkout": "Checkout",
       "keepShopping": "Keep shopping",
-      "viewBasket": "View basket"
+      "viewBasket": "View basket",
+      "atCheckout": "Calculated at checkout",
+      "free": "Free",
+      "tax": "Tax"
     },
     "discount": {
       "title": "Discount code",
@@ -3363,7 +3410,16 @@
       "demoStore": "Demo store: no real payment",
       "demoStoreBody": "Use a test card below. Nobody is charged.",
       "continueToPayment": "Continue to payment",
-      "redirecting": "Redirecting…"
+      "redirecting": "Redirecting…",
+      "shippingMethod": "Shipping method",
+      "standardShipping": "Standard shipping",
+      "shippingWith": "Shipping ({rate})",
+      "free": "Free",
+      "tax": "Tax",
+      "taxAtPayment": "Calculated at payment",
+      "deliveryDays": "{min}–{max} business days",
+      "deliveryDaysExact": "{days, plural, one {# business day} other {# business days}}",
+      "noShippingOptions": "We don't ship to this country yet."
     },
     "order": {
       "title": "Order status",
@@ -3400,7 +3456,12 @@
       "lookupSubmit": "Show my order",
       "lookupPending": "Checking…",
       "processingTitle": "Confirming your payment",
-      "processingBody": "This page updates as soon as the payment is confirmed."
+      "processingBody": "This page updates as soon as the payment is confirmed.",
+      "shippingWith": "Shipping ({rate})",
+      "tax": "Tax",
+      "taxIncludedPlain": "Tax (included)",
+      "taxIncludedRow": "Tax {rate, number}% (included)",
+      "invoice": "View invoice"
     },
     "status": {
       "awaitingPayment": "Awaiting payment",
@@ -3444,7 +3505,9 @@
       "enterOrderEmail": "Enter the email address on the order.",
       "lookupFailed": "No order matches that code and email address.",
       "soldOut": "{variant} is sold out.",
-      "onlyLeft": "Only {count} left of {variant}."
+      "onlyLeft": "Only {count} left of {variant}.",
+      "noShippingTo": "We don't ship to {country}.",
+      "noShippingRate": "Choose a shipping method."
     },
     "artwork": {
       "lowDpi": "This image will print at {dpi} DPI, below the {required} DPI this product needs.",
@@ -3513,7 +3576,12 @@
       "approvalBody": "{buyer} submitted “{campaign}” for {company}.",
       "approvalRecipientsLabel": "Recipients",
       "approvalTotalLabel": "Total",
-      "approvalCta": "Review the list"
+      "approvalCta": "Review the list",
+      "orderShippingLabel": "Shipping ({rate})",
+      "orderTaxLabel": "Tax",
+      "orderTaxRateLabel": "Tax {rate, number}%",
+      "orderTaxIncluded": "{amount} (included)",
+      "orderInvoice": "View your invoice"
     },
     "gift": {
       "chromeSubtitle": "Gift catalogue · {store}",
@@ -3668,6 +3736,20 @@
       "privacy": "Privacy policy",
       "agreement": "By placing your order, you agree to the <terms>terms of sale</terms> and <refunds>refund policy</refunds>.",
       "questions": "Questions about this policy?"
+    },
+    "invoice": {
+      "title": "Invoice {code}",
+      "heading": "Invoice",
+      "number": "Invoice number",
+      "date": "Date",
+      "billTo": "Bill to",
+      "item": "Item",
+      "quantity": "Qty",
+      "unitPrice": "Unit price",
+      "amount": "Amount",
+      "total": "Total",
+      "print": "Print or save as PDF",
+      "backToOrder": "Back to order"
     }
   },
   "collections": {
@@ -3988,5 +4070,92 @@
     "saveSettings": "Save",
     "thresholdValue": "{count, plural, one {Low stock at # unit or fewer.} other {Low stock at # units or fewer.}}",
     "activityLink": "View inventory activity"
+  },
+  "shipping": {
+    "intro": "Where you ship, what shoppers pay for delivery, and how tax is charged.",
+    "zonesTitle": "Shipping zones",
+    "emptyTitle": "Add a shipping zone to start selling",
+    "emptyBody": "Products can't be published until the store ships to at least one country.",
+    "countryCount": "{count, plural, one {# country} other {# countries}}",
+    "countriesMore": "{list} and {count} more",
+    "noRatesBadge": "No rates",
+    "noRates": "Add a rate so shoppers in these countries can check out.",
+    "colRate": "Rate",
+    "colPrice": "Price",
+    "colDelivery": "Delivery",
+    "colActions": "Actions",
+    "kinds": {
+      "flat": "Flat rate",
+      "weight": "Based on order weight",
+      "subtotal": "Based on order price",
+      "free_over": "Free over an amount"
+    },
+    "free": "Free",
+    "freeOver": "{price}, free over {threshold}",
+    "tierUpTo": "Up to {limit}: {price}",
+    "tierAbove": "Above: {price}",
+    "grams": "{value, number} g",
+    "deliveryDays": "{min}–{max} business days",
+    "editRate": "Edit {name}",
+    "addRate": "Add rate",
+    "rateLimit": "A zone can have up to {max} rates.",
+    "editZone": "Edit {name}",
+    "createTitle": "Create zone",
+    "createBody": "Rates are in {currency}.",
+    "countries": "Countries",
+    "noCountries": "No countries added",
+    "addCountry": "Add country",
+    "removeCountry": "Remove {country}",
+    "takenHint": "Countries in another zone are skipped.",
+    "clearCountries": "Clear all",
+    "zoneName": "Zone name",
+    "zoneNameHint": "Only you see this, for example Europe or Domestic.",
+    "createZone": "Create zone",
+    "saveZone": "Save zone",
+    "saving": "Saving…",
+    "deleteZone": "Delete zone",
+    "deleteZoneQuestion": "Delete {name} and its rates? Shoppers in its countries won't be able to check out.",
+    "rateName": "Rate name",
+    "rateNameHint": "Shown at checkout, for example Standard or Express.",
+    "rateKind": "Pricing",
+    "price": "Price ({currency})",
+    "priceBelow": "Price below the threshold ({currency})",
+    "priceHint": "Enter 0 for free shipping.",
+    "threshold": "Free from ({currency})",
+    "thresholdHint": "Order subtotal after discounts.",
+    "weightTiers": "Price by weight",
+    "subtotalTiers": "Price by order subtotal",
+    "tiersHint": "Leave the last upper limit empty to cover everything above it.",
+    "upToGrams": "Up to (g)",
+    "upToAmount": "Up to ({currency})",
+    "andAbove": "and above",
+    "addTier": "Add step",
+    "removeTier": "Remove row {row}",
+    "minDays": "Delivery from (days)",
+    "maxDays": "Delivery to (days)",
+    "daysHint": "Business days, shown to shoppers as the delivery estimate.",
+    "saveRate": "Save rate",
+    "deleteRate": "Delete",
+    "deleteRateQuestion": "Delete the {name} rate?",
+    "taxTitle": "Taxes",
+    "taxMode": "Tax calculation",
+    "modes": {
+      "manual": "Manual rates",
+      "manualHint": "Set a rate per country. Other countries use each product's tax bracket.",
+      "stripe": "Stripe Tax",
+      "stripeHint": "Stripe calculates tax at payment from the shopper's address.",
+      "stripeNeedsPayments": "Connect Stripe payments to use Stripe Tax."
+    },
+    "stripeTaxOn": "Stripe Tax calculates tax at checkout.",
+    "stripeTaxPendingNote": "Stripe Tax isn't active on your Stripe account yet. Manual rates apply until it is.",
+    "pricesIncludeTax": "Prices include tax",
+    "pricesIncludeTaxHint": "Tax is shown as part of the price instead of added at checkout.",
+    "countryRates": "Tax rates by country",
+    "countryRatesHint": "Replaces the product tax brackets for orders shipped to that country.",
+    "country": "Country",
+    "ratePercent": "Rate (%)",
+    "addTaxRow": "Add country",
+    "removeTaxRow": "Remove this rate",
+    "saveTax": "Save tax settings"
   }
 }

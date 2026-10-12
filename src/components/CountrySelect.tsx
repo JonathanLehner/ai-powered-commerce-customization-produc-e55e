@@ -21,6 +21,7 @@ export function CountrySelect({
   onChange,
   invalid,
   describedBy,
+  countries,
 }: {
   id: string;
   name: string;
@@ -28,6 +29,8 @@ export function CountrySelect({
   onChange: (code: string) => void;
   invalid?: boolean;
   describedBy?: string;
+  /** Limits the list to these ISO codes, such as the countries a store ships to. */
+  countries?: string[];
 }) {
   const t = useTranslations("storefront.checkout");
   const localeTag = useLocale();
@@ -37,7 +40,10 @@ export function CountrySelect({
   const [moved, setMoved] = useState<number | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const matches = useMemo(() => searchCountries(query ?? "", localeTag), [query, localeTag]);
+  const matches = useMemo(() => {
+    const found = searchCountries(query ?? "", localeTag);
+    return countries ? found.filter((c) => countries.includes(c.code)) : found;
+  }, [query, localeTag, countries]);
   const display = query ?? localCountryName(value, localeTag);
 
   // Until the shopper arrows or types, the highlighted row is the country they
@@ -67,7 +73,7 @@ export function CountrySelect({
   function commit() {
     if (query !== null) {
       const exact = matchCountry(query, localeTag) ?? (matches.length === 1 ? matches[0] : null);
-      if (exact) onChange(exact.code);
+      if (exact && (!countries || countries.includes(exact.code))) onChange(exact.code);
     }
     reset();
   }

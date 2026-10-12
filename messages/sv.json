@@ -328,7 +328,9 @@
       "Discounts": "Rabatter",
       "Storefront": "Skyltfönster",
       "Translations": "Butikstexter och översättningar",
-      "Inventory": "Lager"
+      "Inventory": "Lager",
+      "Shipping": "Frakt",
+      "Taxes": "Moms"
     },
     "ctaTitle": "Skapa din första nyckel",
     "ctaBody": "Logga in, öppna en butiks Inställningar och välj API-nycklar.",
@@ -718,7 +720,8 @@
       "discounts": "Rabatter",
       "team": "Team",
       "settings": "Inställningar",
-      "activity": "Aktivitet"
+      "activity": "Aktivitet",
+      "shipping": "Frakt och moms"
     },
     "adminTabs": {
       "overview": "Översikt",
@@ -762,7 +765,8 @@
       "discountsTitle": "Rabattkoder",
       "teamTitle": "Team",
       "settingsTitle": "Inställningar",
-      "activityTitle": "Granskningshistorik"
+      "activityTitle": "Granskningshistorik",
+      "shippingTitle": "Frakt och moms"
     }
   },
   "dashboard": {
@@ -1255,8 +1259,11 @@
         "belowCost": "Marginalen är {margin}. Priset ligger under kostnaden.",
         "belowCostFix": "Höj försäljningspriset eller välj en billigare leverantörsprodukt.",
         "noVariants": "Alla varianter är inaktiverade.",
-        "noVariantsFix": "Aktivera minst en storlek eller färg."
-      }
+        "noVariantsFix": "Aktivera minst en storlek eller färg.",
+        "noShippingZone": "Butiken har inga fraktzoner.",
+        "noShippingZoneFix": "Lägg till en fraktzon under Frakt och moms."
+      },
+      "weightRange": "Ange en vikt för {name} i hela gram, upp till 1 000 000."
     },
     "sourcing": {
       "listingGone": "Katalogartikeln erbjuds inte längre. Välj en annan eller beskriv den.",
@@ -1399,6 +1406,36 @@
       "imported": "{count, plural, one {# variant uppdaterad.} other {# varianter uppdaterade.}}",
       "importedWithProblems": "{count, plural, one {# variant uppdaterad.} other {# varianter uppdaterade.}} {skipped, plural, one {# rad hoppades över} other {# rader hoppades över}}, kontrollera rad {lines}.",
       "settingsSaved": "Lagerinställningar sparade."
+    },
+    "shipping": {
+      "zoneName": "Ange ett zonnamn på 2 till 60 tecken.",
+      "zoneCountries": "Lägg till minst ett land.",
+      "unknownCountry": "{code} är ingen landskod.",
+      "countryTaken": "{code} finns redan i {zone}.",
+      "rateName": "Ange ett fraktsättsnamn på 2 till 60 tecken.",
+      "rateKind": "Välj hur priset räknas ut.",
+      "deliveryDays": "Ange leveransdagar som heltal, där det första inte är högre än det andra och högst {max}.",
+      "ratePrice": "Ange ett pris på 0 eller mer.",
+      "threshold": "Ange det orderbelopp som frakten är gratis från.",
+      "tierCount": "Lägg till mellan 1 och {max} prissteg.",
+      "tierPrice": "Ange ett pris på 0 eller mer på rad {row}.",
+      "tierOpenEnd": "Bara den sista raden får lämnas utan övre gräns.",
+      "tierOrder": "Rad {row} behöver en högre övre gräns än raden ovanför.",
+      "taxCountryTwice": "{code} har mer än en momssats.",
+      "taxRate": "Ange en momssats mellan 0 och {max} %.",
+      "tooManyZones": "En butik kan ha upp till {max} fraktzoner.",
+      "tooManyRates": "En zon kan ha upp till {max} fraktsätt.",
+      "rateGone": "Fraktsättet finns inte längre. Ladda om sidan.",
+      "zoneGone": "Zonen finns inte längre. Ladda om sidan.",
+      "stripeTaxNeedsStripe": "Anslut Stripe-betalningar innan du aktiverar Stripe Tax.",
+      "stripeTaxPending": "Stripe Tax är inte aktivt än. Slutför inställningen i din Stripe Dashboard.",
+      "stripeTaxUnavailable": "Stripe Tax är inte tillgängligt för ditt Stripe-konto.",
+      "taxMode": "Välj hur moms räknas ut.",
+      "zoneCreated": "{name} har lagts till.",
+      "zoneSaved": "{name} har sparats.",
+      "rateCreated": "{name} har lagts till.",
+      "rateSaved": "{name} har sparats.",
+      "taxSaved": "Momsinställningarna har sparats."
     }
   },
   "settings": {
@@ -1898,7 +1935,12 @@
     "recordRefund": "Registrera återbetalning",
     "refundBody": "Beloppet återbetalas till kunden. Det går inte att ångra.",
     "dataDeleted": "Personuppgifter raderade",
-    "restock": "Lägg tillbaka {count, plural, one {# artikel} other {# artiklar}} i lager"
+    "restock": "Lägg tillbaka {count, plural, one {# artikel} other {# artiklar}} i lager",
+    "invoice": "Faktura",
+    "shippingWith": "Frakt ({rate})",
+    "taxPlain": "Moms",
+    "taxIncludedPlain": "Moms (ingår)",
+    "taxIncluded": "Moms {rate} % (ingår)"
   },
   "customers": {
     "title": "Kunder",
@@ -2347,7 +2389,9 @@
     "setForAll": "Sätt för alla",
     "setForSelected": "Sätt för markerade",
     "bulkPriceInvalid": "Ange ett pris över 0.",
-    "bulkPriceApplied": "{count, plural, one {# pris uppdaterat.} other {# priser uppdaterade.}} Spara varianterna för att behålla ändringen."
+    "bulkPriceApplied": "{count, plural, one {# pris uppdaterat.} other {# priser uppdaterade.}} Spara varianterna för att behålla ändringen.",
+    "colWeight": "Vikt (g)",
+    "weightFor": "Vikt i gram för {name}"
   },
   "artworkIssues": {
     "edges": {
@@ -3299,7 +3343,10 @@
       "total": "Totalt",
       "checkout": "Till kassan",
       "keepShopping": "Fortsätt handla",
-      "viewBasket": "Visa varukorgen"
+      "viewBasket": "Visa varukorgen",
+      "atCheckout": "Beräknas i kassan",
+      "free": "Gratis",
+      "tax": "Moms"
     },
     "discount": {
       "title": "Rabattkod",
@@ -3363,7 +3410,16 @@
       "demoStore": "Demobutik: ingen riktig betalning",
       "demoStoreBody": "Använd ett testkort nedan. Ingen debiteras.",
       "continueToPayment": "Fortsätt till betalning",
-      "redirecting": "Omdirigerar…"
+      "redirecting": "Omdirigerar…",
+      "shippingMethod": "Fraktsätt",
+      "standardShipping": "Standardfrakt",
+      "shippingWith": "Frakt ({rate})",
+      "free": "Gratis",
+      "tax": "Moms",
+      "taxAtPayment": "Beräknas vid betalning",
+      "deliveryDays": "{min}–{max} arbetsdagar",
+      "deliveryDaysExact": "{days, plural, one {# arbetsdag} other {# arbetsdagar}}",
+      "noShippingOptions": "Vi skickar inte till det här landet än."
     },
     "order": {
       "title": "Orderstatus",
@@ -3400,7 +3456,12 @@
       "lookupSubmit": "Visa min order",
       "lookupPending": "Kontrollerar…",
       "processingTitle": "Vi bekräftar din betalning",
-      "processingBody": "Sidan uppdateras så snart betalningen är bekräftad."
+      "processingBody": "Sidan uppdateras så snart betalningen är bekräftad.",
+      "shippingWith": "Frakt ({rate})",
+      "tax": "Moms",
+      "taxIncludedPlain": "Moms (ingår)",
+      "taxIncludedRow": "Moms {rate, number} % (ingår)",
+      "invoice": "Visa faktura"
     },
     "status": {
       "awaitingPayment": "Väntar på betalning",
@@ -3444,7 +3505,9 @@
       "enterOrderEmail": "Ange e-postadressen på ordern.",
       "lookupFailed": "Ingen order matchar koden och e-postadressen.",
       "soldOut": "{variant} är slutsåld.",
-      "onlyLeft": "Endast {count} kvar av {variant}."
+      "onlyLeft": "Endast {count} kvar av {variant}.",
+      "noShippingTo": "Vi skickar inte till {country}.",
+      "noShippingRate": "Välj ett fraktsätt."
     },
     "artwork": {
       "lowDpi": "Bilden trycks i {dpi} DPI, under de {required} DPI som produkten kräver.",
@@ -3513,7 +3576,12 @@
       "approvalBody": "{buyer} har skickat in ”{campaign}” för {company}.",
       "approvalRecipientsLabel": "Mottagare",
       "approvalTotalLabel": "Totalt",
-      "approvalCta": "Granska listan"
+      "approvalCta": "Granska listan",
+      "orderShippingLabel": "Frakt ({rate})",
+      "orderTaxLabel": "Moms",
+      "orderTaxRateLabel": "Moms {rate, number} %",
+      "orderTaxIncluded": "{amount} (ingår)",
+      "orderInvoice": "Visa din faktura"
     },
     "gift": {
       "chromeSubtitle": "Gåvokatalog · {store}",
@@ -3668,6 +3736,20 @@
       "privacy": "Integritetspolicy",
       "agreement": "Genom att beställa godkänner du <terms>försäljningsvillkoren</terms> och <refunds>returpolicyn</refunds>.",
       "questions": "Frågor om denna policy?"
+    },
+    "invoice": {
+      "title": "Faktura {code}",
+      "heading": "Faktura",
+      "number": "Fakturanummer",
+      "date": "Datum",
+      "billTo": "Faktureras till",
+      "item": "Artikel",
+      "quantity": "Antal",
+      "unitPrice": "Styckpris",
+      "amount": "Belopp",
+      "total": "Totalt",
+      "print": "Skriv ut eller spara som PDF",
+      "backToOrder": "Tillbaka till ordern"
     }
   },
   "collections": {
@@ -3988,5 +4070,92 @@
     "saveSettings": "Spara",
     "thresholdValue": "{count, plural, one {Lågt lager vid # enhet eller färre.} other {Lågt lager vid # enheter eller färre.}}",
     "activityLink": "Visa lageraktivitet"
+  },
+  "shipping": {
+    "intro": "Vart du skickar, vad kunderna betalar för leverans och hur moms tas ut.",
+    "zonesTitle": "Fraktzoner",
+    "emptyTitle": "Lägg till en fraktzon för att börja sälja",
+    "emptyBody": "Produkter kan inte publiceras förrän butiken skickar till minst ett land.",
+    "countryCount": "{count, plural, one {# land} other {# länder}}",
+    "countriesMore": "{list} och {count} till",
+    "noRatesBadge": "Inga fraktsätt",
+    "noRates": "Lägg till ett fraktsätt så att kunder i de här länderna kan handla.",
+    "colRate": "Fraktsätt",
+    "colPrice": "Pris",
+    "colDelivery": "Leverans",
+    "colActions": "Åtgärder",
+    "kinds": {
+      "flat": "Fast pris",
+      "weight": "Efter orderns vikt",
+      "subtotal": "Efter orderns belopp",
+      "free_over": "Gratis över ett belopp"
+    },
+    "free": "Gratis",
+    "freeOver": "{price}, gratis från {threshold}",
+    "tierUpTo": "Upp till {limit}: {price}",
+    "tierAbove": "Över: {price}",
+    "grams": "{value, number} g",
+    "deliveryDays": "{min}–{max} arbetsdagar",
+    "editRate": "Redigera {name}",
+    "addRate": "Lägg till fraktsätt",
+    "rateLimit": "En zon kan ha upp till {max} fraktsätt.",
+    "editZone": "Redigera {name}",
+    "createTitle": "Skapa zon",
+    "createBody": "Priserna är i {currency}.",
+    "countries": "Länder",
+    "noCountries": "Inga länder tillagda",
+    "addCountry": "Lägg till land",
+    "removeCountry": "Ta bort {country}",
+    "takenHint": "Länder som finns i en annan zon hoppas över.",
+    "clearCountries": "Rensa alla",
+    "zoneName": "Zonnamn",
+    "zoneNameHint": "Visas bara för dig, till exempel Europa eller Inrikes.",
+    "createZone": "Skapa zon",
+    "saveZone": "Spara zon",
+    "saving": "Sparar…",
+    "deleteZone": "Ta bort zon",
+    "deleteZoneQuestion": "Ta bort {name} och dess fraktsätt? Kunder i de här länderna kan då inte handla.",
+    "rateName": "Namn på fraktsätt",
+    "rateNameHint": "Visas i kassan, till exempel Standard eller Express.",
+    "rateKind": "Prissättning",
+    "price": "Pris ({currency})",
+    "priceBelow": "Pris under gränsen ({currency})",
+    "priceHint": "Ange 0 för fri frakt.",
+    "threshold": "Gratis från ({currency})",
+    "thresholdHint": "Orderns delsumma efter rabatter.",
+    "weightTiers": "Pris efter vikt",
+    "subtotalTiers": "Pris efter delsumma",
+    "tiersHint": "Lämna den sista övre gränsen tom för att täcka allt över den.",
+    "upToGrams": "Upp till (g)",
+    "upToAmount": "Upp till ({currency})",
+    "andAbove": "och över",
+    "addTier": "Lägg till steg",
+    "removeTier": "Ta bort rad {row}",
+    "minDays": "Leverans från (dagar)",
+    "maxDays": "Leverans till (dagar)",
+    "daysHint": "Arbetsdagar, som kunderna ser som beräknad leveranstid.",
+    "saveRate": "Spara fraktsätt",
+    "deleteRate": "Ta bort",
+    "deleteRateQuestion": "Ta bort fraktsättet {name}?",
+    "taxTitle": "Moms",
+    "taxMode": "Momsberäkning",
+    "modes": {
+      "manual": "Manuella momssatser",
+      "manualHint": "Ange en sats per land. Andra länder använder varje produkts momsklass.",
+      "stripe": "Stripe Tax",
+      "stripeHint": "Stripe räknar ut momsen vid betalning utifrån kundens adress.",
+      "stripeNeedsPayments": "Anslut Stripe-betalningar för att använda Stripe Tax."
+    },
+    "stripeTaxOn": "Stripe Tax räknar ut momsen i kassan.",
+    "stripeTaxPendingNote": "Stripe Tax är inte aktivt på ditt Stripe-konto än. Tills dess gäller de manuella satserna.",
+    "pricesIncludeTax": "Priserna inkluderar moms",
+    "pricesIncludeTaxHint": "Momsen ingår i priset i stället för att läggas till i kassan.",
+    "countryRates": "Momssatser per land",
+    "countryRatesHint": "Ersätter produkternas momsklasser för ordrar som skickas till det landet.",
+    "country": "Land",
+    "ratePercent": "Sats (%)",
+    "addTaxRow": "Lägg till land",
+    "removeTaxRow": "Ta bort den här satsen",
+    "saveTax": "Spara momsinställningar"
   }
 }

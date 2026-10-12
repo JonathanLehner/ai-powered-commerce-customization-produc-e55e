@@ -7,13 +7,15 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { Callout } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
-import type { FulfillmentSource } from "@/lib/countries";
+import { isCountryCode, type FulfillmentSource } from "@/lib/countries";
+import { shippingCountries, shippingOptions } from "@/lib/shipping";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getSupplier } from "@/lib/data";
 import { paymentMode } from "@/lib/payment-mode";
 import { storefrontBySlug } from "@/lib/storefront-data";
 import { variantPhoto } from "@/lib/line-preview";
+import { CheckoutDeliveryProvider, SummaryTotals, type CheckoutQuote } from "./CheckoutDelivery";
 import { CheckoutForm } from "./CheckoutForm";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,7 +43,7 @@ export default async function CheckoutPage({
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!data) return <UnknownStoreView slug={slug} />;
-  const { store, basket } = data;
+  const { store, basket, shippingZones: zones } = data;
 
   const { t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const cart = basket?.cart;
@@ -49,8 +51,25 @@ export default async function CheckoutPage({
 
   const mode = paymentMode(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
-  const { products, lines, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
-    await basketTotals(store, cart.items, currency, basket.discountCode, basket);
+  // The checkout opens on the store's own country when it ships there, else on
+  // the first country it does ship to.
+  const shippable = shippingCountries(zones);
+  const home = isCountryCode(store.stripe.country) ? store.stripe.country.toUpperCase() : "US";
+  const defaultCountry = zones.length === 0 || shippable.includes(home) ? home : shippable[0];
+  const { products, lines, discount, discountRefusal, discountMinimum, options, basis, weightGrams } =
+    await basketTotals(store, cart.items, currency, basket.discountCode, basket, { zones, country: defaultCountry });
+  const quote: CheckoutQuote = {
+    currency,
+    basis,
+    zones:
+      zones.length > 0
+        ? zones.map((zone) => ({
+            countries: zone.countries,
+            options: shippingOptions([zone], zone.countries[0], { weightGrams, subtotal: basis.goods, currency }),
+          }))
+        : null,
+    standard: zones.length > 0 ? null : (options[0] ?? null),
+  };
 
   // Which supplier stands behind each basket line, so the form can tell the
   // shopper their destination is out of region before the card is charged.
@@ -91,6 +110,7 @@ export default async function CheckoutPage({
           </Callout>
         </div>
       ) : (
+        <CheckoutDeliveryProvider quote={quote} defaultCountry={defaultCountry}>
         <div className="mt-8 space-y-6">
           <Card asChild>
             <section>
@@ -126,33 +146,7 @@ export default async function CheckoutPage({
                   ))}
                 </ul>
                 <Separator className="my-4" />
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">{t("checkout.shipping")}</dt>
-                    <dd className="tabular-nums text-foreground">{money(shipping, currency)}</dd>
-                  </div>
-                  {discount ? (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("discount.row", { code: discount.code })}</dt>
-                      <dd className="tabular-nums text-emerald-700">− {money(discount.amount, currency)}</dd>
-                    </div>
-                  ) : null}
-                  {taxRows.map((row) => (
-                    <div key={row.rate} className="flex justify-between">
-                      <dt className="text-muted-foreground">
-                        {t("checkout.taxRow", { rate: row.rate })}{" "}
-                        {store.pricesIncludeTax ? t("checkout.taxIncludedSuffix") : ""}
-                      </dt>
-                      <dd className="tabular-nums text-foreground">{money(row.amount, currency)}</dd>
-                    </div>
-                  ))}
-                  <div className="flex justify-between border-t border-border pt-2">
-                    <dt className="font-semibold text-foreground">{t("checkout.total")}</dt>
-                    <dd className="text-base font-semibold tabular-nums text-foreground">
-                      {money(total, currency)}
-                    </dd>
-                  </div>
-                </dl>
+                <SummaryTotals discount={discount ? { code: discount.code, amount: discount.amount } : null} />
                 <DiscountEntry
                   storeId={store.id}
                   code={cart.discountCode ?? null}
@@ -171,11 +165,11 @@ export default async function CheckoutPage({
             storeId={store.id}
             currencies={store.currencies}
             currency={currency}
-            defaultCountry={store.stripe.country}
             fulfillmentSources={[...sources.values()]}
             base={base}
           />
         </div>
+        </CheckoutDeliveryProvider>
       )}
     </div>
   );

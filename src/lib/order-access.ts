@@ -59,3 +59,8 @@ export function emailMatchesOrder(orderEmail: string, given: string): boolean {
 export function orderStatusUrl(base: string, code: string, token: string, extra = ""): string {
   return `${base}/orders/${encodeURIComponent(code)}?t=${token}${extra}`;
 }
+
+/** The printable invoice of an order, behind the same signed token as its status page. */
+export function orderInvoiceUrl(base: string, code: string, token: string): string {
+  return `${base}/orders/${encodeURIComponent(code)}/invoice?t=${token}`;
+}

@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { countryName } from "@/i18n/display";
 import { getOrder, getOrderByCode, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
-import { orderTaxRows } from "@/lib/pricing";
+import { orderInvoiceUrl, signOrderToken } from "@/lib/order-access";
+import { orderTax } from "@/lib/shipping";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { canMoveOrder, type FulfillmentEvent } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
@@ -49,6 +50,8 @@ export default async function OrderDetailPage({
   ]);
 
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
+  const tax = orderTax(order);
+  const invoiceHref = orderInvoiceUrl(`/s/${store.slug}`, order.code, await signOrderToken(store.id, order.code));
   const [t, labels, locale] = await Promise.all([
     getTranslations("orderDetail"),
     getTranslations("labels"),
@@ -120,6 +123,13 @@ export default async function OrderDetailPage({
                 <Link href={`/s/${store.slug}/orders/${order.code}`} target="_blank" rel="noreferrer">
                   {t("shopperPage")}
                 </Link>
+              </Button>
+            )}
+            {viaPlatform || order.status === "awaiting_payment" ? null : (
+              <Button asChild variant="outline" size="sm">
+                <a href={invoiceHref} target="_blank" rel="noreferrer">
+                  {t("invoice")}
+                </a>
               </Button>
             )}
           </>
@@ -239,7 +249,10 @@ export default async function OrderDetailPage({
                     <DataList
                       rows={[
                         { label: t("subtotal"), value: money(order.subtotal) },
-                        { label: t("shipping"), value: money(order.shipping) },
+                        {
+                          label: order.shippingRate ? t("shippingWith", { rate: order.shippingRate.name }) : t("shipping"),
+                          value: money(order.shipping),
+                        },
                         ...(order.discount
                           ? [
                               {
@@ -248,8 +261,15 @@ export default async function OrderDetailPage({
                               },
                             ]
                           : []),
-                        ...orderTaxRows(order).map((row) => ({
-                          label: t("tax", { rate: row.rate }),
+                        ...tax.rows.map((row) => ({
+                          label:
+                            row.rate === null
+                              ? tax.inclusive
+                                ? t("taxIncludedPlain")
+                                : t("taxPlain")
+                              : tax.inclusive
+                                ? t("taxIncluded", { rate: row.rate })
+                                : t("tax", { rate: row.rate }),
                           value: money(row.amount),
                         })),
                         {

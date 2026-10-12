@@ -11,9 +11,9 @@ import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getOrderByCode } from "@/lib/data";
 import { storefrontBySlug } from "@/lib/storefront-data";
-import { verifyOrderToken } from "@/lib/order-access";
+import { orderInvoiceUrl, verifyOrderToken } from "@/lib/order-access";
 import { shopperTimeline } from "@/lib/order-timeline";
-import { orderTaxRows } from "@/lib/pricing";
+import { orderTax } from "@/lib/shipping";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import type { OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS } from "@/lib/util";
@@ -92,6 +92,14 @@ export default async function OrderStatusPage({
   const support = storeSupport(store);
   const contactSubject = t("order.contactSubject", { code: order.code });
   const timeline = shopperTimeline(order.events);
+  const tax = orderTax(order);
+  const rate = order.shippingRate;
+  const estimate =
+    rate && rate.maxDays > 0
+      ? rate.minDays === rate.maxDays || rate.minDays <= 0
+        ? t("checkout.deliveryDaysExact", { days: rate.maxDays })
+        : t("checkout.deliveryDays", { min: rate.minDays, max: rate.maxDays })
+      : null;
 
   // Back from Stripe Checkout. Only the webhook marks the order paid, so until
   // it lands the page says the payment is being confirmed.
@@ -189,7 +197,10 @@ export default async function OrderStatusPage({
           <DataList
             rows={[
               { label: t("order.subtotal"), value: money(order.subtotal, order.currency) },
-              { label: t("order.shipping"), value: money(order.shipping, order.currency) },
+              {
+                label: rate ? t("order.shippingWith", { rate: rate.name }) : t("order.shipping"),
+                value: money(order.shipping, order.currency),
+              },
               ...(order.discount
                 ? [
                     {
@@ -198,8 +209,15 @@ export default async function OrderStatusPage({
                     },
                   ]
                 : []),
-              ...orderTaxRows(order).map((row) => ({
-                label: t("order.taxRow", { rate: row.rate }),
+              ...tax.rows.map((row) => ({
+                label:
+                  row.rate === null
+                    ? tax.inclusive
+                      ? t("order.taxIncludedPlain")
+                      : t("order.tax")
+                    : tax.inclusive
+                      ? t("order.taxIncludedRow", { rate: row.rate })
+                      : t("order.taxRow", { rate: row.rate }),
                 value: money(row.amount, order.currency),
               })),
               { label: t("order.paid"), value: money(order.total, order.currency) },
@@ -229,6 +247,12 @@ export default async function OrderStatusPage({
             <br />
             {localCountryName(order.customer.country, locale)}
           </address>
+          {rate ? (
+            <p className="mt-2 text-sm text-inksoft">
+              {rate.name}
+              {estimate ? ` · ${estimate}` : ""}
+            </p>
+          ) : null}
         </div>
         <div>
           <h2 className="font-heading text-base font-semibold text-foreground">{t("order.payment")}</h2>
@@ -312,6 +336,16 @@ export default async function OrderStatusPage({
         >
           {t("order.continueShopping")}
         </Link>
+        {order.payment.status === "succeeded" || order.payment.status === "refunded" ? (
+          <a
+            href={orderInvoiceUrl(base, order.code, token ?? "")}
+            target="_blank"
+            rel="noopener"
+            className={buttonVariants({ variant: "outline", size: "lg" })}
+          >
+            {t("order.invoice")}
+          </a>
+        ) : null}
         {support.email ? (
           <a
             href={supportMailto(support.email, contactSubject)}

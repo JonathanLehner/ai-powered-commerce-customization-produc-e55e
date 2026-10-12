@@ -6,6 +6,8 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { EmptyState } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
+import { isCountryCode } from "@/lib/countries";
+import { shippingCountries } from "@/lib/shipping";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { storefrontBySlug } from "@/lib/storefront-data";
@@ -33,15 +35,20 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!data) return <UnknownStoreView slug={slug} />;
-  const { store, basket } = data;
+  const { store, basket, shippingZones: zones } = data;
 
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const cart = basket?.cart ?? null;
   const items = cart?.items ?? [];
 
-  const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
-    await basketTotals(store, items, currency, basket?.discountCode ?? null, basket ?? undefined);
+  // Priced for the store's own country, or the first one it ships to; checkout
+  // reprices it for the shopper's address.
+  const shippable = shippingCountries(zones);
+  const home = isCountryCode(store.stripe.country) ? store.stripe.country.toUpperCase() : "US";
+  const country = zones.length === 0 || shippable.includes(home) ? home : shippable[0];
+  const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, shippingOption, stripeTax, taxRows, total } =
+    await basketTotals(store, items, currency, basket?.discountCode ?? null, basket ?? undefined, { zones, country });
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -134,13 +141,23 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t("basket.shipping")}</dt>
-                <dd className="font-medium tabular-nums text-foreground">{money(shipping, currency)}</dd>
+                <dd className="font-medium tabular-nums text-foreground">
+                  {!shippingOption ? t("basket.atCheckout") : shipping === 0 ? t("basket.free") : money(shipping, currency)}
+                </dd>
               </div>
               {discount ? (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t("discount.row", { code: discount.code })}</dt>
                   <dd className="font-medium tabular-nums text-emerald-700">
                     − {money(discount.amount, currency)}
+                  </dd>
+                </div>
+              ) : null}
+              {stripeTax ? (
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">{t("basket.tax")}</dt>
+                  <dd className="text-muted-foreground">
+                    {store.pricesIncludeTax ? t("basket.taxIncludedSuffix") : t("basket.atCheckout")}
                   </dd>
                 </div>
               ) : null}

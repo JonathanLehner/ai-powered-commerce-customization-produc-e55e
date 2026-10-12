@@ -328,7 +328,9 @@
       "Discounts": "Kortingen",
       "Storefront": "Etalage",
       "Translations": "Winkelteksten en vertalingen",
-      "Inventory": "Voorraad"
+      "Inventory": "Voorraad",
+      "Shipping": "Verzending",
+      "Taxes": "Btw"
     },
     "ctaTitle": "Maak je eerste sleutel",
     "ctaBody": "Log in, open de Instellingen van een winkel en kies API-sleutels.",
@@ -718,7 +720,8 @@
       "discounts": "Kortingen",
       "team": "Team",
       "settings": "Instellingen",
-      "activity": "Activiteit"
+      "activity": "Activiteit",
+      "shipping": "Verzending en btw"
     },
     "adminTabs": {
       "overview": "Overzicht",
@@ -762,7 +765,8 @@
       "discountsTitle": "Kortingscodes",
       "teamTitle": "Team",
       "settingsTitle": "Instellingen",
-      "activityTitle": "Auditgeschiedenis"
+      "activityTitle": "Auditgeschiedenis",
+      "shippingTitle": "Verzending en btw"
     }
   },
   "dashboard": {
@@ -1255,8 +1259,11 @@
         "belowCost": "De marge is {margin}. Deze prijs ligt onder de kostprijs.",
         "belowCostFix": "Verhoog de verkoopprijs of kies een goedkoper leveranciersproduct.",
         "noVariants": "Alle varianten zijn uitgeschakeld.",
-        "noVariantsFix": "Schakel minstens één maat of kleur in."
-      }
+        "noVariantsFix": "Schakel minstens één maat of kleur in.",
+        "noShippingZone": "De winkel heeft geen verzendzones.",
+        "noShippingZoneFix": "Voeg een verzendzone toe onder Verzending en btw."
+      },
+      "weightRange": "Voer voor {name} een gewicht in hele grammen in, tot 1.000.000."
     },
     "sourcing": {
       "listingGone": "Dat catalogusartikel wordt niet meer aangeboden. Kies een ander of beschrijf het.",
@@ -1399,6 +1406,36 @@
       "imported": "{count, plural, one {# variant bijgewerkt.} other {# varianten bijgewerkt.}}",
       "importedWithProblems": "{count, plural, one {# variant bijgewerkt.} other {# varianten bijgewerkt.}} {skipped, plural, one {# rij overgeslagen} other {# rijen overgeslagen}}, controleer regel {lines}.",
       "settingsSaved": "Voorraadinstellingen opgeslagen."
+    },
+    "shipping": {
+      "zoneName": "Voer een zonenaam van 2 tot 60 tekens in.",
+      "zoneCountries": "Voeg minstens één land toe.",
+      "unknownCountry": "{code} is geen landcode.",
+      "countryTaken": "{code} zit al in {zone}.",
+      "rateName": "Voer een tariefnaam van 2 tot 60 tekens in.",
+      "rateKind": "Kies hoe het tarief wordt berekend.",
+      "deliveryDays": "Voer de levertijd in hele dagen in, de eerste niet hoger dan de tweede en maximaal {max}.",
+      "ratePrice": "Voer een prijs van 0 of meer in.",
+      "threshold": "Voer het orderbedrag in vanaf waar verzending gratis is.",
+      "tierCount": "Voeg 1 tot {max} prijsstappen toe.",
+      "tierPrice": "Voer in rij {row} een prijs van 0 of meer in.",
+      "tierOpenEnd": "Alleen de laatste rij mag zonder bovengrens blijven.",
+      "tierOrder": "Rij {row} heeft een hogere bovengrens nodig dan de rij erboven.",
+      "taxCountryTwice": "{code} heeft meer dan één btw-tarief.",
+      "taxRate": "Voer een btw-tarief tussen 0 en {max}% in.",
+      "tooManyZones": "Een winkel kan maximaal {max} verzendzones hebben.",
+      "tooManyRates": "Een zone kan maximaal {max} tarieven hebben.",
+      "rateGone": "Dit tarief bestaat niet meer. Laad de pagina opnieuw.",
+      "zoneGone": "Deze zone bestaat niet meer. Laad de pagina opnieuw.",
+      "stripeTaxNeedsStripe": "Koppel Stripe-betalingen voordat je Stripe Tax inschakelt.",
+      "stripeTaxPending": "Stripe Tax is nog niet actief. Rond de configuratie af in je Stripe Dashboard.",
+      "stripeTaxUnavailable": "Stripe Tax is niet beschikbaar voor je Stripe-account.",
+      "taxMode": "Kies hoe btw wordt berekend.",
+      "zoneCreated": "{name} toegevoegd.",
+      "zoneSaved": "{name} opgeslagen.",
+      "rateCreated": "{name} toegevoegd.",
+      "rateSaved": "{name} opgeslagen.",
+      "taxSaved": "Btw-instellingen opgeslagen."
     }
   },
   "settings": {
@@ -1898,7 +1935,12 @@
     "recordRefund": "Terugbetaling vastleggen",
     "refundBody": "Het bedrag wordt aan de klant terugbetaald. Dit kan niet ongedaan worden gemaakt.",
     "dataDeleted": "Persoonsgegevens verwijderd",
-    "restock": "{count, plural, one {# artikel} other {# artikelen}} terugzetten in voorraad"
+    "restock": "{count, plural, one {# artikel} other {# artikelen}} terugzetten in voorraad",
+    "invoice": "Factuur",
+    "shippingWith": "Verzending ({rate})",
+    "taxPlain": "Btw",
+    "taxIncludedPlain": "Btw (inbegrepen)",
+    "taxIncluded": "Btw {rate}% (inbegrepen)"
   },
   "customers": {
     "title": "Klanten",
@@ -2347,7 +2389,9 @@
     "setForAll": "Voor alle instellen",
     "setForSelected": "Voor selectie instellen",
     "bulkPriceInvalid": "Voer een prijs boven 0 in.",
-    "bulkPriceApplied": "{count, plural, one {# prijs bijgewerkt.} other {# prijzen bijgewerkt.}} Sla de varianten op om de wijziging te bewaren."
+    "bulkPriceApplied": "{count, plural, one {# prijs bijgewerkt.} other {# prijzen bijgewerkt.}} Sla de varianten op om de wijziging te bewaren.",
+    "colWeight": "Gewicht (g)",
+    "weightFor": "Gewicht in gram voor {name}"
   },
   "artworkIssues": {
     "edges": {
@@ -3299,7 +3343,10 @@
       "total": "Totaal",
       "checkout": "Afrekenen",
       "keepShopping": "Verder winkelen",
-      "viewBasket": "Mandje bekijken"
+      "viewBasket": "Mandje bekijken",
+      "atCheckout": "Berekend bij afrekenen",
+      "free": "Gratis",
+      "tax": "Btw"
     },
     "discount": {
       "title": "Kortingscode",
@@ -3363,7 +3410,16 @@
       "demoStore": "Demowinkel: geen echte betaling",
       "demoStoreBody": "Gebruik een testkaart hieronder. Er wordt niemand belast.",
       "continueToPayment": "Doorgaan naar betalen",
-      "redirecting": "Doorsturen…"
+      "redirecting": "Doorsturen…",
+      "shippingMethod": "Verzendmethode",
+      "standardShipping": "Standaardverzending",
+      "shippingWith": "Verzending ({rate})",
+      "free": "Gratis",
+      "tax": "Btw",
+      "taxAtPayment": "Berekend bij betaling",
+      "deliveryDays": "{min}–{max} werkdagen",
+      "deliveryDaysExact": "{days, plural, one {# werkdag} other {# werkdagen}}",
+      "noShippingOptions": "We verzenden nog niet naar dit land."
     },
     "order": {
       "title": "Bestelstatus",
@@ -3400,7 +3456,12 @@
       "lookupSubmit": "Toon mijn bestelling",
       "lookupPending": "Bezig met controleren…",
       "processingTitle": "Je betaling wordt bevestigd",
-      "processingBody": "Deze pagina wordt bijgewerkt zodra de betaling is bevestigd."
+      "processingBody": "Deze pagina wordt bijgewerkt zodra de betaling is bevestigd.",
+      "shippingWith": "Verzending ({rate})",
+      "tax": "Btw",
+      "taxIncludedPlain": "Btw (inbegrepen)",
+      "taxIncludedRow": "Btw {rate, number}% (inbegrepen)",
+      "invoice": "Factuur bekijken"
     },
     "status": {
       "awaitingPayment": "Wacht op betaling",
@@ -3444,7 +3505,9 @@
       "enterOrderEmail": "Vul het e-mailadres van de bestelling in.",
       "lookupFailed": "Geen bestelling gevonden met deze code en dit e-mailadres.",
       "soldOut": "{variant} is uitverkocht.",
-      "onlyLeft": "Van {variant} zijn er nog maar {count}."
+      "onlyLeft": "Van {variant} zijn er nog maar {count}.",
+      "noShippingTo": "We verzenden niet naar {country}.",
+      "noShippingRate": "Kies een verzendmethode."
     },
     "artwork": {
       "lowDpi": "Deze afbeelding wordt gedrukt op {dpi} DPI, onder de {required} DPI die dit product nodig heeft.",
@@ -3513,7 +3576,12 @@
       "approvalBody": "{buyer} heeft „{campaign}” ingediend voor {company}.",
       "approvalRecipientsLabel": "Ontvangers",
       "approvalTotalLabel": "Totaal",
-      "approvalCta": "Bekijk de lijst"
+      "approvalCta": "Bekijk de lijst",
+      "orderShippingLabel": "Verzending ({rate})",
+      "orderTaxLabel": "Btw",
+      "orderTaxRateLabel": "Btw {rate, number}%",
+      "orderTaxIncluded": "{amount} (inbegrepen)",
+      "orderInvoice": "Bekijk je factuur"
     },
     "gift": {
       "chromeSubtitle": "Cadeaucatalogus · {store}",
@@ -3668,6 +3736,20 @@
       "privacy": "Privacybeleid",
       "agreement": "Door te bestellen ga je akkoord met de <terms>verkoopvoorwaarden</terms> en het <refunds>retourbeleid</refunds>.",
       "questions": "Vragen over dit beleid?"
+    },
+    "invoice": {
+      "title": "Factuur {code}",
+      "heading": "Factuur",
+      "number": "Factuurnummer",
+      "date": "Datum",
+      "billTo": "Factuuradres",
+      "item": "Artikel",
+      "quantity": "Aantal",
+      "unitPrice": "Stukprijs",
+      "amount": "Bedrag",
+      "total": "Totaal",
+      "print": "Afdrukken of opslaan als pdf",
+      "backToOrder": "Terug naar bestelling"
     }
   },
   "collections": {
@@ -3988,5 +4070,92 @@
     "saveSettings": "Opslaan",
     "thresholdValue": "{count, plural, one {Lage voorraad bij # eenheid of minder.} other {Lage voorraad bij # eenheden of minder.}}",
     "activityLink": "Voorraadactiviteit bekijken"
+  },
+  "shipping": {
+    "intro": "Waar je naartoe verzendt, wat klanten voor bezorging betalen en hoe btw wordt berekend.",
+    "zonesTitle": "Verzendzones",
+    "emptyTitle": "Voeg een verzendzone toe om te gaan verkopen",
+    "emptyBody": "Producten kunnen pas worden gepubliceerd als de winkel naar minstens één land verzendt.",
+    "countryCount": "{count, plural, one {# land} other {# landen}}",
+    "countriesMore": "{list} en nog {count}",
+    "noRatesBadge": "Geen tarieven",
+    "noRates": "Voeg een tarief toe zodat klanten in deze landen kunnen afrekenen.",
+    "colRate": "Tarief",
+    "colPrice": "Prijs",
+    "colDelivery": "Levering",
+    "colActions": "Acties",
+    "kinds": {
+      "flat": "Vast tarief",
+      "weight": "Op basis van ordergewicht",
+      "subtotal": "Op basis van orderbedrag",
+      "free_over": "Gratis vanaf een bedrag"
+    },
+    "free": "Gratis",
+    "freeOver": "{price}, gratis vanaf {threshold}",
+    "tierUpTo": "Tot {limit}: {price}",
+    "tierAbove": "Daarboven: {price}",
+    "grams": "{value, number} g",
+    "deliveryDays": "{min}–{max} werkdagen",
+    "editRate": "{name} bewerken",
+    "addRate": "Tarief toevoegen",
+    "rateLimit": "Een zone kan maximaal {max} tarieven hebben.",
+    "editZone": "{name} bewerken",
+    "createTitle": "Zone maken",
+    "createBody": "Tarieven zijn in {currency}.",
+    "countries": "Landen",
+    "noCountries": "Geen landen toegevoegd",
+    "addCountry": "Land toevoegen",
+    "removeCountry": "{country} verwijderen",
+    "takenHint": "Landen in een andere zone worden overgeslagen.",
+    "clearCountries": "Alles wissen",
+    "zoneName": "Zonenaam",
+    "zoneNameHint": "Alleen zichtbaar voor jou, bijvoorbeeld Europa of Binnenland.",
+    "createZone": "Zone maken",
+    "saveZone": "Zone opslaan",
+    "saving": "Opslaan…",
+    "deleteZone": "Zone verwijderen",
+    "deleteZoneQuestion": "{name} en de tarieven verwijderen? Klanten in deze landen kunnen dan niet meer afrekenen.",
+    "rateName": "Tariefnaam",
+    "rateNameHint": "Wordt getoond bij het afrekenen, bijvoorbeeld Standaard of Express.",
+    "rateKind": "Prijsberekening",
+    "price": "Prijs ({currency})",
+    "priceBelow": "Prijs onder de drempel ({currency})",
+    "priceHint": "Voer 0 in voor gratis verzending.",
+    "threshold": "Gratis vanaf ({currency})",
+    "thresholdHint": "Subtotaal van de order na kortingen.",
+    "weightTiers": "Prijs op gewicht",
+    "subtotalTiers": "Prijs op subtotaal",
+    "tiersHint": "Laat de laatste bovengrens leeg om alles daarboven te dekken.",
+    "upToGrams": "Tot (g)",
+    "upToAmount": "Tot ({currency})",
+    "andAbove": "en hoger",
+    "addTier": "Stap toevoegen",
+    "removeTier": "Rij {row} verwijderen",
+    "minDays": "Levering vanaf (dagen)",
+    "maxDays": "Levering tot (dagen)",
+    "daysHint": "Werkdagen, die klanten zien als verwachte levertijd.",
+    "saveRate": "Tarief opslaan",
+    "deleteRate": "Verwijderen",
+    "deleteRateQuestion": "Tarief {name} verwijderen?",
+    "taxTitle": "Btw",
+    "taxMode": "Btw-berekening",
+    "modes": {
+      "manual": "Handmatige tarieven",
+      "manualHint": "Stel een tarief per land in. Andere landen gebruiken de btw-schijf van elk product.",
+      "stripe": "Stripe Tax",
+      "stripeHint": "Stripe berekent de btw bij betaling op basis van het adres van de klant.",
+      "stripeNeedsPayments": "Koppel Stripe-betalingen om Stripe Tax te gebruiken."
+    },
+    "stripeTaxOn": "Stripe Tax berekent de btw bij het afrekenen.",
+    "stripeTaxPendingNote": "Stripe Tax is nog niet actief op je Stripe-account. Tot die tijd gelden de handmatige tarieven.",
+    "pricesIncludeTax": "Prijzen zijn inclusief btw",
+    "pricesIncludeTaxHint": "De btw zit in de prijs in plaats van bij het afrekenen te worden opgeteld.",
+    "countryRates": "Btw-tarieven per land",
+    "countryRatesHint": "Vervangt de btw-schijven van producten voor orders naar dat land.",
+    "country": "Land",
+    "ratePercent": "Tarief (%)",
+    "addTaxRow": "Land toevoegen",
+    "removeTaxRow": "Dit tarief verwijderen",
+    "saveTax": "Btw-instellingen opslaan"
   }
 }

@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { artworkIssueText } from "@/i18n/artwork-copy";
 import type { Locale } from "@/i18n/locales";
 import { blockingIssues, validateArtwork } from "./artwork";
-import { getCatalogProduct } from "./data";
+import { getCatalogProduct, listShippingZones } from "./data";
 import type { CatalogProduct, StoreProduct } from "./types";
 import { formatMoney } from "./util";
 
@@ -27,9 +27,16 @@ export async function publishBlockersFor(
     getTranslations({ locale, namespace: "artworkIssues" }),
   ]);
   const catalogIds = [...new Set(products.map((p) => p.catalogProductId))];
-  const catalogs = new Map<string, CatalogProduct | null>(
-    await Promise.all(catalogIds.map(async (id) => [id, await getCatalogProduct(id)] as const)),
-  );
+  const storeIds = [...new Set(products.map((p) => p.storeId))];
+  const [catalogs, shipsAnywhere] = await Promise.all([
+    Promise.all(catalogIds.map(async (id) => [id, await getCatalogProduct(id)] as const)).then(
+      (rows) => new Map<string, CatalogProduct | null>(rows),
+    ),
+    // A store cannot sell what it has nowhere to ship.
+    Promise.all(storeIds.map(async (id) => [id, (await listShippingZones(id)).length > 0] as const)).then(
+      (rows) => new Map<string, boolean>(rows),
+    ),
+  ]);
 
   const out = new Map<string, PublishBlocker[]>();
   for (const product of products) {
@@ -37,6 +44,9 @@ export async function publishBlockersFor(
     const blockers: PublishBlocker[] = [];
     out.set(product.id, blockers);
 
+    if (!shipsAnywhere.get(product.storeId)) {
+      blockers.push({ reason: t("noShippingZone"), fix: t("noShippingZoneFix") });
+    }
     if (!catalog) {
       blockers.push({ reason: t("retired"), fix: t("retiredFix") });
       continue;

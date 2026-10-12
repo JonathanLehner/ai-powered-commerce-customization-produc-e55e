@@ -293,7 +293,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
             <CardContent className="space-y-4">
               <VariantPriceTools product={product} selected={selected} onToggle={toggle} />
               <div className="relative overflow-x-auto">
-                <Table className="min-w-[40rem]">
+                <Table className="min-w-[46rem]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-8 px-0">
@@ -309,6 +309,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                       <TableHead className={TH}>{t("colCost")}</TableHead>
                       <TableHead className={TH}>{t("colAvailability")}</TableHead>
                       <TableHead className={TH}>{t("colPrice", { currency: product.currency })}</TableHead>
+                      <TableHead className={TH}>{t("colWeight")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -375,6 +376,20 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
                             defaultValue={toMajorString(variant.price, product.currency)}
                             aria-invalid={state.field === `price_${variant.id}` ? true : undefined}
                             className="w-28 tabular-nums"
+                          />
+                        </TableCell>
+                        <TableCell className="px-0 py-2">
+                          <Label htmlFor={`weight_${variant.id}`} className="sr-only">
+                            {t("weightFor", { name: variant.name })}
+                          </Label>
+                          <Input
+                            id={`weight_${variant.id}`}
+                            name={`weight_${variant.id}`}
+                            inputMode="numeric"
+                            defaultValue={variant.weightGrams ?? ""}
+                            placeholder="0"
+                            aria-invalid={state.field === `weight_${variant.id}` ? true : undefined}
+                            className="w-24 tabular-nums"
                           />
                         </TableCell>
                       </TableRow>

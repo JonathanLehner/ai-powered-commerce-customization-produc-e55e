@@ -40,6 +40,7 @@ const ICONS: Record<string, LucideIcon> = {
   orders: ClipboardListIcon,
   customers: UserRoundIcon,
   discounts: PercentIcon,
+  shipping: TruckIcon,
   team: UsersIcon,
   settings: SettingsIcon,
   activity: ActivityIcon,
