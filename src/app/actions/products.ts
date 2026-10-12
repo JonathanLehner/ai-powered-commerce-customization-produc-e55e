@@ -1,25 +1,21 @@
 "use server";
 
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   COLLECTIONS,
   getCatalogProduct,
   getStoreProduct,
-  getTaxBracket,
   listStoreProducts,
   listTaxBrackets,
   recordAudit,
   updateStoreProduct,
 } from "@/lib/data";
-import { blockingIssues, validateArtwork } from "@/lib/artwork";
 import { publishBlockersFor, type PublishBlocker } from "@/lib/publish-blockers";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/mongo";
-import { copyCatalogProductIntoStore } from "@/lib/catalog-import";
 import { breakdownFor } from "@/lib/pricing";
-import { isQuoteOnly } from "@/lib/sourcing";
 import {
   archiveBlock,
   bracketBlock,
@@ -33,8 +29,18 @@ import {
   type PriceChange,
   type ProductBlock,
 } from "@/lib/bulk-products";
-import { assertStoreAccess } from "@/lib/session";
-import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct } from "@/lib/types";
+import { refusal } from "@/lib/operations/action-state";
+import {
+  approveMockups as approvePreviews,
+  attachArtwork as placeArtwork,
+  importProduct,
+  removeArtwork as deleteArtwork,
+  saveProductDetails as saveDetails,
+  saveVariants as updateVariants,
+  setProductStatus as moveProduct,
+} from "@/lib/operations/products";
+import { assertStoreAccess, operationContext } from "@/lib/session";
+import type { CatalogProduct, MockupImage, StoreProduct } from "@/lib/types";
 import { formatMoney, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
@@ -61,32 +67,17 @@ export async function importCatalogProduct(formData: FormData): Promise<void> {
   const importKey = String(formData.get("importKey") ?? "") || null;
   const confirmed = formData.get("confirmed") === "1";
   const filters = String(formData.get("filters") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.catalog");
-  const [existing, catalogProduct] = await Promise.all([listStoreProducts(storeId), getCatalogProduct(catalogId)]);
+  const access = await assertStoreAccess(storeId, "store.catalog");
+  const outcome = await importProduct(await operationContext(access), { catalogId, importKey, confirmed });
 
-  // A resubmitted copy — double click, refresh, a tab left open — lands on the
-  // record it already created instead of making a second one.
-  const already = importKey ? existing.find((p) => p.importKey === importKey) : undefined;
-  if (already) {
-    const copies = existing.filter((p) => p.catalogProductId === already.catalogProductId).length;
-    redirect(`/app/stores/${storeId}/catalog/${already.id}?imported=${copies > 1 ? "copy" : "1"}`);
+  // A resubmission lands on the product it already made; a quote-priced listing
+  // opens the enquiry form; a second copy of a product needs a decision first.
+  if (outcome.kind === "existing") {
+    redirect(`/app/stores/${storeId}/catalog/${outcome.product.id}?imported=${outcome.copies > 1 ? "copy" : "1"}`);
   }
-
-  // A bulk-sourcing listing has no unit cost to copy: the price is whatever a
-  // supplier quoted this store for this run, and it comes in through the
-  // accepted quote on the enquiry. From here the enquiry form opens instead.
-  if (catalogProduct && isQuoteOnly(catalogProduct)) redirect(sourcingQuoteHref(storeId, catalogId, filters));
-
-  // Copying in a supplier product the store already holds needs a decision
-  // first — the alternative is two rows nobody can tell apart.
-  if (!confirmed && existing.some((p) => p.catalogProductId === catalogId)) {
-    redirect(sourcingConfirmHref(storeId, catalogId, filters));
-  }
-
-  const { product, copyNumber } = await copyCatalogProductIntoStore(store, catalogId, user, importKey);
-
-  revalidatePath(`/app/stores/${storeId}/catalog`);
-  redirect(`/app/stores/${storeId}/catalog/${product.id}?imported=${copyNumber > 1 ? "copy" : "1"}`);
+  if (outcome.kind === "quote_only") redirect(sourcingQuoteHref(storeId, catalogId, filters));
+  if (outcome.kind === "needs_confirmation") redirect(sourcingConfirmHref(storeId, catalogId, filters));
+  redirect(`/app/stores/${storeId}/catalog/${outcome.product.id}?imported=${outcome.copyNumber > 1 ? "copy" : "1"}`);
 }
 
 /* --------------------------------------------------------------- details */
@@ -111,153 +102,52 @@ async function loadEditable(storeId: string, productId: string) {
   return { ...loaded, catalog };
 }
 
-async function recost(product: StoreProduct, store: Store, catalog: CatalogProduct | null) {
-  const bracket = product.taxBracketId ? await getTaxBracket(product.taxBracketId) : null;
-  return breakdownFor(product, catalog, bracket, store.pricesIncludeTax);
-}
-
 export async function saveProductDetails(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product, catalog } = await loadEditable(storeId, productId);
-
-  const name = String(formData.get("name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const tags = String(formData.get("tags") ?? "")
-    .split(",")
-    .map((t) => t.trim().toLowerCase())
-    .filter(Boolean)
-    .slice(0, 12);
-  const priceRaw = String(formData.get("price") ?? "");
-  const taxBracketId = String(formData.get("taxBracketId") ?? "") || null;
-  const visibility = formData.get("visibility") === "hidden" ? "hidden" : "public";
-  const artworkUpload = formData.get("shopperArtwork") === "on";
-  const textLine = formData.get("shopperText") === "on";
-  const textLabel = String(formData.get("textLabel") ?? "Personalisation").trim() || "Personalisation";
-  const maxTextLength = Math.max(4, Math.min(40, Number(formData.get("maxTextLength") ?? 18) || 18));
-
+  const { product, ...access } = await loadProduct(storeId, productId);
   const t = await getTranslations("actions.products");
-  if (name.length < 3) return { status: "error", message: t("nameTooShort"), field: "name" };
-  if (description.length < 20) {
-    return { status: "error", message: t("descriptionTooShort"), field: "description" };
-  }
-  const price = parseMoney(priceRaw, product.currency);
-  if (price === null || price <= 0) {
-    return { status: "error", message: t("priceRequired"), field: "price" };
-  }
 
-  // Publishing already requires a bracket; clearing it afterwards would put a
-  // live product back on sale with no tax collected, so block that too.
-  if (!taxBracketId && (product.status === "published" || product.status === "in_review")) {
-    return {
-      status: "error",
-      message: t("bracketRequired"),
-      field: "taxBracketId",
-    };
-  }
-
-  const priceChanged = price !== product.price;
-  const next: StoreProduct = {
-    ...product,
-    name,
-    description,
-    tags,
-    price,
-    taxBracketId,
-    visibility,
-    shopperCustomization: { artworkUpload, textLine, textLabel, maxTextLength },
-  };
-  next.costs = await recost(next, store, catalog);
-
-  await updateStoreProduct(
-    productId,
-    {
-      name,
-      description,
-      tags,
-      price,
-      taxBracketId,
-      visibility,
-      shopperCustomization: next.shopperCustomization,
-      costs: next.costs,
-    },
-    product,
-  );
-
-  if (priceChanged) {
-    recordAudit({
-      category: "pricing",
-      action: "product.price_changed",
-      summary: `Changed “${name}” from ${formatMoney(product.price, product.currency)} to ${formatMoney(price, product.currency)}`,
-      storeId,
-      agencyId: store.agencyId,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "store_product",
-      entityId: productId,
-      meta: { from: product.price, to: price, marginPct: next.costs.marginPct },
+  try {
+    const saved = await saveDetails(await operationContext(access), product, {
+      name: String(formData.get("name") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      tags: String(formData.get("tags") ?? "").split(","),
+      price: parseMoney(String(formData.get("price") ?? ""), product.currency),
+      taxBracketId: String(formData.get("taxBracketId") ?? "") || null,
+      visibility: formData.get("visibility") === "hidden" ? "hidden" : "public",
+      shopperCustomization: {
+        artworkUpload: formData.get("shopperArtwork") === "on",
+        textLine: formData.get("shopperText") === "on",
+        textLabel: String(formData.get("textLabel") ?? "Personalisation"),
+        maxTextLength: Number(formData.get("maxTextLength") ?? 18),
+      },
     });
+    return { status: "success", message: t("saved", { margin: saved.costs.marginPct.toFixed(1) }) };
+  } catch (error) {
+    return refusal(error);
   }
-  recordAudit({
-    category: "product_import",
-    action: "product.updated",
-    summary: `Updated product details for “${name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store_product",
-    entityId: productId,
-    meta: { visibility },
-  });
-
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
-  revalidatePath(`/s/${store.slug}`);
-  return { status: "success", message: t("saved", { margin: next.costs.marginPct.toFixed(1) }) };
 }
 
 export async function saveVariants(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product, catalog } = await loadEditable(storeId, productId);
+  const { product, ...access } = await loadProduct(storeId, productId);
 
-  const variants = product.variants.map((variant) => {
-    const enabled = formData.get(`enabled_${variant.id}`) === "on";
-    const raw = String(formData.get(`price_${variant.id}`) ?? "");
-    const parsed = parseMoney(raw, product.currency);
-    return { ...variant, enabled, price: parsed ?? variant.price };
-  });
+  const changes = Object.fromEntries(
+    product.variants.map((variant) => {
+      const parsed = parseMoney(String(formData.get(`price_${variant.id}`) ?? ""), product.currency);
+      return [variant.id, { enabled: formData.get(`enabled_${variant.id}`) === "on", price: parsed ?? variant.price }];
+    }),
+  );
 
-  const [t, locale] = await Promise.all([getTranslations("actions.products"), getLocale()]);
-  if (!variants.some((v) => v.enabled)) {
-    return { status: "error", message: t("variantRequired"), field: "variants" };
+  const t = await getTranslations("actions.products");
+  try {
+    const saved = await updateVariants(await operationContext(access), product, changes);
+    return { status: "success", message: t("variantsSaved", { count: saved.variants.filter((v) => v.enabled).length }) };
+  } catch (error) {
+    return refusal(error);
   }
-  const bad = variants.find((v) => v.enabled && v.price <= v.baseCost);
-  if (bad) {
-    return {
-      status: "error",
-      message: t("belowCost", { name: bad.name, cost: formatMoney(bad.baseCost, product.currency, locale) }),
-      field: `price_${bad.id}`,
-    };
-  }
-
-  const next = { ...product, variants };
-  const costs = await recost(next, store, catalog);
-  await updateStoreProduct(productId, { variants, costs }, product);
-  recordAudit({
-    category: "pricing",
-    action: "product.variants_updated",
-    summary: `Updated variants and variant pricing on “${product.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store_product",
-    entityId: productId,
-    meta: { enabled: variants.filter((v) => v.enabled).length },
-  });
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
-  return { status: "success", message: t("variantsSaved", { count: variants.filter((v) => v.enabled).length }) };
 }
 
 /**
@@ -281,72 +171,23 @@ export async function attachArtwork(_prev: ActionState, formData: FormData): Pro
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const printAreaId = String(formData.get("printAreaId") ?? "");
-  const { user, store, product, catalog } = await loadEditable(storeId, productId);
+  const { product, ...access } = await loadProduct(storeId, productId);
   const t = await getTranslations("actions.products");
-  if (!catalog) return { status: "error", message: t("supplierMissing") };
 
-  const area = catalog.printAreas.find((a) => a.id === printAreaId);
-  if (!area) return { status: "error", message: t("areaRequired") };
-
-  const stored = readStoredImage(formData, "artwork", "artwork");
-  if (!stored || !stored.pixelWidth || !stored.pixelHeight) {
-    return { status: "error", message: t("fileRequired"), field: "artwork" };
-  }
-  if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
+  try {
+    const { blockingIssues } = await placeArtwork(
+      await operationContext(access),
+      product,
+      printAreaId,
+      readStoredImage(formData, "artwork", "artwork"),
+    );
     return {
-      status: "error",
-      message: t("fileTooLarge", {
-        size: (stored.sizeBytes / 1024 / 1024).toFixed(1),
-        max: catalog.fileRequirements.maxFileMb,
-      }),
-      field: "artwork",
+      status: "success",
+      message: blockingIssues ? t("uploadedIssues", { count: blockingIssues }) : t("uploaded"),
     };
+  } catch (error) {
+    return refusal(error);
   }
-
-  const artwork: Artwork = {
-    id: newId("art"),
-    printAreaId: area.id,
-    view: area.view,
-    fileName: stored.fileName,
-    url: stored.url,
-    mimeType: stored.mimeType,
-    sizeBytes: stored.sizeBytes,
-    pixelWidth: stored.pixelWidth,
-    pixelHeight: stored.pixelHeight,
-    hasAlpha: stored.hasAlpha,
-    x: 0.5,
-    y: 0.5,
-    scale: 0.6,
-    rotation: 0,
-  };
-
-  const artworks = [...product.artworks.filter((a) => a.printAreaId !== area.id), artwork];
-  const next = { ...product, artworks, mockups: [] as MockupImage[] };
-  const costs = await recost(next, store, catalog);
-
-  await updateStoreProduct(productId, { artworks, mockups: [], costs }, product);
-  recordAudit({
-    category: "product_import",
-    action: "product.artwork_uploaded",
-    summary: `Uploaded ${stored.fileName} to the ${area.name} print area of “${product.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store_product",
-    entityId: productId,
-    meta: { printArea: area.name, pixels: `${stored.pixelWidth}x${stored.pixelHeight}` },
-  });
-
-  revalidateAfterArtworkChange(storeId, productId, store.slug);
-  const issues = validateArtwork(artwork, area, catalog.fileRequirements);
-  const errors = blockingIssues(issues);
-  return {
-    status: "success",
-    message: errors.length
-      ? t("uploadedIssues", { count: errors.length })
-      : t("uploaded"),
-  };
 }
 
 /**
@@ -398,27 +239,8 @@ export async function removeArtwork(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const artworkId = String(formData.get("artworkId") ?? "");
-  const { user, store, product, catalog } = await loadEditable(storeId, productId);
-
-  const removed = product.artworks.find((a) => a.id === artworkId);
-  const artworks = product.artworks.filter((a) => a.id !== artworkId);
-  const next = { ...product, artworks };
-  const costs = await recost(next, store, catalog);
-
-  await updateStoreProduct(productId, { artworks, mockups: [], costs }, product);
-  recordAudit({
-    category: "product_import",
-    action: "product.artwork_removed",
-    summary: `Removed ${removed?.fileName ?? "artwork"} from “${product.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store_product",
-    entityId: productId,
-    meta: {},
-  });
-  revalidateAfterArtworkChange(storeId, productId, store.slug);
+  const { product, ...access } = await loadProduct(storeId, productId);
+  await deleteArtwork(await operationContext(access), product, artworkId);
 }
 
 /* --------------------------------------------------------------- mockups */
@@ -490,40 +312,11 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   };
 }
 
-/**
- * Approving is a single field flipped on each preview, so it reads only what it
- * writes: the access check and the product in one wave, no catalog entry and no
- * cost breakdown, because approval changes neither. With the updated record
- * handed to the memo, the re-render that follows does not read anything at all.
- */
 export async function approveMockups(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
-  const { user, store, product } = await loadProduct(storeId, productId);
-  if (product.mockups.length === 0) return;
-  if (product.mockups.every((m) => m.approved)) return;
-
-  const now = new Date().toISOString();
-  const mockups = product.mockups.map((m) => ({
-    ...m,
-    approved: true,
-    approvedBy: user.name,
-    approvedAt: now,
-  }));
-  await updateStoreProduct(productId, { mockups }, product);
-  recordAudit({
-    category: "publishing",
-    action: "product.mockups_approved",
-    summary: `Approved ${mockups.length} mockup${mockups.length === 1 ? "" : "s"} for “${product.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store_product",
-    entityId: productId,
-    meta: {},
-  });
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
+  const { product, ...access } = await loadProduct(storeId, productId);
+  await approvePreviews(await operationContext(access), product);
 }
 
 export async function rejectMockups(formData: FormData): Promise<void> {
@@ -567,42 +360,9 @@ export async function setProductStatus(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const status = String(formData.get("status") ?? "") as StoreProduct["status"];
-  const { user, store, product } = await loadProduct(storeId, productId);
-
-  if (status === "published") {
-    const blockers = await publishBlockers(productId);
-    if (blockers.length > 0) return;
-  }
-
-  await updateStoreProduct(
-    productId,
-    {
-      status,
-      publishedAt: status === "published" ? new Date().toISOString() : product.publishedAt,
-      unpublishedReason: null,
-    },
-    product,
-  );
-  recordAudit({
-    category: "publishing",
-    action: `product.${status}`,
-    summary:
-      status === "published"
-        ? `Published “${product.name}” at ${formatMoney(product.price, product.currency)}`
-        : status === "archived"
-          ? `Archived “${product.name}”`
-          : `Moved “${product.name}” to ${status.replace("_", " ")}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store_product",
-    entityId: productId,
-    meta: { status },
-  });
-  revalidatePath(`/app/stores/${storeId}/catalog`);
-  revalidatePath(`/app/stores/${storeId}/catalog/${productId}`);
-  revalidatePath(`/s/${store.slug}`);
+  const { product, ...access } = await loadProduct(storeId, productId);
+  // The product page shows what still blocks publishing, so a refusal needs no message here.
+  await moveProduct(await operationContext(access), product, status);
 }
 
 /* ------------------------------------------------------------ bulk actions */

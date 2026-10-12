@@ -1,8 +1,6 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
-import { revalidatePath } from "next/cache";
-import { refreshCustomers } from "@/lib/customer-data";
 import {
   BULK_STATUSES,
   moveBlock,
@@ -13,17 +11,21 @@ import {
   type BulkStatus,
 } from "@/lib/bulk-orders";
 import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder } from "@/lib/data";
-import { sendEmail, siteOrigin } from "@/lib/email";
-import { brandFor, shippingNotificationEmail } from "@/lib/email-templates";
-import { emailCopy, shopperLocale } from "@/i18n/storefront";
-import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
-import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
-import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
-import { assertStoreAccess } from "@/lib/session";
-import { refundSimulated, type RefundResult } from "@/lib/demo-payment";
-import { refundOnConnectedAccount } from "@/lib/stripe";
-import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus, type Store } from "@/lib/types";
-import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId, parseMoney } from "@/lib/util";
+import { routeOrder, submitToSupplier } from "@/lib/fulfillment";
+import { refusal } from "@/lib/operations/action-state";
+import { isOperationError, type OperationContext } from "@/lib/operations/context";
+import {
+  CARRIERS,
+  moveOrder,
+  orderEvent as event,
+  refundOrder,
+  revalidateOrder as refresh,
+  shipOrder,
+  type Carrier,
+} from "@/lib/operations/orders";
+import { assertStoreAccess, operationContext } from "@/lib/session";
+import type { Order, OrderStatus } from "@/lib/types";
+import { formatMoney, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
 async function load(storeId: string, orderId: string) {
@@ -35,15 +37,6 @@ async function load(storeId: string, orderId: string) {
   ]);
   if (!order || order.storeId !== storeId) throw new Error("Order not found in this store.");
   return { ...access, order };
-}
-
-function event(status: string, note: string, actor: string): FulfillmentEvent {
-  return { at: new Date().toISOString(), status, note, actor };
-}
-
-function refresh(storeId: string, orderId: string) {
-  revalidatePath(`/app/stores/${storeId}/orders`);
-  revalidatePath(`/app/stores/${storeId}/orders/${orderId}`);
 }
 
 type Access = Awaited<ReturnType<typeof assertStoreAccess>>;
@@ -243,83 +236,6 @@ export async function recordManualSubmission(_prev: ActionState, formData: FormD
   return { status: "success", message: t("inProduction", { code: order.code, reference }) };
 }
 
-type Carrier = "dhl" | "fedex" | "ups";
-const CARRIERS: Carrier[] = ["dhl", "fedex", "ups"];
-
-/**
- * Hands one order to the carrier: records the tracking, the audit entry and
- * the shopper's shipping email. Returns the reason when it cannot.
- */
-async function shipOne(
-  { user, store }: Access,
-  order: Order,
-  carrier: Carrier,
-  entered: string,
-): Promise<{ message: string; field: string } | null> {
-  const t = await getTranslations("actions.orders");
-  const enabled = store.carriers.find((c) => c.carrier === carrier && c.enabled);
-  if (!enabled) {
-    return { message: t("carrierDisabled", { carrier: CARRIER_LABELS[carrier] }), field: "carrier" };
-  }
-  const trackingNumber = entered || trackingNumberFor(carrier, order.code);
-  if (trackingNumber.length < 6) {
-    return { message: t("trackingTooShort"), field: "trackingNumber" };
-  }
-
-  const storeId = store.id;
-  const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
-  await updateOrder(order.id, {
-    status: "shipped",
-    fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
-    events: [
-      ...order.events,
-      event("Shipped", `Handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`, user.name),
-    ],
-  });
-  recordAudit({
-    category: "order_routing",
-    action: "order.shipped",
-    summary: `${order.code} shipped with ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "order",
-    entityId: order.code,
-    meta: { carrier, trackingNumber },
-  });
-
-  // The shopper is told their parcel is moving; a mail provider that is down
-  // leaves the shipment recorded and the attempt in the store's activity.
-  try {
-    const origin = await siteOrigin();
-    // Written in the language the shopper checked out in, if the store still offers it.
-    const locale = shopperLocale(store, order.locale ?? "");
-    const base = localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale);
-    sendEmail({
-      to: order.customer.email,
-      message: shippingNotificationEmail(brandFor(store), await emailCopy(locale), {
-        customerName: order.customer.name,
-        code: order.code,
-        carrierName: CARRIER_LABELS[carrier],
-        trackingNumber,
-        trackingUrl,
-        statusUrl: `${origin}${orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code))}`,
-      }),
-      kind: "shipping notification",
-      storeId,
-      agencyId: store.agencyId,
-      entity: "order",
-      entityId: order.code,
-    });
-  } catch (error) {
-    console.error("Shipping notification could not be queued", error);
-  }
-
-  refresh(storeId, order.id);
-  return null;
-}
-
 export async function addTracking(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const orderId = String(formData.get("orderId") ?? "");
@@ -332,47 +248,12 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
   }
 
   const { order, ...access } = await load(storeId, orderId);
-  const failure = await shipOne(access, order, carrier, trackingNumber);
-  if (failure) return { status: "error", ...failure };
-  return { status: "success", message: t("trackingAdded") };
-}
-
-/** Moves one order to the status asked for; false when the status rules do not allow it. */
-async function moveOne({ user, store }: Access, order: Order, status: OrderStatus): Promise<boolean> {
-  if (!canMoveOrder(order, status)) return false;
-  const notes: Partial<Record<OrderStatus, string>> = {
-    in_production: "Production started at the supplier.",
-    shipped: "Parcel handed to the carrier.",
-    delivered: "Delivered to the shopper.",
-    cancelled: "Order cancelled by the store team.",
-    exception: "Flagged for manual attention.",
-    paid: "Returned to the paid queue for re-routing.",
-  };
-
-  const patch: Partial<Order> = {
-    status,
-    events: [...order.events, event(status.replace("_", " "), notes[status] ?? "", user.name)],
-  };
-  if (status !== "exception") {
-    patch.fulfillment = { ...order.fulfillment, exception: null };
+  try {
+    await shipOrder(await operationContext(access), order, carrier, trackingNumber);
+  } catch (error) {
+    return refusal(error);
   }
-
-  await updateOrder(order.id, patch);
-  recordAudit({
-    category: "order_routing",
-    action: `order.${status}`,
-    summary: `Set ${order.code} to ${status.replace("_", " ")}`,
-    storeId: store.id,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "order",
-    entityId: order.code,
-    meta: { status },
-  });
-  if (status === "cancelled") refreshCustomers(store, [order.customer.email]);
-  refresh(store.id, order.id);
-  return true;
+  return { status: "success", message: t("trackingAdded") };
 }
 
 export async function advanceStatus(formData: FormData): Promise<void> {
@@ -383,7 +264,7 @@ export async function advanceStatus(formData: FormData): Promise<void> {
   if (!allowed.includes(status)) return;
 
   const { order, ...access } = await load(storeId, orderId);
-  await moveOne(access, order, status);
+  await moveOrder(await operationContext(access), order, status);
 }
 
 export async function raiseException(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -444,133 +325,29 @@ export async function resolveException(formData: FormData): Promise<void> {
   refresh(storeId, orderId);
 }
 
-/**
- * An order paid on Stripe Checkout is refunded through the Refunds API on the
- * connected account it was charged on. Demo-store and older orders never
- * reached Stripe, so their refund is simulated the same way their payment was.
- */
-async function refundPayment(store: Store, order: Order, amount: number, idempotencyKey: string): Promise<RefundResult> {
-  const { paymentIntentId, stripeAccountId, checkoutSessionId } = order.payment;
-  if (!checkoutSessionId) {
-    return refundSimulated({ store, paymentIntentId, amount, currency: order.currency, idempotencyKey });
-  }
-  if (!paymentIntentId || !stripeAccountId) {
-    return { ok: false, refundId: null, message: "No captured payment to refund.", code: "no_payment_intent" };
-  }
-  const result = await refundOnConnectedAccount({ accountId: stripeAccountId, paymentIntentId, amount, idempotencyKey });
-  return result.ok ? result : { ...result, code: "gateway_error" };
-}
-
 export async function recordRefund(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const orderId = String(formData.get("orderId") ?? "");
-  const reason = String(formData.get("reason") ?? "").trim();
-  const amountRaw = String(formData.get("amount") ?? "");
   const cancel = formData.get("cancel") === "on";
 
-  const { user, store, order } = await load(storeId, orderId);
+  const { order, ...access } = await load(storeId, orderId);
   const [t, locale] = await Promise.all([getTranslations("actions.orders"), getLocale()]);
-  const amount = parseMoney(amountRaw, order.currency);
-  if (amount === null || amount <= 0) {
-    return { status: "error", message: t("amountRequired"), field: "amount" };
-  }
-  const alreadyRefunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
-  if (amount + alreadyRefunded > order.total) {
+  try {
+    const refund = await refundOrder(await operationContext(access), order, {
+      amount: parseMoney(String(formData.get("amount") ?? ""), order.currency),
+      reason: String(formData.get("reason") ?? ""),
+      cancel,
+    });
     return {
-      status: "error",
-      message: t("overTotal", { total: formatMoney(order.total, order.currency, locale) }),
-      field: "amount",
+      status: "success",
+      message: t(cancel ? "refundedCancelled" : "refunded", {
+        amount: formatMoney(refund.amount, order.currency, locale),
+        reference: refund.refundId ?? "",
+      }),
     };
+  } catch (error) {
+    return refusal(error);
   }
-  if (reason.length < 4) {
-    return { status: "error", message: t("reasonRequired"), field: "reason" };
-  }
-  if (order.payment.status !== "succeeded" && order.payment.status !== "refunded") {
-    return { status: "error", message: t("noPayment") };
-  }
-
-  // Money first: nothing is recorded unless the gateway actually returned it.
-  // The key makes a double submit land as one refund at the gateway too — the
-  // already-refunded total is part of it, so a genuine second refund differs.
-  const gateway = await refundPayment(store, order, amount, `${order.id}:${alreadyRefunded}:${amount}`);
-  if (!gateway.ok) {
-    const message =
-      gateway.code === "account_not_ready"
-        ? t("accountNotReady")
-        : gateway.code === "no_payment_intent"
-          ? t("noPayment")
-          : gateway.code === "invalid_amount"
-            ? t("amountRequired")
-            : gateway.code === "currency_unsupported"
-              ? t("currencyUnsupported", { currency: order.currency })
-              : gateway.code === "gateway_error"
-                ? t("refundFailed")
-                : gateway.message;
-    return { status: "error", message };
-  }
-
-  const refunds = [
-    ...order.refunds,
-    {
-      id: newId("ref"),
-      amount,
-      reason,
-      at: new Date().toISOString(),
-      actor: user.name,
-      gatewayRefundId: gateway.refundId ?? undefined,
-    },
-  ];
-  const fullyRefunded = refunds.reduce((sum, r) => sum + r.amount, 0) >= order.total;
-
-  const written = await updateOrder(
-    orderId,
-    {
-      refunds,
-      status: cancel ? "cancelled" : order.status,
-      payment: { ...order.payment, status: fullyRefunded ? "refunded" : order.payment.status },
-      events: [
-        ...order.events,
-        event(
-          cancel ? "Cancelled and refunded" : "Refund issued",
-          `${formatMoney(amount, order.currency)} refunded (${gateway.refundId}): ${reason}`,
-          user.name,
-        ),
-      ],
-    },
-    { updatedAt: order.updatedAt },
-  );
-  if (!written) {
-    // The order moved under us. The gateway call was idempotent, so the refund
-    // that did land is already on the reloaded order.
-    refresh(storeId, orderId);
-    return { status: "error", message: t("orderChanged") };
-  }
-  recordAudit({
-    category: "order_routing",
-    action: cancel ? "order.cancelled_refunded" : "order.refunded",
-    summary: `${cancel ? "Cancelled and refunded" : "Refunded"} ${formatMoney(amount, order.currency)} on ${order.code}: ${reason}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "order",
-    entityId: order.code,
-    meta: { amount, reason, gatewayRefundId: gateway.refundId },
-    notify: {
-      type: "refund_recorded",
-      href: `/app/stores/${storeId}/orders/${orderId}`,
-      params: { code: order.code, amount, currency: order.currency },
-    },
-  });
-  refreshCustomers(store, [order.customer.email]);
-  refresh(storeId, orderId);
-  return {
-    status: "success",
-    message: t(cancel ? "refundedCancelled" : "refunded", {
-      amount: formatMoney(amount, order.currency, locale),
-      reference: gateway.refundId ?? "",
-    }),
-  };
 }
 
 /* ------------------------------------------------------------ bulk actions */
@@ -592,7 +369,12 @@ export interface BulkOutcome {
 async function forEachOrder(
   storeId: string,
   orderIds: unknown,
-  work: (access: Access, order: Order, blocked: (reason: BulkBlock) => string) => Promise<string | null>,
+  work: (
+    access: Access,
+    order: Order,
+    blocked: (reason: BulkBlock) => string,
+    ctx: OperationContext,
+  ) => Promise<string | null>,
 ): Promise<BulkOutcome> {
   const [t, labels] = await Promise.all([getTranslations("orders.bulk"), getTranslations("labels")]);
   let access: Access;
@@ -603,6 +385,7 @@ async function forEachOrder(
   }
   const ids = parseOrderIds(orderIds);
   if (ids.length === 0) return { error: t("noneSelected"), succeeded: [], failed: [] };
+  const ctx = await operationContext(access);
 
   const orders = await getStoreOrders(storeId, ids);
   const outcome: BulkOutcome = { succeeded: [], failed: [] };
@@ -619,7 +402,7 @@ async function forEachOrder(
           t(`blocked.${reason}`, { status: labels(`orderStatus.${order.status}`) });
         let reason: string | null;
         try {
-          reason = await work(access, order, blocked);
+          reason = await work(access, order, blocked, ctx);
         } catch (error) {
           console.error(`Bulk action failed on ${order.code}`, error);
           reason = t("failedGeneric");
@@ -641,7 +424,7 @@ export async function bulkShipOrders(
   const byId = new Map(list.map((entry) => [String(entry?.orderId ?? ""), entry]));
   const t = await getTranslations("actions.orders");
 
-  return forEachOrder(storeId, [...byId.keys()], async (access, order, blocked) => {
+  return forEachOrder(storeId, [...byId.keys()], async (_access, order, blocked, ctx) => {
     const entry = byId.get(order.id)!;
     const carrier = String(entry.carrier ?? "") as Carrier;
     const trackingNumber = String(entry.trackingNumber ?? "").trim();
@@ -657,8 +440,13 @@ export async function bulkShipOrders(
     ) {
       return null;
     }
-    const failure = await shipOne(access, order, carrier, trackingNumber);
-    return failure?.message ?? null;
+    try {
+      await shipOrder(ctx, order, carrier, trackingNumber);
+      return null;
+    } catch (error) {
+      if (isOperationError(error)) return error.message;
+      throw error;
+    }
   });
 }
 
@@ -668,10 +456,10 @@ export async function bulkAdvanceOrders(storeId: string, orderIds: string[], sta
     const t = await getTranslations("orders.bulk");
     return { error: t("failedGeneric"), succeeded: [], failed: [] };
   }
-  return forEachOrder(storeId, orderIds, async (access, order, blocked) => {
+  return forEachOrder(storeId, orderIds, async (_access, order, blocked, ctx) => {
     const block = moveBlock(order, status);
     if (block) return blocked(block);
-    return (await moveOne(access, order, status)) ? null : blocked("cannotMove");
+    return (await moveOrder(ctx, order, status)) ? null : blocked("cannotMove");
   });
 }
 

@@ -13,7 +13,7 @@ import { workspaceLocale } from "@/i18n/user-locale";
 export async function WorkspaceDocument({ children }: { children: React.ReactNode }) {
   const locale = await workspaceLocale();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { meta, site, home, howItWorks, pricing, contact, terms, privacy, storePolicies, ...messages } = await getMessages({ locale });
+  const { meta, site, home, howItWorks, developers, pricing, contact, terms, privacy, storePolicies, ...messages } = await getMessages({ locale });
   return (
     <Document lang={locale}>
       <NextIntlClientProvider locale={locale} messages={messages}>

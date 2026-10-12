@@ -30,12 +30,14 @@
     "notFoundTitle": "Page introuvable",
     "backToHomepage": "Retour à l’accueil",
     "commandPalette": "Palette de commandes",
-    "commandPaletteHint": "Rechercher une commande à exécuter"
+    "commandPaletteHint": "Rechercher une commande à exécuter",
+    "copy": "Copier"
   },
   "site": {
     "mainNav": "Navigation principale",
     "howItWorks": "Fonctionnement",
     "pricing": "Tarifs",
+    "developers": "Développeurs",
     "contact": "Contact",
     "signIn": "Se connecter",
     "menu": "Menu",
@@ -280,6 +282,56 @@
     "assistantTitle": "Assistant IA",
     "assistantBody": "Propose des produits, fournisseurs, descriptions, tags et prix. Vous vérifiez chaque suggestion avant qu’elle ne soit appliquée.",
     "assistantCta": "Essayer dans l’espace de travail"
+  },
+  "developers": {
+    "metaTitle": "Développeurs",
+    "metaDescription": "Connectez votre code, Claude et d'autres assistants IA à une boutique Parcelith avec l'API Admin et le serveur MCP.",
+    "title": "Pilotez votre boutique par le code et les assistants IA",
+    "lead": "L'API Admin et le serveur MCP donnent à votre code, à Claude et à d'autres assistants IA un accès aux produits, commandes, clients, remises, à la vitrine et aux réglages d'une boutique.",
+    "keysTitle": "Créer une clé API",
+    "keysBody": "Une clé vaut pour une boutique. Chaque modification effectuée avec elle est enregistrée dans l'activité de la boutique sous le nom de la clé.",
+    "keysSteps": [
+      "Ouvrez les Réglages de la boutique et choisissez Clés API.",
+      "Nommez la clé et choisissez un accès en lecture ou en écriture pour chaque domaine.",
+      "Copiez la clé. Elle ne s'affiche qu'une fois."
+    ],
+    "connect": {
+      "title": "Connecter Claude et d'autres assistants IA",
+      "body": "Ajoutez le serveur MCP à tout assistant compatible avec les serveurs MCP distants via HTTP. Remplacez {placeholder} par votre clé.",
+      "url": "URL du serveur",
+      "header": "En-tête",
+      "claudeCode": "Claude Code",
+      "json": "Configuration JSON",
+      "jsonHint": "Pour .mcp.json et les autres assistants configurés avec un fichier mcpServers."
+    },
+    "restTitle": "API REST",
+    "restBody": "Envoyez la même clé à l'API REST. Les montants sont exprimés dans la plus petite unité de la devise : 2500 vaut 25,00.",
+    "baseUrl": "URL de base",
+    "example": "Exemple de requête",
+    "limits": "Chaque clé peut envoyer {limit} requêtes par minute.",
+    "paging": "Les listes renvoient data et nextCursor. Renvoyez nextCursor comme cursor pour obtenir la page suivante.",
+    "openapi": "Document OpenAPI",
+    "referenceTitle": "Opérations",
+    "referenceBody": "Chaque opération REST est aussi un outil MCP avec les mêmes entrées.",
+    "columns": {
+      "endpoint": "Point de terminaison",
+      "tool": "Outil MCP",
+      "scope": "Portée"
+    },
+    "tags": {
+      "Store": "Boutique",
+      "Products": "Produits",
+      "Variants": "Variantes",
+      "Collections": "Collections",
+      "Orders": "Commandes",
+      "Customers": "Clients",
+      "Discounts": "Remises",
+      "Storefront": "Vitrine",
+      "Translations": "Textes de la boutique et traductions"
+    },
+    "ctaTitle": "Créez votre première clé",
+    "ctaBody": "Connectez-vous, ouvrez les Réglages d'une boutique et choisissez Clés API.",
+    "cta": "Se connecter"
   },
   "pricing": {
     "metaTitle": "Tarifs",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "Stripe est injoignable. Le statut ci-dessous n’est peut-être pas à jour.",
     "demoStoreTitle": "Boutique de démonstration",
     "demoStoreBody": "Le paiement est simulé et personne n’est débité. Connectez Stripe pour accepter de vrais paiements.",
-    "backToSettings": "Retour aux paramètres"
+    "backToSettings": "Retour aux paramètres",
+    "apiKeysTitle": "Clés API",
+    "apiKeysBody": "Connectez des applications et des intégrations à cette boutique avec l’API Admin.",
+    "apiKeysLink": "Gérer les clés API"
   },
   "team": {
     "agencyAdmins": "Administrateurs de l’agence",
@@ -3771,6 +3826,55 @@
         "title": "Journal d'audit",
         "body": "Configuration, changements de prix, validations, publications et routage des commandes sont enregistrés avec l'auteur et la date."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Clés API",
+    "description": "Les clés permettent à votre propre code d’accéder à cette boutique via l’API Admin.",
+    "reference": "Référence de l’API",
+    "createTitle": "Créer une clé",
+    "name": "Nom",
+    "nameHint": "L’application ou l’intégration qui l’utilisera.",
+    "access": "Accès",
+    "resources": {
+      "products": "Produits",
+      "collections": "Collections",
+      "orders": "Commandes",
+      "customers": "Clients",
+      "discounts": "Remises",
+      "storefront": "Vitrine",
+      "store": "Détails de la boutique"
+    },
+    "none": "Aucun accès",
+    "read": "Lecture",
+    "write": "Lecture et écriture",
+    "create": "Créer la clé",
+    "creating": "Création…",
+    "created": "Clé créée",
+    "secretTitle": "Copiez la clé pour {name}",
+    "secretBody": "Elle ne s’affiche qu’une seule fois. Conservez-la en lieu sûr.",
+    "copy": "Copier la clé",
+    "keysTitle": "Clés",
+    "emptyTitle": "Aucune clé API",
+    "emptyBody": "Créez une clé pour connecter une application ou une intégration.",
+    "columns": {
+      "name": "Nom",
+      "access": "Accès",
+      "created": "Créée",
+      "lastUsed": "Dernière utilisation",
+      "status": "Statut"
+    },
+    "createdBy": "{date} par {name}",
+    "never": "Jamais",
+    "active": "Active",
+    "revoked": "Révoquée",
+    "revoke": "Révoquer",
+    "revokeQuestion": "Les applications qui utilisent cette clé cesseront de fonctionner.",
+    "errors": {
+      "nameRequired": "Donnez un nom à la clé.",
+      "nameTooLong": "Utilisez {max} caractères au maximum.",
+      "scopeRequired": "Donnez à la clé l’accès à au moins un domaine.",
+      "duplicate": "Cette clé a déjà été créée. Si vous ne l’avez pas copiée, révoquez-la et créez-en une nouvelle."
     }
   }
 }

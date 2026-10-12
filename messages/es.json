@@ -30,12 +30,14 @@
     "notFoundTitle": "Página no encontrada",
     "backToHomepage": "Volver al inicio",
     "commandPalette": "Paleta de comandos",
-    "commandPaletteHint": "Busca un comando para ejecutarlo"
+    "commandPaletteHint": "Busca un comando para ejecutarlo",
+    "copy": "Copiar"
   },
   "site": {
     "mainNav": "Navegación principal",
     "howItWorks": "Cómo funciona",
     "pricing": "Precios",
+    "developers": "Desarrolladores",
     "contact": "Contacto",
     "signIn": "Iniciar sesión",
     "menu": "Menú",
@@ -280,6 +282,56 @@
     "assistantTitle": "Asistente de IA",
     "assistantBody": "Sugiere productos, proveedores, descripciones, etiquetas y precios. Revisas cada sugerencia antes de aplicarla.",
     "assistantCta": "Pruébalo en el espacio de trabajo"
+  },
+  "developers": {
+    "metaTitle": "Desarrolladores",
+    "metaDescription": "Conecta tu propio código, Claude y otros asistentes de IA a una tienda Parcelith con la API de administración y el servidor MCP.",
+    "title": "Gestiona tu tienda con código y asistentes de IA",
+    "lead": "La API de administración y el servidor MCP dan a tu código, a Claude y a otros asistentes de IA acceso a los productos, pedidos, clientes, descuentos, escaparate y ajustes de una tienda.",
+    "keysTitle": "Crea una clave de API",
+    "keysBody": "Una clave sirve para una tienda. Cada cambio hecho con ella queda registrado en la actividad de la tienda con el nombre de la clave.",
+    "keysSteps": [
+      "Abre los Ajustes de la tienda y elige Claves de API.",
+      "Ponle un nombre a la clave y elige acceso de lectura o escritura para cada área.",
+      "Copia la clave. Solo se muestra una vez."
+    ],
+    "connect": {
+      "title": "Conecta Claude y otros asistentes de IA",
+      "body": "Añade el servidor MCP a cualquier asistente compatible con servidores MCP remotos por HTTP. Sustituye {placeholder} por tu clave.",
+      "url": "URL del servidor",
+      "header": "Cabecera",
+      "claudeCode": "Claude Code",
+      "json": "Configuración JSON",
+      "jsonHint": "Para .mcp.json y otros asistentes que se configuran con un archivo mcpServers."
+    },
+    "restTitle": "API REST",
+    "restBody": "Envía la misma clave a la API REST. Los importes están en la unidad mínima de la moneda: 2500 equivale a 25,00.",
+    "baseUrl": "URL base",
+    "example": "Solicitud de ejemplo",
+    "limits": "Cada clave puede hacer {limit} solicitudes por minuto.",
+    "paging": "Las listas devuelven data y nextCursor. Envía nextCursor como cursor para obtener la página siguiente.",
+    "openapi": "Documento OpenAPI",
+    "referenceTitle": "Operaciones",
+    "referenceBody": "Cada operación REST es también una herramienta MCP con los mismos datos de entrada.",
+    "columns": {
+      "endpoint": "Endpoint",
+      "tool": "Herramienta MCP",
+      "scope": "Permiso"
+    },
+    "tags": {
+      "Store": "Tienda",
+      "Products": "Productos",
+      "Variants": "Variantes",
+      "Collections": "Colecciones",
+      "Orders": "Pedidos",
+      "Customers": "Clientes",
+      "Discounts": "Descuentos",
+      "Storefront": "Escaparate",
+      "Translations": "Textos de la tienda y traducciones"
+    },
+    "ctaTitle": "Crea tu primera clave",
+    "ctaBody": "Inicia sesión, abre los Ajustes de una tienda y elige Claves de API.",
+    "cta": "Iniciar sesión"
   },
   "pricing": {
     "metaTitle": "Precios",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "No se pudo conectar con Stripe. Es posible que el estado no esté actualizado.",
     "demoStoreTitle": "Tienda de demostración",
     "demoStoreBody": "El pago es simulado y no se cobra a nadie. Conecta Stripe para aceptar pagos reales.",
-    "backToSettings": "Volver a la configuración"
+    "backToSettings": "Volver a la configuración",
+    "apiKeysTitle": "Claves de API",
+    "apiKeysBody": "Conecta aplicaciones e integraciones a esta tienda con la API de administración.",
+    "apiKeysLink": "Gestionar claves de API"
   },
   "team": {
     "agencyAdmins": "Administradores de la agencia",
@@ -3771,6 +3826,55 @@
         "title": "Registro de auditoría",
         "body": "Los cambios de configuración y de precios, las aprobaciones, las publicaciones y el enrutamiento de pedidos quedan registrados con quién y cuándo."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Claves de API",
+    "description": "Las claves permiten que tu propio código acceda a esta tienda mediante la API de administración.",
+    "reference": "Referencia de la API",
+    "createTitle": "Crear una clave",
+    "name": "Nombre",
+    "nameHint": "La aplicación o integración que la usará.",
+    "access": "Acceso",
+    "resources": {
+      "products": "Productos",
+      "collections": "Colecciones",
+      "orders": "Pedidos",
+      "customers": "Clientes",
+      "discounts": "Descuentos",
+      "storefront": "Escaparate",
+      "store": "Datos de la tienda"
+    },
+    "none": "Sin acceso",
+    "read": "Lectura",
+    "write": "Lectura y escritura",
+    "create": "Crear clave",
+    "creating": "Creando…",
+    "created": "Clave creada",
+    "secretTitle": "Copia la clave de {name}",
+    "secretBody": "Solo se muestra esta vez. Guárdala en un lugar seguro.",
+    "copy": "Copiar clave",
+    "keysTitle": "Claves",
+    "emptyTitle": "Aún no hay claves de API",
+    "emptyBody": "Crea una clave para conectar una aplicación o integración.",
+    "columns": {
+      "name": "Nombre",
+      "access": "Acceso",
+      "created": "Creada",
+      "lastUsed": "Último uso",
+      "status": "Estado"
+    },
+    "createdBy": "{date} por {name}",
+    "never": "Nunca",
+    "active": "Activa",
+    "revoked": "Revocada",
+    "revoke": "Revocar",
+    "revokeQuestion": "Las aplicaciones que usan esta clave dejarán de funcionar.",
+    "errors": {
+      "nameRequired": "Ponle un nombre a la clave.",
+      "nameTooLong": "Usa {max} caracteres como máximo.",
+      "scopeRequired": "Da a la clave acceso al menos a un área.",
+      "duplicate": "Esta clave ya se creó. Si no la copiaste, revócala y crea una nueva."
     }
   }
 }

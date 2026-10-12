@@ -161,6 +161,19 @@ export const db = {
   async updateMany(name: string, filter: Record<string, unknown>, update: Record<string, unknown>) {
     return (await collection(name)).updateMany(filter as Filter<Document>, update);
   },
+  /** Applies the update and returns the document as it is afterwards; with `upsert`, creating it first if need be. */
+  async findOneAndUpdate<T>(
+    name: string,
+    filter: Record<string, unknown>,
+    update: Record<string, unknown>,
+    options: { upsert?: boolean } = {},
+  ): Promise<T | null> {
+    return (await (await collection(name)).findOneAndUpdate(filter as Filter<Document>, update, {
+      upsert: options.upsert ?? false,
+      returnDocument: "after",
+      projection: { _id: 0 },
+    })) as T | null;
+  },
   async deleteOne(name: string, filter: Record<string, unknown>) {
     return (await collection(name)).deleteOne(filter as Filter<Document>);
   },

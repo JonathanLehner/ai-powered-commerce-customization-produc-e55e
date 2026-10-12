@@ -32,6 +32,7 @@ export const MARKETING_PATHS = [
   "/how-it-works",
   "/pricing",
   "/contact",
+  "/developers",
   "/signup",
   "/legal/terms",
   "/legal/privacy",

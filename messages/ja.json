@@ -30,12 +30,14 @@
     "notFoundTitle": "ページが見つかりません",
     "backToHomepage": "ホームに戻る",
     "commandPalette": "コマンドパレット",
-    "commandPaletteHint": "実行するコマンドを検索"
+    "commandPaletteHint": "実行するコマンドを検索",
+    "copy": "コピー"
   },
   "site": {
     "mainNav": "メインナビゲーション",
     "howItWorks": "仕組み",
     "pricing": "料金",
+    "developers": "開発者向け",
     "contact": "お問い合わせ",
     "signIn": "ログイン",
     "menu": "メニュー",
@@ -280,6 +282,56 @@
     "assistantTitle": "AI アシスタント",
     "assistantBody": "商品、サプライヤー、説明文、タグ、価格を提案します。適用する前に、提案をひとつずつ確認できます。",
     "assistantCta": "ワークスペースで試す"
+  },
+  "developers": {
+    "metaTitle": "開発者向け",
+    "metaDescription": "Admin API と MCP サーバーで、独自のコード、Claude、その他の AI アシスタントを Parcelith のストアに接続できます。",
+    "title": "コードと AI アシスタントでストアを運営",
+    "lead": "Admin API と MCP サーバーを使うと、独自のコード、Claude、その他の AI アシスタントからストアの商品、注文、顧客、割引、ストアフロント、設定にアクセスできます。",
+    "keysTitle": "API キーを作成",
+    "keysBody": "キーは 1 つのストアで使えます。キーによる変更はすべて、キー名とともにストアのアクティビティに記録されます。",
+    "keysSteps": [
+      "ストアの設定を開き、API キーを選びます。",
+      "キーに名前を付け、領域ごとに読み取りまたは書き込みのアクセス権を選びます。",
+      "キーをコピーします。表示されるのは一度だけです。"
+    ],
+    "connect": {
+      "title": "Claude などの AI アシスタントを接続",
+      "body": "HTTP 経由のリモート MCP サーバーに対応したアシスタントに MCP サーバーを追加します。{placeholder} はお使いのキーに置き換えてください。",
+      "url": "サーバー URL",
+      "header": "ヘッダー",
+      "claudeCode": "Claude Code",
+      "json": "JSON 設定",
+      "jsonHint": ".mcp.json や、mcpServers ファイルで設定するアシスタント向けです。"
+    },
+    "restTitle": "REST API",
+    "restBody": "同じキーを REST API に送信します。金額は通貨の最小単位で表されます。2500 は 25.00 です。",
+    "baseUrl": "ベース URL",
+    "example": "リクエスト例",
+    "limits": "各キーは 1 分あたり {limit} 件までリクエストできます。",
+    "paging": "一覧は data と nextCursor を返します。次のページを取得するには、nextCursor を cursor として送信します。",
+    "openapi": "OpenAPI ドキュメント",
+    "referenceTitle": "操作一覧",
+    "referenceBody": "すべての REST 操作は、同じ入力の MCP ツールとしても使えます。",
+    "columns": {
+      "endpoint": "エンドポイント",
+      "tool": "MCP ツール",
+      "scope": "スコープ"
+    },
+    "tags": {
+      "Store": "ストア",
+      "Products": "商品",
+      "Variants": "バリエーション",
+      "Collections": "コレクション",
+      "Orders": "注文",
+      "Customers": "顧客",
+      "Discounts": "割引",
+      "Storefront": "ストアフロント",
+      "Translations": "ショップテキストと翻訳"
+    },
+    "ctaTitle": "最初のキーを作成",
+    "ctaBody": "サインインし、ストアの設定を開いて API キーを選びます。",
+    "cta": "サインイン"
   },
   "pricing": {
     "metaTitle": "料金",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "Stripe に接続できませんでした。以下の状態は最新でない可能性があります。",
     "demoStoreTitle": "デモストア",
     "demoStoreBody": "決済はシミュレーションで、実際の請求は発生しません。実際の決済を受け付けるには Stripe を連携してください。",
-    "backToSettings": "設定に戻る"
+    "backToSettings": "設定に戻る",
+    "apiKeysTitle": "API キー",
+    "apiKeysBody": "Admin API を使って、アプリや連携サービスをこのストアに接続します。",
+    "apiKeysLink": "API キーを管理"
   },
   "team": {
     "agencyAdmins": "エージェンシー管理者",
@@ -3771,6 +3826,55 @@
         "title": "監査ログ",
         "body": "設定変更、価格変更、承認、公開、注文の振り分けを、実行者と日時とともに記録します。"
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API キー",
+    "description": "キーを使うと、独自のコードから Admin API 経由でこのストアにアクセスできます。",
+    "reference": "API リファレンス",
+    "createTitle": "キーを作成",
+    "name": "名前",
+    "nameHint": "このキーを使うアプリや連携サービス。",
+    "access": "アクセス権",
+    "resources": {
+      "products": "商品",
+      "collections": "コレクション",
+      "orders": "注文",
+      "customers": "顧客",
+      "discounts": "割引",
+      "storefront": "ストアフロント",
+      "store": "ストア情報"
+    },
+    "none": "アクセスなし",
+    "read": "読み取り",
+    "write": "読み取りと書き込み",
+    "create": "キーを作成",
+    "creating": "作成中…",
+    "created": "キーを作成しました",
+    "secretTitle": "{name} のキーをコピー",
+    "secretBody": "表示されるのはこの一度だけです。安全な場所に保管してください。",
+    "copy": "キーをコピー",
+    "keysTitle": "キー",
+    "emptyTitle": "API キーはまだありません",
+    "emptyBody": "キーを作成して、アプリや連携サービスを接続しましょう。",
+    "columns": {
+      "name": "名前",
+      "access": "アクセス権",
+      "created": "作成日",
+      "lastUsed": "最終使用日",
+      "status": "ステータス"
+    },
+    "createdBy": "{date}・{name}",
+    "never": "未使用",
+    "active": "有効",
+    "revoked": "無効化済み",
+    "revoke": "無効化",
+    "revokeQuestion": "このキーを使っているアプリは動作しなくなります。",
+    "errors": {
+      "nameRequired": "キーに名前を付けてください。",
+      "nameTooLong": "{max} 文字以内で入力してください。",
+      "scopeRequired": "少なくとも 1 つの項目へのアクセス権を付与してください。",
+      "duplicate": "このキーはすでに作成されています。コピーしていない場合は、無効化して新しいキーを作成してください。"
     }
   }
 }

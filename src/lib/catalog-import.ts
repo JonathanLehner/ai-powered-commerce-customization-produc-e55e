@@ -4,6 +4,9 @@ import { db } from "./mongo";
 import { breakdownFor } from "./pricing";
 import { baseStoreSku, nextFreeName, nextFreeSku, storeSku } from "./sku";
 import type { Store, StoreProduct, StoreVariant, User } from "./types";
+
+/** Who the copy is recorded against: a person, or an API key under its name. */
+type Actor = Pick<User, "id" | "name">;
 import { newId, slugify } from "./util";
 
 /** What an accepted bulk quote puts on the copy in place of the listing's own terms. */
@@ -33,7 +36,7 @@ export interface CopyResult {
 export async function copyCatalogProductIntoStore(
   store: Store,
   catalogId: string,
-  actor: User,
+  actor: Actor,
   importKey: string | null = null,
   /**
    * An accepted bulk quote. Quote-priced listings carry no unit cost of their

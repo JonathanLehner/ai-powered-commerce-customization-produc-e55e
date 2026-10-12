@@ -10,7 +10,7 @@ export function shareImageParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-type PageNamespace = "howItWorks" | "pricing" | "contact" | "signup" | "terms" | "privacy";
+type PageNamespace = "howItWorks" | "developers" | "pricing" | "contact" | "signup" | "terms" | "privacy";
 
 /** A marketing page's share image: its title and description under the Parcelith brand. The home page passes no namespace. */
 export async function marketingShareImage(params: Promise<{ locale: string }>, namespace?: PageNamespace) {

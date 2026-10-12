@@ -30,12 +30,14 @@
     "notFoundTitle": "Page not found",
     "backToHomepage": "Back to the homepage",
     "commandPalette": "Command palette",
-    "commandPaletteHint": "Search for a command to run"
+    "commandPaletteHint": "Search for a command to run",
+    "copy": "Copy"
   },
   "site": {
     "mainNav": "Main",
     "howItWorks": "How it works",
     "pricing": "Pricing",
+    "developers": "Developers",
     "contact": "Contact",
     "signIn": "Sign in",
     "menu": "Menu",
@@ -280,6 +282,56 @@
     "assistantTitle": "AI assistant",
     "assistantBody": "Suggests products, suppliers, descriptions, tags and prices. You review each one before it is applied.",
     "assistantCta": "Try it in the workspace"
+  },
+  "developers": {
+    "metaTitle": "Developers",
+    "metaDescription": "Connect your own code, Claude and other AI assistants to a Parcelith store with the Admin API and the MCP server.",
+    "title": "Run your store from code and AI assistants",
+    "lead": "The Admin API and the MCP server give your own code, Claude and other AI assistants access to a store's products, orders, customers, discounts, storefront and settings.",
+    "keysTitle": "Create an API key",
+    "keysBody": "A key works for one store. Every change made with it is recorded in the store's activity under the key's name.",
+    "keysSteps": [
+      "Open the store's Settings and choose API keys.",
+      "Name the key and choose read or write access for each area.",
+      "Copy the key. It is shown only once."
+    ],
+    "connect": {
+      "title": "Connect Claude and other AI assistants",
+      "body": "Add the MCP server to any assistant that supports remote MCP servers over HTTP. Replace {placeholder} with your key.",
+      "url": "Server URL",
+      "header": "Header",
+      "claudeCode": "Claude Code",
+      "json": "JSON configuration",
+      "jsonHint": "For .mcp.json and other assistants configured with an mcpServers file."
+    },
+    "restTitle": "REST API",
+    "restBody": "Send the same key to the REST API. Amounts are in minor units of the currency: 2500 is 25.00.",
+    "baseUrl": "Base URL",
+    "example": "Example request",
+    "limits": "Each key can make {limit} requests per minute.",
+    "paging": "Lists return data and nextCursor. Send nextCursor back as cursor to get the next page.",
+    "openapi": "OpenAPI document",
+    "referenceTitle": "Operations",
+    "referenceBody": "Every REST operation is also an MCP tool with the same input.",
+    "columns": {
+      "endpoint": "Endpoint",
+      "tool": "MCP tool",
+      "scope": "Scope"
+    },
+    "tags": {
+      "Store": "Store",
+      "Products": "Products",
+      "Variants": "Variants",
+      "Collections": "Collections",
+      "Orders": "Orders",
+      "Customers": "Customers",
+      "Discounts": "Discounts",
+      "Storefront": "Storefront",
+      "Translations": "Shop text and translations"
+    },
+    "ctaTitle": "Create your first key",
+    "ctaBody": "Sign in, open a store's Settings and choose API keys.",
+    "cta": "Sign in"
   },
   "pricing": {
     "metaTitle": "Pricing",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "Stripe could not be reached. The status below may be out of date.",
     "demoStoreTitle": "Demo store",
     "demoStoreBody": "Checkout is simulated and nobody is charged. Connect Stripe to take real payments.",
-    "backToSettings": "Back to settings"
+    "backToSettings": "Back to settings",
+    "apiKeysTitle": "API keys",
+    "apiKeysBody": "Connect apps and integrations to this store with the Admin API.",
+    "apiKeysLink": "Manage API keys"
   },
   "team": {
     "agencyAdmins": "Agency administrators",
@@ -3771,6 +3826,55 @@
         "title": "Audit log",
         "body": "Setup changes, price changes, approvals, publishing and order routing are recorded with who did what and when."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API keys",
+    "description": "Keys give your own code access to this store through the Admin API.",
+    "reference": "API reference",
+    "createTitle": "Create a key",
+    "name": "Name",
+    "nameHint": "The app or integration that will use it.",
+    "access": "Access",
+    "resources": {
+      "products": "Products",
+      "collections": "Collections",
+      "orders": "Orders",
+      "customers": "Customers",
+      "discounts": "Discounts",
+      "storefront": "Storefront",
+      "store": "Store details"
+    },
+    "none": "No access",
+    "read": "Read",
+    "write": "Read and write",
+    "create": "Create key",
+    "creating": "Creating…",
+    "created": "Key created",
+    "secretTitle": "Copy the key for {name}",
+    "secretBody": "This is the only time it is shown. Store it somewhere safe.",
+    "copy": "Copy key",
+    "keysTitle": "Keys",
+    "emptyTitle": "No API keys yet",
+    "emptyBody": "Create a key to connect an app or integration.",
+    "columns": {
+      "name": "Name",
+      "access": "Access",
+      "created": "Created",
+      "lastUsed": "Last used",
+      "status": "Status"
+    },
+    "createdBy": "{date} by {name}",
+    "never": "Never",
+    "active": "Active",
+    "revoked": "Revoked",
+    "revoke": "Revoke",
+    "revokeQuestion": "Apps using this key will stop working.",
+    "errors": {
+      "nameRequired": "Give the key a name.",
+      "nameTooLong": "Use {max} characters or fewer.",
+      "scopeRequired": "Give the key access to at least one area.",
+      "duplicate": "This key was already created. If you did not copy it, revoke it and create a new one."
     }
   }
 }

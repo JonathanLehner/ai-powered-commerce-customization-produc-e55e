@@ -57,7 +57,8 @@ for (const [label, input] of [
 
 /* --------------------------------------- which gateway an order is refunded on */
 
-const action = readFileSync(new URL("../src/app/actions/orders.ts", import.meta.url), "utf8");
+// The workspace action and the Admin API both refund through this operation.
+const action = readFileSync(new URL("../src/lib/operations/orders.ts", import.meta.url), "utf8");
 assert.match(action, /if \(!checkoutSessionId\) \{\n\s+return refundSimulated\(/, "only orders without a Checkout session are simulated");
 assert.match(action, /refundOnConnectedAccount\(\{ accountId: stripeAccountId, paymentIntentId, amount, idempotencyKey \}\)/, "Checkout orders are refunded on the account they were charged on");
 

@@ -30,12 +30,14 @@
     "notFoundTitle": "Página não encontrada",
     "backToHomepage": "Voltar à página inicial",
     "commandPalette": "Paleta de comandos",
-    "commandPaletteHint": "Pesquise um comando para executar"
+    "commandPaletteHint": "Pesquise um comando para executar",
+    "copy": "Copiar"
   },
   "site": {
     "mainNav": "Navegação principal",
     "howItWorks": "Como funciona",
     "pricing": "Preços",
+    "developers": "Desenvolvedores",
     "contact": "Contacto",
     "signIn": "Iniciar sessão",
     "menu": "Menu",
@@ -280,6 +282,56 @@
     "assistantTitle": "Assistente de IA",
     "assistantBody": "Sugere produtos, fornecedores, descrições, etiquetas e preços. Cada sugestão é revista por si antes de ser aplicada.",
     "assistantCta": "Experimentar no espaço de trabalho"
+  },
+  "developers": {
+    "metaTitle": "Desenvolvedores",
+    "metaDescription": "Ligue o seu próprio código, o Claude e outros assistentes de IA a uma loja Parcelith com a API de administração e o servidor MCP.",
+    "title": "Gira a sua loja com código e assistentes de IA",
+    "lead": "A API de administração e o servidor MCP dão ao seu código, ao Claude e a outros assistentes de IA acesso aos produtos, encomendas, clientes, descontos, montra e definições de uma loja.",
+    "keysTitle": "Criar uma chave de API",
+    "keysBody": "Uma chave serve para uma loja. Cada alteração feita com ela fica registada na atividade da loja com o nome da chave.",
+    "keysSteps": [
+      "Abra as Definições da loja e escolha Chaves de API.",
+      "Dê um nome à chave e escolha acesso de leitura ou escrita para cada área.",
+      "Copie a chave. Só é mostrada uma vez."
+    ],
+    "connect": {
+      "title": "Ligar o Claude e outros assistentes de IA",
+      "body": "Adicione o servidor MCP a qualquer assistente que suporte servidores MCP remotos por HTTP. Substitua {placeholder} pela sua chave.",
+      "url": "URL do servidor",
+      "header": "Cabeçalho",
+      "claudeCode": "Claude Code",
+      "json": "Configuração JSON",
+      "jsonHint": "Para .mcp.json e outros assistentes configurados com um ficheiro mcpServers."
+    },
+    "restTitle": "API REST",
+    "restBody": "Envie a mesma chave para a API REST. Os valores estão na unidade mínima da moeda: 2500 equivale a 25,00.",
+    "baseUrl": "URL base",
+    "example": "Pedido de exemplo",
+    "limits": "Cada chave pode fazer {limit} pedidos por minuto.",
+    "paging": "As listas devolvem data e nextCursor. Envie nextCursor como cursor para obter a página seguinte.",
+    "openapi": "Documento OpenAPI",
+    "referenceTitle": "Operações",
+    "referenceBody": "Cada operação REST é também uma ferramenta MCP com os mesmos dados de entrada.",
+    "columns": {
+      "endpoint": "Endpoint",
+      "tool": "Ferramenta MCP",
+      "scope": "Permissão"
+    },
+    "tags": {
+      "Store": "Loja",
+      "Products": "Produtos",
+      "Variants": "Variantes",
+      "Collections": "Coleções",
+      "Orders": "Encomendas",
+      "Customers": "Clientes",
+      "Discounts": "Descontos",
+      "Storefront": "Montra",
+      "Translations": "Textos da loja e traduções"
+    },
+    "ctaTitle": "Crie a sua primeira chave",
+    "ctaBody": "Inicie sessão, abra as Definições de uma loja e escolha Chaves de API.",
+    "cta": "Iniciar sessão"
   },
   "pricing": {
     "metaTitle": "Preços",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "Não foi possível acessar o Stripe. O status abaixo pode estar desatualizado.",
     "demoStoreTitle": "Loja de demonstração",
     "demoStoreBody": "O pagamento é simulado e ninguém é cobrado. Conecte o Stripe para aceitar pagamentos reais.",
-    "backToSettings": "Voltar às configurações"
+    "backToSettings": "Voltar às configurações",
+    "apiKeysTitle": "Chaves de API",
+    "apiKeysBody": "Ligue aplicações e integrações a esta loja com a API de administração.",
+    "apiKeysLink": "Gerir chaves de API"
   },
   "team": {
     "agencyAdmins": "Administradores da agência",
@@ -3771,6 +3826,55 @@
         "title": "Log de auditoria",
         "body": "Alterações de configuração e preço, aprovações, publicações e roteamento de pedidos são registrados com quem fez e quando."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Chaves de API",
+    "description": "As chaves dão ao seu próprio código acesso a esta loja através da API de administração.",
+    "reference": "Referência da API",
+    "createTitle": "Criar uma chave",
+    "name": "Nome",
+    "nameHint": "A aplicação ou integração que a vai usar.",
+    "access": "Acesso",
+    "resources": {
+      "products": "Produtos",
+      "collections": "Coleções",
+      "orders": "Encomendas",
+      "customers": "Clientes",
+      "discounts": "Descontos",
+      "storefront": "Montra",
+      "store": "Dados da loja"
+    },
+    "none": "Sem acesso",
+    "read": "Leitura",
+    "write": "Leitura e escrita",
+    "create": "Criar chave",
+    "creating": "A criar…",
+    "created": "Chave criada",
+    "secretTitle": "Copie a chave de {name}",
+    "secretBody": "Só é mostrada desta vez. Guarde-a num local seguro.",
+    "copy": "Copiar chave",
+    "keysTitle": "Chaves",
+    "emptyTitle": "Ainda não há chaves de API",
+    "emptyBody": "Crie uma chave para ligar uma aplicação ou integração.",
+    "columns": {
+      "name": "Nome",
+      "access": "Acesso",
+      "created": "Criada",
+      "lastUsed": "Última utilização",
+      "status": "Estado"
+    },
+    "createdBy": "{date} por {name}",
+    "never": "Nunca",
+    "active": "Ativa",
+    "revoked": "Revogada",
+    "revoke": "Revogar",
+    "revokeQuestion": "As aplicações que usam esta chave deixam de funcionar.",
+    "errors": {
+      "nameRequired": "Dê um nome à chave.",
+      "nameTooLong": "Use no máximo {max} caracteres.",
+      "scopeRequired": "Dê à chave acesso a pelo menos uma área.",
+      "duplicate": "Esta chave já foi criada. Se não a copiou, revogue-a e crie uma nova."
     }
   }
 }

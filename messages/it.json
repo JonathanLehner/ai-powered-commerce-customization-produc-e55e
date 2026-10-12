@@ -30,12 +30,14 @@
     "notFoundTitle": "Pagina non trovata",
     "backToHomepage": "Torna alla home page",
     "commandPalette": "Palette dei comandi",
-    "commandPaletteHint": "Cerca un comando da eseguire"
+    "commandPaletteHint": "Cerca un comando da eseguire",
+    "copy": "Copia"
   },
   "site": {
     "mainNav": "Navigazione principale",
     "howItWorks": "Come funziona",
     "pricing": "Prezzi",
+    "developers": "Sviluppatori",
     "contact": "Contatti",
     "signIn": "Accedi",
     "menu": "Menu",
@@ -280,6 +282,56 @@
     "assistantTitle": "Assistente IA",
     "assistantBody": "Suggerisce prodotti, fornitori, descrizioni, tag e prezzi. Controlli ogni suggerimento prima che venga applicato.",
     "assistantCta": "Provalo nello spazio di lavoro"
+  },
+  "developers": {
+    "metaTitle": "Sviluppatori",
+    "metaDescription": "Collega il tuo codice, Claude e altri assistenti IA a un negozio Parcelith con l'API di amministrazione e il server MCP.",
+    "title": "Gestisci il negozio con il codice e gli assistenti IA",
+    "lead": "L'API di amministrazione e il server MCP danno al tuo codice, a Claude e ad altri assistenti IA accesso a prodotti, ordini, clienti, sconti, vetrina e impostazioni di un negozio.",
+    "keysTitle": "Crea una chiave API",
+    "keysBody": "Una chiave vale per un negozio. Ogni modifica fatta con essa viene registrata nell'attività del negozio con il nome della chiave.",
+    "keysSteps": [
+      "Apri le Impostazioni del negozio e scegli Chiavi API.",
+      "Dai un nome alla chiave e scegli l'accesso in lettura o scrittura per ogni area.",
+      "Copia la chiave. Viene mostrata una sola volta."
+    ],
+    "connect": {
+      "title": "Collega Claude e altri assistenti IA",
+      "body": "Aggiungi il server MCP a qualsiasi assistente che supporti server MCP remoti via HTTP. Sostituisci {placeholder} con la tua chiave.",
+      "url": "URL del server",
+      "header": "Intestazione",
+      "claudeCode": "Claude Code",
+      "json": "Configurazione JSON",
+      "jsonHint": "Per .mcp.json e altri assistenti configurati con un file mcpServers."
+    },
+    "restTitle": "API REST",
+    "restBody": "Invia la stessa chiave all'API REST. Gli importi sono nell'unità minima della valuta: 2500 corrisponde a 25,00.",
+    "baseUrl": "URL di base",
+    "example": "Richiesta di esempio",
+    "limits": "Ogni chiave può effettuare {limit} richieste al minuto.",
+    "paging": "Gli elenchi restituiscono data e nextCursor. Rimanda nextCursor come cursor per la pagina successiva.",
+    "openapi": "Documento OpenAPI",
+    "referenceTitle": "Operazioni",
+    "referenceBody": "Ogni operazione REST è anche uno strumento MCP con gli stessi input.",
+    "columns": {
+      "endpoint": "Endpoint",
+      "tool": "Strumento MCP",
+      "scope": "Permesso"
+    },
+    "tags": {
+      "Store": "Negozio",
+      "Products": "Prodotti",
+      "Variants": "Varianti",
+      "Collections": "Collezioni",
+      "Orders": "Ordini",
+      "Customers": "Clienti",
+      "Discounts": "Sconti",
+      "Storefront": "Vetrina",
+      "Translations": "Testi del negozio e traduzioni"
+    },
+    "ctaTitle": "Crea la tua prima chiave",
+    "ctaBody": "Accedi, apri le Impostazioni di un negozio e scegli Chiavi API.",
+    "cta": "Accedi"
   },
   "pricing": {
     "metaTitle": "Prezzi",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "Impossibile raggiungere Stripe. Lo stato qui sotto potrebbe non essere aggiornato.",
     "demoStoreTitle": "Negozio demo",
     "demoStoreBody": "Il pagamento è simulato e nessuno viene addebitato. Collega Stripe per accettare pagamenti reali.",
-    "backToSettings": "Torna alle impostazioni"
+    "backToSettings": "Torna alle impostazioni",
+    "apiKeysTitle": "Chiavi API",
+    "apiKeysBody": "Collega app e integrazioni a questo negozio con l’API Admin.",
+    "apiKeysLink": "Gestisci chiavi API"
   },
   "team": {
     "agencyAdmins": "Amministratori dell’agenzia",
@@ -3771,6 +3826,55 @@
         "title": "Registro attività",
         "body": "Configurazione, modifiche di prezzo, approvazioni, pubblicazioni e instradamento degli ordini vengono registrati con chi e quando."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Chiavi API",
+    "description": "Le chiavi consentono al tuo codice di accedere a questo negozio tramite l’API Admin.",
+    "reference": "Riferimento API",
+    "createTitle": "Crea una chiave",
+    "name": "Nome",
+    "nameHint": "L’app o l’integrazione che la userà.",
+    "access": "Accesso",
+    "resources": {
+      "products": "Prodotti",
+      "collections": "Collezioni",
+      "orders": "Ordini",
+      "customers": "Clienti",
+      "discounts": "Sconti",
+      "storefront": "Vetrina",
+      "store": "Dettagli del negozio"
+    },
+    "none": "Nessun accesso",
+    "read": "Lettura",
+    "write": "Lettura e scrittura",
+    "create": "Crea chiave",
+    "creating": "Creazione…",
+    "created": "Chiave creata",
+    "secretTitle": "Copia la chiave per {name}",
+    "secretBody": "Viene mostrata solo questa volta. Conservala in un luogo sicuro.",
+    "copy": "Copia chiave",
+    "keysTitle": "Chiavi",
+    "emptyTitle": "Nessuna chiave API",
+    "emptyBody": "Crea una chiave per collegare un’app o un’integrazione.",
+    "columns": {
+      "name": "Nome",
+      "access": "Accesso",
+      "created": "Creata",
+      "lastUsed": "Ultimo utilizzo",
+      "status": "Stato"
+    },
+    "createdBy": "{date} da {name}",
+    "never": "Mai",
+    "active": "Attiva",
+    "revoked": "Revocata",
+    "revoke": "Revoca",
+    "revokeQuestion": "Le app che usano questa chiave smetteranno di funzionare.",
+    "errors": {
+      "nameRequired": "Dai un nome alla chiave.",
+      "nameTooLong": "Usa al massimo {max} caratteri.",
+      "scopeRequired": "Dai alla chiave l’accesso ad almeno un’area.",
+      "duplicate": "Questa chiave è già stata creata. Se non l’hai copiata, revocala e creane una nuova."
     }
   }
 }

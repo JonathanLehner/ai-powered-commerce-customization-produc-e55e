@@ -30,12 +30,14 @@
     "notFoundTitle": "Seite nicht gefunden",
     "backToHomepage": "Zur Startseite",
     "commandPalette": "Befehlspalette",
-    "commandPaletteHint": "Nach einem Befehl suchen"
+    "commandPaletteHint": "Nach einem Befehl suchen",
+    "copy": "Kopieren"
   },
   "site": {
     "mainNav": "Hauptnavigation",
     "howItWorks": "So funktioniert’s",
     "pricing": "Preise",
+    "developers": "Entwickler",
     "contact": "Kontakt",
     "signIn": "Anmelden",
     "menu": "Menü",
@@ -280,6 +282,56 @@
     "assistantTitle": "KI-Assistent",
     "assistantBody": "Schlägt Produkte, Lieferanten, Beschreibungen, Tags und Preise vor. Sie prüfen jeden Vorschlag, bevor er übernommen wird.",
     "assistantCta": "Im Arbeitsbereich ausprobieren"
+  },
+  "developers": {
+    "metaTitle": "Entwickler",
+    "metaDescription": "Verbinden Sie eigenen Code, Claude und andere KI-Assistenten über die Admin-API und den MCP-Server mit einem Parcelith-Shop.",
+    "title": "Steuern Sie Ihren Shop per Code und KI-Assistent",
+    "lead": "Mit der Admin-API und dem MCP-Server greifen Ihr eigener Code, Claude und andere KI-Assistenten auf Produkte, Bestellungen, Kunden, Rabatte, Storefront und Einstellungen eines Shops zu.",
+    "keysTitle": "API-Schlüssel erstellen",
+    "keysBody": "Ein Schlüssel gilt für einen Shop. Jede Änderung damit wird im Aktivitätsprotokoll des Shops unter dem Namen des Schlüssels erfasst.",
+    "keysSteps": [
+      "Öffnen Sie die Einstellungen des Shops und wählen Sie API-Schlüssel.",
+      "Benennen Sie den Schlüssel und wählen Sie Lese- oder Schreibzugriff je Bereich.",
+      "Kopieren Sie den Schlüssel. Er wird nur einmal angezeigt."
+    ],
+    "connect": {
+      "title": "Claude und andere KI-Assistenten verbinden",
+      "body": "Fügen Sie den MCP-Server jedem Assistenten hinzu, der Remote-MCP-Server über HTTP unterstützt. Ersetzen Sie {placeholder} durch Ihren Schlüssel.",
+      "url": "Server-URL",
+      "header": "Header",
+      "claudeCode": "Claude Code",
+      "json": "JSON-Konfiguration",
+      "jsonHint": "Für .mcp.json und andere Assistenten, die über eine mcpServers-Datei konfiguriert werden."
+    },
+    "restTitle": "REST-API",
+    "restBody": "Senden Sie denselben Schlüssel an die REST-API. Beträge sind in der kleinsten Währungseinheit angegeben: 2500 entspricht 25,00.",
+    "baseUrl": "Basis-URL",
+    "example": "Beispielanfrage",
+    "limits": "Jeder Schlüssel kann {limit} Anfragen pro Minute stellen.",
+    "paging": "Listen liefern data und nextCursor. Senden Sie nextCursor als cursor zurück, um die nächste Seite zu erhalten.",
+    "openapi": "OpenAPI-Dokument",
+    "referenceTitle": "Operationen",
+    "referenceBody": "Jede REST-Operation ist auch ein MCP-Tool mit denselben Eingaben.",
+    "columns": {
+      "endpoint": "Endpunkt",
+      "tool": "MCP-Tool",
+      "scope": "Berechtigung"
+    },
+    "tags": {
+      "Store": "Shop",
+      "Products": "Produkte",
+      "Variants": "Varianten",
+      "Collections": "Kollektionen",
+      "Orders": "Bestellungen",
+      "Customers": "Kunden",
+      "Discounts": "Rabatte",
+      "Storefront": "Storefront",
+      "Translations": "Shop-Texte und Übersetzungen"
+    },
+    "ctaTitle": "Erstellen Sie Ihren ersten Schlüssel",
+    "ctaBody": "Melden Sie sich an, öffnen Sie die Einstellungen eines Shops und wählen Sie API-Schlüssel.",
+    "cta": "Anmelden"
   },
   "pricing": {
     "metaTitle": "Preise",
@@ -1437,7 +1489,10 @@
     "stripeUnreadable": "Stripe ist nicht erreichbar. Der Status unten ist möglicherweise nicht aktuell.",
     "demoStoreTitle": "Demo-Shop",
     "demoStoreBody": "Der Checkout ist simuliert, niemand wird belastet. Verbinden Sie Stripe, um echte Zahlungen anzunehmen.",
-    "backToSettings": "Zurück zu den Einstellungen"
+    "backToSettings": "Zurück zu den Einstellungen",
+    "apiKeysTitle": "API-Schlüssel",
+    "apiKeysBody": "Verbinden Sie Apps und Integrationen über die Admin-API mit diesem Shop.",
+    "apiKeysLink": "API-Schlüssel verwalten"
   },
   "team": {
     "agencyAdmins": "Agenturadministratoren",
@@ -3771,6 +3826,55 @@
         "title": "Audit-Log",
         "body": "Einrichtung, Preisänderungen, Freigaben, Veröffentlichungen und Auftragsrouting werden mit Person und Zeitpunkt protokolliert."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API-Schlüssel",
+    "description": "Mit Schlüsseln greift Ihr eigener Code über die Admin-API auf diesen Shop zu.",
+    "reference": "API-Referenz",
+    "createTitle": "Schlüssel erstellen",
+    "name": "Name",
+    "nameHint": "Die App oder Integration, die ihn verwendet.",
+    "access": "Zugriff",
+    "resources": {
+      "products": "Produkte",
+      "collections": "Kollektionen",
+      "orders": "Bestellungen",
+      "customers": "Kunden",
+      "discounts": "Rabatte",
+      "storefront": "Storefront",
+      "store": "Shopdetails"
+    },
+    "none": "Kein Zugriff",
+    "read": "Lesen",
+    "write": "Lesen und schreiben",
+    "create": "Schlüssel erstellen",
+    "creating": "Wird erstellt…",
+    "created": "Schlüssel erstellt",
+    "secretTitle": "Schlüssel für {name} kopieren",
+    "secretBody": "Er wird nur dieses eine Mal angezeigt. Bewahren Sie ihn sicher auf.",
+    "copy": "Schlüssel kopieren",
+    "keysTitle": "Schlüssel",
+    "emptyTitle": "Noch keine API-Schlüssel",
+    "emptyBody": "Erstellen Sie einen Schlüssel, um eine App oder Integration zu verbinden.",
+    "columns": {
+      "name": "Name",
+      "access": "Zugriff",
+      "created": "Erstellt",
+      "lastUsed": "Zuletzt verwendet",
+      "status": "Status"
+    },
+    "createdBy": "{date} von {name}",
+    "never": "Nie",
+    "active": "Aktiv",
+    "revoked": "Widerrufen",
+    "revoke": "Widerrufen",
+    "revokeQuestion": "Apps mit diesem Schlüssel funktionieren dann nicht mehr.",
+    "errors": {
+      "nameRequired": "Geben Sie dem Schlüssel einen Namen.",
+      "nameTooLong": "Verwenden Sie höchstens {max} Zeichen.",
+      "scopeRequired": "Geben Sie dem Schlüssel Zugriff auf mindestens einen Bereich.",
+      "duplicate": "Dieser Schlüssel wurde bereits erstellt. Falls Sie ihn nicht kopiert haben, widerrufen Sie ihn und erstellen Sie einen neuen."
     }
   }
 }
