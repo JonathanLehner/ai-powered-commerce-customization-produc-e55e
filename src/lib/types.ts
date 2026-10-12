@@ -205,6 +205,8 @@ export interface Store {
   pricesIncludeTax: boolean;
   /** Absent until the inventory settings are saved; read it through `inventorySettings()`. */
   inventory?: InventorySettings;
+  /** Absent until the recovery email is switched on; read it through `checkoutRecovery()`. */
+  checkoutRecovery?: CheckoutRecoverySettings;
   /** Absent until the tax settings are saved; read it through `storeTax()`. */
   tax?: StoreTaxSettings;
   setup: StoreSetupState;
@@ -777,6 +779,8 @@ export interface Order {
     phone?: string;
     /** Set once the shopper's personal data was deleted. Name, email and address are blanked then. */
     anonymisedAt?: string;
+    /** Ticked "Email me with news and offers" at checkout. Absent on orders placed before the box existed. */
+    acceptsMarketing?: boolean;
   };
   items: OrderItem[];
   subtotal: number;
@@ -850,6 +854,19 @@ export interface Order {
   }[];
   events: FulfillmentEvent[];
   /**
+   * The parcels sent so far, each with the lines and quantities in it. Absent
+   * on orders shipped before partial fulfilment: read it through
+   * `orderFulfillments()`, which treats those as one parcel of everything.
+   */
+  fulfillments?: OrderFulfillment[];
+  /** The store team's own note on the order. Never shown to the shopper. */
+  note?: string;
+  tags?: string[];
+  /** Set when the shopper left Stripe Checkout without paying and the session expired. */
+  abandonedAt?: string | null;
+  /** The one recovery email sent for an abandoned checkout. */
+  recovery?: { sentAt: string; clickedAt?: string | null } | null;
+  /**
    * The stock this order holds on tracked variants. Reserved when checkout
    * starts, committed (taken off hand) once payment lands, released when the
    * payment never comes. Absent when nothing on the order was tracked.
@@ -866,6 +883,24 @@ export interface Order {
   idempotencyKey: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** One parcel handed to a carrier. */
+export interface OrderFulfillment {
+  id: string;
+  lines: { itemId: string; quantity: number }[];
+  carrier: "dhl" | "fedex" | "ups";
+  trackingNumber: string;
+  trackingUrl: string;
+  at: string;
+  actor: string;
+}
+
+/** The single email sent to a shopper who left checkout without paying. */
+export interface CheckoutRecoverySettings {
+  enabled: boolean;
+  /** Hours after the checkout expired. */
+  delayHours: number;
 }
 
 export interface OrderInventory {
@@ -1362,6 +1397,76 @@ export interface QuoteRequest {
   declineReason: string | null;
   /** The store product the accepted quote was copied into. */
   storeProductId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ------------------------------------------------------------- webhooks */
+
+export type WebhookTopic =
+  | "order.created"
+  | "order.paid"
+  | "order.fulfilled"
+  | "order.cancelled"
+  | "order.refunded"
+  | "product.created"
+  | "product.updated"
+  | "product.deleted"
+  | "customer.created"
+  | "customer.updated"
+  | "inventory.updated";
+
+/** An address a store's events are posted to, signed with its own secret. */
+export interface WebhookEndpoint {
+  id: string;
+  storeId: string;
+  url: string;
+  description: string;
+  topics: WebhookTopic[];
+  /** `whsec_` and the base64 key, as Standard Webhooks expects it. */
+  secret: string;
+  status: "enabled" | "disabled";
+  /** `failing` when deliveries kept failing and it was switched off automatically. */
+  disabledReason: "manual" | "failing" | null;
+  disabledAt: string | null;
+  /** Failed attempts since the last success. */
+  consecutiveFailures: number;
+  /** The form's key, so a double submit creates one endpoint. */
+  submissionKey: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WebhookAttempt {
+  at: string;
+  /** The HTTP status the endpoint answered with, or null when it could not be reached. */
+  responseCode: number | null;
+  /** The start of the response body, or why the request failed. */
+  response: string;
+  durationMs: number;
+  manual: boolean;
+}
+
+/**
+ * One event for one endpoint. The id is the `webhook-id` header, so a resend
+ * carries the same one and the receiver can tell it is not a new event.
+ */
+export interface WebhookDelivery {
+  id: string;
+  storeId: string;
+  endpointId: string;
+  topic: WebhookTopic;
+  /** The exact JSON body that is signed and sent. */
+  payload: string;
+  status: "pending" | "retrying" | "succeeded" | "failed";
+  attempts: WebhookAttempt[];
+  responseCode: number | null;
+  nextAttemptAt: string | null;
+  /** Held while one worker sends it, so two cannot send the same attempt. */
+  lockedUntil: string | null;
+  /** A BSON date, so MongoDB removes the delivery 30 days on. */
+  expiresAt: Date;
   createdAt: string;
   updatedAt: string;
 }

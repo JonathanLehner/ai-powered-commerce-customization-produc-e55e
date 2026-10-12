@@ -8,17 +8,37 @@ import { getOrder, recordAudit, updateOrder } from "../data";
 import { refundSimulated, type RefundResult } from "../demo-payment";
 import { sendEmail, siteOrigin } from "../email";
 import { brandFor, shippingNotificationEmail } from "../email-templates";
+import { presentOrder } from "../api/present";
+import { addressRegionKind } from "../countries";
 import { trackingNumberFor } from "../fulfillment";
 import { releaseOrderStock, restockOrder } from "../inventory";
 import { orderStatusUrl, signOrderToken } from "../order-access";
+import {
+  MAX_NOTE_LENGTH,
+  MAX_TAGS,
+  MAX_TAG_LENGTH,
+  canEditAddress,
+  normalizeTags,
+  orderFulfillments,
+  parcelLines,
+  unshippedLines,
+} from "../order-ops";
 import { refundOnConnectedAccount } from "../stripe";
-import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus, type Store } from "../types";
+import {
+  canMoveOrder,
+  type FulfillmentEvent,
+  type Order,
+  type OrderFulfillment,
+  type OrderStatus,
+  type Store,
+} from "../types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId } from "../util";
+import { emitWebhook } from "../webhooks";
 import { OperationError, type OperationContext } from "./context";
 
 /**
- * Working an order: handing it to the carrier, moving it through its statuses,
- * and refunding it. The workspace's order actions, its bulk actions and the
+ * Working an order: handing it to the carrier a parcel at a time, its notes,
+ * tags and address, moving it through its statuses, and refunding it. The workspace's order actions, its bulk actions and the
  * Admin API all run these.
  */
 
@@ -42,17 +62,26 @@ export function revalidateOrder(storeId: string, orderId: string) {
 
 /* ---------------------------------------------------------------- shipping */
 
+export interface ParcelLine {
+  itemId: string;
+  quantity: number;
+}
+
 /**
- * Hands one order to the carrier: records the tracking, the audit entry and
- * the shopper's shipping email. With no tracking number given, the carrier's
- * own is used.
+ * Hands a parcel to the carrier: the lines and quantities in it (everything
+ * still to ship when none are named), its tracking, the audit entry and the
+ * shopper's shipping email. With no tracking number given, the carrier's own
+ * is used. The order is shipped once every unit has gone; until then it stays
+ * where it was. When nothing is left to ship, the latest parcel's tracking is
+ * corrected instead.
  */
 export async function shipOrder(
   ctx: OperationContext,
   order: Order,
   carrier: Carrier,
   entered: string,
-): Promise<{ trackingNumber: string; trackingUrl: string }> {
+  requested?: ParcelLine[] | null,
+): Promise<{ trackingNumber: string; trackingUrl: string; fulfillment: OrderFulfillment; order: Order }> {
   const { store, actor } = ctx;
   const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
   if (!CARRIERS.includes(carrier)) throw new OperationError("invalid", t("chooseCarrier"), "carrier");
@@ -67,26 +96,52 @@ export async function shipOrder(
 
   const storeId = store.id;
   const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
-  await updateOrder(order.id, {
-    status: "shipped",
+  const parcels = orderFulfillments(order);
+  const asked = parcelLines(order, requested);
+  let fulfillments: OrderFulfillment[];
+  let parcel: OrderFulfillment;
+  if ("problem" in asked) {
+    // Everything has gone: a retracking corrects the latest parcel, unless lines were named.
+    if (asked.problem !== "nothingLeft" || (requested && requested.length > 0) || parcels.length === 0) {
+      throw new OperationError("invalid", t(`parcel.${asked.problem}`), "lines");
+    }
+    const latest = parcels[parcels.length - 1];
+    parcel = { ...latest, id: latest.id === "legacy" ? newId("ful") : latest.id, carrier, trackingNumber, trackingUrl };
+    fulfillments = [...parcels.slice(0, -1), parcel];
+  } else {
+    parcel = { id: newId("ful"), lines: asked.lines, carrier, trackingNumber, trackingUrl, at: new Date().toISOString(), actor: actor.name };
+    fulfillments = [...parcels, parcel];
+  }
+  const complete = unshippedLines({ ...order, fulfillments }).length === 0;
+  const units = parcel.lines.reduce((sum, line) => sum + line.quantity, 0);
+  const patch: Partial<Order> = {
+    status: complete ? "shipped" : order.status,
+    fulfillments,
     fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
     events: [
       ...order.events,
-      orderEvent("Shipped", `Handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`, actor.name),
+      orderEvent(
+        complete ? "Shipped" : "Partially shipped",
+        `${units} ${units === 1 ? "unit" : "units"} handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`,
+        actor.name,
+      ),
     ],
-  });
+  };
+  await updateOrder(order.id, patch);
+  const updated: Order = { ...order, ...patch };
   recordAudit({
     category: "order_routing",
     action: "order.shipped",
-    summary: `${order.code} shipped with ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
+    summary: `${order.code} ${complete ? "shipped" : "partly shipped"} with ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
     storeId,
     agencyId: store.agencyId,
     actorId: actor.id,
     actorName: actor.name,
     entity: "order",
     entityId: order.code,
-    meta: { carrier, trackingNumber },
+    meta: { carrier, trackingNumber, units, complete },
   });
+  emitWebhook(storeId, "order.fulfilled", { ...presentOrder(updated), fulfillment: parcel });
 
   // The shopper is told their parcel is moving; a mail provider that is down
   // leaves the shipment recorded and the attempt in the store's activity.
@@ -104,6 +159,11 @@ export async function shipOrder(
         trackingNumber,
         trackingUrl,
         statusUrl: `${origin}${orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code))}`,
+        partial: !complete,
+        items: parcel.lines.map((line) => {
+          const item = order.items.find((i) => i.id === line.itemId);
+          return { name: item ? `${item.productName} · ${item.variantName}` : line.itemId, quantity: line.quantity };
+        }),
       }),
       kind: "shipping notification",
       storeId,
@@ -116,7 +176,110 @@ export async function shipOrder(
   }
 
   revalidateOrder(storeId, order.id);
-  return { trackingNumber, trackingUrl };
+  return { trackingNumber, trackingUrl, fulfillment: parcel, order: updated };
+}
+
+/* ------------------------------------------------------ notes and address */
+
+/** The team's note and tags on an order. Fields left out keep their value. */
+export async function saveOrderNotes(
+  ctx: OperationContext,
+  order: Order,
+  input: { note?: string; tags?: string | string[] },
+): Promise<Order> {
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  const patch: Partial<Order> = {};
+  if (input.note !== undefined) {
+    const note = String(input.note).trim();
+    if (note.length > MAX_NOTE_LENGTH) throw new OperationError("invalid", t("noteTooLong", { max: MAX_NOTE_LENGTH }), "note");
+    if (note !== (order.note ?? "")) patch.note = note;
+  }
+  if (input.tags !== undefined) {
+    const tags = normalizeTags(input.tags);
+    if (!tags) throw new OperationError("invalid", t("tagsInvalid", { max: MAX_TAGS, length: MAX_TAG_LENGTH }), "tags");
+    if (tags.join("\n") !== (order.tags ?? []).join("\n")) patch.tags = tags;
+  }
+  if (Object.keys(patch).length === 0) return order;
+  await updateOrder(order.id, patch);
+  recordAudit({
+    category: "order_routing",
+    action: "order.notes_updated",
+    summary: `Updated the ${[patch.note !== undefined ? "note" : null, patch.tags ? "tags" : null].filter(Boolean).join(" and ")} on ${order.code}`,
+    storeId: ctx.store.id,
+    agencyId: ctx.store.agencyId,
+    actorId: ctx.actor.id,
+    actorName: ctx.actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: patch.tags ? { tags: patch.tags.join(",") } : {},
+  });
+  revalidateOrder(ctx.store.id, order.id);
+  return { ...order, ...patch };
+}
+
+export interface AddressInput {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  region?: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+}
+
+/** Corrects where the order ships to, until its first parcel has gone. */
+export async function updateShippingAddress(ctx: OperationContext, order: Order, input: AddressInput): Promise<Order> {
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  if (!canEditAddress(order)) throw new OperationError("conflict", t("addressLocked"));
+  const value = (key: keyof AddressInput) => String(input[key] ?? "").trim();
+  const country = value("country").toUpperCase();
+  const region = addressRegionKind(country) ? value("region") : "";
+  if (value("name").length < 2) throw new OperationError("invalid", t("address.name"), "name");
+  if (value("line1").length < 4) throw new OperationError("invalid", t("address.line1"), "line1");
+  if (value("city").length < 2) throw new OperationError("invalid", t("address.city"), "city");
+  if (value("postalCode").length < 3) throw new OperationError("invalid", t("address.postalCode"), "postalCode");
+  if (!/^[A-Z]{2}$/.test(country)) throw new OperationError("invalid", t("address.country"), "country");
+  if (addressRegionKind(country) && region.length < 2) throw new OperationError("invalid", t("address.region"), "region");
+  if (value("phone") && !/^\+?[\d\s().-]{6,20}$/.test(value("phone"))) {
+    throw new OperationError("invalid", t("address.phone"), "phone");
+  }
+  const customer: Order["customer"] = {
+    ...order.customer,
+    name: value("name"),
+    line1: value("line1"),
+    city: value("city"),
+    postalCode: value("postalCode"),
+    country,
+  };
+  for (const key of ["line2", "region", "phone"] as const) {
+    const entered = key === "region" ? region : value(key);
+    if (entered) customer[key] = entered;
+    else delete customer[key];
+  }
+  const written = await updateOrder(
+    order.id,
+    {
+      customer,
+      events: [...order.events, orderEvent("Address updated", "Shipping address changed by the store team.", ctx.actor.name)],
+    },
+    { updatedAt: order.updatedAt },
+  );
+  if (!written) throw new OperationError("conflict", t("orderChanged"));
+  recordAudit({
+    category: "order_routing",
+    action: "order.address_updated",
+    summary: `Changed the shipping address on ${order.code}`,
+    storeId: ctx.store.id,
+    agencyId: ctx.store.agencyId,
+    actorId: ctx.actor.id,
+    actorName: ctx.actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: { country },
+  });
+  revalidateOrder(ctx.store.id, order.id);
+  return { ...order, customer };
 }
 
 /* ---------------------------------------------------------------- statuses */
@@ -157,7 +320,10 @@ export async function moveOrder(ctx: OperationContext, order: Order, status: Ord
     entityId: order.code,
     meta: { status },
   });
-  if (status === "cancelled") refreshCustomers(store, [order.customer.email]);
+  if (status === "cancelled") {
+    refreshCustomers(store, [order.customer.email]);
+    emitWebhook(store.id, "order.cancelled", presentOrder({ ...order, ...patch }));
+  }
   revalidateOrder(store.id, order.id);
   return true;
 }
@@ -295,6 +461,9 @@ export async function refundOrder(
     },
   });
   refreshCustomers(store, [order.customer.email]);
+  const refundedOrder: Order = { ...order, ...patch };
+  emitWebhook(store.id, "order.refunded", { ...presentOrder(refundedOrder), refund: refunds[refunds.length - 1] });
+  if (input.cancel && order.status !== "cancelled") emitWebhook(store.id, "order.cancelled", presentOrder(refundedOrder));
   revalidateOrder(store.id, order.id);
-  return { order: { ...order, ...patch }, amount, refundId: gateway.refundId, restocked };
+  return { order: refundedOrder, amount, refundId: gateway.refundId, restocked };
 }

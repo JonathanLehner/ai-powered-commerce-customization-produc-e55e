@@ -60,6 +60,8 @@ export const COLLECTIONS = {
   inventoryLevels: "inventory_levels",
   inventoryAdjustments: "inventory_adjustments",
   shippingZones: "shipping_zones",
+  webhookEndpoints: "webhook_endpoints",
+  webhookDeliveries: "webhook_deliveries",
 } as const;
 
 /* ------------------------------------------------------------------ paging */
