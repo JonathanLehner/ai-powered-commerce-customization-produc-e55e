@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Stripe est injoignable. Le statut ci-dessous n’est peut-être pas à jour.",
     "demoStoreTitle": "Boutique de démonstration",
     "demoStoreBody": "Le paiement est simulé et personne n’est débité. Connectez Stripe pour accepter de vrais paiements.",
-    "backToSettings": "Retour aux paramètres"
+    "backToSettings": "Retour aux paramètres",
+    "apiKeysTitle": "Clés API",
+    "apiKeysBody": "Connectez des applications et des intégrations à cette boutique avec l’API Admin.",
+    "apiKeysLink": "Gérer les clés API"
   },
   "team": {
     "agencyAdmins": "Administrateurs de l’agence",
@@ -3771,6 +3774,55 @@
         "title": "Journal d'audit",
         "body": "Configuration, changements de prix, validations, publications et routage des commandes sont enregistrés avec l'auteur et la date."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Clés API",
+    "description": "Les clés permettent à votre propre code d’accéder à cette boutique via l’API Admin.",
+    "reference": "Référence de l’API",
+    "createTitle": "Créer une clé",
+    "name": "Nom",
+    "nameHint": "L’application ou l’intégration qui l’utilisera.",
+    "access": "Accès",
+    "resources": {
+      "products": "Produits",
+      "collections": "Collections",
+      "orders": "Commandes",
+      "customers": "Clients",
+      "discounts": "Remises",
+      "storefront": "Vitrine",
+      "store": "Détails de la boutique"
+    },
+    "none": "Aucun accès",
+    "read": "Lecture",
+    "write": "Lecture et écriture",
+    "create": "Créer la clé",
+    "creating": "Création…",
+    "created": "Clé créée",
+    "secretTitle": "Copiez la clé pour {name}",
+    "secretBody": "Elle ne s’affiche qu’une seule fois. Conservez-la en lieu sûr.",
+    "copy": "Copier la clé",
+    "keysTitle": "Clés",
+    "emptyTitle": "Aucune clé API",
+    "emptyBody": "Créez une clé pour connecter une application ou une intégration.",
+    "columns": {
+      "name": "Nom",
+      "access": "Accès",
+      "created": "Créée",
+      "lastUsed": "Dernière utilisation",
+      "status": "Statut"
+    },
+    "createdBy": "{date} par {name}",
+    "never": "Jamais",
+    "active": "Active",
+    "revoked": "Révoquée",
+    "revoke": "Révoquer",
+    "revokeQuestion": "Les applications qui utilisent cette clé cesseront de fonctionner.",
+    "errors": {
+      "nameRequired": "Donnez un nom à la clé.",
+      "nameTooLong": "Utilisez {max} caractères au maximum.",
+      "scopeRequired": "Donnez à la clé l’accès à au moins un domaine.",
+      "duplicate": "Cette clé a déjà été créée. Si vous ne l’avez pas copiée, révoquez-la et créez-en une nouvelle."
     }
   }
 }

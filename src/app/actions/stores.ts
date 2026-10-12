@@ -13,19 +13,25 @@ import {
   recordAudit,
   updateStore,
 } from "@/lib/data";
-import { DEFAULT_LOCALE, LOCALES, isLocale } from "@/i18n/locales";
-import { storeLanguages } from "@/i18n/storefront-routing";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
 import { db } from "@/lib/mongo";
-import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type StorePolicies } from "@/lib/policies";
+import { refusal } from "@/lib/operations/action-state";
+import {
+  renameStore as rename,
+  saveBranding as brand,
+  saveCurrencies as setCurrencies,
+  saveLanguages as setLanguages,
+  savePolicies as setPolicies,
+  saveSupport as setSupport,
+} from "@/lib/operations/store-settings";
+import { POLICY_KEYS } from "@/lib/policies";
 import { storeLimitText } from "@/i18n/plan-copy";
 import { billingPending } from "@/lib/billing";
 import { storeAllowance } from "@/lib/plans";
-import { assertStoreAccess, getSessionUser } from "@/lib/session";
+import { assertStoreAccess, getSessionUser, operationContext } from "@/lib/session";
 import { siteOrigin } from "@/lib/email";
 import { createExpressAccount, onboardingLink } from "@/lib/stripe";
-import { forgetStorePolicies } from "@/lib/storefront-data";
 import { treeFromSections } from "@/lib/storefront-schema";
-import { isSupportEmail, isSupportPhone } from "@/lib/support";
 import { readStoredImage } from "@/lib/uploads";
 import type { Store, ThemeKey } from "@/lib/types";
 import { STRIPE_COUNTRIES, newId, slugify } from "@/lib/util";
@@ -159,28 +165,16 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
 
 export async function renameStore(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const name = String(formData.get("name") ?? "").trim();
-  const clientName = String(formData.get("clientName") ?? "").trim();
   const t = await getTranslations("actions.stores");
-  if (name.length < 3) return fail(t("nameTooShort"), "name");
-  if (!clientName) return fail(t("clientRequired"), "clientName");
-
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
-  await updateStore(storeId, { name, clientName });
-  recordAudit({
-    category: "store_setup",
-    action: "store.renamed",
-    summary: `Renamed store to “${name}” (${clientName})`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { from: store.name, to: name },
-  });
-  revalidatePath("/app");
-  revalidatePath(`/app/stores/${storeId}`);
+  const access = await assertStoreAccess(storeId, "store.settings");
+  try {
+    await rename(await operationContext(access), {
+      name: String(formData.get("name") ?? ""),
+      clientName: String(formData.get("clientName") ?? ""),
+    });
+  } catch (error) {
+    return refusal(error);
+  }
   return ok(t("renamed"));
 }
 
@@ -231,220 +225,80 @@ export async function setStoreStatus(formData: FormData): Promise<void> {
 
 export async function saveBranding(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
+  const { store } = access;
   const t = await getTranslations("actions.stores");
 
-  const theme = String(formData.get("theme") ?? store.theme) as ThemeKey;
-  // The logo goes to /api/uploads before the form is submitted — a file posted
+  // The logo goes to /api/uploads before the form is submitted: a file posted
   // through the action itself would exceed the 1 MB Server Action body limit.
   const stored = readStoredImage(formData, "logo", "logo");
-  const logoUrl = stored ? stored.url : store.logoUrl;
-
-  await updateStore(storeId, {
-    theme,
-    logoUrl,
-    setup: { ...store.setup, branding: Boolean(logoUrl) },
+  const saved = await brand(await operationContext(access), {
+    theme: String(formData.get("theme") ?? store.theme) as ThemeKey,
+    logoUrl: stored ? stored.url : store.logoUrl,
   });
-  recordAudit({
-    category: "store_setup",
-    action: "store.branding_updated",
-    summary: `Updated branding: theme “${theme}”${logoUrl !== store.logoUrl ? " and a new logo" : ""}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { theme },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
-  revalidatePath(`/s/${store.slug}`);
-  return ok(logoUrl !== store.logoUrl ? t("logoAndTheme") : t("themeSaved"));
+  return ok(saved.logoUrl !== store.logoUrl ? t("logoAndTheme") : t("themeSaved"));
 }
 
 export async function saveLanguages(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const chosen = new Set(formData.getAll("languages").map(String));
-  const languages = LOCALES.filter((code) => chosen.has(code));
-  const defaultLanguage = String(formData.get("defaultLanguage") ?? "");
-
-  if (languages.length === 0) return fail(t("languageRequired"), "languages");
-  if (!isLocale(defaultLanguage) || !languages.includes(defaultLanguage)) {
-    return fail(t("defaultLanguageRequired"), "defaultLanguage");
-  }
-
-  const before = storeLanguages(store);
-  const unchanged =
-    before.defaultLocale === defaultLanguage && before.locales.join(",") === languages.join(",");
-  if (!unchanged) {
-    await updateStore(storeId, { defaultLanguage, languages });
-    recordAudit({
-      category: "store_setup",
-      action: "store.languages_updated",
-      summary: `Set the storefront languages to ${languages.map(englishName).join(", ")} (default ${englishName(defaultLanguage)}), previously ${before.locales.map(englishName).join(", ")} (default ${englishName(before.defaultLocale)})`,
-      storeId,
-      agencyId: store.agencyId,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "store",
-      entityId: storeId,
-      meta: {
-        languages: languages.join(","),
-        defaultLanguage,
-        previousLanguages: before.locales.join(","),
-        previousDefaultLanguage: before.defaultLocale,
-      },
+  try {
+    await setLanguages(await operationContext(access), {
+      languages: formData.getAll("languages").map(String),
+      defaultLanguage: String(formData.get("defaultLanguage") ?? ""),
     });
+  } catch (error) {
+    return refusal(error);
   }
-  revalidatePath(`/app/stores/${storeId}/setup`);
-  // The languages decide every storefront and gift portal address and its copy.
-  revalidatePath(`/s/${store.slug}`, "layout");
-  revalidatePath("/g", "layout");
   return ok(t("languagesSaved"));
-}
-
-/** "German" for "de". The audit history is written in English. */
-function englishName(code: string): string {
-  return new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? code;
 }
 
 export async function saveLocalisation(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const currencies = formData.getAll("currencies").map(String);
-  const defaultCurrency = String(formData.get("defaultCurrency") ?? "");
-
-  if (currencies.length === 0) return fail(t("currencyRequired"), "currencies");
-  if (!currencies.includes(defaultCurrency)) {
-    return fail(t("defaultCurrencyRequired"), "defaultCurrency");
+  try {
+    await setCurrencies(await operationContext(access), {
+      currencies: formData.getAll("currencies").map(String),
+      defaultCurrency: String(formData.get("defaultCurrency") ?? ""),
+    });
+  } catch (error) {
+    return refusal(error);
   }
-
-  await updateStore(storeId, {
-    currencies,
-    defaultCurrency,
-    setup: { ...store.setup, localisation: true },
-  });
-  recordAudit({
-    category: "store_setup",
-    action: "store.localisation_updated",
-    summary: `Set the selling currencies to ${currencies.join(", ")} (default ${defaultCurrency})`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { defaultCurrency },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
-  // The currencies decide the storefront's prices, so every page of it is
-  // stale once this saves.
-  revalidatePath(`/s/${store.slug}`, "layout");
   return ok(t("localisationSaved"));
 }
 
-/**
- * The support contacts a shopper is given on the order status page and in the
- * storefront footer. The address is required — it is the only working route
- * from a shopper with a problem back to the seller — and the phone number is
- * offered as well for stores that answer one.
- */
+/** The support contacts a shopper is given on the order status page and in the storefront footer. */
 export async function saveSupport(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const supportEmail = String(formData.get("supportEmail") ?? "").trim().toLowerCase();
-  const supportPhone = String(formData.get("supportPhone") ?? "").trim();
-
-  if (!supportEmail) {
-    return fail(t("supportEmailRequired"), "supportEmail");
+  try {
+    const saved = await setSupport(await operationContext(access), {
+      supportEmail: String(formData.get("supportEmail") ?? ""),
+      supportPhone: String(formData.get("supportPhone") ?? ""),
+    });
+    return ok(saved.supportPhone ? t("supportBothSaved") : t("supportEmailSaved"));
+  } catch (error) {
+    return refusal(error);
   }
-  if (!isSupportEmail(supportEmail)) {
-    return fail(t("supportEmailInvalid"), "supportEmail");
-  }
-  if (supportPhone && !isSupportPhone(supportPhone)) {
-    return fail(t("supportPhoneInvalid"), "supportPhone");
-  }
-
-  await updateStore(storeId, {
-    supportEmail,
-    supportPhone: supportPhone || null,
-    setup: { ...store.setup, support: true },
-  });
-  recordAudit({
-    category: "store_setup",
-    action: "store.support_updated",
-    summary: `Shopper support set to ${supportEmail}${supportPhone ? ` and ${supportPhone}` : ""}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { supportEmail, supportPhone: supportPhone || null },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
-  // The footer carries the contacts, so every storefront page is stale.
-  revalidatePath(`/s/${store.slug}`, "layout");
-  return ok(
-    supportPhone
-      ? t("supportBothSaved")
-      : t("supportEmailSaved"),
-  );
 }
 
-/**
- * Saves the store's policies in one language. A policy left empty, or matching
- * what shoppers would read without it, is not stored, so the store keeps
- * following the default text.
- */
+/** Saves the store's policies in one language. */
 export async function savePolicies(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const { locales, defaultLocale } = storeLanguages(store);
-  const language = String(formData.get("language") ?? "");
-  if (!isLocale(language) || !locales.includes(language)) {
-    return fail(t("policyLanguageInvalid"), "language");
+  try {
+    await setPolicies(
+      await operationContext(access),
+      String(formData.get("language") ?? ""),
+      Object.fromEntries(POLICY_KEYS.map((key) => [key, String(formData.get(key) ?? "")])),
+    );
+  } catch (error) {
+    return refusal(error);
   }
-
-  const builtIn = await getTranslations({ locale: language, namespace: "storePolicies" });
-  const own: Partial<Record<(typeof POLICY_KEYS)[number], string>> = {};
-  for (const key of POLICY_KEYS) {
-    const text = normalizePolicy(String(formData.get(key) ?? ""));
-    if (text.length > POLICY_MAX_LENGTH) {
-      return fail(t("policyTooLong", { max: POLICY_MAX_LENGTH }), key);
-    }
-    const fallback =
-      (language !== defaultLocale ? store.policies?.[defaultLocale]?.[key] : null) ||
-      builtIn(key, { store: store.name });
-    if (text && text !== normalizePolicy(fallback)) own[key] = text;
-  }
-
-  const policies: StorePolicies = { ...(store.policies ?? {}), [language]: own };
-  await updateStore(storeId, { policies, policiesVersion: new Date().toISOString() });
-  forgetStorePolicies(storeId);
-  recordAudit({
-    category: "store_setup",
-    action: "store.policies_updated",
-    summary: `Store policies updated (${language})`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { language, edited: Object.keys(own).join(", ") },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
-  revalidatePath(`/s/${store.slug}`, "layout");
   return ok(t("policiesSaved"));
 }
 

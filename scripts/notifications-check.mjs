@@ -170,6 +170,7 @@ assert.equal(read.rows.find((n) => n.id === "ORD-2").email, "skipped");
 // raises its notification from lib rather than from an action.
 const sources = [
   ...["orders", "shop", "gifting", "sourcing", "team"].map((name) => `../src/app/actions/${name}.ts`),
+  "../src/lib/operations/orders.ts",
   "../src/lib/order-payment.ts",
   "../src/lib/gift-payment.ts",
 ]

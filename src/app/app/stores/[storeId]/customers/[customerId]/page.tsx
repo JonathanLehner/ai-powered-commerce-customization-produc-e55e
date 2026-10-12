@@ -52,7 +52,7 @@ export default async function CustomerDetailPage({
         description={
           deleted
             ? t("deletedOn", { date: formatDate(customer.anonymisedAt as string, locale) })
-            : t("since", { email: customer.email, date: formatDate(customer.firstOrderAt, locale) })
+            : t("since", { email: customer.email, date: formatDate(customer.firstOrderAt || customer.createdAt, locale) })
         }
         actions={
           <>
@@ -157,8 +157,8 @@ export default async function CustomerDetailPage({
                   rows={[
                     { label: t("email"), value: deleted ? "–" : customer.email },
                     { label: t("country"), value: customer.country ? countryName(locale, customer.country) : "–" },
-                    { label: t("firstOrder"), value: formatDate(customer.firstOrderAt, locale) },
-                    { label: t("lastOrder"), value: formatDate(customer.lastOrderAt, locale) },
+                    { label: t("firstOrder"), value: customer.firstOrderAt ? formatDate(customer.firstOrderAt, locale) : "–" },
+                    { label: t("lastOrder"), value: customer.lastOrderAt ? formatDate(customer.lastOrderAt, locale) : "–" },
                     { label: t("orders"), value: String(customer.orderCount) },
                     { label: t("spend"), value: formatMoney(customer.lifetimeSpend, customer.currency, locale) },
                     { label: t("refunded"), value: formatMoney(customer.refundedTotal, customer.currency, locale) },
