@@ -1,209 +1,342 @@
-import type { ShopperTranslator } from "@/i18n/shopper-copy";
-import type { Store } from "./types";
+import "server-only";
+import Stripe from "stripe";
 
 /**
- * Stripe gateway. The platform never touches funds — each store is the merchant
- * of record and charges run against its own connected account.
+ * Every call Parcelith makes to Stripe, through the official SDK.
  *
- * With no live secret key configured the gateway runs in test mode and settles
- * Stripe's published test card numbers locally, which keeps the full checkout →
- * payment → fulfilment path exercisable end to end.
+ * Plan billing runs on Parcelith's own account. Storefront and gift campaign
+ * payments are direct charges on each store's Connect account: the session,
+ * the coupon and the refund are created with `stripeAccount`, so the money
+ * lands on the store's balance.
  *
- * Every refusal a shopper can see is written in the shopper's language, through
- * the `t` the caller passes; `message` on a success is an internal note for the
- * order timeline.
+ * The client uses the SDK's fetch transport and Web Crypto, which run the same
+ * in Node and on Workers. It is built per call: on Workers the key is only
+ * readable once a request is in flight.
  */
 
-export interface ChargeInput {
-  store: Store;
-  amount: number;
-  currency: string;
-  cardNumber: string;
-  expiry: string;
-  cvc: string;
-  name: string;
-  idempotencyKey: string;
-  /** The shopper's payment copy: `storefront.payment` in the page's language. */
-  t: ShopperTranslator<"payment">;
+export function stripeClient(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    console.error("STRIPE_SECRET_KEY is not set; Stripe is unavailable.");
+    return null;
+  }
+  return new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
 }
 
-export interface ChargeResult {
-  ok: boolean;
-  paymentIntentId: string | null;
-  last4: string | null;
-  message: string;
-  code?: string;
+const cryptoProvider = Stripe.createSubtleCryptoProvider();
+
+/** Languages Stripe Checkout is shown in; it accepts all nine of Parcelith's. */
+const CHECKOUT_LOCALES: Stripe.Checkout.SessionCreateParams.Locale[] = ["en", "de", "fr", "es", "it", "nl", "pt", "ja", "sv"];
+
+export function checkoutLocale(locale: string): Stripe.Checkout.SessionCreateParams.Locale {
+  return CHECKOUT_LOCALES.find((code) => code === locale) ?? "auto";
 }
 
-const DECLINE_CARDS: Record<string, "declined" | "insufficientFunds" | "expiredCard"> = {
-  "4000000000000002": "declined",
-  "4000000000009995": "insufficientFunds",
-  "4000000000000069": "expiredCard",
-};
-
-export function luhnValid(digits: string): boolean {
-  if (!/^\d{12,19}$/.test(digits)) return false;
-  let sum = 0;
-  let double = false;
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let d = digits.charCodeAt(i) - 48;
-    if (double) {
-      d *= 2;
-      if (d > 9) d -= 9;
-    }
-    sum += d;
-    double = !double;
-  }
-  return sum % 10 === 0;
+/** An expandable reference reduced to its id. */
+export function refId(ref: string | { id: string } | null | undefined): string | null {
+  return typeof ref === "string" ? ref : (ref?.id ?? null);
 }
 
-export function expiryValid(expiry: string): boolean {
-  const m = /^(\d{2})\s*\/\s*(\d{2,4})$/.exec(expiry.trim());
-  if (!m) return false;
-  const month = Number(m[1]);
-  const year = Number(m[2].length === 2 ? `20${m[2]}` : m[2]);
-  if (month < 1 || month > 12) return false;
-  const now = new Date();
-  const end = new Date(year, month, 1);
-  return end > now;
+/* ------------------------------------------------------------ Connect */
+
+export interface ConnectStatus {
+  accountId: string;
+  country: string;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  detailsSubmitted: boolean;
 }
 
-function gatewayId(prefix: string, seed: string): string {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  return `${prefix}_3${hash.toString(36).padStart(8, "0")}${seed.slice(-6).replace(/[^a-z0-9]/gi, "") || "aa"}`;
-}
-
-export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
-  const { store, t } = input;
-  if (!store.stripe.connected || !store.stripe.chargesEnabled) {
-    return {
-      ok: false,
-      paymentIntentId: null,
-      last4: null,
-      message: t("accountNotReady"),
-      code: "account_not_ready",
-    };
-  }
-  if (!store.currencies.includes(input.currency)) {
-    return {
-      ok: false,
-      paymentIntentId: null,
-      last4: null,
-      message: t("currencyUnsupported", { currency: input.currency }),
-      code: "currency_unsupported",
-    };
-  }
-
-  const digits = input.cardNumber.replace(/\D/g, "");
-  if (!luhnValid(digits)) {
-    return {
-      ok: false,
-      paymentIntentId: null,
-      last4: null,
-      message: t("invalidNumber"),
-      code: "invalid_number",
-    };
-  }
-  if (!expiryValid(input.expiry)) {
-    return {
-      ok: false,
-      paymentIntentId: null,
-      last4: digits.slice(-4),
-      message: t("invalidExpiry"),
-      code: "invalid_expiry",
-    };
-  }
-  if (!/^\d{3,4}$/.test(input.cvc.trim())) {
-    return {
-      ok: false,
-      paymentIntentId: null,
-      last4: digits.slice(-4),
-      message: t("invalidCvc"),
-      code: "invalid_cvc",
-    };
-  }
-
-  const decline = DECLINE_CARDS[digits];
-  if (decline) {
-    return {
-      ok: false,
-      paymentIntentId: null,
-      last4: digits.slice(-4),
-      message: t(decline),
-      code: "card_declined",
-    };
-  }
-
+export function connectStatus(account: Stripe.Account): ConnectStatus {
   return {
-    ok: true,
-    paymentIntentId: gatewayId("pi", input.idempotencyKey),
-    last4: digits.slice(-4),
-    message: `Payment captured on ${store.stripe.accountId} in ${input.currency}.`,
+    accountId: account.id,
+    country: account.country ?? "US",
+    chargesEnabled: account.charges_enabled ?? false,
+    payoutsEnabled: account.payouts_enabled ?? false,
+    detailsSubmitted: account.details_submitted ?? false,
   };
 }
 
-export interface RefundInput {
-  store: Store;
-  /** The intent the money was captured on; null on an order that never paid. */
-  paymentIntentId: string | null;
-  amount: number;
-  currency: string;
-  /** Same amount twice in a row returns the same refund id rather than two. */
-  idempotencyKey: string;
+/**
+ * A new Express account for a store. Keyed on the store and the attempt, so a
+ * double click creates one account, while "connect a different account" after
+ * a disconnect makes a new one.
+ */
+export async function createExpressAccount(input: {
+  storeId: string;
+  country: string;
+  email: string | null;
+  attempt: string;
+}): Promise<ConnectStatus | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  try {
+    const account = await stripe.accounts.create(
+      {
+        country: input.country,
+        ...(input.email ? { email: input.email } : {}),
+        controller: {
+          stripe_dashboard: { type: "express" },
+          fees: { payer: "application" },
+          losses: { payments: "application" },
+          requirement_collection: "stripe",
+        },
+        capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
+        metadata: { storeId: input.storeId },
+      },
+      { idempotencyKey: `connect-account-${input.storeId}-${input.attempt}` },
+    );
+    return connectStatus(account);
+  } catch (error) {
+    console.error(`Stripe account for store ${input.storeId} could not be created`, error);
+    return null;
+  }
 }
 
-export interface RefundResult {
+/** Stripe's hosted onboarding for an account. Links are single-use and short-lived, so one is made per visit. */
+export async function onboardingLink(accountId: string, refreshUrl: string, returnUrl: string): Promise<string | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  try {
+    const link = await stripe.accountLinks.create({
+      account: accountId,
+      type: "account_onboarding",
+      refresh_url: refreshUrl,
+      return_url: returnUrl,
+    });
+    return link.url;
+  } catch (error) {
+    console.error(`Onboarding link for ${accountId} could not be created`, error);
+    return null;
+  }
+}
+
+export async function retrieveAccount(accountId: string): Promise<ConnectStatus | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  try {
+    return connectStatus(await stripe.accounts.retrieve(accountId));
+  } catch (error) {
+    console.error(`Stripe account ${accountId} could not be read`, error);
+    return null;
+  }
+}
+
+/* ------------------------------------------------- shopper Checkout */
+
+export interface CheckoutLine {
+  name: string;
+  description?: string;
+  /** Minor units of the session currency. */
+  unitAmount: number;
+  quantity: number;
+}
+
+export interface ConnectedCheckoutInput {
+  accountId: string;
+  /** What the session pays for, echoed back on the webhook. */
+  metadata: Record<string, string>;
+  /** Makes a retry open the same session. */
+  idempotencyKey: string;
+  currency: string;
+  locale: string;
+  email: string;
+  lines: CheckoutLine[];
+  shipping: { label: string; amount: number } | null;
+  discount: { code: string; amount: number } | null;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export interface CheckoutStart {
+  id: string;
+  url: string;
+}
+
+/**
+ * A hosted Checkout Session on a store's connected account, as a direct
+ * charge. Prices, shipping and tax come in already worked out, and a discount
+ * becomes a single-use coupon on the same account, so the session's total is
+ * exactly the order's.
+ */
+export async function createConnectedCheckout(input: ConnectedCheckoutInput): Promise<CheckoutStart | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  const options = { stripeAccount: input.accountId };
+  const currency = input.currency.toLowerCase();
+  try {
+    let coupon: string | null = null;
+    if (input.discount && input.discount.amount > 0) {
+      const created = await stripe.coupons.create(
+        {
+          amount_off: input.discount.amount,
+          currency,
+          duration: "once",
+          max_redemptions: 1,
+          name: input.discount.code.slice(0, 40),
+        },
+        { ...options, idempotencyKey: `${input.idempotencyKey}-coupon` },
+      );
+      coupon = created.id;
+    }
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        locale: checkoutLocale(input.locale),
+        customer_email: input.email,
+        client_reference_id: input.metadata.orderId ?? input.metadata.campaignId,
+        line_items: input.lines
+          .filter((line) => line.quantity > 0 && line.unitAmount > 0)
+          .map((line) => ({
+            quantity: line.quantity,
+            price_data: {
+              currency,
+              unit_amount: line.unitAmount,
+              product_data: {
+                name: line.name,
+                ...(line.description ? { description: line.description } : {}),
+              },
+            },
+          })),
+        ...(input.shipping
+          ? {
+              shipping_options: [
+                {
+                  shipping_rate_data: {
+                    type: "fixed_amount" as const,
+                    display_name: input.shipping.label,
+                    fixed_amount: { amount: input.shipping.amount, currency },
+                  },
+                },
+              ],
+            }
+          : {}),
+        ...(coupon ? { discounts: [{ coupon }] } : {}),
+        metadata: input.metadata,
+        payment_intent_data: { metadata: input.metadata },
+        // An abandoned session gives its discount use back within the hour.
+        expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+        success_url: input.successUrl,
+        cancel_url: input.cancelUrl,
+      },
+      { ...options, idempotencyKey: input.idempotencyKey },
+    );
+    if (!session.url) return null;
+    return { id: session.id, url: session.url };
+  } catch (error) {
+    console.error(`Checkout session on ${input.accountId} could not be created`, error);
+    return null;
+  }
+}
+
+/** Closes an open session so it can no longer be paid. False when it already completed or could not be reached. */
+export async function expireConnectedCheckout(accountId: string, sessionId: string): Promise<boolean> {
+  const stripe = stripeClient();
+  if (!stripe) return false;
+  try {
+    const session = await stripe.checkout.sessions.expire(sessionId, {}, { stripeAccount: accountId });
+    return session.status === "expired";
+  } catch (error) {
+    console.error(`Checkout session ${sessionId} could not be expired`, error);
+    return false;
+  }
+}
+
+/* ------------------------------------------------------------ refunds */
+
+export interface StripeRefundResult {
   ok: boolean;
   refundId: string | null;
   message: string;
-  code?: string;
 }
+
+/** Returns money on the connected account the order was charged on. */
+export async function refundOnConnectedAccount(input: {
+  accountId: string;
+  paymentIntentId: string;
+  amount: number;
+  idempotencyKey: string;
+}): Promise<StripeRefundResult> {
+  const stripe = stripeClient();
+  if (!stripe) return { ok: false, refundId: null, message: "Refunds are unavailable right now. Try again shortly." };
+  try {
+    const refund = await stripe.refunds.create(
+      { payment_intent: input.paymentIntentId, amount: input.amount },
+      { stripeAccount: input.accountId, idempotencyKey: input.idempotencyKey },
+    );
+    if (refund.status === "failed" || refund.status === "canceled") {
+      return { ok: false, refundId: null, message: "Stripe declined the refund." };
+    }
+    return { ok: true, refundId: refund.id, message: `Refund ${refund.id} ${refund.status ?? "pending"}.` };
+  } catch (error) {
+    console.error(`Refund on ${input.paymentIntentId} failed`, error);
+    const message = error instanceof Stripe.errors.StripeError ? error.message : "The refund could not be issued.";
+    return { ok: false, refundId: null, message };
+  }
+}
+
+/* ----------------------------------------------------- plan billing */
+
+/** A Customer Portal session for the agency's own customer record. */
+export async function billingPortalUrl(customerId: string, returnUrl: string): Promise<string | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  try {
+    const session = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: returnUrl });
+    return session.url;
+  } catch (error) {
+    console.error(`Customer Portal for ${customerId} could not be opened`, error);
+    return null;
+  }
+}
+
+export interface NextInvoice {
+  amountDue: number;
+  currency: string;
+  /** When Stripe will attempt it. */
+  date: string | null;
+}
+
+/** The next invoice on the agency's subscription, or null when there is none. */
+export async function nextInvoice(customerId: string, subscriptionId: string): Promise<NextInvoice | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  try {
+    const invoice = await stripe.invoices.createPreview({ customer: customerId, subscription: subscriptionId });
+    const at = invoice.next_payment_attempt ?? invoice.period_end ?? null;
+    return {
+      amountDue: invoice.amount_due,
+      currency: invoice.currency.toUpperCase(),
+      date: at ? new Date(at * 1000).toISOString() : null,
+    };
+  } catch (error) {
+    console.error(`Upcoming invoice for ${subscriptionId} could not be read`, error);
+    return null;
+  }
+}
+
+/* ----------------------------------------------------------- webhooks */
 
 /**
- * Returns money on the store's own connected account, against the intent the
- * charge was captured on. Refusals here are read by the store team in the
- * dashboard, not by shoppers, so they stay in English like the timeline notes.
+ * A webhook event, verified against STRIPE_WEBHOOK_SECRET with Web Crypto, or
+ * null when the signature does not check out. Stripe signs events from
+ * connected accounts with the Connect destination's own secret; when the
+ * dashboard gives it a different one, STRIPE_CONNECT_WEBHOOK_SECRET holds it.
+ * `payload` is the raw request body.
  */
-export async function refundCharge(input: RefundInput): Promise<RefundResult> {
-  const { store, paymentIntentId } = input;
-  if (!store.stripe.connected || !store.stripe.chargesEnabled) {
-    return {
-      ok: false,
-      refundId: null,
-      message: "The store's Stripe account cannot process refunds yet. Finish connecting it and try again.",
-      code: "account_not_ready",
-    };
+export async function verifyWebhookEvent(payload: string, signature: string | null): Promise<Stripe.Event | null> {
+  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter(
+    (secret): secret is string => Boolean(secret),
+  );
+  const stripe = stripeClient();
+  if (secrets.length === 0 || !signature || !stripe) return null;
+  for (const secret of secrets) {
+    try {
+      return await stripe.webhooks.constructEventAsync(payload, signature, secret, undefined, cryptoProvider);
+    } catch {
+      // Try the next secret; a mismatch on all of them is reported below.
+    }
   }
-  if (!paymentIntentId) {
-    return {
-      ok: false,
-      refundId: null,
-      message: "This order has no captured Stripe payment to refund against.",
-      code: "no_payment_intent",
-    };
-  }
-  if (!Number.isInteger(input.amount) || input.amount <= 0) {
-    return { ok: false, refundId: null, message: "Enter a refund amount above zero.", code: "invalid_amount" };
-  }
-  if (!store.currencies.includes(input.currency)) {
-    return {
-      ok: false,
-      refundId: null,
-      message: `${input.currency} is not one of this store's selling currencies.`,
-      code: "currency_unsupported",
-    };
-  }
-
-  return {
-    ok: true,
-    refundId: gatewayId("re", input.idempotencyKey),
-    message: `Refund of ${input.amount} ${input.currency} issued on ${store.stripe.accountId} against ${paymentIntentId}.`,
-  };
+  console.error("Stripe webhook signature check failed");
+  return null;
 }
-
-export const TEST_CARDS = [
-  { number: "4242 4242 4242 4242", label: "Payment succeeds" },
-  { number: "4000 0000 0000 0002", label: "Card declined" },
-  { number: "4000 0000 0000 9995", label: "Insufficient funds" },
-];

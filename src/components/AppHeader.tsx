@@ -1,6 +1,6 @@
 "use client";
 
-import { BellIcon, ChevronsUpDownIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon, UsersIcon } from "lucide-react";
+import { BellIcon, ChevronsUpDownIcon, CreditCardIcon, LanguagesIcon, LogOutIcon, ShieldCheckIcon, UsersIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -221,6 +221,14 @@ export function AppHeader({
                   <Link href="/app/people">
                     <UsersIcon />
                     {t("people")}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
+              {user.platformRole === "agency_admin" ? (
+                <DropdownMenuItem asChild>
+                  <Link href="/app/billing">
+                    <CreditCardIcon />
+                    {t("billing")}
                   </Link>
                 </DropdownMenuItem>
               ) : null}

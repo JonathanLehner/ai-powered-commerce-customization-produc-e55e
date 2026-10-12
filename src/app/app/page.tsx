@@ -24,6 +24,7 @@ import { redirect } from "next/navigation";
 import { billingPending } from "@/lib/billing";
 import { accessibleStores, requireUser, roleCan, type Capability } from "@/lib/session";
 import { THEMES } from "@/lib/types";
+import { paymentsReady } from "@/lib/payment-mode";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 12;
@@ -236,12 +237,12 @@ export default async function AgencyDashboard({
                             <CreditCardIcon
                               aria-hidden
                               className={
-                                store.stripe.connected
+                                paymentsReady(store)
                                   ? "size-4 text-emerald-600"
                                   : "size-4 text-amber-600"
                               }
                             />
-                            {store.stripe.connected ? t("stripeConnected") : t("stripePending")}
+                            {paymentsReady(store) ? t("stripeConnected") : t("stripePending")}
                           </li>
                           {store.customDomain ? (
                             <li className="flex items-center gap-2">

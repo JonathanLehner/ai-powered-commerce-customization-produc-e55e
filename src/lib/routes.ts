@@ -31,6 +31,7 @@ export const ROUTES = [
   "/invite/[token]",
   "/api/asset",
   "/api/uploads",
+  "/api/stripe/webhook",
 
   "/admin",
   "/admin/agencies",
@@ -72,6 +73,8 @@ export const ROUTES = [
   "/app/stores/[storeId]/orders/export",
   "/app/stores/[storeId]/orders/[orderId]",
   "/app/stores/[storeId]/setup",
+  "/app/stores/[storeId]/setup/stripe",
+  "/app/stores/[storeId]/setup/stripe/refresh",
   "/app/stores/[storeId]/sourcing",
   "/app/stores/[storeId]/storefront",
   "/app/stores/[storeId]/team",

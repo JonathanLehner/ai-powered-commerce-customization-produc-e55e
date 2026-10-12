@@ -20,8 +20,9 @@ import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { routeOrder, submitToSupplier, trackingNumberFor } from "@/lib/fulfillment";
 import { assertStoreAccess } from "@/lib/session";
-import { refundCharge } from "@/lib/stripe";
-import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus } from "@/lib/types";
+import { refundSimulated, type RefundResult } from "@/lib/demo-payment";
+import { refundOnConnectedAccount } from "@/lib/stripe";
+import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus, type Store } from "@/lib/types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
@@ -443,6 +444,23 @@ export async function resolveException(formData: FormData): Promise<void> {
   refresh(storeId, orderId);
 }
 
+/**
+ * An order paid on Stripe Checkout is refunded through the Refunds API on the
+ * connected account it was charged on. Demo-store and older orders never
+ * reached Stripe, so their refund is simulated the same way their payment was.
+ */
+async function refundPayment(store: Store, order: Order, amount: number, idempotencyKey: string): Promise<RefundResult> {
+  const { paymentIntentId, stripeAccountId, checkoutSessionId } = order.payment;
+  if (!checkoutSessionId) {
+    return refundSimulated({ store, paymentIntentId, amount, currency: order.currency, idempotencyKey });
+  }
+  if (!paymentIntentId || !stripeAccountId) {
+    return { ok: false, refundId: null, message: "No captured payment to refund.", code: "no_payment_intent" };
+  }
+  const result = await refundOnConnectedAccount({ accountId: stripeAccountId, paymentIntentId, amount, idempotencyKey });
+  return result.ok ? result : { ...result, code: "gateway_error" };
+}
+
 export async function recordRefund(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const orderId = String(formData.get("orderId") ?? "");
@@ -474,13 +492,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
   // Money first: nothing is recorded unless the gateway actually returned it.
   // The key makes a double submit land as one refund at the gateway too — the
   // already-refunded total is part of it, so a genuine second refund differs.
-  const gateway = await refundCharge({
-    store,
-    paymentIntentId: order.payment.paymentIntentId,
-    amount,
-    currency: order.currency,
-    idempotencyKey: `${order.id}:${alreadyRefunded}:${amount}`,
-  });
+  const gateway = await refundPayment(store, order, amount, `${order.id}:${alreadyRefunded}:${amount}`);
   if (!gateway.ok) {
     const message =
       gateway.code === "account_not_ready"
@@ -491,7 +503,9 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
             ? t("amountRequired")
             : gateway.code === "currency_unsupported"
               ? t("currencyUnsupported", { currency: order.currency })
-              : gateway.message;
+              : gateway.code === "gateway_error"
+                ? t("refundFailed")
+                : gateway.message;
     return { status: "error", message };
   }
 

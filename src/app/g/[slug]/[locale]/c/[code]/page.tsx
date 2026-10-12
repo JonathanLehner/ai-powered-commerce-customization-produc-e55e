@@ -12,6 +12,8 @@ import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import type { CampaignStatus } from "@/lib/types";
 import { ApprovalForm, CancelCampaignForm, PaymentForm } from "./CampaignForms";
+import { PaymentPendingRefresh } from "@/components/PaymentPendingRefresh";
+import { paymentMode } from "@/lib/payment-mode";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -64,11 +66,11 @@ export default async function CampaignPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; locale: string; code: string }>;
-  searchParams: Promise<{ t?: string; a?: string }>;
+  searchParams: Promise<{ t?: string; a?: string; paid?: string }>;
 }) {
   const { slug, locale: requested, code } = await params;
   // Renamed off `t`/`a`: `t` is the store's copy dictionary on this page.
-  const { t: buyerToken, a: approverToken } = await searchParams;
+  const { t: buyerToken, a: approverToken, paid } = await searchParams;
 
   const catalogue = await getGiftCatalogueBySlug(slug);
   if (!catalogue) return <UnknownGiftPortalView slug={slug} />;
@@ -123,12 +125,11 @@ export default async function CampaignPage({
     ),
   );
 
-  const payable =
-    isBuyer &&
-    campaign.status === "approved" &&
-    store.status === "active" &&
-    store.stripe.connected &&
-    store.stripe.chargesEnabled;
+  const mode = paymentMode(store);
+  // Back from Stripe Checkout: the webhook raises the orders, usually within
+  // seconds, and until then the campaign is shown as processing.
+  const processing = isBuyer && Boolean(paid) && campaign.status === "approved" && Boolean(campaign.payment.checkoutSessionId);
+  const payable = isBuyer && campaign.status === "approved" && mode !== "unavailable" && !processing;
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -193,7 +194,16 @@ export default async function CampaignPage({
         </div>
       ) : null}
 
-      {campaign.status === "approved" && !payable && isBuyer ? (
+      {processing ? (
+        <div className="mt-6">
+          <Callout tone="neutral" title={t("order.processingTitle")}>
+            {t("order.processingBody")}
+          </Callout>
+          <PaymentPendingRefresh />
+        </div>
+      ) : null}
+
+      {campaign.status === "approved" && !payable && !processing && isBuyer ? (
         <div className="mt-6">
           <Callout tone="amber" title={t("gift.unpayableTitle")}>
             {t("gift.unpayableBody")}
@@ -330,6 +340,7 @@ export default async function CampaignPage({
                   code={campaign.code}
                   token={buyerToken as string}
                   total={money(campaign.totals.total, campaign.currency)}
+                  demo={mode === "demo"}
                 />
             </div>
             </Card>

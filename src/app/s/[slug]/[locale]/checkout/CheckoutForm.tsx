@@ -16,8 +16,7 @@ import {
   type FulfillmentSource,
 } from "@/lib/countries";
 import { policyPath } from "@/lib/policies";
-import { TEST_CARDS } from "@/lib/stripe";
-import type { ShopperMessages } from "@/i18n/shopper-copy";
+import { DemoCardFields } from "@/components/DemoCardFields";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -34,14 +33,8 @@ const REGION_LABELS = {
   prefecture: "regionPrefecture",
 } as const;
 
-/** Stripe's published test numbers, labelled in the storefront's language. */
-const TEST_CARD_LABELS: Record<string, keyof ShopperMessages["checkout"]> = {
-  "4242 4242 4242 4242": "cardSucceeds",
-  "4000 0000 0000 0002": "cardDeclined",
-  "4000 0000 0000 9995": "cardInsufficient",
-};
-
 export function CheckoutForm({
+  mode,
   storeId,
   currencies,
   currency,
@@ -49,6 +42,8 @@ export function CheckoutForm({
   fulfillmentSources,
   base,
 }: {
+  /** A live store sends the shopper on to Stripe Checkout; a demo store simulates payment here. */
+  mode: "stripe" | "demo";
   storeId: string;
   currencies: string[];
   currency: string;
@@ -75,8 +70,8 @@ export function CheckoutForm({
     <Card asChild className="block overflow-visible p-5">
     <ActionForm
       action={placeOrder}
-      submitLabel={t("submit")}
-      pendingLabel={t("pending")}
+      submitLabel={mode === "stripe" ? t("continueToPayment") : t("submit")}
+      pendingLabel={mode === "stripe" ? t("redirecting") : t("pending")}
       submitSize="lg"
       submitClassName="w-full sm:w-auto"
       hidden={{ storeId, idempotencyKey }}
@@ -251,64 +246,7 @@ export function CheckoutForm({
               {t("paymentNote")}
             </p>
           </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <Label htmlFor="cardNumber">
-                {t("cardNumber")}
-              </Label>
-              <Input
-                id="cardNumber"
-                name="cardNumber"
-                inputMode="numeric"
-                autoComplete="cc-number"
-                placeholder="1234 1234 1234 1234"
-                required
-                aria-invalid={state.field === "cardNumber" ? true : undefined}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="expiry">
-                {t("expiry")}
-              </Label>
-              <Input
-                id="expiry"
-                name="expiry"
-                autoComplete="cc-exp"
-                placeholder={t("expiryPlaceholder")}
-                required
-                aria-invalid={state.field === "expiry" ? true : undefined}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="cvc">
-                {t("securityCode")}
-              </Label>
-              <Input
-                id="cvc"
-                name="cvc"
-                inputMode="numeric"
-                autoComplete="cc-csc"
-                placeholder={t("cvcPlaceholder")}
-                required
-                aria-invalid={state.field === "cvc" ? true : undefined}
-                className="mt-1.5"
-              />
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
-            <p className="font-medium text-foreground">{t("testMode")}</p>
-            <ul className="mt-1.5 space-y-1">
-              {TEST_CARDS.map((card) => (
-                <li key={card.number}>
-                  <span className="font-mono">{card.number}</span> ·{" "}
-                  {TEST_CARD_LABELS[card.number] ? t(TEST_CARD_LABELS[card.number]) : card.label}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {mode === "demo" ? <DemoCardFields field={state.field} /> : null}
         </>
       )}
     </ActionForm>

@@ -6,19 +6,10 @@ import { useActionState } from "react";
 import { cancelCampaign, decideCampaign, payCampaign } from "@/app/actions/gifting";
 import type { ActionState } from "@/app/actions/stores";
 import { ActionForm, ConfirmSubmit, FormStatus, SubmitButton } from "@/components/forms";
-import type { ShopperMessages } from "@/i18n/shopper-copy";
-import { TEST_CARDS } from "@/lib/stripe";
+import { DemoCardFields } from "@/components/DemoCardFields";
 import { buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-/** Stripe's published test numbers, labelled in the store's language. */
-const TEST_CARD_LABELS: Record<string, keyof ShopperMessages["checkout"]> = {
-  "4242 4242 4242 4242": "cardSucceeds",
-  "4000 0000 0000 0002": "cardDeclined",
-  "4000 0000 0000 9995": "cardInsufficient",
-};
 
 /**
  * Approve or decline, from the link sent to the approver.
@@ -89,14 +80,17 @@ export function PaymentForm({
   code,
   token,
   total,
+  demo,
 }: {
   slug: string;
   code: string;
   token: string;
   total: string;
+  /** A demo store simulates the card payment; a live store continues to Stripe Checkout. */
+  demo: boolean;
 }) {
   const t = useTranslations("storefront.gift");
-  // The card fields are the checkout's, so they share its copy.
+  // The payment copy is the checkout's.
   const card = useTranslations("storefront.checkout");
   return (
     <ActionForm
@@ -111,63 +105,7 @@ export function PaymentForm({
             <LockIcon aria-hidden className="size-3.5" />
             {t("paymentIntro")} {card("paymentNote")}
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <Label htmlFor="cardNumber">
-                {card("cardNumber")}
-              </Label>
-              <Input
-                id="cardNumber"
-                name="cardNumber"
-                inputMode="numeric"
-                autoComplete="cc-number"
-                placeholder="1234 1234 1234 1234"
-                required
-                aria-invalid={state.field === "cardNumber" ? true : undefined}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="expiry">
-                {card("expiry")}
-              </Label>
-              <Input
-                id="expiry"
-                name="expiry"
-                autoComplete="cc-exp"
-                placeholder={card("expiryPlaceholder")}
-                required
-                aria-invalid={state.field === "expiry" ? true : undefined}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="cvc">
-                {card("securityCode")}
-              </Label>
-              <Input
-                id="cvc"
-                name="cvc"
-                inputMode="numeric"
-                autoComplete="cc-csc"
-                placeholder={card("cvcPlaceholder")}
-                required
-                aria-invalid={state.field === "cvc" ? true : undefined}
-                className="mt-1.5"
-              />
-            </div>
-          </div>
-          <div className="mt-4 rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
-            <p className="font-medium text-foreground">{card("testMode")}</p>
-            <ul className="mt-1.5 space-y-1">
-              {TEST_CARDS.map((entry) => (
-                <li key={entry.number}>
-                  <span className="font-mono">{entry.number}</span> ·{" "}
-                  {TEST_CARD_LABELS[entry.number] ? card(TEST_CARD_LABELS[entry.number]) : entry.label}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {demo ? <DemoCardFields field={state.field} /> : null}
         </>
       )}
     </ActionForm>

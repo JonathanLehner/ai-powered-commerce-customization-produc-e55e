@@ -20,28 +20,28 @@ import {
   getStore,
   getStoreBySlug,
   getStoreProduct,
-  recordAudit,
   releaseDiscountUse,
+  updateOrder,
 } from "@/lib/data";
-import { refreshCustomers } from "@/lib/customer-data";
-import { brandFor, orderConfirmationEmail } from "@/lib/email-templates";
-import { sendEmail, siteOrigin } from "@/lib/email";
-import { addressRegionKind, localCountryName } from "@/lib/countries";
+import { siteOrigin } from "@/lib/email";
+import { addressRegionKind } from "@/lib/countries";
 import { formatMinorUnits } from "@/i18n/format";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
-import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localizeProduct } from "@/lib/translations";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
 import { basketTotals, cartDiscountCode } from "@/lib/basket";
 import { checkDiscount, normalizeDiscountCode } from "@/lib/discounts";
-import { routeOrder } from "@/lib/fulfillment";
 import { personalisationTextColour, variantPhoto } from "@/lib/line-preview";
 import { readStoredImage } from "@/lib/uploads";
 import { db } from "@/lib/mongo";
 import { SHOPPER_COOKIE } from "@/lib/session";
-import { chargeCard } from "@/lib/stripe";
+import { chargeCard } from "@/lib/demo-payment";
+import { abandonOrderPayment, confirmOrderPayment } from "@/lib/order-payment";
+import { paymentMode } from "@/lib/payment-mode";
+import { createConnectedCheckout, expireConnectedCheckout } from "@/lib/stripe";
 import {
   DEFAULT_PLACEMENT,
   type Artwork,
@@ -449,7 +449,12 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     return { status: "error", message: t("actions.storeClosed") };
   }
   if (replayed) {
+    if (replayed.status === "awaiting_payment" && replayed.payment.checkoutUrl) redirect(replayed.payment.checkoutUrl);
     redirect(orderStatusUrl(base, replayed.code, await signOrderToken(store.id, replayed.code)));
+  }
+  const mode = paymentMode(store);
+  if (mode === "unavailable") {
+    return { status: "error", message: t("payment.accountNotReady") };
   }
   if (!cart || cart.items.length === 0) {
     return { status: "error", message: t("actions.basketEmpty") };
@@ -466,9 +471,6 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const region = addressRegionKind(country) ? String(formData.get("region") ?? "").trim() : "";
   const phone = String(formData.get("phone") ?? "").trim();
   const currency = String(formData.get("currency") ?? store.defaultCurrency);
-  const cardNumber = String(formData.get("cardNumber") ?? "");
-  const expiry = String(formData.get("expiry") ?? "");
-  const cvc = String(formData.get("cvc") ?? "");
 
   if (name.length < 2) return { status: "error", message: t("actions.enterName"), field: "name" };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
@@ -510,9 +512,10 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     return { status: "error", message: t("discount.dropped", { code: discountCode.code }) };
   }
 
-  // One use is taken before the card is charged, with a write guarded on the
-  // count that was read, so two shoppers paying at the same instant cannot both
-  // take the last one. A charge that then fails hands it back.
+  // One use is taken before payment, with a write guarded on the count that
+  // was read, so two shoppers paying at the same instant cannot both take the
+  // last one. A payment that then fails or is abandoned hands it back.
+  if (mode === "stripe") await closeOpenCheckouts(store, cart.id);
   let claimed = false;
   if (discount) {
     claimed = await claimDiscountUse(discount.codeId);
@@ -524,31 +527,36 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   }
 
   const key = idempotencyKey || newId("idem");
-  const charge = await chargeCard({
-    store,
-    amount: total,
-    currency,
-    cardNumber,
-    expiry,
-    cvc,
-    name,
-    idempotencyKey: key,
-    t: (key, values) => t(`payment.${key}`, values),
-  });
-  if (!charge.ok) {
-    if (claimed && discount) await releaseDiscountUse(discount.codeId);
-    return {
-      status: "error",
-      message: charge.message,
-      field:
-        charge.code === "invalid_expiry"
-          ? "expiry"
-          : charge.code === "invalid_cvc"
-            ? "cvc"
-            : charge.code === "currency_unsupported"
-              ? "currency"
-              : "cardNumber",
-    };
+  // A demo store checks the test card before anything is written, so a
+  // refused card leaves the form as it was.
+  let simulated: Awaited<ReturnType<typeof chargeCard>> | null = null;
+  if (mode === "demo") {
+    simulated = await chargeCard({
+      store,
+      amount: total,
+      currency,
+      cardNumber: String(formData.get("cardNumber") ?? ""),
+      expiry: String(formData.get("expiry") ?? ""),
+      cvc: String(formData.get("cvc") ?? ""),
+      name,
+      idempotencyKey: key,
+      t: (key, values) => t(`payment.${key}`, values),
+    });
+    if (!simulated.ok) {
+      if (claimed && discount) await releaseDiscountUse(discount.codeId);
+      return {
+        status: "error",
+        message: simulated.message,
+        field:
+          simulated.code === "invalid_expiry"
+            ? "expiry"
+            : simulated.code === "invalid_cvc"
+              ? "cvc"
+              : simulated.code === "currency_unsupported"
+                ? "currency"
+                : "cardNumber",
+      };
+    }
   }
 
   const now = new Date().toISOString();
@@ -557,7 +565,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     id: newId("ord"),
     storeId,
     code,
-    status: "paid",
+    status: "awaiting_payment",
     currency,
     locale,
     customer: {
@@ -600,13 +608,14 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     total,
     payment: {
       provider: "stripe",
-      status: "succeeded",
-      paymentIntentId: charge.paymentIntentId,
-      stripeAccountId: store.stripe.accountId,
-      last4: charge.last4,
+      status: "requires_payment",
+      paymentIntentId: null,
+      stripeAccountId: mode === "stripe" ? store.stripe.accountId : null,
+      last4: null,
       failureMessage: null,
-      paidAt: now,
+      paidAt: null,
     },
+    cartId: cart.id,
     fulfillment: {
       supplierId: null,
       supplierName: null,
@@ -623,108 +632,82 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     events: [
       {
         at: now,
-        status: "Payment captured",
-        note: `${formatMoney(total, currency)} charged via Stripe (${store.stripe.accountId}).`,
-        actor: "Stripe",
+        status: "Order placed",
+        note: mode === "demo" ? "Demo store: payment is simulated." : "Awaiting payment on Stripe Checkout.",
+        actor: "Shopper",
       },
     ],
     idempotencyKey: key,
     createdAt: now,
     updatedAt: now,
   };
-
-  // Route the paid order to production and record the result on the order.
-  const decision = await routeOrder(order, store);
-  order.fulfillment = {
-    ...order.fulfillment,
-    supplierId: decision.supplierId,
-    supplierName: decision.supplierName,
-    routing: decision.routing,
-    supplierOrderRef: decision.supplierOrderRef,
-    submittedAt: decision.routing === "submitted" ? now : null,
-    submissionMessage: decision.message,
-    exception: decision.exception,
-  };
-  order.events.push({
-    at: now,
-    status: decision.routing === "submitted" ? "Sent to supplier" : "Manual handling required",
-    note: decision.message,
-    actor: "Parcelith routing",
-  });
-  if (decision.routing === "submitted") order.status = "in_production";
-  if (decision.exception) order.status = "exception";
-
   await db.insertOne(COLLECTIONS.orders, order as unknown as Record<string, unknown>);
-  refreshCustomers(store, [email]);
-  await saveCart(cart, []);
-  if (discount) {
-    await saveCartDiscount(cart, null);
-    recordAudit({
-      category: "discounts",
-      action: "discount.redeemed",
-      summary: `${discount.code} redeemed on ${code}: ${formatMoney(discount.amount, currency)} off`,
-      storeId,
-      agencyId: store.agencyId,
-      actorId: "system",
-      actorName: "Shopper",
-      entity: "discount_code",
-      entityId: discount.codeId,
-      meta: { order: code, amount: discount.amount, currency },
-    });
-  }
-  recordAudit({
-    category: "order_routing",
-    action: decision.routing === "submitted" ? "order.routed" : "order.manual_required",
-    summary:
-      decision.routing === "submitted"
-        ? `Routed ${code} to ${decision.supplierName} automatically after payment`
-        : `${code} flagged for manual supplier handling after payment`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: "system",
-    actorName: "Parcelith routing",
-    entity: "order",
-    entityId: code,
-    meta: { total, currency, routing: decision.routing },
-    notify: {
-      type: "order_paid",
-      href: `/app/stores/${storeId}/orders/${order.id}`,
-      params: { code, amount: total, currency },
-    },
-  });
-
-  refreshBasket(store.slug);
-  revalidatePath(`/app/stores/${storeId}/orders`);
-
   const token = await signOrderToken(storeId, code);
-  // The confirmation is queued, never awaited, and every failure inside it is
-  // swallowed into the activity log — a shopper who has paid must not see an
-  // error because the mail provider was down.
-  try {
-    const origin = await siteOrigin();
-    sendEmail({
-      to: email,
-      message: orderConfirmationEmail(brandFor(store), await emailCopy(locale), {
-        customerName: name,
-        code,
-        total,
-        currency,
-        deliveryAddress: [line1, line2, city, region, postalCode, localCountryName(country, locale)]
-          .filter(Boolean)
-          .join(", "),
-        statusUrl: `${origin}${orderStatusUrl(base, code, token)}`,
-      }),
-      kind: "order confirmation",
-      storeId,
-      agencyId: store.agencyId,
-      entity: "order",
-      entityId: code,
+
+  if (simulated) {
+    await confirmOrderPayment(order, store, {
+      paymentIntentId: simulated.paymentIntentId,
+      last4: simulated.last4,
+      note: `${formatMoney(total, currency)} paid on a demo store. No money moved.`,
     });
-  } catch (error) {
-    console.error("Order confirmation email could not be queued", error);
+    redirect(orderStatusUrl(base, code, token, "&new=1"));
   }
 
-  redirect(orderStatusUrl(base, code, token, "&new=1"));
+  // A live store: the shopper pays on Stripe Checkout, and only the verified
+  // webhook marks the order paid. The redirect back proves nothing.
+  const origin = await siteOrigin();
+  const checkout = await createConnectedCheckout({
+    accountId: store.stripe.accountId as string,
+    metadata: { kind: "order", orderId: order.id, storeId, code },
+    idempotencyKey: `order-checkout-${order.id}`,
+    currency,
+    locale,
+    email,
+    lines: [
+      ...lines.map(({ item, unit }) => ({
+        name: item.productName,
+        description: item.text ? `${item.variantName} · “${item.text}”` : item.variantName,
+        unitAmount: unit,
+        quantity: item.quantity,
+      })),
+      ...(store.pricesIncludeTax
+        ? []
+        : taxRows.map((row) => ({ name: t("checkout.taxRow", { rate: row.rate }), unitAmount: row.amount, quantity: 1 }))),
+    ],
+    shipping: { label: t("checkout.shipping"), amount: shipping },
+    discount: discount ? { code: discount.code, amount: discount.amount } : null,
+    successUrl: `${origin}${orderStatusUrl(base, code, token, "&paid=1")}`,
+    cancelUrl: `${origin}${base}/cart`,
+  });
+  if (!checkout) {
+    await abandonOrderPayment(order, store, "failed");
+    return { status: "error", message: t("payment.startFailed") };
+  }
+  await updateOrder(order.id, {
+    payment: { ...order.payment, checkoutSessionId: checkout.id, checkoutUrl: checkout.url },
+  });
+  revalidatePath(`/app/stores/${storeId}/orders`);
+  redirect(checkout.url);
+}
+
+/**
+ * Closes the Checkout sessions a basket still has open before it opens a new
+ * one, so a shopper who came back from Stripe and checks out again cannot pay
+ * for the same basket twice. A session Stripe will not expire has already been
+ * paid, and the webhook settles that order.
+ */
+async function closeOpenCheckouts(store: Store, cartId: string) {
+  const open = await db.find<Order>(COLLECTIONS.orders, {
+    storeId: store.id,
+    cartId,
+    status: "awaiting_payment",
+  });
+  for (const order of open) {
+    const sessionId = order.payment.checkoutSessionId;
+    const accountId = order.payment.stripeAccountId;
+    if (sessionId && accountId && !(await expireConnectedCheckout(accountId, sessionId))) continue;
+    await abandonOrderPayment(order, store, "expired");
+  }
 }
 
 /* -------------------------------------------------------------- order status */

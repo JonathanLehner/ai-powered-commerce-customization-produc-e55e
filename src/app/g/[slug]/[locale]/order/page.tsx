@@ -1,3 +1,4 @@
+import { paymentMode } from "@/lib/payment-mode";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -77,7 +78,7 @@ export default async function BulkOrderPage({
         {t("gift.orderIntro")}
       </p>
 
-      {!store.stripe.connected || !store.stripe.chargesEnabled ? (
+      {paymentMode(store) === "unavailable" ? (
         <div className="mt-6">
           <Callout tone="amber" title={t("gift.paymentPendingTitle")}>
             {t("gift.paymentPendingBody")}

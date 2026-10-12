@@ -22,6 +22,7 @@ import {
 } from "@/lib/data";
 import { planEnquiryLabel, UNDECIDED } from "@/lib/enquiry";
 import { formatDateTime } from "@/lib/util";
+import { paymentsReady } from "@/lib/payment-mode";
 
 /** The column-head style every table in the workspace shares. */
 const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
@@ -140,8 +141,8 @@ export default async function AdminOverviewPage() {
                         {store.currencies.join(", ")}
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal">
-                        <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                          {store.stripe.connected ? t("stripeConnected") : t("notConnected")}
+                        <Badge tone={paymentsReady(store) ? "green" : "amber"}>
+                          {paymentsReady(store) ? t("stripeConnected") : t("notConnected")}
                         </Badge>
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal">

@@ -17,13 +17,11 @@ import {
   updateGiftCatalogue,
   getUserByEmail,
 } from "@/lib/data";
-import { refreshCustomers } from "@/lib/customer-data";
 import { isLocale } from "@/i18n/locales";
 import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { sendEmail, siteOrigin } from "@/lib/email";
 import { brandFor, giftApprovalEmail } from "@/lib/email-templates";
-import { routeOrder } from "@/lib/fulfillment";
 import {
   campaignPath,
   campaignToken,
@@ -50,15 +48,17 @@ import {
 } from "@/lib/gifting";
 import { db } from "@/lib/mongo";
 import { assertStoreAccess } from "@/lib/session";
-import { chargeCard } from "@/lib/stripe";
+import { chargeCard } from "@/lib/demo-payment";
+import { raiseCampaignOrders } from "@/lib/gift-payment";
+import { paymentMode } from "@/lib/payment-mode";
+import { createConnectedCheckout, expireConnectedCheckout } from "@/lib/stripe";
 import type {
   CampaignRecipient,
   GiftCampaign,
   GiftCatalogue,
-  Order,
   Store,
 } from "@/lib/types";
-import { formatMoney, newId, orderCode, parseMoney, slugify } from "@/lib/util";
+import { formatMoney, newId, parseMoney, slugify } from "@/lib/util";
 import type { ActionState } from "./stores";
 
 /* --------------------------------------------------------------- workspace */
@@ -918,12 +918,9 @@ export async function cancelCampaign(formData: FormData): Promise<void> {
 }
 
 /**
- * Pays for an approved campaign and turns it into one order per recipient.
- *
- * The card is charged once for the whole programme; every order it creates
- * carries the campaign, the shared payment intent and its own idempotency key,
- * so the store's queue can be worked per campaign and a retried submission
- * finds the orders it already made instead of charging again.
+ * Pays for an approved campaign. A demo store simulates the card payment and
+ * raises the orders at once; a live store sends the buyer to Stripe Checkout,
+ * and the verified webhook raises them (`lib/gift-payment.ts`).
  */
 export async function payCampaign(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const slug = String(formData.get("slug") ?? "");
@@ -936,10 +933,10 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   if (!(await verifyCampaignToken(campaign.id, "buyer", token))) {
     return fail("This campaign link is not valid.");
   }
-  const key = `gift_${campaign.id}`;
-  if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(store.id, `${key}:0`))) {
+  const back = await inPortalLanguage(store, slug, campaignPath(slug, campaign.code, token, "buyer"));
+  if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(store.id, `gift_${campaign.id}:0`))) {
     // A retried submission must not charge twice or duplicate the orders.
-    redirect(await inPortalLanguage(store, slug, campaignPath(slug, campaign.code, token, "buyer")));
+    redirect(back);
   }
   if (campaign.status !== "approved") {
     return fail(
@@ -948,7 +945,8 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
         : `${campaign.code} is ${campaign.status.replace(/_/g, " ")} and cannot be paid for.`,
     );
   }
-  if (store.status !== "active" || !store.stripe.connected || !store.stripe.chargesEnabled) {
+  const mode = paymentMode(store);
+  if (mode === "unavailable") {
     return fail("This store cannot take payments at the moment. Your campaign is saved.");
   }
 
@@ -959,203 +957,88 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
     );
   }
 
-  const shopper = await shopperTranslator(store, shopperLocale(store, await getLocale()));
-  const charge = await chargeCard({
-    store,
-    amount: quote.total,
-    currency: campaign.currency,
-    cardNumber: String(formData.get("cardNumber") ?? ""),
-    expiry: String(formData.get("expiry") ?? ""),
-    cvc: String(formData.get("cvc") ?? ""),
-    name: campaign.buyer.name,
-    idempotencyKey: key,
-    t: (name, values) => shopper(`payment.${name}`, values),
-  });
-  if (!charge.ok) {
-    return {
-      status: "error",
-      message: charge.message,
-      field:
-        charge.code === "invalid_expiry" ? "expiry" : charge.code === "invalid_cvc" ? "cvc" : "cardNumber",
-    };
-  }
-
-  const now = new Date().toISOString();
-  const orders: Order[] = quote.lines.map((line, index) => {
-    const recipient = line.recipient;
-    return {
-      id: newId("ord"),
-      storeId: store.id,
-      code: orderCode(),
-      status: "paid",
+  const locale = shopperLocale(store, await getLocale());
+  const shopper = await shopperTranslator(store, locale);
+  if (mode === "demo") {
+    const charge = await chargeCard({
+      store,
+      amount: quote.total,
       currency: campaign.currency,
-      customer: {
-        name: recipient.name,
-        email: recipient.email,
-        line1: recipient.line1,
-        city: recipient.city,
-        postalCode: recipient.postalCode,
-        country: recipient.country,
-      },
-      items: [
-        {
-          id: newId("oit"),
-          storeProductId: recipient.storeProductId,
-          variantId: recipient.variantId,
-          productName: recipient.productName,
-          variantName: recipient.variantName,
-          quantity: recipient.quantity,
-          unitPrice: line.unit,
-          supplierCost:
-            line.product?.variants.find((v) => v.id === recipient.variantId)?.baseCost ?? 0,
-          customization: {
-            artworkUrl: null,
-            artworkFileName: null,
-            text: null,
-            previewUrl: line.product?.mockups[0]?.url ?? null,
-          },
-          supplierId: line.product?.supplierId ?? "",
-        },
-      ],
-      subtotal: line.goods,
-      shipping: line.shipping,
-      taxAmount: line.taxAmount,
-      taxRate: line.taxRows.length === 1 ? line.taxRows[0].rate : 0,
-      taxLines: line.taxRows,
-      total: line.total,
-      payment: {
-        provider: "stripe",
-        status: "succeeded",
-        paymentIntentId: charge.paymentIntentId,
-        stripeAccountId: store.stripe.accountId,
-        last4: charge.last4,
-        failureMessage: null,
-        paidAt: now,
-      },
-      fulfillment: {
-        supplierId: null,
-        supplierName: null,
-        routing: "pending",
-        supplierOrderRef: null,
-        submittedAt: null,
-        submissionMessage: null,
-        carrier: null,
-        trackingNumber: null,
-        trackingUrl: null,
-        exception: null,
-      },
-      refunds: [],
-      events: [
-        {
-          at: now,
-          status: "Payment captured",
-          note: `Part of gift campaign ${campaign.code}.`,
-          actor: "Stripe",
-        },
-        ...(recipient.note
-          ? [{ at: now, status: "Gift message", note: recipient.note, actor: campaign.buyer.name }]
-          : []),
-      ],
-      campaign: {
-        campaignId: campaign.id,
-        campaignCode: campaign.code,
-        campaignName: campaign.name,
-        catalogueId: catalogue.id,
-        recipientId: recipient.id,
-      },
-      idempotencyKey: `${key}:${index}`,
-      createdAt: now,
-      updatedAt: now,
-    };
-  });
-
-  // Routing is per order, because recipients sit in different regions and a
-  // supplier that covers one may not cover the next.
-  const decisions = await Promise.all(orders.map((order) => routeOrder(order, store)));
-  decisions.forEach((decision, index) => {
-    const order = orders[index];
-    order.fulfillment = {
-      ...order.fulfillment,
-      supplierId: decision.supplierId,
-      supplierName: decision.supplierName,
-      routing: decision.routing,
-      supplierOrderRef: decision.supplierOrderRef,
-      submittedAt: decision.routing === "submitted" ? now : null,
-      submissionMessage: decision.message,
-      exception: decision.exception,
-    };
-    order.events.push({
-      at: now,
-      status: decision.routing === "submitted" ? "Sent to supplier" : "Manual handling required",
-      note: decision.message,
-      actor: "Parcelith routing",
+      cardNumber: String(formData.get("cardNumber") ?? ""),
+      expiry: String(formData.get("expiry") ?? ""),
+      cvc: String(formData.get("cvc") ?? ""),
+      name: campaign.buyer.name,
+      idempotencyKey: `gift_${campaign.id}`,
+      t: (name, values) => shopper(`payment.${name}`, values),
     });
-    if (decision.routing === "submitted") order.status = "in_production";
-    if (decision.exception) order.status = "exception";
-  });
-
-  await db.insertMany(COLLECTIONS.orders, orders as unknown as Record<string, unknown>[]);
-  refreshCustomers(store, orders.map((order) => order.customer.email));
-
-  const held = orders.filter((order) => order.fulfillment.routing !== "submitted").length;
-  await updateGiftCampaign(campaign.id, {
-    status: "ordered",
-    recipients: campaign.recipients.map((recipient, index) => ({
-      ...recipient,
-      unitPrice: quote.lines[index].unit,
-      orderId: orders[index].id,
-      orderCode: orders[index].code,
-    })),
-    totals: {
-      subtotal: quote.subtotal,
-      shipping: quote.shipping,
-      taxAmount: quote.taxAmount,
-      taxLines: quote.taxRows,
-      total: quote.total,
-    },
-    payment: {
-      status: "succeeded",
+    if (!charge.ok) {
+      return {
+        status: "error",
+        message: charge.message,
+        field:
+          charge.code === "invalid_expiry" ? "expiry" : charge.code === "invalid_cvc" ? "cvc" : "cardNumber",
+      };
+    }
+    await raiseCampaignOrders(campaign, store, {
       paymentIntentId: charge.paymentIntentId,
       last4: charge.last4,
-      paidAt: now,
-    },
-    idempotencyKey: key,
-    events: [
-      ...campaign.events,
-      {
-        at: now,
-        status: "Paid",
-        note: `${formatMoney(quote.total, campaign.currency)} charged via Stripe (${store.stripe.accountId}).`,
-        actor: campaign.buyer.name,
-      },
-      {
-        at: now,
-        status: "Orders created",
-        note: `${orders.length} orders raised${held > 0 ? `, ${held} held for manual routing` : " and sent to production"}.`,
-        actor: "Parcelith routing",
-      },
-    ],
-  });
+      stripeAccountId: null,
+      checkoutSessionId: null,
+      note: `${formatMoney(quote.total, campaign.currency)} paid on a demo store. No money moved.`,
+    });
+    redirect(back);
+  }
 
+  // A live store. An earlier session the buyer left is closed first, so the
+  // programme cannot be paid for twice.
+  const accountId = store.stripe.accountId as string;
+  const previous = campaign.payment.checkoutSessionId;
+  if (previous && campaign.payment.stripeAccountId) {
+    await expireConnectedCheckout(campaign.payment.stripeAccountId, previous);
+  }
+  const origin = await siteOrigin();
+  const checkout = await createConnectedCheckout({
+    accountId,
+    metadata: { kind: "gift_campaign", campaignId: campaign.id, storeId: store.id, code: campaign.code },
+    idempotencyKey: `gift-checkout-${campaign.id}-${previous ?? "first"}`,
+    currency: campaign.currency,
+    locale,
+    email: campaign.buyer.email,
+    lines: [
+      ...quote.lines.map((line) => ({
+        name: line.recipient.productName,
+        description: [line.recipient.variantName, line.recipient.name].filter(Boolean).join(" · "),
+        unitAmount: line.unit,
+        quantity: line.recipient.quantity,
+      })),
+      ...(store.pricesIncludeTax
+        ? []
+        : quote.taxRows.map((row) => ({
+            name: shopper("checkout.taxRow", { rate: row.rate }),
+            unitAmount: row.amount,
+            quantity: 1,
+          }))),
+    ],
+    shipping: { label: shopper("checkout.shipping"), amount: quote.shipping },
+    discount: null,
+    successUrl: `${origin}${back}&paid=1`,
+    cancelUrl: `${origin}${back}`,
+  });
+  if (!checkout) return fail(shopper("payment.startFailed"));
+  await updateGiftCampaign(campaign.id, {
+    payment: { ...campaign.payment, checkoutSessionId: checkout.id, stripeAccountId: accountId },
+  });
   recordAudit({
     category: "gifting",
-    action: "gifting.campaign_ordered",
-    summary: `Gift campaign ${campaign.code} paid: ${orders.length} orders raised${held > 0 ? `, ${held} awaiting manual routing` : ""}`,
+    action: "gifting.checkout_started",
+    summary: `${campaign.buyer.name} opened Stripe Checkout for gift campaign ${campaign.code}`,
     storeId: store.id,
     agencyId: store.agencyId,
     actorId: "gifting",
     actorName: campaign.buyer.name,
     entity: "gift_campaign",
     entityId: campaign.code,
-    meta: { orders: orders.length, total: quote.total, currency: campaign.currency, held },
-    notify: {
-      type: "order_paid",
-      href: `/app/stores/${store.id}/orders/campaigns/${campaign.id}`,
-      params: { code: campaign.code, count: orders.length, amount: quote.total, currency: campaign.currency },
-    },
+    meta: { total: quote.total, currency: campaign.currency },
   });
-
-  revalidatePath(`/app/stores/${store.id}/orders`);
-  revalidatePath(`/app/stores/${store.id}/gifting`);
-  redirect(await inPortalLanguage(store, slug, campaignPath(slug, campaign.code, token, "buyer")));
+  redirect(checkout.url);
 }

@@ -676,7 +676,8 @@
       "agencies": "Agenturen und Zugriff",
       "audit": "Audit-Log"
     },
-    "people": "Personen"
+    "people": "Personen",
+    "billing": "Abrechnung"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "Zahlung nicht bestätigt",
     "unconfirmedBody": "Wir konnten Ihre Zahlung nicht bestätigen. Versuchen Sie es erneut.",
     "cancelled": "Der Checkout wurde abgebrochen. Ihr Konto ist gespeichert.",
-    "ownerOnly": "Das Abonnement Ihrer Agentur ist noch nicht aktiv. Bitten Sie die Kontoinhaberin oder den Kontoinhaber, die Zahlung abzuschließen."
+    "ownerOnly": "Das Abonnement Ihrer Agentur ist noch nicht aktiv. Bitten Sie die Kontoinhaberin oder den Kontoinhaber, die Zahlung abzuschließen.",
+    "pageTitle": "Abrechnung",
+    "planLabel": "Tarif",
+    "statusLabel": "Status",
+    "status": {
+      "pending": "Ausstehend",
+      "active": "Aktiv",
+      "past_due": "Überfällig",
+      "canceled": "Gekündigt"
+    },
+    "nextInvoice": "Nächste Rechnung",
+    "nextInvoiceOn": "{amount} am {date}",
+    "noInvoice": "Keine geplant",
+    "endsOn": "Endet am",
+    "manage": "Abrechnung verwalten",
+    "portalOpening": "Wird geöffnet…",
+    "portalUnavailableTitle": "Die Abrechnung konnte nicht geöffnet werden",
+    "pastDueTitle": "Zahlung fehlgeschlagen",
+    "pastDueBody": "Ihre Zahlungsmethode konnte nicht belastet werden. Aktualisieren Sie sie, damit Ihr Tarif aktiv bleibt.",
+    "canceledTitle": "Abonnement beendet",
+    "canceledBody": "Kontaktieren Sie uns, um ein neues Abonnement abzuschließen.",
+    "invoiced": "Ihr Tarif wird per Rechnung abgerechnet.",
+    "contactUs": "Kontakt aufnehmen",
+    "ownerManages": "Die Abrechnung verwaltet der Kontoinhaber.",
+    "backToWorkspace": "Zurück zum Arbeitsbereich",
+    "pastDueBanner": "Ihre letzte Tarifzahlung ist fehlgeschlagen.",
+    "pastDueAction": "Zahlungsmethode aktualisieren",
+    "pastDueAskOwner": "Bitten Sie den Kontoinhaber, die Zahlungsmethode zu aktualisieren."
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "Geben Sie eine Domain wie shop.ihrkunde.de ein.",
       "domainVerified": "{domain} ist verifiziert und liefert jetzt diese Storefront aus.",
       "domainSaved": "{domain} gespeichert. Fügen Sie den CNAME-Eintrag unten hinzu und starten Sie dann die Verifizierung.",
-      "stripeDisconnected": "Stripe getrennt. Dieser Shop kann erst nach erneuter Verbindung Zahlungen annehmen.",
-      "stripeInvalid": "Stripe-Konto-IDs sehen aus wie acct_1A2b3C4d5E6f. Kopieren Sie sie aus dem Stripe-Dashboard des Kunden.",
-      "stripeConnected": "{account} verbunden.",
       "carrierAccount": "Geben Sie die Kundennummer für {carrier} ein oder deaktivieren Sie den Versanddienstleister.",
       "carrierRequired": "Aktivieren Sie mindestens einen Versanddienstleister, damit bezahlte Bestellungen versendet werden können.",
       "carriersSaved": "Versandeinstellungen gespeichert.",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "Wählen Sie eine der Sprachen des Shops.",
       "policyTooLong": "Jede Richtlinie darf höchstens {max} Zeichen lang sein.",
       "policiesSaved": "Richtlinien gespeichert.",
-      "paymentPending": "Schließen Sie Ihr Abonnement ab, bevor Sie einen Shop erstellen."
+      "paymentPending": "Schließen Sie Ihr Abonnement ab, bevor Sie einen Shop erstellen.",
+      "stripeCountry": "Wählen Sie das Land, in dem das Unternehmen ansässig ist.",
+      "stripeUnavailable": "Stripe ist nicht erreichbar. Versuchen Sie es gleich noch einmal."
     },
     "team": {
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "Dieser Shop akzeptiert kein {currency}.",
       "orderChanged": "Diese Bestellung wurde geändert. Laden Sie neu und prüfen Sie die Erstattungen, bevor Sie es erneut versuchen.",
       "refunded": "{amount} erstattet ({reference}).",
-      "refundedCancelled": "{amount} erstattet und Bestellung storniert ({reference})."
+      "refundedCancelled": "{amount} erstattet und Bestellung storniert ({reference}).",
+      "refundFailed": "Stripe konnte die Erstattung nicht ausführen. Es wurde nichts erfasst. Versuchen Sie es erneut."
     },
     "gifting": {
       "nameTooShort": "Geben Sie dem Katalog einen Namen mit mindestens 3 Zeichen.",
@@ -1370,13 +1398,8 @@
     "runVerification": "Verifizierung starten",
     "stripe": "Stripe-Konto",
     "stripeDescription": "Verbinden Sie das Stripe-Konto des Kunden, um Zahlungen anzunehmen.",
-    "connected": "Verbunden:",
-    "stripeStatus": "Land {country} · Zahlungen aktiviert · verbunden am {date}",
     "disconnecting": "Wird getrennt…",
     "disconnect": "Stripe trennen",
-    "connect": "Stripe-Konto verbinden",
-    "accountId": "Stripe-Konto-ID",
-    "accountIdHint": "Zu finden in Stripe unter Einstellungen → Kontodetails.",
     "accountCountry": "Land des Kontos",
     "carriers": "Versanddienstleister",
     "carriersDescription": "Aktivieren Sie die Versanddienstleister, bei denen der Kunde ein Konto hat.",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "Sprache",
     "policiesHint": "Beginnen Sie eine Zeile mit ## für eine Überschrift. Leeren Sie eine Richtlinie, um den Standardtext wiederherzustellen.",
     "savePolicies": "Richtlinien speichern",
-    "viewPolicy": "Ansehen"
+    "viewPolicy": "Ansehen",
+    "stripeConnect": "Stripe verbinden",
+    "stripeContinue": "Einrichtung fortsetzen",
+    "stripeUpdate": "Angaben aktualisieren",
+    "stripeOpening": "Stripe wird geöffnet…",
+    "stripeAccount": "Konto",
+    "stripeCharges": "Zahlungen",
+    "stripePayouts": "Auszahlungen",
+    "stripeEnabled": "Aktiviert",
+    "stripePendingState": "Ausstehend",
+    "stripeIncomplete": "Stripe benötigt weitere Angaben, bevor dieser Shop Zahlungen annehmen kann.",
+    "stripeReady": "Dieser Shop kann Zahlungen annehmen.",
+    "stripeReconnect": "Verbinden Sie diesen Shop erneut mit Stripe, um Zahlungen anzunehmen.",
+    "stripeUnreadable": "Stripe ist nicht erreichbar. Der Status unten ist möglicherweise nicht aktuell.",
+    "demoStoreTitle": "Demo-Shop",
+    "demoStoreBody": "Der Checkout ist simuliert, niemand wird belastet. Verbinden Sie Stripe, um echte Zahlungen anzunehmen.",
+    "backToSettings": "Zurück zu den Einstellungen"
   },
   "team": {
     "agencyAdmins": "Agenturadministratoren",
@@ -3243,7 +3282,11 @@
       "pending": "Wird verarbeitet…",
       "cardSucceeds": "Zahlung erfolgreich",
       "cardDeclined": "Karte abgelehnt",
-      "cardInsufficient": "Deckung unzureichend"
+      "cardInsufficient": "Deckung unzureichend",
+      "demoStore": "Demo-Shop: keine echte Zahlung",
+      "demoStoreBody": "Verwenden Sie eine der Testkarten unten. Niemand wird belastet.",
+      "continueToPayment": "Weiter zur Zahlung",
+      "redirecting": "Weiterleitung…"
     },
     "order": {
       "title": "Bestellstatus",
@@ -3278,7 +3321,9 @@
       "orderCode": "Bestellcode",
       "emailOnOrder": "E-Mail-Adresse",
       "lookupSubmit": "Bestellung anzeigen",
-      "lookupPending": "Wird geprüft …"
+      "lookupPending": "Wird geprüft …",
+      "processingTitle": "Ihre Zahlung wird bestätigt",
+      "processingBody": "Diese Seite wird aktualisiert, sobald die Zahlung bestätigt ist."
     },
     "status": {
       "awaitingPayment": "Zahlung ausstehend",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "Die Prüfziffer muss 3 oder 4 Stellen haben.",
       "declined": "Ihre Karte wurde abgelehnt.",
       "insufficientFunds": "Ihre Karte weist keine ausreichende Deckung auf.",
-      "expiredCard": "Ihre Karte ist abgelaufen."
+      "expiredCard": "Ihre Karte ist abgelaufen.",
+      "startFailed": "Die Zahlung konnte nicht gestartet werden. Ihr Warenkorb ist gespeichert. Bitte versuchen Sie es erneut."
     },
     "sections": {
       "viewAll": "Alle ansehen",

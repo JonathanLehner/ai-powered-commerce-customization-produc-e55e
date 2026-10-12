@@ -53,6 +53,7 @@ export const COLLECTIONS = {
   productCollections: "product_collections",
   notifications: "notifications",
   notificationDigests: "notification_digests",
+  stripeEvents: "stripe_events",
 } as const;
 
 /* ---------------------------------------------------------------- agencies */

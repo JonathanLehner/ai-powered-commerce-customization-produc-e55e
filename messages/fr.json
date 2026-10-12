@@ -676,7 +676,8 @@
       "agencies": "Agences et accès",
       "audit": "Journal d’audit"
     },
-    "people": "Personnes"
+    "people": "Personnes",
+    "billing": "Facturation"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "Paiement non confirmé",
     "unconfirmedBody": "Nous n'avons pas pu confirmer votre paiement. Réessayez.",
     "cancelled": "Le paiement a été annulé. Votre compte est enregistré.",
-    "ownerOnly": "L'abonnement de votre agence n'est pas encore actif. Demandez au titulaire du compte de finaliser le paiement."
+    "ownerOnly": "L'abonnement de votre agence n'est pas encore actif. Demandez au titulaire du compte de finaliser le paiement.",
+    "pageTitle": "Facturation",
+    "planLabel": "Forfait",
+    "statusLabel": "Statut",
+    "status": {
+      "pending": "En attente",
+      "active": "Actif",
+      "past_due": "En retard",
+      "canceled": "Résilié"
+    },
+    "nextInvoice": "Prochaine facture",
+    "nextInvoiceOn": "{amount} le {date}",
+    "noInvoice": "Aucune prévue",
+    "endsOn": "Se termine le",
+    "manage": "Gérer la facturation",
+    "portalOpening": "Ouverture…",
+    "portalUnavailableTitle": "Impossible d’ouvrir la facturation",
+    "pastDueTitle": "Échec du paiement",
+    "pastDueBody": "Nous n’avons pas pu débiter votre moyen de paiement. Mettez-le à jour pour conserver votre forfait.",
+    "canceledTitle": "Abonnement terminé",
+    "canceledBody": "Contactez-nous pour souscrire un nouvel abonnement.",
+    "invoiced": "Votre forfait est facturé sur facture.",
+    "contactUs": "Nous contacter",
+    "ownerManages": "Le propriétaire du compte gère la facturation.",
+    "backToWorkspace": "Retour à l’espace de travail",
+    "pastDueBanner": "Le dernier paiement de votre forfait a échoué.",
+    "pastDueAction": "Mettre à jour le moyen de paiement",
+    "pastDueAskOwner": "Demandez au propriétaire du compte de mettre à jour le moyen de paiement."
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "Saisissez un domaine comme shop.votreclient.com.",
       "domainVerified": "{domain} est vérifié et sert désormais cette vitrine.",
       "domainSaved": "{domain} enregistré. Ajoutez l’enregistrement CNAME ci-dessous, puis lancez la vérification.",
-      "stripeDisconnected": "Stripe déconnecté. Cette boutique ne peut plus encaisser de paiements tant qu’il n’est pas reconnecté.",
-      "stripeInvalid": "Les identifiants de compte Stripe ressemblent à acct_1A2b3C4d5E6f. Copiez-le depuis le tableau de bord Stripe du client.",
-      "stripeConnected": "{account} connecté.",
       "carrierAccount": "Ajoutez le numéro de compte {carrier} ou désactivez ce transporteur.",
       "carrierRequired": "Activez au moins un transporteur pour expédier les commandes payées.",
       "carriersSaved": "Paramètres des transporteurs enregistrés.",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "Choisissez l’une des langues de la boutique.",
       "policyTooLong": "Chaque politique doit faire moins de {max} caractères.",
       "policiesSaved": "Politiques enregistrées.",
-      "paymentPending": "Finalisez votre abonnement avant de créer une boutique."
+      "paymentPending": "Finalisez votre abonnement avant de créer une boutique.",
+      "stripeCountry": "Choisissez le pays où l’entreprise est établie.",
+      "stripeUnavailable": "Stripe est injoignable. Réessayez dans un instant."
     },
     "team": {
       "emailInvalid": "Saisissez une adresse e-mail valide.",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "Cette boutique n’accepte pas le {currency}.",
       "orderChanged": "Cette commande a été modifiée. Rechargez la page et vérifiez les remboursements avant de réessayer.",
       "refunded": "{amount} remboursés ({reference}).",
-      "refundedCancelled": "{amount} remboursés et commande annulée ({reference})."
+      "refundedCancelled": "{amount} remboursés et commande annulée ({reference}).",
+      "refundFailed": "Stripe n’a pas pu effectuer le remboursement. Rien n’a été enregistré. Réessayez."
     },
     "gifting": {
       "nameTooShort": "Donnez au catalogue un nom d’au moins 3 caractères.",
@@ -1370,13 +1398,8 @@
     "runVerification": "Lancer la vérification",
     "stripe": "Compte Stripe",
     "stripeDescription": "Connectez le compte Stripe du client pour accepter les paiements.",
-    "connected": "Connecté :",
-    "stripeStatus": "Pays {country} · paiements activés · connecté le {date}",
     "disconnecting": "Déconnexion…",
     "disconnect": "Déconnecter Stripe",
-    "connect": "Connecter le compte Stripe",
-    "accountId": "Identifiant du compte Stripe",
-    "accountIdHint": "Vous le trouverez dans Stripe sous Paramètres → Informations sur le compte.",
     "accountCountry": "Pays du compte",
     "carriers": "Transporteurs",
     "carriersDescription": "Activez les transporteurs chez lesquels le client a un compte.",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "Langue",
     "policiesHint": "Commencez une ligne par ## pour un titre. Videz une politique pour rétablir le texte par défaut.",
     "savePolicies": "Enregistrer les politiques",
-    "viewPolicy": "Voir"
+    "viewPolicy": "Voir",
+    "stripeConnect": "Connecter Stripe",
+    "stripeContinue": "Reprendre l’inscription",
+    "stripeUpdate": "Mettre à jour les informations",
+    "stripeOpening": "Ouverture de Stripe…",
+    "stripeAccount": "Compte",
+    "stripeCharges": "Paiements",
+    "stripePayouts": "Virements",
+    "stripeEnabled": "Activés",
+    "stripePendingState": "En attente",
+    "stripeIncomplete": "Stripe a besoin d’informations supplémentaires avant que cette boutique puisse accepter des paiements.",
+    "stripeReady": "Cette boutique peut accepter des paiements.",
+    "stripeReconnect": "Reconnectez cette boutique à Stripe pour accepter des paiements.",
+    "stripeUnreadable": "Stripe est injoignable. Le statut ci-dessous n’est peut-être pas à jour.",
+    "demoStoreTitle": "Boutique de démonstration",
+    "demoStoreBody": "Le paiement est simulé et personne n’est débité. Connectez Stripe pour accepter de vrais paiements.",
+    "backToSettings": "Retour aux paramètres"
   },
   "team": {
     "agencyAdmins": "Administrateurs de l’agence",
@@ -3243,7 +3282,11 @@
       "pending": "Traitement…",
       "cardSucceeds": "Paiement accepté",
       "cardDeclined": "Carte refusée",
-      "cardInsufficient": "Fonds insuffisants"
+      "cardInsufficient": "Fonds insuffisants",
+      "demoStore": "Boutique de démonstration : aucun paiement réel",
+      "demoStoreBody": "Utilisez une carte de test ci-dessous. Personne n’est débité.",
+      "continueToPayment": "Continuer vers le paiement",
+      "redirecting": "Redirection…"
     },
     "order": {
       "title": "Suivi de commande",
@@ -3278,7 +3321,9 @@
       "orderCode": "Code de commande",
       "emailOnOrder": "Adresse e-mail",
       "lookupSubmit": "Afficher ma commande",
-      "lookupPending": "Vérification…"
+      "lookupPending": "Vérification…",
+      "processingTitle": "Confirmation de votre paiement",
+      "processingBody": "Cette page se met à jour dès que le paiement est confirmé."
     },
     "status": {
       "awaitingPayment": "En attente de paiement",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "Le code de sécurité doit comporter 3 ou 4 chiffres.",
       "declined": "Votre carte a été refusée.",
       "insufficientFunds": "Votre carte ne dispose pas d’une provision suffisante.",
-      "expiredCard": "Votre carte a expiré."
+      "expiredCard": "Votre carte a expiré.",
+      "startFailed": "Le paiement n’a pas pu démarrer. Votre panier est enregistré. Veuillez réessayer."
     },
     "sections": {
       "viewAll": "Tout voir",

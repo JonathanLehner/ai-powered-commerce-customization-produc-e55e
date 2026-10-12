@@ -11,11 +11,9 @@ import {
   saveLanguages,
   saveLocalisation,
   savePolicies,
-  saveStripe,
   saveSupport,
   saveTaxSettings,
   verifyDomain,
-  disconnectStripe,
 } from "@/app/actions/stores";
 import { ActionForm, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
@@ -40,14 +38,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { countryName, currencyName, languageOption } from "@/i18n/display";
+import { currencyName, languageOption } from "@/i18n/display";
 import { LOCALES, LOCALE_NAMES, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, storePolicyText, type PolicyKey } from "@/lib/policies";
 import { storeUrl } from "@/lib/seo";
 import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
-import { CARRIER_LABELS, CURRENCY_OPTIONS, STRIPE_COUNTRIES } from "@/lib/util";
+import { CARRIER_LABELS, CURRENCY_OPTIONS } from "@/lib/util";
+import { StripeStep } from "./ConnectStripe";
 
 function Step({
   index,
@@ -514,63 +513,7 @@ export function SetupSections({
         description={t("stripeDescription")}
         done={store.setup.payments}
       >
-        {store.stripe.connected ? (
-          <div>
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm">
-              <p className="font-medium text-emerald-900">
-                {t("connected")} <span className="font-mono">{store.stripe.accountId}</span>
-              </p>
-              <p className="mt-1 text-emerald-800">
-                {t("stripeStatus", {
-                  country: countryName(locale, store.stripe.country),
-                  date: store.stripe.connectedAt ? new Date(store.stripe.connectedAt).toLocaleDateString(locale) : "–",
-                })}
-              </p>
-            </div>
-            <form action={disconnectStripe} className="mt-4">
-              <input type="hidden" name="storeId" value={store.id} />
-              <input type="hidden" name="intent" value="disconnect" />
-              <SubmitButton variant="destructive" size="sm" pendingLabel={t("disconnecting")}>
-                {t("disconnect")}
-              </SubmitButton>
-            </form>
-          </div>
-        ) : (
-          <ActionForm action={saveStripe} submitLabel={t("connect")} hidden={hidden}>
-            {(state) => (
-              <div className="grid max-w-2xl gap-5 sm:grid-cols-2">
-                <div className="grid content-start gap-1.5">
-                  <Label htmlFor="accountId">{t("accountId")}</Label>
-                  <Input
-                    id="accountId"
-                    name="accountId"
-                    placeholder="acct_1A2b3C4d5E6f"
-                    aria-invalid={state.field === "accountId" ? true : undefined}
-                    aria-describedby="accountId-hint"
-                  />
-                  <p id="accountId-hint" className="text-xs text-muted-foreground">
-                    {t("accountIdHint")}
-                  </p>
-                </div>
-                <div className="grid content-start gap-1.5">
-                  <Label htmlFor="country">{t("accountCountry")}</Label>
-                  <Select name="country" defaultValue={store.stripe.country}>
-                    <SelectTrigger id="country" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STRIPE_COUNTRIES.map((c) => (
-                        <SelectItem key={c.code} value={c.code}>
-                          {countryName(locale, c.code, c.label)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-          </ActionForm>
-        )}
+        <StripeStep store={store} />
       </Step>
 
       <Step

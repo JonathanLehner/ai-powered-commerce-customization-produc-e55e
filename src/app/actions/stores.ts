@@ -21,12 +21,14 @@ import { storeLimitText } from "@/i18n/plan-copy";
 import { billingPending } from "@/lib/billing";
 import { storeAllowance } from "@/lib/plans";
 import { assertStoreAccess, getSessionUser } from "@/lib/session";
+import { siteOrigin } from "@/lib/email";
+import { createExpressAccount, onboardingLink } from "@/lib/stripe";
 import { forgetStorePolicies } from "@/lib/storefront-data";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { isSupportEmail, isSupportPhone } from "@/lib/support";
 import { readStoredImage } from "@/lib/uploads";
 import type { Store, ThemeKey } from "@/lib/types";
-import { newId, slugify } from "@/lib/util";
+import { STRIPE_COUNTRIES, newId, slugify } from "@/lib/util";
 
 export interface ActionState {
   status: "idle" | "error" | "success";
@@ -495,63 +497,106 @@ export async function saveDomain(_prev: ActionState, formData: FormData): Promis
   );
 }
 
-export async function saveStripe(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/**
+ * "Connect Stripe" in guided setup: creates the store's Express account on the
+ * first visit, or reuses it to continue or update onboarding, then sends the
+ * administrator to Stripe's hosted onboarding.
+ */
+export async function connectStripe(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const { user, store } = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
 
-  const intent = String(formData.get("intent") ?? "connect");
-  if (intent === "disconnect") {
+  let accountId = store.stripe.express ? store.stripe.accountId : null;
+  if (!accountId) {
+    const country = String(formData.get("country") ?? store.stripe.country);
+    if (!STRIPE_COUNTRIES.some((c) => c.code === country)) return fail(t("stripeCountry"), "country");
+    const account = await createExpressAccount({
+      storeId,
+      country,
+      email: store.supportEmail ?? null,
+      // A double click lands on the same account; connecting again after a
+      // disconnect makes a new one.
+      attempt: `${country}-${store.stripe.previousAccountId ?? "first"}`,
+    });
+    if (!account) return fail(t("stripeUnavailable"));
+    accountId = account.accountId;
     await updateStore(storeId, {
-      stripe: { connected: false, accountId: null, country: store.stripe.country, chargesEnabled: false, connectedAt: null },
-      setup: { ...store.setup, payments: false },
+      stripe: {
+        connected: true,
+        express: true,
+        accountId,
+        country: account.country,
+        chargesEnabled: account.chargesEnabled,
+        payoutsEnabled: account.payoutsEnabled,
+        detailsSubmitted: account.detailsSubmitted,
+        connectedAt: new Date().toISOString(),
+        previousAccountId: store.stripe.previousAccountId ?? null,
+      },
+      setup: { ...store.setup, payments: account.chargesEnabled },
     });
     recordAudit({
       category: "store_setup",
-      action: "store.stripe_disconnected",
-      summary: "Disconnected the Stripe account",
+      action: "store.stripe_account_created",
+      summary: `Created Stripe account ${accountId} (${account.country})`,
       storeId,
       agencyId: store.agencyId,
       actorId: user.id,
       actorName: user.name,
       entity: "store",
       entityId: storeId,
-      meta: {},
+      meta: { accountId, country: account.country },
     });
-    revalidatePath(`/app/stores/${storeId}/setup`);
-    return ok(t("stripeDisconnected"));
   }
 
-  const accountId = String(formData.get("accountId") ?? "").trim();
-  const country = String(formData.get("country") ?? "US");
-  if (!/^acct_[A-Za-z0-9]{6,}$/.test(accountId)) {
-    return fail(t("stripeInvalid"), "accountId");
-  }
-
-  await updateStore(storeId, {
-    stripe: {
-      connected: true,
-      accountId,
-      country,
-      chargesEnabled: true,
-      connectedAt: new Date().toISOString(),
-    },
-    setup: { ...store.setup, payments: true },
-  });
+  const origin = await siteOrigin();
+  const back = `${origin}/app/stores/${storeId}/setup/stripe`;
+  const link = await onboardingLink(accountId, `${back}/refresh`, back);
+  if (!link) return fail(t("stripeUnavailable"));
   recordAudit({
     category: "store_setup",
-    action: "store.stripe_connected",
-    summary: `Connected Stripe account ${accountId} (${country})`,
+    action: "store.stripe_onboarding_started",
+    summary: `Opened Stripe onboarding for ${accountId}`,
     storeId,
     agencyId: store.agencyId,
     actorId: user.id,
     actorName: user.name,
     entity: "store",
     entityId: storeId,
-    meta: { accountId, country },
+    meta: { accountId },
   });
   revalidatePath(`/app/stores/${storeId}/setup`);
-  return ok(t("stripeConnected", { account: accountId }));
+  redirect(link);
+}
+
+export async function disconnectStripe(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const previous = store.stripe.accountId;
+  await updateStore(storeId, {
+    stripe: {
+      connected: false,
+      accountId: null,
+      country: store.stripe.country,
+      chargesEnabled: false,
+      connectedAt: null,
+      previousAccountId: store.stripe.express ? previous : (store.stripe.previousAccountId ?? null),
+    },
+    setup: { ...store.setup, payments: false },
+  });
+  recordAudit({
+    category: "store_setup",
+    action: "store.stripe_disconnected",
+    summary: previous ? `Disconnected Stripe account ${previous}` : "Disconnected the Stripe account",
+    storeId,
+    agencyId: store.agencyId,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "store",
+    entityId: storeId,
+    meta: { accountId: previous },
+  });
+  revalidatePath(`/app/stores/${storeId}/setup`);
 }
 
 export async function saveCarriers(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -639,6 +684,3 @@ export async function verifyDomain(formData: FormData): Promise<void> {
   await saveDomain({ status: "idle" }, formData);
 }
 
-export async function disconnectStripe(formData: FormData): Promise<void> {
-  await saveStripe({ status: "idle" }, formData);
-}

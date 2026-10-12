@@ -1,40 +1,25 @@
 import "server-only";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import { billingConfigured } from "./billing-config";
+import { COLLECTIONS, recordAudit } from "./data";
+import { db } from "./mongo";
 import { PLANS, planPrice } from "./plans";
 import { TRIAL_DAYS } from "./signup";
+import { checkoutLocale, refId, stripeClient } from "./stripe";
 import type { Agency, AgencyBilling } from "./types";
 
 /**
  * Self-serve plan billing through Stripe Checkout, on Parcelith's own Stripe
- * account (STRIPE_SECRET_KEY). This is separate from `lib/stripe`, which
- * charges shoppers on each store's connected account.
- *
- * The client uses the SDK's fetch transport and Web Crypto, which run the same
- * in Node and on Workers.
+ * account (STRIPE_SECRET_KEY). Storefront payments run on each store's
+ * connected account instead; see `lib/stripe.ts`.
  */
 
 export { TRIAL_DAYS, billingConfigured };
-
-/** Languages Stripe Checkout is shown in; it accepts all nine of the workspace's. */
-const CHECKOUT_LOCALES: Stripe.Checkout.SessionCreateParams.Locale[] = ["en", "de", "fr", "es", "it", "nl", "pt", "ja", "sv"];
 
 /** True while a self-serve agency has not finished checkout. Platform-managed agencies are never pending. */
 export function billingPending(agency: Agency | null): boolean {
   return agency?.billing?.status === "pending";
 }
-
-/** A client for this request, or null when no key is configured. Built per call, since the key is only readable once a request is in flight. */
-function stripeClient(): Stripe | null {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) {
-    console.error("STRIPE_SECRET_KEY is not set; plan checkout is unavailable.");
-    return null;
-  }
-  return new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
-}
-
-const cryptoProvider = Stripe.createSubtleCryptoProvider();
 
 interface CheckoutSession {
   id: string;
@@ -46,15 +31,14 @@ interface CheckoutSession {
 }
 
 /** The fields the sign-up flow keeps, with expandable references reduced to their ids. */
-function summarize(session: Stripe.Checkout.Session): CheckoutSession {
-  const id = (ref: string | { id: string } | null) => (typeof ref === "string" ? ref : (ref?.id ?? null));
+export function summarize(session: Stripe.Checkout.Session): CheckoutSession {
   return {
     id: session.id,
     url: session.url,
     status: session.status,
     client_reference_id: session.client_reference_id,
-    customer: id(session.customer),
-    subscription: id(session.subscription),
+    customer: refId(session.customer),
+    subscription: refId(session.subscription),
   };
 }
 
@@ -81,7 +65,7 @@ export async function startPlanCheckout(input: {
     mode: "subscription",
     customer_email: email,
     client_reference_id: agency.id,
-    locale: CHECKOUT_LOCALES.find((code) => code === locale) ?? "auto",
+    locale: checkoutLocale(locale),
     line_items: [
       {
         quantity: 1,
@@ -123,18 +107,56 @@ export async function getCheckoutSession(id: string): Promise<CheckoutSession | 
 }
 
 /**
- * A webhook event from Parcelith's Stripe account, verified against
- * STRIPE_WEBHOOK_SECRET with Web Crypto, or null when the signature does not
- * check out or billing is not configured. `payload` is the raw request body.
+ * Switches the plan on once Checkout completed. Reached from the success page
+ * and from the webhook, whichever is first; the write only applies while the
+ * agency is still pending, so the second one changes nothing.
  */
-export async function billingWebhookEvent(payload: string, signature: string | null): Promise<Stripe.Event | null> {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  const stripe = stripeClient();
-  if (!secret || !signature || !stripe) return null;
-  try {
-    return await stripe.webhooks.constructEventAsync(payload, signature, secret, undefined, cryptoProvider);
-  } catch (error) {
-    console.error("Stripe webhook signature check failed", error);
-    return null;
+export async function activateSubscription(
+  agency: Agency & { billing: AgencyBilling },
+  session: CheckoutSession,
+  actor: { id: string; name: string },
+): Promise<void> {
+  const result = await db.updateOne(
+    COLLECTIONS.agencies,
+    { id: agency.id, "billing.status": "pending" },
+    {
+      $set: {
+        plan: agency.billing.plan,
+        "billing.status": "active",
+        "billing.checkoutSessionId": session.id,
+        "billing.stripeCustomerId": session.customer,
+        "billing.stripeSubscriptionId": session.subscription,
+        "billing.activatedAt": new Date().toISOString(),
+      },
+    },
+  );
+  if (result.modifiedCount === 0) return;
+  recordAudit({
+    category: "administration",
+    action: "agency.subscribed",
+    summary: `Subscribed ${agency.name} to the ${agency.billing.plan} plan, billed ${agency.billing.cycle}`,
+    agencyId: agency.id,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "agency",
+    entityId: agency.id,
+    meta: { plan: agency.billing.plan, cycle: agency.billing.cycle, currency: agency.billing.currency },
+  });
+}
+
+/** The workspace's view of a Stripe subscription status. Null leaves the agency as it is. */
+export function billingStatusFor(status: Stripe.Subscription.Status): AgencyBilling["status"] | null {
+  switch (status) {
+    case "active":
+    case "trialing":
+      return "active";
+    case "past_due":
+    case "unpaid":
+      return "past_due";
+    case "canceled":
+    case "incomplete_expired":
+      return "canceled";
+    default:
+      return null;
   }
 }

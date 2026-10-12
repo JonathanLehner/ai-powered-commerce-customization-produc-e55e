@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LineThumbnail } from "@/components/LineThumbnail";
+import { PaymentPendingRefresh } from "@/components/PaymentPendingRefresh";
 import { UnknownStoreView } from "@/components/NotFoundViews";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
 import { Badge, Callout, DataList } from "@/components/ui";
@@ -59,10 +60,10 @@ export default async function OrderStatusPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; locale: string; code: string }>;
-  searchParams: Promise<{ new?: string; t?: string }>;
+  searchParams: Promise<{ new?: string; t?: string; paid?: string }>;
 }) {
   const { slug, locale: requested, code } = await params;
-  const { new: isNew, t: token } = await searchParams;
+  const { new: isNew, t: token, paid } = await searchParams;
   const store = (await storefrontBySlug(slug))?.store ?? null;
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
@@ -92,9 +93,22 @@ export default async function OrderStatusPage({
   const contactSubject = t("order.contactSubject", { code: order.code });
   const timeline = shopperTimeline(order.events);
 
+  // Back from Stripe Checkout. Only the webhook marks the order paid, so until
+  // it lands the page says the payment is being confirmed.
+  const processing = Boolean(paid) && order.status === "awaiting_payment";
+  const confirmed = isNew || (Boolean(paid) && order.payment.status === "succeeded");
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
-      {isNew ? (
+      {processing ? (
+        <>
+          <Callout tone="neutral" title={t("order.processingTitle")}>
+            {t("order.processingBody")}
+          </Callout>
+          <PaymentPendingRefresh />
+        </>
+      ) : null}
+      {confirmed ? (
         // No order email is sent, so this page — and the lookup below it — is
         // the shopper's only way back to the order. The banner says so.
         <Callout tone="green" title={t("order.confirmedTitle")}>

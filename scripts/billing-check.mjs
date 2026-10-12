@@ -13,10 +13,18 @@ const source = (path) => readFileSync(fileURLToPath(new URL(`../${path}`, import
 
 /* ------------------------------------------------- calls go through the SDK */
 
+// The client lives in lib/stripe.ts, shared with storefront payments.
 const billing = source("src/lib/billing.ts");
-assert.match(billing, /^import Stripe from "stripe";$/m, "billing.ts uses the stripe package");
-assert.doesNotMatch(billing, /\bfetch\(|api\.stripe\.com|URLSearchParams|x-www-form-urlencoded/, "no hand-written Stripe requests");
-for (const call of ["Stripe.createFetchHttpClient()", "Stripe.createSubtleCryptoProvider()", "webhooks.constructEventAsync(", "checkout.sessions.create(", "checkout.sessions.retrieve(", "idempotencyKey:"]) {
+const sdk = source("src/lib/stripe.ts");
+assert.match(sdk, /^import Stripe from "stripe";$/m, "stripe.ts uses the stripe package");
+assert.match(billing, /from "\.\/stripe";$/m, "billing.ts uses the shared client");
+for (const file of [billing, sdk]) {
+  assert.doesNotMatch(file, /\bfetch\(|api\.stripe\.com|URLSearchParams|x-www-form-urlencoded/, "no hand-written Stripe requests");
+}
+for (const call of ["Stripe.createFetchHttpClient()", "Stripe.createSubtleCryptoProvider()", "webhooks.constructEventAsync("]) {
+  assert.ok(sdk.includes(call), `stripe.ts calls ${call}`);
+}
+for (const call of ["checkout.sessions.create(", "checkout.sessions.retrieve(", "idempotencyKey:"]) {
   assert.ok(billing.includes(call), `billing.ts calls ${call}`);
 }
 

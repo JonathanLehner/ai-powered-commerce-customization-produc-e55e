@@ -55,6 +55,7 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   product_collections: [byId, { key: { storeId: 1, handle: 1 }, unique: true }, { key: { storeId: 1, position: 1 } }],
   notifications: [byId, { key: { userId: 1, createdAt: -1 } }, { key: { storeId: 1, email: 1 } }, { key: { userId: 1, email: 1 } }],
   notification_digests: [byId],
+  stripe_events: [byId],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

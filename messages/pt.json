@@ -676,7 +676,8 @@
       "agencies": "Agências e acesso",
       "audit": "Registo de auditoria"
     },
-    "people": "Pessoas"
+    "people": "Pessoas",
+    "billing": "Faturamento"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "Pagamento não confirmado",
     "unconfirmedBody": "Não conseguimos confirmar seu pagamento. Tente novamente.",
     "cancelled": "O pagamento foi cancelado. Sua conta está salva.",
-    "ownerOnly": "A assinatura da sua agência ainda não está ativa. Peça ao titular da conta para concluir o pagamento."
+    "ownerOnly": "A assinatura da sua agência ainda não está ativa. Peça ao titular da conta para concluir o pagamento.",
+    "pageTitle": "Faturamento",
+    "planLabel": "Plano",
+    "statusLabel": "Status",
+    "status": {
+      "pending": "Pendente",
+      "active": "Ativo",
+      "past_due": "Em atraso",
+      "canceled": "Cancelado"
+    },
+    "nextInvoice": "Próxima fatura",
+    "nextInvoiceOn": "{amount} em {date}",
+    "noInvoice": "Nenhuma agendada",
+    "endsOn": "Termina em",
+    "manage": "Gerenciar faturamento",
+    "portalOpening": "Abrindo…",
+    "portalUnavailableTitle": "Não foi possível abrir o faturamento",
+    "pastDueTitle": "Falha no pagamento",
+    "pastDueBody": "Não foi possível cobrar sua forma de pagamento. Atualize-a para manter seu plano ativo.",
+    "canceledTitle": "Assinatura encerrada",
+    "canceledBody": "Fale conosco para iniciar uma nova assinatura.",
+    "invoiced": "Seu plano é cobrado por fatura.",
+    "contactUs": "Fale conosco",
+    "ownerManages": "O proprietário da conta gerencia o faturamento.",
+    "backToWorkspace": "Voltar ao espaço de trabalho",
+    "pastDueBanner": "O último pagamento do seu plano falhou.",
+    "pastDueAction": "Atualizar forma de pagamento",
+    "pastDueAskOwner": "Peça ao proprietário da conta para atualizar a forma de pagamento."
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "Introduza um domínio como shop.oseucliente.com.",
       "domainVerified": "{domain} está verificado e já serve esta montra.",
       "domainSaved": "{domain} guardado. Adicione o registo CNAME abaixo e depois execute a verificação.",
-      "stripeDisconnected": "Stripe desligado. Esta loja não pode receber pagamentos até voltar a ser ligada.",
-      "stripeInvalid": "Os IDs de conta Stripe têm este formato: acct_1A2b3C4d5E6f. Copie-o do painel Stripe do cliente.",
-      "stripeConnected": "{account} ligada.",
       "carrierAccount": "Adicione o número de conta da {carrier} ou desative a transportadora.",
       "carrierRequired": "Ative pelo menos uma transportadora para que as encomendas pagas possam ser expedidas.",
       "carriersSaved": "Definições das transportadoras guardadas.",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "Escolha um dos idiomas da loja.",
       "policyTooLong": "Cada política deve ter menos de {max} caracteres.",
       "policiesSaved": "Políticas guardadas.",
-      "paymentPending": "Conclua sua assinatura antes de criar uma loja."
+      "paymentPending": "Conclua sua assinatura antes de criar uma loja.",
+      "stripeCountry": "Escolha o país onde a empresa está sediada.",
+      "stripeUnavailable": "Não foi possível acessar o Stripe. Tente novamente em instantes."
     },
     "team": {
       "emailInvalid": "Introduza um email válido.",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "Esta loja não aceita {currency}.",
       "orderChanged": "Esta encomenda foi alterada. Recarregue e verifique os reembolsos antes de tentar novamente.",
       "refunded": "{amount} reembolsados ({reference}).",
-      "refundedCancelled": "{amount} reembolsados e encomenda cancelada ({reference})."
+      "refundedCancelled": "{amount} reembolsados e encomenda cancelada ({reference}).",
+      "refundFailed": "O Stripe não conseguiu emitir o reembolso. Nada foi registrado. Tente novamente."
     },
     "gifting": {
       "nameTooShort": "Dê ao catálogo um nome com pelo menos 3 caracteres.",
@@ -1370,13 +1398,8 @@
     "runVerification": "Executar verificação",
     "stripe": "Conta Stripe",
     "stripeDescription": "Ligue a conta Stripe do cliente para aceitar pagamentos.",
-    "connected": "Ligada:",
-    "stripeStatus": "País {country} · pagamentos ativos · ligada a {date}",
     "disconnecting": "A desligar…",
     "disconnect": "Desligar o Stripe",
-    "connect": "Ligar conta Stripe",
-    "accountId": "ID da conta Stripe",
-    "accountIdHint": "Encontra-o no Stripe em Definições → Detalhes da conta.",
     "accountCountry": "País da conta",
     "carriers": "Transportadoras",
     "carriersDescription": "Ative as transportadoras com que o cliente tem conta.",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "Idioma",
     "policiesHint": "Comece uma linha com ## para um título. Esvazie uma política para repor o texto predefinido.",
     "savePolicies": "Guardar políticas",
-    "viewPolicy": "Ver"
+    "viewPolicy": "Ver",
+    "stripeConnect": "Conectar Stripe",
+    "stripeContinue": "Continuar a configuração",
+    "stripeUpdate": "Atualizar dados",
+    "stripeOpening": "Abrindo o Stripe…",
+    "stripeAccount": "Conta",
+    "stripeCharges": "Pagamentos",
+    "stripePayouts": "Repasses",
+    "stripeEnabled": "Ativados",
+    "stripePendingState": "Pendente",
+    "stripeIncomplete": "O Stripe precisa de mais informações para que esta loja possa aceitar pagamentos.",
+    "stripeReady": "Esta loja pode aceitar pagamentos.",
+    "stripeReconnect": "Reconecte esta loja ao Stripe para aceitar pagamentos.",
+    "stripeUnreadable": "Não foi possível acessar o Stripe. O status abaixo pode estar desatualizado.",
+    "demoStoreTitle": "Loja de demonstração",
+    "demoStoreBody": "O pagamento é simulado e ninguém é cobrado. Conecte o Stripe para aceitar pagamentos reais.",
+    "backToSettings": "Voltar às configurações"
   },
   "team": {
     "agencyAdmins": "Administradores da agência",
@@ -3243,7 +3282,11 @@
       "pending": "A processar…",
       "cardSucceeds": "Pagamento aceite",
       "cardDeclined": "Cartão recusado",
-      "cardInsufficient": "Saldo insuficiente"
+      "cardInsufficient": "Saldo insuficiente",
+      "demoStore": "Loja de demonstração: sem pagamento real",
+      "demoStoreBody": "Use um cartão de teste abaixo. Ninguém é cobrado.",
+      "continueToPayment": "Continuar para o pagamento",
+      "redirecting": "Redirecionando…"
     },
     "order": {
       "title": "Estado da encomenda",
@@ -3278,7 +3321,9 @@
       "orderCode": "Código da encomenda",
       "emailOnOrder": "Email",
       "lookupSubmit": "Mostrar a minha encomenda",
-      "lookupPending": "A verificar…"
+      "lookupPending": "A verificar…",
+      "processingTitle": "Confirmando seu pagamento",
+      "processingBody": "Esta página será atualizada assim que o pagamento for confirmado."
     },
     "status": {
       "awaitingPayment": "A aguardar pagamento",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "O código de segurança tem de ter 3 ou 4 dígitos.",
       "declined": "O seu cartão foi recusado.",
       "insufficientFunds": "O seu cartão não tem saldo suficiente.",
-      "expiredCard": "O seu cartão expirou."
+      "expiredCard": "O seu cartão expirou.",
+      "startFailed": "Não foi possível iniciar o pagamento. Seu carrinho foi salvo. Tente novamente."
     },
     "sections": {
       "viewAll": "Ver tudo",

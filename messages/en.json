@@ -676,7 +676,8 @@
       "agencies": "Agencies and access",
       "audit": "Audit log"
     },
-    "people": "People"
+    "people": "People",
+    "billing": "Billing"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "Payment not confirmed",
     "unconfirmedBody": "We could not confirm your payment. Try again.",
     "cancelled": "Checkout was cancelled. Your account is saved.",
-    "ownerOnly": "Your agency's subscription is not active yet. Ask the account owner to complete payment."
+    "ownerOnly": "Your agency's subscription is not active yet. Ask the account owner to complete payment.",
+    "pageTitle": "Billing",
+    "planLabel": "Plan",
+    "statusLabel": "Status",
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "past_due": "Past due",
+      "canceled": "Canceled"
+    },
+    "nextInvoice": "Next invoice",
+    "nextInvoiceOn": "{amount} on {date}",
+    "noInvoice": "None scheduled",
+    "endsOn": "Ends on",
+    "manage": "Manage billing",
+    "portalOpening": "Opening…",
+    "portalUnavailableTitle": "Billing could not be opened",
+    "pastDueTitle": "Payment failed",
+    "pastDueBody": "We couldn't charge your payment method. Update it to keep your plan active.",
+    "canceledTitle": "Subscription ended",
+    "canceledBody": "Contact us to start a new subscription.",
+    "invoiced": "Your plan is billed by invoice.",
+    "contactUs": "Contact us",
+    "ownerManages": "The account owner manages billing.",
+    "backToWorkspace": "Back to workspace",
+    "pastDueBanner": "Your last plan payment failed.",
+    "pastDueAction": "Update payment method",
+    "pastDueAskOwner": "Ask the account owner to update the payment method."
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "Enter a domain like shop.yourclient.com.",
       "domainVerified": "{domain} is verified and now serves this storefront.",
       "domainSaved": "{domain} saved. Add the CNAME record below, then run verification.",
-      "stripeDisconnected": "Stripe disconnected. This store cannot take payments until it is reconnected.",
-      "stripeInvalid": "Stripe account IDs look like acct_1A2b3C4d5E6f. Copy it from the client's Stripe dashboard.",
-      "stripeConnected": "{account} connected.",
       "carrierAccount": "Add the account number for {carrier}, or turn the carrier off.",
       "carrierRequired": "Enable at least one carrier so paid orders can be dispatched.",
       "carriersSaved": "Carrier settings saved.",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "Choose one of the store's languages.",
       "policyTooLong": "Keep each policy under {max} characters.",
       "policiesSaved": "Policies saved.",
-      "paymentPending": "Complete your subscription before creating a store."
+      "paymentPending": "Complete your subscription before creating a store.",
+      "stripeCountry": "Choose the country the business is based in.",
+      "stripeUnavailable": "Stripe could not be reached. Try again in a moment."
     },
     "team": {
       "emailInvalid": "Enter a valid email address.",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "This store does not accept {currency}.",
       "orderChanged": "This order changed. Reload and check the refunds before trying again.",
       "refunded": "{amount} refunded ({reference}).",
-      "refundedCancelled": "{amount} refunded and order cancelled ({reference})."
+      "refundedCancelled": "{amount} refunded and order cancelled ({reference}).",
+      "refundFailed": "Stripe could not issue the refund. Nothing was recorded. Try again."
     },
     "gifting": {
       "nameTooShort": "Give the catalogue a name of at least 3 characters.",
@@ -1370,13 +1398,8 @@
     "runVerification": "Run verification",
     "stripe": "Stripe account",
     "stripeDescription": "Connect the client's Stripe account to accept payments.",
-    "connected": "Connected:",
-    "stripeStatus": "Country {country} · charges enabled · connected {date}",
     "disconnecting": "Disconnecting…",
     "disconnect": "Disconnect Stripe",
-    "connect": "Connect Stripe account",
-    "accountId": "Stripe account ID",
-    "accountIdHint": "Find it in Stripe under Settings → Account details.",
     "accountCountry": "Account country",
     "carriers": "Shipping carriers",
     "carriersDescription": "Enable the carriers the client has accounts with.",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "Language",
     "policiesHint": "Start a line with ## for a heading. Clear a policy to restore the default text.",
     "savePolicies": "Save policies",
-    "viewPolicy": "View"
+    "viewPolicy": "View",
+    "stripeConnect": "Connect Stripe",
+    "stripeContinue": "Continue onboarding",
+    "stripeUpdate": "Update details",
+    "stripeOpening": "Opening Stripe…",
+    "stripeAccount": "Account",
+    "stripeCharges": "Payments",
+    "stripePayouts": "Payouts",
+    "stripeEnabled": "Enabled",
+    "stripePendingState": "Pending",
+    "stripeIncomplete": "Stripe needs more information before this store can take payments.",
+    "stripeReady": "This store can take payments.",
+    "stripeReconnect": "Reconnect this store with Stripe to take payments.",
+    "stripeUnreadable": "Stripe could not be reached. The status below may be out of date.",
+    "demoStoreTitle": "Demo store",
+    "demoStoreBody": "Checkout is simulated and nobody is charged. Connect Stripe to take real payments.",
+    "backToSettings": "Back to settings"
   },
   "team": {
     "agencyAdmins": "Agency administrators",
@@ -3243,7 +3282,11 @@
       "pending": "Processing…",
       "cardSucceeds": "Payment succeeds",
       "cardDeclined": "Card declined",
-      "cardInsufficient": "Insufficient funds"
+      "cardInsufficient": "Insufficient funds",
+      "demoStore": "Demo store: no real payment",
+      "demoStoreBody": "Use a test card below. Nobody is charged.",
+      "continueToPayment": "Continue to payment",
+      "redirecting": "Redirecting…"
     },
     "order": {
       "title": "Order status",
@@ -3278,7 +3321,9 @@
       "orderCode": "Order code",
       "emailOnOrder": "Email address",
       "lookupSubmit": "Show my order",
-      "lookupPending": "Checking…"
+      "lookupPending": "Checking…",
+      "processingTitle": "Confirming your payment",
+      "processingBody": "This page updates as soon as the payment is confirmed."
     },
     "status": {
       "awaitingPayment": "Awaiting payment",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "The security code must be 3 or 4 digits.",
       "declined": "Your card was declined.",
       "insufficientFunds": "Your card has insufficient funds.",
-      "expiredCard": "Your card has expired."
+      "expiredCard": "Your card has expired.",
+      "startFailed": "Payment could not be started. Your basket is saved. Please try again."
     },
     "sections": {
       "viewAll": "View all",

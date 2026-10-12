@@ -21,6 +21,8 @@
     "routing-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/routing-check.mjs",
     "discount-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/discount-check.mjs",
     "refund-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/refund-check.mjs",
+    "stripe-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/stripe-check.mjs",
+    "stripe-webhook-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs scripts/stripe-webhook-check.mjs",
     "order-access-check": "node --conditions=react-server --experimental-strip-types scripts/order-access-check.mjs",
     "support-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/support-check.mjs",
     "gifting-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/gifting-check.mjs",

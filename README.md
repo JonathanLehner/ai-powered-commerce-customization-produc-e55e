@@ -42,7 +42,7 @@ gifting, orders, team, guided setup, activity.
   `store.orders`, `store.storefront`, `store.gifting`, `store.view`) in both pages
   and server actions.
 - **Guided setup.** Logo upload, theme, default language, selling currencies,
-  custom domain with a CNAME check, Stripe connection, DHL/FedEx/UPS accounts and
+  custom domain with a CNAME check, Stripe Connect onboarding, DHL/FedEx/UPS accounts and
   the store's default tax bracket — each step saves on its own.
 - **Storefronts in nine languages.** A store's default language is what its
   storefront is actually served in: the pages are marked with it so browsers and
@@ -134,8 +134,10 @@ gifting, orders, team, guided setup, activity.
   one and copies it into the catalog at the quoted cost as a product flagged
   for manual fulfilment, whose orders are always held for a hand-raised
   purchase order. Every step is in the audit history (`npm run sourcing-check`).
-- **Checkout and fulfilment.** Multi-currency storefronts, Stripe charges against
-  the store's own connected account, supplier routing after payment, manual
+- **Checkout and fulfilment.** Multi-currency storefronts, hosted Stripe
+  Checkout as a direct charge on the store's own Connect account, payment
+  confirmed only by the verified webhook, refunds through the Refunds API on
+  that account, supplier routing after payment, manual
   handling flags for sourcing marketplaces and out-of-region destinations,
   carrier tracking links, refunds, cancellations and exception resolution.
 - **Customers.** Each store has a Customers tab for the people who work its
@@ -224,6 +226,84 @@ A Contact sales enquiry emails the visitor a confirmation in the language of the
 page they used, and alerts `SALES_INBOX` with the details, a reply-to set to the
 visitor and a link to the enquiry at `/admin/enquiries/<id>`.
 
+### Stripe
+
+The platform's Stripe keys are live keys: every charge on a connected store is
+real money.
+
+```
+STRIPE_SECRET_KEY=sk_live_…
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_…
+STRIPE_WEBHOOK_SECRET=whsec_…
+STRIPE_CONNECT_WEBHOOK_SECRET=whsec_…   # only if the Connect destination has its own secret
+```
+
+All calls go through the official `stripe` SDK with
+`Stripe.createFetchHttpClient()` and `Stripe.createSubtleCryptoProvider()`
+(`src/lib/stripe.ts`), so they run the same in Node and on Workers.
+
+- **Connect onboarding.** Guided setup → Stripe account → "Connect Stripe"
+  creates an Express account for the store in the chosen country and sends the
+  store admin to Stripe's hosted onboarding (Account Links). Stripe returns to
+  `/app/stores/<id>/setup/stripe`, which reads the account back and shows its
+  payments (`charges_enabled`) and payouts (`payouts_enabled`) state; an
+  expired link goes through `…/setup/stripe/refresh` for a fresh one. The
+  account can be reopened, or disconnected and replaced. Every step is in the
+  store's activity log.
+- **Which stores take real payments** (`src/lib/payment-mode.ts`): a store
+  whose Connect account has `charges_enabled` sends shoppers to Stripe Checkout.
+  A demo store simulates payment. Anything else, including account ids typed in
+  by hand before Connect onboarding, shows checkout as unavailable and setup
+  asks to reconnect.
+- **Storefront checkout.** After the delivery details the order is written as
+  awaiting payment and the shopper goes to a Checkout Session created on the
+  store's connected account (direct charge) in the store currency, with the
+  basket's line items, shipping, tax rows and the discount as a single-use
+  coupon, in the storefront language. Success returns to the order status
+  page, cancel to the basket. The order is marked paid only by the webhook.
+  Gift campaigns on a live store pay the same way.
+- **Plan billing.** Self-serve sign-up opens a subscription Checkout on
+  Parcelith's own account. `/app/billing` shows the plan, its status and the
+  next invoice, and "Manage billing" opens the Stripe Customer Portal (enable
+  the portal once in the Stripe dashboard). A failed renewal puts the plan past
+  due and shows a banner across the workspace.
+
+#### Webhook
+
+Add one endpoint in the Stripe dashboard (Developers → Webhooks → Add
+destination) for **Your account** and one for **Connected accounts**, both
+pointing at:
+
+```
+https://ai-powered-commerce-customization-produc-e55e.clawcorp.ai/api/stripe/webhook
+```
+
+Events to send:
+
+| Event | Destination | What it does |
+| --- | --- | --- |
+| `checkout.session.completed` | Your account, Connected accounts | Activates a plan; marks a storefront order or gift campaign paid |
+| `checkout.session.async_payment_succeeded` | Your account, Connected accounts | Same, for delayed payment methods |
+| `checkout.session.async_payment_failed` | Your account, Connected accounts | Closes the order and returns its discount use; plan goes past due |
+| `checkout.session.expired` | Connected accounts | Closes an abandoned order and returns its discount use |
+| `customer.subscription.updated` | Your account | Keeps the plan status and period end current |
+| `customer.subscription.deleted` | Your account | Marks the plan cancelled |
+| `invoice.payment_failed` | Your account | Marks the plan past due (workspace banner) |
+| `account.updated` | Connected accounts | Refreshes a store's payments and payouts state |
+
+Put the signing secret in `STRIPE_WEBHOOK_SECRET`. If the Connected accounts
+destination shows a different secret, put that one in
+`STRIPE_CONNECT_WEBHOOK_SECRET`. Each request is verified with
+`stripe.webhooks.constructEventAsync` before it is read, and each event id is
+claimed in `stripe_events` before it is handled, so a redelivery is
+acknowledged without running twice (`src/lib/stripe-webhook.ts`).
+
+`npm run stripe-check` exercises the SDK calls against mocked Stripe responses
+with a made-up test key, and the webhook signature check;
+`npm run stripe-webhook-check` sends signed events through the handler against
+throwaway records in the development database to prove verification and
+idempotency. Neither reaches Stripe.
+
 ### Demo accounts
 
 Pick an account at `/login` — the persona cards sign you straight in, through
@@ -243,7 +323,9 @@ hash (`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that).
 Storefronts are public: `/s/northwind-supply`, `/s/lumen-studio`,
 `/s/ferro-coffee`, `/s/rivet-hardware`.
 
-Checkout runs against Stripe's published test numbers — `4242 4242 4242 4242`
+These four stores and the Northwind gift portal are demo stores (`demo: true`):
+their checkout is labelled "Demo store: no real payment" and simulates payment
+with Stripe's published test numbers, so nobody is charged. `4242 4242 4242 4242`
 succeeds, `4000 0000 0000 0002` is declined, `4000 0000 0000 9995` reports
 insufficient funds.
 
@@ -295,6 +377,10 @@ that are already in good shape, so it is safe to re-run.
 orders. Run it after seeding, and once on a database that has orders from
 before customers existed. Records are rebuilt by store and email, so it is safe
 to re-run, and the team's notes are kept.
+
+`scripts/mark-demo-stores.mjs` marks the seeded stores as demo stores on a
+database seeded before they carried the flag, so their checkout keeps
+simulating payment. It touches only those four slugs and is safe to re-run.
 
 `scripts/backfill-password-hashes.mjs` is a one-off migration for databases
 seeded before the password was checked at all: it replaces each user's

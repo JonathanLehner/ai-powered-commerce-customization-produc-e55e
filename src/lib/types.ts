@@ -60,7 +60,8 @@ export interface Agency {
 }
 
 export interface AgencyBilling {
-  status: "pending" | "active";
+  /** `past_due` after a failed renewal; `canceled` once the subscription has ended. */
+  status: "pending" | "active" | "past_due" | "canceled";
   plan: "starter" | "studio";
   cycle: "monthly" | "yearly";
   currency: "USD" | "EUR";
@@ -68,6 +69,9 @@ export interface AgencyBilling {
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   activatedAt: string | null;
+  /** When the current period ends, as Stripe last reported it. */
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
 }
 
 export interface User {
@@ -184,7 +188,18 @@ export interface Store {
     country: string;
     chargesEnabled: boolean;
     connectedAt: string | null;
+    /** Set on accounts created through Stripe Connect onboarding. Older records were typed in by hand. */
+    express?: boolean;
+    payoutsEnabled?: boolean;
+    detailsSubmitted?: boolean;
+    /** The account disconnected last, so connecting again creates a new one rather than replaying the old request. */
+    previousAccountId?: string | null;
   };
+  /**
+   * A seeded demonstration store. Its checkout simulates payment until it has a
+   * connected account that can take charges; nobody is charged.
+   */
+  demo?: boolean;
   carriers: CarrierAccount[];
   defaultTaxBracketId: string | null;
   pricesIncludeTax: boolean;
@@ -697,7 +712,12 @@ export interface Order {
     last4: string | null;
     failureMessage: string | null;
     paidAt: string | null;
+    /** The Stripe Checkout session the shopper paid through. Absent on simulated demo payments. */
+    checkoutSessionId?: string | null;
+    checkoutUrl?: string | null;
   };
+  /** The basket the order was placed from, emptied once payment is confirmed. */
+  cartId?: string | null;
   fulfillment: {
     supplierId: string | null;
     supplierName: string | null;
@@ -913,6 +933,9 @@ export interface GiftCampaign {
     paymentIntentId: string | null;
     last4: string | null;
     paidAt: string | null;
+    /** The open Stripe Checkout session, while the buyer is paying on a live store. */
+    checkoutSessionId?: string | null;
+    stripeAccountId?: string | null;
   };
   events: FulfillmentEvent[];
   /** Idempotency key of the payment, shared by every order it created. */

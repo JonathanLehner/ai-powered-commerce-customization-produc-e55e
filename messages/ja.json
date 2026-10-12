@@ -676,7 +676,8 @@
       "agencies": "エージェンシーとアクセス",
       "audit": "監査ログ"
     },
-    "people": "メンバー"
+    "people": "メンバー",
+    "billing": "請求"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "お支払いを確認できません",
     "unconfirmedBody": "お支払いを確認できませんでした。もう一度お試しください。",
     "cancelled": "決済はキャンセルされました。アカウントは保存されています。",
-    "ownerOnly": "エージェンシーのサブスクリプションはまだ有効ではありません。アカウント所有者にお支払いの完了を依頼してください。"
+    "ownerOnly": "エージェンシーのサブスクリプションはまだ有効ではありません。アカウント所有者にお支払いの完了を依頼してください。",
+    "pageTitle": "請求",
+    "planLabel": "プラン",
+    "statusLabel": "ステータス",
+    "status": {
+      "pending": "保留中",
+      "active": "有効",
+      "past_due": "支払い遅延",
+      "canceled": "解約済み"
+    },
+    "nextInvoice": "次回の請求",
+    "nextInvoiceOn": "{date} に {amount}",
+    "noInvoice": "予定なし",
+    "endsOn": "終了日",
+    "manage": "請求を管理",
+    "portalOpening": "開いています…",
+    "portalUnavailableTitle": "請求ページを開けませんでした",
+    "pastDueTitle": "支払いに失敗しました",
+    "pastDueBody": "お支払い方法に請求できませんでした。プランを維持するには、お支払い方法を更新してください。",
+    "canceledTitle": "サブスクリプションは終了しました",
+    "canceledBody": "新しいサブスクリプションを開始するには、お問い合わせください。",
+    "invoiced": "プランは請求書払いです。",
+    "contactUs": "お問い合わせ",
+    "ownerManages": "請求はアカウント所有者が管理します。",
+    "backToWorkspace": "ワークスペースに戻る",
+    "pastDueBanner": "前回のプランのお支払いに失敗しました。",
+    "pastDueAction": "お支払い方法を更新",
+    "pastDueAskOwner": "アカウント所有者にお支払い方法の更新を依頼してください。"
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "shop.yourclient.com のようなドメインを入力してください。",
       "domainVerified": "{domain} の確認が完了し、このストアフロントで使用されています。",
       "domainSaved": "{domain} を保存しました。下の CNAME レコードを追加してから、確認を実行してください。",
-      "stripeDisconnected": "Stripe との接続を解除しました。再接続するまでこのストアは支払いを受け付けられません。",
-      "stripeInvalid": "Stripe のアカウント ID は acct_1A2b3C4d5E6f のような形式です。クライアントの Stripe ダッシュボードからコピーしてください。",
-      "stripeConnected": "{account} を接続しました。",
       "carrierAccount": "{carrier} のアカウント番号を入力するか、この配送業者をオフにしてください。",
       "carrierRequired": "支払い済みの注文を発送できるよう、配送業者を 1 社以上有効にしてください。",
       "carriersSaved": "配送業者の設定を保存しました。",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "ストアの言語から選択してください。",
       "policyTooLong": "各ポリシーは {max} 文字以内にしてください。",
       "policiesSaved": "ポリシーを保存しました。",
-      "paymentPending": "ストアを作成する前にサブスクリプションを完了してください。"
+      "paymentPending": "ストアを作成する前にサブスクリプションを完了してください。",
+      "stripeCountry": "事業の所在国を選択してください。",
+      "stripeUnavailable": "Stripe に接続できませんでした。しばらくしてからもう一度お試しください。"
     },
     "team": {
       "emailInvalid": "有効なメールアドレスを入力してください。",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "このストアは {currency} に対応していません。",
       "orderChanged": "この注文は変更されています。再読み込みして返金状況を確認してから、もう一度お試しください。",
       "refunded": "{amount} を返金しました({reference})。",
-      "refundedCancelled": "{amount} を返金し、注文をキャンセルしました({reference})。"
+      "refundedCancelled": "{amount} を返金し、注文をキャンセルしました({reference})。",
+      "refundFailed": "Stripe で返金を実行できませんでした。記録は行われていません。もう一度お試しください。"
     },
     "gifting": {
       "nameTooShort": "カタログ名は 3 文字以上で入力してください。",
@@ -1370,13 +1398,8 @@
     "runVerification": "確認を実行",
     "stripe": "Stripe アカウント",
     "stripeDescription": "支払いを受け付けるには、クライアントの Stripe アカウントを接続してください。",
-    "connected": "接続済み:",
-    "stripeStatus": "国 {country}・決済有効・{date} に接続",
     "disconnecting": "接続を解除中…",
     "disconnect": "Stripe の接続を解除",
-    "connect": "Stripe アカウントを接続",
-    "accountId": "Stripe アカウント ID",
-    "accountIdHint": "Stripe の「設定」→「アカウント情報」で確認できます。",
     "accountCountry": "アカウントの国",
     "carriers": "配送業者",
     "carriersDescription": "クライアントがアカウントを持つ配送業者を有効にしてください。",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "言語",
     "policiesHint": "行頭に ## を付けると見出しになります。空にするとデフォルトの文面に戻ります。",
     "savePolicies": "ポリシーを保存",
-    "viewPolicy": "表示"
+    "viewPolicy": "表示",
+    "stripeConnect": "Stripe を連携",
+    "stripeContinue": "登録を続ける",
+    "stripeUpdate": "情報を更新",
+    "stripeOpening": "Stripe を開いています…",
+    "stripeAccount": "アカウント",
+    "stripeCharges": "決済",
+    "stripePayouts": "入金",
+    "stripeEnabled": "有効",
+    "stripePendingState": "保留中",
+    "stripeIncomplete": "このストアで決済を受け付けるには、Stripe に追加情報を提出する必要があります。",
+    "stripeReady": "このストアは決済を受け付けられます。",
+    "stripeReconnect": "決済を受け付けるには、このストアを Stripe に再連携してください。",
+    "stripeUnreadable": "Stripe に接続できませんでした。以下の状態は最新でない可能性があります。",
+    "demoStoreTitle": "デモストア",
+    "demoStoreBody": "決済はシミュレーションで、実際の請求は発生しません。実際の決済を受け付けるには Stripe を連携してください。",
+    "backToSettings": "設定に戻る"
   },
   "team": {
     "agencyAdmins": "エージェンシー管理者",
@@ -3243,7 +3282,11 @@
       "pending": "処理中…",
       "cardSucceeds": "決済成功",
       "cardDeclined": "カード拒否",
-      "cardInsufficient": "残高不足"
+      "cardInsufficient": "残高不足",
+      "demoStore": "デモストア：実際の決済は行われません",
+      "demoStoreBody": "以下のテストカードをご利用ください。請求は発生しません。",
+      "continueToPayment": "お支払いへ進む",
+      "redirecting": "移動しています…"
     },
     "order": {
       "title": "注文状況",
@@ -3278,7 +3321,9 @@
       "orderCode": "注文コード",
       "emailOnOrder": "メールアドレス",
       "lookupSubmit": "注文を表示する",
-      "lookupPending": "確認中…"
+      "lookupPending": "確認中…",
+      "processingTitle": "お支払いを確認しています",
+      "processingBody": "お支払いが確認されると、このページが更新されます。"
     },
     "status": {
       "awaitingPayment": "お支払い待ち",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "セキュリティコードは 3 桁または 4 桁です。",
       "declined": "カードが拒否されました。",
       "insufficientFunds": "カードの残高が不足しています。",
-      "expiredCard": "カードの有効期限が切れています。"
+      "expiredCard": "カードの有効期限が切れています。",
+      "startFailed": "お支払いを開始できませんでした。カートは保存されています。もう一度お試しください。"
     },
     "sections": {
       "viewAll": "すべて見る",

@@ -11,6 +11,7 @@ import type { FulfillmentSource } from "@/lib/countries";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getSupplier } from "@/lib/data";
+import { paymentMode } from "@/lib/payment-mode";
 import { storefrontBySlug } from "@/lib/storefront-data";
 import { variantPhoto } from "@/lib/line-preview";
 import { CheckoutForm } from "./CheckoutForm";
@@ -46,6 +47,7 @@ export default async function CheckoutPage({
   const cart = basket?.cart;
   if (!basket || !cart || cart.items.length === 0) redirect(`${base}/cart`);
 
+  const mode = paymentMode(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { products, lines, discount, discountRefusal, discountMinimum, shipping, taxRows, total } =
     await basketTotals(store, cart.items, currency, basket.discountCode, basket);
@@ -77,7 +79,7 @@ export default async function CheckoutPage({
         {t("checkout.title")}
       </h1>
 
-      {!store.stripe.connected || !store.stripe.chargesEnabled ? (
+      {mode === "unavailable" ? (
         <div className="mt-8">
           <Callout tone="rose" title={t("checkout.unavailableTitle")}>
             {t("checkout.unavailableBody")}
@@ -165,6 +167,7 @@ export default async function CheckoutPage({
           </Card>
 
           <CheckoutForm
+            mode={mode}
             storeId={store.id}
             currencies={store.currencies}
             currency={currency}

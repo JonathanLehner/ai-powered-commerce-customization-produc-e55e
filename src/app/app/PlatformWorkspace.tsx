@@ -12,6 +12,7 @@ import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
 import { planFor } from "@/lib/plans";
 import { accessibleStores, roleCan, type Capability } from "@/lib/session";
 import { THEMES, type Agency, type Store, type User } from "@/lib/types";
+import { paymentsReady } from "@/lib/payment-mode";
 
 /** Rows the "Recent activity" panel has room for, once repeats are collapsed. */
 const ACTIVITY_ROWS = 12;
@@ -184,8 +185,8 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                       <CardContent>
                       <div className="flex flex-wrap gap-1.5">
                         <Badge tone="iris">{roles("platformAccess")}</Badge>
-                        <Badge tone={store.stripe.connected ? "green" : "amber"}>
-                          {store.stripe.connected ? t("stripeConnected") : t("stripePending")}
+                        <Badge tone={paymentsReady(store) ? "green" : "amber"}>
+                          {paymentsReady(store) ? t("stripeConnected") : t("stripePending")}
                         </Badge>
                         {store.customDomain ? (
                           <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>

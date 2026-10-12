@@ -1,19 +1,29 @@
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { openBillingPortal } from "@/app/actions/billing";
 import { continueToPayment } from "@/app/actions/signup";
 import { AppHeader } from "@/components/AppHeader";
 import { SubmitButton } from "@/components/forms";
-import { Callout, PageHeader } from "@/components/ui";
+import { Badge, Callout, DataList, PageHeader } from "@/components/ui";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { TRIAL_DAYS, billingPending } from "@/lib/billing";
 import { getAgency } from "@/lib/data";
+import { nextInvoice } from "@/lib/stripe";
+import type { Agency, User } from "@/lib/types";
+import { formatMoney } from "@/lib/util";
 import { PLANS, planPrice, type BillingCycle } from "@/lib/plans";
-import { requireUser } from "@/lib/session";
+import { accessibleStores, requireUser } from "@/lib/session";
 
 const CYCLES: BillingCycle[] = ["monthly", "yearly"];
 
-/** Where a new owner finishes paying for the plan they signed up for. */
+/**
+ * The agency's plan and billing. A new owner who has not paid yet finishes
+ * checkout here; everyone else sees the plan, the next invoice and the way
+ * into the Stripe Customer Portal.
+ */
 export default async function BillingPage({
   searchParams,
 }: {
@@ -22,7 +32,9 @@ export default async function BillingPage({
   const { error, cancelled } = await searchParams;
   const user = await requireUser();
   const agency = user.agencyId ? await getAgency(user.agencyId) : null;
-  if (!agency?.billing || !billingPending(agency)) redirect("/app");
+  if (!agency) redirect("/app");
+  if (!billingPending(agency)) return <PlanBilling user={user} agency={agency} error={error} />;
+  if (!agency.billing) redirect("/app");
 
   const [t, format] = await Promise.all([getTranslations("billing"), getFormatter()]);
   const { plan: planKey, cycle, currency } = agency.billing;
@@ -95,6 +107,103 @@ export default async function BillingPage({
           ) : (
             <Callout tone="neutral">{t("ownerOnly")}</Callout>
           )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+async function PlanBilling({ user, agency, error }: { user: User; agency: Agency; error?: string }) {
+  const [t, format, locale, stores] = await Promise.all([
+    getTranslations("billing"),
+    getFormatter(),
+    getLocale(),
+    accessibleStores(user),
+  ]);
+  const billing = agency.billing;
+  const owner = user.platformRole === "agency_admin";
+  const upcoming =
+    billing?.stripeCustomerId && billing.stripeSubscriptionId && billing.status !== "canceled"
+      ? await nextInvoice(billing.stripeCustomerId, billing.stripeSubscriptionId)
+      : null;
+  const date = (iso: string) => format.dateTime(new Date(iso), { dateStyle: "medium" });
+  const status = billing?.status ?? "active";
+
+  return (
+    <>
+      <AppHeader user={user} stores={stores} />
+      <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-7 sm:px-6">
+        <PageHeader title={t("pageTitle")} description={agency.name} />
+
+        <div className="mt-6 space-y-5">
+          {error === "portal" ? (
+            <Callout tone="amber" title={t("portalUnavailableTitle")}>
+              {t("unavailableBody")}
+            </Callout>
+          ) : null}
+          {status === "past_due" ? (
+            <Callout tone="rose" title={t("pastDueTitle")}>
+              {t("pastDueBody")}
+            </Callout>
+          ) : status === "canceled" ? (
+            <Callout tone="amber" title={t("canceledTitle")}>
+              {t("canceledBody")}
+            </Callout>
+          ) : null}
+
+          <Card>
+            <CardContent className="space-y-4">
+              <DataList
+                rows={[
+                  { label: t("planLabel"), value: PLANS[agency.plan].name },
+                  ...(billing
+                    ? [
+                        { label: t("billingPeriod"), value: t(billing.cycle) },
+                        {
+                          label: t("statusLabel"),
+                          value: (
+                            <Badge tone={status === "active" ? "green" : status === "past_due" ? "rose" : "slate"}>
+                              {t(`status.${status}`)}
+                            </Badge>
+                          ),
+                        },
+                        {
+                          label: t("nextInvoice"),
+                          value: upcoming
+                            ? upcoming.date
+                              ? t("nextInvoiceOn", {
+                                  amount: formatMoney(upcoming.amountDue, upcoming.currency, locale),
+                                  date: date(upcoming.date),
+                                })
+                              : formatMoney(upcoming.amountDue, upcoming.currency, locale)
+                            : t("noInvoice"),
+                        },
+                        ...(billing.cancelAtPeriodEnd && billing.currentPeriodEnd
+                          ? [{ label: t("endsOn"), value: date(billing.currentPeriodEnd) }]
+                          : []),
+                      ]
+                    : []),
+                ]}
+              />
+              {!billing ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("invoiced")}{" "}
+                  <Link href="/contact" className="font-medium text-primary hover:underline">
+                    {t("contactUs")}
+                  </Link>
+                </p>
+              ) : owner && billing.stripeCustomerId ? (
+                <form action={openBillingPortal}>
+                  <SubmitButton pendingLabel={t("portalOpening")}>{t("manage")}</SubmitButton>
+                </form>
+              ) : !owner ? (
+                <p className="text-sm text-muted-foreground">{t("ownerManages")}</p>
+              ) : null}
+            </CardContent>
+          </Card>
+          <Link href="/app" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            {t("backToWorkspace")}
+          </Link>
         </div>
       </div>
     </>

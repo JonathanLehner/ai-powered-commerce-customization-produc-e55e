@@ -676,7 +676,8 @@
       "agencies": "Bureaus en toegang",
       "audit": "Auditlogboek"
     },
-    "people": "Personen"
+    "people": "Personen",
+    "billing": "Facturering"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "Betaling niet bevestigd",
     "unconfirmedBody": "We konden je betaling niet bevestigen. Probeer het opnieuw.",
     "cancelled": "Het betalen is geannuleerd. Je account is opgeslagen.",
-    "ownerOnly": "Het abonnement van je bureau is nog niet actief. Vraag de accounteigenaar om de betaling af te ronden."
+    "ownerOnly": "Het abonnement van je bureau is nog niet actief. Vraag de accounteigenaar om de betaling af te ronden.",
+    "pageTitle": "Facturering",
+    "planLabel": "Abonnement",
+    "statusLabel": "Status",
+    "status": {
+      "pending": "In behandeling",
+      "active": "Actief",
+      "past_due": "Achterstallig",
+      "canceled": "Opgezegd"
+    },
+    "nextInvoice": "Volgende factuur",
+    "nextInvoiceOn": "{amount} op {date}",
+    "noInvoice": "Geen gepland",
+    "endsOn": "Eindigt op",
+    "manage": "Facturering beheren",
+    "portalOpening": "Openen…",
+    "portalUnavailableTitle": "Facturering kon niet worden geopend",
+    "pastDueTitle": "Betaling mislukt",
+    "pastDueBody": "We konden je betaalmethode niet belasten. Werk deze bij om je abonnement actief te houden.",
+    "canceledTitle": "Abonnement beëindigd",
+    "canceledBody": "Neem contact met ons op om een nieuw abonnement te starten.",
+    "invoiced": "Je abonnement wordt per factuur gefactureerd.",
+    "contactUs": "Neem contact op",
+    "ownerManages": "De accounteigenaar beheert de facturering.",
+    "backToWorkspace": "Terug naar werkruimte",
+    "pastDueBanner": "De laatste betaling voor je abonnement is mislukt.",
+    "pastDueAction": "Betaalmethode bijwerken",
+    "pastDueAskOwner": "Vraag de accounteigenaar om de betaalmethode bij te werken."
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "Vul een domein in zoals shop.jouwklant.nl.",
       "domainVerified": "{domain} is geverifieerd en toont nu deze etalage.",
       "domainSaved": "{domain} opgeslagen. Voeg het CNAME-record hieronder toe en start dan de verificatie.",
-      "stripeDisconnected": "Stripe ontkoppeld. Deze winkel kan pas weer betalingen ontvangen als Stripe opnieuw is gekoppeld.",
-      "stripeInvalid": "Stripe-account-ID’s zien eruit als acct_1A2b3C4d5E6f. Kopieer het uit het Stripe-dashboard van de klant.",
-      "stripeConnected": "{account} gekoppeld.",
       "carrierAccount": "Vul het klantnummer voor {carrier} in of schakel de vervoerder uit.",
       "carrierRequired": "Schakel minstens één vervoerder in zodat betaalde bestellingen verzonden kunnen worden.",
       "carriersSaved": "Vervoerdersinstellingen opgeslagen.",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "Kies een van de talen van de winkel.",
       "policyTooLong": "Houd elk beleid onder {max} tekens.",
       "policiesSaved": "Beleid opgeslagen.",
-      "paymentPending": "Rond je abonnement af voordat je een winkel aanmaakt."
+      "paymentPending": "Rond je abonnement af voordat je een winkel aanmaakt.",
+      "stripeCountry": "Kies het land waar het bedrijf gevestigd is.",
+      "stripeUnavailable": "Stripe is niet bereikbaar. Probeer het zo opnieuw."
     },
     "team": {
       "emailInvalid": "Vul een geldig e-mailadres in.",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "Deze winkel accepteert geen {currency}.",
       "orderChanged": "Deze bestelling is gewijzigd. Laad opnieuw en controleer de terugbetalingen voordat je het nog eens probeert.",
       "refunded": "{amount} terugbetaald ({reference}).",
-      "refundedCancelled": "{amount} terugbetaald en bestelling geannuleerd ({reference})."
+      "refundedCancelled": "{amount} terugbetaald en bestelling geannuleerd ({reference}).",
+      "refundFailed": "Stripe kon de terugbetaling niet uitvoeren. Er is niets vastgelegd. Probeer het opnieuw."
     },
     "gifting": {
       "nameTooShort": "Geef de catalogus een naam van minstens 3 tekens.",
@@ -1370,13 +1398,8 @@
     "runVerification": "Verificatie starten",
     "stripe": "Stripe-account",
     "stripeDescription": "Koppel het Stripe-account van de klant om betalingen te ontvangen.",
-    "connected": "Gekoppeld:",
-    "stripeStatus": "Land {country} · betalingen ingeschakeld · gekoppeld op {date}",
     "disconnecting": "Ontkoppelen…",
     "disconnect": "Stripe ontkoppelen",
-    "connect": "Stripe-account koppelen",
-    "accountId": "Stripe-account-ID",
-    "accountIdHint": "Te vinden in Stripe onder Instellingen → Accountgegevens.",
     "accountCountry": "Land van het account",
     "carriers": "Vervoerders",
     "carriersDescription": "Schakel de vervoerders in waar de klant een account heeft.",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "Taal",
     "policiesHint": "Begin een regel met ## voor een kop. Maak een beleid leeg om de standaardtekst terug te zetten.",
     "savePolicies": "Beleid opslaan",
-    "viewPolicy": "Bekijken"
+    "viewPolicy": "Bekijken",
+    "stripeConnect": "Stripe koppelen",
+    "stripeContinue": "Onboarding voortzetten",
+    "stripeUpdate": "Gegevens bijwerken",
+    "stripeOpening": "Stripe wordt geopend…",
+    "stripeAccount": "Account",
+    "stripeCharges": "Betalingen",
+    "stripePayouts": "Uitbetalingen",
+    "stripeEnabled": "Ingeschakeld",
+    "stripePendingState": "In behandeling",
+    "stripeIncomplete": "Stripe heeft meer informatie nodig voordat deze winkel betalingen kan ontvangen.",
+    "stripeReady": "Deze winkel kan betalingen ontvangen.",
+    "stripeReconnect": "Koppel deze winkel opnieuw aan Stripe om betalingen te ontvangen.",
+    "stripeUnreadable": "Stripe is niet bereikbaar. De status hieronder is mogelijk niet actueel.",
+    "demoStoreTitle": "Demowinkel",
+    "demoStoreBody": "Afrekenen is gesimuleerd en er wordt niemand belast. Koppel Stripe om echte betalingen te ontvangen.",
+    "backToSettings": "Terug naar instellingen"
   },
   "team": {
     "agencyAdmins": "Bureaubeheerders",
@@ -3243,7 +3282,11 @@
       "pending": "Bezig met verwerken…",
       "cardSucceeds": "Betaling geslaagd",
       "cardDeclined": "Kaart geweigerd",
-      "cardInsufficient": "Onvoldoende saldo"
+      "cardInsufficient": "Onvoldoende saldo",
+      "demoStore": "Demowinkel: geen echte betaling",
+      "demoStoreBody": "Gebruik een testkaart hieronder. Er wordt niemand belast.",
+      "continueToPayment": "Doorgaan naar betalen",
+      "redirecting": "Doorsturen…"
     },
     "order": {
       "title": "Bestelstatus",
@@ -3278,7 +3321,9 @@
       "orderCode": "Bestelcode",
       "emailOnOrder": "E-mailadres",
       "lookupSubmit": "Toon mijn bestelling",
-      "lookupPending": "Bezig met controleren…"
+      "lookupPending": "Bezig met controleren…",
+      "processingTitle": "Je betaling wordt bevestigd",
+      "processingBody": "Deze pagina wordt bijgewerkt zodra de betaling is bevestigd."
     },
     "status": {
       "awaitingPayment": "Wacht op betaling",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "De beveiligingscode moet 3 of 4 cijfers hebben.",
       "declined": "Je kaart is geweigerd.",
       "insufficientFunds": "Je kaart heeft onvoldoende saldo.",
-      "expiredCard": "Je kaart is verlopen."
+      "expiredCard": "Je kaart is verlopen.",
+      "startFailed": "De betaling kon niet worden gestart. Je winkelwagen is bewaard. Probeer het opnieuw."
     },
     "sections": {
       "viewAll": "Alles bekijken",

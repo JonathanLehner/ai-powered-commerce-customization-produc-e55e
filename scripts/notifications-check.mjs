@@ -166,8 +166,14 @@ assert.equal(read.rows.find((n) => n.id === "ORD-2").email, "skipped");
 
 /* ------------------------------------------- wired where the audit is written */
 
-const sources = ["orders", "shop", "gifting", "sourcing", "team"]
-  .map((name) => readFileSync(new URL(`../src/app/actions/${name}.ts`, import.meta.url), "utf8"))
+// Payment confirmation is shared by checkout and the Stripe webhook, so it
+// raises its notification from lib rather than from an action.
+const sources = [
+  ...["orders", "shop", "gifting", "sourcing", "team"].map((name) => `../src/app/actions/${name}.ts`),
+  "../src/lib/order-payment.ts",
+  "../src/lib/gift-payment.ts",
+]
+  .map((path) => readFileSync(new URL(path, import.meta.url), "utf8"))
   .join("\n");
 for (const type of NOTIFICATION_TYPES) {
   assert.match(sources, new RegExp(`notify:[\\s\\S]{0,120}type: "${type}"`), `${type} is raised from a recordAudit call`);

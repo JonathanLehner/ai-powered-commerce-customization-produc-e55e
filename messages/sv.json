@@ -676,7 +676,8 @@
       "agencies": "Byråer och åtkomst",
       "audit": "Granskningslogg"
     },
-    "people": "Personer"
+    "people": "Personer",
+    "billing": "Fakturering"
   },
   "pages": {
     "admin": {
@@ -1014,7 +1015,34 @@
     "unconfirmedTitle": "Betalningen är inte bekräftad",
     "unconfirmedBody": "Vi kunde inte bekräfta din betalning. Försök igen.",
     "cancelled": "Betalningen avbröts. Ditt konto är sparat.",
-    "ownerOnly": "Byråns prenumeration är inte aktiv än. Be kontoägaren att slutföra betalningen."
+    "ownerOnly": "Byråns prenumeration är inte aktiv än. Be kontoägaren att slutföra betalningen.",
+    "pageTitle": "Fakturering",
+    "planLabel": "Plan",
+    "statusLabel": "Status",
+    "status": {
+      "pending": "Väntar",
+      "active": "Aktiv",
+      "past_due": "Förfallen",
+      "canceled": "Avslutad"
+    },
+    "nextInvoice": "Nästa faktura",
+    "nextInvoiceOn": "{amount} den {date}",
+    "noInvoice": "Ingen planerad",
+    "endsOn": "Upphör den",
+    "manage": "Hantera fakturering",
+    "portalOpening": "Öppnar…",
+    "portalUnavailableTitle": "Faktureringen kunde inte öppnas",
+    "pastDueTitle": "Betalningen misslyckades",
+    "pastDueBody": "Vi kunde inte debitera din betalningsmetod. Uppdatera den för att behålla din plan.",
+    "canceledTitle": "Prenumerationen har upphört",
+    "canceledBody": "Kontakta oss för att starta en ny prenumeration.",
+    "invoiced": "Din plan faktureras.",
+    "contactUs": "Kontakta oss",
+    "ownerManages": "Kontoägaren hanterar faktureringen.",
+    "backToWorkspace": "Tillbaka till arbetsytan",
+    "pastDueBanner": "Den senaste betalningen för din plan misslyckades.",
+    "pastDueAction": "Uppdatera betalningsmetod",
+    "pastDueAskOwner": "Be kontoägaren att uppdatera betalningsmetoden."
   },
   "actions": {
     "common": {
@@ -1045,9 +1073,6 @@
       "domainInvalid": "Ange en domän som shop.dinkund.se.",
       "domainVerified": "{domain} är verifierad och visar nu butiksfronten.",
       "domainSaved": "{domain} har sparats. Lägg till CNAME-posten nedan och kör sedan verifieringen.",
-      "stripeDisconnected": "Stripe har kopplats bort. Butiken kan inte ta emot betalningar förrän den kopplats igen.",
-      "stripeInvalid": "Stripe-konto-ID ser ut som acct_1A2b3C4d5E6f. Kopiera det från kundens Stripe-översikt.",
-      "stripeConnected": "{account} har anslutits.",
       "carrierAccount": "Ange kundnumret hos {carrier} eller stäng av fraktbolaget.",
       "carrierRequired": "Aktivera minst ett fraktbolag så att betalda ordrar kan skickas.",
       "carriersSaved": "Fraktinställningarna har sparats.",
@@ -1056,7 +1081,9 @@
       "policyLanguageInvalid": "Välj ett av butikens språk.",
       "policyTooLong": "Varje policy får vara högst {max} tecken.",
       "policiesSaved": "Policyerna har sparats.",
-      "paymentPending": "Slutför din prenumeration innan du skapar en butik."
+      "paymentPending": "Slutför din prenumeration innan du skapar en butik.",
+      "stripeCountry": "Välj landet där företaget har sitt säte.",
+      "stripeUnavailable": "Det gick inte att nå Stripe. Försök igen om en stund."
     },
     "team": {
       "emailInvalid": "Ange en giltig e-postadress.",
@@ -1106,7 +1133,8 @@
       "currencyUnsupported": "Butiken tar inte emot {currency}.",
       "orderChanged": "Ordern har ändrats. Ladda om och kontrollera återbetalningarna innan du försöker igen.",
       "refunded": "{amount} återbetalat ({reference}).",
-      "refundedCancelled": "{amount} återbetalat och ordern avbruten ({reference})."
+      "refundedCancelled": "{amount} återbetalat och ordern avbruten ({reference}).",
+      "refundFailed": "Stripe kunde inte genomföra återbetalningen. Inget registrerades. Försök igen."
     },
     "gifting": {
       "nameTooShort": "Ge katalogen ett namn på minst 3 tecken.",
@@ -1370,13 +1398,8 @@
     "runVerification": "Kör verifiering",
     "stripe": "Stripe-konto",
     "stripeDescription": "Anslut kundens Stripe-konto för att ta emot betalningar.",
-    "connected": "Anslutet:",
-    "stripeStatus": "Land {country} · betalningar aktiverade · anslutet {date}",
     "disconnecting": "Kopplar bort…",
     "disconnect": "Koppla bort Stripe",
-    "connect": "Anslut Stripe-konto",
-    "accountId": "Stripe-konto-ID",
-    "accountIdHint": "Finns i Stripe under Inställningar → Kontouppgifter.",
     "accountCountry": "Kontots land",
     "carriers": "Fraktbolag",
     "carriersDescription": "Aktivera fraktbolagen som kunden har konto hos.",
@@ -1398,7 +1421,23 @@
     "policyLanguage": "Språk",
     "policiesHint": "Börja en rad med ## för en rubrik. Töm en policy för att återställa standardtexten.",
     "savePolicies": "Spara policyer",
-    "viewPolicy": "Visa"
+    "viewPolicy": "Visa",
+    "stripeConnect": "Anslut Stripe",
+    "stripeContinue": "Fortsätt registreringen",
+    "stripeUpdate": "Uppdatera uppgifter",
+    "stripeOpening": "Öppnar Stripe…",
+    "stripeAccount": "Konto",
+    "stripeCharges": "Betalningar",
+    "stripePayouts": "Utbetalningar",
+    "stripeEnabled": "Aktiverade",
+    "stripePendingState": "Väntar",
+    "stripeIncomplete": "Stripe behöver mer information innan butiken kan ta emot betalningar.",
+    "stripeReady": "Butiken kan ta emot betalningar.",
+    "stripeReconnect": "Anslut butiken till Stripe igen för att ta emot betalningar.",
+    "stripeUnreadable": "Det gick inte att nå Stripe. Statusen nedan kan vara inaktuell.",
+    "demoStoreTitle": "Demobutik",
+    "demoStoreBody": "Kassan är simulerad och ingen debiteras. Anslut Stripe för att ta emot riktiga betalningar.",
+    "backToSettings": "Tillbaka till inställningar"
   },
   "team": {
     "agencyAdmins": "Byråadministratörer",
@@ -3243,7 +3282,11 @@
       "pending": "Bearbetar…",
       "cardSucceeds": "Betalningen lyckas",
       "cardDeclined": "Kortet nekas",
-      "cardInsufficient": "Otillräckligt saldo"
+      "cardInsufficient": "Otillräckligt saldo",
+      "demoStore": "Demobutik: ingen riktig betalning",
+      "demoStoreBody": "Använd ett testkort nedan. Ingen debiteras.",
+      "continueToPayment": "Fortsätt till betalning",
+      "redirecting": "Omdirigerar…"
     },
     "order": {
       "title": "Orderstatus",
@@ -3278,7 +3321,9 @@
       "orderCode": "Orderkod",
       "emailOnOrder": "E-postadress",
       "lookupSubmit": "Visa min order",
-      "lookupPending": "Kontrollerar…"
+      "lookupPending": "Kontrollerar…",
+      "processingTitle": "Vi bekräftar din betalning",
+      "processingBody": "Sidan uppdateras så snart betalningen är bekräftad."
     },
     "status": {
       "awaitingPayment": "Väntar på betalning",
@@ -3352,7 +3397,8 @@
       "invalidCvc": "Säkerhetskoden måste ha 3 eller 4 siffror.",
       "declined": "Ditt kort nekades.",
       "insufficientFunds": "Ditt kort har otillräckliga medel.",
-      "expiredCard": "Ditt kort har gått ut."
+      "expiredCard": "Ditt kort har gått ut.",
+      "startFailed": "Betalningen kunde inte startas. Din varukorg är sparad. Försök igen."
     },
     "sections": {
       "viewAll": "Visa alla",
