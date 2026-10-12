@@ -2,7 +2,11 @@
 //
 // Sends signed events through the same handler POST /api/stripe/webhook runs,
 // against throwaway records in the development database, and asserts that:
-// - an unsigned or wrongly signed request is refused and leaves no trace;
+// - events signed with the platform destination's secret
+//   (STRIPE_WEBHOOK_SECRET) and with the Connect destination's secret
+//   (STRIPE_CONNECT_WEBHOOK_SECRET) are both accepted;
+// - an unsigned request, or one signed with neither secret, is refused and
+//   leaves no trace;
 // - a completed Checkout session marks the order paid and routes it, once:
 //   the same event delivered again, and the async-succeeded event for the same
 //   session, change nothing;
@@ -23,8 +27,10 @@ if (!process.env.MONGODB_DB || process.env.MONGODB_DB === PRODUCTION_DB) {
   process.exit(1);
 }
 process.env.STRIPE_SECRET_KEY = "sk_test_webhook_check";
-process.env.STRIPE_WEBHOOK_SECRET = "whsec_webhook_check";
-delete process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
+const PLATFORM_SECRET = "whsec_webhook_check_platform";
+const CONNECT_SECRET = "whsec_webhook_check_connect";
+process.env.STRIPE_WEBHOOK_SECRET = PLATFORM_SECRET;
+process.env.STRIPE_CONNECT_WEBHOOK_SECRET = CONNECT_SECRET;
 delete process.env.RESEND_API_KEY;
 globalThis.fetch = async (url) => {
   throw new Error(`stripe-webhook-check makes no network calls (${url})`);
@@ -44,7 +50,10 @@ const ACCOUNT = `acct_${RUN}`;
 const SESSION = `cs_test_${RUN}`;
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
 
-async function deliver(event, { secret = "whsec_webhook_check", body } = {}) {
+// Each destination signs with its own secret: connected-account events (those
+// carrying `account`) come from parcelith-connect, the rest from
+// parcelith-platform.
+async function deliver(event, { secret = event.account ? CONNECT_SECRET : PLATFORM_SECRET, body } = {}) {
   const payload = body ?? JSON.stringify({ object: "event", api_version: "2026-09-30.endive", created: 1, livemode: false, ...event });
   const signature = await Stripe.webhooks.generateTestHeaderStringAsync({ payload, secret, cryptoProvider });
   return handleStripeWebhook(payload, signature);
@@ -133,8 +142,15 @@ const claims = (id) => db.count(COLLECTIONS.stripeEvents, { id });
 try {
   /* ------------------------------------------------------ signatures */
 
+  const viaPlatform = await deliver({ id: `evt_${RUN}_sig_platform`, type: "customer.created", data: { object: { id: "cus_x", object: "customer" } } }, { secret: PLATFORM_SECRET });
+  assert.deepEqual([viaPlatform.status, viaPlatform.body.outcome], [200, "ignored"], "an event signed with the platform secret is accepted");
+  assert.equal(await claims(`evt_${RUN}_sig_platform`), 1);
+  const viaConnect = await deliver({ id: `evt_${RUN}_sig_connect`, type: "customer.created", account: ACCOUNT, data: { object: { id: "cus_x", object: "customer" } } }, { secret: CONNECT_SECRET });
+  assert.deepEqual([viaConnect.status, viaConnect.body.outcome], [200, "ignored"], "an event signed with the Connect secret is accepted");
+  assert.equal(await claims(`evt_${RUN}_sig_connect`), 1);
+
   const forged = await deliver({ id: `evt_${RUN}_forged`, type: "checkout.session.completed", account: ACCOUNT, data: { object: session() } }, { secret: "whsec_not_ours" });
-  assert.equal(forged.status, 400, "a wrongly signed event is refused");
+  assert.equal(forged.status, 400, "an event signed with neither secret is refused");
   assert.equal(await claims(`evt_${RUN}_forged`), 0, "and leaves no claim behind");
   assert.equal((await reload()).status, "awaiting_payment", "the redirect alone, or a forged event, never marks an order paid");
   const unsigned = await handleStripeWebhook(JSON.stringify({ id: `evt_${RUN}_unsigned` }), null);

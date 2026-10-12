@@ -318,11 +318,11 @@ export async function nextInvoice(customerId: string, subscriptionId: string): P
 /* ----------------------------------------------------------- webhooks */
 
 /**
- * A webhook event, verified against STRIPE_WEBHOOK_SECRET with Web Crypto, or
- * null when the signature does not check out. Stripe signs events from
- * connected accounts with the Connect destination's own secret; when the
- * dashboard gives it a different one, STRIPE_CONNECT_WEBHOOK_SECRET holds it.
- * `payload` is the raw request body.
+ * A webhook event, verified with Web Crypto against each configured signing
+ * secret in turn, or null when none of them checks out. Two destinations
+ * deliver to the same endpoint: STRIPE_WEBHOOK_SECRET is the platform
+ * destination's secret and STRIPE_CONNECT_WEBHOOK_SECRET the connected-accounts
+ * destination's. `payload` is the raw request body.
  */
 export async function verifyWebhookEvent(payload: string, signature: string | null): Promise<Stripe.Event | null> {
   const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter(

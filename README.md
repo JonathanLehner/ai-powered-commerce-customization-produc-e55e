@@ -234,8 +234,8 @@ real money.
 ```
 STRIPE_SECRET_KEY=sk_live_…
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_…
-STRIPE_WEBHOOK_SECRET=whsec_…
-STRIPE_CONNECT_WEBHOOK_SECRET=whsec_…   # only if the Connect destination has its own secret
+STRIPE_WEBHOOK_SECRET=whsec_…           # parcelith-platform destination
+STRIPE_CONNECT_WEBHOOK_SECRET=whsec_…   # parcelith-connect destination
 ```
 
 All calls go through the official `stripe` SDK with
@@ -270,8 +270,7 @@ All calls go through the official `stripe` SDK with
 
 #### Webhook
 
-Add one endpoint in the Stripe dashboard (Developers → Webhooks → Add
-destination) for **Your account** and one for **Connected accounts**, both
+The Stripe dashboard (Developers → Webhooks) has two destinations, both
 pointing at:
 
 ```
@@ -282,19 +281,27 @@ Events to send:
 
 | Event | Destination | What it does |
 | --- | --- | --- |
-| `checkout.session.completed` | Your account, Connected accounts | Activates a plan; marks a storefront order or gift campaign paid |
-| `checkout.session.async_payment_succeeded` | Your account, Connected accounts | Same, for delayed payment methods |
-| `checkout.session.async_payment_failed` | Your account, Connected accounts | Closes the order and returns its discount use; plan goes past due |
-| `checkout.session.expired` | Connected accounts | Closes an abandoned order and returns its discount use |
-| `customer.subscription.updated` | Your account | Keeps the plan status and period end current |
-| `customer.subscription.deleted` | Your account | Marks the plan cancelled |
-| `invoice.payment_failed` | Your account | Marks the plan past due (workspace banner) |
-| `account.updated` | Connected accounts | Refreshes a store's payments and payouts state |
+| `checkout.session.completed` | `parcelith-platform`, `parcelith-connect` | Activates a plan; marks a storefront order or gift campaign paid |
+| `checkout.session.async_payment_succeeded` | `parcelith-platform`, `parcelith-connect` | Same, for delayed payment methods |
+| `checkout.session.async_payment_failed` | `parcelith-platform`, `parcelith-connect` | Closes the order and returns its discount use; plan goes past due |
+| `checkout.session.expired` | `parcelith-connect` | Closes an abandoned order and returns its discount use |
+| `customer.subscription.updated` | `parcelith-platform` | Keeps the plan status and period end current |
+| `customer.subscription.deleted` | `parcelith-platform` | Marks the plan cancelled |
+| `invoice.payment_failed` | `parcelith-platform` | Marks the plan past due (workspace banner) |
+| `account.updated` | `parcelith-connect` | Refreshes a store's payments and payouts state |
 
-Put the signing secret in `STRIPE_WEBHOOK_SECRET`. If the Connected accounts
-destination shows a different secret, put that one in
-`STRIPE_CONNECT_WEBHOOK_SECRET`. Each request is verified with
-`stripe.webhooks.constructEventAsync` before it is read, and each event id is
+Each destination has its own signing secret (open the destination, then
+"Signing secret"):
+
+| Variable | Destination | Events from |
+| --- | --- | --- |
+| `STRIPE_WEBHOOK_SECRET` | `parcelith-platform` | Your account: plan checkout, subscriptions, invoices |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | `parcelith-connect` | Connected accounts: storefront and gift checkout sessions, `account.updated` |
+
+Each request is verified with `stripe.webhooks.constructEventAsync` against
+each configured secret in turn and accepted on the first that matches; a
+request no secret verifies is refused with 400. Connected-account events are
+told apart by the event's `account` field. Each event id is
 claimed in `stripe_events` before it is handled, so a redelivery is
 acknowledged without running twice (`src/lib/stripe-webhook.ts`).
 
