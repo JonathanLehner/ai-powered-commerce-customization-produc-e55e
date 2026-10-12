@@ -205,9 +205,87 @@ export interface Store {
   pricesIncludeTax: boolean;
   /** Absent until the inventory settings are saved; read it through `inventorySettings()`. */
   inventory?: InventorySettings;
+  /** Absent until the tax settings are saved; read it through `storeTax()`. */
+  tax?: StoreTaxSettings;
   setup: StoreSetupState;
   createdAt: string;
   archivedAt: string | null;
+}
+
+export type TaxMode = "manual" | "stripe";
+
+/**
+ * How tax is charged at checkout. `manual` charges the store's own rate for
+ * the destination country, or each product's tax bracket where the country has
+ * none. `stripe` hands the calculation to Stripe Tax on the connected account.
+ * Whether prices include tax stays on `Store.pricesIncludeTax`.
+ */
+export interface StoreTaxSettings {
+  mode: TaxMode;
+  /** Percent, per ISO country code. */
+  rates: { country: string; rate: number }[];
+  /** What Stripe said about Stripe Tax on the connected account when it was last asked. */
+  stripeTax?: { status: "active" | "pending" | "unavailable"; checkedAt: string } | null;
+}
+
+/* ------------------------------------------------------------ shipping */
+
+/**
+ * - `flat`: one price.
+ * - `weight`: priced by the order's weight in grams, from `tiers`.
+ * - `subtotal`: priced by the order's subtotal after discounts, from `tiers`.
+ * - `free_over`: `amount` below `threshold`, free at or above it.
+ */
+export type ShippingRateKind = "flat" | "weight" | "subtotal" | "free_over";
+
+/** One step of a weight or subtotal rate. `upTo` is inclusive; null is "and above". */
+export interface ShippingRateTier {
+  upTo: number | null;
+  amount: number;
+}
+
+export interface ShippingRate {
+  id: string;
+  name: string;
+  kind: ShippingRateKind;
+  /** Minor units of the zone currency: the price of a flat rate, the price below the threshold of a free_over rate. */
+  amount: number;
+  /** Ascending by `upTo`, for weight and subtotal rates. Empty otherwise. */
+  tiers: ShippingRateTier[];
+  /** The subtotal a free_over rate is free from, in minor units. Null otherwise. */
+  threshold: number | null;
+  /** Business days the delivery estimate runs from and to. */
+  minDays: number;
+  maxDays: number;
+  /** The key of the form that created it, so a resubmission finds it again. */
+  submissionKey?: string | null;
+}
+
+/** A set of countries a store ships to, with the rates shoppers there can choose from. */
+export interface ShippingZone {
+  id: string;
+  storeId: string;
+  name: string;
+  /** ISO alpha-2 codes. A country belongs to one zone of a store at most. */
+  countries: string[];
+  /** The currency the rate amounts and thresholds are written in. */
+  currency: string;
+  rates: ShippingRate[];
+  submissionKey?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** The rate an order ships with, as it was when the shopper chose it. */
+export interface OrderShippingRate {
+  zoneId: string;
+  zoneName: string;
+  rateId: string;
+  name: string;
+  minDays: number;
+  maxDays: number;
+  /** In the order currency. */
+  amount: number;
 }
 
 export interface InventorySettings {
@@ -501,6 +579,8 @@ export interface StoreVariant {
   price: number;
   enabled: boolean;
   availability: "in_stock" | "low_stock" | "out_of_stock";
+  /** Shipping weight in grams. Absent counts as 0 for weight-based rates. */
+  weightGrams?: number;
 }
 
 export interface StoreProduct {
@@ -701,6 +781,13 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   shipping: number;
+  /** The shipping rate chosen at checkout. Absent on orders placed before shipping zones. */
+  shippingRate?: OrderShippingRate | null;
+  /**
+   * How tax was charged. Absent on orders placed before tax settings; read it
+   * through `orderTax()`.
+   */
+  tax?: { mode: TaxMode; inclusive: boolean } | null;
   /**
    * The code the shopper redeemed and what it took off, absent on orders placed
    * without one. `amount` is already out of `total`, so a refund capped at the

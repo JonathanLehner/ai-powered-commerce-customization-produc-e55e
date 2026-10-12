@@ -1,7 +1,18 @@
 import { getDiscountCodeByCode, getStoreProductsByIds, getTaxBracketsByIds } from "./data";
 import { allocateDiscount, checkDiscount, type DiscountRefusal } from "./discounts";
-import { convert, parcelShipping, taxRowsFor, type TaxRow } from "./pricing";
-import type { Cart, CartItem, DiscountCode, Store, StoreProduct } from "./types";
+import { paymentMode } from "./payment-mode";
+import { convert, parcelShipping, type TaxRow } from "./pricing";
+import {
+  basketWeight,
+  pickOption,
+  quoteTotals,
+  shippingOptions,
+  standardOption,
+  storeTax,
+  type QuoteBasis,
+  type ShippingOption,
+} from "./shipping";
+import type { Cart, CartItem, DiscountCode, ShippingZone, Store, StoreProduct } from "./types";
 
 /**
  * The stored code behind whatever the shopper typed into the basket. Read fresh
@@ -41,6 +52,26 @@ export interface BasketTotals {
   taxRows: TaxRow[];
   taxAmount: number;
   total: number;
+  /** The rates on offer for the destination, cheapest first. Empty when no zone ships there. */
+  options: ShippingOption[];
+  /** The rate `shipping` is charged at, null when there is none to charge. */
+  shippingOption: ShippingOption | null;
+  /** Tax is left to Stripe Tax at payment; `taxRows` is empty and `total` excludes it. */
+  stripeTax: boolean;
+  /** The order's weight in grams, from each variant's weight. */
+  weightGrams: number;
+  /** What the checkout form needs to work the totals out again for another country or rate. */
+  basis: QuoteBasis;
+}
+
+/** Where the basket is going and how it ships there. */
+export interface BasketDelivery {
+  /** The store's shipping zones. A store with none ships everywhere at the standard parcel rate. */
+  zones: ShippingZone[];
+  /** ISO code; the store's own country when not known yet. */
+  country?: string;
+  /** The rate the shopper picked; the cheapest on offer otherwise. */
+  rateId?: string | null;
 }
 
 /**
@@ -59,6 +90,7 @@ export async function basketTotals(
   currency: string,
   discountCode: DiscountCode | null = null,
   known?: { products: Map<string, StoreProduct>; rates: Map<string, number> },
+  delivery: BasketDelivery = { zones: [] },
 ): Promise<BasketTotals> {
   // One read for the whole basket. A read per line meant a fetch per line, and
   // the platform runs only a handful at a time, so a large basket priced itself
@@ -77,11 +109,6 @@ export async function basketTotals(
   }));
   const lineAmounts = lines.map((line) => line.unit * line.item.quantity);
   const subtotal = lineAmounts.reduce((sum, amount) => sum + amount, 0);
-  const shipping = parcelShipping(
-    items.map((i) => i.productName),
-    currency,
-  );
-
   const verdict = discountCode ? checkDiscount(discountCode, subtotal, currency) : null;
   const applied: AppliedDiscount | null =
     discountCode && verdict && !verdict.refusal
@@ -97,19 +124,34 @@ export async function basketTotals(
   // the goods it covers, not on the list price.
   const shares = allocateDiscount(lineAmounts, applied?.amount ?? 0);
 
-  const taxRows = taxRowsFor(
-    lines.map((line, index) => ({
+  const goods = subtotal - (applied?.amount ?? 0);
+  const tax = storeTax(store);
+  const basis: QuoteBasis = {
+    lines: lines.map((line, index) => ({
       amount: lineAmounts[index] - shares[index],
       // A published product always has a bracket, so this only falls back to
       // zero for a product pulled from sale mid-basket.
       rate: brackets.get(products[index]?.taxBracketId ?? "") ?? 0,
     })),
-    shipping,
-    store.pricesIncludeTax,
+    goods,
+    inclusive: store.pricesIncludeTax,
+    // Stripe Tax only runs on a real Checkout session; a demo store works it out here.
+    stripeTax: tax.mode === "stripe" && paymentMode(store) === "stripe",
+    countryRates: tax.rates,
+  };
+
+  const country = delivery.country ?? store.stripe.country;
+  const weightGrams = basketWeight(
+    items.map((item, index) => ({ quantity: item.quantity, variantId: item.variantId, product: products[index] })),
   );
-  const taxAmount = taxRows.reduce((sum, row) => sum + row.amount, 0);
-  const goods = subtotal - (applied?.amount ?? 0);
-  const total = store.pricesIncludeTax ? goods + shipping : goods + shipping + taxAmount;
+  const options =
+    delivery.zones.length > 0
+      ? shippingOptions(delivery.zones, country, { weightGrams, subtotal: goods, currency })
+      : items.length > 0
+        ? [standardOption(parcelShipping(items.map((i) => i.productName), currency))]
+        : [];
+  const shippingOption = pickOption(options, delivery.rateId);
+  const { shipping, taxRows, taxAmount, total } = quoteTotals(basis, country, shippingOption?.amount ?? 0);
 
   return {
     products,
@@ -122,5 +164,10 @@ export async function basketTotals(
     taxRows,
     taxAmount,
     total,
+    options,
+    shippingOption,
+    stripeTax: basis.stripeTax,
+    weightGrams,
+    basis,
   };
 }

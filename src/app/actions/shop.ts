@@ -20,11 +20,13 @@ import {
   getStore,
   getStoreBySlug,
   getStoreProduct,
+  listShippingZones,
   releaseDiscountUse,
   updateOrder,
 } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
-import { addressRegionKind } from "@/lib/countries";
+import { addressRegionKind, localCountryName } from "@/lib/countries";
+import { stripeAllowedCountries, zoneFor } from "@/lib/shipping";
 import { formatMinorUnits } from "@/i18n/format";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { shopperLocale, shopperTranslator } from "@/i18n/storefront";
@@ -455,11 +457,12 @@ export async function removeDiscount(formData: FormData): Promise<void> {
 export async function placeOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const idempotencyKey = String(formData.get("idempotencyKey") ?? "");
-  const [store, replayed, cart] = await Promise.all([
+  const [store, replayed, cart, zones] = await Promise.all([
     getStore(storeId),
     // A retried submission must not create a second order.
     idempotencyKey ? getOrderByIdempotencyKey(storeId, idempotencyKey) : Promise.resolve(null),
     loadCart(storeId, false),
+    listShippingZones(storeId),
   ]);
   const { locale, t, base } = await shopperCopy(store);
   if (!store || store.status !== "active") {
@@ -488,6 +491,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   const region = addressRegionKind(country) ? String(formData.get("region") ?? "").trim() : "";
   const phone = String(formData.get("phone") ?? "").trim();
   const currency = String(formData.get("currency") ?? store.defaultCurrency);
+  const rateId = String(formData.get("shippingRate") ?? "");
 
   if (name.length < 2) return { status: "error", message: t("actions.enterName"), field: "name" };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
@@ -502,6 +506,14 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   // posted without it.
   if (!/^[A-Z]{2}$/.test(country)) {
     return { status: "error", message: t("actions.chooseCountry"), field: "country" };
+  }
+  // A store with shipping zones ships only to their countries.
+  if (zones.length > 0 && !zoneFor(zones, country)) {
+    return {
+      status: "error",
+      message: t("actions.noShippingTo", { country: localCountryName(country, locale) }),
+      field: "country",
+    };
   }
   if (addressRegionKind(country) && region.length < 2) {
     return { status: "error", message: t("actions.enterRegion"), field: "region" };
@@ -521,8 +533,23 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   // code that expired, was switched off or ran out while the shopper was filling
   // the form in must not reach the charge.
   const discountCode = await cartDiscountCode(storeId, cart);
-  const { products, lines, subtotal, discount, discountRefusal, shipping, taxRows, taxAmount, total } =
-    await basketTotals(store, cart.items, currency, discountCode);
+  const {
+    products,
+    lines,
+    subtotal,
+    discount,
+    discountRefusal,
+    shipping,
+    taxRows,
+    taxAmount,
+    total,
+    options,
+    shippingOption,
+    stripeTax,
+  } = await basketTotals(store, cart.items, currency, discountCode, undefined, { zones, country, rateId });
+  if (!shippingOption) {
+    return { status: "error", message: t("actions.noShippingRate"), field: "shippingRate" };
+  }
   if (discountCode && discountRefusal) {
     await saveCartDiscount(cart, null);
     refreshBasket(store.slug);
@@ -636,10 +663,21 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     })),
     subtotal,
     shipping,
+    shippingRate: {
+      zoneId: shippingOption.zoneId,
+      zoneName: shippingOption.zoneName,
+      rateId: shippingOption.rateId,
+      name: shippingOption.name || t("checkout.standardShipping"),
+      minDays: shippingOption.minDays,
+      maxDays: shippingOption.maxDays,
+      amount: shippingOption.amount,
+    },
     discount,
+    // With Stripe Tax the amount is only known once the shopper has paid; the webhook records it.
     taxAmount,
     taxRate: taxRows.length === 1 ? taxRows[0].rate : 0,
     taxLines: taxRows,
+    tax: { mode: stripeTax ? "stripe" : "manual", inclusive: store.pricesIncludeTax },
     total,
     payment: {
       provider: "stripe",
@@ -706,11 +744,23 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
         unitAmount: unit,
         quantity: item.quantity,
       })),
-      ...(store.pricesIncludeTax
+      ...(store.pricesIncludeTax || stripeTax
         ? []
         : taxRows.map((row) => ({ name: t("checkout.taxRow", { rate: row.rate }), unitAmount: row.amount, quantity: 1 }))),
     ],
-    shipping: { label: t("checkout.shipping"), amount: shipping },
+    shipping: null,
+    // The shopper's choice first, so Checkout opens on it; the zone's other rates beside it.
+    shippingOptions: [shippingOption, ...options.filter((option) => option.rateId !== shippingOption.rateId)].map(
+      (option) => ({
+        label: option.name || t("checkout.standardShipping"),
+        amount: option.amount,
+        minDays: option.minDays,
+        maxDays: option.maxDays,
+        metadata: { zoneId: option.zoneId, rateId: option.rateId },
+      }),
+    ),
+    allowedCountries: zones.length > 0 ? stripeAllowedCountries(zones) : undefined,
+    automaticTax: stripeTax ? { inclusive: store.pricesIncludeTax } : null,
     discount: discount ? { code: discount.code, amount: discount.amount } : null,
     successUrl: `${origin}${orderStatusUrl(base, code, token, "&paid=1")}`,
     cancelUrl: `${origin}${base}/cart`,

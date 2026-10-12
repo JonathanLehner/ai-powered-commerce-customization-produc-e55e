@@ -225,6 +225,8 @@ export interface VariantChange {
   enabled?: boolean;
   /** Minor units. */
   price?: number;
+  /** Shipping weight in grams. */
+  weightGrams?: number;
 }
 
 /**
@@ -243,10 +245,17 @@ export async function saveVariants(
       ...variant,
       enabled: change.enabled ?? variant.enabled,
       price: change.price ?? variant.price,
+      ...(change.weightGrams !== undefined ? { weightGrams: change.weightGrams } : {}),
     };
   });
 
   const t = await getTranslations({ locale: ctx.locale, namespace: "actions.products" });
+  const heavy = variants.find(
+    (v) => v.weightGrams !== undefined && (!Number.isInteger(v.weightGrams) || v.weightGrams < 0 || v.weightGrams > 1_000_000),
+  );
+  if (heavy) {
+    throw new OperationError("invalid", t("weightRange", { name: heavy.name }), `weight_${heavy.id}`);
+  }
   if (!variants.some((v) => v.enabled)) {
     throw new OperationError("invalid", t("variantRequired"), "variants");
   }

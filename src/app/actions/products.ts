@@ -137,7 +137,16 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
   const changes = Object.fromEntries(
     product.variants.map((variant) => {
       const parsed = parseMoney(String(formData.get(`price_${variant.id}`) ?? ""), product.currency);
-      return [variant.id, { enabled: formData.get(`enabled_${variant.id}`) === "on", price: parsed ?? variant.price }];
+      const weight = String(formData.get(`weight_${variant.id}`) ?? "").trim();
+      return [
+        variant.id,
+        {
+          enabled: formData.get(`enabled_${variant.id}`) === "on",
+          price: parsed ?? variant.price,
+          // Blank leaves the weight as it was; anything else is checked by the operation.
+          ...(weight ? { weightGrams: Number(weight) } : {}),
+        },
+      ];
     }),
   );
 

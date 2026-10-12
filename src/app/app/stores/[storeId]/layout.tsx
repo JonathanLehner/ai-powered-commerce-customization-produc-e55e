@@ -33,6 +33,7 @@ export default async function StoreLayout({
     { href: `${base}/customers`, section: "customers", capability: "store.orders" },
     { href: `${base}/analytics`, section: "analytics", capability: "store.view" },
     { href: `${base}/discounts`, section: "discounts", capability: "store.settings" },
+    { href: `${base}/shipping`, section: "shipping", capability: "store.settings" },
     { href: `${base}/team`, section: "team", capability: "store.team" },
     { href: `${base}/setup`, section: "settings", capability: "store.settings" },
     { href: `${base}/activity`, section: "activity", capability: "store.view" },

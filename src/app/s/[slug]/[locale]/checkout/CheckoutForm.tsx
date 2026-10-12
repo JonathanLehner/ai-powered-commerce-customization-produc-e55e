@@ -8,9 +8,9 @@ import { CountrySelect } from "@/components/CountrySelect";
 import { ActionForm } from "@/components/forms";
 import { Callout } from "@/components/ui";
 import { Card } from "@/components/ui/card";
+import { ShippingMethods, useCheckoutDelivery } from "./CheckoutDelivery";
 import {
   addressRegionKind,
-  isCountryCode,
   localCountryName,
   suppliersOutsideRegion,
   type FulfillmentSource,
@@ -38,7 +38,6 @@ export function CheckoutForm({
   storeId,
   currencies,
   currency,
-  defaultCountry,
   fulfillmentSources,
   base,
 }: {
@@ -47,8 +46,6 @@ export function CheckoutForm({
   storeId: string;
   currencies: string[];
   currency: string;
-  /** The store's Stripe account country — where most of its shoppers are. */
-  defaultCountry: string;
   fulfillmentSources: FulfillmentSource[];
   /** The storefront's address in the shopper's language, for the policy links. */
   base: string;
@@ -59,9 +56,8 @@ export function CheckoutForm({
   const localeTag = useLocale();
   // Generated once per page load so a double submit cannot create two orders.
   const [idempotencyKey] = useState(() => `idem_${crypto.randomUUID()}`);
-  const [country, setCountry] = useState(() =>
-    isCountryCode(defaultCountry) ? defaultCountry.toUpperCase() : "US",
-  );
+  // Shared with the order summary, which reprices shipping and tax for it.
+  const { country, setCountry, countries } = useCheckoutDelivery();
   const unfulfilled = suppliersOutsideRegion(country, fulfillmentSources);
   const destination = localCountryName(country, localeTag);
   const regionKind = addressRegionKind(country);
@@ -176,6 +172,7 @@ export function CheckoutForm({
                 value={country}
                 onChange={setCountry}
                 invalid={state.field === "country"}
+                countries={countries ?? undefined}
               />
             </div>
             {regionKind ? (
@@ -238,6 +235,9 @@ export function CheckoutForm({
               </div>
             ) : null}
           </div>
+
+          <h2 className="mt-8 font-heading text-base font-semibold text-foreground">{t("shippingMethod")}</h2>
+          <ShippingMethods invalid={state.field === "shippingRate"} />
 
           <div className="mt-8 flex items-center justify-between gap-3">
             <h2 className="font-heading text-base font-semibold text-foreground">{t("paymentTitle")}</h2>

@@ -2,12 +2,21 @@ import "server-only";
 import type Stripe from "stripe";
 import { activateSubscription, billingStatusFor, summarize } from "./billing";
 import { applyConnectStatus } from "./connect";
-import { COLLECTIONS, getAgency, getGiftCampaign, getOrder, getStore, recordAudit, updateGiftCampaign } from "./data";
+import {
+  COLLECTIONS,
+  getAgency,
+  getGiftCampaign,
+  getOrder,
+  getStore,
+  listShippingZones,
+  recordAudit,
+  updateGiftCampaign,
+} from "./data";
 import { raiseCampaignOrders } from "./gift-payment";
 import { db } from "./mongo";
-import { abandonOrderPayment, confirmOrderPayment } from "./order-payment";
-import { connectStatus, refId, verifyWebhookEvent } from "./stripe";
-import type { Agency, AgencyBilling, Store } from "./types";
+import { abandonOrderPayment, confirmOrderPayment, type SettledAmounts } from "./order-payment";
+import { checkoutShippingRate, connectStatus, refId, verifyWebhookEvent } from "./stripe";
+import type { Agency, AgencyBilling, Order, Store } from "./types";
 import { formatMoney } from "./util";
 
 /**
@@ -87,6 +96,47 @@ type SessionEvent =
   | "checkout.session.async_payment_failed"
   | "checkout.session.expired";
 
+/**
+ * What Checkout settled that the order did not know when it was written: the
+ * shipping rate, when the shopper picked another one on Checkout, and the tax
+ * Stripe Tax calculated. Null when the order already holds the right numbers.
+ */
+async function settledAmounts(
+  order: Order,
+  session: Stripe.Checkout.Session,
+  account: string,
+): Promise<SettledAmounts | null> {
+  const amounts: SettledAmounts = {};
+  const cost = session.shipping_cost;
+  const rateRef = cost ? refId(cost.shipping_rate) : null;
+  if (cost && rateRef && order.shippingRate) {
+    const metadata = await checkoutShippingRate(account, rateRef);
+    if (metadata?.rateId && metadata.rateId !== order.shippingRate.rateId) {
+      const zones = await listShippingZones(order.storeId);
+      const zone = zones.find((z) => z.id === metadata.zoneId);
+      const rate = zone?.rates.find((r) => r.id === metadata.rateId);
+      amounts.shipping = cost.amount_subtotal;
+      amounts.shippingRate = {
+        zoneId: metadata.zoneId ?? order.shippingRate.zoneId,
+        zoneName: zone?.name ?? order.shippingRate.zoneName,
+        rateId: metadata.rateId,
+        name: rate?.name ?? order.shippingRate.name,
+        minDays: rate?.minDays ?? 0,
+        maxDays: rate?.maxDays ?? 0,
+        amount: cost.amount_subtotal,
+      };
+    }
+  }
+  if (order.tax?.mode === "stripe") {
+    amounts.taxAmount = session.total_details?.amount_tax ?? 0;
+    amounts.taxLines = [];
+    amounts.taxRate = 0;
+  }
+  if (Object.keys(amounts).length === 0) return null;
+  if (session.amount_total !== null) amounts.total = session.amount_total;
+  return amounts;
+}
+
 async function checkoutSession(type: SessionEvent, session: Stripe.Checkout.Session, account: string | null) {
   if (session.mode === "subscription") return planCheckout(type, session);
   const kind = session.metadata?.kind;
@@ -113,7 +163,8 @@ async function checkoutSession(type: SessionEvent, session: Stripe.Checkout.Sess
     const store = await getStore(order.storeId);
     if (!store) return "unknown_store";
     if (paid) {
-      const done = await confirmOrderPayment(order, store, { paymentIntentId, last4: null, note });
+      const amounts = await settledAmounts(order, session, account);
+      const done = await confirmOrderPayment(order, store, { paymentIntentId, last4: null, note, amounts });
       return done ? "order_paid" : "order_already_settled";
     }
     const done = await abandonOrderPayment(order, store, type === "checkout.session.expired" ? "expired" : "failed");

@@ -143,9 +143,50 @@ export interface ConnectedCheckoutInput {
   email: string;
   lines: CheckoutLine[];
   shipping: { label: string; amount: number } | null;
+  /**
+   * The rates the shopper may pick between on Checkout, the one they chose
+   * first. Replaces `shipping` when given; at most five are sent.
+   */
+  shippingOptions?: CheckoutShippingOption[];
+  /** Restricts the shipping address Checkout collects to these ISO codes. */
+  allowedCountries?: string[];
+  /** Hands tax to Stripe Tax; prices and shipping are sent as tax-inclusive or not. */
+  automaticTax?: { inclusive: boolean } | null;
   discount: { code: string; amount: number } | null;
   successUrl: string;
   cancelUrl: string;
+}
+
+export interface CheckoutShippingOption {
+  label: string;
+  amount: number;
+  /** Business days; both 0 sends no estimate. */
+  minDays: number;
+  maxDays: number;
+  /** Echoed back on the shipping rate, so the webhook knows which one was chosen. */
+  metadata: Record<string, string>;
+}
+
+function shippingRateData(
+  option: CheckoutShippingOption,
+  currency: string,
+  taxBehavior: "inclusive" | "exclusive" | null,
+): Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData {
+  return {
+    type: "fixed_amount",
+    display_name: option.label,
+    fixed_amount: { amount: option.amount, currency },
+    ...(option.maxDays > 0
+      ? {
+          delivery_estimate: {
+            minimum: { unit: "business_day" as const, value: Math.max(1, option.minDays) },
+            maximum: { unit: "business_day" as const, value: option.maxDays },
+          },
+        }
+      : {}),
+    ...(taxBehavior ? { tax_behavior: taxBehavior } : {}),
+    metadata: option.metadata,
+  };
 }
 
 export interface CheckoutStart {
@@ -164,6 +205,10 @@ export async function createConnectedCheckout(input: ConnectedCheckoutInput): Pr
   if (!stripe) return null;
   const options = { stripeAccount: input.accountId };
   const currency = input.currency.toLowerCase();
+  const taxBehavior = input.automaticTax ? (input.automaticTax.inclusive ? "inclusive" : "exclusive") : null;
+  const shippingChoices =
+    input.shippingOptions ??
+    (input.shipping ? [{ label: input.shipping.label, amount: input.shipping.amount, minDays: 0, maxDays: 0, metadata: {} }] : []);
   try {
     let coupon: string | null = null;
     if (input.discount && input.discount.amount > 0) {
@@ -192,25 +237,29 @@ export async function createConnectedCheckout(input: ConnectedCheckoutInput): Pr
             price_data: {
               currency,
               unit_amount: line.unitAmount,
+              ...(taxBehavior ? { tax_behavior: taxBehavior } : {}),
               product_data: {
                 name: line.name,
                 ...(line.description ? { description: line.description } : {}),
               },
             },
           })),
-        ...(input.shipping
+        ...(shippingChoices.length > 0
           ? {
-              shipping_options: [
-                {
-                  shipping_rate_data: {
-                    type: "fixed_amount" as const,
-                    display_name: input.shipping.label,
-                    fixed_amount: { amount: input.shipping.amount, currency },
-                  },
-                },
-              ],
+              shipping_options: shippingChoices
+                .slice(0, 5)
+                .map((option) => ({ shipping_rate_data: shippingRateData(option, currency, taxBehavior) })),
             }
           : {}),
+        ...(input.allowedCountries?.length
+          ? {
+              shipping_address_collection: {
+                allowed_countries:
+                  input.allowedCountries as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
+              },
+            }
+          : {}),
+        ...(input.automaticTax ? { automatic_tax: { enabled: true } } : {}),
         ...(coupon ? { discounts: [{ coupon }] } : {}),
         metadata: input.metadata,
         payment_intent_data: { metadata: input.metadata },
@@ -226,6 +275,39 @@ export async function createConnectedCheckout(input: ConnectedCheckoutInput): Pr
   } catch (error) {
     console.error(`Checkout session on ${input.accountId} could not be created`, error);
     return null;
+  }
+}
+
+/** The metadata of the shipping rate a shopper chose on Checkout, or null when it cannot be read. */
+export async function checkoutShippingRate(
+  accountId: string,
+  shippingRateId: string,
+): Promise<Record<string, string> | null> {
+  const stripe = stripeClient();
+  if (!stripe) return null;
+  try {
+    const rate = await stripe.shippingRates.retrieve(shippingRateId, {}, { stripeAccount: accountId });
+    return rate.metadata ?? {};
+  } catch (error) {
+    console.error(`Shipping rate ${shippingRateId} could not be read`, error);
+    return null;
+  }
+}
+
+/**
+ * Whether Stripe Tax can calculate tax on a connected account: `active` once
+ * the account has its head office and at least one registration, `pending`
+ * while something is missing, `unavailable` when Stripe could not be asked.
+ */
+export async function stripeTaxStatus(accountId: string): Promise<"active" | "pending" | "unavailable"> {
+  const stripe = stripeClient();
+  if (!stripe) return "unavailable";
+  try {
+    const settings = await stripe.tax.settings.retrieve({}, { stripeAccount: accountId });
+    return settings.status === "active" ? "active" : "pending";
+  } catch (error) {
+    console.error(`Stripe Tax settings of ${accountId} could not be read`, error);
+    return "unavailable";
   }
 }
 

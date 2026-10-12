@@ -22,6 +22,7 @@ import type {
   Order,
   PlanEnquiry,
   QuoteRequest,
+  ShippingZone,
   Store,
   Storefront,
   StoreProduct,
@@ -58,6 +59,7 @@ export const COLLECTIONS = {
   apiRateLimits: "api_rate_limits",
   inventoryLevels: "inventory_levels",
   inventoryAdjustments: "inventory_adjustments",
+  shippingZones: "shipping_zones",
 } as const;
 
 /* ------------------------------------------------------------------ paging */
@@ -303,6 +305,11 @@ export async function updateStoreProduct(id: string, patch: Partial<StoreProduct
 /** A store's collections in the order the team arranged them. */
 export function listProductCollections(storeId: string) {
   return db.find<ProductCollection>(COLLECTIONS.productCollections, { storeId }, { sort: { position: 1, createdAt: 1 } });
+}
+
+/** A store's shipping zones, oldest first. */
+export function listShippingZones(storeId: string) {
+  return db.find<ShippingZone>(COLLECTIONS.shippingZones, { storeId }, { sort: { createdAt: 1, id: 1 } });
 }
 
 export function getProductCollection(id: string) {

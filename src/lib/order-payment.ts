@@ -8,7 +8,8 @@ import { localCountryName } from "./countries";
 import { routeOrder } from "./fulfillment";
 import { commitOrderStock, releaseOrderStock } from "./inventory";
 import { db } from "./mongo";
-import { orderStatusUrl, signOrderToken } from "./order-access";
+import { orderInvoiceUrl, orderStatusUrl, signOrderToken } from "./order-access";
+import { orderTax } from "./shipping";
 import { emailCopy, shopperLocale } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import type { Order, Store } from "./types";
@@ -39,11 +40,15 @@ export function refreshPages(...paths: [string, ("layout" | "page")?][]): void {
   }
 }
 
+/** Order amounts Checkout settled differently from what was written at checkout. */
+export type SettledAmounts = Partial<Pick<Order, "shipping" | "shippingRate" | "taxAmount" | "taxLines" | "taxRate" | "total">>;
+
 export interface SettledPayment {
   paymentIntentId: string | null;
   last4: string | null;
   /** The timeline note, for the store team. */
   note: string;
+  amounts?: SettledAmounts | null;
 }
 
 /** The storefront's address in the language the shopper checked out in. */
@@ -59,6 +64,8 @@ function shopperBase(store: Store, order: Order): string {
  */
 export async function confirmOrderPayment(order: Order, store: Store, payment: SettledPayment): Promise<boolean> {
   const now = new Date().toISOString();
+  const amounts = payment.amounts ?? {};
+  order = { ...order, ...amounts };
   const paid: Order = {
     ...order,
     status: "paid",
@@ -96,7 +103,7 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
 
   const written = await updateOrder(
     order.id,
-    { status: paid.status, payment: paid.payment, fulfillment: paid.fulfillment, events: paid.events },
+    { ...amounts, status: paid.status, payment: paid.payment, fulfillment: paid.fulfillment, events: paid.events },
     { status: "awaiting_payment" },
   );
   if (!written) return false;
@@ -156,6 +163,7 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
     const token = await signOrderToken(storeId, code);
     const { customer } = order;
     const locale = shopperLocale(store, order.locale ?? store.defaultLanguage);
+    const tax = orderTax(paid);
     sendEmail({
       to: customer.email,
       message: orderConfirmationEmail(brandFor(store), await emailCopy(locale), {
@@ -174,6 +182,10 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
           .filter(Boolean)
           .join(", "),
         statusUrl: `${origin}${orderStatusUrl(shopperBase(store, order), code, token)}`,
+        ...(order.shippingRate ? { shipping: { name: order.shippingRate.name, amount: order.shipping } } : {}),
+        taxRows: tax.rows.filter((row) => row.amount > 0),
+        taxInclusive: tax.inclusive,
+        invoiceUrl: `${origin}${orderInvoiceUrl(shopperBase(store, order), code, token)}`,
       }),
       kind: "order confirmation",
       storeId,

@@ -11,6 +11,7 @@ import {
   listCatalogProducts,
   listDiscountCodes,
   listProductCollections,
+  listShippingZones,
   listTaxBrackets,
   pageRecords,
   type RecordPage,
@@ -32,6 +33,18 @@ import {
   saveVariants,
   setProductStatus,
 } from "../operations/products";
+import {
+  createRate,
+  createZone,
+  deleteRate,
+  deleteZone,
+  findZone,
+  saveTaxSettings,
+  taxSettingsView,
+  updateRate,
+  updateZone,
+} from "../operations/shipping";
+import { MAX_DELIVERY_DAYS, MAX_RATES_PER_ZONE, MAX_TAX_RATE, MAX_TIERS, RATE_KINDS } from "../shipping";
 import { renameStore, saveBranding, saveCurrencies, saveLanguages, savePolicies, saveSupport } from "../operations/store-settings";
 import {
   publishStorefront,
@@ -49,7 +62,14 @@ import { isStoredAsset } from "../uploads";
 import { THEMES, type Customer, type DiscountCode, type Order, type StoreProduct, type ThemeKey } from "../types";
 import { CURRENCY_OPTIONS } from "../util";
 import { ApiError } from "./auth";
-import { presentCatalogProduct, presentCollection, presentOrder, presentProduct, presentStore } from "./present";
+import {
+  presentCatalogProduct,
+  presentCollection,
+  presentOrder,
+  presentProduct,
+  presentShippingZone,
+  presentStore,
+} from "./present";
 
 /**
  * Every operation of the Admin API, described once.
@@ -70,6 +90,8 @@ export const API_TAGS = [
   "Products",
   "Variants",
   "Inventory",
+  "Shipping",
+  "Taxes",
   "Collections",
   "Orders",
   "Customers",
@@ -170,6 +192,10 @@ async function collection(ctx: OperationContext, collectionId: string) {
 
 async function order(ctx: OperationContext, orderId: string): Promise<Order> {
   return (await findOrder(ctx.store.id, orderId)) ?? notFound("Order");
+}
+
+async function zone(ctx: OperationContext, zoneId: string) {
+  return (await findZone(ctx.store.id, zoneId)) ?? notFound("Shipping zone");
 }
 
 async function customer(ctx: OperationContext, customerId: string): Promise<Customer> {
@@ -521,7 +547,7 @@ const variants = [
     tag: "Variants",
     summary: "Update variant prices and availability",
     description:
-      "Switches variants on or off and changes their prices. Variants left out are unchanged. At least one variant stays on, and none may be priced at or below its cost.",
+      "Switches variants on or off and changes their prices and shipping weights. Variants left out are unchanged. At least one variant stays on, and none may be priced at or below its cost.",
     input: z.object({
       productId: id("product"),
       variants: z
@@ -530,6 +556,13 @@ const variants = [
             id: id("variant"),
             enabled: z.boolean().optional().describe("Whether shoppers can buy it."),
             price: money("The price").positive().optional(),
+            weightGrams: z
+              .number()
+              .int()
+              .min(0)
+              .max(1_000_000)
+              .optional()
+              .describe("Shipping weight in grams, for weight-based shipping rates."),
           }),
         )
         .min(1),
@@ -713,6 +746,217 @@ const inventory = [
       showLowStock: z.boolean(),
     }),
     run: async (ctx, input) => saveInventorySettings(ctx, input),
+  }),
+];
+
+/* --------------------------------------------------------------- shipping */
+
+const countryCodes = z
+  .array(z.string().length(2))
+  .min(1)
+  .describe("ISO 3166-1 alpha-2 codes, such as DE and FR. A country can be in one zone of the store only.");
+const rateFields = {
+  name: z.string().describe("What shoppers see, such as Standard or Express. 2 to 60 characters."),
+  kind: z
+    .enum(RATE_KINDS)
+    .describe(
+      "flat: one price. weight: priced by the order's weight in grams from tiers. subtotal: priced by the order subtotal after discounts from tiers. free_over: amount below threshold, free at or above it.",
+    ),
+  amount: money("The price of a flat rate, or the price below the threshold of a free_over rate").min(0),
+  tiers: z
+    .array(
+      z.object({
+        upTo: z
+          .number()
+          .int()
+          .nullable()
+          .describe("Upper bound, inclusive: grams for weight rates, minor units for subtotal rates. null on the last tier means and above."),
+        amount: money("The price for orders in this tier").min(0),
+      }),
+    )
+    .max(MAX_TIERS)
+    .describe(`For weight and subtotal rates, ascending, up to ${MAX_TIERS}. An order above the last bound is not offered the rate.`),
+  threshold: money("The subtotal a free_over rate is free from").nullable(),
+  minDays: z.number().int().min(0).max(MAX_DELIVERY_DAYS).describe("Delivery estimate from, in business days."),
+  maxDays: z.number().int().min(1).max(MAX_DELIVERY_DAYS).describe("Delivery estimate to, in business days."),
+};
+
+const shipping = [
+  define({
+    id: "listShippingZones",
+    method: "GET",
+    path: "/shipping/zones",
+    scope: "store:read",
+    tag: "Shipping",
+    summary: "List shipping zones",
+    description:
+      "The store's shipping zones, each with its countries and rates. Amounts are in the zone's currency. Checkout only offers the rates of the zone holding the shopper's country, and a store needs at least one zone before products can be published.",
+    input: z.object({}),
+    run: async (ctx) => ({ data: (await listShippingZones(ctx.store.id)).map(presentShippingZone) }),
+  }),
+  define({
+    id: "getShippingZone",
+    method: "GET",
+    path: "/shipping/zones/{zoneId}",
+    scope: "store:read",
+    tag: "Shipping",
+    summary: "Get a shipping zone",
+    description: "One shipping zone with its countries and rates.",
+    input: z.object({ zoneId: id("shipping zone") }),
+    run: async (ctx, input) => presentShippingZone(await zone(ctx, input.zoneId)),
+  }),
+  define({
+    id: "createShippingZone",
+    method: "POST",
+    path: "/shipping/zones",
+    scope: "store:write",
+    tag: "Shipping",
+    summary: "Create a shipping zone",
+    description:
+      "Adds a zone of countries the store ships to, priced in the store's default currency. Add rates to it with createShippingRate.",
+    status: 201,
+    input: z.object({
+      name: z.string().describe("Such as Europe or Domestic. 2 to 60 characters."),
+      countries: countryCodes,
+      idempotencyKey,
+    }),
+    run: async (ctx, input) =>
+      presentShippingZone(
+        await createZone(ctx, { name: input.name, countries: input.countries, submissionKey: input.idempotencyKey }),
+      ),
+  }),
+  define({
+    id: "updateShippingZone",
+    method: "PATCH",
+    path: "/shipping/zones/{zoneId}",
+    scope: "store:write",
+    tag: "Shipping",
+    summary: "Rename a zone or change its countries",
+    description: "Fields left out keep their value. `countries` replaces the zone's whole list.",
+    input: z.object({
+      zoneId: id("shipping zone"),
+      name: z.string().optional(),
+      countries: countryCodes.optional(),
+    }),
+    run: async (ctx, input) =>
+      presentShippingZone(await updateZone(ctx, await zone(ctx, input.zoneId), { name: input.name, countries: input.countries })),
+  }),
+  define({
+    id: "deleteShippingZone",
+    method: "DELETE",
+    path: "/shipping/zones/{zoneId}",
+    scope: "store:write",
+    tag: "Shipping",
+    summary: "Delete a shipping zone",
+    description: "Removes the zone and its rates. Shoppers in its countries can no longer check out.",
+    destructive: true,
+    input: z.object({ zoneId: id("shipping zone") }),
+    run: async (ctx, input) => {
+      await deleteZone(ctx, await zone(ctx, input.zoneId));
+      return { deleted: true };
+    },
+  }),
+  define({
+    id: "createShippingRate",
+    method: "POST",
+    path: "/shipping/zones/{zoneId}/rates",
+    scope: "store:write",
+    tag: "Shipping",
+    summary: "Add a rate to a zone",
+    description: `Adds a rate shoppers in the zone can choose at checkout, up to ${MAX_RATES_PER_ZONE} per zone. Amounts are in the zone's currency.`,
+    status: 201,
+    input: z.object({
+      zoneId: id("shipping zone"),
+      ...rateFields,
+      amount: rateFields.amount.default(0),
+      tiers: rateFields.tiers.default([]),
+      threshold: rateFields.threshold.default(null),
+      idempotencyKey,
+    }),
+    run: async (ctx, { zoneId, idempotencyKey: key, ...rate }) =>
+      presentShippingZone(await createRate(ctx, await zone(ctx, zoneId), { ...rate, submissionKey: key })),
+  }),
+  define({
+    id: "updateShippingRate",
+    method: "PATCH",
+    path: "/shipping/zones/{zoneId}/rates/{rateId}",
+    scope: "store:write",
+    tag: "Shipping",
+    summary: "Change a rate",
+    description: "Fields left out keep their value.",
+    input: z.object({
+      zoneId: id("shipping zone"),
+      rateId: id("shipping rate"),
+      name: rateFields.name.optional(),
+      kind: rateFields.kind.optional(),
+      amount: rateFields.amount.optional(),
+      tiers: rateFields.tiers.optional(),
+      threshold: rateFields.threshold.optional(),
+      minDays: rateFields.minDays.optional(),
+      maxDays: rateFields.maxDays.optional(),
+    }),
+    run: async (ctx, { zoneId, rateId, ...rate }) => {
+      const current = await zone(ctx, zoneId);
+      if (!current.rates.some((r) => r.id === rateId)) notFound("Shipping rate");
+      return presentShippingZone(await updateRate(ctx, current, rateId, rate));
+    },
+  }),
+  define({
+    id: "deleteShippingRate",
+    method: "DELETE",
+    path: "/shipping/zones/{zoneId}/rates/{rateId}",
+    scope: "store:write",
+    tag: "Shipping",
+    summary: "Delete a rate",
+    description: "Removes the rate from the zone.",
+    destructive: true,
+    input: z.object({ zoneId: id("shipping zone"), rateId: id("shipping rate") }),
+    run: async (ctx, input) => {
+      const current = await zone(ctx, input.zoneId);
+      if (!current.rates.some((r) => r.id === input.rateId)) notFound("Shipping rate");
+      return presentShippingZone(await deleteRate(ctx, current, input.rateId));
+    },
+  }),
+];
+
+/* ------------------------------------------------------------------ taxes */
+
+const taxes = [
+  define({
+    id: "getTaxSettings",
+    method: "GET",
+    path: "/taxes",
+    scope: "store:read",
+    tag: "Taxes",
+    summary: "Get the tax settings",
+    description:
+      "How checkout charges tax: mode manual (the store's rate for the destination country, or each product's tax bracket where it has none) or stripe (Stripe Tax on the store's Stripe account), the manual rates per country, and whether prices include tax.",
+    input: z.object({}),
+    run: async (ctx) => taxSettingsView(ctx.store),
+  }),
+  define({
+    id: "updateTaxSettings",
+    method: "PUT",
+    path: "/taxes",
+    scope: "store:write",
+    tag: "Taxes",
+    summary: "Set the tax settings",
+    description:
+      "Replaces the tax settings. Mode stripe needs Stripe payments connected and Stripe Tax active on that account; otherwise it is refused with the reason.",
+    input: z.object({
+      mode: z.enum(["manual", "stripe"]),
+      pricesIncludeTax: z.boolean().describe("Whether product prices already include tax."),
+      rates: z
+        .array(
+          z.object({
+            country: z.string().length(2).describe("ISO alpha-2 code."),
+            rate: z.number().min(0).max(MAX_TAX_RATE).describe("Percent, such as 19 or 7.7."),
+          }),
+        )
+        .default([])
+        .describe("Manual rates, one per country."),
+    }),
+    run: async (ctx, input) => saveTaxSettings(ctx, input),
   }),
 ];
 
@@ -1373,6 +1617,8 @@ export const API_OPERATIONS: ApiOperation[] = [
   ...products,
   ...variants,
   ...inventory,
+  ...shipping,
+  ...taxes,
   ...collections,
   ...orders,
   ...customers,
