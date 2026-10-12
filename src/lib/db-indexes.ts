@@ -73,6 +73,14 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   shipping_zones: [byId, { key: { storeId: 1, createdAt: 1 } }],
   inventory_levels: [byId, { key: { storeId: 1 } }, { key: { productId: 1 } }],
   inventory_adjustments: [byId, { key: { storeId: 1, at: -1, id: -1 } }, { key: { storeId: 1, variantId: 1, at: -1 } }],
+  webhook_endpoints: [byId, { key: { storeId: 1, status: 1, topics: 1 } }],
+  webhook_deliveries: [
+    byId,
+    { key: { storeId: 1, endpointId: 1, createdAt: -1 } },
+    { key: { status: 1, nextAttemptAt: 1 } },
+    // Each delivery is kept for 30 days.
+    { key: { expiresAt: 1 }, expireAfterSeconds: 0 },
+  ],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */
