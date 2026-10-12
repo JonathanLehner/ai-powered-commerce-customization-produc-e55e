@@ -24,6 +24,16 @@ export interface OperationContext {
 }
 
 /**
+ * What a platform administration operation is given: no store, only who did it
+ * (a platform administrator, or a platform key under its name) and the language
+ * refusals are written in. The Admin API's `AdminContext` has the same shape.
+ */
+export interface PlatformContext {
+  actor: Actor;
+  locale: Locale;
+}
+
+/**
  * - `invalid`: the input breaks a rule; `field` names the input.
  * - `not_found`: the record is not in this store.
  * - `conflict`: the record's state does not allow it, or it changed meanwhile.

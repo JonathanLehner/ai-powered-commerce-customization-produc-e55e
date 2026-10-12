@@ -287,7 +287,7 @@
     "metaTitle": "Developers",
     "metaDescription": "Connect your own code, Claude and other AI assistants to a Parcelith store with the Admin API and the MCP server.",
     "title": "Run your store from code and AI assistants",
-    "lead": "The Admin API and the MCP server give your own code, Claude and other AI assistants access to a store's products, orders, customers, discounts, storefront and settings.",
+    "lead": "The Admin API and the MCP server give your own code, Claude and other AI assistants access to a store's products, artwork, orders, customers, gifting, sourcing, assistant, team, analytics, activity and settings.",
     "keysTitle": "Create an API key",
     "keysBody": "A key works for one store. Every change made with it is recorded in the store's activity under the key's name.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Gift cards",
       "Reviews": "Reviews",
       "Content": "Pages and blog",
-      "Navigation": "Menus"
+      "Navigation": "Menus",
+      "Artwork and mockups": "Artwork and mockups",
+      "Gifting": "Gift catalogues",
+      "Campaigns": "Gift campaigns",
+      "Sourcing": "Sourcing",
+      "Assistant": "AI assistant",
+      "Team": "Team",
+      "Analytics": "Analytics",
+      "Activity": "Activity",
+      "Agency": "Agency",
+      "Platform administration": "Platform administration"
     },
     "ctaTitle": "Create your first key",
     "ctaBody": "Sign in, open a store's Settings and choose API keys.",
-    "cta": "Sign in"
+    "cta": "Sign in",
+    "platformTitle": "Platform keys",
+    "platformBody": "Platform administrators create platform keys under Admin → API keys. A platform key holds the {scope} scope, which no store key can hold, and runs the operations listed under Platform administration."
   },
   "pricing": {
     "metaTitle": "Pricing",
@@ -737,7 +749,8 @@
       "quotes": "Quote requests",
       "tax": "Tax brackets",
       "agencies": "Agencies and access",
-      "audit": "Audit log"
+      "audit": "Audit log",
+      "apiKeys": "API keys"
     },
     "people": "People",
     "billing": "Billing"
@@ -4141,7 +4154,14 @@
       "store": "Store details",
       "gift_cards": "Gift cards",
       "reviews": "Reviews",
-      "content": "Pages, blog and menus"
+      "content": "Pages, blog and menus",
+      "gifting": "Corporate gifting",
+      "sourcing": "Sourcing and quotes",
+      "assistant": "AI assistant",
+      "team": "Team",
+      "analytics": "Analytics",
+      "activity": "Activity",
+      "agency": "Agency people, plan and stores"
     },
     "none": "No access",
     "read": "Read",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Use {max} characters or fewer.",
       "scopeRequired": "Give the key access to at least one area.",
       "duplicate": "This key was already created. If you did not copy it, revoke it and create a new one."
+    },
+    "platform": {
+      "description": "Platform keys run the platform administration operations of the Admin API and the MCP server. They cannot open any store.",
+      "access": "Access: platform administration"
     }
   },
   "inventory": {

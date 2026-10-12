@@ -287,7 +287,7 @@
     "metaTitle": "Ontwikkelaars",
     "metaDescription": "Koppel je eigen code, Claude en andere AI-assistenten aan een Parcelith-winkel met de Admin-API en de MCP-server.",
     "title": "Beheer je winkel met code en AI-assistenten",
-    "lead": "Met de Admin-API en de MCP-server krijgen je eigen code, Claude en andere AI-assistenten toegang tot de producten, bestellingen, klanten, kortingen, etalage en instellingen van een winkel.",
+    "lead": "Met de Admin-API en de MCP-server krijgen je eigen code, Claude en andere AI-assistenten toegang tot de producten, ontwerpen, bestellingen, klanten, zakelijke geschenken, inkoop, assistent, team, analyses, activiteit en instellingen van een winkel.",
     "keysTitle": "Een API-sleutel maken",
     "keysBody": "Een sleutel werkt voor één winkel. Elke wijziging die ermee wordt gedaan, wordt in de activiteit van de winkel vastgelegd onder de naam van de sleutel.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Cadeaubonnen",
       "Reviews": "Reviews",
       "Content": "Pagina's en blog",
-      "Navigation": "Menu's"
+      "Navigation": "Menu's",
+      "Artwork and mockups": "Ontwerpen en mockups",
+      "Gifting": "Geschenkcatalogi",
+      "Campaigns": "Geschenkcampagnes",
+      "Sourcing": "Inkoop",
+      "Assistant": "AI-assistent",
+      "Team": "Team",
+      "Analytics": "Analyses",
+      "Activity": "Activiteit",
+      "Agency": "Bureau",
+      "Platform administration": "Platformbeheer"
     },
     "ctaTitle": "Maak je eerste sleutel",
     "ctaBody": "Log in, open de Instellingen van een winkel en kies API-sleutels.",
-    "cta": "Inloggen"
+    "cta": "Inloggen",
+    "platformTitle": "Platformsleutels",
+    "platformBody": "Platformbeheerders maken platformsleutels aan onder Admin → API-sleutels. Een platformsleutel heeft de scope {scope}, die geen winkelsleutel kan hebben, en voert de bewerkingen onder Platformbeheer uit."
   },
   "pricing": {
     "metaTitle": "Prijzen",
@@ -737,7 +749,8 @@
       "quotes": "Offerteaanvragen",
       "tax": "Btw-tarieven",
       "agencies": "Bureaus en toegang",
-      "audit": "Auditlogboek"
+      "audit": "Auditlogboek",
+      "apiKeys": "API-sleutels"
     },
     "people": "Personen",
     "billing": "Facturering"
@@ -4141,7 +4154,14 @@
       "store": "Winkelgegevens",
       "gift_cards": "Cadeaubonnen",
       "reviews": "Beoordelingen",
-      "content": "Pagina's, blog en menu's"
+      "content": "Pagina's, blog en menu's",
+      "gifting": "Zakelijke geschenken",
+      "sourcing": "Inkoop en offertes",
+      "assistant": "AI-assistent",
+      "team": "Team",
+      "analytics": "Analyses",
+      "activity": "Activiteit",
+      "agency": "Bureau: mensen, abonnement en winkels"
     },
     "none": "Geen toegang",
     "read": "Lezen",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Gebruik maximaal {max} tekens.",
       "scopeRequired": "Geef de sleutel toegang tot minstens één onderdeel.",
       "duplicate": "Deze sleutel is al gemaakt. Heb je hem niet gekopieerd, trek hem dan in en maak een nieuwe."
+    },
+    "platform": {
+      "description": "Platformsleutels voeren de platformbeheerbewerkingen van de Admin-API en de MCP-server uit. Ze openen geen winkel.",
+      "access": "Toegang: platformbeheer"
     }
   },
   "inventory": {

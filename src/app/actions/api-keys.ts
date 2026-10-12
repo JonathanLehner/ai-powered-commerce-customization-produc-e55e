@@ -25,8 +25,11 @@ export async function createKey(_prev: CreateKeyState, formData: FormData): Prom
   if (name.length > API_KEY_NAME_LIMIT) {
     return { status: "error", message: t("nameTooLong", { max: API_KEY_NAME_LIMIT }), field: "name" };
   }
+  // Agency areas reach past this store, so only the agency's administrator can grant them.
+  const agencyAdmin = user.platformRole === "agency_admin" && user.agencyId === store.agencyId;
   const scopes = normalizeScopes(
     API_RESOURCES.map((resource) => `${resource}:${String(formData.get(`scope_${resource}`) ?? "")}`),
+    { agencyAdmin },
   );
   if (scopes.length === 0) return { status: "error", message: t("scopeRequired"), field: "scopes" };
 

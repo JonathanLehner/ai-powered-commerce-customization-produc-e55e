@@ -167,10 +167,11 @@ assert.equal(read.rows.find((n) => n.id === "ORD-2").email, "skipped");
 /* ------------------------------------------- wired where the audit is written */
 
 // Payment confirmation is shared by checkout and the Stripe webhook, so it
-// raises its notification from lib rather than from an action.
+// raises its notification from lib rather than from an action. The workspace
+// and the Admin API share the store operations, so those raise theirs too.
 const sources = [
   ...["orders", "shop", "gifting", "sourcing", "team"].map((name) => `../src/app/actions/${name}.ts`),
-  "../src/lib/operations/orders.ts",
+  ...["orders", "gifting", "sourcing", "team", "admin"].map((name) => `../src/lib/operations/${name}.ts`),
   "../src/lib/order-payment.ts",
   "../src/lib/gift-payment.ts",
   "../src/lib/inventory.ts",

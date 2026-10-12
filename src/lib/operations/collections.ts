@@ -134,6 +134,24 @@ export async function saveCollectionDetails(
   return { ...collection, name, description, handle, imageUrl };
 }
 
+/* ------------------------------------------------------------------- order */
+
+/** Puts the store's collections in the order given; ones left out keep their place after them. Returns the ids in their new order. */
+export async function reorderCollections(ctx: OperationContext, ids: unknown): Promise<string[]> {
+  const collections = await listProductCollections(ctx.store.id);
+  const current = collections.map((c) => c.id);
+  const next = applyOrder(current, cleanIdList(ids, current));
+  await Promise.all(
+    next.flatMap((id, position) => {
+      const collection = collections.find((c) => c.id === id);
+      return collection && collection.position !== position ? [updateProductCollection(id, {}, { position })] : [];
+    }),
+  );
+  auditCollection(ctx, "collection.reordered", "Reordered the store's collections", ctx.store.id, { count: next.length });
+  revalidateCollections(ctx);
+  return next;
+}
+
 /* ---------------------------------------------------------------- products */
 
 /**

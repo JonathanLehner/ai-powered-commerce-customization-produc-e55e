@@ -16,7 +16,7 @@ const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foregr
 
 export default async function ApiKeysPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
-  const { store } = await requireStoreAccess(storeId, "store.settings");
+  const { store, user } = await requireStoreAccess(storeId, "store.settings");
   const [keys, t, pages, developers, locale] = await Promise.all([
     listApiKeys(storeId),
     getTranslations("apiKeys"),
@@ -49,7 +49,7 @@ export default async function ApiKeysPage({ params }: { params: Promise<{ storeI
 
       <section className="space-y-4">
         <h2 className="text-base font-semibold text-foreground">{t("createTitle")}</h2>
-        <CreateKeyForm storeId={store.id} />
+        <CreateKeyForm storeId={store.id} agencyAdmin={user.platformRole === "agency_admin" && user.agencyId === store.agencyId} />
       </section>
 
       <Card asChild>

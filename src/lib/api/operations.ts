@@ -2,7 +2,6 @@ import "server-only";
 import { z } from "zod";
 import { LOCALES } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import type { ApiScope } from "../api-scopes";
 import { getCustomer } from "../customer-data";
 import {
   COLLECTIONS,
@@ -14,7 +13,6 @@ import {
   listShippingZones,
   listTaxBrackets,
   pageRecords,
-  type RecordPage,
 } from "../data";
 import { addCollectionProducts, createCollection, deleteCollection, findCollection, removeCollectionProduct, reorderCollectionProducts, saveCollectionDetails } from "../operations/collections";
 import type { OperationContext } from "../operations/context";
@@ -58,10 +56,23 @@ import {
 import { POLICY_KEYS, storePolicyText } from "../policies";
 import { flattenShopText, shopTextEntries } from "../shop-text";
 import { shipBlock } from "../bulk-orders";
-import { isStoredAsset } from "../uploads";
 import { THEMES, type Customer, type DiscountCode, type Order, type StoreProduct, type ThemeKey } from "../types";
 import { CURRENCY_OPTIONS } from "../util";
 import { ApiError } from "./auth";
+import {
+  assetUrl,
+  decodeCursor,
+  define,
+  id,
+  idempotencyKey,
+  locale,
+  money,
+  notFound,
+  page,
+  paging,
+  type ApiOperation,
+} from "./define";
+import { OPS_MODULES } from "./ops/index";
 import {
   presentCatalogProduct,
   presentCollection,
@@ -93,108 +104,8 @@ import type { ContentEntry, GiftCard, ProductReview } from "../types";
  * body fields in one object.
  */
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-
-export const API_TAGS = [
-  "Store",
-  "Products",
-  "Variants",
-  "Inventory",
-  "Shipping",
-  "Taxes",
-  "Collections",
-  "Orders",
-  "Customers",
-  "Discounts",
-  "Gift cards",
-  "Reviews",
-  "Content",
-  "Navigation",
-  "Storefront",
-  "Translations",
-] as const;
-
-export interface ApiOperation {
-  /** The OpenAPI operationId. The MCP tool is the same name in snake_case. */
-  id: string;
-  method: HttpMethod;
-  /** Under `/api/v1/stores/{storeId}`; `{name}` segments are path parameters. */
-  path: string;
-  scope: ApiScope;
-  tag: (typeof API_TAGS)[number];
-  summary: string;
-  description: string;
-  input: z.ZodObject;
-  /** The success status; 200 unless given. */
-  status?: 200 | 201;
-  /** Removes or overwrites something that cannot be brought back from the API. */
-  destructive?: boolean;
-  run(ctx: OperationContext, input: never): Promise<unknown>;
-}
-
-function define<S extends z.ZodObject>(
-  operation: Omit<ApiOperation, "input" | "run"> & {
-    input: S;
-    run(ctx: OperationContext, input: z.output<S>): Promise<unknown>;
-  },
-): ApiOperation {
-  return operation as unknown as ApiOperation;
-}
-
-/** The MCP tool for an operation: `listProducts` → `list_products`. */
-export function toolName(operation: Pick<ApiOperation, "id">): string {
-  return operation.id.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-}
-
-/** The path parameters an operation's path names, `storeId` excluded. */
-export function pathParams(operation: Pick<ApiOperation, "path">): string[] {
-  return [...operation.path.matchAll(/\{(\w+)\}/g)].map((match) => match[1]);
-}
-
-/* ----------------------------------------------------------------- shared */
-
-const id = (what: string) => z.string().min(1).describe(`The ${what} id.`);
-const money = (what: string) =>
-  z.number().int().describe(`${what}, in minor units of the currency (cents): 2500 is 25.00.`);
-const locale = z.enum(LOCALES).describe("A language code the store has enabled, such as de.");
-const idempotencyKey = z
-  .string()
-  .min(8)
-  .max(100)
-  .optional()
-  .describe("Any unique string. Sending the same request again with the same key returns the first result instead of creating a second record.");
-const assetUrl = z
-  .string()
-  .refine(isStoredAsset, "Use an image already uploaded to the store's asset storage (https://assets.clawcorp.ai/…).");
-
-const paging = {
-  limit: z.coerce.number().int().min(1).max(100).default(50).describe("Records per page, 1 to 100."),
-  cursor: z.string().optional().describe("The nextCursor of the previous page."),
-};
-
-function decodeCursor(cursor: string | undefined): [string, string] | null {
-  if (!cursor) return null;
-  try {
-    const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
-    if (Array.isArray(value) && value.length === 2 && value.every((part) => typeof part === "string")) {
-      return value as [string, string];
-    }
-  } catch {
-    // Reported below.
-  }
-  throw new ApiError(422, "invalid_request", "`cursor` is not one this API returned.", "cursor");
-}
-
-function page<T, R>(rows: RecordPage<T>, present: (row: T) => R) {
-  return {
-    data: rows.data.map(present),
-    nextCursor: rows.next ? Buffer.from(JSON.stringify(rows.next)).toString("base64url") : null,
-  };
-}
-
-function notFound(what: string): never {
-  throw new ApiError(404, "not_found", `${what} not found.`);
-}
+export { API_TAGS, pathParams, toolName } from "./define";
+export type { ApiOperation, HttpMethod } from "./define";
 
 async function product(ctx: OperationContext, productId: string): Promise<StoreProduct> {
   return (await findProduct(ctx.store.id, productId)) ?? notFound("Product");
@@ -243,6 +154,7 @@ const store = [
     tag: "Store",
     summary: "Rename the store",
     description: "Changes the store's name and the client it is run for. Fields left out keep their value.",
+    actions: ["stores#renameStore"],
     input: z.object({
       name: z.string().optional().describe("The store name shoppers see. At least 3 characters."),
       clientName: z.string().optional().describe("The client or brand the store is run for."),
@@ -260,6 +172,7 @@ const store = [
     tag: "Store",
     summary: "Set the shopper support contacts",
     description: "The email address, and optionally the phone number, shoppers are given in the storefront footer and on their order page.",
+    actions: ["stores#saveSupport"],
     input: z.object({
       supportEmail: z.string().describe("Required. Where shoppers write to the store."),
       supportPhone: z.string().default("").describe("Optional. Empty removes it."),
@@ -274,6 +187,7 @@ const store = [
     tag: "Store",
     summary: "Set the selling currencies",
     description: "The currencies shoppers can pay in and the default one prices are written in.",
+    actions: ["stores#saveLocalisation"],
     input: z.object({
       currencies: z
         .array(z.enum(CURRENCY_OPTIONS.map((option) => option.code) as [string, ...string[]]))
@@ -292,6 +206,7 @@ const store = [
     summary: "Set the storefront languages",
     description:
       "The languages the storefront and gift portals are offered in, and the default one. Products, collections and shop text are written in the default language and translated into the others.",
+    actions: ["stores#saveLanguages"],
     input: z.object({
       languages: z.array(z.enum(LOCALES)).min(1).describe(`Language codes from ${LOCALES.join(", ")}.`),
       defaultLanguage: z.enum(LOCALES).describe("One of `languages`."),
@@ -337,6 +252,7 @@ const store = [
     description:
       "Replaces the store's policies in one language. A policy left out or empty goes back to the built-in text. Plain text; a line starting with # is a heading.",
     destructive: true,
+    actions: ["stores#savePolicies"],
     input: z.object({
       language: locale,
       ...Object.fromEntries(POLICY_KEYS.map((key) => [key, z.string().optional().describe(`The ${key} policy.`)])),
@@ -430,6 +346,7 @@ const products = [
     description:
       "Creates a draft product from a supplier catalog product (see listCatalogProducts). If the store already has a copy, the call is refused unless confirmDuplicate is true; the new copy then gets a numbered name and SKU.",
     status: 201,
+    actions: ["products#importCatalogProduct"],
     input: z.object({
       catalogProductId: id("supplier catalog product"),
       confirmDuplicate: z.boolean().default(false).describe("Copy it again although the store already has it."),
@@ -464,6 +381,7 @@ const products = [
     summary: "Update a product",
     description:
       "Changes a product's name, description, tags, price, tax bracket, visibility, SKU or shopper personalisation. Fields left out keep their value. Price changes are recorded in the store's activity.",
+    actions: ["products#saveProductDetails"],
     input: z.object({
       productId: id("product"),
       name: z.string().optional().describe("At least 3 characters."),
@@ -506,6 +424,7 @@ const products = [
     summary: "Publish, unpublish or archive a product",
     description:
       "Moves a product to draft, in_review, published or archived. Publishing runs the same checks as the workspace (approved mockups, print-ready artwork, a tax bracket); when any fails, nothing changes and the error lists what to fix.",
+    actions: ["products#setProductStatus"],
     input: z.object({ productId: id("product"), status: productStatus }),
     run: async (ctx, input) => {
       const current = await product(ctx, input.productId);
@@ -524,6 +443,7 @@ const products = [
     tag: "Products",
     summary: "Approve a product's mockups",
     description: "Approves every generated mockup of the product, which publishing requires.",
+    actions: ["products#approveMockups"],
     input: z.object({ productId: id("product") }),
     run: async (ctx, input) => presentProduct(await approveMockups(ctx, await product(ctx, input.productId)), ctx.store),
   }),
@@ -562,6 +482,7 @@ const variants = [
     summary: "Update variant prices and availability",
     description:
       "Switches variants on or off and changes their prices and shipping weights. Variants left out are unchanged. At least one variant stays on, and none may be priced at or below its cost.",
+    actions: ["products#saveVariants"],
     input: z.object({
       productId: id("product"),
       variants: z
@@ -687,6 +608,7 @@ const inventory = [
     summary: "Update a variant's stock",
     description:
       "Turns tracking on or off, sets what happens at zero, and sets the units available (available) or adds to the units on hand (adjustBy, negative to take away). Send one of available and adjustBy. Each quantity change is recorded in the adjustment history with its reason.",
+    actions: ["inventory#saveInventoryRow"],
     input: z.object({
       productId: id("product"),
       variantId: id("variant"),
@@ -732,6 +654,7 @@ const inventory = [
     summary: "Import stock from CSV",
     description:
       "Applies a CSV in the format the Inventory page exports: a header row with variant_id (or sku), and any of tracked (yes or no), policy (deny or continue) and available (or on_hand). Blank cells leave that value as it is. Rows that cannot be read are reported by line number; the rest are saved.",
+    actions: ["inventory#importInventoryFile"],
     input: z.object({ csv: z.string().min(1).max(1_000_000).describe("The file's text.") }),
     run: async (ctx, input) => importInventory(ctx, input.csv),
   }),
@@ -755,6 +678,7 @@ const inventory = [
     summary: "Set the low-stock settings",
     description:
       "Sets the threshold at or below which a tracked variant counts as low stock (it then appears in the attention list and notifies the team), and whether shoppers see “Only N left”.",
+    actions: ["inventory#saveInventorySettingsForm"],
     input: z.object({
       lowStockThreshold: z.number().int().min(0).max(10000),
       showLowStock: z.boolean(),
@@ -829,6 +753,7 @@ const shipping = [
     description:
       "Adds a zone of countries the store ships to, priced in the store's default currency. Add rates to it with createShippingRate.",
     status: 201,
+    actions: ["shipping#createShippingZone"],
     input: z.object({
       name: z.string().describe("Such as Europe or Domestic. 2 to 60 characters."),
       countries: countryCodes,
@@ -847,6 +772,7 @@ const shipping = [
     tag: "Shipping",
     summary: "Rename a zone or change its countries",
     description: "Fields left out keep their value. `countries` replaces the zone's whole list.",
+    actions: ["shipping#saveShippingZone"],
     input: z.object({
       zoneId: id("shipping zone"),
       name: z.string().optional(),
@@ -864,6 +790,7 @@ const shipping = [
     summary: "Delete a shipping zone",
     description: "Removes the zone and its rates. Shoppers in its countries can no longer check out.",
     destructive: true,
+    actions: ["shipping#deleteShippingZone"],
     input: z.object({ zoneId: id("shipping zone") }),
     run: async (ctx, input) => {
       await deleteZone(ctx, await zone(ctx, input.zoneId));
@@ -879,6 +806,7 @@ const shipping = [
     summary: "Add a rate to a zone",
     description: `Adds a rate shoppers in the zone can choose at checkout, up to ${MAX_RATES_PER_ZONE} per zone. Amounts are in the zone's currency.`,
     status: 201,
+    actions: ["shipping#createShippingRate"],
     input: z.object({
       zoneId: id("shipping zone"),
       ...rateFields,
@@ -898,6 +826,7 @@ const shipping = [
     tag: "Shipping",
     summary: "Change a rate",
     description: "Fields left out keep their value.",
+    actions: ["shipping#saveShippingRate"],
     input: z.object({
       zoneId: id("shipping zone"),
       rateId: id("shipping rate"),
@@ -924,6 +853,7 @@ const shipping = [
     summary: "Delete a rate",
     description: "Removes the rate from the zone.",
     destructive: true,
+    actions: ["shipping#deleteShippingRate"],
     input: z.object({ zoneId: id("shipping zone"), rateId: id("shipping rate") }),
     run: async (ctx, input) => {
       const current = await zone(ctx, input.zoneId);
@@ -957,6 +887,7 @@ const taxes = [
     summary: "Set the tax settings",
     description:
       "Replaces the tax settings. Mode stripe needs Stripe payments connected and Stripe Tax active on that account; otherwise it is refused with the reason.",
+    actions: ["shipping#saveTaxSettingsForm"],
     input: z.object({
       mode: z.enum(["manual", "stripe"]),
       pricesIncludeTax: z.boolean().describe("Whether product prices already include tax."),
@@ -1008,6 +939,7 @@ const collections = [
     summary: "Create a collection",
     description: "Creates an empty collection at the end of the store's list. Add products with addCollectionProducts.",
     status: 201,
+    actions: ["collections#createCollection"],
     input: z.object({
       name: z.string().describe("2 to 80 characters."),
       description: z.string().default("").describe("Up to 600 characters."),
@@ -1026,6 +958,7 @@ const collections = [
     tag: "Collections",
     summary: "Update a collection",
     description: "Changes a collection's name, description, address handle or image. Fields left out keep their value.",
+    actions: ["collections#saveCollectionDetails"],
     input: z.object({
       collectionId: id("collection"),
       name: z.string().optional(),
@@ -1054,6 +987,7 @@ const collections = [
     summary: "Delete a collection",
     description: "Deletes the collection. Its products stay in the store.",
     destructive: true,
+    actions: ["collections#deleteCollection"],
     input: z.object({ collectionId: id("collection") }),
     run: async (ctx, input) => {
       await deleteCollection(ctx, await collection(ctx, input.collectionId));
@@ -1068,6 +1002,7 @@ const collections = [
     tag: "Collections",
     summary: "Add products to a collection",
     description: "Adds products to the end of the collection. Products already in it, archived ones and unknown ids are skipped.",
+    actions: ["collections#addCollectionProducts"],
     input: z.object({ collectionId: id("collection"), productIds: z.array(z.string()).min(1).max(250) }),
     run: async (ctx, input) => addCollectionProducts(ctx, input.collectionId, input.productIds),
   }),
@@ -1079,6 +1014,7 @@ const collections = [
     tag: "Collections",
     summary: "Reorder a collection's products",
     description: "Puts the collection's products in the order given. Products left out keep their place after them.",
+    actions: ["collections#reorderCollectionProducts"],
     input: z.object({ collectionId: id("collection"), productIds: z.array(z.string()).min(1).max(250) }),
     run: async (ctx, input) => reorderCollectionProducts(ctx, input.collectionId, input.productIds),
   }),
@@ -1090,6 +1026,7 @@ const collections = [
     tag: "Collections",
     summary: "Remove a product from a collection",
     description: "Takes one product out of the collection. The product stays in the store.",
+    actions: ["collections#removeCollectionProduct"],
     input: z.object({ collectionId: id("collection"), productId: id("product") }),
     run: async (ctx, input) => removeCollectionProduct(ctx, input.collectionId, input.productId),
   }),
@@ -1141,6 +1078,7 @@ const orders = [
     summary: "Mark an order shipped",
     description:
       "Records the carrier and tracking number, marks the order shipped and emails the shopper their tracking link. The order must be in production. Without a tracking number the carrier's own is used. Repeating the same call changes nothing.",
+    actions: ["orders#addTracking"],
     input: z.object({
       orderId: id("order"),
       carrier: z.enum(CARRIERS).describe("One of the store's enabled carriers."),
@@ -1170,6 +1108,7 @@ const orders = [
     summary: "Move an order to another status",
     description:
       "Moves an order along: paid → in_production → shipped → delivered, or to cancelled or exception. A paid order is cancelled through refundOrder with cancel: true, so the money goes back too.",
+    actions: ["orders#advanceStatus"],
     input: z.object({
       orderId: id("order"),
       status: z.enum(["paid", "in_production", "shipped", "delivered", "cancelled", "exception"]),
@@ -1198,6 +1137,7 @@ const orders = [
       "Gives money back to the shopper's card, in full or in part, optionally cancelling the order and restocking its items. Refunds together cannot exceed the order total. Nothing is recorded unless the payment provider returns the money.",
     destructive: true,
     status: 201,
+    actions: ["orders#recordRefund"],
     input: z.object({
       orderId: id("order"),
       amount: money("The amount to refund").positive(),
@@ -1299,6 +1239,7 @@ const customers = [
     summary: "Add a note to a customer",
     description: "Adds a note the store team sees on the customer's page. Shoppers never see notes.",
     status: 201,
+    actions: ["customers#addNote"],
     input: z.object({
       customerId: id("customer"),
       body: z.string().describe("Up to 2,000 characters."),
@@ -1359,6 +1300,7 @@ const discounts = [
     summary: "Create a discount code",
     description: "Creates a code shoppers enter in the basket or at checkout. Amounts are in the store's default currency.",
     status: 201,
+    actions: ["discounts#createDiscount"],
     input: z.object({
       code: z.string().describe("What shoppers type, such as SUMMER20. Stored in capitals; unique in the store."),
       ...discountTerms,
@@ -1377,6 +1319,7 @@ const discounts = [
     tag: "Discounts",
     summary: "Update a discount code",
     description: "Changes a code's terms or switches it on or off. Fields left out keep their value. The code itself cannot change.",
+    actions: ["discounts#saveDiscount"],
     input: z.object({
       discountId: id("discount code"),
       ...Object.fromEntries(Object.entries(discountTerms).map(([key, schema]) => [key, schema.optional()])),
@@ -1436,6 +1379,7 @@ const storefront = [
     tag: "Storefront",
     summary: "Save the storefront draft",
     description: "Saves a new draft of the storefront page. Shoppers keep seeing the published version until publishStorefront.",
+    actions: ["storefront#saveStorefrontDraft"],
     input: z.object({
       tree,
       label: z.string().default("").describe("A name for this version in the history."),
@@ -1454,6 +1398,7 @@ const storefront = [
     tag: "Storefront",
     summary: "Publish the storefront",
     description: "Puts a page live for shoppers. Without a tree, the saved draft is published.",
+    actions: ["storefront#publishStorefront"],
     input: z.object({ tree: tree.optional(), label: z.string().default("") }),
     run: async (ctx, input) => {
       const page = input.tree ?? (await getStorefront(ctx.store.id))?.draft;
@@ -1485,6 +1430,7 @@ const storefront = [
     tag: "Storefront",
     summary: "Set the theme and logo",
     description: "Changes the storefront theme and logo. Fields left out keep their value.",
+    actions: ["stores#saveBranding"],
     input: z.object({
       theme: z.enum(Object.keys(THEMES) as [ThemeKey, ...ThemeKey[]]).optional(),
       logoUrl: assetUrl.nullable().optional().describe("An uploaded image, or null to remove the logo."),
@@ -1534,6 +1480,7 @@ const translations = [
     summary: "Change one shop text string",
     description:
       "Sets the store's wording of one built-in string, such as checkout.pay, in one language. Keep any {placeholders} the default has. An empty value goes back to the default.",
+    actions: ["translations#saveShopText"],
     input: z.object({
       language: locale,
       key: z.string().describe("The string's key from listShopText, such as checkout.pay."),
@@ -1572,6 +1519,7 @@ const translations = [
     summary: "Translate a product",
     description:
       "Saves a product's fields in one of the store's other languages. Keys are name, description, textLabel, colour:<Colour> and tag:<tag>. An empty value removes that translation.",
+    actions: ["translations#saveProductTranslation"],
     input: z.object({
       productId: id("product"),
       language: locale,
@@ -1589,6 +1537,7 @@ const translations = [
     tag: "Translations",
     summary: "Set a product's search title and description",
     description: "The title and description search engines and link previews show. Empty uses the product's name and description.",
+    actions: ["translations#saveProductSeo"],
     input: z.object({
       productId: id("product"),
       seoTitle: z.string().default("").describe("Up to 120 characters."),
@@ -1615,6 +1564,7 @@ const translations = [
     tag: "Translations",
     summary: "Translate a collection",
     description: "Saves a collection's name and description in one of the store's other languages. An empty value removes that translation.",
+    actions: ["translations#saveCollectionTranslation"],
     input: z.object({
       collectionId: id("collection"),
       language: locale,
@@ -1690,6 +1640,7 @@ const content = [
     summary: "Create a page or blog post",
     description: "Creates a page or post with an address made from its title. It stays hidden until published is true.",
     status: 201,
+    actions: ["content#createEntry"],
     input: z.object({
       kind: z.enum(CONTENT_KINDS).describe("page or post."),
       ...entryFields,
@@ -1711,6 +1662,7 @@ const content = [
     tag: "Content",
     summary: "Update a page or blog post",
     description: "Changes a page's or post's fields, or publishes and hides it. Fields left out keep their value.",
+    actions: ["content#saveEntry"],
     input: z.object({ entryId: id("page or post"), ...entryFields }),
     run: async (ctx, { entryId, ...fields }) => {
       const current = await entry(ctx, entryId);
@@ -1726,6 +1678,7 @@ const content = [
     summary: "Delete a page or blog post",
     description: "Deletes the page or post and removes menu links to it.",
     destructive: true,
+    actions: ["content#deleteEntry"],
     input: z.object({ entryId: id("page or post") }),
     run: async (ctx, input) => {
       await deleteEntry(ctx, await entry(ctx, input.entryId));
@@ -1740,6 +1693,7 @@ const content = [
     tag: "Content",
     summary: "Translate a page or blog post",
     description: `Saves a page's or post's fields in one of the store's other languages. Keys are ${CONTENT_FIELDS.join(", ")}; body is HTML. An empty value removes that translation.`,
+    actions: ["content#translateEntry"],
     input: z.object({
       entryId: id("page or post"),
       language: locale,
@@ -1785,6 +1739,7 @@ const navigation = [
     tag: "Navigation",
     summary: "Replace a menu",
     description: "Replaces the header or footer menu with the links given, in that order. Up to 20 links.",
+    actions: ["content#saveMenu"],
     input: z.object({
       menu: z.enum(MENU_NAMES).describe("header or footer."),
       items: z.array(menuItem).max(20),
@@ -1835,6 +1790,7 @@ const giftCards = [
     summary: "Issue a gift card",
     description: "Issues a gift card by hand and, with send, emails the code to the recipient. The full code is in this answer only.",
     status: 201,
+    actions: ["gift-cards#issueGiftCard"],
     input: z.object({
       amount: money("The value"),
       currency: z.string().describe("One of the store's currencies, such as EUR."),
@@ -1858,6 +1814,7 @@ const giftCards = [
     tag: "Gift cards",
     summary: "Update a gift card",
     description: "Disables or re-enables a gift card, or changes its note or expiry. A disabled card cannot be used at checkout.",
+    actions: ["gift-cards#setGiftCardStatus"],
     input: z.object({
       giftCardId: id("gift card"),
       status: z.enum(["active", "disabled"]).optional(),
@@ -1888,6 +1845,7 @@ const giftCards = [
     tag: "Gift cards",
     summary: "Sell gift cards",
     description: "Creates or updates the gift card product: its name, description, amounts in the store's default currency, and whether it is on sale.",
+    actions: ["gift-cards#saveGiftCardSettings"],
     input: z.object({
       name: z.string().describe("2 to 120 characters."),
       description: z.string().default(""),
@@ -1953,6 +1911,7 @@ const reviews = [
     tag: "Reviews",
     summary: "Approve or reject a review",
     description: "Approved reviews show on the product page and count towards its rating.",
+    actions: ["reviews#moderateReview"],
     input: z.object({ reviewId: id("review"), status: z.enum(REVIEW_STATUSES) }),
     run: async (ctx, input) => presentReview(await moderateReview(ctx, await review(ctx, input.reviewId), input.status)),
   }),
@@ -1965,6 +1924,7 @@ const reviews = [
     summary: "Delete a review",
     description: "Deletes the review for good.",
     destructive: true,
+    actions: ["reviews#deleteReview"],
     input: z.object({ reviewId: id("review") }),
     run: async (ctx, input) => {
       await deleteReview(ctx, await review(ctx, input.reviewId));
@@ -1990,6 +1950,7 @@ export const API_OPERATIONS: ApiOperation[] = [
   ...navigation,
   ...storefront,
   ...translations,
+  ...OPS_MODULES,
 ];
 
 export function findOperation(operationId: string): ApiOperation {

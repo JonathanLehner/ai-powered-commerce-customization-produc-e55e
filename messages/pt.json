@@ -287,7 +287,7 @@
     "metaTitle": "Desenvolvedores",
     "metaDescription": "Ligue o seu próprio código, o Claude e outros assistentes de IA a uma loja Parcelith com a API de administração e o servidor MCP.",
     "title": "Gira a sua loja com código e assistentes de IA",
-    "lead": "A API de administração e o servidor MCP dão ao seu código, ao Claude e a outros assistentes de IA acesso aos produtos, encomendas, clientes, descontos, montra e definições de uma loja.",
+    "lead": "A API de administração e o servidor MCP dão ao seu código, ao Claude e a outros assistentes de IA acesso aos produtos, artes, encomendas, clientes, presentes corporativos, fornecimento, assistente, equipa, análises, atividade e definições de uma loja.",
     "keysTitle": "Criar uma chave de API",
     "keysBody": "Uma chave serve para uma loja. Cada alteração feita com ela fica registada na atividade da loja com o nome da chave.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Cartões-presente",
       "Reviews": "Avaliações",
       "Content": "Páginas e blog",
-      "Navigation": "Menus"
+      "Navigation": "Menus",
+      "Artwork and mockups": "Artes e mockups",
+      "Gifting": "Catálogos de presentes",
+      "Campaigns": "Campanhas de presentes",
+      "Sourcing": "Fornecimento",
+      "Assistant": "Assistente de IA",
+      "Team": "Equipa",
+      "Analytics": "Análises",
+      "Activity": "Atividade",
+      "Agency": "Agência",
+      "Platform administration": "Administração da plataforma"
     },
     "ctaTitle": "Crie a sua primeira chave",
     "ctaBody": "Inicie sessão, abra as Definições de uma loja e escolha Chaves de API.",
-    "cta": "Iniciar sessão"
+    "cta": "Iniciar sessão",
+    "platformTitle": "Chaves de plataforma",
+    "platformBody": "Os administradores da plataforma criam chaves de plataforma em Admin → Chaves de API. Uma chave de plataforma tem o escopo {scope}, que nenhuma chave de loja pode ter, e executa as operações de Administração da plataforma."
   },
   "pricing": {
     "metaTitle": "Preços",
@@ -737,7 +749,8 @@
       "quotes": "Pedidos de orçamento",
       "tax": "Taxas de imposto",
       "agencies": "Agências e acesso",
-      "audit": "Registo de auditoria"
+      "audit": "Registo de auditoria",
+      "apiKeys": "Chaves de API"
     },
     "people": "Pessoas",
     "billing": "Faturamento"
@@ -4141,7 +4154,14 @@
       "store": "Dados da loja",
       "gift_cards": "Cartões-oferta",
       "reviews": "Avaliações",
-      "content": "Páginas, blogue e menus"
+      "content": "Páginas, blogue e menus",
+      "gifting": "Presentes corporativos",
+      "sourcing": "Fornecimento e orçamentos",
+      "assistant": "Assistente de IA",
+      "team": "Equipa",
+      "analytics": "Análises",
+      "activity": "Atividade",
+      "agency": "Agência: pessoas, plano e lojas"
     },
     "none": "Sem acesso",
     "read": "Leitura",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Use no máximo {max} caracteres.",
       "scopeRequired": "Dê à chave acesso a pelo menos uma área.",
       "duplicate": "Esta chave já foi criada. Se não a copiou, revogue-a e crie uma nova."
+    },
+    "platform": {
+      "description": "As chaves de plataforma executam as operações de administração da plataforma na API de administração e no servidor MCP. Não abrem nenhuma loja.",
+      "access": "Acesso: administração da plataforma"
     }
   },
   "inventory": {

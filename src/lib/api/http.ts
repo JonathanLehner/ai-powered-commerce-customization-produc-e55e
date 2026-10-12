@@ -1,19 +1,21 @@
 import "server-only";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { scopeAllows, type ApiAccess, type ApiResource } from "../api-scopes";
+import { ADMIN_SCOPE, AGENCY_RESOURCES, scopeAllows, type ApiAccess, type ApiResource } from "../api-scopes";
+import { getUserById } from "../data";
 import { isOperationError, type OperationErrorCode } from "../operations/context";
-import { ApiError, authenticate, errorResponse, keyContext, type ApiErrorCode } from "./auth";
+import { ApiError, adminContext, authenticate, errorResponse, keyContext, type ApiCaller, type ApiErrorCode } from "./auth";
 import { findOperation, pathParams, type ApiOperation } from "./operations";
 
 /**
  * The Admin REST API's request pipeline. Every endpoint under
- * `/api/v1/stores/{storeId}/…` is one entry of `API_OPERATIONS`, served by
- * `restHandler`, which:
+ * `/api/v1/stores/{storeId}/…` and `/api/v1/admin/…` is one entry of
+ * `API_OPERATIONS`, served by `restHandler`, which:
  *
  * 1. reads the key from `Authorization: Bearer <key>` and answers 401 without one;
  * 2. counts the request against the key's rate limit and answers 429 past it;
- * 3. answers 403 when the key belongs to another store or lacks the scope;
+ * 3. answers 403 when the key belongs to another store or lacks the scope (see
+ *    `authorize`, which the MCP server runs too);
  * 4. checks the input against the operation's schema and answers 422 when it fails;
  * 5. runs the operation with the key named as the actor, so every change lands
  *    in the store's audit history under the key's name.
@@ -45,10 +47,47 @@ export function refusalOf(error: unknown): ApiError | null {
   return null;
 }
 
-/** Whether a key holding `scopes` may run the operation. */
+/** Whether a key holding `scopes` may run the operation, by its scopes alone. */
 export function allows(scopes: readonly string[], operation: ApiOperation): boolean {
+  if (operation.admin) return scopes.includes(ADMIN_SCOPE);
   const [resource, access] = operation.scope.split(":") as [ApiResource, ApiAccess];
   return scopeAllows(scopes, resource, access);
+}
+
+/**
+ * Whether the caller may run the operation, or the refusal.
+ *
+ * - A platform operation needs a platform key whose maker is still a platform
+ *   administrator. A store key never runs one, whatever it was given.
+ * - A store operation needs a store key with the scope. An agency area also
+ *   needs the key's maker to still administer the agency that owns the store,
+ *   so a key cannot outlive the authority it was made with.
+ */
+export async function authorize(caller: ApiCaller, operation: ApiOperation): Promise<ApiError | null> {
+  const { key } = caller;
+  if (operation.admin) {
+    if (!key.platform || !key.scopes.includes(ADMIN_SCOPE)) {
+      return new ApiError(403, "insufficient_scope", `This operation needs a platform key with the ${ADMIN_SCOPE} scope.`);
+    }
+    const maker = await getUserById(key.createdById);
+    if (maker?.platformRole !== "platform_admin") {
+      return new ApiError(403, "forbidden", "The person who made this key is no longer a platform administrator.");
+    }
+    return null;
+  }
+
+  if (!caller.store) return new ApiError(403, "forbidden", "This is a platform key. It works for the /admin operations only.");
+  if (!allows(key.scopes, operation)) {
+    return new ApiError(403, "insufficient_scope", `This API key needs the ${operation.scope} scope.`);
+  }
+  const resource = operation.scope.split(":")[0] as ApiResource;
+  if (AGENCY_RESOURCES.includes(resource)) {
+    const maker = await getUserById(key.createdById);
+    if (maker?.platformRole !== "agency_admin" || maker.agencyId !== caller.store.agencyId) {
+      return new ApiError(403, "forbidden", "The person who made this key no longer administers the agency.");
+    }
+  }
+  return null;
 }
 
 /** The JSON object in the request body; an empty body is an empty object. */
@@ -72,7 +111,11 @@ export async function runOperation(operation: ApiOperation, ctx: Parameters<ApiO
   return operation.run(ctx, input as never);
 }
 
-/** The route handler for one operation: `export const GET = restHandler("listProducts")`. */
+/**
+ * The route handler for one operation: `export const GET = restHandler("listProducts")`.
+ * A store operation's route sits under `stores/[storeId]`, a platform
+ * operation's under `admin`.
+ */
 export function restHandler(operationId: string) {
   const operation = findOperation(operationId);
   const named = pathParams(operation);
@@ -83,23 +126,19 @@ export function restHandler(operationId: string) {
     const { headers } = caller;
 
     const params = await context.params;
-    if (params.storeId !== caller.key.storeId) {
+    if (!operation.admin && caller.key.storeId && params.storeId !== caller.key.storeId) {
       return errorResponse(new ApiError(403, "forbidden", "This API key belongs to another store."), headers);
-    }
-    if (!allows(caller.key.scopes, operation)) {
-      return errorResponse(
-        new ApiError(403, "insufficient_scope", `This API key needs the ${operation.scope} scope.`),
-        headers,
-      );
     }
 
     try {
+      const denied = await authorize(caller, operation);
+      if (denied) return errorResponse(denied, headers);
       const fields =
         operation.method === "GET" || operation.method === "DELETE"
           ? Object.fromEntries(request.nextUrl.searchParams)
           : await readBody(request);
       const input = { ...fields, ...Object.fromEntries(named.map((name) => [name, params[name]])) };
-      const result = await runOperation(operation, keyContext(caller), input);
+      const result = await runOperation(operation, operation.admin ? adminContext(caller) : keyContext(caller), input);
       return Response.json(result, { status: operation.status ?? 200, headers });
     } catch (error) {
       const refusal = refusalOf(error);

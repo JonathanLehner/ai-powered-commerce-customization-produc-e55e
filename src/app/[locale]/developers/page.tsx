@@ -6,7 +6,8 @@ import { McpConnect } from "@/components/McpConnect";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { asLocale, pageMetadata } from "@/i18n/metadata";
-import { API_RATE_LIMIT } from "@/lib/api-scopes";
+import { ADMIN_SCOPE, API_RATE_LIMIT } from "@/lib/api-scopes";
+import { fullPath } from "@/lib/api/define";
 import { API_OPERATIONS, API_TAGS, toolName } from "@/lib/api/operations";
 import { API_BASE_URL, OPENAPI_URL, restExample } from "@/lib/mcp/connect";
 import { CheckList, Section, SectionHeading } from "../kit";
@@ -48,6 +49,10 @@ export default async function DevelopersPage({ params }: PageProps<"/[locale]/de
             <CheckList items={t.raw("keysSteps") as string[]} />
           </CardContent>
         </Card>
+        <h3 className="mt-8 font-heading text-lg font-semibold tracking-tight text-foreground">{t("platformTitle")}</h3>
+        <p className="mt-2 max-w-[64ch] text-sm leading-relaxed text-muted-foreground">
+          {t("platformBody", { scope: ADMIN_SCOPE })}
+        </p>
       </Section>
 
       <Section tone="muted" width="prose" id="mcp">
@@ -104,8 +109,7 @@ export default async function DevelopersPage({ params }: PageProps<"/[locale]/de
                       <tr key={operation.id} className="border-b border-border last:border-0">
                         <td className="px-4 py-2.5 align-top text-foreground">
                           <span className={`mr-2 font-semibold ${METHOD_TONE[operation.method]}`}>{operation.method}</span>
-                          /stores/{"{storeId}"}
-                          {operation.path === "/" ? "" : operation.path}
+                          {fullPath(operation)}
                         </td>
                         <td className="px-4 py-2.5 align-top text-inksoft">{toolName(operation)}</td>
                         <td className="px-4 py-2.5 align-top text-muted-foreground">{operation.scope}</td>

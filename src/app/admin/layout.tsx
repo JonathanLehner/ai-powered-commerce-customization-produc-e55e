@@ -18,6 +18,7 @@ const NAV = [
   { href: "/admin/tax", section: "tax" },
   { href: "/admin/agencies", section: "agencies" },
   { href: "/admin/audit", section: "audit" },
+  { href: "/admin/api-keys", section: "apiKeys" },
 ] as const;
 
 export const metadata: Metadata = siteMetadata;

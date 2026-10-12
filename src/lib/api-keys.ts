@@ -2,9 +2,12 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { after } from "next/server";
 import {
+  ADMIN_SCOPE,
   API_KEY_PREFIX,
   API_RATE_LIMIT,
   API_RATE_WINDOW_SECONDS,
+  isApiScope,
+  type AdminScope,
   type ApiScope,
 } from "./api-scopes";
 import { COLLECTIONS, recordAudit } from "./data";
@@ -17,14 +20,21 @@ import { newId } from "./util";
  * and copies the secret once; only its SHA-256 hash and last four characters
  * are kept, so a lost key is revoked and replaced, never shown again. A key
  * belongs to one store and carries the scopes it was given.
+ *
+ * A platform key is made by a platform administrator under Admin → API keys.
+ * It belongs to no store and holds the admin scope alone, which no store key
+ * can hold.
  */
 
 export interface ApiKey {
   id: string;
-  storeId: string;
-  agencyId: string;
+  /** Null for a platform key. */
+  storeId: string | null;
+  agencyId: string | null;
+  /** True for a platform key, which holds the admin scope and no store. */
+  platform?: boolean;
   name: string;
-  scopes: ApiScope[];
+  scopes: (ApiScope | AdminScope)[];
   /** SHA-256 of the whole secret, hex. */
   hash: string;
   /** The secret's last four characters, so a key can be told apart in the list. */
@@ -65,6 +75,10 @@ export type CreateApiKeyResult =
   /** The same form was submitted again; the secret went out with the first answer. */
   | { status: "duplicate"; key: ApiKeySummary };
 
+function newSecret(): string {
+  return `${API_KEY_PREFIX}${randomBytes(32).toString("base64url")}`;
+}
+
 /** Creates a key and returns its secret. The secret is never stored or returned again. */
 export async function createApiKey(
   store: Store,
@@ -79,13 +93,14 @@ export async function createApiKey(
     if (existing) return { status: "duplicate", key: summary(existing) };
   }
 
-  const secret = `${API_KEY_PREFIX}${randomBytes(32).toString("base64url")}`;
+  const secret = newSecret();
   const key: ApiKey = {
     id: newId("key"),
     storeId: store.id,
     agencyId: store.agencyId,
     name: input.name,
-    scopes: input.scopes,
+    // A store key never carries the admin scope, whatever it was asked for.
+    scopes: input.scopes.filter(isApiScope),
     hash: hashApiKey(secret),
     last4: secret.slice(-4),
     createdAt: new Date().toISOString(),
@@ -129,6 +144,81 @@ export async function revokeApiKey(store: Store, user: Pick<User, "id" | "name">
       summary: `Revoked the API key “${key.name}” (…${key.last4})`,
       storeId: store.id,
       agencyId: store.agencyId,
+      actorId: user.id,
+      actorName: user.name,
+      entity: "api_key",
+      entityId: key.id,
+      meta: {},
+    });
+  }
+  return true;
+}
+
+/** The platform keys, newest first, revoked ones included. */
+export async function listPlatformApiKeys(): Promise<ApiKeySummary[]> {
+  const keys = await db.find<ApiKey>(COLLECTIONS.apiKeys, { platform: true }, { sort: { createdAt: -1 } });
+  return keys.map(summary);
+}
+
+/**
+ * Creates a platform key. The caller has checked that `user` is a platform
+ * administrator; the key is refused at every request once they no longer are.
+ */
+export async function createPlatformApiKey(
+  user: Pick<User, "id" | "name">,
+  input: { name: string; submissionKey: string | null },
+): Promise<CreateApiKeyResult> {
+  if (input.submissionKey) {
+    const existing = await db.findOne<ApiKey>(COLLECTIONS.apiKeys, { platform: true, submissionKey: input.submissionKey });
+    if (existing) return { status: "duplicate", key: summary(existing) };
+  }
+  const secret = newSecret();
+  const key: ApiKey = {
+    id: newId("key"),
+    storeId: null,
+    agencyId: null,
+    platform: true,
+    name: input.name,
+    scopes: [ADMIN_SCOPE],
+    hash: hashApiKey(secret),
+    last4: secret.slice(-4),
+    createdAt: new Date().toISOString(),
+    createdById: user.id,
+    createdByName: user.name,
+    lastUsedAt: null,
+    revokedAt: null,
+    revokedByName: null,
+    submissionKey: input.submissionKey,
+  };
+  await db.insertOne(COLLECTIONS.apiKeys, key as unknown as Record<string, unknown>);
+  recordAudit({
+    category: "administration",
+    action: "api_key.created",
+    summary: `Created the platform API key “${key.name}” (…${key.last4})`,
+    actorId: user.id,
+    actorName: user.name,
+    entity: "api_key",
+    entityId: key.id,
+    meta: { scopes: ADMIN_SCOPE },
+  });
+  return { status: "created", key: summary(key), secret };
+}
+
+/** Revokes a platform key. Revoking it again changes nothing. */
+export async function revokePlatformApiKey(user: Pick<User, "id" | "name">, keyId: string): Promise<boolean> {
+  const key = await db.findOne<ApiKey>(COLLECTIONS.apiKeys, { platform: true, id: keyId });
+  if (!key) return false;
+  if (key.revokedAt) return true;
+  const result = await db.updateOne(
+    COLLECTIONS.apiKeys,
+    { platform: true, id: keyId, revokedAt: null },
+    { $set: { revokedAt: new Date().toISOString(), revokedByName: user.name } },
+  );
+  if (result.modifiedCount > 0) {
+    recordAudit({
+      category: "administration",
+      action: "api_key.revoked",
+      summary: `Revoked the platform API key “${key.name}” (…${key.last4})`,
       actorId: user.id,
       actorName: user.name,
       entity: "api_key",

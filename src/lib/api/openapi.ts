@@ -1,7 +1,8 @@
 import "server-only";
 import { z } from "zod";
-import { API_RATE_LIMIT, API_RATE_WINDOW_SECONDS, API_RESOURCES } from "../api-scopes";
+import { ADMIN_SCOPE, API_RATE_LIMIT, API_RATE_WINDOW_SECONDS, API_RESOURCES, resourceWrites } from "../api-scopes";
 import { SITE_ORIGIN } from "../seo";
+import { fullPath } from "./define";
 import { API_OPERATIONS, API_TAGS, pathParams, toolName } from "./operations";
 
 /**
@@ -55,7 +56,7 @@ const errorResponses = Object.fromEntries(
     ["400", "The body is not a JSON object."],
     ["401", "No API key, or one that is not valid."],
     ["402", "The payment provider refused."],
-    ["403", "The key belongs to another store or lacks the scope."],
+    ["403", "The key belongs to another store, lacks the scope, or its maker no longer holds the role it needs."],
     ["404", "The record is not in this store."],
     ["409", "The record's state does not allow it."],
     ["422", "The input breaks a rule; `field` names it."],
@@ -76,7 +77,9 @@ export function openApiDocument() {
     const inQuery = operation.method === "GET" || operation.method === "DELETE";
 
     const parameters = [
-      { name: "storeId", in: "path", required: true, schema: { type: "string" }, description: "The store id. A key works for its own store only." },
+      ...(operation.admin
+        ? []
+        : [{ name: "storeId", in: "path", required: true, schema: { type: "string" }, description: "The store id. A key works for its own store only." }]),
       ...named.map((name) => ({
         name,
         in: "path",
@@ -95,7 +98,7 @@ export function openApiDocument() {
         : []),
     ];
 
-    const path = `/stores/{storeId}${operation.path === "/" ? "" : operation.path}`;
+    const path = fullPath(operation);
     paths[path] ??= {};
     paths[path][operation.method.toLowerCase()] = {
       operationId: operation.id,
@@ -128,9 +131,11 @@ export function openApiDocument() {
       title: "Parcelith Admin API",
       version: "1.0.0",
       description: [
-        "Run a Parcelith store from your own code: its products, variants, collections, orders, customers, discounts, gift cards, reviews, pages, blog posts, menus, storefront, translations and settings.",
+        "Run a Parcelith store from your own code: its products, artwork and mockups, collections, orders and fulfilment, customers, discounts, gift cards, reviews, pages, blog posts, menus, storefront, translations, gifting catalogues and campaigns, sourcing quotes, assistant suggestions, team, analytics, activity and settings.",
         "",
-        "Create a key in the store's Settings → API keys and send it as `Authorization: Bearer <key>`. A key works for one store and carries read or write access per area; write includes read.",
+        "Create a key in the store's Settings → API keys and send it as `Authorization: Bearer <key>`. A key works for one store and carries read or write access per area; write includes read. Analytics and activity are read-only. The agency area (people, plan and stores) is offered only to keys made by the agency's administrator.",
+        "",
+        `Platform administrators create platform keys under Admin → API keys. A platform key holds the \`${ADMIN_SCOPE}\` scope, which no store key can hold, and runs the operations under \`/admin\` only.`,
         "",
         `Money is in minor units of the currency (2500 is 25.00). Lists return \`{ data, nextCursor }\`; pass \`nextCursor\` back as \`cursor\` for the next page. Each key may make ${API_RATE_LIMIT} requests per ${API_RATE_WINDOW_SECONDS} seconds; every answer carries X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset.`,
         "",
@@ -145,7 +150,9 @@ export function openApiDocument() {
         apiKey: {
           type: "http",
           scheme: "bearer",
-          description: `A store API key. Scopes: ${API_RESOURCES.flatMap((resource) => [`${resource}:read`, `${resource}:write`]).join(", ")}.`,
+          description: `A store API key, or a platform key for the /admin operations. Store scopes: ${API_RESOURCES.flatMap((resource) =>
+            resourceWrites(resource) ? [`${resource}:read`, `${resource}:write`] : [`${resource}:read`],
+          ).join(", ")}. Platform scope: ${ADMIN_SCOPE}.`,
         },
       },
       schemas: { Error: errorSchema },

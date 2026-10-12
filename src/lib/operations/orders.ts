@@ -3,22 +3,23 @@ import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { emailCopy, shopperLocale } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
+import { BULK_STATUSES, moveBlock, parseOrderIds, routeBlock, shipBlock, type BulkBlock, type BulkStatus } from "../bulk-orders";
 import { refreshCustomers } from "../customer-data";
-import { getOrder, recordAudit, updateOrder } from "../data";
+import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder } from "../data";
 import { refundSimulated, type RefundResult } from "../demo-payment";
 import { sendEmail, siteOrigin } from "../email";
 import { brandFor, shippingNotificationEmail } from "../email-templates";
-import { trackingNumberFor } from "../fulfillment";
+import { routeOrder, submitToSupplier, trackingNumberFor, type RoutingDecision } from "../fulfillment";
 import { releaseOrderStock, restockOrder } from "../inventory";
 import { orderStatusUrl, signOrderToken } from "../order-access";
 import { refundOnConnectedAccount } from "../stripe";
 import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus, type Store } from "../types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId } from "../util";
-import { OperationError, type OperationContext } from "./context";
+import { OperationError, isOperationError, type OperationContext } from "./context";
 
 /**
- * Working an order: handing it to the carrier, moving it through its statuses,
- * and refunding it. The workspace's order actions, its bulk actions and the
+ * Working an order: sending it to a supplier, handing it to the carrier,
+ * moving it through its statuses, flagging problems, and refunding it. The workspace's order actions, its bulk actions and the
  * Admin API all run these.
  */
 
@@ -297,4 +298,344 @@ export async function refundOrder(
   refreshCustomers(store, [order.customer.email]);
   revalidateOrder(store.id, order.id);
   return { order: { ...order, ...patch }, amount, refundId: gateway.refundId, restocked };
+}
+
+/* ----------------------------------------------------------------- routing */
+
+/** Runs automatic routing for one order and records whatever it decided. */
+export async function routeToSupplier(ctx: OperationContext, order: Order): Promise<RoutingDecision> {
+  const { store, actor } = ctx;
+  const decision = await routeOrder(order, store);
+  const events = [...order.events, orderEvent(
+    decision.routing === "submitted" ? "Sent to supplier" : "Manual handling required",
+    decision.message,
+    actor.name,
+  )];
+
+  await updateOrder(order.id, {
+    status: decision.routing === "submitted" ? "in_production" : order.status === "paid" ? "paid" : order.status,
+    fulfillment: {
+      ...order.fulfillment,
+      supplierId: decision.supplierId,
+      supplierName: decision.supplierName,
+      routing: decision.routing,
+      supplierOrderRef: decision.supplierOrderRef,
+      submittedAt: decision.routing === "submitted" ? new Date().toISOString() : order.fulfillment.submittedAt,
+      submissionMessage: decision.message,
+      exception: decision.exception,
+    },
+    events,
+  });
+  recordAudit({
+    category: "order_routing",
+    action: decision.routing === "submitted" ? "order.routed" : "order.manual_required",
+    summary:
+      decision.routing === "submitted"
+        ? `Routed ${order.code} to ${decision.supplierName}`
+        : `${order.code} flagged for manual supplier handling`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: { routing: decision.routing },
+  });
+  revalidateOrder(store.id, order.id);
+  return decision;
+}
+
+/**
+ * Sends the job to a supplier the order manager picked, for the orders
+ * automatic routing cannot place — most often a destination the sourced
+ * supplier does not produce in. The choice is re-checked against the live
+ * supplier records before anything is written. `already` is true when the
+ * identical reroute had been done, so nothing was repeated.
+ */
+export async function rerouteToSupplier(
+  ctx: OperationContext,
+  order: Order,
+  input: { supplierId: string; reason: string },
+): Promise<{ already: boolean; supplierName: string; reference: string }> {
+  const { store, actor } = ctx;
+  const supplierId = input.supplierId.trim();
+  const reason = input.reason.trim();
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+
+  if (!supplierId) throw new OperationError("invalid", t("chooseSupplier"), "supplierId");
+  if (reason.length < 4) throw new OperationError("invalid", t("reasonRequired"), "reason");
+
+  const already = order.fulfillment.reroute;
+  // A double click, a slow response or a retried tab must not raise the same
+  // job twice: the identical reroute is reported as done rather than repeated.
+  if (
+    order.fulfillment.routing === "submitted" &&
+    order.fulfillment.supplierId === supplierId &&
+    already?.reason === reason
+  ) {
+    return {
+      already: true,
+      supplierName: order.fulfillment.supplierName ?? "",
+      reference: order.fulfillment.supplierOrderRef ?? "",
+    };
+  }
+
+  const supplier = await getSupplier(supplierId);
+  if (!supplier) throw new OperationError("invalid", t("supplierGone"), "supplierId");
+
+  const decision = await submitToSupplier(order, store, supplier);
+  if (decision.routing !== "submitted") throw new OperationError("invalid", decision.message, "supplierId");
+
+  const from = order.fulfillment.supplierName;
+  const at = new Date().toISOString();
+  const summary = from
+    ? `Rerouted from ${from} to ${supplier.name}: ${reason}.`
+    : `Routed to ${supplier.name}: ${reason}.`;
+
+  await updateOrder(order.id, {
+    status: "in_production",
+    fulfillment: {
+      ...order.fulfillment,
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      routing: "submitted",
+      supplierOrderRef: decision.supplierOrderRef,
+      submittedAt: at,
+      submissionMessage: `${summary} ${decision.message}`,
+      exception: null,
+      reroute: {
+        fromSupplierId: order.fulfillment.supplierId,
+        fromSupplierName: from,
+        reason,
+        actor: actor.name,
+        at,
+      },
+    },
+    events: [
+      ...order.events,
+      orderEvent("Rerouted to supplier", `${summary} Accepted as ${decision.supplierOrderRef}.`, actor.name),
+    ],
+  });
+  recordAudit({
+    category: "order_routing",
+    action: "order.rerouted",
+    summary: `${order.code}: ${summary.replace(/\.$/, "")}`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: {
+      from: order.fulfillment.supplierId,
+      to: supplier.id,
+      reason,
+      reference: decision.supplierOrderRef,
+    },
+  });
+  revalidateOrder(store.id, order.id);
+  return { already: false, supplierName: supplier.name, reference: decision.supplierOrderRef ?? "" };
+}
+
+/** Records a purchase order raised with the supplier by hand, outside any supplier API. */
+export async function recordManualSubmission(ctx: OperationContext, order: Order, entered: string): Promise<string> {
+  const { store, actor } = ctx;
+  const reference = entered.trim();
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  if (reference.length < 3) throw new OperationError("invalid", t("referenceRequired"), "reference");
+
+  await updateOrder(order.id, {
+    status: "in_production",
+    fulfillment: {
+      ...order.fulfillment,
+      routing: "submitted",
+      supplierOrderRef: reference,
+      submittedAt: new Date().toISOString(),
+      submissionMessage: `Purchase order ${reference} raised manually with ${order.fulfillment.supplierName ?? "the supplier"}.`,
+      exception: null,
+    },
+    events: [...order.events, orderEvent("Sent to supplier", `Manual purchase order ${reference} recorded.`, actor.name)],
+  });
+  recordAudit({
+    category: "order_routing",
+    action: "order.manual_submitted",
+    summary: `Recorded manual supplier submission ${reference} for ${order.code}`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: { reference },
+  });
+  revalidateOrder(store.id, order.id);
+  return reference;
+}
+
+/* -------------------------------------------------------------- exceptions */
+
+/** Flags the order for manual attention with a note, and notifies the store team. */
+export async function raiseException(ctx: OperationContext, order: Order, entered: string): Promise<void> {
+  const { store, actor } = ctx;
+  const note = entered.trim();
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  if (note.length < 5) throw new OperationError("invalid", t("describeProblem"), "note");
+
+  await updateOrder(order.id, {
+    status: "exception",
+    fulfillment: { ...order.fulfillment, exception: note },
+    events: [...order.events, orderEvent("Exception raised", note, actor.name)],
+  });
+  recordAudit({
+    category: "order_routing",
+    action: "order.exception",
+    summary: `Raised an exception on ${order.code}: ${note}`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: {},
+    notify: { type: "order_exception", href: `/app/stores/${store.id}/orders/${order.id}`, params: { code: order.code } },
+  });
+  revalidateOrder(store.id, order.id);
+}
+
+/** Clears the order's exception; false when it had none. */
+export async function resolveException(ctx: OperationContext, order: Order): Promise<boolean> {
+  const { store, actor } = ctx;
+  if (!order.fulfillment.exception && order.status !== "exception") return false;
+
+  await updateOrder(order.id, {
+    status: order.fulfillment.routing === "submitted" ? "in_production" : "paid",
+    fulfillment: { ...order.fulfillment, exception: null },
+    events: [...order.events, orderEvent("Exception resolved", "Marked resolved by the store team.", actor.name)],
+  });
+  recordAudit({
+    category: "order_routing",
+    action: "order.exception_resolved",
+    summary: `Resolved the exception on ${order.code}`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: {},
+  });
+  revalidateOrder(store.id, order.id);
+  return true;
+}
+
+/* -------------------------------------------------------------------- bulk */
+
+/** What a bulk action did to each selected order. */
+export interface BulkResult {
+  succeeded: { id: string; code: string }[];
+  failed: { id: string; code: string; reason: string }[];
+}
+
+/**
+ * Runs `work` over the selected orders of the store, a few at a time, and
+ * reports each one. Every order goes through the same helper its own page
+ * uses, so each gets its own events, audit entry and shopper email. `work`
+ * returns null when the order was handled, or the reason it was not.
+ */
+async function forEachOrder(
+  ctx: OperationContext,
+  orderIds: unknown,
+  work: (order: Order, blocked: (reason: BulkBlock) => string) => Promise<string | null>,
+): Promise<BulkResult> {
+  const [t, labels] = await Promise.all([
+    getTranslations({ locale: ctx.locale, namespace: "orders.bulk" }),
+    getTranslations({ locale: ctx.locale, namespace: "labels" }),
+  ]);
+  const ids = parseOrderIds(orderIds);
+  if (ids.length === 0) throw new OperationError("invalid", t("noneSelected"), "orderIds");
+
+  const orders = await getStoreOrders(ctx.store.id, ids);
+  const outcome: BulkResult = { succeeded: [], failed: [] };
+  const found = new Set(orders.map((order) => order.id));
+  for (const id of ids) {
+    if (!found.has(id)) outcome.failed.push({ id, code: id, reason: t("notFound") });
+  }
+
+  // Five at a time keeps the database pool and the supplier APIs unhurried.
+  for (let i = 0; i < orders.length; i += 5) {
+    await Promise.all(
+      orders.slice(i, i + 5).map(async (order) => {
+        const blocked = (reason: BulkBlock) =>
+          t(`blocked.${reason}`, { status: labels(`orderStatus.${order.status}`) });
+        let reason: string | null;
+        try {
+          reason = await work(order, blocked);
+        } catch (error) {
+          console.error(`Bulk action failed on ${order.code}`, error);
+          reason = t("failedGeneric");
+        }
+        if (reason) outcome.failed.push({ id: order.id, code: order.code, reason });
+        else outcome.succeeded.push({ id: order.id, code: order.code });
+      }),
+    );
+  }
+  return outcome;
+}
+
+/** Marks the selected orders shipped, each with its own carrier and tracking number. */
+export async function bulkShipOrders(
+  ctx: OperationContext,
+  shipments: { orderId: string; carrier: string; trackingNumber: string }[],
+): Promise<BulkResult> {
+  const list = Array.isArray(shipments) ? shipments : [];
+  const byId = new Map(list.map((entry) => [String(entry?.orderId ?? ""), entry]));
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+
+  return forEachOrder(ctx, [...byId.keys()], async (order, blocked) => {
+    const entry = byId.get(order.id)!;
+    const carrier = String(entry.carrier ?? "") as Carrier;
+    const trackingNumber = String(entry.trackingNumber ?? "").trim();
+    const block = shipBlock(order);
+    if (block) return blocked(block);
+    if (!CARRIERS.includes(carrier)) return t("chooseCarrier");
+    // A retried request finds the same tracking already recorded and leaves
+    // it, so the shopper is not emailed twice.
+    if (
+      order.status === "shipped" &&
+      order.fulfillment.carrier === carrier &&
+      (!trackingNumber || order.fulfillment.trackingNumber === trackingNumber)
+    ) {
+      return null;
+    }
+    try {
+      await shipOrder(ctx, order, carrier, trackingNumber);
+      return null;
+    } catch (error) {
+      if (isOperationError(error)) return error.message;
+      throw error;
+    }
+  });
+}
+
+/** Moves the selected orders on to one status, where the status rules allow it. */
+export async function bulkAdvanceOrders(ctx: OperationContext, orderIds: string[], status: BulkStatus): Promise<BulkResult> {
+  if (!BULK_STATUSES.includes(status)) {
+    const t = await getTranslations({ locale: ctx.locale, namespace: "orders.bulk" });
+    throw new OperationError("invalid", t("failedGeneric"), "status");
+  }
+  return forEachOrder(ctx, orderIds, async (order, blocked) => {
+    const block = moveBlock(order, status);
+    if (block) return blocked(block);
+    return (await moveOrder(ctx, order, status)) ? null : blocked("cannotMove");
+  });
+}
+
+/** Sends the selected paid orders to their suppliers through automatic routing. */
+export async function bulkRouteOrders(ctx: OperationContext, orderIds: string[]): Promise<BulkResult> {
+  return forEachOrder(ctx, orderIds, async (order, blocked) => {
+    const block = routeBlock(order);
+    if (block) return blocked(block);
+    const decision = await routeToSupplier(ctx, order);
+    return decision.routing === "submitted" ? null : decision.message;
+  });
 }

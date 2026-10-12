@@ -153,6 +153,46 @@ export async function publishStorefront(ctx: OperationContext, input: { tree: un
   revalidatePath(`/s/${store.slug}`);
 }
 
+/** Puts the published page back into the draft. False when nothing is published. */
+export async function revertStorefront(ctx: OperationContext): Promise<boolean> {
+  const { store } = ctx;
+  const storefront = await getStorefront(store.id);
+  if (!storefront?.published) return false;
+
+  await updateStorefront(store.id, {
+    draft: storefront.published,
+    draftUpdatedAt: new Date().toISOString(),
+  });
+  audit(ctx, "storefront.reverted", "Reverted the storefront draft to the published version", "storefront", store.id, {});
+  revalidatePath(`/app/stores/${store.id}/storefront`);
+  return true;
+}
+
+/** Copies a version from the history into the draft. Null when the store has no such version. */
+export async function restoreStorefrontVersion(ctx: OperationContext, versionId: string): Promise<StorefrontVersion | null> {
+  const { store } = ctx;
+  const storefront = await getStorefront(store.id);
+  const version = storefront?.history.find((v) => v.id === versionId);
+  if (!version) return null;
+
+  await updateStorefront(store.id, {
+    draft: version.data,
+    draftUpdatedAt: new Date().toISOString(),
+  });
+  audit(
+    ctx,
+    "storefront.version_restored",
+    version.label
+      ? `Restored storefront version “${version.label}” into the draft`
+      : `Restored a ${version.kind === "draft" ? "saved draft" : "published version"} from ${version.savedAt.slice(0, 10)} into the draft`,
+    "storefront",
+    versionId,
+    { label: version.label },
+  );
+  revalidatePath(`/app/stores/${store.id}/storefront`);
+  return version;
+}
+
 /* --------------------------------------------------------------- shop text */
 
 /**

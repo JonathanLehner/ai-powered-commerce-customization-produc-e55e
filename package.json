@@ -53,6 +53,7 @@
     "shipping-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/shipping-check.mjs",
     "inventory-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/inventory-check.mjs",
     "mcp-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs scripts/mcp-check.mjs",
+    "api-coverage-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/api-coverage-check.mjs",
     "content-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/content-check.mjs",
     "search-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/search-check.mjs",
     "accounts-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/accounts-check.mjs",

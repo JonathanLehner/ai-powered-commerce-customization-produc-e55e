@@ -287,7 +287,7 @@
     "metaTitle": "Desarrolladores",
     "metaDescription": "Conecta tu propio código, Claude y otros asistentes de IA a una tienda Parcelith con la API de administración y el servidor MCP.",
     "title": "Gestiona tu tienda con código y asistentes de IA",
-    "lead": "La API de administración y el servidor MCP dan a tu código, a Claude y a otros asistentes de IA acceso a los productos, pedidos, clientes, descuentos, escaparate y ajustes de una tienda.",
+    "lead": "La API de administración y el servidor MCP dan a tu código, a Claude y a otros asistentes de IA acceso a los productos, diseños, pedidos, clientes, regalos corporativos, abastecimiento, asistente, equipo, analíticas, actividad y ajustes de una tienda.",
     "keysTitle": "Crea una clave de API",
     "keysBody": "Una clave sirve para una tienda. Cada cambio hecho con ella queda registrado en la actividad de la tienda con el nombre de la clave.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Tarjetas regalo",
       "Reviews": "Reseñas",
       "Content": "Páginas y blog",
-      "Navigation": "Menús"
+      "Navigation": "Menús",
+      "Artwork and mockups": "Diseños y maquetas",
+      "Gifting": "Catálogos de regalos",
+      "Campaigns": "Campañas de regalos",
+      "Sourcing": "Abastecimiento",
+      "Assistant": "Asistente de IA",
+      "Team": "Equipo",
+      "Analytics": "Analíticas",
+      "Activity": "Actividad",
+      "Agency": "Agencia",
+      "Platform administration": "Administración de la plataforma"
     },
     "ctaTitle": "Crea tu primera clave",
     "ctaBody": "Inicia sesión, abre los Ajustes de una tienda y elige Claves de API.",
-    "cta": "Iniciar sesión"
+    "cta": "Iniciar sesión",
+    "platformTitle": "Claves de plataforma",
+    "platformBody": "Los administradores de la plataforma crean claves de plataforma en Admin → Claves de API. Una clave de plataforma tiene el ámbito {scope}, que ninguna clave de tienda puede tener, y ejecuta las operaciones de Administración de la plataforma."
   },
   "pricing": {
     "metaTitle": "Precios",
@@ -737,7 +749,8 @@
       "quotes": "Solicitudes de presupuesto",
       "tax": "Tipos impositivos",
       "agencies": "Agencias y acceso",
-      "audit": "Registro de auditoría"
+      "audit": "Registro de auditoría",
+      "apiKeys": "Claves de API"
     },
     "people": "Personas",
     "billing": "Facturación"
@@ -4141,7 +4154,14 @@
       "store": "Datos de la tienda",
       "gift_cards": "Tarjetas regalo",
       "reviews": "Reseñas",
-      "content": "Páginas, blog y menús"
+      "content": "Páginas, blog y menús",
+      "gifting": "Regalos corporativos",
+      "sourcing": "Abastecimiento y presupuestos",
+      "assistant": "Asistente de IA",
+      "team": "Equipo",
+      "analytics": "Analíticas",
+      "activity": "Actividad",
+      "agency": "Agencia: personas, plan y tiendas"
     },
     "none": "Sin acceso",
     "read": "Lectura",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Usa {max} caracteres como máximo.",
       "scopeRequired": "Da a la clave acceso al menos a un área.",
       "duplicate": "Esta clave ya se creó. Si no la copiaste, revócala y crea una nueva."
+    },
+    "platform": {
+      "description": "Las claves de plataforma ejecutan las operaciones de administración de la plataforma en la API de administración y el servidor MCP. No abren ninguna tienda.",
+      "access": "Acceso: administración de la plataforma"
     }
   },
   "inventory": {

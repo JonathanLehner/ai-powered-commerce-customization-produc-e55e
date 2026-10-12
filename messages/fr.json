@@ -287,7 +287,7 @@
     "metaTitle": "Développeurs",
     "metaDescription": "Connectez votre code, Claude et d'autres assistants IA à une boutique Parcelith avec l'API Admin et le serveur MCP.",
     "title": "Pilotez votre boutique par le code et les assistants IA",
-    "lead": "L'API Admin et le serveur MCP donnent à votre code, à Claude et à d'autres assistants IA un accès aux produits, commandes, clients, remises, à la vitrine et aux réglages d'une boutique.",
+    "lead": "L'API Admin et le serveur MCP donnent à votre code, à Claude et à d'autres assistants IA un accès aux produits, visuels, commandes, clients, cadeaux d'entreprise, approvisionnement, assistant, équipe, statistiques, activité et réglages d'une boutique.",
     "keysTitle": "Créer une clé API",
     "keysBody": "Une clé vaut pour une boutique. Chaque modification effectuée avec elle est enregistrée dans l'activité de la boutique sous le nom de la clé.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Cartes cadeaux",
       "Reviews": "Avis",
       "Content": "Pages et blog",
-      "Navigation": "Menus"
+      "Navigation": "Menus",
+      "Artwork and mockups": "Visuels et maquettes",
+      "Gifting": "Catalogues cadeaux",
+      "Campaigns": "Campagnes cadeaux",
+      "Sourcing": "Approvisionnement",
+      "Assistant": "Assistant IA",
+      "Team": "Équipe",
+      "Analytics": "Statistiques",
+      "Activity": "Activité",
+      "Agency": "Agence",
+      "Platform administration": "Administration de la plateforme"
     },
     "ctaTitle": "Créez votre première clé",
     "ctaBody": "Connectez-vous, ouvrez les Réglages d'une boutique et choisissez Clés API.",
-    "cta": "Se connecter"
+    "cta": "Se connecter",
+    "platformTitle": "Clés de plateforme",
+    "platformBody": "Les administrateurs de la plateforme créent les clés de plateforme dans Admin → Clés API. Une clé de plateforme porte le scope {scope}, qu'aucune clé de boutique ne peut porter, et exécute les opérations listées sous Administration de la plateforme."
   },
   "pricing": {
     "metaTitle": "Tarifs",
@@ -737,7 +749,8 @@
       "quotes": "Demandes de devis",
       "tax": "Taux de taxe",
       "agencies": "Agences et accès",
-      "audit": "Journal d’audit"
+      "audit": "Journal d’audit",
+      "apiKeys": "Clés API"
     },
     "people": "Personnes",
     "billing": "Facturation"
@@ -4141,7 +4154,14 @@
       "store": "Détails de la boutique",
       "gift_cards": "Cartes cadeaux",
       "reviews": "Avis",
-      "content": "Pages, blog et menus"
+      "content": "Pages, blog et menus",
+      "gifting": "Cadeaux d'entreprise",
+      "sourcing": "Approvisionnement et devis",
+      "assistant": "Assistant IA",
+      "team": "Équipe",
+      "analytics": "Statistiques",
+      "activity": "Activité",
+      "agency": "Agence : personnes, forfait et boutiques"
     },
     "none": "Aucun accès",
     "read": "Lecture",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Utilisez {max} caractères au maximum.",
       "scopeRequired": "Donnez à la clé l’accès à au moins un domaine.",
       "duplicate": "Cette clé a déjà été créée. Si vous ne l’avez pas copiée, révoquez-la et créez-en une nouvelle."
+    },
+    "platform": {
+      "description": "Les clés de plateforme exécutent les opérations d'administration de la plateforme dans l'API Admin et le serveur MCP. Elles n'ouvrent aucune boutique.",
+      "access": "Accès : administration de la plateforme"
     }
   },
   "inventory": {

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { countryName, languageName } from "@/i18n/display";
 import { isLocale } from "@/i18n/locales";
 import { isCountryCode } from "../countries";
-import { addCustomerNote, customerDataExport, getCustomerByEmail, listCustomers } from "../customer-data";
+import { addCustomerNote, anonymiseCustomer, customerDataExport, getCustomerByEmail, listCustomers } from "../customer-data";
 import {
   customerCsv,
   customerFileName,
@@ -69,6 +69,22 @@ export async function addNote(
   });
   if (added) audit(ctx, "customer.note_added", `Added a note to customer ${customer.id}`, customer.id, { note: id });
   revalidateCustomer(ctx.store.id, customer.id);
+}
+
+/**
+ * Erases a customer's personal data from the store's orders and records: a
+ * data deletion request. It cannot be undone; repeating it changes nothing.
+ */
+export async function deleteCustomerData(ctx: OperationContext, customer: Customer): Promise<{ orders: number }> {
+  const { orders } = await anonymiseCustomer(ctx.store, customer);
+  if (!customer.anonymisedAt) {
+    audit(ctx, "customer.data_deleted", `Deleted personal data of customer ${customer.id} from ${orders} orders`, customer.id, {
+      orders,
+    });
+  }
+  revalidateCustomer(ctx.store.id, customer.id);
+  revalidatePath(`/app/stores/${ctx.store.id}/orders`);
+  return { orders };
 }
 
 /** Everything held about a customer in this store. Each export is in the audit log. */

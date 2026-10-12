@@ -1,24 +1,34 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { refusal } from "@/lib/operations/action-state";
 import {
-  COLLECTIONS,
-  getAgency,
-  getCatalogProduct,
-  getSupplier,
-  getTaxBracket,
-  listCatalogProducts,
-  recordAudit,
-} from "@/lib/data";
-import { FILE_REQUIREMENTS, parsePrintAreas, parseVariants } from "@/lib/catalog-rows";
-import { db } from "@/lib/mongo";
+  changeAgencyPlan,
+  changeAgencyStatus,
+  changeSupplierStatus,
+  createSupplier,
+  platformContext,
+  removeTaxBracket,
+  saveCatalogProduct,
+  saveTaxBracket as saveBracket,
+  updateSupplierRegions,
+} from "@/lib/operations/admin";
+import { isOperationError } from "@/lib/operations/context";
 import { assertPlatformAdmin } from "@/lib/session";
-import { isQuoteOnly } from "@/lib/sourcing";
-import type { CatalogProduct, Supplier, TaxBracket } from "@/lib/types";
-import { CURRENCY_OPTIONS, newId, parseMoney } from "@/lib/util";
+import type { Agency, CatalogProduct, Supplier } from "@/lib/types";
 import type { ActionState } from "./stores";
+
+/**
+ * The platform administration screens. Each action checks the signed-in person
+ * is a platform administrator and runs the same operation the Admin API's
+ * platform operations run (`src/lib/operations/admin.ts`).
+ */
+
+/** For the one-click forms that show no message: a refusal leaves the page as it was. */
+function quietly(error: unknown): void {
+  if (!isOperationError(error)) throw error;
+}
 
 /* -------------------------------------------------------------- suppliers */
 
@@ -28,120 +38,47 @@ export async function setSupplierStatus(formData: FormData): Promise<void> {
   if (!["approved", "pending_review", "disabled"].includes(status)) return;
 
   const user = await assertPlatformAdmin();
-  const supplier = await getSupplier(supplierId);
-  if (!supplier || supplier.status === status) return;
-
-  await db.updateOne(COLLECTIONS.suppliers, { id: supplierId }, { $set: { status } });
-  recordAudit({
-    category: "administration",
-    action: "supplier.status_changed",
-    summary: `${status === "approved" ? "Approved" : status === "disabled" ? "Disabled" : "Returned to review"} supplier ${supplier.name}`,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "supplier",
-    entityId: supplierId,
-    meta: { from: supplier.status, to: status },
-  });
-  revalidatePath("/admin/suppliers");
-  revalidatePath("/admin");
+  try {
+    await changeSupplierStatus(await platformContext(user), supplierId, status);
+  } catch (error) {
+    quietly(error);
+  }
 }
 
 export async function saveSupplierRegions(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const supplierId = String(formData.get("supplierId") ?? "");
   const regions = formData.getAll("regions").map(String);
-  const notes = String(formData.get("notes") ?? "").trim();
+  const notes = String(formData.get("notes") ?? "");
 
   const user = await assertPlatformAdmin();
   const t = await getTranslations("actions.admin");
-  const supplier = await getSupplier(supplierId);
-  if (!supplier) return { status: "error", message: t("supplierGone") };
-  if (regions.length === 0) {
-    return { status: "error", message: t("regionRequired"), field: "regions" };
+  try {
+    const supplier = await updateSupplierRegions(await platformContext(user), supplierId, { regions, notes });
+    return { status: "success", message: t("regionsSaved", { supplier: supplier.name, regions: regions.join(", ") }) };
+  } catch (error) {
+    return refusal(error);
   }
-
-  await db.updateOne(COLLECTIONS.suppliers, { id: supplierId }, { $set: { regions, notes } });
-  recordAudit({
-    category: "administration",
-    action: "supplier.updated",
-    summary: `Updated fulfilment regions for ${supplier.name} (${regions.length} regions)`,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "supplier",
-    entityId: supplierId,
-    meta: { regions: regions.join(", ") },
-  });
-  revalidatePath("/admin/suppliers");
-  return { status: "success", message: t("regionsSaved", { supplier: supplier.name, regions: regions.join(", ") }) };
 }
 
 export async function addSupplier(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const user = await assertPlatformAdmin();
-  const name = String(formData.get("name") ?? "").trim();
-  const website = String(formData.get("website") ?? "").trim();
-  const summary = String(formData.get("summary") ?? "").trim();
-  const kind = String(formData.get("kind") ?? "print_on_demand") as Supplier["kind"];
-  const integration = String(formData.get("integration") ?? "api") as Supplier["integration"];
-  const regions = formData.getAll("regions").map(String);
   const t = await getTranslations("actions.admin");
-
-  if (name.length < 2) return { status: "error", message: t("nameRequired"), field: "name" };
-  if (!/^https?:\/\/.+\..+/.test(website)) {
-    return { status: "error", message: t("websiteRequired"), field: "website" };
+  try {
+    const supplier = await createSupplier(await platformContext(user), {
+      name: String(formData.get("name") ?? ""),
+      website: String(formData.get("website") ?? ""),
+      summary: String(formData.get("summary") ?? ""),
+      kind: String(formData.get("kind") ?? "print_on_demand") as Supplier["kind"],
+      integration: String(formData.get("integration") ?? "api") as Supplier["integration"],
+      regions: formData.getAll("regions").map(String),
+    });
+    return { status: "success", message: t("supplierAdded", { name: supplier.name }) };
+  } catch (error) {
+    return refusal(error);
   }
-  if (summary.length < 20) {
-    return { status: "error", message: t("summaryRequired"), field: "summary" };
-  }
-  if (regions.length === 0) {
-    return { status: "error", message: t("fulfilmentRegionRequired"), field: "regions" };
-  }
-
-  const supplier: Supplier = {
-    id: newId("sup"),
-    name,
-    kind,
-    website,
-    summary,
-    status: "pending_review",
-    regions,
-    integration,
-    capabilities: {
-      catalog: true,
-      quotes: true,
-      inventory: integration === "api",
-      mockups: false,
-      orderSubmission: integration === "api",
-      tracking: integration === "api",
-      cancellation: false,
-    },
-    leadTimeDays: [3, 10],
-    notes: "Added for commercial review. Not selectable by stores until approved.",
-    createdAt: new Date().toISOString(),
-  };
-
-  await db.insertOne(COLLECTIONS.suppliers, supplier as unknown as Record<string, unknown>);
-  recordAudit({
-    category: "administration",
-    action: "supplier.added",
-    summary: `Added supplier ${name} for review`,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "supplier",
-    entityId: supplier.id,
-    meta: { kind, integration },
-  });
-  revalidatePath("/admin/suppliers");
-  return {
-    status: "success",
-    message: t("supplierAdded", { name }),
-  };
 }
 
 /* --------------------------------------------------------- shared catalog */
-
-/** "added 2, removed 1" — what an audit entry says about a changed table. */
-function changeSummary(added: number, removed: number): string {
-  return [added ? `added ${added}` : "", removed ? `removed ${removed}` : ""].filter(Boolean).join(", ");
-}
 
 /**
  * Creates a shared catalog product, or saves an existing one. Both run through
@@ -149,208 +86,35 @@ function changeSummary(added: number, removed: number): string {
  * is whether a `catalogId` comes with the submission.
  */
 export async function saveCatalogItem(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const catalogId = String(formData.get("catalogId") ?? "").trim();
   const user = await assertPlatformAdmin();
-  const item = catalogId ? await getCatalogProduct(catalogId) : null;
   const t = await getTranslations("actions.admin");
-  if (catalogId && !item) return { status: "error", message: t("catalogGone") };
+  const availability = formData.get("availability");
+  const status = formData.get("status");
 
-  // A bulk-sourcing listing is priced by quote, so there are no costs for this
-  // editor to save. Writing one would publish a unit price no supplier has
-  // given, and stores would compare against it.
-  if (item && isQuoteOnly(item)) {
-    return {
-      status: "error",
-      message: t("pricedByQuote", { name: item.name }),
-    };
-  }
-
-  // The currency is fixed once a product exists: every stored amount is in its
-  // minor units, and changing it would silently reinterpret all of them.
-  const currency = item?.currency ?? String(formData.get("currency") ?? "USD").trim().toUpperCase();
-  const supplierId = String(formData.get("supplierId") ?? "").trim();
-  const productType = String(formData.get("productType") ?? "").trim();
-  const category = String(formData.get("category") ?? "apparel") as CatalogProduct["category"];
-  const name = String(formData.get("name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const baseCost = parseMoney(String(formData.get("baseCost") ?? ""), currency);
-  const customizationCostPerArea = parseMoney(String(formData.get("customizationCost") ?? ""), currency);
-  const shippingEstimate = parseMoney(String(formData.get("shippingEstimate") ?? ""), currency);
-  const availability = String(
-    formData.get("availability") ?? item?.availability ?? "available",
-  ) as CatalogProduct["availability"];
-  const status = String(formData.get("status") ?? item?.status ?? "active") as CatalogProduct["status"];
-  const fulfillmentRegions = formData.getAll("regions").map(String);
-
-  const supplier = await getSupplier(supplierId);
-  if (!supplier) {
-    return { status: "error", message: t("supplierRequired"), field: "supplierId" };
-  }
-  if (productType.length < 3) {
-    return { status: "error", message: t("productTypeRequired"), field: "productType" };
-  }
-  if (name.length < 3) return { status: "error", message: t("productNameRequired"), field: "name" };
-  if (description.length < 20) {
-    return { status: "error", message: t("descriptionRequired"), field: "description" };
-  }
-  if (baseCost === null || baseCost <= 0) {
-    return { status: "error", message: t("baseCostRequired"), field: "baseCost" };
-  }
-  if (customizationCostPerArea === null) {
-    return { status: "error", message: t("customisationRequired"), field: "customizationCost" };
-  }
-  if (shippingEstimate === null) {
-    return { status: "error", message: t("shippingRequired"), field: "shippingEstimate" };
-  }
-  if (category !== "apparel" && category !== "drinkware") {
-    return { status: "error", message: t("categoryRequired"), field: "category" };
-  }
-  if (!CURRENCY_OPTIONS.some((option) => option.code === currency)) {
-    return { status: "error", message: t("currencyRequired"), field: "currency" };
-  }
-  if (fulfillmentRegions.length === 0) {
-    return { status: "error", message: t("fulfilmentRegionRequired"), field: "regions" };
-  }
-
-  const parsedAreas = parsePrintAreas(formData.get("printAreas"), item?.printAreas ?? []);
-  if ("error" in parsedAreas) {
-    return { status: "error", message: t(`rows.${parsedAreas.code}`, parsedAreas.values), field: "printAreas" };
-  }
-  const parsedVariants = parseVariants(formData.get("variants"), item?.variants ?? [], currency);
-  if ("error" in parsedVariants) {
-    return { status: "error", message: t(`rows.${parsedVariants.code}`, parsedVariants.values), field: "variants" };
-  }
-  const printAreas = parsedAreas.areas;
-  const variants = parsedVariants.variants;
-
-  if (!item) {
-    // A second submission of the same form — a double click on a slow
-    // connection, or a retried tab — must not leave two identical products in a
-    // catalog every store copies from.
-    const existing = await listCatalogProducts();
-    const clash = existing.find(
-      (product) => product.supplierId === supplierId && product.name.toLowerCase() === name.toLowerCase(),
-    );
-    if (clash) {
-      return {
-        status: "error",
-        message: t("nameClash", { supplier: supplier.name, name: clash.name }),
-        field: "name",
-      };
-    }
-
-    const created: CatalogProduct = {
-      id: newId("cat"),
-      supplierId,
-      name,
-      category,
-      productType,
-      description,
-      currency,
-      baseCost,
-      customizationCostPerArea,
-      shippingEstimate,
-      variants,
-      printAreas,
-      // Supplier photography arrives with the supplier's own imagery; the
-      // product is costed, importable and configurable without it.
-      mockups: [],
-      fileRequirements: FILE_REQUIREMENTS[category],
-      fulfillmentRegions,
-      leadTimeDays: supplier.leadTimeDays,
-      availability,
-      status,
-      createdAt: new Date().toISOString(),
-    };
-
-    await db.insertOne(COLLECTIONS.catalog, created as unknown as Record<string, unknown>);
-    recordAudit({
-      category: "administration",
-      action: "catalog.product_added",
-      summary: `Added “${name}” to the shared supplier catalog`,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "catalog_product",
-      entityId: created.id,
-      meta: {
-        supplier: supplier.name,
-        printAreas: printAreas.length,
-        variants: variants.length,
-        status,
-      },
+  let saved: Awaited<ReturnType<typeof saveCatalogProduct>>;
+  try {
+    saved = await saveCatalogProduct(await platformContext(user), {
+      catalogId: String(formData.get("catalogId") ?? "").trim() || null,
+      currency: String(formData.get("currency") ?? "USD"),
+      supplierId: String(formData.get("supplierId") ?? ""),
+      productType: String(formData.get("productType") ?? ""),
+      category: String(formData.get("category") ?? "apparel"),
+      name: String(formData.get("name") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      baseCost: String(formData.get("baseCost") ?? ""),
+      customizationCostPerArea: String(formData.get("customizationCost") ?? ""),
+      shippingEstimate: String(formData.get("shippingEstimate") ?? ""),
+      availability: availability === null ? undefined : (String(availability) as CatalogProduct["availability"]),
+      status: status === null ? undefined : (String(status) as CatalogProduct["status"]),
+      fulfillmentRegions: formData.getAll("regions").map(String),
+      printAreas: String(formData.get("printAreas") ?? ""),
+      variants: String(formData.get("variants") ?? ""),
     });
-    revalidatePath("/admin/catalog");
-    revalidatePath("/admin/suppliers");
-    revalidatePath("/admin");
-    redirect(`/admin/catalog/${created.id}?created=1`);
+  } catch (error) {
+    return refusal(error);
   }
 
-  await db.updateOne(
-    COLLECTIONS.catalog,
-    { id: item.id },
-    {
-      $set: {
-        supplierId,
-        name,
-        category,
-        productType,
-        description,
-        baseCost,
-        customizationCostPerArea,
-        shippingEstimate,
-        availability,
-        status,
-        fulfillmentRegions,
-        printAreas,
-        variants,
-      },
-    },
-  );
-  recordAudit({
-    category: "administration",
-    action: "catalog.product_updated",
-    summary: `Updated shared catalog product “${name}”`,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "catalog_product",
-    entityId: item.id,
-    meta: { availability, status, regions: fulfillmentRegions.length },
-  });
-
-  // Adding or dropping a print area or a variant changes what every store can
-  // sell from this product, so it is recorded in its own right rather than left
-  // inside the general update.
-  const areasAdded = printAreas.filter((area) => !item.printAreas.some((old) => old.id === area.id)).length;
-  const areasRemoved = item.printAreas.filter((old) => !printAreas.some((area) => area.id === old.id)).length;
-  if (areasAdded || areasRemoved) {
-    recordAudit({
-      category: "administration",
-      action: "catalog.print_areas_changed",
-      summary: `Print areas on “${name}”: ${changeSummary(areasAdded, areasRemoved)} (${printAreas.length} in total)`,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "catalog_product",
-      entityId: item.id,
-      meta: { added: areasAdded, removed: areasRemoved, total: printAreas.length },
-    });
-  }
-  const variantsAdded = variants.filter((variant) => !item.variants.some((old) => old.id === variant.id)).length;
-  const variantsRemoved = item.variants.filter((old) => !variants.some((variant) => variant.id === old.id)).length;
-  if (variantsAdded || variantsRemoved) {
-    recordAudit({
-      category: "administration",
-      action: "catalog.variants_changed",
-      summary: `Variants on “${name}”: ${changeSummary(variantsAdded, variantsRemoved)} (${variants.length} in total)`,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "catalog_product",
-      entityId: item.id,
-      meta: { added: variantsAdded, removed: variantsRemoved, total: variants.length },
-    });
-  }
-
-  revalidatePath("/admin/catalog");
-  revalidatePath(`/admin/catalog/${item.id}`);
+  if (saved.created) redirect(`/admin/catalog/${saved.item.id}?created=1`);
   return { status: "success", message: t("productUpdated") };
 }
 
@@ -358,93 +122,32 @@ export async function saveCatalogItem(_prev: ActionState, formData: FormData): P
 
 export async function saveTaxBracket(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const user = await assertPlatformAdmin();
-  const bracketId = String(formData.get("bracketId") ?? "");
-  const name = String(formData.get("name") ?? "").trim();
-  const code = String(formData.get("code") ?? "").trim().toUpperCase();
-  const description = String(formData.get("description") ?? "").trim();
-  const rateRaw = String(formData.get("rate") ?? "");
-  const regions = formData.getAll("regions").map(String);
   const t = await getTranslations("actions.admin");
-
-  if (name.length < 3) return { status: "error", message: t("bracketName"), field: "name" };
-  if (!/^[A-Z0-9-.]{2,12}$/.test(code)) {
-    return { status: "error", message: t("bracketCode"), field: "code" };
-  }
-  const rate = Number(rateRaw);
-  if (!Number.isFinite(rate) || rate < 0 || rate > 50) {
-    return { status: "error", message: t("bracketRate"), field: "rate" };
-  }
-  if (regions.length === 0) {
-    return { status: "error", message: t("bracketRegions"), field: "regions" };
-  }
-
-  if (bracketId) {
-    const existing = await getTaxBracket(bracketId);
-    if (!existing) return { status: "error", message: t("bracketGone") };
-    await db.updateOne(
-      COLLECTIONS.taxBrackets,
-      { id: bracketId },
-      { $set: { name, code, description, rate, regions } },
-    );
-    recordAudit({
-      category: "administration",
-      action: "tax.bracket_updated",
-      summary: `Updated tax bracket “${name}” to ${rate}%`,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "tax_bracket",
-      entityId: bracketId,
-      meta: { from: existing.rate, to: rate },
+  try {
+    const { bracket, created } = await saveBracket(await platformContext(user), {
+      bracketId: String(formData.get("bracketId") ?? "") || null,
+      name: String(formData.get("name") ?? ""),
+      code: String(formData.get("code") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      rate: Number(String(formData.get("rate") ?? "")),
+      regions: formData.getAll("regions").map(String),
     });
-    revalidatePath("/admin/tax");
-    return { status: "success", message: t("bracketSaved", { name, rate }) };
+    return created
+      ? { status: "success", message: t("bracketCreated", { name: bracket.name }) }
+      : { status: "success", message: t("bracketSaved", { name: bracket.name, rate: bracket.rate }) };
+  } catch (error) {
+    return refusal(error);
   }
-
-  const bracket: TaxBracket = {
-    id: newId("tax"),
-    name,
-    code,
-    rate,
-    description,
-    regions,
-    createdAt: new Date().toISOString(),
-  };
-  await db.insertOne(COLLECTIONS.taxBrackets, bracket as unknown as Record<string, unknown>);
-  recordAudit({
-    category: "administration",
-    action: "tax.bracket_created",
-    summary: `Created global tax bracket “${name}” at ${rate}%`,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "tax_bracket",
-    entityId: bracket.id,
-    meta: { rate },
-  });
-  revalidatePath("/admin/tax");
-  return { status: "success", message: t("bracketCreated", { name }) };
 }
 
 export async function deleteTaxBracket(formData: FormData): Promise<void> {
   const user = await assertPlatformAdmin();
   const bracketId = String(formData.get("bracketId") ?? "");
-  const bracket = await getTaxBracket(bracketId);
-  if (!bracket) return;
-
-  const inUse = await db.count(COLLECTIONS.storeProducts, { taxBracketId: bracketId });
-  if (inUse > 0) return;
-
-  await db.deleteOne(COLLECTIONS.taxBrackets, { id: bracketId });
-  recordAudit({
-    category: "administration",
-    action: "tax.bracket_deleted",
-    summary: `Deleted unused tax bracket “${bracket.name}”`,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "tax_bracket",
-    entityId: bracketId,
-    meta: {},
-  });
-  revalidatePath("/admin/tax");
+  try {
+    await removeTaxBracket(await platformContext(user), bracketId);
+  } catch (error) {
+    quietly(error);
+  }
 }
 
 /* ----------------------------------------------------------------- access */
@@ -452,47 +155,25 @@ export async function deleteTaxBracket(formData: FormData): Promise<void> {
 export async function setAgencyStatus(formData: FormData): Promise<void> {
   const user = await assertPlatformAdmin();
   const agencyId = String(formData.get("agencyId") ?? "");
-  const status = String(formData.get("status") ?? "") as "active" | "suspended";
+  const status = String(formData.get("status") ?? "") as Agency["status"];
   if (!["active", "suspended"].includes(status)) return;
 
-  const agency = await getAgency(agencyId);
-  if (!agency || agency.status === status) return;
-
-  await db.updateOne(COLLECTIONS.agencies, { id: agencyId }, { $set: { status } });
-  recordAudit({
-    category: "administration",
-    action: "agency.status_changed",
-    summary: `${status === "suspended" ? "Suspended" : "Reactivated"} agency ${agency.name}`,
-    agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "agency",
-    entityId: agencyId,
-    meta: { status },
-  });
-  revalidatePath("/admin/agencies");
+  try {
+    await changeAgencyStatus(await platformContext(user), agencyId, status);
+  } catch (error) {
+    quietly(error);
+  }
 }
 
 export async function setAgencyPlan(formData: FormData): Promise<void> {
   const user = await assertPlatformAdmin();
   const agencyId = String(formData.get("agencyId") ?? "");
-  const plan = String(formData.get("plan") ?? "") as "starter" | "studio" | "scale";
+  const plan = String(formData.get("plan") ?? "") as Agency["plan"];
   if (!["starter", "studio", "scale"].includes(plan)) return;
 
-  const agency = await getAgency(agencyId);
-  if (!agency || agency.plan === plan) return;
-
-  await db.updateOne(COLLECTIONS.agencies, { id: agencyId }, { $set: { plan } });
-  recordAudit({
-    category: "administration",
-    action: "agency.plan_changed",
-    summary: `Moved ${agency.name} from the ${agency.plan} plan to ${plan}`,
-    agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "agency",
-    entityId: agencyId,
-    meta: { from: agency.plan, to: plan },
-  });
-  revalidatePath("/admin/agencies");
+  try {
+    await changeAgencyPlan(await platformContext(user), agencyId, plan);
+  } catch (error) {
+    quietly(error);
+  }
 }

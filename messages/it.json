@@ -287,7 +287,7 @@
     "metaTitle": "Sviluppatori",
     "metaDescription": "Collega il tuo codice, Claude e altri assistenti IA a un negozio Parcelith con l'API di amministrazione e il server MCP.",
     "title": "Gestisci il negozio con il codice e gli assistenti IA",
-    "lead": "L'API di amministrazione e il server MCP danno al tuo codice, a Claude e ad altri assistenti IA accesso a prodotti, ordini, clienti, sconti, vetrina e impostazioni di un negozio.",
+    "lead": "L'API di amministrazione e il server MCP danno al tuo codice, a Claude e ad altri assistenti IA accesso a prodotti, grafiche, ordini, clienti, regali aziendali, approvvigionamento, assistente, team, analisi, attività e impostazioni di un negozio.",
     "keysTitle": "Crea una chiave API",
     "keysBody": "Una chiave vale per un negozio. Ogni modifica fatta con essa viene registrata nell'attività del negozio con il nome della chiave.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Carte regalo",
       "Reviews": "Recensioni",
       "Content": "Pagine e blog",
-      "Navigation": "Menu"
+      "Navigation": "Menu",
+      "Artwork and mockups": "Grafiche e mockup",
+      "Gifting": "Cataloghi regalo",
+      "Campaigns": "Campagne regalo",
+      "Sourcing": "Approvvigionamento",
+      "Assistant": "Assistente IA",
+      "Team": "Team",
+      "Analytics": "Analisi",
+      "Activity": "Attività",
+      "Agency": "Agenzia",
+      "Platform administration": "Amministrazione della piattaforma"
     },
     "ctaTitle": "Crea la tua prima chiave",
     "ctaBody": "Accedi, apri le Impostazioni di un negozio e scegli Chiavi API.",
-    "cta": "Accedi"
+    "cta": "Accedi",
+    "platformTitle": "Chiavi di piattaforma",
+    "platformBody": "Gli amministratori della piattaforma creano le chiavi di piattaforma in Admin → Chiavi API. Una chiave di piattaforma ha lo scope {scope}, che nessuna chiave di negozio può avere, ed esegue le operazioni elencate in Amministrazione della piattaforma."
   },
   "pricing": {
     "metaTitle": "Prezzi",
@@ -737,7 +749,8 @@
       "quotes": "Richieste di preventivo",
       "tax": "Aliquote fiscali",
       "agencies": "Agenzie e accessi",
-      "audit": "Registro di controllo"
+      "audit": "Registro di controllo",
+      "apiKeys": "Chiavi API"
     },
     "people": "Persone",
     "billing": "Fatturazione"
@@ -4141,7 +4154,14 @@
       "store": "Dettagli del negozio",
       "gift_cards": "Carte regalo",
       "reviews": "Recensioni",
-      "content": "Pagine, blog e menu"
+      "content": "Pagine, blog e menu",
+      "gifting": "Regali aziendali",
+      "sourcing": "Approvvigionamento e preventivi",
+      "assistant": "Assistente IA",
+      "team": "Team",
+      "analytics": "Analisi",
+      "activity": "Attività",
+      "agency": "Agenzia: persone, piano e negozi"
     },
     "none": "Nessun accesso",
     "read": "Lettura",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Usa al massimo {max} caratteri.",
       "scopeRequired": "Dai alla chiave l’accesso ad almeno un’area.",
       "duplicate": "Questa chiave è già stata creata. Se non l’hai copiata, revocala e creane una nuova."
+    },
+    "platform": {
+      "description": "Le chiavi di piattaforma eseguono le operazioni di amministrazione della piattaforma nell'API di amministrazione e nel server MCP. Non aprono alcun negozio.",
+      "access": "Accesso: amministrazione della piattaforma"
     }
   },
   "inventory": {

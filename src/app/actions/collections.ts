@@ -2,18 +2,15 @@
 
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { applyOrder, cleanIdList } from "@/lib/collections";
-import { listProductCollections, updateProductCollection } from "@/lib/data";
 import { refusal } from "@/lib/operations/action-state";
 import {
   addCollectionProducts as addProducts,
-  auditCollection,
   createCollection as addCollection,
   deleteCollection as removeCollection,
   findCollection,
   removeCollectionProduct as removeProduct,
   reorderCollectionProducts as reorderProducts,
-  revalidateCollections,
+  reorderCollections as reorderStoreCollections,
   saveCollectionDetails as saveDetails,
 } from "@/lib/operations/collections";
 import type { OperationContext } from "@/lib/operations/context";
@@ -87,19 +84,8 @@ export interface OrderResult extends ActionState {
 /** Applies the order the list was dragged into. */
 export async function reorderCollections(input: { storeId: string; ids: string[] }): Promise<OrderResult> {
   const access = await assertStoreAccess(input.storeId, "store.catalog");
-  const ctx = await operationContext(access);
   const t = await getTranslations("actions.collections");
-  const collections = await listProductCollections(ctx.store.id);
-  const current = collections.map((c) => c.id);
-  const next = applyOrder(current, cleanIdList(input.ids, current));
-  await Promise.all(
-    next.flatMap((id, position) => {
-      const collection = collections.find((c) => c.id === id);
-      return collection && collection.position !== position ? [updateProductCollection(id, {}, { position })] : [];
-    }),
-  );
-  auditCollection(ctx, "collection.reordered", "Reordered the store's collections", ctx.store.id, { count: next.length });
-  revalidateCollections(ctx);
+  const next = await reorderStoreCollections(await operationContext(access), input.ids);
   return { status: "success", message: t("orderSaved"), ids: next };
 }
 

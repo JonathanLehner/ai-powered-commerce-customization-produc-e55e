@@ -17,13 +17,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { API_RESOURCES } from "@/lib/api-scopes";
+import { AGENCY_RESOURCES, API_RESOURCES, resourceWrites } from "@/lib/api-scopes";
 
 /**
  * Name, then the access per area. The secret comes back in the answer to this
  * form and is shown once, above the form, until the page is left.
  */
-export function CreateKeyForm({ storeId }: { storeId: string }) {
+export function CreateKeyForm({ storeId, agencyAdmin }: { storeId: string; agencyAdmin: boolean }) {
   const t = useTranslations("apiKeys");
   const [{ state, attempt }, formAction] = useSubmission<CreateKeyState>(createKey, { status: "idle" });
   const { formRef, capture } = useValueRestore(state.status, attempt);
@@ -61,7 +61,7 @@ export function CreateKeyForm({ storeId }: { storeId: string }) {
             <fieldset aria-invalid={state.field === "scopes" ? true : undefined}>
               <legend className="text-sm font-medium text-foreground">{t("access")}</legend>
               <div className="mt-2 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                {API_RESOURCES.map((resource) => (
+                {API_RESOURCES.filter((resource) => agencyAdmin || !AGENCY_RESOURCES.includes(resource)).map((resource) => (
                   <div key={resource} className="flex items-center justify-between gap-3">
                     <Label htmlFor={`scope-${resource}`} className="font-normal text-inksoft">
                       {t(`resources.${resource}`)}
@@ -73,7 +73,7 @@ export function CreateKeyForm({ storeId }: { storeId: string }) {
                       <SelectContent>
                         <SelectItem value="none">{t("none")}</SelectItem>
                         <SelectItem value="read">{t("read")}</SelectItem>
-                        <SelectItem value="write">{t("write")}</SelectItem>
+                        {resourceWrites(resource) ? <SelectItem value="write">{t("write")}</SelectItem> : null}
                       </SelectContent>
                     </Select>
                   </div>

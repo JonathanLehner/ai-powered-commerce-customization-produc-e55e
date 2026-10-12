@@ -287,7 +287,7 @@
     "metaTitle": "開発者向け",
     "metaDescription": "Admin API と MCP サーバーで、独自のコード、Claude、その他の AI アシスタントを Parcelith のストアに接続できます。",
     "title": "コードと AI アシスタントでストアを運営",
-    "lead": "Admin API と MCP サーバーを使うと、独自のコード、Claude、その他の AI アシスタントからストアの商品、注文、顧客、割引、ストアフロント、設定にアクセスできます。",
+    "lead": "Admin API と MCP サーバーを使うと、独自のコード、Claude、その他の AI アシスタントからストアの商品、アートワーク、注文、顧客、法人ギフト、調達、アシスタント、チーム、分析、アクティビティ、設定にアクセスできます。",
     "keysTitle": "API キーを作成",
     "keysBody": "キーは 1 つのストアで使えます。キーによる変更はすべて、キー名とともにストアのアクティビティに記録されます。",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "ギフトカード",
       "Reviews": "レビュー",
       "Content": "ページとブログ",
-      "Navigation": "メニュー"
+      "Navigation": "メニュー",
+      "Artwork and mockups": "アートワークとモックアップ",
+      "Gifting": "ギフトカタログ",
+      "Campaigns": "ギフトキャンペーン",
+      "Sourcing": "調達",
+      "Assistant": "AIアシスタント",
+      "Team": "チーム",
+      "Analytics": "分析",
+      "Activity": "アクティビティ",
+      "Agency": "エージェンシー",
+      "Platform administration": "プラットフォーム管理"
     },
     "ctaTitle": "最初のキーを作成",
     "ctaBody": "サインインし、ストアの設定を開いて API キーを選びます。",
-    "cta": "サインイン"
+    "cta": "サインイン",
+    "platformTitle": "プラットフォームキー",
+    "platformBody": "プラットフォーム管理者は 管理 → APIキー でプラットフォームキーを作成します。プラットフォームキーはストアキーが持てない {scope} スコープを持ち、プラットフォーム管理の操作を実行します。"
   },
   "pricing": {
     "metaTitle": "料金",
@@ -737,7 +749,8 @@
       "quotes": "見積もり依頼",
       "tax": "税区分",
       "agencies": "エージェンシーとアクセス",
-      "audit": "監査ログ"
+      "audit": "監査ログ",
+      "apiKeys": "APIキー"
     },
     "people": "メンバー",
     "billing": "請求"
@@ -4141,7 +4154,14 @@
       "store": "ストア情報",
       "gift_cards": "ギフトカード",
       "reviews": "レビュー",
-      "content": "ページ、ブログ、メニュー"
+      "content": "ページ、ブログ、メニュー",
+      "gifting": "法人ギフト",
+      "sourcing": "調達と見積もり",
+      "assistant": "AIアシスタント",
+      "team": "チーム",
+      "analytics": "分析",
+      "activity": "アクティビティ",
+      "agency": "エージェンシーのメンバー、プラン、ストア"
     },
     "none": "アクセスなし",
     "read": "読み取り",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "{max} 文字以内で入力してください。",
       "scopeRequired": "少なくとも 1 つの項目へのアクセス権を付与してください。",
       "duplicate": "このキーはすでに作成されています。コピーしていない場合は、無効化して新しいキーを作成してください。"
+    },
+    "platform": {
+      "description": "プラットフォームキーは Admin API と MCP サーバーのプラットフォーム管理操作を実行します。ストアは開けません。",
+      "access": "アクセス：プラットフォーム管理"
     }
   },
   "inventory": {

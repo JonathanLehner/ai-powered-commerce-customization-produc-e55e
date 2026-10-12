@@ -287,7 +287,7 @@
     "metaTitle": "Entwickler",
     "metaDescription": "Verbinden Sie eigenen Code, Claude und andere KI-Assistenten über die Admin-API und den MCP-Server mit einem Parcelith-Shop.",
     "title": "Steuern Sie Ihren Shop per Code und KI-Assistent",
-    "lead": "Mit der Admin-API und dem MCP-Server greifen Ihr eigener Code, Claude und andere KI-Assistenten auf Produkte, Bestellungen, Kunden, Rabatte, Storefront und Einstellungen eines Shops zu.",
+    "lead": "Mit der Admin-API und dem MCP-Server greifen Ihr eigener Code, Claude und andere KI-Assistenten auf Produkte, Motive, Bestellungen, Kunden, Firmengeschenke, Beschaffung, Assistent, Team, Analysen, Aktivität und Einstellungen eines Shops zu.",
     "keysTitle": "API-Schlüssel erstellen",
     "keysBody": "Ein Schlüssel gilt für einen Shop. Jede Änderung damit wird im Aktivitätsprotokoll des Shops unter dem Namen des Schlüssels erfasst.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Geschenkkarten",
       "Reviews": "Bewertungen",
       "Content": "Seiten und Blog",
-      "Navigation": "Menüs"
+      "Navigation": "Menüs",
+      "Artwork and mockups": "Motive und Mockups",
+      "Gifting": "Geschenkkataloge",
+      "Campaigns": "Geschenkkampagnen",
+      "Sourcing": "Beschaffung",
+      "Assistant": "KI-Assistent",
+      "Team": "Team",
+      "Analytics": "Analysen",
+      "Activity": "Aktivität",
+      "Agency": "Agentur",
+      "Platform administration": "Plattformverwaltung"
     },
     "ctaTitle": "Erstellen Sie Ihren ersten Schlüssel",
     "ctaBody": "Melden Sie sich an, öffnen Sie die Einstellungen eines Shops und wählen Sie API-Schlüssel.",
-    "cta": "Anmelden"
+    "cta": "Anmelden",
+    "platformTitle": "Plattformschlüssel",
+    "platformBody": "Plattformadministratoren erstellen Plattformschlüssel unter Admin → API-Schlüssel. Ein Plattformschlüssel hat den Scope {scope}, den kein Shopschlüssel haben kann, und führt die Operationen unter Plattformverwaltung aus."
   },
   "pricing": {
     "metaTitle": "Preise",
@@ -737,7 +749,8 @@
       "quotes": "Angebotsanfragen",
       "tax": "Steuerklassen",
       "agencies": "Agenturen und Zugriff",
-      "audit": "Audit-Log"
+      "audit": "Audit-Log",
+      "apiKeys": "API-Schlüssel"
     },
     "people": "Personen",
     "billing": "Abrechnung"
@@ -4141,7 +4154,14 @@
       "store": "Shopdetails",
       "gift_cards": "Geschenkkarten",
       "reviews": "Bewertungen",
-      "content": "Seiten, Blog und Menüs"
+      "content": "Seiten, Blog und Menüs",
+      "gifting": "Firmengeschenke",
+      "sourcing": "Beschaffung und Angebote",
+      "assistant": "KI-Assistent",
+      "team": "Team",
+      "analytics": "Analysen",
+      "activity": "Aktivität",
+      "agency": "Agentur: Personen, Tarif und Shops"
     },
     "none": "Kein Zugriff",
     "read": "Lesen",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Verwenden Sie höchstens {max} Zeichen.",
       "scopeRequired": "Geben Sie dem Schlüssel Zugriff auf mindestens einen Bereich.",
       "duplicate": "Dieser Schlüssel wurde bereits erstellt. Falls Sie ihn nicht kopiert haben, widerrufen Sie ihn und erstellen Sie einen neuen."
+    },
+    "platform": {
+      "description": "Plattformschlüssel führen die Verwaltungsoperationen der Admin-API und des MCP-Servers aus. Sie öffnen keinen Shop.",
+      "access": "Zugriff: Plattformverwaltung"
     }
   },
   "inventory": {

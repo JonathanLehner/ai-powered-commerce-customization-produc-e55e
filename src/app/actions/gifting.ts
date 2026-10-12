@@ -1,27 +1,9 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import {
-  COLLECTIONS,
-  getGiftCampaign,
-  getGiftCampaignByCode,
-  getGiftCatalogue,
-  getGiftCatalogueBySlug,
-  getOrderByIdempotencyKey,
-  getStore,
-  listPublishedProducts,
-  recordAudit,
-  updateGiftCampaign,
-  updateGiftCatalogue,
-  getUserByEmail,
-} from "@/lib/data";
-import { isLocale } from "@/i18n/locales";
-import { emailCopy, shopperLocale, shopperTranslator } from "@/i18n/storefront";
-import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
-import { sendEmail, siteOrigin } from "@/lib/email";
-import { brandFor, giftApprovalEmail } from "@/lib/email-templates";
+import { getGiftCampaignByCode, getGiftCatalogueBySlug, getStore } from "@/lib/data";
+import { shopperLocale } from "@/i18n/storefront";
 import {
   campaignPath,
   campaignToken,
@@ -30,35 +12,32 @@ import {
   readGiftAccess,
   verifyCampaignToken,
 } from "@/lib/gift-access";
+import { refusal } from "@/lib/operations/action-state";
+import { isOperationError, type OperationContext } from "@/lib/operations/context";
 import {
-  approvalResendCheck,
-  approverChangeCheck,
-  approverLabel,
-  approvalRemindersSent,
-  daysAwaitingApproval,
-  type ApprovalCheck,
-} from "@/lib/gift-approval";
-import { parseRecipients, type ParsedRecipient } from "@/lib/gift-recipients";
-import {
-  MAX_PER_RECIPIENT,
-  MAX_RECIPIENTS,
-  campaignCode,
-  giftProductOptions,
-  quoteCampaign,
-} from "@/lib/gifting";
-import { db } from "@/lib/mongo";
-import { assertStoreAccess } from "@/lib/session";
-import { chargeCard } from "@/lib/demo-payment";
-import { raiseCampaignOrders } from "@/lib/gift-payment";
-import { paymentMode } from "@/lib/payment-mode";
-import { createConnectedCheckout, expireConnectedCheckout } from "@/lib/stripe";
-import type {
-  CampaignRecipient,
-  GiftCampaign,
-  GiftCatalogue,
-  Store,
-} from "@/lib/types";
-import { formatMoney, newId, parseMoney, slugify } from "@/lib/util";
+  assertCatalogueOpen,
+  buildCampaign as placeCampaign,
+  campaignApprover,
+  cancelCampaign as withdrawCampaign,
+  changeCampaignApprover as handOverApproval,
+  createGiftCatalogue as addGiftCatalogue,
+  decideCampaign as recordDecision,
+  findGiftCampaign,
+  findGiftCatalogue,
+  inPortalLanguage,
+  payCampaign as chargeCampaign,
+  portalActor,
+  regenerateGiftLink as rotateGiftLink,
+  resendApprovalRequest as chaseApproval,
+  saveGiftAccess as setGiftAccess,
+  saveGiftCatalogueDetails,
+  saveGiftProducts as setGiftProducts,
+  setGiftCatalogueStatus as setCatalogueStatus,
+  type CampaignPreview,
+} from "@/lib/operations/gifting";
+import { assertStoreAccess, operationContext } from "@/lib/session";
+import type { GiftCampaign, GiftCatalogue, Store } from "@/lib/types";
+import { formatMoney, parseMoney } from "@/lib/util";
 import type { ActionState } from "./stores";
 
 /* --------------------------------------------------------------- workspace */
@@ -71,502 +50,158 @@ function fail(message: string, field?: string): ActionState {
 }
 
 async function catalogueForStore(catalogueId: string, storeId: string): Promise<GiftCatalogue> {
-  const catalogue = await getGiftCatalogue(catalogueId);
-  if (!catalogue || catalogue.storeId !== storeId) throw new Error("That gift catalogue no longer exists.");
+  const catalogue = await findGiftCatalogue(storeId, catalogueId);
+  if (!catalogue) throw new Error("That gift catalogue no longer exists.");
   return catalogue;
-}
-
-function refreshCatalogue(storeId: string, catalogueId?: string) {
-  revalidatePath(`/app/stores/${storeId}/gifting`);
-  if (catalogueId) revalidatePath(`/app/stores/${storeId}/gifting/${catalogueId}`);
-}
-
-/** A portal address is public, so it has to be unique across every store. */
-async function freeCatalogueSlug(preferred: string): Promise<string> {
-  let slug = slugify(preferred) || "gifting";
-  if (await getGiftCatalogueBySlug(slug)) slug = `${slug}-${newId("x").slice(2, 6)}`;
-  return slug;
-}
-
-/** Why the approval could not be chased or handed over, in the workspace user's language. */
-async function refusalMessage(
-  check: Extract<ApprovalCheck, { ok: false }>,
-  campaign: GiftCampaign,
-  name = "",
-): Promise<string> {
-  const [t, labels, locale] = await Promise.all([
-    getTranslations("actions.gifting"),
-    getTranslations("labels"),
-    getLocale(),
-  ]);
-  switch (check.reason) {
-    case "settled": {
-      const status = labels(`campaignStatus.${campaign.status}`);
-      return t("refusal.settled", { code: campaign.code, status: locale === "en" ? status.toLowerCase() : status });
-    }
-    case "justSent": {
-      const { approverName, approverEmail } = campaign.approval;
-      const approver =
-        approverName && approverEmail
-          ? `${approverName} (${approverEmail})`
-          : approverName || approverEmail || t("theApprover");
-      return t("refusal.justSent", { approver });
-    }
-    case "alreadyApprover":
-      return t("refusal.alreadyApprover", { name, code: campaign.code });
-    default:
-      return t(`refusal.${check.reason}`);
-  }
 }
 
 export async function createGiftCatalogue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
-  const t = await getTranslations("actions.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
 
-  const name = String(formData.get("name") ?? "").trim();
-  const companyName = String(formData.get("companyName") ?? "").trim();
-  const approverName = String(formData.get("approverName") ?? "").trim();
-  const approverEmail = String(formData.get("approverEmail") ?? "").trim().toLowerCase();
-  const access = String(formData.get("access") ?? "link") === "invite" ? "invite" : "link";
-  const spendLimit = parseMoney(String(formData.get("spendLimit") ?? ""), store.defaultCurrency);
-
-  if (name.length < 3) return fail(t("nameTooShort"), "name");
-  if (companyName.length < 2) return fail(t("companyRequired"), "companyName");
-  if (spendLimit === null) return fail(t("spendLimitInvalid"), "spendLimit");
-  if (approverEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(approverEmail)) {
-    return fail(t("approverEmailInvalid"), "approverEmail");
+  let catalogue: GiftCatalogue;
+  try {
+    catalogue = await addGiftCatalogue(await operationContext(access), {
+      name: String(formData.get("name") ?? ""),
+      companyName: String(formData.get("companyName") ?? ""),
+      approverName: String(formData.get("approverName") ?? ""),
+      approverEmail: String(formData.get("approverEmail") ?? ""),
+      access: String(formData.get("access") ?? "link") === "invite" ? "invite" : "link",
+      spendLimit: parseMoney(String(formData.get("spendLimit") ?? ""), access.store.defaultCurrency),
+    });
+  } catch (error) {
+    return refusal(error);
   }
-
-  const now = new Date().toISOString();
-  const catalogue: GiftCatalogue = {
-    id: newId("gft"),
-    storeId,
-    name,
-    slug: await freeCatalogueSlug(`${companyName}-${name}`),
-    companyName,
-    intro: "",
-    status: "active",
-    access,
-    accessSecret: newId("sec"),
-    invitedEmails: [],
-    productIds: [],
-    spendLimitPerRecipient: spendLimit,
-    currency: store.defaultCurrency,
-    approvalRequired: Boolean(approverEmail),
-    approverName,
-    approverEmail,
-    createdBy: user.name,
-    createdAt: now,
-    updatedAt: now,
-  };
-  await db.insertOne(COLLECTIONS.giftCatalogues, catalogue as unknown as Record<string, unknown>);
-  recordAudit({
-    category: "gifting",
-    action: "gifting.catalogue_created",
-    summary: `Created gift catalogue “${name}” for ${companyName}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_catalogue",
-    entityId: catalogue.id,
-    meta: { access, spendLimit },
-  });
-  refreshCatalogue(storeId, catalogue.id);
   redirect(`/app/stores/${storeId}/gifting/${catalogue.id}`);
 }
 
 export async function saveGiftCatalogue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogueId = String(formData.get("catalogueId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
   const t = await getTranslations("actions.gifting");
 
-  const name = String(formData.get("name") ?? "").trim();
-  const companyName = String(formData.get("companyName") ?? "").trim();
-  const intro = String(formData.get("intro") ?? "").trim().slice(0, 600);
-  const approverName = String(formData.get("approverName") ?? "").trim();
-  const approverEmail = String(formData.get("approverEmail") ?? "").trim().toLowerCase();
-  const approvalRequired = formData.get("approvalRequired") === "on";
-  const spendLimit = parseMoney(String(formData.get("spendLimit") ?? ""), catalogue.currency);
-
-  if (name.length < 3) return fail(t("nameTooShort"), "name");
-  if (companyName.length < 2) return fail(t("companyRequired"), "companyName");
-  if (spendLimit === null) return fail(t("spendLimitInvalid"), "spendLimit");
-  if (approvalRequired && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(approverEmail)) {
-    return fail(t("approverEmailRequired"), "approverEmail");
+  try {
+    await saveGiftCatalogueDetails(await operationContext(access), catalogue, {
+      name: String(formData.get("name") ?? ""),
+      companyName: String(formData.get("companyName") ?? ""),
+      intro: String(formData.get("intro") ?? ""),
+      approverName: String(formData.get("approverName") ?? ""),
+      approverEmail: String(formData.get("approverEmail") ?? ""),
+      approvalRequired: formData.get("approvalRequired") === "on",
+      spendLimit: parseMoney(String(formData.get("spendLimit") ?? ""), catalogue.currency),
+    });
+    return ok(t("saved"));
+  } catch (error) {
+    return refusal(error);
   }
-
-  await updateGiftCatalogue(catalogueId, {
-    name,
-    companyName,
-    intro,
-    spendLimitPerRecipient: spendLimit,
-    approvalRequired,
-    approverName,
-    approverEmail,
-  });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.catalogue_updated",
-    summary: `Updated gift catalogue “${name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_catalogue",
-    entityId: catalogueId,
-    meta: { spendLimit, approvalRequired },
-  });
-  refreshCatalogue(storeId, catalogueId);
-  return ok(t("saved"));
 }
 
 export async function saveGiftAccess(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogueId = String(formData.get("catalogueId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
   const t = await getTranslations("actions.gifting");
 
-  const access = String(formData.get("access") ?? "link") === "invite" ? "invite" : "link";
-  const raw = String(formData.get("invitedEmails") ?? "");
-  const invitedEmails = [
-    ...new Set(
-      raw
-        .split(/[\s,;]+/)
-        .map((value) => value.trim().toLowerCase())
-        .filter(Boolean),
-    ),
-  ];
-  const invalid = invitedEmails.find((email) => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email));
-  if (invalid) return fail(t("invalidEmail", { email: invalid }), "invitedEmails");
-  if (access === "invite" && invitedEmails.length === 0) {
-    return fail(t("addressRequired"), "invitedEmails");
+  try {
+    const saved = await setGiftAccess(await operationContext(access), catalogue, {
+      access: String(formData.get("access") ?? "link") === "invite" ? "invite" : "link",
+      invitedEmails: String(formData.get("invitedEmails") ?? "").split(/[\s,;]+/),
+    });
+    return ok(saved.access === "invite" ? t("inviteSaved") : t("linkSaved"));
+  } catch (error) {
+    return refusal(error);
   }
-
-  await updateGiftCatalogue(catalogueId, { access, invitedEmails });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.access_changed",
-    summary:
-      access === "invite"
-        ? `Restricted “${catalogue.name}” to ${invitedEmails.length} invited ${invitedEmails.length === 1 ? "address" : "addresses"}`
-        : `Opened “${catalogue.name}” to anyone holding its private link`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_catalogue",
-    entityId: catalogueId,
-    meta: { access, invited: invitedEmails.length },
-  });
-  refreshCatalogue(storeId, catalogueId);
-  return ok(access === "invite" ? t("inviteSaved") : t("linkSaved"));
 }
 
 export async function saveGiftProducts(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogueId = String(formData.get("catalogueId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
   const t = await getTranslations("actions.gifting");
 
-  const published = await listPublishedProducts(storeId);
-  const live = new Set(published.map((p) => p.id));
-  const productIds = formData
-    .getAll("productIds")
-    .map((value) => String(value))
-    .filter((id) => live.has(id));
-  if (productIds.length === 0) {
-    return fail(t("productRequired"), "productIds");
+  try {
+    const saved = await setGiftProducts(
+      await operationContext(access),
+      catalogue,
+      formData.getAll("productIds").map((value) => String(value)),
+    );
+    return ok(t("productsSaved", { count: saved.productIds.length }));
+  } catch (error) {
+    return refusal(error);
   }
-
-  await updateGiftCatalogue(catalogueId, { productIds });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.products_changed",
-    summary: `Set ${productIds.length} ${productIds.length === 1 ? "product" : "products"} in gift catalogue “${catalogue.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_catalogue",
-    entityId: catalogueId,
-    meta: { products: productIds.length },
-  });
-  refreshCatalogue(storeId, catalogueId);
-  return ok(t("productsSaved", { count: productIds.length }));
 }
 
 export async function regenerateGiftLink(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogueId = String(formData.get("catalogueId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
-
-  await updateGiftCatalogue(catalogueId, { accessSecret: newId("sec") });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.link_regenerated",
-    summary: `Regenerated the private link for “${catalogue.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_catalogue",
-    entityId: catalogueId,
-    meta: {},
-  });
-  refreshCatalogue(storeId, catalogueId);
+  await rotateGiftLink(await operationContext(access), catalogue);
 }
 
 export async function setGiftCatalogueStatus(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const catalogueId = String(formData.get("catalogueId") ?? "");
   const status = String(formData.get("status") ?? "") === "paused" ? "paused" : "active";
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const catalogue = await catalogueForStore(catalogueId, storeId);
-
-  await updateGiftCatalogue(catalogueId, { status });
-  recordAudit({
-    category: "gifting",
-    action: status === "paused" ? "gifting.catalogue_paused" : "gifting.catalogue_activated",
-    summary: `${status === "paused" ? "Paused" : "Reopened"} gift catalogue “${catalogue.name}”`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_catalogue",
-    entityId: catalogueId,
-    meta: { status },
-  });
-  refreshCatalogue(storeId, catalogueId);
-}
-
-/**
- * Puts a campaign in front of its approver by email.
- *
- * The approval link is the approver's own, derived from the campaign and the
- * role, so what is emailed is exactly what the store team sees in the approval
- * panel. Nothing here can stop a campaign being created or chased.
- */
-async function emailApprovalRequest(
-  store: Store,
-  catalogue: GiftCatalogue,
-  campaign: GiftCampaign,
-): Promise<void> {
-  const to = campaign.approval.approverEmail.trim();
-  if (!to) return;
-  try {
-    // Written in the approver's own language when they have a Parcelith
-    // account, otherwise in the store's.
-    const [origin, approver] = await Promise.all([siteOrigin(), getUserByEmail(to)]);
-    const language = isLocale(approver?.uiLanguage) ? approver.uiLanguage : store.defaultLanguage;
-    const link = campaignPath(
-      catalogue.slug,
-      campaign.code,
-      await campaignToken(campaign.id, "approver"),
-      "approver",
-    );
-    sendEmail({
-      to,
-      message: giftApprovalEmail(brandFor(store), await emailCopy(language), {
-        approverName: campaign.approval.approverName,
-        buyerName: campaign.buyer.name,
-        campaignName: campaign.name,
-        campaignCode: campaign.code,
-        companyName: catalogue.companyName,
-        recipients: campaign.recipients.length,
-        total: campaign.totals.total,
-        currency: campaign.currency,
-        approvalUrl: `${origin}${link}`,
-      }),
-      kind: "gift approval request",
-      storeId: store.id,
-      agencyId: store.agencyId,
-      entity: "gift_campaign",
-      entityId: campaign.code,
-    });
-  } catch (error) {
-    console.error("Gift approval email could not be queued", error);
-  }
+  await setCatalogueStatus(await operationContext(access), catalogue, status);
 }
 
 /* ------------------------------------------------- a campaign stuck at approval */
 
 async function campaignForStore(campaignId: string, storeId: string): Promise<GiftCampaign> {
-  const campaign = await getGiftCampaign(campaignId);
-  if (!campaign || campaign.storeId !== storeId) throw new Error("That gift campaign no longer exists.");
+  const campaign = await findGiftCampaign(storeId, campaignId);
+  if (!campaign) throw new Error("That gift campaign no longer exists.");
   return campaign;
-}
-
-function refreshCampaign(storeId: string, campaign: GiftCampaign) {
-  revalidatePath(`/app/stores/${storeId}/orders/campaigns/${campaign.id}`);
-  refreshCatalogue(storeId, campaign.catalogueId);
 }
 
 /**
  * Chases the approver on a campaign that is still waiting.
  *
- * The request goes out again by email, and the chase is recorded either way: a
- * line in the campaign's own history and one in the store's audit log, plus the
- * moment it happened, which is what the panel counts the wait from.
+ * A retried submission finds the chase it already recorded rather than writing
+ * a second one, so a double click reads as the one request it was.
  */
 export async function resendApprovalRequest(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const campaignId = String(formData.get("campaignId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const campaign = await campaignForStore(campaignId, storeId);
-
-  const now = new Date();
-  const check = approvalResendCheck(campaign, now);
-  // A retried submission finds the chase it already recorded rather than
-  // writing a second one, so a double click reads as the one request it was.
   const t = await getTranslations("actions.gifting");
-  if (!check.ok) {
-    const message = await refusalMessage(check, campaign);
-    return check.duplicate ? ok(message) : fail(message);
+
+  try {
+    const outcome = await chaseApproval(await operationContext(access), campaign);
+    return outcome.done ? ok(t("resent", { approver: outcome.approver })) : ok(outcome.message);
+  } catch (error) {
+    return refusal(error);
   }
-
-  const at = now.toISOString();
-  const waited = daysAwaitingApproval(campaign, now);
-  const reminders = approvalRemindersSent(campaign) + 1;
-  const approver = approverLabel(campaign);
-  await updateGiftCampaign(campaign.id, {
-    approval: { ...campaign.approval, lastRequestedAt: at, remindersSent: reminders },
-    events: [
-      ...campaign.events,
-      {
-        at,
-        status: "Approval request sent again",
-        note: `${user.name} asked ${approver} to review the list again after ${waited} ${waited === 1 ? "day" : "days"}.`,
-        actor: user.name,
-      },
-    ],
-  });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.approval_resent",
-    summary: `Sent the approval request for gift campaign ${campaign.code} to ${approver} again`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_campaign",
-    entityId: campaign.code,
-    meta: { approver, waitingDays: waited, reminders },
-  });
-  const catalogue = await getGiftCatalogue(campaign.catalogueId);
-  if (catalogue) await emailApprovalRequest(store, catalogue, campaign);
-
-  refreshCampaign(storeId, campaign);
-  return ok(t("resent", { approver }));
 }
 
-/**
- * Hands the campaign to a different approver.
- *
- * The named person has left, is on leave or never answers, and the buyer cannot
- * pay until somebody signs the list off. The approval link itself is derived
- * from the campaign and its role, so it keeps working — what changes is who the
- * store, the portal and the decision are recorded against.
- */
+/** Hands the campaign to a different approver. */
 export async function changeCampaignApprover(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
   const campaignId = String(formData.get("campaignId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.gifting");
+  const access = await assertStoreAccess(storeId, "store.gifting");
   const campaign = await campaignForStore(campaignId, storeId);
-
-  const name = String(formData.get("approverName") ?? "").trim();
-  const email = String(formData.get("approverEmail") ?? "").trim().toLowerCase();
-  const reason = String(formData.get("reason") ?? "").trim().slice(0, 200);
-
-  const check = approverChangeCheck(campaign, { name, email });
   const t = await getTranslations("actions.gifting");
-  if (!check.ok) {
-    const message = await refusalMessage(check, campaign, name);
-    return check.duplicate
-      ? ok(message)
-      : fail(message, check.reason === "emailInvalid" ? "approverEmail" : "approverName");
-  }
 
-  const previous = approverLabel(campaign);
-  const now = new Date().toISOString();
-  await updateGiftCampaign(campaign.id, {
-    approval: {
-      ...campaign.approval,
-      approverName: name,
-      approverEmail: email,
-      // The clock restarts with the new person: the wait shown from here is
-      // theirs, not the wait the campaign spent with somebody unreachable.
-      requestedAt: now,
-      lastRequestedAt: now,
-      remindersSent: 0,
-    },
-    events: [
-      ...campaign.events,
-      {
-        at: now,
-        status: "Approver changed",
-        note: `${user.name} moved the approval from ${previous} to ${name} (${email})${reason ? `: ${reason}` : "."}`,
-        actor: user.name,
-      },
-    ],
-  });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.approver_changed",
-    summary: `Moved approval of gift campaign ${campaign.code} from ${previous} to ${name}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "gift_campaign",
-    entityId: campaign.code,
-    meta: { from: previous, to: `${name} (${email})`, reason: reason || null },
-  });
-  const catalogue = await getGiftCatalogue(campaign.catalogueId);
-  if (catalogue) {
-    await emailApprovalRequest(store, catalogue, {
-      ...campaign,
-      approval: { ...campaign.approval, approverName: name, approverEmail: email },
+  try {
+    const outcome = await handOverApproval(await operationContext(access), campaign, {
+      name: String(formData.get("approverName") ?? ""),
+      email: String(formData.get("approverEmail") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
     });
+    return outcome.done ? ok(t("approverChanged", { name: outcome.approver })) : ok(outcome.message);
+  } catch (error) {
+    return refusal(error);
   }
-
-  refreshCampaign(storeId, campaign);
-  return ok(t("approverChanged", { name }));
 }
 
 /* -------------------------------------------------------------- gift portal */
-
-/** Rows and money the bulk order screen shows back before anything is created. */
-export interface CampaignPreviewRow {
-  line: number;
-  name: string;
-  email: string;
-  destination: string;
-  productName: string;
-  variantName: string;
-  quantity: number;
-  lineTotal: number;
-  total: number;
-  issues: string[];
-}
-
-export interface CampaignPreview {
-  rows: CampaignPreviewRow[];
-  currency: string;
-  recipients: number;
-  withIssues: number;
-  overflow: number;
-  subtotal: number;
-  shipping: number;
-  taxAmount: number;
-  total: number;
-}
 
 export interface GiftActionState extends ActionState {
   preview?: CampaignPreview;
@@ -580,14 +215,9 @@ async function portalCatalogue(slug: string): Promise<{ catalogue: GiftCatalogue
   return { catalogue, store };
 }
 
-/**
- * A portal address in the language the action was posted from: `/g/<slug>/…`
- * becomes `/g/<slug>/de/…` for a buyer reading the portal in German.
- */
-async function inPortalLanguage(store: Store, slug: string, path: string): Promise<string> {
-  const root = `/g/${slug}`;
-  const base = localeBase(root, shopperLocale(store, await getLocale()), storeLanguages(store).defaultLocale);
-  return base + path.slice(root.length);
+/** What a portal action runs as: the buyer or approver, in the language the page was posted from. */
+async function portalContext(store: Store, name: string): Promise<OperationContext> {
+  return { store, actor: portalActor(name), locale: shopperLocale(store, await getLocale()) };
 }
 
 /** Invite-gated access: the address has to be on the catalogue's list. */
@@ -608,29 +238,7 @@ export async function unlockGiftCatalogue(_prev: ActionState, formData: FormData
     );
   }
   await grantGiftAccess(found.catalogue, email);
-  redirect(await inPortalLanguage(found.store, slug, `/g/${slug}`));
-}
-
-function toRecipient(row: ParsedRecipient): CampaignRecipient {
-  return {
-    id: newId("rcp"),
-    name: row.name,
-    email: row.email,
-    line1: row.line1,
-    city: row.city,
-    postalCode: row.postalCode,
-    country: row.country,
-    size: row.size,
-    note: row.note,
-    storeProductId: row.storeProductId,
-    productName: row.productName,
-    variantId: row.variantId,
-    variantName: row.variantName,
-    quantity: row.quantity,
-    unitPrice: row.unitPrice,
-    orderId: null,
-    orderCode: null,
-  };
+  redirect(inPortalLanguage(found.store, slug, `/g/${slug}`, await getLocale()));
 }
 
 /**
@@ -647,165 +255,48 @@ export async function buildCampaign(_prev: GiftActionState, formData: FormData):
   if (!found) return fail("This gift catalogue is not open at the moment.");
   const { catalogue, store } = found;
 
-  if (catalogue.status !== "active" || store.status !== "active") {
-    return fail("This gift catalogue is paused.");
+  try {
+    assertCatalogueOpen(catalogue, store);
+  } catch (error) {
+    return refusal(error);
   }
   const access = await readGiftAccess(catalogue);
   if (!access) return fail("Your access to this catalogue has expired. Open the private link again.");
 
-  const campaignName = String(formData.get("campaignName") ?? "").trim();
   const buyerName = String(formData.get("buyerName") ?? "").trim();
-  const buyerEmail =
-    access.email === "*" ? String(formData.get("buyerEmail") ?? "").trim().toLowerCase() : access.email;
-  const list = String(formData.get("recipients") ?? "");
-  const defaultProductId = String(formData.get("defaultProductId") ?? "");
-
-  if (campaignName.length < 3) return fail("Name the campaign, e.g. “Q4 client gifts”.", "campaignName");
-  if (buyerName.length < 2) return fail("Enter your name.", "buyerName");
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(buyerEmail)) return fail("Enter your work email address.", "buyerEmail");
-  if (!list.trim()) return fail("Paste or upload your recipient list.", "recipients");
-
-  const published = await listPublishedProducts(store.id);
-  const products = giftProductOptions(catalogue, published, store.channelCode);
-  if (products.length === 0) {
-    return fail("This catalogue has no products available.");
+  let result: Awaited<ReturnType<typeof placeCampaign>>;
+  try {
+    result = await placeCampaign(await portalContext(store, buyerName), catalogue, {
+      campaignName: String(formData.get("campaignName") ?? ""),
+      buyerName,
+      buyerEmail: access.email === "*" ? String(formData.get("buyerEmail") ?? "") : access.email,
+      recipients: String(formData.get("recipients") ?? ""),
+      defaultProductId: String(formData.get("defaultProductId") ?? ""),
+      submit: intent !== "check",
+    });
+  } catch (error) {
+    return refusal(error);
   }
 
-  const parsed = parseRecipients(list, {
-    products,
-    defaultProductId: products.some((p) => p.id === defaultProductId) ? defaultProductId : products[0].id,
-    currency: catalogue.currency,
-    spendLimit: catalogue.spendLimitPerRecipient,
-    maxRecipients: MAX_RECIPIENTS,
-    maxQuantity: MAX_PER_RECIPIENT,
-  });
-  if (parsed.rows.length === 0) {
-    return fail("No recipients could be read from that list. Check the columns and try again.", "recipients");
-  }
-
-  const recipients = parsed.rows.map(toRecipient);
-  const quote = await quoteCampaign(store, recipients, catalogue.currency, catalogue.spendLimitPerRecipient);
-  const withIssues = parsed.rows.filter((row) => row.issues.length > 0).length;
-
-  const preview: CampaignPreview = {
-    rows: parsed.rows.map((row, index) => ({
-      line: row.line,
-      name: row.name,
-      email: row.email,
-      destination: [row.city, row.country].filter(Boolean).join(", "),
-      productName: row.productName,
-      variantName: row.variantName,
-      quantity: row.quantity,
-      lineTotal: row.lineTotal,
-      total: quote.lines[index]?.total ?? row.lineTotal,
-      issues: row.issues,
-    })),
-    currency: catalogue.currency,
-    recipients: parsed.rows.length,
-    withIssues,
-    overflow: parsed.overflow,
-    subtotal: quote.subtotal,
-    shipping: quote.shipping,
-    taxAmount: quote.taxAmount,
-    total: quote.total,
-  };
-
-  if (intent === "check" || withIssues > 0) {
+  const { preview, campaign } = result;
+  if (!campaign) {
+    const { withIssues, recipients } = preview;
     return {
       status: withIssues > 0 ? "error" : "success",
       message:
         withIssues > 0
-          ? `${withIssues} of ${parsed.rows.length} rows need fixing before this list can be sent.`
-          : `${parsed.rows.length} recipients, ${formatMoney(quote.total, catalogue.currency)} in total. Ready to send.`,
+          ? `${withIssues} of ${recipients} rows need fixing before this list can be sent.`
+          : `${recipients} recipients, ${formatMoney(preview.total, catalogue.currency)} in total. Ready to send.`,
       field: withIssues > 0 ? "recipients" : undefined,
       preview,
     };
   }
-
-  const now = new Date().toISOString();
-  const campaign: GiftCampaign = {
-    id: newId("cmp"),
-    storeId: store.id,
-    catalogueId: catalogue.id,
-    code: campaignCode(),
-    name: campaignName,
-    status: catalogue.approvalRequired ? "awaiting_approval" : "approved",
-    currency: catalogue.currency,
-    buyer: { name: buyerName, email: buyerEmail },
-    recipients,
-    spendLimitPerRecipient: catalogue.spendLimitPerRecipient,
-    totals: {
-      subtotal: quote.subtotal,
-      shipping: quote.shipping,
-      taxAmount: quote.taxAmount,
-      taxLines: quote.taxRows,
-      total: quote.total,
-    },
-    approval: {
-      required: catalogue.approvalRequired,
-      approverName: catalogue.approverName,
-      approverEmail: catalogue.approverEmail,
-      requestedAt: catalogue.approvalRequired ? now : null,
-      lastRequestedAt: catalogue.approvalRequired ? now : null,
-      remindersSent: 0,
-      decidedBy: null,
-      decidedAt: null,
-      note: null,
-    },
-    payment: { status: "unpaid", paymentIntentId: null, last4: null, paidAt: null },
-    events: [
-      {
-        at: now,
-        status: "Campaign created",
-        note: `${recipients.length} recipients, ${formatMoney(quote.total, catalogue.currency)} including delivery and tax.`,
-        actor: buyerName,
-      },
-      ...(catalogue.approvalRequired
-        ? [
-            {
-              at: now,
-              status: "Sent for approval",
-              note: `Waiting on ${catalogue.approverName || catalogue.approverEmail}.`,
-              actor: buyerName,
-            },
-          ]
-        : []),
-    ],
-    idempotencyKey: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  await db.insertOne(COLLECTIONS.giftCampaigns, campaign as unknown as Record<string, unknown>);
-  recordAudit({
-    category: "gifting",
-    action: "gifting.campaign_created",
-    summary: `${buyerName} submitted gift campaign ${campaign.code} “${campaignName}” with ${recipients.length} recipients`,
-    storeId: store.id,
-    agencyId: store.agencyId,
-    actorId: "gifting",
-    actorName: buyerName,
-    entity: "gift_campaign",
-    entityId: campaign.code,
-    meta: { recipients: recipients.length, total: quote.total, currency: catalogue.currency },
-    notify:
-      campaign.status === "awaiting_approval"
-        ? {
-            type: "gift_approval",
-            href: `/app/stores/${store.id}/orders/campaigns/${campaign.id}`,
-            params: { code: campaign.code, name: campaignName },
-          }
-        : undefined,
-  });
-  if (campaign.status === "awaiting_approval") {
-    await emailApprovalRequest(store, catalogue, campaign);
-  }
-  revalidatePath(`/app/stores/${store.id}/gifting`);
   redirect(
-    await inPortalLanguage(
+    inPortalLanguage(
       store,
       slug,
       campaignPath(slug, campaign.code, await campaignToken(campaign.id, "buyer"), "buyer"),
+      await getLocale(),
     ),
   );
 }
@@ -824,7 +315,6 @@ export async function decideCampaign(_prev: ActionState, formData: FormData): Pr
   const code = String(formData.get("code") ?? "");
   const token = String(formData.get("token") ?? "");
   const decision = String(formData.get("decision") ?? "");
-  const note = String(formData.get("note") ?? "").trim().slice(0, 400);
 
   const loaded = await loadCampaign(slug, code);
   if (!loaded) return fail("That campaign could not be found.");
@@ -833,49 +323,14 @@ export async function decideCampaign(_prev: ActionState, formData: FormData): Pr
   if (!(await verifyCampaignToken(campaign.id, "approver", token))) {
     return fail("This approval link is not valid. Ask for it to be sent again.");
   }
-  if (campaign.status !== "awaiting_approval") {
-    return fail(`${campaign.code} is already ${campaign.status.replace(/_/g, " ")}.`);
+  try {
+    await recordDecision(await portalContext(store, campaignApprover(catalogue, campaign)), catalogue, campaign, {
+      decision,
+      note: String(formData.get("note") ?? ""),
+    });
+  } catch (error) {
+    return refusal(error);
   }
-  if (decision !== "approve" && decision !== "decline") return fail("Choose approve or decline.");
-  if (decision === "decline" && note.length < 4) {
-    return fail("Add a reason for declining.", "note");
-  }
-
-  const now = new Date().toISOString();
-  // The store team may have handed the campaign to somebody else since it was
-  // submitted, so the campaign's own approver wins over the catalogue default.
-  const approver =
-    campaign.approval.approverName ||
-    campaign.approval.approverEmail ||
-    catalogue.approverName ||
-    catalogue.approverEmail ||
-    "The approver";
-  await updateGiftCampaign(campaign.id, {
-    status: decision === "approve" ? "approved" : "declined",
-    approval: { ...campaign.approval, decidedBy: approver, decidedAt: now, note: note || null },
-    events: [
-      ...campaign.events,
-      {
-        at: now,
-        status: decision === "approve" ? "Approved" : "Declined",
-        note: note || (decision === "approve" ? "Approved for payment." : "Declined."),
-        actor: approver,
-      },
-    ],
-  });
-  recordAudit({
-    category: "gifting",
-    action: decision === "approve" ? "gifting.campaign_approved" : "gifting.campaign_declined",
-    summary: `${approver} ${decision === "approve" ? "approved" : "declined"} gift campaign ${campaign.code}`,
-    storeId: store.id,
-    agencyId: store.agencyId,
-    actorId: "gifting",
-    actorName: approver,
-    entity: "gift_campaign",
-    entityId: campaign.code,
-    meta: { decision },
-  });
-  revalidatePath(`/app/stores/${store.id}/gifting`);
   return ok(
     decision === "approve"
       ? `${campaign.code} is approved. ${campaign.buyer.name} can now pay for it.`
@@ -889,32 +344,16 @@ export async function cancelCampaign(formData: FormData): Promise<void> {
   const token = String(formData.get("token") ?? "");
   const loaded = await loadCampaign(slug, code);
   if (!loaded) return;
-  const { campaign, store } = loaded;
+  const { campaign, catalogue, store } = loaded;
   if (!(await verifyCampaignToken(campaign.id, "buyer", token))) return;
-  if (campaign.status === "ordered" || campaign.status === "cancelled") return;
 
-  const now = new Date().toISOString();
-  await updateGiftCampaign(campaign.id, {
-    status: "cancelled",
-    events: [
-      ...campaign.events,
-      { at: now, status: "Cancelled", note: "Withdrawn by the buyer before payment.", actor: campaign.buyer.name },
-    ],
-  });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.campaign_cancelled",
-    summary: `${campaign.buyer.name} withdrew gift campaign ${campaign.code} before payment`,
-    storeId: store.id,
-    agencyId: store.agencyId,
-    actorId: "gifting",
-    actorName: campaign.buyer.name,
-    entity: "gift_campaign",
-    entityId: campaign.code,
-    meta: {},
-  });
-  revalidatePath(`/app/stores/${store.id}/gifting`);
-  revalidatePath(`/g/${slug}`, "layout");
+  try {
+    await withdrawCampaign(await portalContext(store, campaign.buyer.name), catalogue, campaign);
+  } catch (error) {
+    // Already ordered or cancelled: nothing to withdraw.
+    if (isOperationError(error)) return;
+    throw error;
+  }
 }
 
 /**
@@ -933,112 +372,16 @@ export async function payCampaign(_prev: ActionState, formData: FormData): Promi
   if (!(await verifyCampaignToken(campaign.id, "buyer", token))) {
     return fail("This campaign link is not valid.");
   }
-  const back = await inPortalLanguage(store, slug, campaignPath(slug, campaign.code, token, "buyer"));
-  if (campaign.status === "ordered" || (await getOrderByIdempotencyKey(store.id, `gift_${campaign.id}:0`))) {
-    // A retried submission must not charge twice or duplicate the orders.
-    redirect(back);
-  }
-  if (campaign.status !== "approved") {
-    return fail(
-      campaign.status === "awaiting_approval"
-        ? `${campaign.code} still needs ${campaign.approval.approverName || catalogue.approverName || "an approver"} to sign it off.`
-        : `${campaign.code} is ${campaign.status.replace(/_/g, " ")} and cannot be paid for.`,
-    );
-  }
-  const mode = paymentMode(store);
-  if (mode === "unavailable") {
-    return fail("This store cannot take payments at the moment. Your campaign is saved.");
-  }
 
-  const quote = await quoteCampaign(store, campaign.recipients, campaign.currency, campaign.spendLimitPerRecipient);
-  if (quote.problems.length > 0) {
-    return fail(
-      `${quote.problems[0].problem} Remove or correct that recipient, then submit the list again.`,
-    );
-  }
-
-  const locale = shopperLocale(store, await getLocale());
-  const shopper = await shopperTranslator(store, locale);
-  if (mode === "demo") {
-    const charge = await chargeCard({
-      store,
-      amount: quote.total,
-      currency: campaign.currency,
+  let result: Awaited<ReturnType<typeof chargeCampaign>>;
+  try {
+    result = await chargeCampaign(await portalContext(store, campaign.buyer.name), catalogue, campaign, {
       cardNumber: String(formData.get("cardNumber") ?? ""),
       expiry: String(formData.get("expiry") ?? ""),
       cvc: String(formData.get("cvc") ?? ""),
-      name: campaign.buyer.name,
-      idempotencyKey: `gift_${campaign.id}`,
-      t: (name, values) => shopper(`payment.${name}`, values),
     });
-    if (!charge.ok) {
-      return {
-        status: "error",
-        message: charge.message,
-        field:
-          charge.code === "invalid_expiry" ? "expiry" : charge.code === "invalid_cvc" ? "cvc" : "cardNumber",
-      };
-    }
-    await raiseCampaignOrders(campaign, store, {
-      paymentIntentId: charge.paymentIntentId,
-      last4: charge.last4,
-      stripeAccountId: null,
-      checkoutSessionId: null,
-      note: `${formatMoney(quote.total, campaign.currency)} paid on a demo store. No money moved.`,
-    });
-    redirect(back);
+  } catch (error) {
+    return refusal(error);
   }
-
-  // A live store. An earlier session the buyer left is closed first, so the
-  // programme cannot be paid for twice.
-  const accountId = store.stripe.accountId as string;
-  const previous = campaign.payment.checkoutSessionId;
-  if (previous && campaign.payment.stripeAccountId) {
-    await expireConnectedCheckout(campaign.payment.stripeAccountId, previous);
-  }
-  const origin = await siteOrigin();
-  const checkout = await createConnectedCheckout({
-    accountId,
-    metadata: { kind: "gift_campaign", campaignId: campaign.id, storeId: store.id, code: campaign.code },
-    idempotencyKey: `gift-checkout-${campaign.id}-${previous ?? "first"}`,
-    currency: campaign.currency,
-    locale,
-    email: campaign.buyer.email,
-    lines: [
-      ...quote.lines.map((line) => ({
-        name: line.recipient.productName,
-        description: [line.recipient.variantName, line.recipient.name].filter(Boolean).join(" · "),
-        unitAmount: line.unit,
-        quantity: line.recipient.quantity,
-      })),
-      ...(store.pricesIncludeTax
-        ? []
-        : quote.taxRows.map((row) => ({
-            name: shopper("checkout.taxRow", { rate: row.rate }),
-            unitAmount: row.amount,
-            quantity: 1,
-          }))),
-    ],
-    shipping: { label: shopper("checkout.shipping"), amount: quote.shipping },
-    discount: null,
-    successUrl: `${origin}${back}&paid=1`,
-    cancelUrl: `${origin}${back}`,
-  });
-  if (!checkout) return fail(shopper("payment.startFailed"));
-  await updateGiftCampaign(campaign.id, {
-    payment: { ...campaign.payment, checkoutSessionId: checkout.id, stripeAccountId: accountId },
-  });
-  recordAudit({
-    category: "gifting",
-    action: "gifting.checkout_started",
-    summary: `${campaign.buyer.name} opened Stripe Checkout for gift campaign ${campaign.code}`,
-    storeId: store.id,
-    agencyId: store.agencyId,
-    actorId: "gifting",
-    actorName: campaign.buyer.name,
-    entity: "gift_campaign",
-    entityId: campaign.code,
-    meta: { total: quote.total, currency: campaign.currency },
-  });
-  redirect(checkout.url);
+  redirect(result.status === "checkout" ? result.checkoutUrl : result.returnPath);
 }

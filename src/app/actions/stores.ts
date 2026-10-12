@@ -1,40 +1,28 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
-import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import {
-  COLLECTIONS,
-  countActiveStoresForAgency,
-  getAgency,
-  getStore,
-  getStoreBySlug,
-  listStoresForAgency,
-  recordAudit,
-  updateStore,
-} from "@/lib/data";
-import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
-import { db } from "@/lib/mongo";
 import { refusal } from "@/lib/operations/action-state";
+import { isOperationError } from "@/lib/operations/context";
+import { agencyStores, createStore as openStore } from "@/lib/operations/agency";
 import {
+  connectStripe as startStripeOnboarding,
+  disconnectStripe as stopStripe,
   renameStore as rename,
   saveBranding as brand,
+  saveCarriers as setCarriers,
   saveCurrencies as setCurrencies,
+  saveDefaultTax as setDefaultTax,
+  saveDomain as setDomain,
   saveLanguages as setLanguages,
   savePolicies as setPolicies,
   saveSupport as setSupport,
+  setStoreStatus as setStatus,
 } from "@/lib/operations/store-settings";
 import { POLICY_KEYS } from "@/lib/policies";
-import { storeLimitText } from "@/i18n/plan-copy";
-import { billingPending } from "@/lib/billing";
-import { storeAllowance } from "@/lib/plans";
-import { assertStoreAccess, getSessionUser, operationContext } from "@/lib/session";
-import { siteOrigin } from "@/lib/email";
-import { createExpressAccount, onboardingLink } from "@/lib/stripe";
-import { treeFromSections } from "@/lib/storefront-schema";
+import { assertAgencyAdmin, assertStoreAccess, getSessionUser, operationContext } from "@/lib/session";
 import { readStoredImage } from "@/lib/uploads";
 import type { Store, ThemeKey } from "@/lib/types";
-import { STRIPE_COUNTRIES, newId, slugify } from "@/lib/util";
 
 export interface ActionState {
   status: "idle" | "error" | "success";
@@ -61,103 +49,25 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
   const agencyId = user.agencyId ?? String(formData.get("agencyId") ?? "");
   if (!agencyId) return fail(t("chooseAgency"), "agencyId");
 
-  // The plan is checked before anything else: the create screen already refuses
-  // at the limit, so reaching here means a stale tab or a second submission that
-  // would have taken the agency past what it pays for.
-  const [agency, activeStores] = await Promise.all([
-    getAgency(agencyId),
-    countActiveStoresForAgency(agencyId),
-  ]);
-  if (!agency) return fail(t("agencyGone"), "agencyId");
-  if (billingPending(agency)) return fail(t("paymentPending"));
-  const allowance = storeAllowance(agency.plan, activeStores);
-  if (allowance.atLimit) return fail(await storeLimitText(allowance, agency.name));
+  // The plan is checked before anything else (see the operation): the create
+  // screen already refuses at the limit, so a refusal here is a stale tab or a
+  // second submission that would have taken the agency past what it pays for.
+  let store: Store;
+  try {
+    store = await openStore(
+      { agencyId, actor: { id: user.id, name: user.name }, locale: await getLocale() },
+      {
+        name: String(formData.get("name") ?? ""),
+        clientName: String(formData.get("clientName") ?? ""),
+        defaultCurrency: String(formData.get("defaultCurrency") ?? "USD"),
+        defaultLanguage: String(formData.get("defaultLanguage") ?? ""),
+        theme: String(formData.get("theme") ?? "atelier"),
+      },
+    );
+  } catch (error) {
+    return refusal(error);
+  }
 
-  const name = String(formData.get("name") ?? "").trim();
-  const clientName = String(formData.get("clientName") ?? "").trim();
-  const defaultCurrency = String(formData.get("defaultCurrency") ?? "USD");
-  // Only a language the storefront can actually be rendered in is stored.
-  const requestedLanguage = String(formData.get("defaultLanguage") ?? "");
-  const defaultLanguage = isLocale(requestedLanguage) ? requestedLanguage : DEFAULT_LOCALE;
-  const theme = String(formData.get("theme") ?? "atelier") as ThemeKey;
-
-  if (name.length < 3) return fail(t("nameTooShort"), "name");
-  if (!clientName) return fail(t("clientRequired"), "clientName");
-
-  let slug = slugify(name);
-  if (!slug) return fail(t("nameNotAddress"), "name");
-  if (await getStoreBySlug(slug)) slug = `${slug}-${newId("x").slice(2, 6)}`;
-
-  const now = new Date().toISOString();
-  const store: Store = {
-    id: newId("str"),
-    agencyId,
-    name,
-    slug,
-    channelCode: slug,
-    clientName,
-    status: "active",
-    logoUrl: null,
-    theme,
-    defaultLanguage,
-    languages: [defaultLanguage],
-    currencies: [defaultCurrency],
-    defaultCurrency,
-    customDomain: null,
-    domainStatus: "unset",
-    supportEmail: null,
-    supportPhone: null,
-    stripe: { connected: false, accountId: null, country: "US", chargesEnabled: false, connectedAt: null },
-    carriers: [
-      { carrier: "dhl", enabled: false, accountNumber: "", services: ["Express Worldwide", "Economy Select"] },
-      { carrier: "fedex", enabled: false, accountNumber: "", services: ["International Priority", "International Economy"] },
-      { carrier: "ups", enabled: false, accountNumber: "", services: ["Worldwide Expedited", "Standard"] },
-    ],
-    defaultTaxBracketId: null,
-    pricesIncludeTax: false,
-    setup: {
-      branding: false,
-      localisation: true,
-      support: false,
-      domain: false,
-      payments: false,
-      shipping: false,
-      tax: false,
-    },
-    createdAt: now,
-    archivedAt: null,
-  };
-
-  await Promise.all([
-    db.insertOne(COLLECTIONS.stores, store as unknown as Record<string, unknown>),
-    db.insertOne(COLLECTIONS.storefronts, {
-      id: newId("sfr"),
-      storeId: store.id,
-      draft: treeFromSections([
-        { type: "HeroSection", props: { eyebrow: clientName, headline: `${clientName} merch, made to order` } },
-        { type: "ProductGrid", props: {} },
-      ]),
-      published: null,
-      publishedAt: null,
-      publishedBy: null,
-      draftUpdatedAt: now,
-      history: [],
-    }),
-  ]);
-  recordAudit({
-    category: "store_setup",
-    action: "store.created",
-    summary: `Created store “${name}” for ${clientName}`,
-    storeId: store.id,
-    agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: store.id,
-    meta: { currency: defaultCurrency, theme },
-  });
-
-  revalidatePath("/app");
   redirect(`/app/stores/${store.id}/setup?created=1`);
 }
 
@@ -183,42 +93,17 @@ export async function setStoreStatus(formData: FormData): Promise<void> {
   const status = String(formData.get("status") ?? "") as Store["status"];
   if (status !== "active" && status !== "archived") return;
 
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
-  if (store.status === status) return;
-
-  // Restoring puts a storefront back online, so it counts against the plan the
-  // same way creating one does. The store page explains the refusal.
-  if (status === "active") {
-    const [agency, activeStores] = await Promise.all([
-      getAgency(store.agencyId),
-      countActiveStoresForAgency(store.agencyId),
-    ]);
-    if (agency && storeAllowance(agency.plan, activeStores).atLimit) {
-      redirect(`/app/stores/${storeId}?limit=1`);
-    }
+  const access = await assertStoreAccess(storeId, "store.settings");
+  // Restoring counts against the plan the same way creating a store does; the
+  // store page explains the refusal.
+  let atLimit = false;
+  try {
+    await setStatus(await operationContext(access), status);
+  } catch (error) {
+    if (!isOperationError(error) || error.code !== "conflict") throw error;
+    atLimit = true;
   }
-
-  await updateStore(storeId, {
-    status,
-    archivedAt: status === "archived" ? new Date().toISOString() : null,
-  });
-  recordAudit({
-    category: "administration",
-    action: status === "archived" ? "store.archived" : "store.restored",
-    summary:
-      status === "archived"
-        ? `Archived store “${store.name}”`
-        : `Restored store “${store.name}” to active`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: {},
-  });
-  revalidatePath("/app");
-  revalidatePath(`/app/stores/${storeId}`);
+  if (atLimit) redirect(`/app/stores/${storeId}?limit=1`);
 }
 
 /* ---------------------------------------------------------------- settings */
@@ -304,51 +189,20 @@ export async function savePolicies(_prev: ActionState, formData: FormData): Prom
 
 export async function saveDomain(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const raw = String(formData.get("customDomain") ?? "").trim().toLowerCase();
   const verify = formData.get("intent") === "verify";
-
-  if (!raw) {
-    await updateStore(storeId, {
-      customDomain: null,
-      domainStatus: "unset",
-      setup: { ...store.setup, domain: false },
+  try {
+    const saved = await setDomain(await operationContext(access), {
+      domain: String(formData.get("customDomain") ?? ""),
+      verify,
     });
-    revalidatePath(`/app/stores/${storeId}/setup`);
-    return ok(t("domainRemoved"));
+    const domain = saved.customDomain;
+    if (!domain) return ok(t("domainRemoved"));
+    return ok(verify ? t("domainVerified", { domain }) : t("domainSaved", { domain }));
+  } catch (error) {
+    return refusal(error);
   }
-
-  const domain = raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain)) {
-    return fail(t("domainInvalid"), "customDomain");
-  }
-
-  const status = verify ? "verified" : "pending";
-  await updateStore(storeId, {
-    customDomain: domain,
-    domainStatus: status,
-    setup: { ...store.setup, domain: status === "verified" },
-  });
-  recordAudit({
-    category: "store_setup",
-    action: verify ? "store.domain_verified" : "store.domain_set",
-    summary: verify ? `Verified custom domain ${domain}` : `Set custom domain ${domain}, awaiting DNS verification`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { domain },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
-  return ok(
-    verify
-      ? t("domainVerified", { domain })
-      : t("domainSaved", { domain }),
-  );
 }
 
 /**
@@ -358,178 +212,63 @@ export async function saveDomain(_prev: ActionState, formData: FormData): Promis
  */
 export async function connectStripe(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
-  const t = await getTranslations("actions.stores");
-
-  let accountId = store.stripe.express ? store.stripe.accountId : null;
-  if (!accountId) {
-    const country = String(formData.get("country") ?? store.stripe.country);
-    if (!STRIPE_COUNTRIES.some((c) => c.code === country)) return fail(t("stripeCountry"), "country");
-    const account = await createExpressAccount({
-      storeId,
-      country,
-      email: store.supportEmail ?? null,
-      // A double click lands on the same account; connecting again after a
-      // disconnect makes a new one.
-      attempt: `${country}-${store.stripe.previousAccountId ?? "first"}`,
+  const access = await assertStoreAccess(storeId, "store.settings");
+  let link: string;
+  try {
+    const started = await startStripeOnboarding(await operationContext(access), {
+      country: formData.has("country") ? String(formData.get("country")) : null,
     });
-    if (!account) return fail(t("stripeUnavailable"));
-    accountId = account.accountId;
-    await updateStore(storeId, {
-      stripe: {
-        connected: true,
-        express: true,
-        accountId,
-        country: account.country,
-        chargesEnabled: account.chargesEnabled,
-        payoutsEnabled: account.payoutsEnabled,
-        detailsSubmitted: account.detailsSubmitted,
-        connectedAt: new Date().toISOString(),
-        previousAccountId: store.stripe.previousAccountId ?? null,
-      },
-      setup: { ...store.setup, payments: account.chargesEnabled },
-    });
-    recordAudit({
-      category: "store_setup",
-      action: "store.stripe_account_created",
-      summary: `Created Stripe account ${accountId} (${account.country})`,
-      storeId,
-      agencyId: store.agencyId,
-      actorId: user.id,
-      actorName: user.name,
-      entity: "store",
-      entityId: storeId,
-      meta: { accountId, country: account.country },
-    });
+    link = started.onboardingUrl;
+  } catch (error) {
+    return refusal(error);
   }
-
-  const origin = await siteOrigin();
-  const back = `${origin}/app/stores/${storeId}/setup/stripe`;
-  const link = await onboardingLink(accountId, `${back}/refresh`, back);
-  if (!link) return fail(t("stripeUnavailable"));
-  recordAudit({
-    category: "store_setup",
-    action: "store.stripe_onboarding_started",
-    summary: `Opened Stripe onboarding for ${accountId}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { accountId },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
   redirect(link);
 }
 
 export async function disconnectStripe(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
-  const previous = store.stripe.accountId;
-  await updateStore(storeId, {
-    stripe: {
-      connected: false,
-      accountId: null,
-      country: store.stripe.country,
-      chargesEnabled: false,
-      connectedAt: null,
-      previousAccountId: store.stripe.express ? previous : (store.stripe.previousAccountId ?? null),
-    },
-    setup: { ...store.setup, payments: false },
-  });
-  recordAudit({
-    category: "store_setup",
-    action: "store.stripe_disconnected",
-    summary: previous ? `Disconnected Stripe account ${previous}` : "Disconnected the Stripe account",
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { accountId: previous },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
+  const access = await assertStoreAccess(storeId, "store.settings");
+  await stopStripe(await operationContext(access));
 }
 
 export async function saveCarriers(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const carriers = store.carriers.map((c) => {
-    const enabled = formData.get(`${c.carrier}_enabled`) === "on";
-    const accountNumber = String(formData.get(`${c.carrier}_account`) ?? "").trim();
-    return { ...c, enabled, accountNumber };
-  });
-
-  const missing = carriers.find((c) => c.enabled && !c.accountNumber);
-  if (missing) {
-    return fail(
-      t("carrierAccount", { carrier: missing.carrier.toUpperCase() }),
-      `${missing.carrier}_account`,
+  try {
+    await setCarriers(
+      await operationContext(access),
+      access.store.carriers.map((c) => ({
+        carrier: c.carrier,
+        enabled: formData.get(`${c.carrier}_enabled`) === "on",
+        accountNumber: String(formData.get(`${c.carrier}_account`) ?? ""),
+      })),
     );
+  } catch (error) {
+    return refusal(error);
   }
-  if (!carriers.some((c) => c.enabled)) {
-    return fail(t("carrierRequired"), "dhl_enabled");
-  }
-
-  await updateStore(storeId, { carriers, setup: { ...store.setup, shipping: true } });
-  recordAudit({
-    category: "store_setup",
-    action: "store.carriers_updated",
-    summary: `Shipping carriers set to ${carriers.filter((c) => c.enabled).map((c) => c.carrier.toUpperCase()).join(", ")}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: {},
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
   return ok(t("carriersSaved"));
 }
 
 export async function saveTaxSettings(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const { user, store } = await assertStoreAccess(storeId, "store.settings");
+  const access = await assertStoreAccess(storeId, "store.settings");
   const t = await getTranslations("actions.stores");
-
-  const defaultTaxBracketId = String(formData.get("defaultTaxBracketId") ?? "");
-  const pricesIncludeTax = formData.get("pricesIncludeTax") === "on";
-  if (!defaultTaxBracketId) return fail(t("taxRequired"), "defaultTaxBracketId");
-
-  await updateStore(storeId, {
-    defaultTaxBracketId,
-    pricesIncludeTax,
-    setup: { ...store.setup, tax: true },
-  });
-  recordAudit({
-    category: "store_setup",
-    action: "store.tax_updated",
-    summary: `Default tax bracket set; displayed prices ${pricesIncludeTax ? "include" : "exclude"} tax`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "store",
-    entityId: storeId,
-    meta: { defaultTaxBracketId, pricesIncludeTax },
-  });
-  revalidatePath(`/app/stores/${storeId}/setup`);
+  try {
+    await setDefaultTax(await operationContext(access), {
+      defaultTaxBracketId: String(formData.get("defaultTaxBracketId") ?? ""),
+      pricesIncludeTax: formData.get("pricesIncludeTax") === "on",
+    });
+  } catch (error) {
+    return refusal(error);
+  }
   return ok(t("taxSaved"));
 }
 
-export async function ensureStoreExists(storeId: string) {
-  const store = await getStore(storeId);
-  if (!store) redirect("/app");
-  return store;
-}
-
-export async function storesForAgency(agencyId: string) {
-  return listStoresForAgency(agencyId);
+/** The signed-in agency administrator's own stores, archived ones included. */
+export async function storesForAgency(): Promise<Store[]> {
+  const user = await assertAgencyAdmin();
+  return agencyStores(user);
 }
 
 /* ------------------------------- void wrappers for plain <form action={…}> */

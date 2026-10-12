@@ -2,17 +2,34 @@ import "server-only";
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { blockingIssues, validateArtwork } from "../artwork";
+import {
+  archiveBlock,
+  bracketBlock,
+  parsePriceChange,
+  parseProductIds,
+  priceBlock,
+  publishBlock,
+  repriceProduct,
+  unpublishBlock,
+  visibilityBlock,
+  type PriceChange,
+  type ProductBlock,
+} from "../bulk-products";
 import { copyCatalogProductIntoStore } from "../catalog-import";
 import {
+  COLLECTIONS,
   getCatalogProduct,
   getStoreProduct,
   getTaxBracket,
   listStoreProducts,
+  listTaxBrackets,
   recordAudit,
   updateStoreProduct,
 } from "../data";
+import { db } from "../mongo";
 import { breakdownFor } from "../pricing";
 import { publishBlockersFor, type PublishBlocker } from "../publish-blockers";
+import type { Locale } from "@/i18n/locales";
 import { storeSku } from "../sku";
 import { isQuoteOnly } from "../sourcing";
 import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct, StoredImage } from "../types";
@@ -496,4 +513,207 @@ export async function setProductStatus(
   revalidatePath(`/app/stores/${ctx.store.id}/catalog/${product.id}`);
   revalidatePath(`/s/${ctx.store.slug}`);
   return { blockers: [] };
+}
+
+/** Everything that must be true before the product can go live, in `locale` or the request's language. */
+export async function productPublishBlockers(product: StoreProduct, locale?: Locale): Promise<PublishBlocker[]> {
+  return (await publishBlockersFor([product], locale)).get(product.id) ?? [];
+}
+
+/* ------------------------------------------------------------ bulk actions */
+
+export type BulkProductAction =
+  | { kind: "publish" }
+  | { kind: "unpublish" }
+  | { kind: "archive" }
+  | { kind: "bracket"; bracketId: string }
+  | { kind: "visibility"; visibility: StoreProduct["visibility"] }
+  /**
+   * `from` is each product's price when the margins were previewed. A product
+   * whose price has moved since is skipped, so a replayed request does not
+   * raise the same prices twice.
+   */
+  | { kind: "price"; change: PriceChange; from: Record<string, number> };
+
+export interface BulkProductOutcome {
+  succeeded: { id: string; name: string }[];
+  failed: { id: string; name: string; reason: string }[];
+}
+
+/**
+ * Applies one action to the selected products of a store and reports each
+ * one. Publishing runs the same checks as the product page's Publish button,
+ * and every product gets its own audit entry. A request refused as a whole
+ * (nothing selected, an unknown action or bracket, an unreadable price change)
+ * throws.
+ */
+export async function bulkUpdateProducts(
+  ctx: OperationContext,
+  productIds: string[],
+  action: BulkProductAction,
+): Promise<BulkProductOutcome> {
+  const { store } = ctx;
+  const storeId = store.id;
+  const t = await getTranslations({ locale: ctx.locale, namespace: "catalog.bulk" });
+  const ids = parseProductIds(productIds);
+  if (ids.length === 0) throw new OperationError("invalid", t("noneSelected"), "productIds");
+
+  const kind = action?.kind;
+  if (!["publish", "unpublish", "archive", "bracket", "visibility", "price"].includes(kind)) {
+    throw new OperationError("invalid", t("failedGeneric"), "action");
+  }
+  const change = action.kind === "price" ? parsePriceChange(action.change) : null;
+  if (action.kind === "price" && !change) throw new OperationError("invalid", t("price.invalid"), "change");
+  const brackets = kind === "price" || kind === "bracket" ? await listTaxBrackets() : [];
+  const bracket = action.kind === "bracket" ? brackets.find((b) => b.id === action.bracketId) : undefined;
+  if (kind === "bracket" && !bracket) throw new OperationError("invalid", t("failedGeneric"), "bracketId");
+  if (action.kind === "visibility" && action.visibility !== "public" && action.visibility !== "hidden") {
+    throw new OperationError("invalid", t("failedGeneric"), "visibility");
+  }
+
+  const wanted = new Set(ids);
+  const products = (await listStoreProducts(storeId)).filter((p) => wanted.has(p.id));
+  const outcome: BulkProductOutcome = { succeeded: [], failed: [] };
+  const found = new Set(products.map((p) => p.id));
+  for (const id of ids) {
+    if (!found.has(id)) outcome.failed.push({ id, name: id, reason: t("notFound") });
+  }
+
+  const blockers =
+    kind === "publish" ? await publishBlockersFor(products.filter((p) => p.status !== "published"), ctx.locale) : null;
+  const catalogs = new Map<string, CatalogProduct | null>();
+  if (kind === "price" || kind === "bracket") {
+    const catalogIds = [...new Set(products.map((p) => p.catalogProductId))];
+    for (const [id, catalog] of await Promise.all(
+      catalogIds.map(async (id) => [id, await getCatalogProduct(id)] as const),
+    )) {
+      catalogs.set(id, catalog);
+    }
+  }
+  const costsFor = (product: StoreProduct) =>
+    breakdownFor(
+      product,
+      catalogs.get(product.catalogProductId) ?? null,
+      brackets.find((b) => b.id === product.taxBracketId) ?? null,
+      store.pricesIncludeTax,
+    );
+
+  async function apply(product: StoreProduct): Promise<string | null> {
+    const blocked = (reason: ProductBlock) => t(`blocked.${reason}`);
+    if (kind === "publish") {
+      const list = blockers?.get(product.id) ?? [];
+      const block = publishBlock({ status: product.status, publishBlockers: list.map((b) => b.reason) });
+      if (block === "notReady") return list.map((b) => b.reason).join(" ");
+      if (block) return blocked(block);
+      await updateStoreProduct(
+        product.id,
+        { status: "published", publishedAt: new Date().toISOString(), unpublishedReason: null },
+        product,
+      );
+      audit(ctx, {
+        category: "publishing",
+        action: "product.published",
+        summary: `Published “${product.name}” at ${formatMoney(product.price, product.currency)}`,
+        entityId: product.id,
+        meta: { status: "published", bulk: true },
+      });
+      return null;
+    }
+    if (kind === "unpublish" || kind === "archive") {
+      const block = kind === "unpublish" ? unpublishBlock(product) : archiveBlock(product);
+      if (block) return blocked(block);
+      const status = kind === "unpublish" ? "in_review" : "archived";
+      await updateStoreProduct(product.id, { status, unpublishedReason: null }, product);
+      audit(ctx, {
+        category: "publishing",
+        action: `product.${status}`,
+        summary: status === "archived" ? `Archived “${product.name}”` : `Moved “${product.name}” to in review`,
+        entityId: product.id,
+        meta: { status, bulk: true },
+      });
+      return null;
+    }
+    if (action.kind === "visibility") {
+      const block = visibilityBlock(product, action.visibility);
+      if (block) return blocked(block);
+      await updateStoreProduct(product.id, { visibility: action.visibility }, product);
+      audit(ctx, {
+        category: "product_import",
+        action: "product.updated",
+        summary: `Set “${product.name}” to ${action.visibility === "hidden" ? "hidden" : "visible"} on the storefront`,
+        entityId: product.id,
+        meta: { visibility: action.visibility, bulk: true },
+      });
+      return null;
+    }
+    if (kind === "bracket") {
+      const block = bracketBlock(product, bracket!.id);
+      if (block) return blocked(block);
+      const costs = costsFor({ ...product, taxBracketId: bracket!.id });
+      await updateStoreProduct(product.id, { taxBracketId: bracket!.id, costs }, product);
+      audit(ctx, {
+        category: "pricing",
+        action: "product.updated",
+        summary: `Changed the tax bracket on “${product.name}” to ${bracket!.name}`,
+        entityId: product.id,
+        meta: { taxBracketId: bracket!.id, marginPct: costs.marginPct, bulk: true },
+      });
+      return null;
+    }
+    // Price.
+    const from = action.kind === "price" ? action.from?.[product.id] : undefined;
+    // A price the preview never saw is left alone.
+    if (from !== product.price) return t("blocked.priceChanged");
+    const next = { ...product, ...repriceProduct(product, change!) };
+    const costs = costsFor(next);
+    const block = priceBlock(next.variants, costs.marginAmount);
+    if (block) return blocked(block);
+    await updateStoreProduct(product.id, { price: next.price, variants: next.variants, costs }, product);
+    audit(ctx, {
+      category: "pricing",
+      action: "product.price_changed",
+      summary: `Changed “${product.name}” from ${formatMoney(product.price, product.currency)} to ${formatMoney(next.price, product.currency)}`,
+      entityId: product.id,
+      meta: { from: product.price, to: next.price, marginPct: costs.marginPct, bulk: true },
+    });
+    return null;
+  }
+
+  // Five at a time keeps the database pool unhurried.
+  for (let i = 0; i < products.length; i += 5) {
+    await Promise.all(
+      products.slice(i, i + 5).map(async (product) => {
+        let reason: string | null;
+        try {
+          reason = await apply(product);
+        } catch {
+          reason = t("failedGeneric");
+        }
+        if (reason) outcome.failed.push({ id: product.id, name: product.name, reason });
+        else outcome.succeeded.push({ id: product.id, name: product.name });
+      }),
+    );
+  }
+
+  if (outcome.succeeded.length > 0) {
+    revalidatePath(`/app/stores/${storeId}/catalog`);
+    for (const entry of outcome.succeeded) revalidatePath(`/app/stores/${storeId}/catalog/${entry.id}`);
+    revalidatePath(`/s/${store.slug}`);
+  }
+  return outcome;
+}
+
+/* ------------------------------------------------------------------ delete */
+
+/** Removes the product from the store catalog. */
+export async function deleteProduct(ctx: OperationContext, product: StoreProduct): Promise<void> {
+  await db.deleteOne(COLLECTIONS.storeProducts, { id: product.id });
+  audit(ctx, {
+    category: "administration",
+    action: "product.deleted",
+    summary: `Deleted “${product.name}” from the store catalog`,
+    entityId: product.id,
+    meta: {},
+  });
+  revalidatePath(`/app/stores/${ctx.store.id}/catalog`);
 }

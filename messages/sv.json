@@ -287,7 +287,7 @@
     "metaTitle": "Utvecklare",
     "metaDescription": "Anslut din egen kod, Claude och andra AI-assistenter till en Parcelith-butik med Admin-API:t och MCP-servern.",
     "title": "Driv din butik med kod och AI-assistenter",
-    "lead": "Med Admin-API:t och MCP-servern får din egen kod, Claude och andra AI-assistenter tillgång till en butiks produkter, beställningar, kunder, rabatter, skyltfönster och inställningar.",
+    "lead": "Med Admin-API:t och MCP-servern får din egen kod, Claude och andra AI-assistenter tillgång till en butiks produkter, motiv, beställningar, kunder, företagsgåvor, inköp, assistent, team, analys, aktivitet och inställningar.",
     "keysTitle": "Skapa en API-nyckel",
     "keysBody": "En nyckel gäller för en butik. Varje ändring som görs med den registreras i butikens aktivitet under nyckelns namn.",
     "keysSteps": [
@@ -334,11 +334,23 @@
       "Gift cards": "Presentkort",
       "Reviews": "Recensioner",
       "Content": "Sidor och blogg",
-      "Navigation": "Menyer"
+      "Navigation": "Menyer",
+      "Artwork and mockups": "Motiv och mockuper",
+      "Gifting": "Gåvokataloger",
+      "Campaigns": "Gåvokampanjer",
+      "Sourcing": "Inköp",
+      "Assistant": "AI-assistent",
+      "Team": "Team",
+      "Analytics": "Analys",
+      "Activity": "Aktivitet",
+      "Agency": "Byrå",
+      "Platform administration": "Plattformsadministration"
     },
     "ctaTitle": "Skapa din första nyckel",
     "ctaBody": "Logga in, öppna en butiks Inställningar och välj API-nycklar.",
-    "cta": "Logga in"
+    "cta": "Logga in",
+    "platformTitle": "Plattformsnycklar",
+    "platformBody": "Plattformsadministratörer skapar plattformsnycklar under Admin → API-nycklar. En plattformsnyckel har scopet {scope}, som ingen butiksnyckel kan ha, och kör åtgärderna under Plattformsadministration."
   },
   "pricing": {
     "metaTitle": "Priser",
@@ -737,7 +749,8 @@
       "quotes": "Offertförfrågningar",
       "tax": "Momssatser",
       "agencies": "Byråer och åtkomst",
-      "audit": "Granskningslogg"
+      "audit": "Granskningslogg",
+      "apiKeys": "API-nycklar"
     },
     "people": "Personer",
     "billing": "Fakturering"
@@ -4141,7 +4154,14 @@
       "store": "Butiksuppgifter",
       "gift_cards": "Presentkort",
       "reviews": "Recensioner",
-      "content": "Sidor, blogg och menyer"
+      "content": "Sidor, blogg och menyer",
+      "gifting": "Företagsgåvor",
+      "sourcing": "Inköp och offerter",
+      "assistant": "AI-assistent",
+      "team": "Team",
+      "analytics": "Analys",
+      "activity": "Aktivitet",
+      "agency": "Byrå: personer, abonnemang och butiker"
     },
     "none": "Ingen åtkomst",
     "read": "Läsa",
@@ -4173,6 +4193,10 @@
       "nameTooLong": "Använd högst {max} tecken.",
       "scopeRequired": "Ge nyckeln åtkomst till minst ett område.",
       "duplicate": "Nyckeln har redan skapats. Om du inte kopierade den, återkalla den och skapa en ny."
+    },
+    "platform": {
+      "description": "Plattformsnycklar kör plattformsadministrationens åtgärder i Admin-API:t och MCP-servern. De öppnar ingen butik.",
+      "access": "Åtkomst: plattformsadministration"
     }
   },
   "inventory": {

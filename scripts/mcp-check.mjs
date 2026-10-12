@@ -4,8 +4,10 @@
 //   npm run mcp-check -- --url http://localhost:3000   uses a server that is already running
 //
 // It asserts that:
-// - every operation in the OpenAPI document is an MCP tool, and every tool an
-//   operation, with a description, an input schema and the right read-only hint;
+// - every store operation in the OpenAPI document is an MCP tool of a store
+//   key, and every tool an operation, with a description, an input schema and
+//   the right read-only hint; platform operations are the tools of a platform
+//   key and of no store key;
 // - every operation is served by the REST route file its path names, through
 //   the same registry entry;
 // - with a real store API key, created for the run in the development
@@ -13,7 +15,10 @@
 //   read tool answers with the store's data and a write tool saves and is
 //   recorded in the store's activity under the key's name;
 // - no key is a 401, a key without the scope is refused, and the REST API
-//   answers the same key the same way.
+//   answers the same key the same way;
+// - a platform key runs the /admin operations and nothing in a store, a store
+//   key never runs a platform operation, and a platform key whose maker is no
+//   longer a platform administrator is refused.
 //
 // The keys it creates are deleted at the end. It needs MONGODB_URI and
 // MONGODB_DB from `.env.local`, and refuses to run against production.
@@ -35,24 +40,33 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const { API_OPERATIONS, toolName } = await import("../src/lib/api/operations.ts");
 const { openApiDocument } = await import("../src/lib/api/openapi.ts");
 const { API_RESOURCES } = await import("../src/lib/api-scopes.ts");
-const { createApiKey } = await import("../src/lib/api-keys.ts");
+const { createApiKey, createPlatformApiKey } = await import("../src/lib/api-keys.ts");
 const { db } = await import("../src/lib/mongo.ts");
 
 /* ------------------------------------------------- the registry, statically */
 
 const spec = openApiDocument();
-const specOperations = Object.entries(spec.paths).flatMap(([path, methods]) =>
+const allSpecOperations = Object.entries(spec.paths).flatMap(([path, methods]) =>
   Object.entries(methods).map(([method, operation]) => ({ path, method: method.toUpperCase(), id: operation.operationId })),
 );
-assert.equal(specOperations.length, API_OPERATIONS.length, "the OpenAPI document has one operation per registry entry");
-assert.equal(new Set(specOperations.map((o) => o.id)).size, specOperations.length, "operationIds are unique");
+const specOperations = allSpecOperations.filter((operation) => !operation.path.startsWith("/admin"));
+const adminSpecOperations = allSpecOperations.filter((operation) => operation.path.startsWith("/admin"));
+assert.equal(allSpecOperations.length, API_OPERATIONS.length, "the OpenAPI document has one operation per registry entry");
+assert.equal(new Set(allSpecOperations.map((o) => o.id)).size, allSpecOperations.length, "operationIds are unique");
+assert.equal(adminSpecOperations.length, API_OPERATIONS.filter((o) => o.admin).length, "platform operations live under /admin");
 
 // Each operation is answered by the route file at its path, exporting its
 // method through the registry entry, and no route file serves anything else.
-const ROUTES = join(ROOT, "src/app/api/v1/stores/[storeId]");
-const routeFile = (path) => join(ROUTES, ...path.split("/").filter(Boolean).map((s) => s.replace(/^\{(\w+)\}$/, "[$1]")), "route.ts");
+const ROUTES = join(ROOT, "src/app/api/v1");
+const routeFile = (operation) =>
+  join(
+    ROUTES,
+    operation.admin ? "admin" : "stores/[storeId]",
+    ...operation.path.split("/").filter(Boolean).map((s) => s.replace(/^\{(\w+)\}$/, "[$1]")),
+    "route.ts",
+  );
 for (const operation of API_OPERATIONS) {
-  const file = routeFile(operation.path);
+  const file = routeFile(operation);
   assert.ok(existsSync(file), `${operation.id}: no route file at ${file}`);
   assert.match(
     readFileSync(file, "utf8"),
@@ -116,7 +130,15 @@ const person = { id: "usr_mcp_check", name: "mcp-check" };
 const everything = API_RESOURCES.map((resource) => `${resource}:write`);
 const full = await createApiKey(store, person, { name: RUN, scopes: everything, submissionKey: null });
 const readOnly = await createApiKey(store, person, { name: `${RUN} read`, scopes: ["products:read"], submissionKey: null });
-const keyIds = [full.key.id, readOnly.key.id];
+const platformAdmin = await db.findOne("users", { platformRole: "platform_admin" });
+assert.ok(platformAdmin, "the development database has a platform administrator (npm run seed)");
+const platformKey = await createPlatformApiKey(platformAdmin, { name: `${RUN} platform`, submissionKey: null });
+// A platform key whose maker is not a platform administrator, as after a demotion.
+const orphanKey = await createPlatformApiKey(person, { name: `${RUN} orphan`, submissionKey: null });
+// A store key asked for the admin scope never gets it.
+const sneaky = await createApiKey(store, person, { name: `${RUN} sneaky`, scopes: ["platform:admin", "products:read"], submissionKey: null });
+assert.deepEqual(sneaky.key.scopes, ["products:read"], "a store key cannot hold the admin scope");
+const keyIds = [full.key.id, readOnly.key.id, platformKey.key.id, orphanKey.key.id, sneaky.key.id];
 
 async function connect(secret) {
   const client = new Client({ name: "mcp-check", version: "1.0.0" });
@@ -155,6 +177,9 @@ try {
   const client = await connect(full.secret);
   const { tools } = await client.listTools();
   const byName = new Map(tools.map((tool) => [tool.name, tool]));
+  for (const operation of adminSpecOperations) {
+    assert.ok(!byName.has(toolName(operation)), `a store key is not offered the platform tool ${toolName(operation)}`);
+  }
   for (const operation of specOperations) {
     const tool = byName.get(toolName(operation));
     assert.ok(tool, `the OpenAPI operation ${operation.id} has no MCP tool ${toolName(operation)}`);
@@ -237,7 +262,33 @@ try {
   assert.equal(restDenied.status, 403);
   assert.equal((await restDenied.json()).error.code, "insufficient_scope");
 
-  console.log(`mcp-check ok: ${tools.length} tools match ${specOperations.length} OpenAPI operations; read and write tools work with a real key`);
+  /* --------------------------------------------------------- platform keys */
+
+  const adminRead = API_OPERATIONS.find(
+    (operation) => operation.admin && operation.method === "GET" && !operation.path.includes("{") && operation.input.safeParse({}).success,
+  );
+  assert.ok(adminRead, "there is a platform read operation to try");
+  const admin = await connect(platformKey.secret);
+  const adminTools = (await admin.listTools()).tools.map((tool) => tool.name);
+  assert.equal(adminTools.length, adminSpecOperations.length, "a platform key is offered the platform tools");
+  assert.ok(!adminTools.includes("get_store"), "and no store tool");
+  json(await admin.callTool({ name: toolName(adminRead), arguments: {} }));
+  await admin.close();
+
+  const adminUrl = `${base}/api/v1/admin${adminRead.path === "/" ? "" : adminRead.path}`;
+  const adminRest = await fetch(adminUrl, { headers: { authorization: `Bearer ${platformKey.secret}` } });
+  assert.equal(adminRest.status, 200, `a platform key reads ${adminUrl}`);
+  const storeKeyOnAdmin = await fetch(adminUrl, { headers: { authorization: `Bearer ${full.secret}` } });
+  assert.equal(storeKeyOnAdmin.status, 403, "a store key with every store scope cannot run a platform operation");
+  assert.equal((await storeKeyOnAdmin.json()).error.code, "insufficient_scope");
+  const platformOnStore = await fetch(`${base}/api/v1/stores/${store.id}`, { headers: { authorization: `Bearer ${platformKey.secret}` } });
+  assert.equal(platformOnStore.status, 403, "a platform key opens no store");
+  const orphan = await fetch(adminUrl, { headers: { authorization: `Bearer ${orphanKey.secret}` } });
+  assert.equal(orphan.status, 403, "a platform key stops working when its maker is not a platform administrator");
+
+  console.log(
+    `mcp-check ok: ${tools.length} store tools match ${specOperations.length} OpenAPI operations and ${adminTools.length} platform tools match ${adminSpecOperations.length}; read and write tools work with real keys`,
+  );
 } finally {
   await db.deleteMany("api_keys", { id: { $in: keyIds } });
   await db.deleteMany("api_rate_limits", { keyId: { $in: keyIds } });
