@@ -166,7 +166,7 @@ export function productShareImage(input: {
   );
 }
 
-/** Parcelith's own card for the marketing site: the logo, title and description on white. */
+/** Parcelith's own card for a marketing page: the brand, then the page title and description on white. */
 export function siteShareImage(input: { logo: string; title: string; description: string }): ImageResponse {
   return new ImageResponse(
     (
@@ -183,8 +183,11 @@ export function siteShareImage(input: { logo: string; title: string; description
           borderTop: "16px solid #0b807c",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
-        <img src={input.logo} height={120} style={{ height: 120, objectFit: "contain" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+          <img src={input.logo} height={96} style={{ height: 96, objectFit: "contain" }} />
+          <div style={{ fontSize: 44, letterSpacing: -1, color: "#0f172a" }}>Parcelith</div>
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 64, lineHeight: 1.1, letterSpacing: -1.5, maxWidth: 1000 }}>{input.title}</div>
           <div style={{ fontSize: 30, lineHeight: 1.4, color: "#475569", maxWidth: 980 }}>{input.description}</div>

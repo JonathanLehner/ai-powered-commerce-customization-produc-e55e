@@ -22,8 +22,8 @@ export const SITE_ORIGIN = "https://ai-powered-commerce-customization-produc-e55
 /** The longest search title and description kept. Search results cut well before either. */
 export const SEO_LIMITS = { seoTitle: 120, seoDescription: 320 } as const;
 
-/** Where crawlers are kept out of on the platform host. */
-export const PRIVATE_PATHS = ["/app", "/admin", "/api/", "/login", "/invite/", "/g/"] as const;
+/** Where crawlers are kept out of on the platform host. `*` covers a storefront's language prefix. */
+export const PRIVATE_PATHS = ["/app", "/admin", "/api/", "/login", "/invite/", "/g/", "/s/*/orders"] as const;
 
 type StoreAddress = {
   slug: string;

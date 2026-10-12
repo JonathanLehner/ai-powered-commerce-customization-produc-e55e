@@ -17,7 +17,7 @@ import { SignInError } from "./SignInError";
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
-  return { title: t("metaTitle"), description: t("metaDescription") };
+  return { title: `${t("metaTitle")} · Parcelith`, description: t("metaDescription") };
 }
 
 const PERSONAS = [

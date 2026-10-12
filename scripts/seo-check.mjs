@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import { LOCALES, MARKETING_PATHS } from "../src/i18n/locales.ts";
 import { matchesRoute } from "../src/lib/routes.ts";
 import {
+  PRIVATE_PATHS,
   SITE_ORIGIN,
   breadcrumbJsonLd,
   decimalPrice,
@@ -240,6 +241,16 @@ checkSitemap(marketing, { host: new URL(SITE_ORIGIN).host, languages: [...LOCALE
 assert.ok(marketing.some((e) => e.url === `${SITE_ORIGIN}/`));
 assert.ok(marketing.some((e) => e.url === `${SITE_ORIGIN}/ja/pricing`));
 assert.equal(marketing.find((e) => e.url === `${SITE_ORIGIN}/de`).languages["x-default"], `${SITE_ORIGIN}/`);
+
+// The platform robots file: a Disallow rule is a prefix, and `*` matches any run of characters.
+const closed = (path) =>
+  PRIVATE_PATHS.some((rule) => new RegExp(`^${rule.split("*").map((p) => p.replace(/[.?+^$()[\]{}|\\]/g, "\\$&")).join(".*")}`).test(path));
+for (const path of ["/app", "/app/stores/s1/orders", "/admin/audit", "/invite/abc", "/s/northwind-supply/orders", "/s/northwind-supply/de/orders/NW-1001"]) {
+  assert.ok(closed(path), `robots.txt leaves ${path} open`);
+}
+for (const path of ["/", "/de/pricing", "/legal/privacy", "/s/northwind-supply", "/s/northwind-supply/products/field-tee"]) {
+  assert.ok(!closed(path), `robots.txt closes ${path}`);
+}
 
 /* ------------------------------------------------------- structured data */
 
