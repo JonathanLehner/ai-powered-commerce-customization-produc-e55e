@@ -327,7 +327,8 @@
       "Customers": "Klanten",
       "Discounts": "Kortingen",
       "Storefront": "Etalage",
-      "Translations": "Winkelteksten en vertalingen"
+      "Translations": "Winkelteksten en vertalingen",
+      "Inventory": "Voorraad"
     },
     "ctaTitle": "Maak je eerste sleutel",
     "ctaBody": "Log in, open de Instellingen van een winkel en kies API-sleutels.",
@@ -825,7 +826,8 @@
   "pager": {
     "orders": "{first}–{last} van {total} bestellingen",
     "audit": "{first}–{last} van {total} items",
-    "auditCoverage": "Activiteit sinds {date}. Kies een periode om oudere items te zien."
+    "auditCoverage": "Activiteit sinds {date}. Kies een periode om oudere items te zien.",
+    "variants": "{first}–{last} van {total} varianten"
   },
   "fallback": {
     "goToDashboard": "Naar het dashboard",
@@ -885,7 +887,8 @@
       "sourcing": "Inkoop",
       "email": "E-mail",
       "discounts": "Kortingscodes",
-      "customers": "Klanten"
+      "customers": "Klanten",
+      "inventory": "Voorraad"
     },
     "setupStep": {
       "branding": "Logo en thema",
@@ -1381,6 +1384,21 @@
       "orderSaved": "Volgorde opgeslagen.",
       "productsAdded": "{count, plural, =0 {Geen producten toegevoegd.} one {# product toegevoegd.} other {# producten toegevoegd.}}",
       "productRemoved": "Product verwijderd."
+    },
+    "inventory": {
+      "variantGone": "Die variant staat niet meer in de catalogus.",
+      "choosePolicy": "Kies wat er gebeurt als de voorraad op is.",
+      "wholeNumber": "Voer een geheel getal tot {max} in.",
+      "oneQuantity": "Stel de beschikbare aantallen of een correctie in, niet allebei.",
+      "chooseReason": "Kies een reden.",
+      "fileEmpty": "Kies een CSV-bestand met minstens één rij.",
+      "fileTooLong": "Importeer maximaal {max} rijen tegelijk.",
+      "fileTooLarge": "Het bestand is groter dan 1 MB.",
+      "thresholdRange": "Voer een geheel getal van 0 tot {max} in.",
+      "saved": "{variant} opgeslagen.",
+      "imported": "{count, plural, one {# variant bijgewerkt.} other {# varianten bijgewerkt.}}",
+      "importedWithProblems": "{count, plural, one {# variant bijgewerkt.} other {# varianten bijgewerkt.}} {skipped, plural, one {# rij overgeslagen} other {# rijen overgeslagen}}, controleer regel {lines}.",
+      "settingsSaved": "Voorraadinstellingen opgeslagen."
     }
   },
   "settings": {
@@ -1879,7 +1897,8 @@
     "alsoCancel": "Bestelling ook annuleren",
     "recordRefund": "Terugbetaling vastleggen",
     "refundBody": "Het bedrag wordt aan de klant terugbetaald. Dit kan niet ongedaan worden gemaakt.",
-    "dataDeleted": "Persoonsgegevens verwijderd"
+    "dataDeleted": "Persoonsgegevens verwijderd",
+    "restock": "{count, plural, one {# artikel} other {# artikelen}} terugzetten in voorraad"
   },
   "customers": {
     "title": "Klanten",
@@ -3209,7 +3228,8 @@
       "sortNewest": "Nieuwste",
       "sortApply": "Sorteren",
       "productCount": "{count, plural, one {# product} other {# producten}}",
-      "collectionEmptyTitle": "Nog geen producten in deze collectie"
+      "collectionEmptyTitle": "Nog geen producten in deze collectie",
+      "soldOut": "Uitverkocht"
     },
     "product": {
       "breadcrumb": "Kruimelpad",
@@ -3257,7 +3277,9 @@
       "artworkChecksPass": "Klaar om te printen",
       "artworkChecksFail": "Los deze problemen op om verder te gaan",
       "artworkWhatToDo": "Wat te doen: {fix}",
-      "artworkBlocked": "Pas het ontwerp aan of verwijder het om verder te gaan."
+      "artworkBlocked": "Pas het ontwerp aan of verwijder het om verder te gaan.",
+      "soldOut": "Uitverkocht",
+      "onlyLeft": "Nog maar {count} op voorraad"
     },
     "basket": {
       "title": "Je winkelmand",
@@ -3420,7 +3442,9 @@
       "currencyNotSold": "{currency} is geen verkoopvaluta van deze winkel.",
       "enterOrderCode": "Vul je bestelcode in.",
       "enterOrderEmail": "Vul het e-mailadres van de bestelling in.",
-      "lookupFailed": "Geen bestelling gevonden met deze code en dit e-mailadres."
+      "lookupFailed": "Geen bestelling gevonden met deze code en dit e-mailadres.",
+      "soldOut": "{variant} is uitverkocht.",
+      "onlyLeft": "Van {variant} zijn er nog maar {count}."
     },
     "artwork": {
       "lowDpi": "Deze afbeelding wordt gedrukt op {dpi} DPI, onder de {required} DPI die dit product nodig heeft.",
@@ -3710,7 +3734,8 @@
       "cancelled": "Verplaatsen geannuleerd. {name} staat weer op zijn plek.",
       "handle": "{name} verplaatsen"
     },
-    "descriptionLabel": "Beschrijving"
+    "descriptionLabel": "Beschrijving",
+    "tabInventory": "Voorraad"
   },
   "notifications": {
     "bell": "Meldingen",
@@ -3725,7 +3750,8 @@
       "refund_recorded": "Terugbetaling van {amount} geregistreerd bij bestelling {code}",
       "gift_approval": "Cadeaucampagne {code} wacht op goedkeuring",
       "quote_received": "Offerte ontvangen van {name} voor {code}",
-      "invite_accepted": "{name} heeft de uitnodiging geaccepteerd"
+      "invite_accepted": "{name} heeft de uitnodiging geaccepteerd",
+      "low_stock": "{name} raakt op: nog {count} over"
     },
     "settings": {
       "menu": "Meldingen",
@@ -3744,7 +3770,8 @@
         "refund_recorded": "Terugbetalingen",
         "gift_approval": "Cadeaucampagnes ter goedkeuring",
         "quote_received": "Leveranciersoffertes",
-        "invite_accepted": "Geaccepteerde uitnodigingen"
+        "invite_accepted": "Geaccepteerde uitnodigingen",
+        "low_stock": "Lage voorraad"
       }
     },
     "email": {
@@ -3774,16 +3801,22 @@
     "reason": {
       "exception": "Uitzondering",
       "manual_routing": "Handmatige routering",
-      "awaiting_production": "Wacht op productie"
+      "awaiting_production": "Wacht op productie",
+      "low_stock": "Lage voorraad",
+      "out_of_stock": "Niet op voorraad"
     },
     "viewInOrders": "Bekijken in Bestellingen",
     "emptyTitle": "Geen actie vereist",
-    "emptyBody": "Uitzonderingen, handmatige routering en betaalde bestellingen die op productie wachten verschijnen hier.",
+    "emptyBody": "Uitzonderingen, handmatige routering, betaalde bestellingen die op productie wachten en lage voorraad verschijnen hier.",
     "colOrder": "Bestelling",
     "colCustomer": "Klant",
     "colReason": "Reden",
     "colTotal": "Totaal",
-    "back": "Dashboard"
+    "back": "Dashboard",
+    "lowStockCount": "{count, plural, one {# variant met lage voorraad} other {# varianten met lage voorraad}}",
+    "lowStockTitle": "Lage voorraad",
+    "available": "{count} beschikbaar",
+    "viewInventory": "Voorraad bekijken"
   },
   "trust": {
     "title": "Bureaus vertrouwen op Parcelith",
@@ -3876,5 +3909,84 @@
       "scopeRequired": "Geef de sleutel toegang tot minstens één onderdeel.",
       "duplicate": "Deze sleutel is al gemaakt. Heb je hem niet gekopieerd, trek hem dan in en maak een nieuwe."
     }
+  },
+  "inventory": {
+    "title": "Voorraad",
+    "export": "CSV exporteren",
+    "import": "CSV importeren",
+    "importTitle": "Voorraad importeren",
+    "importBody": "Upload een CSV in het exportformaat. Rijen worden gekoppeld op variant_id of SKU, lege cellen behouden hun waarde.",
+    "importFile": "CSV-bestand",
+    "importSubmit": "Importeren",
+    "importing": "Importeren…",
+    "statTracked": "Bijgehouden varianten",
+    "statOf": "van {count}",
+    "statAvailable": "Beschikbare eenheden",
+    "statLow": "Lage voorraad",
+    "statOut": "Niet op voorraad",
+    "search": "Zoeken",
+    "searchPlaceholder": "Product, variant of SKU",
+    "filter": "Voorraad",
+    "filters": {
+      "all": "Alle varianten",
+      "tracked": "Bijgehouden",
+      "untracked": "Niet bijgehouden",
+      "low": "Lage voorraad",
+      "out": "Niet op voorraad"
+    },
+    "apply": "Filteren",
+    "clear": "Wissen",
+    "emptyTitle": "Nog geen varianten",
+    "emptyBody": "Importeer producten om hier hun voorraad te beheren.",
+    "noMatches": "Geen overeenkomende varianten",
+    "tryFilters": "Probeer een andere zoekopdracht of filter.",
+    "colVariant": "Product",
+    "colTracked": "Bijhouden",
+    "colPolicy": "Bij geen voorraad",
+    "colCommitted": "Toegewezen",
+    "colAvailable": "Beschikbaar",
+    "colActions": "Acties",
+    "colWhen": "Datum",
+    "colDelta": "Wijziging",
+    "colOnHand": "Op voorraad",
+    "colReason": "Reden",
+    "colBy": "Door",
+    "states": {
+      "in_stock": "Op voorraad",
+      "low": "Lage voorraad",
+      "out": "Niet op voorraad",
+      "untracked": "Niet bijgehouden"
+    },
+    "variantOff": "Niet te koop",
+    "policies": {
+      "deny": "Stoppen met verkopen",
+      "continue": "Blijven verkopen"
+    },
+    "reasons": {
+      "correction": "Correctie",
+      "received": "Ontvangen",
+      "damaged": "Beschadigd",
+      "import": "Import",
+      "sold": "Verkocht",
+      "restock": "Teruggezet"
+    },
+    "trackLabel": "Voorraad van {variant} bijhouden",
+    "policyLabel": "Als {variant} niet op voorraad is",
+    "availableLabel": "Beschikbare eenheden van {variant}",
+    "reasonLabel": "Reden",
+    "save": "Opslaan",
+    "saving": "Opslaan…",
+    "saveFailed": "Opslaan mislukt. Probeer het opnieuw.",
+    "historyTitle": "Correctiegeschiedenis",
+    "historyBody": "De laatste 50 wijzigingen in de voorraad.",
+    "historyEmpty": "Nog geen correcties.",
+    "settingsTitle": "Lage voorraad",
+    "settingsBody": "Varianten met lage voorraad verschijnen onder Aandacht nodig en het team krijgt een melding.",
+    "threshold": "Drempel lage voorraad (eenheden)",
+    "showLowStock": "Toon ‘Nog maar N op voorraad’ in de winkel",
+    "showLowStockHint": "Getoond bij varianten op of onder de drempel.",
+    "saveSettings": "Opslaan",
+    "thresholdValue": "{count, plural, one {Lage voorraad bij # eenheid of minder.} other {Lage voorraad bij # eenheden of minder.}}",
+    "activityLink": "Voorraadactiviteit bekijken"
   }
 }

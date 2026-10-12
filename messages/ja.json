@@ -327,7 +327,8 @@
       "Customers": "顧客",
       "Discounts": "割引",
       "Storefront": "ストアフロント",
-      "Translations": "ショップテキストと翻訳"
+      "Translations": "ショップテキストと翻訳",
+      "Inventory": "在庫"
     },
     "ctaTitle": "最初のキーを作成",
     "ctaBody": "サインインし、ストアの設定を開いて API キーを選びます。",
@@ -825,7 +826,8 @@
   "pager": {
     "orders": "注文 {total} 件中 {first}–{last} 件",
     "audit": "{total} 件中 {first}–{last} 件",
-    "auditCoverage": "{date} 以降のアクティビティを表示しています。それより前の記録を見るには期間を指定してください。"
+    "auditCoverage": "{date} 以降のアクティビティを表示しています。それより前の記録を見るには期間を指定してください。",
+    "variants": "{total}件中 {first}–{last}件のバリエーション"
   },
   "fallback": {
     "goToDashboard": "ダッシュボードへ",
@@ -885,7 +887,8 @@
       "sourcing": "調達",
       "email": "メール",
       "discounts": "割引コード",
-      "customers": "顧客"
+      "customers": "顧客",
+      "inventory": "在庫"
     },
     "setupStep": {
       "branding": "ロゴとテーマ",
@@ -1381,6 +1384,21 @@
       "orderSaved": "並び順を保存しました。",
       "productsAdded": "{count, plural, =0 {追加された商品はありません。} other {#点の商品を追加しました。}}",
       "productRemoved": "商品を削除しました。"
+    },
+    "inventory": {
+      "variantGone": "このバリエーションはカタログにありません。",
+      "choosePolicy": "在庫切れ時の動作を選択してください。",
+      "wholeNumber": "{max}以下の整数を入力してください。",
+      "oneQuantity": "在庫数または調整数のどちらか一方を指定してください。",
+      "chooseReason": "理由を選択してください。",
+      "fileEmpty": "1行以上あるCSVファイルを選択してください。",
+      "fileTooLong": "一度にインポートできるのは{max}行までです。",
+      "fileTooLarge": "ファイルが1 MBを超えています。",
+      "thresholdRange": "0から{max}までの整数を入力してください。",
+      "saved": "{variant}を保存しました。",
+      "imported": "{count, plural, other {#件のバリエーションを更新しました。}}",
+      "importedWithProblems": "{count, plural, other {#件のバリエーションを更新しました。}}{skipped, plural, other {#行をスキップしました}}（{lines}行目を確認してください）。",
+      "settingsSaved": "在庫設定を保存しました。"
     }
   },
   "settings": {
@@ -1879,7 +1897,8 @@
     "alsoCancel": "注文もキャンセルする",
     "recordRefund": "返金を記録",
     "refundBody": "この金額をお客様に返金します。この操作は取り消せません。",
-    "dataDeleted": "個人データは削除されました"
+    "dataDeleted": "個人データは削除されました",
+    "restock": "{count, plural, other {#点を在庫に戻す}}"
   },
   "customers": {
     "title": "顧客",
@@ -3209,7 +3228,8 @@
       "sortNewest": "新着順",
       "sortApply": "並べ替え",
       "productCount": "{count, plural, other {#点の商品}}",
-      "collectionEmptyTitle": "このコレクションにはまだ商品がありません"
+      "collectionEmptyTitle": "このコレクションにはまだ商品がありません",
+      "soldOut": "売り切れ"
     },
     "product": {
       "breadcrumb": "パンくずリスト",
@@ -3257,7 +3277,9 @@
       "artworkChecksPass": "印刷できます",
       "artworkChecksFail": "続行するには次の問題を解決してください",
       "artworkWhatToDo": "対処方法: {fix}",
-      "artworkBlocked": "続行するにはデザインを修正するか削除してください。"
+      "artworkBlocked": "続行するにはデザインを修正するか削除してください。",
+      "soldOut": "売り切れ",
+      "onlyLeft": "残り{count}点"
     },
     "basket": {
       "title": "カート",
@@ -3420,7 +3442,9 @@
       "currencyNotSold": "{currency} はこのストアの販売通貨ではありません。",
       "enterOrderCode": "注文コードをご入力ください。",
       "enterOrderEmail": "ご注文時のメールアドレスをご入力ください。",
-      "lookupFailed": "このコードとメールアドレスに一致する注文はありません。"
+      "lookupFailed": "このコードとメールアドレスに一致する注文はありません。",
+      "soldOut": "{variant}は売り切れです。",
+      "onlyLeft": "{variant}は残り{count}点です。"
     },
     "artwork": {
       "lowDpi": "この画像は {dpi} DPI でプリントされ、この商品に必要な {required} DPI を下回ります。",
@@ -3710,7 +3734,8 @@
       "cancelled": "移動をキャンセルしました。{name}は元の位置に戻りました。",
       "handle": "{name}を並べ替え"
     },
-    "descriptionLabel": "説明"
+    "descriptionLabel": "説明",
+    "tabInventory": "在庫"
   },
   "notifications": {
     "bell": "通知",
@@ -3725,7 +3750,8 @@
       "refund_recorded": "注文 {code} に {amount} の返金が記録されました",
       "gift_approval": "ギフトキャンペーン {code} が承認待ちです",
       "quote_received": "{name} から {code} の見積もりが届きました",
-      "invite_accepted": "{name} さんが招待を承諾しました"
+      "invite_accepted": "{name} さんが招待を承諾しました",
+      "low_stock": "{name}の在庫が少なくなっています（残り{count}点）"
     },
     "settings": {
       "menu": "通知",
@@ -3744,7 +3770,8 @@
         "refund_recorded": "返金",
         "gift_approval": "承認待ちのギフトキャンペーン",
         "quote_received": "仕入れの見積もり",
-        "invite_accepted": "承諾された招待"
+        "invite_accepted": "承諾された招待",
+        "low_stock": "在庫僅少"
       }
     },
     "email": {
@@ -3774,16 +3801,22 @@
     "reason": {
       "exception": "例外",
       "manual_routing": "手動ルーティング",
-      "awaiting_production": "生産待ち"
+      "awaiting_production": "生産待ち",
+      "low_stock": "在庫僅少",
+      "out_of_stock": "在庫切れ"
     },
     "viewInOrders": "注文で表示",
     "emptyTitle": "要対応の注文はありません",
-    "emptyBody": "例外、手動ルーティング、生産待ちの支払い済み注文がここに表示されます。",
+    "emptyBody": "例外、手動ルーティング、生産待ちの支払い済み注文、在庫僅少の商品がここに表示されます。",
     "colOrder": "注文",
     "colCustomer": "顧客",
     "colReason": "理由",
     "colTotal": "合計",
-    "back": "ダッシュボード"
+    "back": "ダッシュボード",
+    "lowStockCount": "{count, plural, other {在庫僅少のバリエーション#件}}",
+    "lowStockTitle": "在庫僅少",
+    "available": "在庫{count}点",
+    "viewInventory": "在庫を見る"
   },
   "trust": {
     "title": "多くのエージェンシーに選ばれています",
@@ -3876,5 +3909,84 @@
       "scopeRequired": "少なくとも 1 つの項目へのアクセス権を付与してください。",
       "duplicate": "このキーはすでに作成されています。コピーしていない場合は、無効化して新しいキーを作成してください。"
     }
+  },
+  "inventory": {
+    "title": "在庫",
+    "export": "CSVをエクスポート",
+    "import": "CSVをインポート",
+    "importTitle": "在庫をインポート",
+    "importBody": "エクスポートと同じ形式のCSVをアップロードしてください。行はvariant_idまたはSKUで照合され、空欄は現在の値のままです。",
+    "importFile": "CSVファイル",
+    "importSubmit": "インポート",
+    "importing": "インポート中…",
+    "statTracked": "在庫管理中のバリエーション",
+    "statOf": "全{count}件中",
+    "statAvailable": "販売可能数",
+    "statLow": "在庫僅少",
+    "statOut": "在庫切れ",
+    "search": "検索",
+    "searchPlaceholder": "商品、バリエーション、SKU",
+    "filter": "在庫",
+    "filters": {
+      "all": "すべてのバリエーション",
+      "tracked": "在庫管理あり",
+      "untracked": "在庫管理なし",
+      "low": "在庫僅少",
+      "out": "在庫切れ"
+    },
+    "apply": "絞り込む",
+    "clear": "クリア",
+    "emptyTitle": "バリエーションはまだありません",
+    "emptyBody": "商品をインポートすると、ここで在庫を管理できます。",
+    "noMatches": "一致するバリエーションはありません",
+    "tryFilters": "検索語句や絞り込み条件を変えてお試しください。",
+    "colVariant": "商品",
+    "colTracked": "在庫管理",
+    "colPolicy": "在庫切れ時",
+    "colCommitted": "引当済み",
+    "colAvailable": "販売可能",
+    "colActions": "操作",
+    "colWhen": "日時",
+    "colDelta": "増減",
+    "colOnHand": "手持ち在庫",
+    "colReason": "理由",
+    "colBy": "担当者",
+    "states": {
+      "in_stock": "在庫あり",
+      "low": "在庫僅少",
+      "out": "在庫切れ",
+      "untracked": "在庫管理なし"
+    },
+    "variantOff": "販売停止中",
+    "policies": {
+      "deny": "販売を停止",
+      "continue": "販売を継続"
+    },
+    "reasons": {
+      "correction": "修正",
+      "received": "入荷",
+      "damaged": "破損",
+      "import": "インポート",
+      "sold": "販売",
+      "restock": "在庫に戻し"
+    },
+    "trackLabel": "{variant}の在庫を管理",
+    "policyLabel": "{variant}の在庫切れ時",
+    "availableLabel": "{variant}の販売可能数",
+    "reasonLabel": "理由",
+    "save": "保存",
+    "saving": "保存中…",
+    "saveFailed": "保存できませんでした。もう一度お試しください。",
+    "historyTitle": "調整履歴",
+    "historyBody": "手持ち在庫の直近50件の変更。",
+    "historyEmpty": "調整はまだありません。",
+    "settingsTitle": "在庫僅少",
+    "settingsBody": "在庫僅少のバリエーションは「要対応」に表示され、チームに通知されます。",
+    "threshold": "在庫僅少のしきい値（点）",
+    "showLowStock": "ストアに「残りN点」を表示",
+    "showLowStockHint": "しきい値以下のバリエーションに表示されます。",
+    "saveSettings": "保存",
+    "thresholdValue": "{count, plural, other {#点以下で在庫僅少}}",
+    "activityLink": "在庫のアクティビティを見る"
   }
 }

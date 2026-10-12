@@ -173,6 +173,7 @@ const sources = [
   "../src/lib/operations/orders.ts",
   "../src/lib/order-payment.ts",
   "../src/lib/gift-payment.ts",
+  "../src/lib/inventory.ts",
 ]
   .map((path) => readFileSync(new URL(path, import.meta.url), "utf8"))
   .join("\n");

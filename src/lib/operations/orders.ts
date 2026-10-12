@@ -9,6 +9,7 @@ import { refundSimulated, type RefundResult } from "../demo-payment";
 import { sendEmail, siteOrigin } from "../email";
 import { brandFor, shippingNotificationEmail } from "../email-templates";
 import { trackingNumberFor } from "../fulfillment";
+import { releaseOrderStock, restockOrder } from "../inventory";
 import { orderStatusUrl, signOrderToken } from "../order-access";
 import { refundOnConnectedAccount } from "../stripe";
 import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus, type Store } from "../types";
@@ -142,6 +143,8 @@ export async function moveOrder(ctx: OperationContext, order: Order, status: Ord
   }
 
   await updateOrder(order.id, patch);
+  // An unpaid order cancelled by hand gives back the stock its checkout held.
+  if (status === "cancelled") await releaseOrderStock(order);
   recordAudit({
     category: "order_routing",
     action: `order.${status}`,
@@ -184,6 +187,8 @@ export interface RefundInput {
   reason: string;
   /** Cancel the order as well. */
   cancel: boolean;
+  /** Put the order's units back on hand. */
+  restock?: boolean;
 }
 
 /**
@@ -194,7 +199,7 @@ export async function refundOrder(
   ctx: OperationContext,
   order: Order,
   input: RefundInput,
-): Promise<{ order: Order; amount: number; refundId: string | null }> {
+): Promise<{ order: Order; amount: number; refundId: string | null; restocked: boolean }> {
   const { store, actor } = ctx;
   const reason = input.reason.trim();
   const amount = input.amount;
@@ -268,6 +273,10 @@ export async function refundOrder(
     revalidateOrder(store.id, order.id);
     throw new OperationError("conflict", t("orderChanged"));
   }
+  const restocked = input.restock ? await restockOrder(order, store, actor) : false;
+  if (restocked) {
+    revalidatePath(`/app/stores/${store.id}/catalog/inventory`);
+  }
   recordAudit({
     category: "order_routing",
     action: input.cancel ? "order.cancelled_refunded" : "order.refunded",
@@ -278,7 +287,7 @@ export async function refundOrder(
     actorName: actor.name,
     entity: "order",
     entityId: order.code,
-    meta: { amount, reason, gatewayRefundId: gateway.refundId },
+    meta: { amount, reason, gatewayRefundId: gateway.refundId, restocked },
     notify: {
       type: "refund_recorded",
       href: `/app/stores/${store.id}/orders/${order.id}`,
@@ -287,5 +296,5 @@ export async function refundOrder(
   });
   refreshCustomers(store, [order.customer.email]);
   revalidateOrder(store.id, order.id);
-  return { order: { ...order, ...patch }, amount, refundId: gateway.refundId };
+  return { order: { ...order, ...patch }, amount, refundId: gateway.refundId, restocked };
 }

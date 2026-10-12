@@ -22,6 +22,7 @@ import {
 } from "@/lib/collections";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
+import { soldOutProducts } from "@/lib/inventory";
 import { breadcrumbJsonLd, metaDescription, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { localizeProduct } from "@/lib/translations";
@@ -77,7 +78,10 @@ export default async function StorefrontCollectionPage({
   if (!stored) return <StorefrontNotFoundView store={store} locale={requested} />;
 
   const published = await publishedProducts(store.id);
-  const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  const [currency, soldOut] = await Promise.all([
+    readCurrency(store.defaultCurrency, store.currencies),
+    soldOutProducts(published),
+  ]);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { defaultLocale } = storeLanguages(store);
   const collection = localizeCollection(stored, locale, defaultLocale);
@@ -232,7 +236,9 @@ export default async function StorefrontCollectionPage({
               // The header image is the largest paint when there is one.
               priority={!collection.imageUrl && index < 3}
               badge={
-                product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
+                soldOut.has(product.id) ? (
+                  <Badge tone="slate">{t("shop.soldOut")}</Badge>
+                ) : product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
                   <Badge tone="brand">{t("shop.personalise")}</Badge>
                 ) : null
               }

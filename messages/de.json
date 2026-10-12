@@ -327,7 +327,8 @@
       "Customers": "Kunden",
       "Discounts": "Rabatte",
       "Storefront": "Storefront",
-      "Translations": "Shop-Texte und Übersetzungen"
+      "Translations": "Shop-Texte und Übersetzungen",
+      "Inventory": "Lagerbestand"
     },
     "ctaTitle": "Erstellen Sie Ihren ersten Schlüssel",
     "ctaBody": "Melden Sie sich an, öffnen Sie die Einstellungen eines Shops und wählen Sie API-Schlüssel.",
@@ -825,7 +826,8 @@
   "pager": {
     "orders": "{first}–{last} von {total} Bestellungen",
     "audit": "{first}–{last} von {total} Einträgen",
-    "auditCoverage": "Aktivitäten seit {date}. Legen Sie einen Zeitraum fest, um ältere Einträge zu sehen."
+    "auditCoverage": "Aktivitäten seit {date}. Legen Sie einen Zeitraum fest, um ältere Einträge zu sehen.",
+    "variants": "{first}–{last} von {total} Varianten"
   },
   "fallback": {
     "goToDashboard": "Zum Dashboard",
@@ -885,7 +887,8 @@
       "sourcing": "Beschaffung",
       "email": "E-Mail",
       "discounts": "Rabattcodes",
-      "customers": "Kunden"
+      "customers": "Kunden",
+      "inventory": "Lagerbestand"
     },
     "setupStep": {
       "branding": "Logo und Design",
@@ -1381,6 +1384,21 @@
       "orderSaved": "Reihenfolge gespeichert.",
       "productsAdded": "{count, plural, =0 {Keine Produkte hinzugefügt.} one {# Produkt hinzugefügt.} other {# Produkte hinzugefügt.}}",
       "productRemoved": "Produkt entfernt."
+    },
+    "inventory": {
+      "variantGone": "Diese Variante ist nicht mehr im Katalog.",
+      "choosePolicy": "Wähle, was passiert, wenn der Bestand aufgebraucht ist.",
+      "wholeNumber": "Gib eine ganze Zahl bis {max} ein.",
+      "oneQuantity": "Lege den verfügbaren Bestand oder eine Anpassung fest, nicht beides.",
+      "chooseReason": "Wähle einen Grund.",
+      "fileEmpty": "Wähle eine CSV-Datei mit mindestens einer Zeile.",
+      "fileTooLong": "Importiere höchstens {max} Zeilen auf einmal.",
+      "fileTooLarge": "Die Datei ist größer als 1 MB.",
+      "thresholdRange": "Gib eine ganze Zahl von 0 bis {max} ein.",
+      "saved": "{variant} gespeichert.",
+      "imported": "{count, plural, one {# Variante aktualisiert.} other {# Varianten aktualisiert.}}",
+      "importedWithProblems": "{count, plural, one {# Variante aktualisiert.} other {# Varianten aktualisiert.}} {skipped, plural, one {# Zeile übersprungen} other {# Zeilen übersprungen}}, prüfe Zeile {lines}.",
+      "settingsSaved": "Lagereinstellungen gespeichert."
     }
   },
   "settings": {
@@ -1879,7 +1897,8 @@
     "alsoCancel": "Bestellung auch stornieren",
     "recordRefund": "Erstattung erfassen",
     "refundBody": "Der Betrag wird dem Kunden erstattet. Dies kann nicht rückgängig gemacht werden.",
-    "dataDeleted": "Personenbezogene Daten gelöscht"
+    "dataDeleted": "Personenbezogene Daten gelöscht",
+    "restock": "{count, plural, one {# Artikel} other {# Artikel}} wieder einlagern"
   },
   "customers": {
     "title": "Kunden",
@@ -3209,7 +3228,8 @@
       "sortNewest": "Neueste",
       "sortApply": "Sortieren",
       "productCount": "{count, plural, one {# Produkt} other {# Produkte}}",
-      "collectionEmptyTitle": "Noch keine Produkte in dieser Kollektion"
+      "collectionEmptyTitle": "Noch keine Produkte in dieser Kollektion",
+      "soldOut": "Ausverkauft"
     },
     "product": {
       "breadcrumb": "Brotkrümelnavigation",
@@ -3257,7 +3277,9 @@
       "artworkChecksPass": "Druckbereit",
       "artworkChecksFail": "Beheben Sie diese Probleme, um fortzufahren",
       "artworkWhatToDo": "So geht es: {fix}",
-      "artworkBlocked": "Korrigieren oder entfernen Sie das Motiv, um fortzufahren."
+      "artworkBlocked": "Korrigieren oder entfernen Sie das Motiv, um fortzufahren.",
+      "soldOut": "Ausverkauft",
+      "onlyLeft": "Nur noch {count} verfügbar"
     },
     "basket": {
       "title": "Ihr Warenkorb",
@@ -3420,7 +3442,9 @@
       "currencyNotSold": "{currency} gehört nicht zu den Verkaufswährungen dieses Shops.",
       "enterOrderCode": "Geben Sie Ihren Bestellcode ein.",
       "enterOrderEmail": "Geben Sie die E-Mail-Adresse der Bestellung ein.",
-      "lookupFailed": "Keine Bestellung passt zu diesem Code und dieser E-Mail-Adresse."
+      "lookupFailed": "Keine Bestellung passt zu diesem Code und dieser E-Mail-Adresse.",
+      "soldOut": "{variant} ist ausverkauft.",
+      "onlyLeft": "Von {variant} sind nur noch {count} verfügbar."
     },
     "artwork": {
       "lowDpi": "Dieses Bild druckt mit {dpi} DPI und liegt damit unter den {required} DPI, die dieses Produkt braucht.",
@@ -3710,7 +3734,8 @@
       "cancelled": "Verschieben abgebrochen. {name} ist wieder an seinem Platz.",
       "handle": "{name} verschieben"
     },
-    "descriptionLabel": "Beschreibung"
+    "descriptionLabel": "Beschreibung",
+    "tabInventory": "Lagerbestand"
   },
   "notifications": {
     "bell": "Benachrichtigungen",
@@ -3725,7 +3750,8 @@
       "refund_recorded": "Erstattung von {amount} für Bestellung {code} erfasst",
       "gift_approval": "Geschenkkampagne {code} wartet auf Freigabe",
       "quote_received": "Angebot von {name} für {code} erhalten",
-      "invite_accepted": "{name} hat die Einladung angenommen"
+      "invite_accepted": "{name} hat die Einladung angenommen",
+      "low_stock": "{name} hat nur noch {count} auf Lager"
     },
     "settings": {
       "menu": "Benachrichtigungen",
@@ -3744,7 +3770,8 @@
         "refund_recorded": "Erstattungen",
         "gift_approval": "Geschenkkampagnen zur Freigabe",
         "quote_received": "Beschaffungsangebote",
-        "invite_accepted": "Angenommene Einladungen"
+        "invite_accepted": "Angenommene Einladungen",
+        "low_stock": "Niedriger Lagerbestand"
       }
     },
     "email": {
@@ -3774,16 +3801,22 @@
     "reason": {
       "exception": "Ausnahme",
       "manual_routing": "Manuelles Routing",
-      "awaiting_production": "Wartet auf Produktion"
+      "awaiting_production": "Wartet auf Produktion",
+      "low_stock": "Niedriger Bestand",
+      "out_of_stock": "Nicht vorrätig"
     },
     "viewInOrders": "In Bestellungen ansehen",
     "emptyTitle": "Kein Handlungsbedarf",
-    "emptyBody": "Ausnahmen, manuelles Routing und bezahlte Bestellungen vor der Produktion erscheinen hier.",
+    "emptyBody": "Ausnahmen, manuelle Zuweisungen, bezahlte Bestellungen vor der Produktion und niedrige Lagerbestände erscheinen hier.",
     "colOrder": "Bestellung",
     "colCustomer": "Kunde",
     "colReason": "Grund",
     "colTotal": "Summe",
-    "back": "Dashboard"
+    "back": "Dashboard",
+    "lowStockCount": "{count, plural, one {# Variante mit niedrigem Bestand} other {# Varianten mit niedrigem Bestand}}",
+    "lowStockTitle": "Niedriger Lagerbestand",
+    "available": "{count} verfügbar",
+    "viewInventory": "Lagerbestand ansehen"
   },
   "trust": {
     "title": "Agenturen vertrauen Parcelith",
@@ -3876,5 +3909,84 @@
       "scopeRequired": "Geben Sie dem Schlüssel Zugriff auf mindestens einen Bereich.",
       "duplicate": "Dieser Schlüssel wurde bereits erstellt. Falls Sie ihn nicht kopiert haben, widerrufen Sie ihn und erstellen Sie einen neuen."
     }
+  },
+  "inventory": {
+    "title": "Lagerbestand",
+    "export": "CSV exportieren",
+    "import": "CSV importieren",
+    "importTitle": "Lagerbestand importieren",
+    "importBody": "Lade eine CSV im Exportformat hoch. Zeilen werden über variant_id oder SKU zugeordnet, leere Zellen behalten ihren Wert.",
+    "importFile": "CSV-Datei",
+    "importSubmit": "Importieren",
+    "importing": "Wird importiert…",
+    "statTracked": "Erfasste Varianten",
+    "statOf": "von {count}",
+    "statAvailable": "Verfügbare Einheiten",
+    "statLow": "Niedriger Bestand",
+    "statOut": "Nicht vorrätig",
+    "search": "Suche",
+    "searchPlaceholder": "Produkt, Variante oder SKU",
+    "filter": "Bestand",
+    "filters": {
+      "all": "Alle Varianten",
+      "tracked": "Erfasst",
+      "untracked": "Nicht erfasst",
+      "low": "Niedriger Bestand",
+      "out": "Nicht vorrätig"
+    },
+    "apply": "Filtern",
+    "clear": "Zurücksetzen",
+    "emptyTitle": "Noch keine Varianten",
+    "emptyBody": "Importiere Produkte, um ihren Bestand hier zu verwalten.",
+    "noMatches": "Keine passenden Varianten",
+    "tryFilters": "Versuche eine andere Suche oder einen anderen Filter.",
+    "colVariant": "Produkt",
+    "colTracked": "Erfassen",
+    "colPolicy": "Bei leerem Bestand",
+    "colCommitted": "Reserviert",
+    "colAvailable": "Verfügbar",
+    "colActions": "Aktionen",
+    "colWhen": "Datum",
+    "colDelta": "Änderung",
+    "colOnHand": "Vorrätig",
+    "colReason": "Grund",
+    "colBy": "Von",
+    "states": {
+      "in_stock": "Vorrätig",
+      "low": "Niedriger Bestand",
+      "out": "Nicht vorrätig",
+      "untracked": "Nicht erfasst"
+    },
+    "variantOff": "Nicht im Verkauf",
+    "policies": {
+      "deny": "Verkauf stoppen",
+      "continue": "Weiter verkaufen"
+    },
+    "reasons": {
+      "correction": "Korrektur",
+      "received": "Wareneingang",
+      "damaged": "Beschädigt",
+      "import": "Import",
+      "sold": "Verkauft",
+      "restock": "Wieder eingelagert"
+    },
+    "trackLabel": "Bestand von {variant} erfassen",
+    "policyLabel": "Wenn {variant} nicht vorrätig ist",
+    "availableLabel": "Verfügbare Einheiten von {variant}",
+    "reasonLabel": "Grund",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "saveFailed": "Speichern fehlgeschlagen. Versuche es erneut.",
+    "historyTitle": "Anpassungsverlauf",
+    "historyBody": "Die letzten 50 Änderungen am vorrätigen Bestand.",
+    "historyEmpty": "Noch keine Anpassungen.",
+    "settingsTitle": "Niedriger Bestand",
+    "settingsBody": "Varianten mit niedrigem Bestand erscheinen unter „Handlungsbedarf“ und das Team wird benachrichtigt.",
+    "threshold": "Schwelle für niedrigen Bestand (Einheiten)",
+    "showLowStock": "„Nur noch N verfügbar“ im Shop anzeigen",
+    "showLowStockHint": "Wird bei Varianten an oder unter der Schwelle angezeigt.",
+    "saveSettings": "Speichern",
+    "thresholdValue": "{count, plural, one {Niedriger Bestand ab # Einheit oder weniger.} other {Niedriger Bestand ab # Einheiten oder weniger.}}",
+    "activityLink": "Lageraktivität ansehen"
   }
 }

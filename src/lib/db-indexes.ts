@@ -70,6 +70,8 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   stripe_events: [byId],
   api_keys: [byId, { key: { hash: 1 }, unique: true }, { key: { storeId: 1, createdAt: -1 } }],
   api_rate_limits: [byId, { key: { expiresAt: 1 }, expireAfterSeconds: 0 }],
+  inventory_levels: [byId, { key: { storeId: 1 } }, { key: { productId: 1 } }],
+  inventory_adjustments: [byId, { key: { storeId: 1, at: -1, id: -1 } }, { key: { storeId: 1, variantId: 1, at: -1 } }],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

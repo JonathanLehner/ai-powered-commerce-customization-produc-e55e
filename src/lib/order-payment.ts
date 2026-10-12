@@ -6,6 +6,7 @@ import { brandFor, orderConfirmationEmail } from "./email-templates";
 import { sendEmail, siteOrigin } from "./email";
 import { localCountryName } from "./countries";
 import { routeOrder } from "./fulfillment";
+import { commitOrderStock, releaseOrderStock } from "./inventory";
 import { db } from "./mongo";
 import { orderStatusUrl, signOrderToken } from "./order-access";
 import { emailCopy, shopperLocale } from "@/i18n/storefront";
@@ -52,7 +53,8 @@ function shopperBase(store: Store, order: Order): string {
 }
 
 /**
- * Marks the order paid, routes it to production and tells the shopper. False
+ * Marks the order paid, takes its stock off hand, routes it to production and
+ * tells the shopper. False
  * when it was not awaiting payment, which means this already ran.
  */
 export async function confirmOrderPayment(order: Order, store: Store, payment: SettledPayment): Promise<boolean> {
@@ -98,6 +100,7 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
     { status: "awaiting_payment" },
   );
   if (!written) return false;
+  await commitOrderStock(order, store);
 
   const { code, storeId, currency, total, discount } = order;
   if (order.cartId) {
@@ -186,7 +189,7 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
 
 /**
  * Closes an order whose payment failed or whose Checkout session expired, and
- * gives its discount use back. False when it was not awaiting payment.
+ * gives its discount use and the stock it held back. False when it was not awaiting payment.
  */
 export async function abandonOrderPayment(
   order: Order,
@@ -209,6 +212,7 @@ export async function abandonOrderPayment(
   );
   if (!written) return false;
   if (order.discount) await releaseDiscountUse(order.discount.codeId);
+  await releaseOrderStock(order);
   recordAudit({
     category: "order_routing",
     action: reason === "failed" ? "order.payment_failed" : "order.checkout_expired",

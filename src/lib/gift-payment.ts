@@ -3,6 +3,7 @@ import { refreshCustomers } from "./customer-data";
 import { COLLECTIONS, getOrderByIdempotencyKey, recordAudit, updateGiftCampaign } from "./data";
 import { routeOrder } from "./fulfillment";
 import { quoteCampaign } from "./gifting";
+import { deductStock, trackedLines } from "./inventory";
 import { db } from "./mongo";
 import { refreshPages } from "./order-payment";
 import type { GiftCampaign, Order, Store } from "./types";
@@ -155,7 +156,14 @@ export async function raiseCampaignOrders(
     if (decision.exception) order.status = "exception";
   });
 
+  // Gift orders are paid before they exist, so their tracked units come off
+  // hand straight away rather than being held first.
+  for (const order of orders) {
+    const lines = await trackedLines(order.items);
+    if (lines.length > 0) order.inventory = { state: "committed", lines };
+  }
   await db.insertMany(COLLECTIONS.orders, orders as unknown as Record<string, unknown>[]);
+  for (const order of orders) await deductStock(order, store);
   refreshCustomers(store, orders.map((order) => order.customer.email));
 
   const held = orders.filter((order) => order.fulfillment.routing !== "submitted").length;

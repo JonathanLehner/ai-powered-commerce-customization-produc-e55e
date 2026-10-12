@@ -319,6 +319,12 @@ export function RefundForm({ order }: { order: Order }) {
           <input id="cancel" type="checkbox" name="cancel" className="size-4 accent-primary" />
           {t("alsoCancel")}
         </Label>
+        {order.inventory?.state === "committed" && !order.inventory.restockedAt ? (
+          <Label htmlFor="restock" className="cursor-pointer font-normal text-inksoft">
+            <input id="restock" type="checkbox" name="restock" className="size-4 accent-primary" />
+            {t("restock", { count: order.inventory.lines.reduce((sum, line) => sum + line.quantity, 0) })}
+          </Label>
+        ) : null}
       </div>
       <FormStatus state={state} />
       <div className="mt-5">

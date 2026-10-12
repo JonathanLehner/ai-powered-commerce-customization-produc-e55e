@@ -203,9 +203,18 @@ export interface Store {
   carriers: CarrierAccount[];
   defaultTaxBracketId: string | null;
   pricesIncludeTax: boolean;
+  /** Absent until the inventory settings are saved; read it through `inventorySettings()`. */
+  inventory?: InventorySettings;
   setup: StoreSetupState;
   createdAt: string;
   archivedAt: string | null;
+}
+
+export interface InventorySettings {
+  /** A tracked variant at or below this many available units counts as low stock. */
+  lowStockThreshold: number;
+  /** Shows "Only N left" on the storefront for low-stock variants. */
+  showLowStock: boolean;
 }
 
 export type ThemeKey = "atelier" | "meridian" | "graphite" | "bloom";
@@ -753,6 +762,12 @@ export interface Order {
     gatewayRefundId?: string;
   }[];
   events: FulfillmentEvent[];
+  /**
+   * The stock this order holds on tracked variants. Reserved when checkout
+   * starts, committed (taken off hand) once payment lands, released when the
+   * payment never comes. Absent when nothing on the order was tracked.
+   */
+  inventory?: OrderInventory | null;
   /** Set on the orders a gift campaign produced, absent on ordinary shopper orders. */
   campaign?: {
     campaignId: string;
@@ -764,6 +779,59 @@ export interface Order {
   idempotencyKey: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderInventory {
+  state: "reserved" | "committed" | "released";
+  lines: { productId: string; variantId: string; quantity: number }[];
+  /** Set once a refund put the units back on hand. */
+  restockedAt?: string | null;
+}
+
+/* ----------------------------------------------------------- inventory */
+
+/** What happens once a tracked variant has no stock left. */
+export type InventoryPolicy = "deny" | "continue";
+
+/**
+ * Stock of one store variant, kept beside the product rather than inside its
+ * variants array, so a save of the product's variants can never overwrite a
+ * count a checkout changed meanwhile. A variant without a level is not tracked.
+ * Available is `onHand - committed`.
+ */
+export interface InventoryLevel {
+  /** `<productId>:<variantId>`. */
+  id: string;
+  storeId: string;
+  productId: string;
+  variantId: string;
+  tracked: boolean;
+  policy: InventoryPolicy;
+  onHand: number;
+  /** Units held by checkouts in progress and paid orders not yet taken off hand. */
+  committed: number;
+  updatedAt: string;
+}
+
+export type InventoryReason = "correction" | "received" | "damaged" | "import" | "sold" | "restock";
+
+/** One change to a variant's units on hand. */
+export interface InventoryAdjustment {
+  id: string;
+  storeId: string;
+  productId: string;
+  variantId: string;
+  productName: string;
+  variantName: string;
+  sku: string;
+  delta: number;
+  onHandAfter: number;
+  reason: InventoryReason;
+  /** The order code for sales and restocks. */
+  reference: string | null;
+  actorId: string;
+  actorName: string;
+  at: string;
 }
 
 /* ----------------------------------------------------------- customers */
@@ -1054,7 +1122,8 @@ export type AuditCategory =
   | "sourcing"
   | "email"
   | "discounts"
-  | "customers";
+  | "customers"
+  | "inventory";
 
 export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   store_setup: "Store setup",
@@ -1070,6 +1139,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   email: "Email",
   discounts: "Discount codes",
   customers: "Customers",
+  inventory: "Inventory",
 };
 
 export interface AuditLog {

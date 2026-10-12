@@ -327,7 +327,8 @@
       "Customers": "Customers",
       "Discounts": "Discounts",
       "Storefront": "Storefront",
-      "Translations": "Shop text and translations"
+      "Translations": "Shop text and translations",
+      "Inventory": "Inventory"
     },
     "ctaTitle": "Create your first key",
     "ctaBody": "Sign in, open a store's Settings and choose API keys.",
@@ -825,7 +826,8 @@
   "pager": {
     "orders": "Showing {first}–{last} of {total} orders",
     "audit": "Showing {first}–{last} of {total} entries",
-    "auditCoverage": "Showing activity since {date}. Set a date range to see older entries."
+    "auditCoverage": "Showing activity since {date}. Set a date range to see older entries.",
+    "variants": "Showing {first}–{last} of {total} variants"
   },
   "fallback": {
     "goToDashboard": "Go to the dashboard",
@@ -885,7 +887,8 @@
       "sourcing": "Sourcing",
       "email": "Email",
       "discounts": "Discount codes",
-      "customers": "Customers"
+      "customers": "Customers",
+      "inventory": "Inventory"
     },
     "setupStep": {
       "branding": "Logo and theme",
@@ -1381,6 +1384,21 @@
       "orderSaved": "Order saved.",
       "productsAdded": "{count, plural, =0 {No products added.} one {# product added.} other {# products added.}}",
       "productRemoved": "Product removed."
+    },
+    "inventory": {
+      "variantGone": "That variant is no longer in the catalog.",
+      "choosePolicy": "Choose what happens when it runs out.",
+      "wholeNumber": "Enter a whole number up to {max}.",
+      "oneQuantity": "Set the available units or an adjustment, not both.",
+      "chooseReason": "Choose a reason.",
+      "fileEmpty": "Choose a CSV file with at least one row.",
+      "fileTooLong": "Import up to {max} rows at a time.",
+      "fileTooLarge": "The file is larger than 1 MB.",
+      "thresholdRange": "Enter a whole number from 0 to {max}.",
+      "saved": "Saved {variant}.",
+      "imported": "{count, plural, one {Updated # variant.} other {Updated # variants.}}",
+      "importedWithProblems": "{count, plural, one {Updated # variant.} other {Updated # variants.}} {skipped, plural, one {# row skipped} other {# rows skipped}}, check line {lines}.",
+      "settingsSaved": "Inventory settings saved."
     }
   },
   "settings": {
@@ -1879,7 +1897,8 @@
     "alsoCancel": "Also cancel the order",
     "recordRefund": "Record refund",
     "refundBody": "The amount will be refunded to the customer. This cannot be undone.",
-    "dataDeleted": "Personal data deleted"
+    "dataDeleted": "Personal data deleted",
+    "restock": "Restock {count, plural, one {# item} other {# items}}"
   },
   "customers": {
     "title": "Customers",
@@ -3209,7 +3228,8 @@
       "sortNewest": "Newest",
       "sortApply": "Sort",
       "productCount": "{count, plural, one {# product} other {# products}}",
-      "collectionEmptyTitle": "No products in this collection yet"
+      "collectionEmptyTitle": "No products in this collection yet",
+      "soldOut": "Sold out"
     },
     "product": {
       "breadcrumb": "Breadcrumb",
@@ -3257,7 +3277,9 @@
       "artworkChecksPass": "Ready to print",
       "artworkChecksFail": "Fix these issues to continue",
       "artworkWhatToDo": "What to do: {fix}",
-      "artworkBlocked": "Fix or remove the artwork to continue."
+      "artworkBlocked": "Fix or remove the artwork to continue.",
+      "soldOut": "Sold out",
+      "onlyLeft": "Only {count} left"
     },
     "basket": {
       "title": "Your basket",
@@ -3420,7 +3442,9 @@
       "currencyNotSold": "{currency} is not one of this store’s selling currencies.",
       "enterOrderCode": "Enter your order code.",
       "enterOrderEmail": "Enter the email address on the order.",
-      "lookupFailed": "No order matches that code and email address."
+      "lookupFailed": "No order matches that code and email address.",
+      "soldOut": "{variant} is sold out.",
+      "onlyLeft": "Only {count} left of {variant}."
     },
     "artwork": {
       "lowDpi": "This image will print at {dpi} DPI, below the {required} DPI this product needs.",
@@ -3710,7 +3734,8 @@
       "cancelled": "Move cancelled. {name} is back in place.",
       "handle": "Reorder {name}"
     },
-    "descriptionLabel": "Description"
+    "descriptionLabel": "Description",
+    "tabInventory": "Inventory"
   },
   "notifications": {
     "bell": "Notifications",
@@ -3725,7 +3750,8 @@
       "refund_recorded": "Refund of {amount} recorded on order {code}",
       "gift_approval": "Gift campaign {code} is awaiting approval",
       "quote_received": "Quote received from {name} for {code}",
-      "invite_accepted": "{name} accepted the invitation"
+      "invite_accepted": "{name} accepted the invitation",
+      "low_stock": "{name} is low on stock: {count} left"
     },
     "settings": {
       "menu": "Notifications",
@@ -3744,7 +3770,8 @@
         "refund_recorded": "Refunds",
         "gift_approval": "Gift campaigns awaiting approval",
         "quote_received": "Sourcing quotes",
-        "invite_accepted": "Accepted invitations"
+        "invite_accepted": "Accepted invitations",
+        "low_stock": "Low stock"
       }
     },
     "email": {
@@ -3774,16 +3801,22 @@
     "reason": {
       "exception": "Exception",
       "manual_routing": "Manual routing",
-      "awaiting_production": "Awaiting production"
+      "awaiting_production": "Awaiting production",
+      "low_stock": "Low stock",
+      "out_of_stock": "Out of stock"
     },
     "viewInOrders": "View in Orders",
     "emptyTitle": "Nothing needs attention",
-    "emptyBody": "Exceptions, manual routing and paid orders waiting for production show up here.",
+    "emptyBody": "Exceptions, manual routing, paid orders waiting for production and low stock show up here.",
     "colOrder": "Order",
     "colCustomer": "Customer",
     "colReason": "Reason",
     "colTotal": "Total",
-    "back": "Dashboard"
+    "back": "Dashboard",
+    "lowStockCount": "{count, plural, one {# variant low on stock} other {# variants low on stock}}",
+    "lowStockTitle": "Low stock",
+    "available": "{count} available",
+    "viewInventory": "View inventory"
   },
   "trust": {
     "title": "Trusted by agencies",
@@ -3876,5 +3909,84 @@
       "scopeRequired": "Give the key access to at least one area.",
       "duplicate": "This key was already created. If you did not copy it, revoke it and create a new one."
     }
+  },
+  "inventory": {
+    "title": "Inventory",
+    "export": "Export CSV",
+    "import": "Import CSV",
+    "importTitle": "Import inventory",
+    "importBody": "Upload a CSV in the export’s format. Rows are matched by variant_id or SKU, and blank cells keep their current value.",
+    "importFile": "CSV file",
+    "importSubmit": "Import",
+    "importing": "Importing…",
+    "statTracked": "Tracked variants",
+    "statOf": "of {count}",
+    "statAvailable": "Units available",
+    "statLow": "Low stock",
+    "statOut": "Out of stock",
+    "search": "Search",
+    "searchPlaceholder": "Product, variant or SKU",
+    "filter": "Stock",
+    "filters": {
+      "all": "All variants",
+      "tracked": "Tracked",
+      "untracked": "Not tracked",
+      "low": "Low stock",
+      "out": "Out of stock"
+    },
+    "apply": "Filter",
+    "clear": "Clear",
+    "emptyTitle": "No variants yet",
+    "emptyBody": "Import products to manage their stock here.",
+    "noMatches": "No matching variants",
+    "tryFilters": "Try a different search or filter.",
+    "colVariant": "Product",
+    "colTracked": "Track",
+    "colPolicy": "When out of stock",
+    "colCommitted": "Committed",
+    "colAvailable": "Available",
+    "colActions": "Actions",
+    "colWhen": "Date",
+    "colDelta": "Change",
+    "colOnHand": "On hand",
+    "colReason": "Reason",
+    "colBy": "By",
+    "states": {
+      "in_stock": "In stock",
+      "low": "Low stock",
+      "out": "Out of stock",
+      "untracked": "Not tracked"
+    },
+    "variantOff": "Not on sale",
+    "policies": {
+      "deny": "Stop selling",
+      "continue": "Continue selling"
+    },
+    "reasons": {
+      "correction": "Correction",
+      "received": "Received",
+      "damaged": "Damaged",
+      "import": "Import",
+      "sold": "Sold",
+      "restock": "Restocked"
+    },
+    "trackLabel": "Track stock of {variant}",
+    "policyLabel": "When {variant} is out of stock",
+    "availableLabel": "Available units of {variant}",
+    "reasonLabel": "Reason",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveFailed": "Could not save. Try again.",
+    "historyTitle": "Adjustment history",
+    "historyBody": "The latest 50 changes to units on hand.",
+    "historyEmpty": "No adjustments yet.",
+    "settingsTitle": "Low stock",
+    "settingsBody": "Low-stock variants appear in Needs attention, and the team is notified.",
+    "threshold": "Low-stock threshold (units)",
+    "showLowStock": "Show “Only N left” on the storefront",
+    "showLowStockHint": "Shown on variants at or below the threshold.",
+    "saveSettings": "Save",
+    "thresholdValue": "{count, plural, one {Low stock at # unit or fewer.} other {Low stock at # units or fewer.}}",
+    "activityLink": "View inventory activity"
   }
 }

@@ -3,15 +3,16 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * Products and Collections, the two views of a store's catalog. Drawn like the
+ * Products, Collections and Inventory, the views of a store's catalog. Drawn like the
  * shadcn tab list but made of links, because each view is its own route.
  */
-export async function CatalogTabs({ storeId, active }: { storeId: string; active: "products" | "collections" }) {
+export async function CatalogTabs({ storeId, active }: { storeId: string; active: "products" | "collections" | "inventory" }) {
   const t = await getTranslations("collections");
   const base = `/app/stores/${storeId}/catalog`;
   const tabs = [
     { key: "products", href: base, label: t("tabProducts") },
     { key: "collections", href: `${base}/collections`, label: t("tabCollections") },
+    { key: "inventory", href: `${base}/inventory`, label: t("tabInventory") },
   ] as const;
   return (
     <nav aria-label={t("tabsLabel")}>

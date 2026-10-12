@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { attentionSummary } from "@/i18n/attention-copy";
 import { attentionBreakdown, attentionReason, type AttentionReason } from "@/lib/attention";
-import { listOrdersByStore } from "@/lib/data";
+import { COLLECTIONS, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
+import { inventoryRows, inventorySettings, lowStockRows } from "@/lib/inventory-rules";
+import { db } from "@/lib/mongo";
+import type { InventoryLevel } from "@/lib/types";
 import { ORDERS_PAGE_SIZE } from "@/lib/order-list";
 import { accessibleStores, requireUser } from "@/lib/session";
 import { THEMES } from "@/lib/types";
@@ -18,6 +21,8 @@ const REASON_TONES: Record<AttentionReason, "rose" | "amber" | "brand"> = {
   manual_routing: "amber",
   awaiting_production: "brand",
 };
+
+const LOW_STOCK_ROWS = 10;
 
 function storeInitials(name: string): string {
   return name
@@ -38,7 +43,12 @@ export default async function AttentionPage() {
   const user = await requireUser();
   const accessible = await accessibleStores(user);
   const stores = accessible.filter(({ store }) => store.status === "active");
-  const ordersByStore = await listOrdersByStore(stores.map(({ store }) => store.id));
+  const storeIds = stores.map(({ store }) => store.id);
+  const [ordersByStore, productsByStore, levels] = await Promise.all([
+    listOrdersByStore(storeIds),
+    listStoreProductsByStore(storeIds),
+    db.findIn<InventoryLevel>(COLLECTIONS.inventoryLevels, "storeId", storeIds),
+  ]);
 
   const groups = await Promise.all(
     stores.map(async ({ store, viaPlatform }) => {
@@ -48,11 +58,20 @@ export default async function AttentionPage() {
         (order) => order.storeId === store.id && attentionReason(order) !== null,
       );
       const breakdown = attentionBreakdown(orders);
-      return { store, viaPlatform, orders, summary: await attentionSummary(breakdown) };
+      // Tracked variants on sale at or below the store's low-stock threshold.
+      const lowStock = lowStockRows(
+        inventoryRows(
+          productsByStore.get(store.id) ?? [],
+          levels.filter((level) => level.storeId === store.id),
+          inventorySettings(store),
+        ),
+      );
+      return { store, viaPlatform, orders, lowStock, summary: await attentionSummary(breakdown) };
     }),
   );
-  const open = groups.filter((group) => group.orders.length > 0);
+  const open = groups.filter((group) => group.orders.length > 0 || group.lowStock.length > 0);
   const total = open.reduce((sum, group) => sum + group.orders.length, 0);
+  const lowTotal = open.reduce((sum, group) => sum + group.lowStock.length, 0);
 
   const [t, orderCopy, locale] = await Promise.all([
     getTranslations("attention"),
@@ -66,7 +85,16 @@ export default async function AttentionPage() {
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
           title={t("title")}
-          description={total > 0 ? t("description", { count: total, stores: open.length }) : undefined}
+          description={
+            total > 0 || lowTotal > 0
+              ? [
+                  total > 0 ? t("description", { count: total, stores: open.length }) : null,
+                  lowTotal > 0 ? t("lowStockCount", { count: lowTotal }) : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")
+              : undefined
+          }
           actions={
             <Button asChild variant="outline" size="sm">
               <Link href="/app">{t("back")}</Link>
@@ -80,7 +108,7 @@ export default async function AttentionPage() {
           </div>
         ) : (
           <div className="mt-6 space-y-5">
-            {open.map(({ store, viaPlatform, orders, summary }) => {
+            {open.map(({ store, viaPlatform, orders, lowStock, summary }) => {
               const queue = `/app/stores/${store.id}/orders?view=attention`;
               return (
                 <section key={store.id} aria-labelledby={`attention-${store.id}`}>
@@ -103,16 +131,23 @@ export default async function AttentionPage() {
                               </Link>
                             </h2>
                           </CardTitle>
-                          <p className="truncate text-sm text-muted-foreground">{summary}</p>
+                          <p className="truncate text-sm text-muted-foreground">
+                            {[orders.length > 0 ? summary : null, lowStock.length > 0 ? t("lowStockCount", { count: lowStock.length }) : null]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
                         </div>
                       </div>
-                      <CardAction>
-                        <Link href={queue} className="text-sm font-medium text-primary hover:underline">
-                          {t("viewInOrders")}
-                        </Link>
-                      </CardAction>
+                      {orders.length > 0 ? (
+                        <CardAction>
+                          <Link href={queue} className="text-sm font-medium text-primary hover:underline">
+                            {t("viewInOrders")}
+                          </Link>
+                        </CardAction>
+                      ) : null}
                     </CardHeader>
                     <CardContent className="px-0">
+                      {orders.length > 0 ? (
                       <ul className="divide-y divide-border border-t border-border">
                         {orders.slice(0, ORDERS_PAGE_SIZE).map((order) => {
                           const reason = attentionReason(order) as AttentionReason;
@@ -143,6 +178,40 @@ export default async function AttentionPage() {
                           );
                         })}
                       </ul>
+                      ) : null}
+                      {lowStock.length > 0 ? (
+                        <ul className="divide-y divide-border border-t border-border" aria-label={t("lowStockTitle")}>
+                          {lowStock.slice(0, LOW_STOCK_ROWS).map((row) => (
+                            <li
+                              key={`${row.productId}:${row.variantId}`}
+                              className="relative flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 hover:bg-muted/50"
+                            >
+                              <Link
+                                href={`/app/stores/${store.id}/catalog/inventory?q=${encodeURIComponent(row.sku || row.productName)}`}
+                                className="min-w-0 flex-1 truncate text-sm font-medium text-foreground after:absolute after:inset-0 after:content-[''] hover:underline"
+                              >
+                                {row.productName} · {row.variantName}
+                              </Link>
+                              <Badge tone={row.state === "out" ? "rose" : "amber"}>
+                                {row.state === "out" ? t("reason.out_of_stock") : t("reason.low_stock")}
+                              </Badge>
+                              <span className="w-24 text-right text-sm tabular-nums text-foreground">
+                                {t("available", { count: row.available })}
+                              </span>
+                            </li>
+                          ))}
+                          {lowStock.length > LOW_STOCK_ROWS ? (
+                            <li className="px-4 pt-3 text-sm">
+                              <Link
+                                href={`/app/stores/${store.id}/catalog/inventory?filter=low`}
+                                className="font-medium text-primary hover:underline"
+                              >
+                                {t("viewInventory")} ({lowStock.length})
+                              </Link>
+                            </li>
+                          ) : null}
+                        </ul>
+                      ) : null}
                       {orders.length > ORDERS_PAGE_SIZE ? (
                         <p className="border-t border-border px-4 pt-3 text-sm">
                           <Link href={queue} className="font-medium text-primary hover:underline">

@@ -4,6 +4,7 @@ import {
   BellIcon,
   FileTextIcon,
   GiftIcon,
+  PackageMinusIcon,
   ShoppingBagIcon,
   TriangleAlertIcon,
   Undo2Icon,
@@ -38,6 +39,7 @@ const ICONS: Record<NotificationType, LucideIcon> = {
   gift_approval: GiftIcon,
   quote_received: FileTextIcon,
   invite_accepted: UserCheckIcon,
+  low_stock: PackageMinusIcon,
 };
 
 export function NotificationBell() {

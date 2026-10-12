@@ -52,6 +52,10 @@ export interface PurchaseProduct {
     size: string;
     price: number;
     availability: string;
+    /** The store has none left and stops selling at zero. */
+    soldOut: boolean;
+    /** Units left, when the store shows that for low stock. */
+    left: number | null;
   }[];
   mockups: { id: string; url: string; view: string; colour: string }[];
   shopperCustomization: StoreProduct["shopperCustomization"];
@@ -73,9 +77,12 @@ export function ProductPurchase({
   const artworkCopy = useTranslations("storefront.artwork");
   const format = useFormatter();
   const colours = [...new Set(product.variants.map((v) => v.colour))];
-  const [colour, setColour] = useState(colours[0] ?? "");
+  // Opens on the first variant that can be bought, so a sold-out first size
+  // does not greet the shopper with a locked button.
+  const firstSellable = product.variants.find((v) => !v.soldOut && v.availability !== "out_of_stock") ?? product.variants[0];
+  const [colour, setColour] = useState(firstSellable?.colour ?? colours[0] ?? "");
   const sizes = product.variants.filter((v) => v.colour === colour);
-  const [variantId, setVariantId] = useState(sizes[0]?.id ?? product.variants[0]?.id ?? "");
+  const [variantId, setVariantId] = useState(firstSellable?.id ?? "");
   const [text, setText] = useState("");
   const [artworkPreview, setArtworkPreview] = useState<string | null>(null);
   const [artwork, setArtwork] = useState<StoredImage | null>(null);
@@ -302,7 +309,7 @@ export function ProductPurchase({
    * button is pressed. The preview upload and the save carry on behind it; the
    * line's id goes with the form, so a resubmission is stored once.
    */
-  const purchasable = Boolean(variant && variant.availability !== "out_of_stock");
+  const purchasable = Boolean(variant && variant.availability !== "out_of_stock" && !variant.soldOut);
 
   async function addInstantly(formData: FormData) {
     const lineId = newId("cit");
@@ -495,11 +502,11 @@ export function ProductPurchase({
         }}
         action={addToCart}
         beforeSubmit={addInstantly}
-        submitLabel={t("addToBasket")}
+        submitLabel={variant?.soldOut ? t("soldOut") : t("addToBasket")}
         pendingLabel={t("adding")}
         submitSize="lg"
         submitClassName="max-lg:flex-1"
-        submitDisabled={artworkStatus !== "idle" || blocked}
+        submitDisabled={artworkStatus !== "idle" || blocked || Boolean(variant?.soldOut)}
         hidden={{ storeId: product.storeId, productId: product.id }}
         // On a phone the add-to-basket row leaves the flow and sticks to the
         // bottom of the screen, so it stays reachable however far down the
@@ -587,13 +594,19 @@ export function ProductPurchase({
                     className="min-w-12"
                   >
                     {option.size || option.name}
-                    {option.availability === "low_stock" ? (
+                    {option.soldOut ? (
+                      <span className="ml-1.5 text-xs text-muted-foreground">{t("soldOut")}</span>
+                    ) : option.availability === "low_stock" ? (
                       <span className="ml-1.5 text-xs text-amber-700">{t("lowStock")}</span>
                     ) : null}
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
             </fieldset>
+
+            {variant && !variant.soldOut && variant.left ? (
+              <p className="mt-3 text-sm font-medium text-amber-700">{t("onlyLeft", { count: variant.left })}</p>
+            ) : null}
 
             <div className="mt-6 max-w-[8rem]">
               <Label htmlFor="quantity">

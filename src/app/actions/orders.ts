@@ -337,6 +337,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
       amount: parseMoney(String(formData.get("amount") ?? ""), order.currency),
       reason: String(formData.get("reason") ?? ""),
       cancel,
+      restock: formData.get("restock") === "on",
     });
     return {
       status: "success",

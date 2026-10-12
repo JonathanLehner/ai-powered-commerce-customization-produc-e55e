@@ -56,6 +56,8 @@ export const COLLECTIONS = {
   stripeEvents: "stripe_events",
   apiKeys: "api_keys",
   apiRateLimits: "api_rate_limits",
+  inventoryLevels: "inventory_levels",
+  inventoryAdjustments: "inventory_adjustments",
 } as const;
 
 /* ------------------------------------------------------------------ paging */

@@ -40,6 +40,8 @@ import { db } from "@/lib/mongo";
 import { SHOPPER_COOKIE } from "@/lib/session";
 import { chargeCard } from "@/lib/demo-payment";
 import { abandonOrderPayment, confirmOrderPayment } from "@/lib/order-payment";
+import { getLevel, releaseLines, reserveStock } from "@/lib/inventory";
+import { availableOf, canSell } from "@/lib/inventory-rules";
 import { paymentMode } from "@/lib/payment-mode";
 import { createConnectedCheckout, expireConnectedCheckout } from "@/lib/stripe";
 import {
@@ -231,6 +233,21 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     return {
       status: "error",
       message: t("actions.outOfStock", { variant: variant.name }),
+      field: "variantId",
+    };
+  }
+  // A soft check: the units are only held once checkout starts, but a shopper
+  // should not fill a basket with more than the store can sell.
+  const level = await getLevel(product.id, variant.id);
+  const inBasket = (cart?.items ?? []).filter((i) => i.variantId === variant.id).reduce((sum, i) => sum + i.quantity, 0);
+  if (!canSell(level, inBasket + quantity) && !cart?.items.some((i) => i.id === id)) {
+    const left = level ? Math.max(0, availableOf(level) - inBasket) : 0;
+    const name =
+      localizeProduct(product, locale, storeLanguages(store).defaultLocale).variants.find((v) => v.id === variant.id)
+        ?.name ?? variant.name;
+    return {
+      status: "error",
+      message: left > 0 ? t("actions.onlyLeft", { count: left, variant: name }) : t("actions.soldOut", { variant: name }),
       field: "variantId",
     };
   }
@@ -526,6 +543,23 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     }
   }
 
+  // The units are held before the shopper pays, with a conditional write per
+  // variant, so two shoppers checking out the last one cannot both have it.
+  const reservation = await reserveStock(cart.items);
+  if (!reservation.ok) {
+    if (claimed && discount) await releaseDiscountUse(discount.codeId);
+    const line = cart.items.find((i) => i.variantId === reservation.variantId);
+    const variant = line ? `${line.productName} (${line.variantName})` : "";
+    return {
+      status: "error",
+      message:
+        reservation.available > 0
+          ? t("actions.onlyLeft", { count: reservation.available, variant })
+          : t("actions.soldOut", { variant }),
+    };
+  }
+  const held = reservation.inventory;
+
   const key = idempotencyKey || newId("idem");
   // A demo store checks the test card before anything is written, so a
   // refused card leaves the form as it was.
@@ -544,6 +578,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     });
     if (!simulated.ok) {
       if (claimed && discount) await releaseDiscountUse(discount.codeId);
+      if (held) await releaseLines(held.lines);
       return {
         status: "error",
         message: simulated.message,
@@ -616,6 +651,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       paidAt: null,
     },
     cartId: cart.id,
+    inventory: held,
     fulfillment: {
       supplierId: null,
       supplierName: null,

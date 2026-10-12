@@ -327,7 +327,8 @@
       "Customers": "Kunder",
       "Discounts": "Rabatter",
       "Storefront": "Skyltfönster",
-      "Translations": "Butikstexter och översättningar"
+      "Translations": "Butikstexter och översättningar",
+      "Inventory": "Lager"
     },
     "ctaTitle": "Skapa din första nyckel",
     "ctaBody": "Logga in, öppna en butiks Inställningar och välj API-nycklar.",
@@ -825,7 +826,8 @@
   "pager": {
     "orders": "{first}–{last} av {total} ordrar",
     "audit": "{first}–{last} av {total} poster",
-    "auditCoverage": "Aktivitet sedan {date}. Ange ett datumintervall för att se äldre poster."
+    "auditCoverage": "Aktivitet sedan {date}. Ange ett datumintervall för att se äldre poster.",
+    "variants": "Visar {first}–{last} av {total} varianter"
   },
   "fallback": {
     "goToDashboard": "Till översikten",
@@ -885,7 +887,8 @@
       "sourcing": "Inköp",
       "email": "E-post",
       "discounts": "Rabattkoder",
-      "customers": "Kunder"
+      "customers": "Kunder",
+      "inventory": "Lager"
     },
     "setupStep": {
       "branding": "Logotyp och tema",
@@ -1381,6 +1384,21 @@
       "orderSaved": "Ordningen har sparats.",
       "productsAdded": "{count, plural, =0 {Inga produkter tillagda.} one {# produkt tillagd.} other {# produkter tillagda.}}",
       "productRemoved": "Produkten har tagits bort."
+    },
+    "inventory": {
+      "variantGone": "Den varianten finns inte längre i katalogen.",
+      "choosePolicy": "Välj vad som händer när lagret tar slut.",
+      "wholeNumber": "Ange ett heltal upp till {max}.",
+      "oneQuantity": "Ange tillgängligt antal eller en justering, inte båda.",
+      "chooseReason": "Välj en orsak.",
+      "fileEmpty": "Välj en CSV-fil med minst en rad.",
+      "fileTooLong": "Importera högst {max} rader åt gången.",
+      "fileTooLarge": "Filen är större än 1 MB.",
+      "thresholdRange": "Ange ett heltal från 0 till {max}.",
+      "saved": "{variant} sparad.",
+      "imported": "{count, plural, one {# variant uppdaterad.} other {# varianter uppdaterade.}}",
+      "importedWithProblems": "{count, plural, one {# variant uppdaterad.} other {# varianter uppdaterade.}} {skipped, plural, one {# rad hoppades över} other {# rader hoppades över}}, kontrollera rad {lines}.",
+      "settingsSaved": "Lagerinställningar sparade."
     }
   },
   "settings": {
@@ -1879,7 +1897,8 @@
     "alsoCancel": "Avbryt även ordern",
     "recordRefund": "Registrera återbetalning",
     "refundBody": "Beloppet återbetalas till kunden. Det går inte att ångra.",
-    "dataDeleted": "Personuppgifter raderade"
+    "dataDeleted": "Personuppgifter raderade",
+    "restock": "Lägg tillbaka {count, plural, one {# artikel} other {# artiklar}} i lager"
   },
   "customers": {
     "title": "Kunder",
@@ -3209,7 +3228,8 @@
       "sortNewest": "Nyast",
       "sortApply": "Sortera",
       "productCount": "{count, plural, one {# produkt} other {# produkter}}",
-      "collectionEmptyTitle": "Inga produkter i den här kollektionen ännu"
+      "collectionEmptyTitle": "Inga produkter i den här kollektionen ännu",
+      "soldOut": "Slutsåld"
     },
     "product": {
       "breadcrumb": "Brödsmulor",
@@ -3257,7 +3277,9 @@
       "artworkChecksPass": "Klar för tryck",
       "artworkChecksFail": "Åtgärda problemen för att fortsätta",
       "artworkWhatToDo": "Gör så här: {fix}",
-      "artworkBlocked": "Åtgärda eller ta bort designen för att fortsätta."
+      "artworkBlocked": "Åtgärda eller ta bort designen för att fortsätta.",
+      "soldOut": "Slutsåld",
+      "onlyLeft": "Endast {count} kvar"
     },
     "basket": {
       "title": "Din varukorg",
@@ -3420,7 +3442,9 @@
       "currencyNotSold": "{currency} är inte någon av butikens försäljningsvalutor.",
       "enterOrderCode": "Ange din orderkod.",
       "enterOrderEmail": "Ange e-postadressen på ordern.",
-      "lookupFailed": "Ingen order matchar koden och e-postadressen."
+      "lookupFailed": "Ingen order matchar koden och e-postadressen.",
+      "soldOut": "{variant} är slutsåld.",
+      "onlyLeft": "Endast {count} kvar av {variant}."
     },
     "artwork": {
       "lowDpi": "Bilden trycks i {dpi} DPI, under de {required} DPI som produkten kräver.",
@@ -3710,7 +3734,8 @@
       "cancelled": "Flytten avbröts. {name} är tillbaka på sin plats.",
       "handle": "Flytta {name}"
     },
-    "descriptionLabel": "Beskrivning"
+    "descriptionLabel": "Beskrivning",
+    "tabInventory": "Lager"
   },
   "notifications": {
     "bell": "Aviseringar",
@@ -3725,7 +3750,8 @@
       "refund_recorded": "Återbetalning på {amount} registrerad för order {code}",
       "gift_approval": "Presentkampanj {code} väntar på godkännande",
       "quote_received": "Offert mottagen från {name} för {code}",
-      "invite_accepted": "{name} har accepterat inbjudan"
+      "invite_accepted": "{name} har accepterat inbjudan",
+      "low_stock": "{name} har lågt lager: {count} kvar"
     },
     "settings": {
       "menu": "Aviseringar",
@@ -3744,7 +3770,8 @@
         "refund_recorded": "Återbetalningar",
         "gift_approval": "Presentkampanjer att godkänna",
         "quote_received": "Leverantörsofferter",
-        "invite_accepted": "Accepterade inbjudningar"
+        "invite_accepted": "Accepterade inbjudningar",
+        "low_stock": "Lågt lager"
       }
     },
     "email": {
@@ -3774,16 +3801,22 @@
     "reason": {
       "exception": "Avvikelse",
       "manual_routing": "Manuell routning",
-      "awaiting_production": "Väntar på produktion"
+      "awaiting_production": "Väntar på produktion",
+      "low_stock": "Lågt lager",
+      "out_of_stock": "Slut i lager"
     },
     "viewInOrders": "Visa i Ordrar",
     "emptyTitle": "Inget kräver åtgärd",
-    "emptyBody": "Avvikelser, manuell routning och betalda ordrar som väntar på produktion visas här.",
+    "emptyBody": "Avvikelser, manuell dirigering, betalda ordrar som väntar på produktion och lågt lager visas här.",
     "colOrder": "Order",
     "colCustomer": "Kund",
     "colReason": "Orsak",
     "colTotal": "Summa",
-    "back": "Översikt"
+    "back": "Översikt",
+    "lowStockCount": "{count, plural, one {# variant med lågt lager} other {# varianter med lågt lager}}",
+    "lowStockTitle": "Lågt lager",
+    "available": "{count} tillgängliga",
+    "viewInventory": "Visa lager"
   },
   "trust": {
     "title": "Byråer som litar på Parcelith",
@@ -3876,5 +3909,84 @@
       "scopeRequired": "Ge nyckeln åtkomst till minst ett område.",
       "duplicate": "Nyckeln har redan skapats. Om du inte kopierade den, återkalla den och skapa en ny."
     }
+  },
+  "inventory": {
+    "title": "Lager",
+    "export": "Exportera CSV",
+    "import": "Importera CSV",
+    "importTitle": "Importera lager",
+    "importBody": "Ladda upp en CSV i exportformatet. Rader matchas på variant_id eller SKU och tomma celler behåller sitt värde.",
+    "importFile": "CSV-fil",
+    "importSubmit": "Importera",
+    "importing": "Importerar…",
+    "statTracked": "Spårade varianter",
+    "statOf": "av {count}",
+    "statAvailable": "Tillgängliga enheter",
+    "statLow": "Lågt lager",
+    "statOut": "Slut i lager",
+    "search": "Sök",
+    "searchPlaceholder": "Produkt, variant eller SKU",
+    "filter": "Lager",
+    "filters": {
+      "all": "Alla varianter",
+      "tracked": "Spårade",
+      "untracked": "Inte spårade",
+      "low": "Lågt lager",
+      "out": "Slut i lager"
+    },
+    "apply": "Filtrera",
+    "clear": "Rensa",
+    "emptyTitle": "Inga varianter än",
+    "emptyBody": "Importera produkter för att hantera deras lager här.",
+    "noMatches": "Inga matchande varianter",
+    "tryFilters": "Prova en annan sökning eller ett annat filter.",
+    "colVariant": "Produkt",
+    "colTracked": "Spåra",
+    "colPolicy": "När lagret är slut",
+    "colCommitted": "Reserverat",
+    "colAvailable": "Tillgängligt",
+    "colActions": "Åtgärder",
+    "colWhen": "Datum",
+    "colDelta": "Ändring",
+    "colOnHand": "I lager",
+    "colReason": "Orsak",
+    "colBy": "Av",
+    "states": {
+      "in_stock": "I lager",
+      "low": "Lågt lager",
+      "out": "Slut i lager",
+      "untracked": "Inte spårad"
+    },
+    "variantOff": "Säljs inte",
+    "policies": {
+      "deny": "Sluta sälja",
+      "continue": "Fortsätt sälja"
+    },
+    "reasons": {
+      "correction": "Korrigering",
+      "received": "Mottaget",
+      "damaged": "Skadat",
+      "import": "Import",
+      "sold": "Sålt",
+      "restock": "Återställt i lager"
+    },
+    "trackLabel": "Spåra lagret för {variant}",
+    "policyLabel": "När {variant} är slut i lager",
+    "availableLabel": "Tillgängliga enheter av {variant}",
+    "reasonLabel": "Orsak",
+    "save": "Spara",
+    "saving": "Sparar…",
+    "saveFailed": "Det gick inte att spara. Försök igen.",
+    "historyTitle": "Justeringshistorik",
+    "historyBody": "De senaste 50 ändringarna av lagret.",
+    "historyEmpty": "Inga justeringar än.",
+    "settingsTitle": "Lågt lager",
+    "settingsBody": "Varianter med lågt lager visas under Behöver åtgärd och teamet aviseras.",
+    "threshold": "Gräns för lågt lager (enheter)",
+    "showLowStock": "Visa ”Endast N kvar” i butiken",
+    "showLowStockHint": "Visas för varianter vid eller under gränsen.",
+    "saveSettings": "Spara",
+    "thresholdValue": "{count, plural, one {Lågt lager vid # enhet eller färre.} other {Lågt lager vid # enheter eller färre.}}",
+    "activityLink": "Visa lageraktivitet"
   }
 }

@@ -20,6 +20,9 @@ import type { OperationContext } from "../operations/context";
 import { addNote, createCustomer, exportCustomer, updateCustomer } from "../operations/customers";
 import { createDiscount, findDiscount, updateDiscount } from "../operations/discounts";
 import { CARRIERS, findOrder, moveOrder, refundOrder, shipOrder } from "../operations/orders";
+import { importInventory, saveInventorySettings, storeInventory, updateVariantInventory } from "../operations/inventory";
+import { listAdjustments } from "../inventory";
+import { INVENTORY_FILTERS, INVENTORY_POLICIES, MANUAL_REASONS, filterInventory, inventorySettings } from "../inventory-rules";
 import {
   addCatalogVariant,
   approveMockups,
@@ -66,6 +69,7 @@ export const API_TAGS = [
   "Store",
   "Products",
   "Variants",
+  "Inventory",
   "Collections",
   "Orders",
   "Customers",
@@ -564,6 +568,154 @@ const variants = [
   }),
 ];
 
+/* -------------------------------------------------------------- inventory */
+
+const inventoryFilter = z.enum(INVENTORY_FILTERS);
+const inventoryPolicy = z
+  .enum(INVENTORY_POLICIES)
+  .describe("What happens at zero: deny stops selling the variant, continue keeps selling it.");
+
+function offsetCursor(cursor: string | undefined): number {
+  const decoded = decodeCursor(cursor);
+  const offset = decoded ? Number(decoded[0]) : 0;
+  if (!Number.isInteger(offset) || offset < 0) {
+    throw new ApiError(422, "invalid_request", "`cursor` is not one this API returned.", "cursor");
+  }
+  return offset;
+}
+
+async function variantRow(ctx: OperationContext, productId: string, variantId: string) {
+  const settings = inventorySettings(ctx.store);
+  const { rows } = await storeInventory(ctx.store.id, settings);
+  return rows.find((row) => row.productId === productId && row.variantId === variantId) ?? notFound("Variant");
+}
+
+const inventory = [
+  define({
+    id: "listInventory",
+    method: "GET",
+    path: "/inventory",
+    scope: "products:read",
+    tag: "Inventory",
+    summary: "List stock levels",
+    description:
+      "Every variant of the store's products that are not archived, with whether its stock is tracked, what happens at zero (policy), units on hand, units committed to checkouts and unshipped orders, units available, and a state of in_stock, low, out or untracked.",
+    input: z.object({
+      q: z.string().optional().describe("Matches product name, variant name or SKU."),
+      filter: inventoryFilter.default("all").describe("all, tracked, untracked, low or out."),
+      ...paging,
+    }),
+    run: async (ctx, input) => {
+      const settings = inventorySettings(ctx.store);
+      const rows = filterInventory((await storeInventory(ctx.store.id, settings)).rows, input.q ?? "", input.filter);
+      const offset = offsetCursor(input.cursor);
+      const next = offset + input.limit;
+      return {
+        lowStockThreshold: settings.lowStockThreshold,
+        data: rows.slice(offset, next),
+        nextCursor: next < rows.length ? Buffer.from(JSON.stringify([String(next), ""])).toString("base64url") : null,
+      };
+    },
+  }),
+  define({
+    id: "getVariantInventory",
+    method: "GET",
+    path: "/products/{productId}/variants/{variantId}/inventory",
+    scope: "products:read",
+    tag: "Inventory",
+    summary: "Get a variant's stock",
+    description: "One variant's tracking, policy, units on hand, committed and available.",
+    input: z.object({ productId: id("product"), variantId: id("variant") }),
+    run: async (ctx, input) => {
+      await product(ctx, input.productId);
+      return variantRow(ctx, input.productId, input.variantId);
+    },
+  }),
+  define({
+    id: "updateVariantInventory",
+    method: "PATCH",
+    path: "/products/{productId}/variants/{variantId}/inventory",
+    scope: "products:write",
+    tag: "Inventory",
+    summary: "Update a variant's stock",
+    description:
+      "Turns tracking on or off, sets what happens at zero, and sets the units available (available) or adds to the units on hand (adjustBy, negative to take away). Send one of available and adjustBy. Each quantity change is recorded in the adjustment history with its reason.",
+    input: z.object({
+      productId: id("product"),
+      variantId: id("variant"),
+      tracked: z.boolean().optional().describe("Count this variant's stock."),
+      policy: inventoryPolicy.optional(),
+      available: z.number().int().optional().describe("Sets the units available to this."),
+      adjustBy: z.number().int().optional().describe("Adds this many units on hand; negative takes them away."),
+      reason: z.enum(MANUAL_REASONS).default("correction").describe("correction, received or damaged."),
+    }),
+    run: async (ctx, input) =>
+      updateVariantInventory(ctx, await product(ctx, input.productId), input.variantId, {
+        tracked: input.tracked,
+        policy: input.policy,
+        available: input.available,
+        adjustBy: input.adjustBy,
+        reason: input.reason,
+      }),
+  }),
+  define({
+    id: "listInventoryAdjustments",
+    method: "GET",
+    path: "/inventory/adjustments",
+    scope: "products:read",
+    tag: "Inventory",
+    summary: "List stock adjustments",
+    description:
+      "Changes to units on hand, newest first: who made them, when, the change (delta), the units on hand after it, the reason (correction, received, damaged, import, sold or restock) and the order code for sales and restocks.",
+    input: z.object({
+      productId: z.string().optional().describe("Only this product's variants."),
+      variantId: z.string().optional().describe("Only this variant."),
+      limit: z.coerce.number().int().min(1).max(200).default(50).describe("How many, 1 to 200."),
+    }),
+    run: async (ctx, input) => ({
+      data: await listAdjustments(ctx.store.id, { productId: input.productId, variantId: input.variantId, limit: input.limit }),
+    }),
+  }),
+  define({
+    id: "importInventory",
+    method: "POST",
+    path: "/inventory/import",
+    scope: "products:write",
+    tag: "Inventory",
+    summary: "Import stock from CSV",
+    description:
+      "Applies a CSV in the format the Inventory page exports: a header row with variant_id (or sku), and any of tracked (yes or no), policy (deny or continue) and available (or on_hand). Blank cells leave that value as it is. Rows that cannot be read are reported by line number; the rest are saved.",
+    input: z.object({ csv: z.string().min(1).max(1_000_000).describe("The file's text.") }),
+    run: async (ctx, input) => importInventory(ctx, input.csv),
+  }),
+  define({
+    id: "getInventorySettings",
+    method: "GET",
+    path: "/inventory/settings",
+    scope: "products:read",
+    tag: "Inventory",
+    summary: "Get the low-stock settings",
+    description: "The low-stock threshold in units, and whether the storefront shows “Only N left” at or below it.",
+    input: z.object({}),
+    run: async (ctx) => inventorySettings(ctx.store),
+  }),
+  define({
+    id: "updateInventorySettings",
+    method: "PUT",
+    path: "/inventory/settings",
+    scope: "products:write",
+    tag: "Inventory",
+    summary: "Set the low-stock settings",
+    description:
+      "Sets the threshold at or below which a tracked variant counts as low stock (it then appears in the attention list and notifies the team), and whether shoppers see “Only N left”.",
+    input: z.object({
+      lowStockThreshold: z.number().int().min(0).max(10000),
+      showLowStock: z.boolean(),
+    }),
+    run: async (ctx, input) => saveInventorySettings(ctx, input),
+  }),
+];
+
 /* ------------------------------------------------------------ collections */
 
 const collections = [
@@ -785,7 +937,7 @@ const orders = [
     tag: "Orders",
     summary: "Refund an order",
     description:
-      "Gives money back to the shopper's card, in full or in part, optionally cancelling the order. Refunds together cannot exceed the order total. Nothing is recorded unless the payment provider returns the money.",
+      "Gives money back to the shopper's card, in full or in part, optionally cancelling the order and restocking its items. Refunds together cannot exceed the order total. Nothing is recorded unless the payment provider returns the money.",
     destructive: true,
     status: 201,
     input: z.object({
@@ -793,10 +945,19 @@ const orders = [
       amount: money("The amount to refund").positive(),
       reason: z.string().describe("Why, in a few words. Shown in the order history."),
       cancel: z.boolean().default(false).describe("Cancel the order as well."),
+      restock: z
+        .boolean()
+        .default(false)
+        .describe("Put the order's units back on hand for its tracked variants. Done once per order."),
     }),
     run: async (ctx, input) => {
       const result = await refundOrder(ctx, await order(ctx, input.orderId), input);
-      return { amount: result.amount, refundId: result.refundId, order: presentOrder(result.order) };
+      return {
+        amount: result.amount,
+        refundId: result.refundId,
+        restocked: result.restocked,
+        order: presentOrder(result.order),
+      };
     },
   }),
 ];
@@ -1211,6 +1372,7 @@ export const API_OPERATIONS: ApiOperation[] = [
   ...store,
   ...products,
   ...variants,
+  ...inventory,
   ...collections,
   ...orders,
   ...customers,

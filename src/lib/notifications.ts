@@ -16,6 +16,7 @@ export const NOTIFICATION_TYPES = [
   "gift_approval",
   "quote_received",
   "invite_accepted",
+  "low_stock",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -35,6 +36,7 @@ export const DEFAULT_NOTIFICATION_PREFS: Record<NotificationType, NotificationCh
   gift_approval: { inApp: true, email: true },
   quote_received: { inApp: true, email: false },
   invite_accepted: { inApp: true, email: false },
+  low_stock: { inApp: true, email: true },
 };
 
 /** What the code that records an audit entry passes along when the entry should notify. */

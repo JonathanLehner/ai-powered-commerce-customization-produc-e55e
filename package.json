@@ -50,6 +50,7 @@
     "seo-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/seo-check.mjs",
     "collections-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/collections-check.mjs",
     "notifications-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/notifications-check.mjs",
+    "inventory-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/inventory-check.mjs",
     "mcp-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs scripts/mcp-check.mjs",
     "backfill-share-images": "node --env-file-if-exists=.env.local scripts/backfill-share-images.mjs"
   },

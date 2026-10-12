@@ -9,6 +9,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale } from "@/i18n/storefront";
 import { storefrontBySlug, storefrontProduct } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
+import { levelsForProducts } from "@/lib/inventory";
+import { inventorySettings, levelId, shopperStock } from "@/lib/inventory-rules";
 import { breadcrumbJsonLd, metaDescription, productJsonLd, storeUrl } from "@/lib/seo";
 import { shipDays } from "@/lib/shipping-promise";
 import { storeSku } from "@/lib/sku";
@@ -61,7 +63,13 @@ export default async function StorefrontProductPage({
   if (!found || !isLive(found.product)) return <StorefrontNotFoundView store={store} locale={requested} />;
 
   const { product: stored, catalog } = found;
-  const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  const [currency, levels] = await Promise.all([
+    readCurrency(store.defaultCurrency, store.currencies),
+    levelsForProducts([stored.id]),
+  ]);
+  const settings = inventorySettings(store);
+  const stock = (variantId: string) =>
+    shopperStock(levels.find((level) => level.id === levelId(stored.id, variantId)), settings);
   const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   // Name, description, colours and the personalisation label in the shopper's language.
   const product = localizeProduct(stored, locale, storeLanguages(store).defaultLocale);
@@ -94,6 +102,7 @@ export default async function StorefrontProductPage({
         size: v.size,
         price: convert(v.price, product.currency, currency),
         availability: v.availability,
+        ...stock(v.id),
       })),
     mockups: product.mockups.map((m) => ({ id: m.id, url: m.url, view: m.view, colour: m.colour })),
     shopperCustomization: product.shopperCustomization,
@@ -104,7 +113,10 @@ export default async function StorefrontProductPage({
   };
 
   const url = storeUrl(store, locale, productPath(product.slug));
-  const enabled = product.variants.filter((v) => v.enabled);
+  // A variant the store has sold out of is out of stock to search engines too.
+  const enabled = product.variants
+    .filter((v) => v.enabled)
+    .map((v) => (stock(v.id).soldOut ? { ...v, availability: "out_of_stock" as const } : v));
   const structured = [
     productJsonLd({
       name: product.name,

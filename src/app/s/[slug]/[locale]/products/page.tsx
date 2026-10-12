@@ -14,6 +14,7 @@ import { storeLanguages } from "@/i18n/storefront-routing";
 import { localizeProduct } from "@/lib/translations";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { convert } from "@/lib/pricing";
+import { soldOutProducts } from "@/lib/inventory";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
@@ -51,7 +52,10 @@ export default async function StorefrontProductsPage({
   if (!store) return <UnknownStoreView slug={slug} />;
 
   const stored = await publishedProducts(store.id);
-  const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  const [currency, soldOut] = await Promise.all([
+    readCurrency(store.defaultCurrency, store.currencies),
+    soldOutProducts(stored),
+  ]);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const products = stored.map((p) => localizeProduct(p, locale, storeLanguages(store).defaultLocale));
   const tags = [...new Set(products.flatMap((p) => p.tags))].sort((a, b) => a.localeCompare(b, locale));
@@ -155,7 +159,9 @@ export default async function StorefrontProductsPage({
               placeholder={t("shop.previewSoon")}
               priority={index < 3}
               badge={
-                product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
+                soldOut.has(product.id) ? (
+                  <Badge tone="slate">{t("shop.soldOut")}</Badge>
+                ) : product.shopperCustomization.artworkUpload || product.shopperCustomization.textLine ? (
                   <Badge tone="brand">{t("shop.personalise")}</Badge>
                 ) : null
               }
