@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Impossibile raggiungere Stripe. Lo stato qui sotto potrebbe non essere aggiornato.",
     "demoStoreTitle": "Negozio demo",
     "demoStoreBody": "Il pagamento è simulato e nessuno viene addebitato. Collega Stripe per accettare pagamenti reali.",
-    "backToSettings": "Torna alle impostazioni"
+    "backToSettings": "Torna alle impostazioni",
+    "apiKeysTitle": "Chiavi API",
+    "apiKeysBody": "Collega app e integrazioni a questo negozio con l’API Admin.",
+    "apiKeysLink": "Gestisci chiavi API"
   },
   "team": {
     "agencyAdmins": "Amministratori dell’agenzia",
@@ -3771,6 +3774,55 @@
         "title": "Registro attività",
         "body": "Configurazione, modifiche di prezzo, approvazioni, pubblicazioni e instradamento degli ordini vengono registrati con chi e quando."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Chiavi API",
+    "description": "Le chiavi consentono al tuo codice di accedere a questo negozio tramite l’API Admin.",
+    "reference": "Riferimento API",
+    "createTitle": "Crea una chiave",
+    "name": "Nome",
+    "nameHint": "L’app o l’integrazione che la userà.",
+    "access": "Accesso",
+    "resources": {
+      "products": "Prodotti",
+      "collections": "Collezioni",
+      "orders": "Ordini",
+      "customers": "Clienti",
+      "discounts": "Sconti",
+      "storefront": "Vetrina",
+      "store": "Dettagli del negozio"
+    },
+    "none": "Nessun accesso",
+    "read": "Lettura",
+    "write": "Lettura e scrittura",
+    "create": "Crea chiave",
+    "creating": "Creazione…",
+    "created": "Chiave creata",
+    "secretTitle": "Copia la chiave per {name}",
+    "secretBody": "Viene mostrata solo questa volta. Conservala in un luogo sicuro.",
+    "copy": "Copia chiave",
+    "keysTitle": "Chiavi",
+    "emptyTitle": "Nessuna chiave API",
+    "emptyBody": "Crea una chiave per collegare un’app o un’integrazione.",
+    "columns": {
+      "name": "Nome",
+      "access": "Accesso",
+      "created": "Creata",
+      "lastUsed": "Ultimo utilizzo",
+      "status": "Stato"
+    },
+    "createdBy": "{date} da {name}",
+    "never": "Mai",
+    "active": "Attiva",
+    "revoked": "Revocata",
+    "revoke": "Revoca",
+    "revokeQuestion": "Le app che usano questa chiave smetteranno di funzionare.",
+    "errors": {
+      "nameRequired": "Dai un nome alla chiave.",
+      "nameTooLong": "Usa al massimo {max} caratteri.",
+      "scopeRequired": "Dai alla chiave l’accesso ad almeno un’area.",
+      "duplicate": "Questa chiave è già stata creata. Se non l’hai copiata, revocala e creane una nuova."
     }
   }
 }

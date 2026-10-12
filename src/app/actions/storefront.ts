@@ -2,131 +2,40 @@
 
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
-import { languageName } from "@/i18n/display";
-import { isLocale } from "@/i18n/locales";
-import { storeLanguages } from "@/i18n/storefront-routing";
 import { getStorefront, recordAudit, updateStorefront } from "@/lib/data";
-import { assertStoreAccess } from "@/lib/session";
-import { sectionsFromTree } from "@/lib/storefront-schema";
-import { capHistory, sameTree } from "@/lib/storefront-versions";
-import type { StorefrontVersion } from "@/lib/types";
-import { newId } from "@/lib/util";
+import { refusal } from "@/lib/operations/action-state";
+import { publishStorefront as publish, saveStorefrontDraft as saveDraft } from "@/lib/operations/storefront";
+import { assertStoreAccess, operationContext } from "@/lib/session";
 import type { ActionState } from "./stores";
-
-function parseTree(raw: string): Record<string, unknown> | null {
-  try {
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object" && "ROOT" in parsed) return parsed as Record<string, unknown>;
-    return null;
-  } catch {
-    return null;
-  }
-}
 
 export async function saveStorefrontDraft(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const raw = String(formData.get("tree") ?? "");
-  const label = String(formData.get("label") ?? "").trim();
-  const [{ user, store }, storefront] = await Promise.all([
-    assertStoreAccess(storeId, "store.storefront"),
-    getStorefront(storeId),
-  ]);
+  const access = await assertStoreAccess(storeId, "store.storefront");
   const t = await getTranslations("actions.storefront");
-
-  const tree = parseTree(raw);
-  if (!tree) return { status: "error", message: t("unreadable") };
-
-  // The language the draft was edited in, when it was not the default, so
-  // the history says whose copy changed.
-  const locale = String(formData.get("locale") ?? "");
-  const inLanguage =
-    isLocale(locale) && locale !== storeLanguages(store).defaultLocale ? ` in ${languageName("en", locale)}` : "";
-
-  // Each saved draft is kept in the history, unless it is what was last kept.
-  const now = new Date().toISOString();
-  const history = storefront?.history ?? [];
-  const unchanged = history.length > 0 && sameTree(history[0].data, tree);
-  const version: StorefrontVersion = { id: newId("ver"), label, kind: "draft", data: tree, savedAt: now, savedBy: user.name };
-
-  await updateStorefront(storeId, {
-    draft: tree,
-    draftUpdatedAt: now,
-    ...(unchanged ? {} : { history: capHistory([version, ...history]) }),
-  });
-  recordAudit({
-    category: "publishing",
-    action: "storefront.draft_saved",
-    summary: `Saved a storefront draft with ${sectionsFromTree(tree).length} sections${inLanguage}`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "storefront",
-    entityId: storeId,
-    meta: inLanguage ? { locale } : {},
-  });
-  revalidatePath(`/app/stores/${storeId}/storefront`);
+  try {
+    await saveDraft(await operationContext(access), {
+      tree: String(formData.get("tree") ?? ""),
+      label: String(formData.get("label") ?? ""),
+      locale: String(formData.get("locale") ?? ""),
+    });
+  } catch (error) {
+    return refusal(error);
+  }
   return { status: "success", message: t("draftSaved") };
 }
 
 export async function publishStorefront(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
-  const raw = String(formData.get("tree") ?? "");
-  const label = String(formData.get("label") ?? "").trim();
-  // The existing storefront is needed for its version history, and it is
-  // fetched alongside the access check instead of after it.
-  const [{ user, store }, storefront] = await Promise.all([
-    assertStoreAccess(storeId, "store.storefront"),
-    getStorefront(storeId),
-  ]);
-
+  const access = await assertStoreAccess(storeId, "store.storefront");
   const t = await getTranslations("actions.storefront");
-  const tree = parseTree(raw);
-  if (!tree) return { status: "error", message: t("unreadable") };
-  const sections = sectionsFromTree(tree);
-  if (sections.length === 0) {
-    return { status: "error", message: t("sectionRequired") };
+  try {
+    await publish(await operationContext(access), {
+      tree: String(formData.get("tree") ?? ""),
+      label: String(formData.get("label") ?? ""),
+    });
+  } catch (error) {
+    return refusal(error);
   }
-  if (store.status === "archived") {
-    return { status: "error", message: t("archived") };
-  }
-
-  const now = new Date().toISOString();
-  const version: StorefrontVersion = {
-    id: newId("ver"),
-    label,
-    kind: "published",
-    data: tree,
-    savedAt: now,
-    savedBy: user.name,
-  };
-  const history = capHistory([version, ...(storefront?.history ?? [])]);
-
-  await updateStorefront(storeId, {
-    draft: tree,
-    published: tree,
-    publishedAt: now,
-    publishedBy: user.name,
-    draftUpdatedAt: now,
-    history,
-  });
-  recordAudit({
-    category: "publishing",
-    action: "storefront.published",
-    summary: label
-      ? `Published storefront layout “${label}” with ${sections.length} sections`
-      : `Published storefront layout with ${sections.length} sections`,
-    storeId,
-    agencyId: store.agencyId,
-    actorId: user.id,
-    actorName: user.name,
-    entity: "storefront",
-    entityId: version.id,
-    meta: { sections: sections.length, label },
-  });
-
-  revalidatePath(`/app/stores/${storeId}/storefront`);
-  revalidatePath(`/s/${store.slug}`);
   return { status: "success", message: t("published") };
 }
 

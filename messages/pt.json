@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Não foi possível acessar o Stripe. O status abaixo pode estar desatualizado.",
     "demoStoreTitle": "Loja de demonstração",
     "demoStoreBody": "O pagamento é simulado e ninguém é cobrado. Conecte o Stripe para aceitar pagamentos reais.",
-    "backToSettings": "Voltar às configurações"
+    "backToSettings": "Voltar às configurações",
+    "apiKeysTitle": "Chaves de API",
+    "apiKeysBody": "Ligue aplicações e integrações a esta loja com a API de administração.",
+    "apiKeysLink": "Gerir chaves de API"
   },
   "team": {
     "agencyAdmins": "Administradores da agência",
@@ -3771,6 +3774,55 @@
         "title": "Log de auditoria",
         "body": "Alterações de configuração e preço, aprovações, publicações e roteamento de pedidos são registrados com quem fez e quando."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Chaves de API",
+    "description": "As chaves dão ao seu próprio código acesso a esta loja através da API de administração.",
+    "reference": "Referência da API",
+    "createTitle": "Criar uma chave",
+    "name": "Nome",
+    "nameHint": "A aplicação ou integração que a vai usar.",
+    "access": "Acesso",
+    "resources": {
+      "products": "Produtos",
+      "collections": "Coleções",
+      "orders": "Encomendas",
+      "customers": "Clientes",
+      "discounts": "Descontos",
+      "storefront": "Montra",
+      "store": "Dados da loja"
+    },
+    "none": "Sem acesso",
+    "read": "Leitura",
+    "write": "Leitura e escrita",
+    "create": "Criar chave",
+    "creating": "A criar…",
+    "created": "Chave criada",
+    "secretTitle": "Copie a chave de {name}",
+    "secretBody": "Só é mostrada desta vez. Guarde-a num local seguro.",
+    "copy": "Copiar chave",
+    "keysTitle": "Chaves",
+    "emptyTitle": "Ainda não há chaves de API",
+    "emptyBody": "Crie uma chave para ligar uma aplicação ou integração.",
+    "columns": {
+      "name": "Nome",
+      "access": "Acesso",
+      "created": "Criada",
+      "lastUsed": "Última utilização",
+      "status": "Estado"
+    },
+    "createdBy": "{date} por {name}",
+    "never": "Nunca",
+    "active": "Ativa",
+    "revoked": "Revogada",
+    "revoke": "Revogar",
+    "revokeQuestion": "As aplicações que usam esta chave deixam de funcionar.",
+    "errors": {
+      "nameRequired": "Dê um nome à chave.",
+      "nameTooLong": "Use no máximo {max} caracteres.",
+      "scopeRequired": "Dê à chave acesso a pelo menos uma área.",
+      "duplicate": "Esta chave já foi criada. Se não a copiou, revogue-a e crie uma nova."
     }
   }
 }

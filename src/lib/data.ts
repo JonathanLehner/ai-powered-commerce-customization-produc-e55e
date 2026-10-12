@@ -54,7 +54,43 @@ export const COLLECTIONS = {
   notifications: "notifications",
   notificationDigests: "notification_digests",
   stripeEvents: "stripe_events",
+  apiKeys: "api_keys",
+  apiRateLimits: "api_rate_limits",
 } as const;
+
+/* ------------------------------------------------------------------ paging */
+
+export interface RecordPage<T> {
+  data: T[];
+  /** Pass back as `after` for the next page; null on the last one. */
+  next: [string, string] | null;
+}
+
+/**
+ * One page of a store's records, newest first by `sortField`, then by id. A
+ * page starts after the record `after` names, so records written while a
+ * client pages through neither repeat nor shift the pages it has not read.
+ */
+export async function pageRecords<T extends { id: string }>(
+  collection: string,
+  filter: Record<string, unknown>,
+  sortField: keyof T & string,
+  limit: number,
+  after: [string, string] | null,
+): Promise<RecordPage<T>> {
+  const where = after
+    ? {
+        $and: [
+          filter,
+          { $or: [{ [sortField]: { $lt: after[0] } }, { [sortField]: after[0], id: { $lt: after[1] } }] },
+        ],
+      }
+    : filter;
+  const rows = await db.find<T>(collection, where, { sort: { [sortField]: -1, id: -1 }, limit: limit + 1 });
+  const data = rows.slice(0, limit);
+  const last = data[data.length - 1];
+  return { data, next: rows.length > limit && last ? [String(last[sortField] ?? ""), last.id] : null };
+}
 
 /* ---------------------------------------------------------------- agencies */
 

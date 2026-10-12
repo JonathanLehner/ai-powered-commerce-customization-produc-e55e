@@ -1,15 +1,11 @@
 "use server";
 
-import { getMessages, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { languageName } from "@/i18n/display";
-import { isLocale, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import {
-  COLLECTIONS,
   getGiftCatalogue,
-  getProductCollection,
-  getStoreProduct,
   listGiftCatalogues,
   listProductCollections,
   listStoreProducts,
@@ -20,17 +16,22 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { collectionFields } from "@/lib/collections";
-import { db } from "@/lib/mongo";
-import { SEO_LIMITS } from "@/lib/seo";
-import { assertStoreAccess } from "@/lib/session";
-import { isShopTextKey } from "@/lib/shop-text";
-import { overrideProblem } from "@/lib/shop-text-validate";
+import { refusal } from "@/lib/operations/action-state";
+import { findCollection } from "@/lib/operations/collections";
+import { findProduct } from "@/lib/operations/products";
+import {
+  saveCollectionTranslation as translateCollection,
+  saveProductSeo as saveSeo,
+  saveProductTranslation as translateProduct,
+  saveShopText as setShopText,
+  translationLocale,
+} from "@/lib/operations/storefront";
+import { assertStoreAccess, operationContext } from "@/lib/session";
 import { machineTranslate } from "@/lib/translate";
 import {
   applyTreeTranslations,
   missingProductFields,
   missingTreeFields,
-  productFields,
   translationOf,
   withTranslation,
   type FieldTranslations,
@@ -43,12 +44,6 @@ import type { ActionState } from "./stores";
  * storefront editor. Every write is held to the store's enabled languages and
  * recorded in the audit history.
  */
-
-/** A language the store has enabled other than its default: the only ones content is translated into. */
-function translationLocale(store: Store, raw: unknown): Locale | null {
-  const { locales, defaultLocale } = storeLanguages(store);
-  return isLocale(raw) && raw !== defaultLocale && locales.includes(raw) ? raw : null;
-}
 
 function audit(store: Store, user: User, action: string, summary: string, entity: string, entityId: string, meta: Record<string, string | number>) {
   recordAudit({
@@ -76,43 +71,26 @@ export interface TranslationResult extends ActionState {
   translations?: FieldTranslations;
 }
 
-/**
- * Saves a product's fields in one language. Saving is what makes a person the
- * author, so every field in the form loses its machine-translated mark; an
- * empty field removes the translation and the source shows again.
- */
+/** Saves a product's fields in one language. */
 export async function saveProductTranslation(input: {
   storeId: string;
   productId: string;
   locale: string;
   values: Record<string, string>;
 }): Promise<TranslationResult> {
-  const [{ user, store }, product] = await Promise.all([
+  const [access, product] = await Promise.all([
     assertStoreAccess(input.storeId, "store.storefront"),
-    getStoreProduct(input.productId),
+    findProduct(input.storeId, input.productId),
   ]);
   const t = await getTranslations("actions.storefront");
-  const locale = translationLocale(store, input.locale);
-  if (!locale) return { status: "error", message: t("languageUnavailable") };
-  if (!product || product.storeId !== store.id) return { status: "error", message: t("notFound") };
-
-  let translations = product.translations ?? {};
-  for (const field of productFields(product)) {
-    if (!(field.key in input.values)) continue;
-    translations = withTranslation(translations, locale, field.key, String(input.values[field.key] ?? "").trim());
+  if (!translationLocale(access.store, input.locale)) return { status: "error", message: t("languageUnavailable") };
+  if (!product) return { status: "error", message: t("notFound") };
+  try {
+    const translations = await translateProduct(await operationContext(access), product, input.locale, input.values);
+    return { status: "success", message: t("translationSaved"), translations };
+  } catch (error) {
+    return refusal(error);
   }
-  await updateStoreProduct(product.id, { translations });
-  audit(
-    store,
-    user,
-    "storefront.product_translated",
-    `Saved the ${languageName("en", locale)} translation of “${product.name}”`,
-    "product",
-    product.id,
-    { locale },
-  );
-  refresh(store);
-  return { status: "success", message: t("translationSaved"), translations };
 }
 
 export interface ProductSeoResult extends ActionState {
@@ -131,19 +109,14 @@ export async function saveProductSeo(input: {
   seoTitle: string;
   seoDescription: string;
 }): Promise<ProductSeoResult> {
-  const [{ user, store }, product] = await Promise.all([
+  const [access, product] = await Promise.all([
     assertStoreAccess(input.storeId, "store.storefront"),
-    getStoreProduct(input.productId),
+    findProduct(input.storeId, input.productId),
   ]);
   const t = await getTranslations("actions.storefront");
-  if (!product || product.storeId !== store.id) return { status: "error", message: t("notFound") };
-
-  const seoTitle = String(input.seoTitle ?? "").trim().slice(0, SEO_LIMITS.seoTitle);
-  const seoDescription = String(input.seoDescription ?? "").trim().slice(0, SEO_LIMITS.seoDescription);
-  await updateStoreProduct(product.id, { seoTitle, seoDescription });
-  audit(store, user, "storefront.product_seo", `Updated the search title and description of “${product.name}”`, "product", product.id, {});
-  refresh(store);
-  return { status: "success", message: t("seoSaved"), seoTitle, seoDescription };
+  if (!product) return { status: "error", message: t("notFound") };
+  const saved = await saveSeo(await operationContext(access), product, input);
+  return { status: "success", message: t("seoSaved"), ...saved };
 }
 
 export async function saveCatalogueTranslation(input: {
@@ -184,32 +157,19 @@ export async function saveCollectionTranslation(input: {
   locale: string;
   values: Record<string, string>;
 }): Promise<TranslationResult> {
-  const [{ user, store }, collection] = await Promise.all([
+  const [access, collection] = await Promise.all([
     assertStoreAccess(input.storeId, "store.storefront"),
-    getProductCollection(input.collectionId),
+    findCollection(input.storeId, input.collectionId),
   ]);
   const t = await getTranslations("actions.storefront");
-  const locale = translationLocale(store, input.locale);
-  if (!locale) return { status: "error", message: t("languageUnavailable") };
-  if (!collection || collection.storeId !== store.id) return { status: "error", message: t("notFound") };
-
-  let translations = collection.translations ?? {};
-  for (const field of collectionFields(collection)) {
-    if (!(field.key in input.values)) continue;
-    translations = withTranslation(translations, locale, field.key, String(input.values[field.key] ?? "").trim());
+  if (!translationLocale(access.store, input.locale)) return { status: "error", message: t("languageUnavailable") };
+  if (!collection) return { status: "error", message: t("notFound") };
+  try {
+    const translations = await translateCollection(await operationContext(access), collection, input.locale, input.values);
+    return { status: "success", message: t("translationSaved"), translations };
+  } catch (error) {
+    return refusal(error);
   }
-  await updateProductCollection(collection.id, {}, { translations });
-  audit(
-    store,
-    user,
-    "storefront.collection_translated",
-    `Saved the ${languageName("en", locale)} translation of the collection “${collection.name}”`,
-    "collection",
-    collection.id,
-    { locale },
-  );
-  refresh(store);
-  return { status: "success", message: t("translationSaved"), translations };
 }
 
 /* ---------------------------------------------------------------- shop text */
@@ -219,62 +179,21 @@ export interface ShopTextResult extends ActionState {
   value?: string | null;
 }
 
-/**
- * Overrides one built-in string in one language. Any enabled language can be
- * overridden, the default included. Saving an empty value resets it.
- */
+/** Overrides one built-in string in one language. Saving an empty value resets it. */
 export async function saveShopText(input: {
   storeId: string;
   locale: string;
   key: string;
   value: string;
 }): Promise<ShopTextResult> {
-  const { user, store } = await assertStoreAccess(input.storeId, "store.storefront");
+  const access = await assertStoreAccess(input.storeId, "store.storefront");
   const t = await getTranslations("actions.storefront");
-  const locale = input.locale;
-  if (!isLocale(locale) || !storeLanguages(store).locales.includes(locale)) {
-    return { status: "error", message: t("languageUnavailable") };
+  try {
+    const value = await setShopText(await operationContext(access), input);
+    return { status: "success", message: value === null ? t("shopTextReset") : t("shopTextSaved"), value };
+  } catch (error) {
+    return refusal(error);
   }
-  const messages = await getMessages({ locale });
-  const storefront = messages.storefront as unknown as Record<string, Record<string, string>>;
-  if (!isShopTextKey(input.key, storefront)) return { status: "error", message: t("notFound") };
-
-  const [group, name] = input.key.split(".");
-  const value = input.value.trim();
-  const path = `shopText.${locale}.${group}.${name}`;
-  if (value === "") {
-    await db.updateOne(COLLECTIONS.stores, { id: store.id }, { $unset: { [path]: "" } });
-  } else {
-    const problem = overrideProblem(storefront[group][name], value);
-    if (problem) {
-      return {
-        status: "error",
-        message: problem.kind === "invalid" ? t("shopTextInvalid") : t("shopTextPlaceholder"),
-      };
-    }
-    await db.updateOne(COLLECTIONS.stores, { id: store.id }, { $set: { [path]: value } });
-  }
-
-  // The history names the string by its English wording, as people see it in the panel.
-  const english = (await getMessages({ locale: "en" })).storefront as unknown as Record<string, Record<string, string>>;
-  const wording = english[group]?.[name] ?? input.key;
-  audit(
-    store,
-    user,
-    value === "" ? "storefront.shop_text_reset" : "storefront.shop_text_saved",
-    value === ""
-      ? `Reset the shop text “${wording}” to default in ${languageName("en", locale)}`
-      : `Changed the shop text “${wording}” in ${languageName("en", locale)}`,
-    "store",
-    store.id,
-    { locale, key: input.key },
-  );
-  refresh(store);
-  return {
-    status: "success",
-    message: value === "" ? t("shopTextReset") : t("shopTextSaved"),
-    value: value === "" ? null : value,
-  };
 }
 
 /* --------------------------------------------------------- translate missing */

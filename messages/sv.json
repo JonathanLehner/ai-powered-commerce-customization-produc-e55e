@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Det gick inte att nå Stripe. Statusen nedan kan vara inaktuell.",
     "demoStoreTitle": "Demobutik",
     "demoStoreBody": "Kassan är simulerad och ingen debiteras. Anslut Stripe för att ta emot riktiga betalningar.",
-    "backToSettings": "Tillbaka till inställningar"
+    "backToSettings": "Tillbaka till inställningar",
+    "apiKeysTitle": "API-nycklar",
+    "apiKeysBody": "Anslut appar och integrationer till den här butiken med Admin-API:t.",
+    "apiKeysLink": "Hantera API-nycklar"
   },
   "team": {
     "agencyAdmins": "Byråadministratörer",
@@ -3771,6 +3774,55 @@
         "title": "Granskningslogg",
         "body": "Inställningar, prisändringar, godkännanden, publiceringar och orderdirigering loggas med vem och när."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API-nycklar",
+    "description": "Med nycklar får din egen kod tillgång till den här butiken via Admin-API:t.",
+    "reference": "API-referens",
+    "createTitle": "Skapa en nyckel",
+    "name": "Namn",
+    "nameHint": "Appen eller integrationen som ska använda den.",
+    "access": "Åtkomst",
+    "resources": {
+      "products": "Produkter",
+      "collections": "Kollektioner",
+      "orders": "Beställningar",
+      "customers": "Kunder",
+      "discounts": "Rabatter",
+      "storefront": "Butiksfront",
+      "store": "Butiksuppgifter"
+    },
+    "none": "Ingen åtkomst",
+    "read": "Läsa",
+    "write": "Läsa och skriva",
+    "create": "Skapa nyckel",
+    "creating": "Skapar…",
+    "created": "Nyckeln har skapats",
+    "secretTitle": "Kopiera nyckeln för {name}",
+    "secretBody": "Den visas bara den här gången. Spara den på ett säkert ställe.",
+    "copy": "Kopiera nyckel",
+    "keysTitle": "Nycklar",
+    "emptyTitle": "Inga API-nycklar ännu",
+    "emptyBody": "Skapa en nyckel för att ansluta en app eller integration.",
+    "columns": {
+      "name": "Namn",
+      "access": "Åtkomst",
+      "created": "Skapad",
+      "lastUsed": "Senast använd",
+      "status": "Status"
+    },
+    "createdBy": "{date} av {name}",
+    "never": "Aldrig",
+    "active": "Aktiv",
+    "revoked": "Återkallad",
+    "revoke": "Återkalla",
+    "revokeQuestion": "Appar som använder nyckeln slutar fungera.",
+    "errors": {
+      "nameRequired": "Ge nyckeln ett namn.",
+      "nameTooLong": "Använd högst {max} tecken.",
+      "scopeRequired": "Ge nyckeln åtkomst till minst ett område.",
+      "duplicate": "Nyckeln har redan skapats. Om du inte kopierade den, återkalla den och skapa en ny."
     }
   }
 }

@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Stripe ist nicht erreichbar. Der Status unten ist möglicherweise nicht aktuell.",
     "demoStoreTitle": "Demo-Shop",
     "demoStoreBody": "Der Checkout ist simuliert, niemand wird belastet. Verbinden Sie Stripe, um echte Zahlungen anzunehmen.",
-    "backToSettings": "Zurück zu den Einstellungen"
+    "backToSettings": "Zurück zu den Einstellungen",
+    "apiKeysTitle": "API-Schlüssel",
+    "apiKeysBody": "Verbinden Sie Apps und Integrationen über die Admin-API mit diesem Shop.",
+    "apiKeysLink": "API-Schlüssel verwalten"
   },
   "team": {
     "agencyAdmins": "Agenturadministratoren",
@@ -3771,6 +3774,55 @@
         "title": "Audit-Log",
         "body": "Einrichtung, Preisänderungen, Freigaben, Veröffentlichungen und Auftragsrouting werden mit Person und Zeitpunkt protokolliert."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API-Schlüssel",
+    "description": "Mit Schlüsseln greift Ihr eigener Code über die Admin-API auf diesen Shop zu.",
+    "reference": "API-Referenz",
+    "createTitle": "Schlüssel erstellen",
+    "name": "Name",
+    "nameHint": "Die App oder Integration, die ihn verwendet.",
+    "access": "Zugriff",
+    "resources": {
+      "products": "Produkte",
+      "collections": "Kollektionen",
+      "orders": "Bestellungen",
+      "customers": "Kunden",
+      "discounts": "Rabatte",
+      "storefront": "Storefront",
+      "store": "Shopdetails"
+    },
+    "none": "Kein Zugriff",
+    "read": "Lesen",
+    "write": "Lesen und schreiben",
+    "create": "Schlüssel erstellen",
+    "creating": "Wird erstellt…",
+    "created": "Schlüssel erstellt",
+    "secretTitle": "Schlüssel für {name} kopieren",
+    "secretBody": "Er wird nur dieses eine Mal angezeigt. Bewahren Sie ihn sicher auf.",
+    "copy": "Schlüssel kopieren",
+    "keysTitle": "Schlüssel",
+    "emptyTitle": "Noch keine API-Schlüssel",
+    "emptyBody": "Erstellen Sie einen Schlüssel, um eine App oder Integration zu verbinden.",
+    "columns": {
+      "name": "Name",
+      "access": "Zugriff",
+      "created": "Erstellt",
+      "lastUsed": "Zuletzt verwendet",
+      "status": "Status"
+    },
+    "createdBy": "{date} von {name}",
+    "never": "Nie",
+    "active": "Aktiv",
+    "revoked": "Widerrufen",
+    "revoke": "Widerrufen",
+    "revokeQuestion": "Apps mit diesem Schlüssel funktionieren dann nicht mehr.",
+    "errors": {
+      "nameRequired": "Geben Sie dem Schlüssel einen Namen.",
+      "nameTooLong": "Verwenden Sie höchstens {max} Zeichen.",
+      "scopeRequired": "Geben Sie dem Schlüssel Zugriff auf mindestens einen Bereich.",
+      "duplicate": "Dieser Schlüssel wurde bereits erstellt. Falls Sie ihn nicht kopiert haben, widerrufen Sie ihn und erstellen Sie einen neuen."
     }
   }
 }

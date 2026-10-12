@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Stripe is niet bereikbaar. De status hieronder is mogelijk niet actueel.",
     "demoStoreTitle": "Demowinkel",
     "demoStoreBody": "Afrekenen is gesimuleerd en er wordt niemand belast. Koppel Stripe om echte betalingen te ontvangen.",
-    "backToSettings": "Terug naar instellingen"
+    "backToSettings": "Terug naar instellingen",
+    "apiKeysTitle": "API-sleutels",
+    "apiKeysBody": "Koppel apps en integraties aan deze winkel met de Admin API.",
+    "apiKeysLink": "API-sleutels beheren"
   },
   "team": {
     "agencyAdmins": "Bureaubeheerders",
@@ -3771,6 +3774,55 @@
         "title": "Auditlog",
         "body": "Instellingen, prijswijzigingen, goedkeuringen, publicaties en orderroutering worden vastgelegd met wie en wanneer."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API-sleutels",
+    "description": "Met sleutels krijgt je eigen code via de Admin API toegang tot deze winkel.",
+    "reference": "API-referentie",
+    "createTitle": "Sleutel maken",
+    "name": "Naam",
+    "nameHint": "De app of integratie die hem gebruikt.",
+    "access": "Toegang",
+    "resources": {
+      "products": "Producten",
+      "collections": "Collecties",
+      "orders": "Bestellingen",
+      "customers": "Klanten",
+      "discounts": "Kortingen",
+      "storefront": "Webwinkel",
+      "store": "Winkelgegevens"
+    },
+    "none": "Geen toegang",
+    "read": "Lezen",
+    "write": "Lezen en schrijven",
+    "create": "Sleutel maken",
+    "creating": "Bezig…",
+    "created": "Sleutel gemaakt",
+    "secretTitle": "Kopieer de sleutel voor {name}",
+    "secretBody": "Hij wordt alleen nu getoond. Bewaar hem op een veilige plek.",
+    "copy": "Sleutel kopiëren",
+    "keysTitle": "Sleutels",
+    "emptyTitle": "Nog geen API-sleutels",
+    "emptyBody": "Maak een sleutel om een app of integratie te koppelen.",
+    "columns": {
+      "name": "Naam",
+      "access": "Toegang",
+      "created": "Gemaakt",
+      "lastUsed": "Laatst gebruikt",
+      "status": "Status"
+    },
+    "createdBy": "{date} door {name}",
+    "never": "Nooit",
+    "active": "Actief",
+    "revoked": "Ingetrokken",
+    "revoke": "Intrekken",
+    "revokeQuestion": "Apps die deze sleutel gebruiken, werken dan niet meer.",
+    "errors": {
+      "nameRequired": "Geef de sleutel een naam.",
+      "nameTooLong": "Gebruik maximaal {max} tekens.",
+      "scopeRequired": "Geef de sleutel toegang tot minstens één onderdeel.",
+      "duplicate": "Deze sleutel is al gemaakt. Heb je hem niet gekopieerd, trek hem dan in en maak een nieuwe."
     }
   }
 }

@@ -1,6 +1,7 @@
 import "server-only";
 import { getLocale, getTranslations } from "next-intl/server";
 import { artworkIssueText } from "@/i18n/artwork-copy";
+import type { Locale } from "@/i18n/locales";
 import { blockingIssues, validateArtwork } from "./artwork";
 import { getCatalogProduct } from "./data";
 import type { CatalogProduct, StoreProduct } from "./types";
@@ -13,13 +14,17 @@ export interface PublishBlocker {
 
 /**
  * Everything that must be true before each product can go live, keyed by
- * product id. Products sharing a supplier listing read it once.
+ * product id. Products sharing a supplier listing read it once. Written in
+ * `language`, or the workspace's language when none is given.
  */
-export async function publishBlockersFor(products: StoreProduct[]): Promise<Map<string, PublishBlocker[]>> {
-  const [t, issuesT, locale] = await Promise.all([
-    getTranslations("actions.products.blockers"),
-    getTranslations("artworkIssues"),
-    getLocale(),
+export async function publishBlockersFor(
+  products: StoreProduct[],
+  language?: Locale,
+): Promise<Map<string, PublishBlocker[]>> {
+  const locale = language ?? (await getLocale());
+  const [t, issuesT] = await Promise.all([
+    getTranslations({ locale, namespace: "actions.products.blockers" }),
+    getTranslations({ locale, namespace: "artworkIssues" }),
   ]);
   const catalogIds = [...new Set(products.map((p) => p.catalogProductId))];
   const catalogs = new Map<string, CatalogProduct | null>(

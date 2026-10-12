@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Callout, PageHeader, ProgressBar } from "@/components/ui";
-import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { listTaxBrackets } from "@/lib/data";
 import { POLICY_KEYS } from "@/lib/policies";
@@ -46,6 +48,22 @@ export default async function StoreSetupPage({
       ) : null}
 
       <StoreAdminPanel store={store} />
+
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>{t("apiKeysTitle")}</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">{t("apiKeysBody")}</p>
+            <CardAction>
+              <Link href={`/app/stores/${store.id}/setup/api-keys`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                {t("apiKeysLink")}
+              </Link>
+            </CardAction>
+          </CardHeader>
+        </section>
+      </Card>
 
       <section className="space-y-4" id="guided-setup">
         <div>
