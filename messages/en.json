@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "Stripe could not be reached. The status below may be out of date.",
     "demoStoreTitle": "Demo store",
     "demoStoreBody": "Checkout is simulated and nobody is charged. Connect Stripe to take real payments.",
-    "backToSettings": "Back to settings"
+    "backToSettings": "Back to settings",
+    "apiKeysTitle": "API keys",
+    "apiKeysBody": "Connect apps and integrations to this store with the Admin API.",
+    "apiKeysLink": "Manage API keys"
   },
   "team": {
     "agencyAdmins": "Agency administrators",
@@ -3771,6 +3774,55 @@
         "title": "Audit log",
         "body": "Setup changes, price changes, approvals, publishing and order routing are recorded with who did what and when."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "API keys",
+    "description": "Keys give your own code access to this store through the Admin API.",
+    "reference": "API reference",
+    "createTitle": "Create a key",
+    "name": "Name",
+    "nameHint": "The app or integration that will use it.",
+    "access": "Access",
+    "resources": {
+      "products": "Products",
+      "collections": "Collections",
+      "orders": "Orders",
+      "customers": "Customers",
+      "discounts": "Discounts",
+      "storefront": "Storefront",
+      "store": "Store details"
+    },
+    "none": "No access",
+    "read": "Read",
+    "write": "Read and write",
+    "create": "Create key",
+    "creating": "Creating…",
+    "created": "Key created",
+    "secretTitle": "Copy the key for {name}",
+    "secretBody": "This is the only time it is shown. Store it somewhere safe.",
+    "copy": "Copy key",
+    "keysTitle": "Keys",
+    "emptyTitle": "No API keys yet",
+    "emptyBody": "Create a key to connect an app or integration.",
+    "columns": {
+      "name": "Name",
+      "access": "Access",
+      "created": "Created",
+      "lastUsed": "Last used",
+      "status": "Status"
+    },
+    "createdBy": "{date} by {name}",
+    "never": "Never",
+    "active": "Active",
+    "revoked": "Revoked",
+    "revoke": "Revoke",
+    "revokeQuestion": "Apps using this key will stop working.",
+    "errors": {
+      "nameRequired": "Give the key a name.",
+      "nameTooLong": "Use {max} characters or fewer.",
+      "scopeRequired": "Give the key access to at least one area.",
+      "duplicate": "This key was already created. If you did not copy it, revoke it and create a new one."
     }
   }
 }

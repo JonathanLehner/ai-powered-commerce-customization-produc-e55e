@@ -1,8 +1,10 @@
 import "server-only";
+import { getLocale } from "next-intl/server";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getStore, getUserById, listMembershipsForUser } from "./data";
+import type { OperationContext } from "./operations/context";
 import { resolveStoreRole, roleCan, type Capability } from "./store-access";
 import type { Store, StoreRole, User } from "./types";
 
@@ -133,6 +135,11 @@ export async function assertStoreAccess(storeId: string, capability: Capability)
   if (denied === "not_a_member") throw new Error("You do not have access to this store.");
   if (denied === "capability") throw new Error("Your role does not allow this action.");
   return access as StoreAccess;
+}
+
+/** What a server action hands a store operation: the store, the signed-in person and their language. */
+export async function operationContext(access: Pick<StoreAccess, "store" | "user">): Promise<OperationContext> {
+  return { store: access.store, actor: { id: access.user.id, name: access.user.name }, locale: await getLocale() };
 }
 
 export async function assertPlatformAdmin(): Promise<User> {

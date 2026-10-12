@@ -141,10 +141,10 @@ export default async function CustomersPage({
                       {formatMoney(customer.lifetimeSpend, customer.currency, locale)}
                     </TableCell>
                     <TableCell className="px-4 py-3 align-top text-inksoft">
-                      {formatDate(customer.firstOrderAt, locale)}
+                      {customer.firstOrderAt ? formatDate(customer.firstOrderAt, locale) : "–"}
                     </TableCell>
                     <TableCell className="px-4 py-3 align-top text-inksoft">
-                      {formatDate(customer.lastOrderAt, locale)}
+                      {customer.lastOrderAt ? formatDate(customer.lastOrderAt, locale) : "–"}
                     </TableCell>
                   </TableRow>
                 ))}

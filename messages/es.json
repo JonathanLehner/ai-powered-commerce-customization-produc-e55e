@@ -1437,7 +1437,10 @@
     "stripeUnreadable": "No se pudo conectar con Stripe. Es posible que el estado no esté actualizado.",
     "demoStoreTitle": "Tienda de demostración",
     "demoStoreBody": "El pago es simulado y no se cobra a nadie. Conecta Stripe para aceptar pagos reales.",
-    "backToSettings": "Volver a la configuración"
+    "backToSettings": "Volver a la configuración",
+    "apiKeysTitle": "Claves de API",
+    "apiKeysBody": "Conecta aplicaciones e integraciones a esta tienda con la API de administración.",
+    "apiKeysLink": "Gestionar claves de API"
   },
   "team": {
     "agencyAdmins": "Administradores de la agencia",
@@ -3771,6 +3774,55 @@
         "title": "Registro de auditoría",
         "body": "Los cambios de configuración y de precios, las aprobaciones, las publicaciones y el enrutamiento de pedidos quedan registrados con quién y cuándo."
       }
+    }
+  },
+  "apiKeys": {
+    "title": "Claves de API",
+    "description": "Las claves permiten que tu propio código acceda a esta tienda mediante la API de administración.",
+    "reference": "Referencia de la API",
+    "createTitle": "Crear una clave",
+    "name": "Nombre",
+    "nameHint": "La aplicación o integración que la usará.",
+    "access": "Acceso",
+    "resources": {
+      "products": "Productos",
+      "collections": "Colecciones",
+      "orders": "Pedidos",
+      "customers": "Clientes",
+      "discounts": "Descuentos",
+      "storefront": "Escaparate",
+      "store": "Datos de la tienda"
+    },
+    "none": "Sin acceso",
+    "read": "Lectura",
+    "write": "Lectura y escritura",
+    "create": "Crear clave",
+    "creating": "Creando…",
+    "created": "Clave creada",
+    "secretTitle": "Copia la clave de {name}",
+    "secretBody": "Solo se muestra esta vez. Guárdala en un lugar seguro.",
+    "copy": "Copiar clave",
+    "keysTitle": "Claves",
+    "emptyTitle": "Aún no hay claves de API",
+    "emptyBody": "Crea una clave para conectar una aplicación o integración.",
+    "columns": {
+      "name": "Nombre",
+      "access": "Acceso",
+      "created": "Creada",
+      "lastUsed": "Último uso",
+      "status": "Estado"
+    },
+    "createdBy": "{date} por {name}",
+    "never": "Nunca",
+    "active": "Activa",
+    "revoked": "Revocada",
+    "revoke": "Revocar",
+    "revokeQuestion": "Las aplicaciones que usan esta clave dejarán de funcionar.",
+    "errors": {
+      "nameRequired": "Ponle un nombre a la clave.",
+      "nameTooLong": "Usa {max} caracteres como máximo.",
+      "scopeRequired": "Da a la clave acceso al menos a un área.",
+      "duplicate": "Esta clave ya se creó. Si no la copiaste, revócala y crea una nueva."
     }
   }
 }
