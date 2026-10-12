@@ -207,6 +207,8 @@ export interface Store {
   inventory?: InventorySettings;
   /** Absent until the tax settings are saved; read it through `storeTax()`. */
   tax?: StoreTaxSettings;
+  /** The header and footer navigation. Absent until a menu is saved; read it through `storeMenus()`. */
+  menus?: StoreMenus;
   setup: StoreSetupState;
   createdAt: string;
   archivedAt: string | null;
@@ -620,6 +622,11 @@ export interface StoreProduct {
   costs: CostBreakdown;
   /** Name, description, option labels and colours in the store's other languages. */
   translations?: FieldTranslations;
+  /**
+   * A gift card the store sells: each variant is one denomination, and paying
+   * for it issues a code by email instead of sending a job to a supplier.
+   */
+  giftCard?: boolean;
   importedBy: string;
   importedAt: string;
   /**
@@ -789,6 +796,11 @@ export interface Order {
    */
   tax?: { mode: TaxMode; inclusive: boolean } | null;
   /**
+   * The gift card the shopper paid part or all of the order with. The amount is
+   * already out of `total` and is held on the card until payment settles.
+   */
+  giftCard?: OrderGiftCard | null;
+  /**
    * The code the shopper redeemed and what it took off, absent on orders placed
    * without one. `amount` is already out of `total`, so a refund capped at the
    * total can never give back more than was charged.
@@ -957,6 +969,12 @@ export interface Customer {
   preferredLanguage: string;
   preferredCurrency: string;
   notes: CustomerNote[];
+  /** The shopper's sign-in account, once they have signed in to this store. */
+  account?: { userId: string; linkedAt: string; lastSignInAt: string } | null;
+  /** Addresses saved from the account page; the default one prefills checkout. */
+  addresses?: CustomerAddress[];
+  /** Whether the shopper agreed to marketing email, and when they last said so. */
+  marketing?: { subscribed: boolean; updatedAt: string } | null;
   anonymisedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -1134,6 +1152,8 @@ export interface Cart {
   currency: string;
   /** The code the shopper entered, re-checked on every render and at payment. */
   discountCode?: string | null;
+  /** The gift card code the shopper entered, re-checked on every render and at payment. */
+  giftCardCode?: string | null;
   /** The last few adds that were folded into an existing line, so a resubmission is not counted twice. */
   addKeys?: string[];
   updatedAt: string;
@@ -1362,6 +1382,157 @@ export interface QuoteRequest {
   declineReason: string | null;
   /** The store product the accepted quote was copied into. */
   storeProductId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ------------------------------------------------- customer accounts */
+
+export interface CustomerAddress {
+  id: string;
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  region?: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+  isDefault: boolean;
+}
+
+/* ------------------------------------------------------------ content */
+
+export type ContentKind = "page" | "post";
+
+/**
+ * A page (About, FAQ, Contact) or a blog post. The body is rich text written in
+ * the editor and kept as sanitised HTML; every shopper-facing field has a
+ * translation per language beside it, keyed by field name.
+ */
+export interface ContentEntry {
+  id: string;
+  storeId: string;
+  kind: ContentKind;
+  title: string;
+  /** The address segment, unique per kind within the store. */
+  handle: string;
+  /** Sanitised HTML. */
+  body: string;
+  /** A short summary for the blog list and previews. */
+  excerpt: string;
+  seoTitle: string;
+  seoDescription: string;
+  coverImageUrl: string | null;
+  status: "draft" | "published";
+  translations?: FieldTranslations;
+  authorName: string;
+  submissionKey?: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Where a menu link goes. */
+export type MenuLinkKind = "home" | "products" | "collection" | "product" | "page" | "blog" | "post" | "url";
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  kind: MenuLinkKind;
+  /** The collection, product, page or post id for those kinds. */
+  targetId: string | null;
+  /** An absolute address for `url`. */
+  url: string | null;
+  /** The label in the store's other languages. */
+  translations?: FieldTranslations;
+}
+
+export interface StoreMenus {
+  header: MenuItem[];
+  footer: MenuItem[];
+  updatedAt: string;
+}
+
+/* --------------------------------------------------------- gift cards */
+
+/** What a gift card took off one order. */
+export interface OrderGiftCard {
+  cardId: string;
+  last4: string;
+  /** In the order currency. */
+  amount: number;
+  /** In the card's own currency, the amount held on the card. */
+  cardAmount: number;
+}
+
+export interface GiftCardTransaction {
+  id: string;
+  /** Negative when spent, positive when issued, given back or topped up. */
+  amount: number;
+  kind: "issued" | "redeemed" | "released" | "adjusted";
+  orderCode: string | null;
+  note: string;
+  actorName: string;
+  at: string;
+}
+
+/**
+ * A gift card. The balance only moves through guarded writes: a checkout holds
+ * the amount it uses (so two baskets cannot both spend the last of it), and the
+ * hold is taken for good when payment lands or given back when it does not.
+ */
+export interface GiftCard {
+  id: string;
+  storeId: string;
+  /** Upper-case, grouped in fours, unique within the store. */
+  code: string;
+  last4: string;
+  currency: string;
+  initialValue: number;
+  balance: number;
+  status: "active" | "disabled";
+  source: "purchase" | "manual";
+  /** The order that bought it, for purchased cards. */
+  orderId: string | null;
+  orderCode: string | null;
+  /** The order line it was bought on, so a webhook delivered twice issues it once. */
+  orderItemKey: string | null;
+  recipientEmail: string;
+  recipientName: string;
+  note: string;
+  /** Amounts held by checkouts in progress. */
+  holds: { orderId: string; amount: number }[];
+  transactions: GiftCardTransaction[];
+  expiresAt: string | null;
+  createdBy: string;
+  submissionKey?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ------------------------------------------------------------ reviews */
+
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
+/** A verified buyer's review of a product, shown once the store approves it. */
+export interface ProductReview {
+  id: string;
+  storeId: string;
+  productId: string;
+  productName: string;
+  orderId: string;
+  orderCode: string;
+  /** As the shopper wants it shown: first name and initial. */
+  authorName: string;
+  email: string;
+  rating: number;
+  title: string;
+  body: string;
+  locale: string;
+  status: ReviewStatus;
+  moderatedBy: string | null;
+  moderatedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

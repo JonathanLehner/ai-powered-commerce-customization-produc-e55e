@@ -112,6 +112,19 @@ function database(): Promise<Db> {
   return pending;
 }
 
+/**
+ * The driver client of this request's connection, and the database name, for
+ * Auth.js's MongoDB adapter, which reads and writes the shopper sign-in
+ * records itself over the same connection.
+ */
+export async function mongoClient() {
+  return (await database()).client;
+}
+
+export function mongoDatabaseName(): string {
+  return databaseName(requestContext());
+}
+
 async function collection(name: string) {
   return (await database()).collection(name);
 }

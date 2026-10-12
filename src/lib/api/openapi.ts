@@ -128,7 +128,7 @@ export function openApiDocument() {
       title: "Parcelith Admin API",
       version: "1.0.0",
       description: [
-        "Run a Parcelith store from your own code: its products, variants, collections, orders, customers, discounts, storefront, translations and settings.",
+        "Run a Parcelith store from your own code: its products, variants, collections, orders, customers, discounts, gift cards, reviews, pages, blog posts, menus, storefront, translations and settings.",
         "",
         "Create a key in the store's Settings → API keys and send it as `Authorization: Bearer <key>`. A key works for one store and carries read or write access per area; write includes read.",
         "",

@@ -133,7 +133,8 @@ async function settledAmounts(
     amounts.taxRate = 0;
   }
   if (Object.keys(amounts).length === 0) return null;
-  if (session.amount_total !== null) amounts.total = session.amount_total;
+  // Checkout charged what the gift card left to pay; the order's total is the whole of it.
+  if (session.amount_total !== null) amounts.total = session.amount_total + (order.giftCard?.amount ?? 0);
   return amounts;
 }
 

@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { readCurrency, removeCartItem, updateCartItem } from "@/app/actions/shop";
 import { DiscountEntry } from "@/components/DiscountEntry";
+import { GiftCardEntry } from "@/components/GiftCardEntry";
+import { getGiftCardByCode } from "@/lib/gift-card-data";
+import { basketGiftCardCover, giftCardRefusal } from "@/lib/gift-cards";
+import { paymentMode } from "@/lib/payment-mode";
+import { convert } from "@/lib/pricing";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { EmptyState } from "@/components/ui";
@@ -49,6 +54,11 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   const country = zones.length === 0 || shippable.includes(home) ? home : shippable[0];
   const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, shippingOption, stripeTax, taxRows, total } =
     await basketTotals(store, items, currency, basket?.discountCode ?? null, basket ?? undefined, { zones, country });
+  const giftCard = cart?.giftCardCode ? await getGiftCardByCode(store.id, cart.giftCardCode) : null;
+  const giftUsable = giftCard && !giftCardRefusal(giftCard) ? giftCard : null;
+  const giftCover = giftUsable
+    ? basketGiftCardCover(giftUsable, { total, shipping, stripeTax }, currency, paymentMode(store) === "stripe" ? "stripe" : "demo")
+    : null;
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -174,6 +184,18 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                 <dt className="font-semibold text-foreground">{t("basket.total")}</dt>
                 <dd className="text-base font-semibold tabular-nums text-foreground">{money(total, currency)}</dd>
               </div>
+              {giftUsable && giftCover && giftCover.amount > 0 ? (
+                <>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("giftCard.row", { last4: giftUsable.last4 })}</dt>
+                    <dd className="tabular-nums text-emerald-700">− {money(giftCover.amount, currency)}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="font-semibold text-foreground">{t("giftCard.toPay")}</dt>
+                    <dd className="text-base font-semibold tabular-nums text-foreground">{money(total - giftCover.amount, currency)}</dd>
+                  </div>
+                </>
+              ) : null}
             </dl>
             <DiscountEntry
               storeId={store.id}
@@ -183,6 +205,11 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                   ? t(`discount.${discountRefusal}`, { amount: money(discountMinimum, currency) })
                   : null
               }
+            />
+            <GiftCardEntry
+              storeId={store.id}
+              card={giftCard ? { last4: giftCard.last4, balance: money(convert(giftCard.balance, giftCard.currency, currency), currency) } : null}
+              note={giftCard && !giftUsable ? t("giftCard.notUsable") : null}
             />
             <Link
               href={`${base}/checkout`}

@@ -3,7 +3,18 @@
  * free of server imports, so the key form, the API and the check script all
  * read the same list.
  */
-export const API_RESOURCES = ["products", "collections", "orders", "customers", "discounts", "storefront", "store"] as const;
+export const API_RESOURCES = [
+  "products",
+  "collections",
+  "orders",
+  "customers",
+  "discounts",
+  "gift_cards",
+  "reviews",
+  "content",
+  "storefront",
+  "store",
+] as const;
 
 export type ApiResource = (typeof API_RESOURCES)[number];
 export type ApiAccess = "read" | "write";
