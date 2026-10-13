@@ -8,14 +8,13 @@ import { addToCart, attachLinePreview, type AddToCartState } from "@/app/actions
 import { useBasket } from "@/components/BasketSheet";
 import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
-import { placementBox } from "@/lib/artwork";
+import { placementBox, requiredDpi as minimumDpi } from "@/lib/artwork";
 import {
-  canPreview,
   fileTooLargeIssue,
+  formatNotAcceptedIssue,
   shopperAccept,
   shopperArtworkIssues,
   shopperFormats,
-  unreadableFormatIssue,
   type ShopperArtworkIssue,
 } from "@/lib/artwork-shopper";
 import { formatMinorUnits } from "@/i18n/format";
@@ -171,7 +170,7 @@ export function ProductPurchase({
   const errors = issues.filter((i) => i.severity === "error");
   const warnings = issues.filter((i) => i.severity === "warning");
   const box = liveArtwork && area ? placementBox(liveArtwork, area) : null;
-  const requiredDpi = area && rules ? Math.max(area.minDpi, rules.minDpi) : 0;
+  const requiredDpi = area && rules ? minimumDpi(area, rules) : 0;
   const blocked = errors.length > 0;
 
   function movePlacement(patch: Partial<ArtworkPlacement>) {
@@ -217,10 +216,11 @@ export function ProductPurchase({
     // Checks that need no upload run first, so a file that can never work does
     // not cost the shopper a round trip before it is refused.
     if (rules) {
-      if (!canPreview(file.type)) {
+      const formatIssue = formatNotAcceptedIssue(file.type, rules, artworkCopy);
+      if (formatIssue) {
         setArtworkPreview(null);
         setArtworkStatus("idle");
-        setFileIssues([unreadableFormatIssue(file.type, rules, artworkCopy)]);
+        setFileIssues([formatIssue]);
         return;
       }
       if (file.size > rules.maxFileMb * 1024 * 1024) {
