@@ -5,7 +5,10 @@
   "compatibility_date": "2026-07-28",
   "compatibility_flags": [
     "nodejs_compat",
-    "nodejs_compat_populate_process_env"
+    "nodejs_compat_populate_process_env",
+    // ClawCorp Mail lives on the same clawcorp.ai zone; without this a fetch to
+    // it skips that Worker's route and goes to the zone's origin instead.
+    "global_fetch_strictly_public"
   ],
   "assets": {
     "directory": ".open-next/assets",
