@@ -1,7 +1,8 @@
 /**
  * Creates the indexes the data layer relies on (`src/lib/db-indexes.ts`). The
- * app also does this on the first connection of each Worker isolate; creating
- * an index that already exists is a no-op, so this is safe to re-run.
+ * app also does this from a Worker isolate's first connection whenever the
+ * index list has changed; creating an index that already exists is a no-op, so
+ * this is safe to re-run.
  *
  * Run: npm run create-indexes                      # MONGODB_DB from .env.local
  *      MONGODB_DB=parcelith npm run create-indexes # production

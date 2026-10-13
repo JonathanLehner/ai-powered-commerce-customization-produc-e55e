@@ -66,7 +66,10 @@
     "webhook-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/webhook-check.mjs",
     "order-ops-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/order-ops-check.mjs",
     "backfill-share-images": "node --env-file-if-exists=.env.local scripts/backfill-share-images.mjs",
-    "store-list-check": "node --experimental-strip-types scripts/store-list-check.mjs"
+    "store-list-check": "node --experimental-strip-types scripts/store-list-check.mjs",
+    "client-messages-check": "node --experimental-strip-types scripts/client-messages-check.mjs",
+    "payload-check": "node scripts/payload-check.mjs",
+    "metrics-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/metrics-check.mjs"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.3",

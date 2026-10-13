@@ -12,8 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAgency, listMemberships, listUsers } from "@/lib/data";
-import { requireStoreAccess } from "@/lib/session";
+import { listMemberships, listUsers } from "@/lib/data";
+import { getAgencyForRender, requireStoreAccess } from "@/lib/session";
 import { formatDate } from "@/lib/util";
 import { InviteForm } from "./InviteForm";
 import { MemberRoleForm, RemoveMemberForm } from "./MemberActions";
@@ -27,7 +27,7 @@ export default async function TeamPage({ params }: { params: Promise<{ storeId: 
   const [memberships, users, agency, headerList] = await Promise.all([
     listMemberships(storeId),
     listUsers(),
-    getAgency(store.agencyId),
+    getAgencyForRender(store.agencyId),
     headers(),
   ]);
 

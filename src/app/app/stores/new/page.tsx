@@ -5,10 +5,10 @@ import { AppHeader } from "@/components/AppHeader";
 import { Badge, Breadcrumbs, Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { agencyStoreAllowance, getAgency, listAgencies } from "@/lib/data";
+import { agencyStoreAllowance, listAgencies } from "@/lib/data";
 import { planStoresText, storeLimitText, storeUsageText } from "@/i18n/plan-copy";
 import { billingPending } from "@/lib/billing";
-import { accessibleStores, requireUser } from "@/lib/session";
+import { accessibleStores, getAgencyForRender, requireUser } from "@/lib/session";
 import { formatDate } from "@/lib/util";
 import { ArchiveStoreForm } from "./ArchiveStoreForm";
 import { NewStoreForm } from "./NewStoreForm";
@@ -22,7 +22,7 @@ export default async function NewStorePage({ searchParams }: { searchParams: Pro
   // together; the plan usage needs the agency's plan and follows.
   const [stores, agency] = await Promise.all([
     accessibleStores(user),
-    user.agencyId ? getAgency(user.agencyId) : listAgencies().then((all) => all[0] ?? null),
+    user.agencyId ? getAgencyForRender(user.agencyId) : listAgencies().then((all) => all[0] ?? null),
   ]);
   if (billingPending(agency)) redirect("/app/billing");
   const allowance = agency ? await agencyStoreAllowance(agency) : null;

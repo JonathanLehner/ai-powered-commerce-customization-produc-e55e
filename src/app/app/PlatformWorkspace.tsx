@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAgo } from "@/i18n/format";
 import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
-import { listAgencies, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
-import { setupProgress, storeMetrics, type StoreMetrics } from "@/lib/metrics";
+import { listAgencies, listAudit } from "@/lib/data";
+import { setupProgress, type StoreMetrics } from "@/lib/metrics";
+import { loadStoreMetrics } from "@/lib/metrics-data";
 import { planFor } from "@/lib/plans";
 import { accessibleStores, roleCan, type Capability } from "@/lib/session";
 import { THEMES, type Agency, type Store, type User } from "@/lib/types";
@@ -59,22 +60,14 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
     return role ? roleCan(role, capability) : false;
   };
 
-  // One read for every store's orders and one for their products, as on the
-  // agency dashboard — platform oversight lists every store on the platform, so
-  // a pair of reads per store was the slowest page in the app.
-  const storeIds = stores.map(({ store }) => store.id);
-  const [ordersByStore, productsByStore] = await Promise.all([
-    listOrdersByStore(storeIds),
-    listStoreProductsByStore(storeIds),
-  ]);
+  // Every store's figures added up in the database, as on the agency
+  // dashboard: platform oversight lists every store on the platform, so reading
+  // their orders into the Worker made this the slowest page in the app.
+  const metricsByStore = await loadStoreMetrics(stores.map(({ store }) => store));
 
   const rows: Row[] = stores.map(({ store }) => ({
     store,
-    metrics: storeMetrics(
-      ordersByStore.get(store.id) ?? [],
-      productsByStore.get(store.id) ?? [],
-      store.defaultCurrency,
-    ),
+    metrics: metricsByStore.get(store.id)!,
   }));
 
   // Every agency gets a section, including one that has not opened a store yet,

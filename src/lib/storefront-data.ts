@@ -42,7 +42,8 @@ export interface Basket {
 export interface StorefrontData {
   /** Without `policies`: they are read per language through `storePolicies`. */
   store: Store;
-  storefront: Storefront | null;
+  /** Without the draft and the version history, which only the editor reads. */
+  storefront: ShopperStorefront | null;
   /** In the order the team arranged them. */
   collections: ProductCollection[];
   basket: Basket | null;
@@ -50,6 +51,8 @@ export interface StorefrontData {
   /** What the header and footer menus link to: published pages and posts, and the products named in a menu. */
   menuLinks: MenuLinkRecords;
 }
+
+export type ShopperStorefront = Omit<Storefront, "draft" | "history">;
 
 export interface MenuLinkRecords {
   entries: Pick<ContentEntry, "id" | "kind" | "handle">[];
@@ -68,7 +71,7 @@ const WITHOUT_ID = { $project: { _id: 0 } };
 
 type BasketRow = Cart & { products: StoreProduct[]; taxBrackets: TaxBracket[]; discount: DiscountCode[] };
 type StoreRow = Store & {
-  storefront: Storefront[];
+  storefront: ShopperStorefront[];
   collections: ProductCollection[];
   shippingZones: ShippingZone[];
   menuEntries: MenuLinkRecords["entries"];
@@ -87,7 +90,9 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
         from: COLLECTIONS.storefronts,
         localField: "id",
         foreignField: "storeId",
-        pipeline: [{ $limit: 1 }, WITHOUT_ID],
+        // Shoppers see the published layout; the draft and the version history
+        // are the editor's, and the history alone is most of the document.
+        pipeline: [{ $limit: 1 }, { $project: { _id: 0, draft: 0, history: 0 } }],
         as: "storefront",
       },
     },

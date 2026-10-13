@@ -3,10 +3,10 @@ import { getLocale } from "next-intl/server";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getStore, getUserById, listMembershipsForUser } from "./data";
+import { getAgency, getStore, getUserById, listMembershipsForUser } from "./data";
 import type { OperationContext } from "./operations/context";
 import { resolveStoreRole, roleCan, type Capability } from "./store-access";
-import type { Store, StoreRole, User } from "./types";
+import type { Membership, Store, StoreRole, User } from "./types";
 
 export { SHOPPER_COOKIE } from "./storefront-data";
 
@@ -92,15 +92,11 @@ type AccessDenial = "signed_out" | "no_store" | "not_a_member" | "capability";
 async function loadStoreAccess(
   storeId: string,
   capability: Capability,
+  records: (storeId: string) => Promise<StoreRecords | null> = readStoreRecords,
 ): Promise<{ access: StoreAccess; denied: null } | { access: StoreAccess | null; denied: AccessDenial }> {
-  const userId = await sessionUserId();
-  if (!userId) return { access: null, denied: "signed_out" };
-
-  const [user, store, memberships] = await Promise.all([
-    getUserById(userId),
-    getStore(storeId),
-    listMembershipsForUser(userId),
-  ]);
+  const read = await records(storeId);
+  if (!read) return { access: null, denied: "signed_out" };
+  const { user, store, memberships } = read;
   if (!user) return { access: null, denied: "signed_out" };
   if (!store) return { access: null, denied: "no_store" };
 
@@ -118,8 +114,28 @@ async function loadStoreAccess(
   return { access, denied: null };
 }
 
+type StoreRecords = { user: User | null; store: Store | null; memberships: Membership[] };
+
+async function readStoreRecords(storeId: string): Promise<StoreRecords | null> {
+  const userId = await sessionUserId();
+  if (!userId) return null;
+  const [user, store, memberships] = await Promise.all([
+    getSessionUser(),
+    getStore(storeId),
+    listMembershipsForUser(userId),
+  ]);
+  return { user, store, memberships };
+}
+
+/**
+ * The same reads, memoised for one render: a store page's layout and the page
+ * itself both check access. Server actions read afresh, since they may be
+ * about to change these records.
+ */
+const renderStoreRecords = cache(readStoreRecords);
+
 export async function requireStoreAccess(storeId: string, capability: Capability = "store.view"): Promise<StoreAccess> {
-  const { access, denied } = await loadStoreAccess(storeId, capability);
+  const { access, denied } = await loadStoreAccess(storeId, capability, renderStoreRecords);
   if (denied === "signed_out") redirect("/login");
   if (denied === "no_store") redirect("/app");
   if (denied === "not_a_member") redirect("/app?denied=1");
@@ -156,8 +172,19 @@ export interface AccessibleStore {
   viaPlatform: boolean;
 }
 
-/** Stores accessible to a user, used by the dashboard and the store switcher. */
-export async function accessibleStores(user: User): Promise<AccessibleStore[]> {
+/**
+ * The user's agency, memoised per render: the workspace layout's billing
+ * banners and the page below it both want it.
+ */
+export const getAgencyForRender = cache((agencyId: string) => getAgency(agencyId));
+
+/**
+ * Stores accessible to a user, used by the dashboard and the store switcher.
+ * Memoised per render, since a store page's header and the page itself both ask.
+ */
+export const accessibleStores = cache(readAccessibleStores);
+
+async function readAccessibleStores(user: User): Promise<AccessibleStore[]> {
   const { getStoresByIds, listAllStores, listStoresForAgency } = await import("./data");
   if (user.platformRole === "platform_admin") {
     const stores = await listAllStores();

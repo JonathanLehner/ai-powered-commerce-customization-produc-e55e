@@ -224,8 +224,9 @@ all work on `parcelith_dev`, so a test run never writes into live data. On
 Workers the name is read from the Worker's own bindings rather than
 `process.env`, because OpenNext copies the build machine's `.env*` files into
 the bundle. A client lives for one request (a Worker socket cannot be shared
-between requests), and the indexes in `src/lib/db-indexes.ts` are created on
-an isolate's first connection or with `npm run create-indexes`.
+between requests). The indexes in `src/lib/db-indexes.ts` are created with
+`npm run create-indexes`, and by the first isolate that finds the list changed
+since they were last put in place (the version is recorded in `app_state`).
 
 `CLAWCORP_API_KEY` authenticates the ClawCorp platform services used from server
 code only: text generation, and the asset upload endpoint that stores logos,
@@ -479,6 +480,23 @@ alone, so it is safe to re-run.
   cookie anyone can type. `/api/auth/*` is the one path `src/proxy.ts`
   skips, since Auth.js owns it through a catch-all and it is deliberately absent
   from the route table.
+- Page weight and Worker memory. A Worker isolate has 128 MB, and the bundled
+  server code alone is some 40 MB of it, so:
+  - `scripts/ascii-worker.mjs` runs as wrangler's build step and escapes the
+    handful of non-ASCII characters in the server code; one of them is enough
+    for V8 to hold the whole source as two bytes per character. wrangler also
+    minifies the bundle (`wrangler.jsonc`).
+  - The browser gets only the messages its client components read: the shell's
+    from `WorkspaceDocument`, and each section's from `ClientMessages` in its
+    layout (`src/i18n/workspace-messages.ts`, `npm run client-messages-check`).
+  - Client components are handed the fields they show (the workspace header gets
+    names and roles, not user and store records), and store figures are added
+    up in MongoDB (`src/lib/metrics-data.ts`, `npm run metrics-check`) instead
+    of reading every order.
+  - `npm run payload-check` signs in as the demo agency director, loads the
+    main workspace and storefront pages against the deployed site (or
+    `BASE_URL`), prints response times and fails when a page is not a 200 or
+    its HTML is over budget.
 - All platform calls live in `src/lib/platform.ts` and are server-only. The
   platform DB accepts `sort`/`limit` but does not apply them, so ordering and
   truncation happen in that wrapper.

@@ -13,8 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { listGiftCampaigns, listOrders, listStoreProducts } from "@/lib/data";
-import { storeMetrics } from "@/lib/metrics";
+import { listGiftCampaigns, listOrderRows } from "@/lib/data";
+import { loadOrderMetrics } from "@/lib/metrics-data";
 import {
   filterOrders,
   hasOrderFilters,
@@ -54,12 +54,13 @@ export default async function OrdersPage({
   const { campaign, view } = filters;
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
 
-  const [orders, products, campaigns] = await Promise.all([
-    listOrders(storeId),
-    listStoreProducts(storeId),
+  // The figures are added up in the database; the table reads the orders
+  // without their event history and line customisations.
+  const [orders, metrics, campaigns] = await Promise.all([
+    listOrderRows(storeId),
+    loadOrderMetrics([storeId]).then((byStore) => byStore.get(storeId)!),
     listGiftCampaigns(storeId),
   ]);
-  const metrics = storeMetrics(orders, products, store.defaultCurrency);
 
   // Gift campaigns sit in the same queue as ordinary orders, grouped so
   // fulfilment and exceptions can be worked one programme at a time.

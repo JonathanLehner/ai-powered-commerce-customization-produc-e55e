@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ArchivedStores } from "@/app/app/ArchivedStores";
 import { PlatformWorkspace } from "@/app/app/PlatformWorkspace";
 import { RevenueSparkline } from "@/app/app/RevenueSparkline";
-import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
+import { ClientMessages } from "@/components/ClientMessages";
 import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
 import { RangeControls } from "@/components/RangeControls";
 import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
@@ -18,13 +18,14 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from
 import { parseRange, rangeQuery } from "@/lib/analytics";
 import { loadSparklines } from "@/lib/analytics-data";
 import { recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
-import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
+import { listAudit } from "@/lib/data";
 import { addBreakdowns } from "@/lib/attention";
-import { setupProgress, storeMetrics } from "@/lib/metrics";
+import { setupProgress } from "@/lib/metrics";
+import { loadStoreMetrics } from "@/lib/metrics-data";
 import { storeAllowance } from "@/lib/plans";
 import { redirect } from "next/navigation";
 import { billingPending } from "@/lib/billing";
-import { accessibleStores, requireUser, roleCan, type Capability } from "@/lib/session";
+import { accessibleStores, getAgencyForRender, requireUser, roleCan, type Capability } from "@/lib/session";
 import { THEMES } from "@/lib/types";
 import { paymentsReady } from "@/lib/payment-mode";
 
@@ -62,13 +63,19 @@ export default async function AgencyDashboard({
   const range = parseRange(query, now);
   // A platform administrator runs no store, so they get the oversight view:
   // grouped by agency, nothing added up across them.
-  if (user.platformRole === "platform_admin") return <PlatformWorkspace user={user} denied={denied} />;
+  if (user.platformRole === "platform_admin") {
+    return (
+      <ClientMessages section="dashboard">
+        <PlatformWorkspace user={user} denied={denied} />
+      </ClientMessages>
+    );
+  }
 
   // The store list, the agency and the activity feed only depend on the user,
   // so they are read together instead of one round trip after another.
   const [stores, agency, audit] = await Promise.all([
     accessibleStores(user),
-    user.agencyId ? getAgency(user.agencyId) : Promise.resolve(null),
+    user.agencyId ? getAgencyForRender(user.agencyId) : Promise.resolve(null),
     listAudit({ agencyId: user.agencyId ?? "__none__" }, recentAuditReadSize(ACTIVITY_ROWS)),
   ]);
   if (billingPending(agency)) redirect("/app/billing");
@@ -83,16 +90,12 @@ export default async function AgencyDashboard({
     return role ? roleCan(role, capability) : false;
   };
 
-  // Orders and store products for every store on the page, one read each.
-  // Read per store it was two round trips times the store count — fifty fetches
-  // for an agency with twenty-five clients — and the platform runs only about
-  // six at a time, so they queued and the page took twenty seconds to render.
-  const storeIds = stores.map(({ store }) => store.id);
-  // The sparklines come from the same aggregation as each store's Analytics
-  // page, for every live store in one read.
-  const [ordersByStore, productsByStore, sparklines] = await Promise.all([
-    listOrdersByStore(storeIds),
-    listStoreProductsByStore(storeIds),
+  // Every store's order and product figures, added up in the database in one
+  // read each rather than read order by order into the Worker. The sparklines
+  // come from the same aggregation as each store's Analytics page, for every
+  // live store in one read.
+  const [metricsByStore, sparklines] = await Promise.all([
+    loadStoreMetrics(stores.map(({ store }) => store)),
     loadSparklines(
       stores.filter(({ store }) => store.status === "active").map(({ store }) => store),
       range,
@@ -103,11 +106,7 @@ export default async function AgencyDashboard({
     store,
     role,
     viaPlatform,
-    metrics: storeMetrics(
-      ordersByStore.get(store.id) ?? [],
-      productsByStore.get(store.id) ?? [],
-      store.defaultCurrency,
-    ),
+    metrics: metricsByStore.get(store.id)!,
   }));
 
   const active = rows.filter((r) => r.store.status === "active");
@@ -133,7 +132,7 @@ export default async function AgencyDashboard({
   const publishedProducts = active.reduce((sum, r) => sum + r.metrics.publishedProducts, 0);
 
   return (
-    <>
+    <ClientMessages section="dashboard">
       <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
         <PageHeader
@@ -375,36 +374,17 @@ export default async function AgencyDashboard({
             {/* Collapsed by default: the live stores above are what the page is
                 for, and an agency that has run for a while has more archived
                 than active. */}
-            <ArchivedStores count={archived.length}>
-              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-                {archived.map(({ store, metrics }) => (
-                  <li key={store.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground">{store.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {t("archivedRow", {
-                          client: store.clientName,
-                          count: metrics.orderCount,
-                          amount: money(metrics.grossSales, store.defaultCurrency),
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button asChild size="sm" variant="ghost">
-                        <Link href={`/app/stores/${store.id}`}>{t("viewRecords")}</Link>
-                      </Button>
-                      <form action={setStoreStatus}>
-                        <input type="hidden" name="storeId" value={store.id} />
-                        <input type="hidden" name="status" value="active" />
-                        <Button type="submit" size="sm" variant="outline">
-                          {t("restore")}
-                        </Button>
-                      </form>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </ArchivedStores>
+            <ArchivedStores
+              stores={archived.map(({ store, metrics }) => ({
+                id: store.id,
+                name: store.name,
+                detail: t("archivedRow", {
+                  client: store.clientName,
+                  count: metrics.orderCount,
+                  amount: money(metrics.grossSales, store.defaultCurrency),
+                }),
+              }))}
+            />
           </section>
         ) : null}
 
@@ -432,6 +412,6 @@ export default async function AgencyDashboard({
           )}
         </section>
       </div>
-    </>
+    </ClientMessages>
   );
 }

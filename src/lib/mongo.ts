@@ -1,6 +1,6 @@
 import "server-only";
 import { MongoClient, type Db, type Document, type Filter, type Sort } from "mongodb";
-import { ensureIndexes } from "./db-indexes";
+import { ensureIndexes, INDEX_VERSION } from "./db-indexes";
 
 /**
  * The app's own MongoDB, reached with the official driver over MONGODB_URI.
@@ -12,7 +12,13 @@ import { ensureIndexes } from "./db-indexes";
  */
 const PRODUCTION_DB = "parcelith";
 
-type FindOptions = { sort?: Sort; limit?: number; skip?: number };
+type FindOptions = {
+  sort?: Sort;
+  limit?: number;
+  skip?: number;
+  /** Fields to leave out (`0`) or to keep (`1`); `_id` is always left out. */
+  projection?: Record<string, 0 | 1>;
+};
 
 /**
  * On Cloudflare Workers a socket belongs to the request that opened it, and
@@ -40,8 +46,10 @@ const perRequest = ((globalThis as Record<symbol, unknown>)[PER_REQUEST] ??= new
   Promise<Db>
 >;
 let perProcess: Promise<Db> | null = null;
-/** Set once this isolate has created the indexes, so later requests skip it. */
-let indexesEnsured = false;
+/** Set once this isolate has checked the indexes, so later requests skip it. */
+let indexesChecked = false;
+/** Where the version of the index list last put in place is recorded. */
+const APP_STATE = "app_state";
 
 function requestContext(): RequestContext | undefined {
   return (globalThis as Record<symbol, RequestContext | undefined>)[CONTEXT];
@@ -63,17 +71,36 @@ async function connect(context: RequestContext | undefined): Promise<Db> {
   if (!uri) throw new Error("MONGODB_URI is not configured");
   // One connection: the client lives for a single request, and a second
   // connection costs a TLS handshake and authentication — several times what a
-  // query waiting its turn on the first one costs.
-  const client = new MongoClient(uri, { maxPoolSize: 1 });
+  // query waiting its turn on the first one costs. Polling the replica set
+  // rather than streaming from it saves a further connection per member,
+  // which a client that lives for one request never needs.
+  const client = new MongoClient(uri, { maxPoolSize: 1, serverMonitoringMode: "poll" });
   await client.connect();
   const db = client.db(databaseName(context));
-  if (!indexesEnsured) {
-    indexesEnsured = true;
+  if (!indexesChecked) {
+    indexesChecked = true;
     // Off the request's critical path: kept alive by waitUntil on Workers.
-    const pending = createIndexes(uri, databaseName(context));
+    const pending = createIndexesIfChanged(db, uri, databaseName(context));
     context?.ctx?.waitUntil(pending);
   }
   return db;
+}
+
+/**
+ * Creates the indexes when the list in `db-indexes.ts` has changed since they
+ * were last put in place. Isolates come and go all the time on Workers, and
+ * running some ninety createIndex calls on a second connection for each new
+ * one cost seconds of the Worker's time per request; the version check is one
+ * small read on the request's own connection.
+ */
+async function createIndexesIfChanged(db: Db, uri: string, name: string): Promise<void> {
+  try {
+    const state = await db.collection(APP_STATE).findOne({ id: "indexes" }, WITHOUT_ID);
+    if (state?.version === INDEX_VERSION) return;
+  } catch {
+    // Unknown, so create them; doing so again is harmless.
+  }
+  await createIndexes(uri, name);
 }
 
 /**
@@ -82,11 +109,13 @@ async function connect(context: RequestContext | undefined): Promise<Db> {
  * seconds.
  */
 async function createIndexes(uri: string, name: string): Promise<void> {
-  const client = new MongoClient(uri, { maxPoolSize: 1 });
+  const client = new MongoClient(uri, { maxPoolSize: 1, serverMonitoringMode: "poll" });
   try {
     await client.connect();
-    const { failed } = await ensureIndexes(client.db(name));
+    const db = client.db(name);
+    const { failed } = await ensureIndexes(db);
     if (failed.length > 0) console.error("Some indexes could not be created", failed);
+    else await db.collection(APP_STATE).updateOne({ id: "indexes" }, { $set: { version: INDEX_VERSION } }, { upsert: true });
   } catch (error) {
     console.error("Indexes could not be created", error);
   } finally {
@@ -143,7 +172,8 @@ function copy(document: Record<string, unknown>): Document {
 
 export const db = {
   async find<T>(name: string, filter: Record<string, unknown> = {}, options: FindOptions = {}): Promise<T[]> {
-    let cursor = (await collection(name)).find(filter as Filter<Document>, WITHOUT_ID);
+    const projection = options.projection ? { projection: { ...options.projection, _id: 0 } } : WITHOUT_ID;
+    let cursor = (await collection(name)).find(filter as Filter<Document>, projection);
     if (options.sort) cursor = cursor.sort(options.sort);
     if (options.skip) cursor = cursor.skip(options.skip);
     if (options.limit) cursor = cursor.limit(options.limit);

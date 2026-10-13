@@ -2,12 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ai-powered-commerce-customization-produc-e55e",
   "main": ".open-next/worker.js",
+  "minify": true,
   "compatibility_date": "2026-07-28",
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_compat_populate_process_env",
     "global_fetch_strictly_public"
   ],
+  "build": {
+    "command": "node scripts/ascii-worker.mjs"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

@@ -1,8 +1,9 @@
 /**
  * The indexes the data layer's queries rely on, one entry per collection.
  *
- * Shared by the app, which creates them on the first connection of each Worker
- * isolate, and by `scripts/create-indexes.mjs`. Creating an index that already
+ * Shared by the app, which creates them from a Worker isolate's first
+ * connection whenever this list has changed (see `INDEX_VERSION`), and by
+ * `scripts/create-indexes.mjs`. Creating an index that already
  * exists with the same keys and options is a no-op, so running either as often
  * as it likes is safe.
  *
@@ -120,6 +121,16 @@ interface IndexTarget {
     createIndex(key: Record<string, 1 | -1>, options: { unique?: boolean; expireAfterSeconds?: number }): Promise<string>;
   };
 }
+
+/**
+ * Changes whenever an index is added, removed or altered above. The app
+ * records it once the indexes are in place and checks it before creating them.
+ */
+export const INDEX_VERSION = (() => {
+  let hash = 0x811c9dc5;
+  for (const char of JSON.stringify(INDEXES)) hash = Math.imul(hash ^ char.charCodeAt(0), 0x01000193) >>> 0;
+  return hash.toString(16);
+})();
 
 /**
  * Creates every index, one at a time per collection and all collections at once.

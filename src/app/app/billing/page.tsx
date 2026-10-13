@@ -10,12 +10,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { TRIAL_DAYS, billingPending, onTrial } from "@/lib/billing";
-import { getAgency } from "@/lib/data";
 import { nextInvoice } from "@/lib/stripe";
 import type { Agency, User } from "@/lib/types";
 import { formatMoney } from "@/lib/util";
 import { PLANS, planPrice, type BillingCycle } from "@/lib/plans";
-import { accessibleStores, requireUser } from "@/lib/session";
+import { accessibleStores, getAgencyForRender, requireUser } from "@/lib/session";
 
 const CYCLES: BillingCycle[] = ["monthly", "yearly"];
 
@@ -32,7 +31,7 @@ export default async function BillingPage({
 }) {
   const { error, cancelled } = await searchParams;
   const user = await requireUser();
-  const agency = user.agencyId ? await getAgency(user.agencyId) : null;
+  const agency = user.agencyId ? await getAgencyForRender(user.agencyId) : null;
   if (!agency) redirect("/app");
   if (!billingPending(agency)) return <PlanBilling user={user} agency={agency} error={error} />;
   if (!agency.billing) redirect("/app");

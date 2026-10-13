@@ -16,10 +16,10 @@ import {
   AUDIT_VIEW_CAP,
   type AuditParams,
 } from "@/lib/audit-log";
-import { getAgency, listSuppliers, loadAuditWindow } from "@/lib/data";
+import { listSuppliers, loadAuditWindow } from "@/lib/data";
 import { auditExportText } from "@/i18n/plan-copy";
 import { planFor } from "@/lib/plans";
-import { requireStoreAccess, roleCan } from "@/lib/session";
+import { getAgencyForRender, requireStoreAccess, roleCan } from "@/lib/session";
 import type { Capability } from "@/lib/store-access";
 import type { AuditCategory } from "@/lib/types";
 import { formatDateTime } from "@/lib/util";
@@ -52,7 +52,7 @@ export default async function ActivityPage({
   const filters = parseAuditFilters(await searchParams);
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
   const can = (capability: Capability) => roleCan(role, capability);
-  const agency = await getAgency(store.agencyId);
+  const agency = await getAgencyForRender(store.agencyId);
   const plan = planFor(agency?.plan);
   // Recorded fields are stored as the code wrote them, so the supplier names and
   // the store's currency are what turns them back into a readable line.

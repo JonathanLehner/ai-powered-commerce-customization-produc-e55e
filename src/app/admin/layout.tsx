@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const t = await getTranslations("shell");
 
   return (
-    <WorkspaceDocument>
+    <WorkspaceDocument section="admin">
       <div data-surface="workspace" className="flex min-h-full flex-col bg-muted">
         <header className="sticky top-0 z-40 border-b border-border bg-background">
           <div className="mx-auto flex h-14 w-full max-w-[92rem] items-center gap-2 px-4 sm:gap-3 sm:px-6">

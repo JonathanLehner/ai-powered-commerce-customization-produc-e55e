@@ -72,6 +72,145 @@ export function storeMetrics(orders: Order[], products: StoreProduct[], currency
   };
 }
 
+/* ------------------------------------------------- the same, added up in MongoDB */
+
+/** Every `StoreMetrics` figure that comes from the store's orders. */
+export type OrderMetrics = Omit<StoreMetrics, "currency" | "publishedProducts" | "draftProducts" | "topProducts">;
+
+const count = (condition: unknown) => ({ $sum: { $cond: [condition, 1, 0] } });
+const statusIs = (status: string) => ({ $eq: ["$status", status] });
+const statusIn = (statuses: string[]) => ({ $in: ["$status", statuses] });
+const REVENUE = [...REVENUE_STATUSES];
+const MANUAL = { $eq: ["$fulfillment.routing", "manual_required"] };
+const EXCEPTION = statusIs("exception");
+
+/**
+ * `storeMetrics`' order figures for each store, grouped in the database. The
+ * attention reasons follow `attentionReason`: an exception first, then manual
+ * routing, then a paid order still waiting for production.
+ */
+export function orderMetricsPipeline(storeIds: string[]) {
+  return [
+    { $match: { storeId: { $in: storeIds } } },
+    {
+      $group: {
+        _id: "$storeId",
+        orderCount: { $sum: 1 },
+        paidOrders: count(statusIn(REVENUE)),
+        grossSales: { $sum: { $cond: [statusIn(REVENUE), "$total", 0] } },
+        inProduction: count(statusIn(["in_production", "paid"])),
+        shipped: count(statusIs("shipped")),
+        delivered: count(statusIs("delivered")),
+        cancelled: count(statusIs("cancelled")),
+        exceptions: count(EXCEPTION),
+        manualRouting: count(MANUAL),
+        attentionException: count(EXCEPTION),
+        attentionManual: count({ $and: [{ $not: [EXCEPTION] }, MANUAL] }),
+        attentionAwaiting: count({ $and: [{ $not: [EXCEPTION] }, { $not: [MANUAL] }, statusIs("paid")] }),
+        refunded: { $sum: { $sum: "$refunds.amount" } },
+      },
+    },
+  ];
+}
+
+export interface OrderMetricsRow {
+  _id: string;
+  orderCount: number;
+  paidOrders: number;
+  grossSales: number;
+  inProduction: number;
+  shipped: number;
+  delivered: number;
+  cancelled: number;
+  exceptions: number;
+  manualRouting: number;
+  attentionException: number;
+  attentionManual: number;
+  attentionAwaiting: number;
+  refunded: number;
+}
+
+const NO_ORDERS: Omit<OrderMetricsRow, "_id"> = {
+  orderCount: 0,
+  paidOrders: 0,
+  grossSales: 0,
+  inProduction: 0,
+  shipped: 0,
+  delivered: 0,
+  cancelled: 0,
+  exceptions: 0,
+  manualRouting: 0,
+  attentionException: 0,
+  attentionManual: 0,
+  attentionAwaiting: 0,
+  refunded: 0,
+};
+
+/** One store's row of `orderMetricsPipeline`, shaped as `storeMetrics` reports it; a store with no orders reads as zeros. */
+export function shapeOrderMetrics(row: OrderMetricsRow | undefined): OrderMetrics {
+  const r = row ?? { _id: "", ...NO_ORDERS };
+  const attention = {
+    exception: r.attentionException,
+    manual_routing: r.attentionManual,
+    awaiting_production: r.attentionAwaiting,
+    total: r.attentionException + r.attentionManual + r.attentionAwaiting,
+  };
+  return {
+    orderCount: r.orderCount,
+    paidOrders: r.paidOrders,
+    grossSales: r.grossSales,
+    inProduction: r.inProduction,
+    shipped: r.shipped,
+    delivered: r.delivered,
+    cancelled: r.cancelled,
+    exceptions: r.exceptions,
+    manualRouting: r.manualRouting,
+    awaitingAction: attention.total,
+    attention,
+    refunded: r.refunded,
+  };
+}
+
+/** Published and draft product counts for each store. */
+export function productCountsPipeline(storeIds: string[]) {
+  return [
+    { $match: { storeId: { $in: storeIds } } },
+    {
+      $group: {
+        _id: "$storeId",
+        publishedProducts: count(statusIs("published")),
+        draftProducts: count(statusIn(["draft", "in_review"])),
+      },
+    },
+  ];
+}
+
+/**
+ * The store's five best sellers by revenue, as `storeMetrics` ranks them. Equal
+ * revenue keeps the order the products first appear in, newest order first, and
+ * each is named as its newest order line names it.
+ */
+export function topProductsPipeline(storeId: string) {
+  return [
+    { $match: { storeId, status: { $in: REVENUE } } },
+    { $sort: { createdAt: -1 } },
+    { $unwind: { path: "$items", includeArrayIndex: "line" } },
+    {
+      $group: {
+        _id: "$items.storeProductId",
+        name: { $first: "$items.productName" },
+        units: { $sum: "$items.quantity" },
+        revenue: { $sum: { $multiply: ["$items.unitPrice", "$items.quantity"] } },
+        firstAt: { $first: "$createdAt" },
+        firstLine: { $first: "$line" },
+      },
+    },
+    { $sort: { revenue: -1, firstAt: -1, firstLine: 1 } },
+    { $limit: 5 },
+    { $project: { _id: 0, name: 1, units: 1, revenue: 1 } },
+  ];
+}
+
 /**
  * Counted against `SETUP_STEPS`, not the keys the record carries: a store saved
  * before a step existed is missing that key, and counting only what is stored

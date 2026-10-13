@@ -21,13 +21,14 @@ import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/li
 import {
   agencyStoreAllowance,
   getAgency,
-  getStorefront,
+  getStorefrontStatus,
   listAudit,
-  listOrders,
   listQuoteRequests,
+  listRecentOrders,
   listStoreProducts,
 } from "@/lib/data";
-import { setupProgress, storeMetrics } from "@/lib/metrics";
+import { setupProgress, type StoreMetrics } from "@/lib/metrics";
+import { loadOrderMetrics, loadTopProducts } from "@/lib/metrics-data";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan, type Capability } from "@/lib/session";
 import { attentionSummary } from "@/i18n/attention-copy";
@@ -60,10 +61,13 @@ export default async function StoreOverviewPage({
 
   const canSource = roleCan(role, "store.catalog");
   const can = (capability: Capability) => roleCan(role, capability);
-  const [orders, products, storefront, audit, enquiries, report] = await Promise.all([
-    listOrders(store.id),
+  // The figures are added up in the database; only the six newest orders are read.
+  const [orderMetrics, topProducts, recentOrders, products, storefront, audit, enquiries, report] = await Promise.all([
+    loadOrderMetrics([store.id]).then((byStore) => byStore.get(store.id)!),
+    loadTopProducts(store.id),
+    listRecentOrders(store.id, 6),
     listStoreProducts(store.id).then((rows) => takeOffFailingPreflight(rows)),
-    getStorefront(store.id),
+    getStorefrontStatus(store.id),
     listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
     canSource ? listQuoteRequests(store.id) : Promise.resolve([]),
     loadStoreAnalytics(store, range),
@@ -79,9 +83,14 @@ export default async function StoreOverviewPage({
   const agency = limit ? await getAgency(store.agencyId) : null;
   const allowance = agency ? await agencyStoreAllowance(agency) : null;
 
-  const metrics = storeMetrics(orders, products, store.defaultCurrency);
+  const metrics: StoreMetrics = {
+    ...orderMetrics,
+    currency: store.defaultCurrency,
+    publishedProducts: products.filter((p) => p.status === "published").length,
+    draftProducts: products.filter((p) => p.status === "draft" || p.status === "in_review").length,
+    topProducts,
+  };
   const progress = setupProgress(store.setup);
-  const recentOrders = orders.slice(0, 6);
   const theme = THEMES[store.theme];
 
   const [t, labels, dashboard, analytics, locale, format] = await Promise.all([
@@ -397,7 +406,7 @@ export default async function StoreOverviewPage({
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                {storefront?.published
+                {storefront?.isPublished
                   ? storefront.publishedBy
                     ? t("publishedBy", {
                         date: formatDate(storefront.publishedAt ?? storefront.draftUpdatedAt, locale),

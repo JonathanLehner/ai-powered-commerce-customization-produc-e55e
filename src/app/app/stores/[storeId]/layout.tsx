@@ -1,6 +1,7 @@
 import type { Messages } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/AppHeader";
+import { ClientMessages } from "@/components/ClientMessages";
 import { StoreNav } from "@/components/StoreNav";
 import { Badge } from "@/components/ui";
 import { accessibleStores, requireStoreAccess, roleCan, type Capability } from "@/lib/session";
@@ -82,7 +83,10 @@ export default async function StoreLayout({
           .filter((i) => roleCan(role, i.capability))
           .map(({ href, section, group }) => ({ href, section, group, label: t(`tabs.${section}`) }))}
       />
-      <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">{children}</div>
+      <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">
+        {/* The overview's messages; each section's layout replaces them with its own. */}
+        <ClientMessages section="overview">{children}</ClientMessages>
+      </div>
     </>
   );
 }

@@ -400,6 +400,40 @@ export async function listOrdersByStore(storeIds: string[]): Promise<Map<string,
   return groupById(storeIds, rows, (row) => row.storeId);
 }
 
+/** The store's newest orders, without their event history and line customisations. */
+export function listRecentOrders(storeId: string, limit: number) {
+  return db.find<Order>(COLLECTIONS.orders, { storeId }, { sort: { createdAt: -1 }, limit, projection: ORDER_ROW });
+}
+
+/**
+ * The store's order queue as the Orders table lists it, newest first. The
+ * event history, the line customisations and the tax lines are the bulk of an
+ * order and nothing in the table or its filters reads them.
+ */
+export function listOrderRows(storeId: string) {
+  return db.find<Order>(COLLECTIONS.orders, { storeId }, { sort: { createdAt: -1 }, projection: ORDER_ROW });
+}
+
+/**
+ * The orders of several stores that need attention (see `attentionReason`),
+ * grouped by store, newest first, read as `listOrderRows` reads them. The
+ * database picks them out, so the rest of each store's history is never read.
+ */
+export async function listAttentionOrdersByStore(storeIds: string[]): Promise<Map<string, Order[]>> {
+  if (storeIds.length === 0) return new Map();
+  const rows = await db.find<Order>(
+    COLLECTIONS.orders,
+    {
+      storeId: { $in: storeIds },
+      $or: [{ status: { $in: ["exception", "paid"] } }, { "fulfillment.routing": "manual_required" }],
+    },
+    { sort: { createdAt: -1 }, projection: ORDER_ROW },
+  );
+  return groupById(storeIds, rows, (row) => row.storeId);
+}
+
+const ORDER_ROW = { events: 0, "items.customization": 0, taxLines: 0, idempotencyKey: 0 } as const;
+
 export function getOrder(id: string) {
   return db.findOne<Order>(COLLECTIONS.orders, { id });
 }
@@ -651,6 +685,27 @@ export function listOrdersForCampaign(campaignId: string) {
 }
 
 /* ------------------------------------------------------------- storefronts */
+
+/** The storefront's publishing state, without its layouts or version history. */
+export async function getStorefrontStatus(storeId: string) {
+  const [row] = await db.aggregate<Pick<Storefront, "publishedAt" | "publishedBy" | "draftUpdatedAt"> & { isPublished: boolean }>(
+    COLLECTIONS.storefronts,
+    [
+      { $match: { storeId } },
+      { $limit: 1 },
+      {
+        $project: {
+          _id: 0,
+          publishedAt: 1,
+          publishedBy: 1,
+          draftUpdatedAt: 1,
+          isPublished: { $ne: [{ $ifNull: ["$published", null] }, null] },
+        },
+      },
+    ],
+  );
+  return row ?? null;
+}
 
 export function getStorefront(storeId: string) {
   return db.findOne<Storefront>(COLLECTIONS.storefronts, { storeId });

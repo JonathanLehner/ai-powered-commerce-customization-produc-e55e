@@ -6,5 +6,5 @@ export const metadata: Metadata = siteMetadata;
 
 /** Root layout for the sign-in screen. */
 export default function LoginLayout({ children }: { children: React.ReactNode }) {
-  return <WorkspaceDocument>{children}</WorkspaceDocument>;
+  return <WorkspaceDocument section="login">{children}</WorkspaceDocument>;
 }

@@ -5,8 +5,7 @@ import { siteMetadata } from "@/components/Document";
 import { Toaster } from "@/components/ui/sonner";
 import { WorkspaceDocument } from "@/components/WorkspaceIntl";
 import { onTrial, trialDaysLeft } from "@/lib/billing";
-import { getAgency } from "@/lib/data";
-import { requireUser } from "@/lib/session";
+import { getAgencyForRender, requireUser } from "@/lib/session";
 
 export const metadata: Metadata = siteMetadata;
 
@@ -16,7 +15,7 @@ export const metadata: Metadata = siteMetadata;
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  const agency = user.agencyId ? await getAgency(user.agencyId) : null;
+  const agency = user.agencyId ? await getAgencyForRender(user.agencyId) : null;
   return (
     <WorkspaceDocument>
       <div data-surface="workspace" className="flex min-h-full flex-col bg-canvas">

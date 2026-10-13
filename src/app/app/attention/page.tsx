@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { attentionSummary } from "@/i18n/attention-copy";
 import { attentionBreakdown, attentionReason, type AttentionReason } from "@/lib/attention";
-import { COLLECTIONS, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
+import { COLLECTIONS, listAttentionOrdersByStore, listStoreProductsByStore } from "@/lib/data";
 import { inventoryRows, inventorySettings, lowStockRows } from "@/lib/inventory-rules";
 import { db } from "@/lib/mongo";
 import type { InventoryLevel } from "@/lib/types";
@@ -45,7 +45,7 @@ export default async function AttentionPage() {
   const stores = accessible.filter(({ store }) => store.status === "active");
   const storeIds = stores.map(({ store }) => store.id);
   const [ordersByStore, productsByStore, levels] = await Promise.all([
-    listOrdersByStore(storeIds),
+    listAttentionOrdersByStore(storeIds),
     listStoreProductsByStore(storeIds),
     db.findIn<InventoryLevel>(COLLECTIONS.inventoryLevels, "storeId", storeIds),
   ]);
