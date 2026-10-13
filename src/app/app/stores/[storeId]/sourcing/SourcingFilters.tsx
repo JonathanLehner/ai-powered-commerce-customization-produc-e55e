@@ -66,6 +66,10 @@ export function SourcingFilters({
   category,
   supplier,
   region,
+  minCost,
+  maxCost,
+  availability,
+  currency,
   suppliers,
   regions,
   compare,
@@ -75,6 +79,11 @@ export function SourcingFilters({
   category: string;
   supplier: string;
   region: string;
+  /** Unit-cost bounds in major units, as typed. */
+  minCost: string;
+  maxCost: string;
+  availability: string;
+  currency: string;
   suppliers: { id: string; name: string }[];
   regions: string[];
   /** Carried through the filter submit so a comparison survives a re-filter. */
@@ -125,11 +134,54 @@ export function SourcingFilters({
             value={region}
             options={regions.map((r) => ({ value: r, label: regionLabel(r) }))}
           />
+          <Dropdown
+            id="availability"
+            label={t("availability")}
+            anyLabel={t("anyAvailability")}
+            value={availability}
+            options={[
+              { value: "available", label: labels("catalogAvailability.available") },
+              { value: "limited", label: labels("catalogAvailability.limited") },
+              { value: "quote", label: t("byQuote") },
+            ]}
+          />
+          <fieldset>
+            <legend className="text-xs leading-none font-medium select-none">{t("unitCost", { currency })}</legend>
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <Input
+                id="minCost"
+                name="minCost"
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.01"
+                defaultValue={minCost}
+                placeholder={t("min")}
+                aria-label={t("minCost")}
+                className="w-20"
+              />
+              <span aria-hidden className="text-muted-foreground">
+                –
+              </span>
+              <Input
+                id="maxCost"
+                name="maxCost"
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.01"
+                defaultValue={maxCost}
+                placeholder={t("max")}
+                aria-label={t("maxCost")}
+                className="w-20"
+              />
+            </div>
+          </fieldset>
           {compare ? <input type="hidden" name="compare" value={compare} /> : null}
           <Button type="submit" variant="outline">
             {t("apply")}
           </Button>
-          {q || category || supplier || region ? (
+          {q || category || supplier || region || minCost || maxCost || availability ? (
             <Button asChild variant="ghost">
               <Link href={clearHref} prefetch={false}>
                 {t("clear")}

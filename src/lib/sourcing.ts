@@ -23,6 +23,31 @@ export function isQuoteOnly(product: CatalogProduct): product is BulkSourcingPro
   return Boolean(product.bulkSourcing && product.bulkSourcing.minimumOrderQuantity > 0);
 }
 
+/** The availability filter on the sourcing page: a listing's own stock state, or "quote" for bulk sourcing. */
+export const SOURCING_AVAILABILITY = ["available", "limited", "quote"] as const;
+export type SourcingAvailability = (typeof SOURCING_AVAILABILITY)[number];
+
+export function isSourcingAvailability(value: string | undefined): value is SourcingAvailability {
+  return (SOURCING_AVAILABILITY as readonly string[]).includes(value ?? "");
+}
+
+export function listingAvailability(product: CatalogProduct): SourcingAvailability | CatalogProduct["availability"] {
+  return isQuoteOnly(product) ? "quote" : product.availability;
+}
+
+/**
+ * Whether a listing's unit cost falls inside a min/max typed in major units
+ * ("4.50"). A blank or unreadable bound is no bound. Quote-priced listings have
+ * no unit cost, so any cost bound leaves them out.
+ */
+export function withinUnitCost(product: CatalogProduct, min: string | undefined, max: string | undefined): boolean {
+  const low = min ? parseMoney(min, product.currency) : null;
+  const high = max ? parseMoney(max, product.currency) : null;
+  if (low === null && high === null) return true;
+  if (isQuoteOnly(product)) return false;
+  return (low === null || product.baseCost >= low) && (high === null || product.baseCost <= high);
+}
+
 export const QUOTE_STATUS_LABELS: Record<QuoteRequestStatus, string> = {
   submitted: "Awaiting quotes",
   quoted: "Quotes to review",

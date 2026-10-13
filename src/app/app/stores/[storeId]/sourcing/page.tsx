@@ -20,12 +20,15 @@ import { requireStoreAccess } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import {
   isQuoteOnly,
+  isSourcingAvailability,
+  listingAvailability,
   QUOTE_STATUS_TONES,
   quoteIsLive,
+  withinUnitCost,
   type BulkSourcingProduct,
 } from "@/lib/sourcing";
 import type { CatalogProduct, QuoteRequest, StoreProduct, SupplierQuote } from "@/lib/types";
-import { formatDate, formatMoney, newId } from "@/lib/util";
+import { formatDate, formatMoney, newId, parseMoney } from "@/lib/util";
 import { AcceptedQuoteAction, AcceptQuoteButton, Enquiries } from "./Enquiries";
 import { QuoteRequestForm } from "./QuoteRequestForm";
 import { SourcingFilters } from "./SourcingFilters";
@@ -169,7 +172,32 @@ function matches(product: CatalogProduct, query: string) {
     .every((term) => haystack.includes(term));
 }
 
-type Filters = Partial<Record<"q" | "category" | "supplier" | "region" | "compare" | "confirm" | "rfq" | "ref", string>>;
+const FILTER_KEYS = [
+  "q",
+  "category",
+  "supplier",
+  "region",
+  "minCost",
+  "maxCost",
+  "availability",
+  "compare",
+  "confirm",
+  "rfq",
+  "ref",
+] as const;
+
+type Filters = Partial<Record<(typeof FILTER_KEYS)[number], string>>;
+
+/** What "Clear filters" resets; the comparison and any open form stay. */
+const CLEARED_FILTERS = {
+  q: undefined,
+  category: undefined,
+  supplier: undefined,
+  region: undefined,
+  minCost: undefined,
+  maxCost: undefined,
+  availability: undefined,
+};
 
 /**
  * Query values arrive as a list when a key repeats (a hand-edited address or a
@@ -178,12 +206,19 @@ type Filters = Partial<Record<"q" | "category" | "supplier" | "region" | "compar
  */
 function readFilters(raw: Record<string, string | string[] | undefined>): Filters {
   const filters: Filters = {};
-  for (const key of ["q", "category", "supplier", "region", "compare", "confirm", "rfq", "ref"] as const) {
+  for (const key of FILTER_KEYS) {
     const value = raw[key];
-    const list = (Array.isArray(value) ? value : [value]).filter((v): v is string => typeof v === "string" && v !== "");
+    const list = (Array.isArray(value) ? value : [value])
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.trim())
+      .filter((v) => v !== "");
     if (list.length === 0) continue;
     filters[key] = key === "compare" ? list.join(",") : list[0];
   }
+  for (const key of ["minCost", "maxCost"] as const) {
+    if (filters[key] && parseMoney(filters[key], "USD") === null) delete filters[key];
+  }
+  if (!isSourcingAvailability(filters.availability)) delete filters.availability;
   return filters;
 }
 
@@ -234,7 +269,9 @@ export default async function SourcingPage({
     .filter((c) => matches(c, filters.q ?? ""))
     .filter((c) => !filters.category || c.category === filters.category)
     .filter((c) => !filters.supplier || c.supplierId === filters.supplier)
-    .filter((c) => !filters.region || c.fulfillmentRegions.includes(filters.region));
+    .filter((c) => !filters.region || c.fulfillmentRegions.includes(filters.region))
+    .filter((c) => !filters.availability || listingAvailability(c) === filters.availability)
+    .filter((c) => withinUnitCost(c, filters.minCost, filters.maxCost));
 
   // Every quote the store has had back, by id, with the enquiry it answers.
   const quotesById = new Map<string, { request: QuoteRequest; quote: SupplierQuote }>();
@@ -425,15 +462,14 @@ export default async function SourcingPage({
         category={filters.category ?? ""}
         supplier={filters.supplier ?? ""}
         region={filters.region ?? ""}
+        minCost={filters.minCost ?? ""}
+        maxCost={filters.maxCost ?? ""}
+        availability={filters.availability ?? ""}
+        currency={offered[0]?.currency ?? "USD"}
         suppliers={approved.map((supplier) => ({ id: supplier.id, name: supplier.name }))}
         regions={regions}
         compare={filters.compare}
-        clearHref={buildHref({
-          q: undefined,
-          category: undefined,
-          supplier: undefined,
-          region: undefined,
-        })}
+        clearHref={buildHref(CLEARED_FILTERS)}
       />
 
       {asking || askingGeneral ? (
@@ -611,16 +647,7 @@ export default async function SourcingPage({
                 </Button>
               ) : null}
               <Button asChild variant="outline">
-                <Link
-                  href={buildHref({
-                    q: undefined,
-                    category: undefined,
-                    supplier: undefined,
-                    region: undefined,
-                  })}
-                >
-                  {t("clearFilters")}
-                </Link>
+                <Link href={buildHref(CLEARED_FILTERS)}>{t("clearFilters")}</Link>
               </Button>
             </div>
           }

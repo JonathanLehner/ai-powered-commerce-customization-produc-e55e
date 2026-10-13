@@ -9,11 +9,14 @@ import {
   indicativeRange,
   isOpenEnquiry,
   isQuoteOnly,
+  isSourcingAvailability,
+  listingAvailability,
   QUOTE_STATUS_LABELS,
   QUOTE_STATUS_NOTES,
   QUOTE_STATUS_TONES,
   quoteCode,
   quoteIsLive,
+  withinUnitCost,
 } from "../src/lib/sourcing.ts";
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
 
@@ -47,6 +50,32 @@ for (const product of BULK_SOURCING_PRODUCTS) {
 // A print-on-demand listing is not quote priced, whatever else it carries.
 assert.equal(isQuoteOnly({ ...BULK_SOURCING_PRODUCTS[0], bulkSourcing: undefined }), false);
 assert.equal(isQuoteOnly({ baseCost: 1090 }), false);
+
+/* ------------------------------------------- the sourcing page filters */
+
+const tee = { baseCost: 1090, currency: "USD", availability: "available" };
+const mug = { baseCost: 650, currency: "USD", availability: "limited" };
+const bulk = BULK_SOURCING_PRODUCTS[0];
+
+assert.equal(listingAvailability(tee), "available");
+assert.equal(listingAvailability(mug), "limited");
+assert.equal(listingAvailability(bulk), "quote");
+for (const value of ["available", "limited", "quote"]) assert.ok(isSourcingAvailability(value));
+for (const value of ["", undefined, "discontinued", "all"]) assert.equal(isSourcingAvailability(value), false);
+
+// Bounds are typed in major units and inclusive at both ends.
+assert.equal(withinUnitCost(tee, undefined, undefined), true);
+assert.equal(withinUnitCost(tee, undefined, "10.90"), true);
+assert.equal(withinUnitCost(tee, undefined, "10.89"), false);
+assert.equal(withinUnitCost(tee, "10.90", undefined), true);
+assert.equal(withinUnitCost(tee, "11", undefined), false);
+assert.equal(withinUnitCost(mug, "5", "7"), true);
+// An unreadable bound is no bound.
+assert.equal(withinUnitCost(tee, "abc", "-1"), true);
+// A quote-priced listing has no unit cost to compare, so any bound leaves it out.
+assert.equal(withinUnitCost(bulk, undefined, undefined), true);
+assert.equal(withinUnitCost(bulk, undefined, "1000"), false);
+assert.equal(withinUnitCost(bulk, "0", undefined), false);
 
 /* ------------------------------------------------------- the enquiry form */
 
