@@ -29,6 +29,8 @@ export const ROUTES = [
   "/[locale]/signup",
   "/[locale]/signup/contact-sales",
   "/login",
+  "/login/forgot",
+  "/login/reset/[token]",
   "/invite/[token]",
   "/api/asset",
   "/api/uploads",

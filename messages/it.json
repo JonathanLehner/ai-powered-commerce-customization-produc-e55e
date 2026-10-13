@@ -666,6 +666,7 @@
     "email": "Indirizzo email",
     "emailPlaceholder": "nome@azienda.it",
     "password": "Password",
+    "forgotLink": "Password dimenticata?",
     "signIn": "Accedi",
     "failed": "Accesso non riuscito",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Nuovo su Parcelith?",
     "createBlurb": "Crea uno spazio agenzia con il piano Starter o Studio.",
-    "createAccount": "Crea account"
+    "createAccount": "Crea account",
+    "forgot": {
+      "title": "Reimposta la password",
+      "lead": "Inserisci l'indirizzo email con cui accedi e ti invieremo un link per reimpostare la password.",
+      "email": "Indirizzo email",
+      "emailError": "Inserisci un indirizzo email valido.",
+      "submit": "Invia link",
+      "sending": "Invio…",
+      "sentTitle": "Controlla la tua email",
+      "sentBody": "Se esiste un account con questo indirizzo email, ti abbiamo inviato un link per reimpostare la password. Il link scade tra 1 ora.",
+      "back": "Torna all'accesso"
+    },
+    "reset": {
+      "title": "Scegli una nuova password",
+      "lead": "Per {email}",
+      "password": "Nuova password",
+      "passwordHint": "Almeno {count} caratteri.",
+      "passwordError": "Usa almeno {count} caratteri.",
+      "submit": "Salva e accedi",
+      "saving": "Salvataggio…",
+      "invalidTitle": "Questo link è scaduto",
+      "invalidBody": "I link di reimpostazione funzionano una sola volta e scadono dopo 1 ora. Richiedine uno nuovo per continuare.",
+      "requestNew": "Richiedi un nuovo link"
+    },
+    "resetEmail": {
+      "subject": "Reimposta la tua password Parcelith",
+      "heading": "Reimposta la password",
+      "body": "Usa il pulsante qui sotto per scegliere una nuova password. Il link scade tra {minutes} minuti e funziona una sola volta.",
+      "ignore": "Se non l'hai richiesto tu, puoi ignorare questa email. La tua password non cambierà.",
+      "cta": "Reimposta password"
+    }
   },
   "invite": {
     "metaTitle": "Accetta l’invito",

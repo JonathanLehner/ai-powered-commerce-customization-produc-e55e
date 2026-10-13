@@ -369,6 +369,16 @@ same signed session as a real one. The form below them signs in with an email
 address and password; every seeded account uses `parcelith`, stored as a bcrypt
 hash (`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that).
 
+"Forgot password?" next to the password field opens `/login/forgot`. It gives
+the same answer whether or not the address has an account; for one that does it
+emails a single-use link to `/login/reset/<token>`, valid for an hour, in the
+person's workspace language. Choosing a new password there signs the person in
+and removes every other link they hold. The tokens are kept hashed through
+Auth.js's MongoDB adapter (`password_reset_tokens`), requests are limited to 3
+an hour per address and 10 per IP (`password_reset_limits`), and requests and
+resets are written to the audit log. An account invited before passwords were
+asked can set its first one this way. See `src/lib/password-reset.ts`.
+
 | Account | Sees |
 | --- | --- |
 | `alex@northlight.studio` | Agency director — full control of four client stores |

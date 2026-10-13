@@ -98,6 +98,9 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   // Shopper sign-in, kept by Auth.js's MongoDB adapter under its own ObjectIds.
   shopper_accounts: [{ key: { email: 1 }, unique: true }],
   shopper_verification_tokens: [{ key: { identifier: 1, token: 1 }, unique: true }],
+  // Staff password reset links, kept by the same adapter; expired ones are removed.
+  password_reset_tokens: [{ key: { identifier: 1, token: 1 }, unique: true }, { key: { expires: 1 }, expireAfterSeconds: 0 }],
+  password_reset_limits: [byId, { key: { expiresAt: 1 }, expireAfterSeconds: 0 }],
   // A host name is connected to one store, platform-wide: the unique index is
   // what turns away a second claim made at the same instant.
   store_domains: [byId, { key: { hostname: 1 }, unique: true }, { key: { storeId: 1, createdAt: 1 } }],

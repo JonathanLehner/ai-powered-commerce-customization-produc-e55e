@@ -666,6 +666,7 @@
     "email": "メールアドレス",
     "emailPlaceholder": "name@company.co.jp",
     "password": "パスワード",
+    "forgotLink": "パスワードをお忘れですか？",
     "signIn": "ログイン",
     "failed": "ログインできませんでした",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Parcelithは初めてですか？",
     "createBlurb": "StarterまたはStudioプランでエージェンシーのワークスペースを作成します。",
-    "createAccount": "アカウントを作成"
+    "createAccount": "アカウントを作成",
+    "forgot": {
+      "title": "パスワードの再設定",
+      "lead": "ログインに使うメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。",
+      "email": "メールアドレス",
+      "emailError": "有効なメールアドレスを入力してください。",
+      "submit": "リンクを送信",
+      "sending": "送信中…",
+      "sentTitle": "メールをご確認ください",
+      "sentBody": "このメールアドレスのアカウントが存在する場合、パスワード再設定用のリンクを送信しました。リンクの有効期限は1時間です。",
+      "back": "ログインに戻る"
+    },
+    "reset": {
+      "title": "新しいパスワードを設定",
+      "lead": "{email}",
+      "password": "新しいパスワード",
+      "passwordHint": "{count}文字以上。",
+      "passwordError": "{count}文字以上で入力してください。",
+      "submit": "保存してログイン",
+      "saving": "保存中…",
+      "invalidTitle": "このリンクは無効です",
+      "invalidBody": "再設定リンクは1回限り有効で、1時間で期限切れになります。新しいリンクをリクエストしてください。",
+      "requestNew": "新しいリンクをリクエスト"
+    },
+    "resetEmail": {
+      "subject": "Parcelith のパスワード再設定",
+      "heading": "パスワードの再設定",
+      "body": "下のボタンから新しいパスワードを設定してください。リンクの有効期限は{minutes}分で、1回のみ使用できます。",
+      "ignore": "心当たりがない場合は、このメールを無視してください。パスワードは変更されません。",
+      "cta": "パスワードを再設定"
+    }
   },
   "invite": {
     "metaTitle": "招待を承諾",

@@ -75,6 +75,8 @@ export const COLLECTIONS = {
   webhookEndpoints: "webhook_endpoints",
   webhookDeliveries: "webhook_deliveries",
   jobLeases: "job_leases",
+  passwordResetTokens: "password_reset_tokens",
+  passwordResetLimits: "password_reset_limits",
 } as const;
 
 /* ------------------------------------------------------------------ paging */

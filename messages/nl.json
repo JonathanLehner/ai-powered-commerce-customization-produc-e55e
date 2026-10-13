@@ -666,6 +666,7 @@
     "email": "E-mailadres",
     "emailPlaceholder": "naam@bedrijf.nl",
     "password": "Wachtwoord",
+    "forgotLink": "Wachtwoord vergeten?",
     "signIn": "Inloggen",
     "failed": "Inloggen mislukt",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Nieuw bij Parcelith?",
     "createBlurb": "Maak een bureauwerkruimte aan met het Starter- of Studio-abonnement.",
-    "createAccount": "Account aanmaken"
+    "createAccount": "Account aanmaken",
+    "forgot": {
+      "title": "Wachtwoord opnieuw instellen",
+      "lead": "Vul het e-mailadres in waarmee je inlogt. We sturen je een link om je wachtwoord opnieuw in te stellen.",
+      "email": "E-mailadres",
+      "emailError": "Vul een geldig e-mailadres in.",
+      "submit": "Link versturen",
+      "sending": "Versturen…",
+      "sentTitle": "Controleer je e-mail",
+      "sentBody": "Als er een account bestaat voor dit e-mailadres, hebben we een link gestuurd om je wachtwoord opnieuw in te stellen. De link verloopt over 1 uur.",
+      "back": "Terug naar inloggen"
+    },
+    "reset": {
+      "title": "Kies een nieuw wachtwoord",
+      "lead": "Voor {email}",
+      "password": "Nieuw wachtwoord",
+      "passwordHint": "Minstens {count} tekens.",
+      "passwordError": "Gebruik minstens {count} tekens.",
+      "submit": "Opslaan en inloggen",
+      "saving": "Opslaan…",
+      "invalidTitle": "Deze link is verlopen",
+      "invalidBody": "Resetlinks werken één keer en verlopen na 1 uur. Vraag een nieuwe aan om verder te gaan.",
+      "requestNew": "Nieuwe link aanvragen"
+    },
+    "resetEmail": {
+      "subject": "Stel je Parcelith-wachtwoord opnieuw in",
+      "heading": "Wachtwoord opnieuw instellen",
+      "body": "Gebruik de knop hieronder om een nieuw wachtwoord te kiezen. De link verloopt over {minutes} minuten en werkt één keer.",
+      "ignore": "Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren. Je wachtwoord blijft hetzelfde.",
+      "cta": "Wachtwoord opnieuw instellen"
+    }
   },
   "invite": {
     "metaTitle": "Uitnodiging accepteren",

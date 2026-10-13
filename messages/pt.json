@@ -666,6 +666,7 @@
     "email": "Endereço de email",
     "emailPlaceholder": "nome@empresa.pt",
     "password": "Palavra-passe",
+    "forgotLink": "Esqueceu a senha?",
     "signIn": "Iniciar sessão",
     "failed": "Não foi possível iniciar sessão",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Novo na Parcelith?",
     "createBlurb": "Crie um espaço de agência com o plano Starter ou Studio.",
-    "createAccount": "Criar conta"
+    "createAccount": "Criar conta",
+    "forgot": {
+      "title": "Redefinir a senha",
+      "lead": "Informe o e-mail que você usa para entrar e enviaremos um link para redefinir sua senha.",
+      "email": "E-mail",
+      "emailError": "Informe um e-mail válido.",
+      "submit": "Enviar link",
+      "sending": "Enviando…",
+      "sentTitle": "Verifique seu e-mail",
+      "sentBody": "Se existir uma conta com esse e-mail, enviamos um link para redefinir sua senha. O link expira em 1 hora.",
+      "back": "Voltar para entrar"
+    },
+    "reset": {
+      "title": "Escolha uma nova senha",
+      "lead": "Para {email}",
+      "password": "Nova senha",
+      "passwordHint": "Pelo menos {count} caracteres.",
+      "passwordError": "Use pelo menos {count} caracteres.",
+      "submit": "Salvar e entrar",
+      "saving": "Salvando…",
+      "invalidTitle": "Este link expirou",
+      "invalidBody": "Os links de redefinição funcionam uma vez e expiram após 1 hora. Solicite um novo para continuar.",
+      "requestNew": "Solicitar novo link"
+    },
+    "resetEmail": {
+      "subject": "Redefina sua senha da Parcelith",
+      "heading": "Redefina sua senha",
+      "body": "Use o botão abaixo para escolher uma nova senha. O link expira em {minutes} minutos e funciona uma única vez.",
+      "ignore": "Se você não pediu isso, ignore este e-mail. Sua senha não será alterada.",
+      "cta": "Redefinir senha"
+    }
   },
   "invite": {
     "metaTitle": "Aceitar o convite",

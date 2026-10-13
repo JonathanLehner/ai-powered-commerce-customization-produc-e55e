@@ -666,6 +666,7 @@
     "email": "Correo electrónico",
     "emailPlaceholder": "nombre@empresa.com",
     "password": "Contraseña",
+    "forgotLink": "¿Has olvidado tu contraseña?",
     "signIn": "Iniciar sesión",
     "failed": "No se ha podido iniciar sesión",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "¿Nuevo en Parcelith?",
     "createBlurb": "Crea un espacio de agencia con el plan Starter o Studio.",
-    "createAccount": "Crear cuenta"
+    "createAccount": "Crear cuenta",
+    "forgot": {
+      "title": "Restablecer la contraseña",
+      "lead": "Introduce el correo electrónico con el que inicias sesión y te enviaremos un enlace para restablecer tu contraseña.",
+      "email": "Correo electrónico",
+      "emailError": "Introduce un correo electrónico válido.",
+      "submit": "Enviar enlace",
+      "sending": "Enviando…",
+      "sentTitle": "Revisa tu correo",
+      "sentBody": "Si existe una cuenta con ese correo electrónico, te hemos enviado un enlace para restablecer tu contraseña. El enlace caduca en 1 hora.",
+      "back": "Volver a iniciar sesión"
+    },
+    "reset": {
+      "title": "Elige una contraseña nueva",
+      "lead": "Para {email}",
+      "password": "Contraseña nueva",
+      "passwordHint": "Al menos {count} caracteres.",
+      "passwordError": "Usa al menos {count} caracteres.",
+      "submit": "Guardar e iniciar sesión",
+      "saving": "Guardando…",
+      "invalidTitle": "Este enlace ha caducado",
+      "invalidBody": "Los enlaces de restablecimiento funcionan una vez y caducan en 1 hora. Solicita uno nuevo para continuar.",
+      "requestNew": "Solicitar un enlace nuevo"
+    },
+    "resetEmail": {
+      "subject": "Restablece tu contraseña de Parcelith",
+      "heading": "Restablece tu contraseña",
+      "body": "Usa el botón de abajo para elegir una contraseña nueva. El enlace caduca en {minutes} minutos y funciona una sola vez.",
+      "ignore": "Si no lo has solicitado, puedes ignorar este correo. Tu contraseña no cambiará.",
+      "cta": "Restablecer contraseña"
+    }
   },
   "invite": {
     "metaTitle": "Acepta tu invitación",

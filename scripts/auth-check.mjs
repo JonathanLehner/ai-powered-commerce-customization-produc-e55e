@@ -1,8 +1,9 @@
 // Self-check for sign-in: npm run auth-check
 //
-// Email-only sign-in opens the seeded demo accounts and nothing else, and the
+// Email-only sign-in opens the seeded demo accounts and nothing else, the
 // server-minted ticket used after accepting an invitation cannot be forged,
-// reused after it lapses, or pointed at another user.
+// reused after it lapses, or pointed at another user, and "Forgot password?"
+// answers the same whether or not an account exists.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -43,5 +44,34 @@ assert.equal(await readSignInTicket(`${id}.${expires}.${"0".repeat(64)}`, now), 
 assert.equal(await readSignInTicket("alex@northlight.studio", now), null);
 process.env.AUTH_SECRET = "another-secret";
 assert.equal(await readSignInTicket(ticket, now), null, "signed with this deployment's secret");
+
+// Password reset.
+const login = source("src/app/login/page.tsx");
+assert.match(login, /href="\/login\/forgot"/, "a Forgot password? link on /login");
+const request = actions.slice(actions.indexOf("export async function requestPasswordReset"), actions.indexOf("export async function resetPassword"));
+const reset = actions.slice(actions.indexOf("export async function resetPassword"));
+assert.equal((request.match(/redirect\("\/login\/forgot\?sent=1"\)/g) ?? []).length, 1, "one neutral answer");
+assert.doesNotMatch(request, /redirect\([^)]*(unknown|no-account)/, "never says whether an account exists");
+assert.match(request, /allowResetRequest\(`email:\$\{email\}`/, "limited per email");
+assert.match(request, /allowResetRequest\(`ip:\$\{ip\}`/, "limited per IP");
+assert.match(request, /sendEmail\(/);
+assert.match(request, /user\.uiLanguage/, "in the person's workspace language");
+assert.match(request, /user\.password_reset_requested/);
+assert.ok(reset.indexOf("MIN_PASSWORD_LENGTH") < reset.indexOf("consumeResetToken("), "a short password does not use the link up");
+assert.ok(reset.indexOf("consumeResetToken(") < reset.indexOf("hash(password"), "the link is used up before the password changes");
+assert.match(reset, /user\.password_reset"/);
+assert.match(reset, /signIn\("ticket"/, "signs the person in afterwards");
+assert.doesNotMatch(reset, /hasUsablePassword/, "an invited account with a placeholder password can set its first one");
+const resets = source("src/lib/password-reset.ts");
+assert.match(resets, /RESET_LINK_MINUTES = 60;/, "links expire after one hour");
+assert.match(resets, /useVerificationToken/, "consumed once, atomically, by the adapter");
+assert.ok(
+  resets.indexOf("deleteMany(COLLECTIONS.passwordResetTokens") < resets.indexOf("createVerificationToken"),
+  "a new link invalidates older ones",
+);
+const { parseResetToken } = await import("../src/lib/password-reset.ts");
+assert.deepEqual(parseResetToken(`usr_abc123.${"a".repeat(64)}`), { userId: "usr_abc123", token: "a".repeat(64) });
+assert.equal(parseResetToken(`usr_abc123.${"a".repeat(63)}`), null);
+assert.equal(parseResetToken(`alex@northlight.studio.${"a".repeat(64)}`), null);
 
 console.log("auth-check ok");

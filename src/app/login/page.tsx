@@ -106,7 +106,12 @@ export default async function LoginPage() {
                   />
                 </div>
                 <div className="grid content-start gap-1.5">
-                  <Label htmlFor="password-password">{t("password")}</Label>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <Label htmlFor="password-password">{t("password")}</Label>
+                    <Link href="/login/forgot" className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                      {t("forgotLink")}
+                    </Link>
+                  </div>
                   <Input
                     id="password-password"
                     name="password"

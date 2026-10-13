@@ -666,6 +666,7 @@
     "email": "Adresse e-mail",
     "emailPlaceholder": "nom@entreprise.fr",
     "password": "Mot de passe",
+    "forgotLink": "Mot de passe oublié ?",
     "signIn": "Se connecter",
     "failed": "Échec de la connexion",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Nouveau sur Parcelith ?",
     "createBlurb": "Créez un espace agence avec la formule Starter ou Studio.",
-    "createAccount": "Créer un compte"
+    "createAccount": "Créer un compte",
+    "forgot": {
+      "title": "Réinitialiser le mot de passe",
+      "lead": "Saisissez l'adresse e-mail avec laquelle vous vous connectez et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "email": "Adresse e-mail",
+      "emailError": "Saisissez une adresse e-mail valide.",
+      "submit": "Envoyer le lien",
+      "sending": "Envoi…",
+      "sentTitle": "Consultez vos e-mails",
+      "sentBody": "Si un compte existe pour cette adresse e-mail, nous vous avons envoyé un lien pour réinitialiser votre mot de passe. Le lien expire dans 1 heure.",
+      "back": "Retour à la connexion"
+    },
+    "reset": {
+      "title": "Choisissez un nouveau mot de passe",
+      "lead": "Pour {email}",
+      "password": "Nouveau mot de passe",
+      "passwordHint": "Au moins {count} caractères.",
+      "passwordError": "Utilisez au moins {count} caractères.",
+      "submit": "Enregistrer et se connecter",
+      "saving": "Enregistrement…",
+      "invalidTitle": "Ce lien a expiré",
+      "invalidBody": "Les liens de réinitialisation ne fonctionnent qu'une fois et expirent au bout d'1 heure. Demandez-en un nouveau pour continuer.",
+      "requestNew": "Demander un nouveau lien"
+    },
+    "resetEmail": {
+      "subject": "Réinitialisez votre mot de passe Parcelith",
+      "heading": "Réinitialisez votre mot de passe",
+      "body": "Utilisez le bouton ci-dessous pour choisir un nouveau mot de passe. Le lien expire dans {minutes} minutes et ne fonctionne qu'une fois.",
+      "ignore": "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail. Votre mot de passe ne changera pas.",
+      "cta": "Réinitialiser le mot de passe"
+    }
   },
   "invite": {
     "metaTitle": "Accepter votre invitation",

@@ -666,6 +666,7 @@
     "email": "E-postadress",
     "emailPlaceholder": "namn@foretag.se",
     "password": "Lösenord",
+    "forgotLink": "Glömt lösenordet?",
     "signIn": "Logga in",
     "failed": "Inloggningen misslyckades",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Ny på Parcelith?",
     "createBlurb": "Skapa en arbetsyta för din byrå med Starter eller Studio.",
-    "createAccount": "Skapa konto"
+    "createAccount": "Skapa konto",
+    "forgot": {
+      "title": "Återställ lösenordet",
+      "lead": "Ange e-postadressen du loggar in med så skickar vi en länk för att återställa ditt lösenord.",
+      "email": "E-postadress",
+      "emailError": "Ange en giltig e-postadress.",
+      "submit": "Skicka länk",
+      "sending": "Skickar…",
+      "sentTitle": "Kolla din e-post",
+      "sentBody": "Om det finns ett konto för den e-postadressen har vi skickat en länk för att återställa ditt lösenord. Länken gäller i 1 timme.",
+      "back": "Tillbaka till inloggningen"
+    },
+    "reset": {
+      "title": "Välj ett nytt lösenord",
+      "lead": "För {email}",
+      "password": "Nytt lösenord",
+      "passwordHint": "Minst {count} tecken.",
+      "passwordError": "Använd minst {count} tecken.",
+      "submit": "Spara och logga in",
+      "saving": "Sparar…",
+      "invalidTitle": "Länken har gått ut",
+      "invalidBody": "Återställningslänkar fungerar en gång och går ut efter 1 timme. Begär en ny för att fortsätta.",
+      "requestNew": "Begär en ny länk"
+    },
+    "resetEmail": {
+      "subject": "Återställ ditt Parcelith-lösenord",
+      "heading": "Återställ ditt lösenord",
+      "body": "Använd knappen nedan för att välja ett nytt lösenord. Länken gäller i {minutes} minuter och fungerar en gång.",
+      "ignore": "Om du inte har begärt detta kan du ignorera mejlet. Ditt lösenord ändras inte.",
+      "cta": "Återställ lösenord"
+    }
   },
   "invite": {
     "metaTitle": "Acceptera inbjudan",

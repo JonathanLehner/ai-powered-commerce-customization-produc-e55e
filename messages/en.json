@@ -666,6 +666,7 @@
     "email": "Email address",
     "emailPlaceholder": "name@company.com",
     "password": "Password",
+    "forgotLink": "Forgot password?",
     "signIn": "Sign in",
     "failed": "Sign-in failed",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "New to Parcelith?",
     "createBlurb": "Create an agency workspace on the Starter or Studio plan.",
-    "createAccount": "Create account"
+    "createAccount": "Create account",
+    "forgot": {
+      "title": "Reset your password",
+      "lead": "Enter the email address you sign in with and we'll send you a link to reset your password.",
+      "email": "Email address",
+      "emailError": "Enter a valid email address.",
+      "submit": "Send reset link",
+      "sending": "Sending…",
+      "sentTitle": "Check your email",
+      "sentBody": "If an account exists for that email address, we've sent a link to reset your password. The link expires in 1 hour.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "lead": "For {email}",
+      "password": "New password",
+      "passwordHint": "At least {count} characters.",
+      "passwordError": "Use at least {count} characters.",
+      "submit": "Save and sign in",
+      "saving": "Saving…",
+      "invalidTitle": "This link has expired",
+      "invalidBody": "Reset links work once and expire after 1 hour. Request a new one to continue.",
+      "requestNew": "Request a new link"
+    },
+    "resetEmail": {
+      "subject": "Reset your Parcelith password",
+      "heading": "Reset your password",
+      "body": "Use the button below to choose a new password. The link expires in {minutes} minutes and works once.",
+      "ignore": "If you didn't ask for this, you can ignore this email. Your password won't change.",
+      "cta": "Reset password"
+    }
   },
   "invite": {
     "metaTitle": "Accept your invitation",

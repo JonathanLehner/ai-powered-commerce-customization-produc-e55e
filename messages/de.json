@@ -666,6 +666,7 @@
     "email": "E-Mail-Adresse",
     "emailPlaceholder": "name@firma.de",
     "password": "Passwort",
+    "forgotLink": "Passwort vergessen?",
     "signIn": "Anmelden",
     "failed": "Anmeldung fehlgeschlagen",
     "errors": {
@@ -674,7 +675,37 @@
     },
     "createTitle": "Neu bei Parcelith?",
     "createBlurb": "Erstellen Sie einen Agenturarbeitsbereich im Starter- oder Studio-Tarif.",
-    "createAccount": "Konto erstellen"
+    "createAccount": "Konto erstellen",
+    "forgot": {
+      "title": "Passwort zurücksetzen",
+      "lead": "Geben Sie die E-Mail-Adresse ein, mit der Sie sich anmelden. Wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+      "email": "E-Mail-Adresse",
+      "emailError": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "submit": "Link senden",
+      "sending": "Wird gesendet…",
+      "sentTitle": "Prüfen Sie Ihr Postfach",
+      "sentBody": "Wenn ein Konto mit dieser E-Mail-Adresse existiert, haben wir einen Link zum Zurücksetzen Ihres Passworts gesendet. Der Link ist 1 Stunde gültig.",
+      "back": "Zurück zur Anmeldung"
+    },
+    "reset": {
+      "title": "Neues Passwort wählen",
+      "lead": "Für {email}",
+      "password": "Neues Passwort",
+      "passwordHint": "Mindestens {count} Zeichen.",
+      "passwordError": "Verwenden Sie mindestens {count} Zeichen.",
+      "submit": "Speichern und anmelden",
+      "saving": "Wird gespeichert…",
+      "invalidTitle": "Dieser Link ist abgelaufen",
+      "invalidBody": "Links zum Zurücksetzen funktionieren einmal und laufen nach 1 Stunde ab. Fordern Sie einen neuen an, um fortzufahren.",
+      "requestNew": "Neuen Link anfordern"
+    },
+    "resetEmail": {
+      "subject": "Ihr Parcelith-Passwort zurücksetzen",
+      "heading": "Passwort zurücksetzen",
+      "body": "Über die Schaltfläche unten wählen Sie ein neues Passwort. Der Link ist {minutes} Minuten gültig und funktioniert einmal.",
+      "ignore": "Wenn Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren. Ihr Passwort bleibt unverändert.",
+      "cta": "Passwort zurücksetzen"
+    }
   },
   "invite": {
     "metaTitle": "Einladung annehmen",
