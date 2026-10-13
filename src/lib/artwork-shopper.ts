@@ -1,4 +1,13 @@
-import { formatOf, placementBox, validateArtwork, type ArtworkIssue } from "./artwork";
+import {
+  acceptedFormats,
+  acceptedMimeTypes,
+  formatOf,
+  isAcceptedFormat,
+  placementBox,
+  requiredDpi,
+  validateArtwork,
+  type ArtworkIssue,
+} from "./artwork";
 import type { ShopperTranslator } from "@/i18n/shopper-copy";
 import type { Artwork, FileRequirements, PrintArea } from "./types";
 
@@ -28,8 +37,6 @@ export interface ShopperArtworkIssue {
 }
 
 /** Formats the browser can measure, place and composite into a preview. */
-export const PREVIEWABLE_FORMATS = ["PNG", "JPG", "WEBP"];
-
 const PREVIEWABLE_MIME: Record<string, string> = {
   "image/png": "PNG",
   "image/jpeg": "JPG",
@@ -41,23 +48,17 @@ export function canPreview(mimeType: string): boolean {
 }
 
 /**
- * What the shopper may actually upload: the supplier's list narrowed to the
- * formats the storefront can check and preview. A supplier that accepts PDF or
- * SVG still gets those from the workspace; a shopper cannot be shown a live DPI
- * reading for a file the browser cannot measure.
+ * What the shopper may upload: the same list the workspace upload field and its
+ * pre-flight name, so the storefront never promises a format the supplier
+ * refuses.
  */
 export function shopperFormats(rules: FileRequirements): string[] {
-  const shared = rules.formats.filter((f) => PREVIEWABLE_FORMATS.includes(f));
-  return shared.length > 0 ? shared : PREVIEWABLE_FORMATS;
+  return acceptedFormats(rules);
 }
 
 /** The `accept` attribute for a file input restricted to those formats. */
 export function shopperAccept(rules: FileRequirements): string {
-  const formats = shopperFormats(rules);
-  return Object.entries(PREVIEWABLE_MIME)
-    .filter(([, name]) => formats.includes(name))
-    .map(([mime]) => mime)
-    .join(",");
+  return acceptedMimeTypes(rules);
 }
 
 function translate(
@@ -68,7 +69,7 @@ function translate(
   t: ShopperTranslator<"artwork">,
 ): ShopperArtworkIssue {
   const box = placementBox(artwork, area);
-  const required = Math.max(area.minDpi, rules.minDpi);
+  const required = requiredDpi(area, rules);
   const base = { code: issue.code, severity: issue.severity };
 
   switch (issue.code) {
@@ -139,6 +140,26 @@ export function shopperArtworkIssues(
 
 export function shopperBlockingIssues(issues: ShopperArtworkIssue[]): ShopperArtworkIssue[] {
   return issues.filter((i) => i.severity === "error");
+}
+
+/**
+ * The refusal for a file in a format this print area does not take, before it
+ * is uploaded: named as not accepted when it is an image the supplier refuses,
+ * as unreadable when nothing here could measure it.
+ */
+export function formatNotAcceptedIssue(
+  mimeType: string,
+  rules: FileRequirements,
+  t: ShopperTranslator<"artwork">,
+): ShopperArtworkIssue | null {
+  if (isAcceptedFormat(mimeType, rules)) return null;
+  if (!canPreview(mimeType)) return unreadableFormatIssue(mimeType, rules, t);
+  return {
+    code: "bad_format",
+    severity: "error",
+    message: t("badFormat", { format: formatOf(mimeType) }),
+    fix: t("badFormatFix", { formats: shopperFormats(rules).join(", ") }),
+  };
 }
 
 /**
