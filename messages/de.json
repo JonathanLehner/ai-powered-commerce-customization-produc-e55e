@@ -3570,6 +3570,8 @@
       "addToBasket": "In den Warenkorb",
       "adding": "Wird hinzugefügt …",
       "viewBasket": "Warenkorb ansehen",
+      "added": "Zum Warenkorb hinzugefügt",
+      "addFailed": "Der Artikel konnte nicht in den Warenkorb gelegt werden. Bitte versuchen Sie es erneut.",
       "colour": "Farbe",
       "size": "Größe",
       "option": "Variante",

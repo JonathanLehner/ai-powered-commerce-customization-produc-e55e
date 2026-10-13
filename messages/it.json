@@ -3570,6 +3570,8 @@
       "addToBasket": "Aggiungi al carrello",
       "adding": "Aggiunta in corso…",
       "viewBasket": "Vedi il carrello",
+      "added": "Aggiunto al carrello",
+      "addFailed": "Impossibile aggiungere al carrello. Riprova.",
       "colour": "Colore",
       "size": "Taglia",
       "option": "Opzione",

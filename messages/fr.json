@@ -3570,6 +3570,8 @@
       "addToBasket": "Ajouter au panier",
       "adding": "Ajout en cours…",
       "viewBasket": "Voir le panier",
+      "added": "Ajouté à votre panier",
+      "addFailed": "Impossible d’ajouter cet article à votre panier. Veuillez réessayer.",
       "colour": "Couleur",
       "size": "Taille",
       "option": "Option",

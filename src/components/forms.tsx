@@ -218,7 +218,7 @@ export function FormStatus({ state }: { state: ActionState }) {
  * Wraps a server action in useActionState so every form in the workspace gets
  * the same inline validation, success confirmation and locked submit button.
  */
-export function ActionForm({
+export function ActionForm<S extends ActionState = ActionState>({
   action,
   children,
   submitLabel,
@@ -232,11 +232,12 @@ export function ActionForm({
   submitDisabled,
   beforeSubmit,
   actionsClassName,
+  quietSuccess,
   ref,
   ...rest
 }: Omit<React.ComponentProps<"form">, "action" | "children" | "hidden"> & {
-  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
-  children: ReactNode | ((state: ActionState) => ReactNode);
+  action: (state: S, formData: FormData) => Promise<S>;
+  children: ReactNode | ((state: S) => ReactNode);
   submitLabel: string;
   pendingLabel?: string;
   submitVariant?: ButtonProps["variant"];
@@ -255,8 +256,10 @@ export function ActionForm({
    * two are the only parts of it that sit outside a `CardContent`.
    */
   actionsClassName?: string;
+  /** The form confirms a success itself, so no toast or success line is shown. */
+  quietSuccess?: boolean;
 }) {
-  const [{ state, attempt }, formAction] = useSubmission<ActionState>(action, { status: "idle" });
+  const [{ state, attempt }, formAction] = useSubmission<S>(action, { status: "idle" } as S);
   const { formRef, capture } = useValueRestore(state.status, attempt);
   // A wrapper such as `<Card asChild>` hands its own ref in; it has to share the
   // form with the restore rather than replace it.
@@ -294,9 +297,9 @@ export function ActionForm({
           ))
         : null}
       {typeof children === "function" ? children(state) : children}
-      <SuccessToast state={state} />
+      {quietSuccess ? null : <SuccessToast state={state} />}
       <div className={actionsClassName}>
-        <FormStatus state={state} />
+        <FormStatus state={quietSuccess && state.status === "success" ? { status: "idle" } : state} />
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <SubmitButton
             variant={submitVariant}

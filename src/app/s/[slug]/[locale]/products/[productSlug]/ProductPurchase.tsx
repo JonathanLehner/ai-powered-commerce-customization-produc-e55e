@@ -1,9 +1,10 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { startTransition, useEffect, useRef, useState } from "react";
-import type { ActionState } from "@/app/actions/stores";
-import { addToCart } from "@/app/actions/shop";
+import { CheckIcon, XIcon } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { addToCart, attachLinePreview, type AddToCartState } from "@/app/actions/shop";
 import { useBasket } from "@/components/BasketSheet";
 import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
@@ -18,7 +19,8 @@ import {
   type ShopperArtworkIssue,
 } from "@/lib/artwork-shopper";
 import { formatMinorUnits } from "@/i18n/format";
-import { personalisationTextColour, variantPhoto } from "@/lib/line-preview";
+import { LineThumbnail } from "@/components/LineThumbnail";
+import { personalisationTextColour } from "@/lib/line-preview";
 import { renderMockup, type MockupLayer } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
 import {
@@ -31,7 +33,7 @@ import {
   type StoreProduct,
 } from "@/lib/types";
 import { classNames, newId } from "@/lib/util";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,7 +105,6 @@ export function ProductPurchase({
   const areaMockup = area ? (gallery.find((m) => m.view === area.view)?.url ?? null) : null;
   const onAreaView = Boolean(area && activeMockup && activeMockup === (areaMockup ?? gallery[0]?.url));
   const objectUrl = useRef<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const basket = useBasket();
   const fileInput = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -299,56 +300,24 @@ export function ProductPurchase({
     }
   }
 
-  /**
-   * Composites the personalisation onto the product photography and attaches it
-   * to the submission, so the basket and the production job carry the same
-   * picture the shopper just approved — at the placement they approved it in.
-   */
-  /**
-   * Puts the line in the header basket and opens the drawer as soon as the
-   * button is pressed. The preview upload and the save carry on behind it; the
-   * line's id goes with the form, so a resubmission is stored once.
-   */
-  const purchasable = Boolean(variant && variant.availability !== "out_of_stock" && !variant.soldOut);
+  const [added, setAdded] = useState<AddedLine | null>(null);
+  /** The preview to composite for the add in flight, as the shopper saw it when they pressed the button. */
+  const previewJob = useRef<{ lineId: string; mockup: string; rect: PrintArea["rect"]; layers: MockupLayer[] } | null>(
+    null,
+  );
 
-  async function addInstantly(formData: FormData) {
+  /**
+   * Names the line, so a resubmission is stored once, and notes the preview to
+   * draw. The preview is drawn and stored after the line is saved, so the add
+   * does not wait on it.
+   */
+  async function prepareAdd(formData: FormData) {
     const lineId = newId("cit");
     formData.set("lineId", lineId);
-    if (!variant || !purchasable) {
-      await renderPreview(formData);
-      return;
-    }
-    const personalised = Boolean(artwork || text.trim());
-    const quantity = Math.max(1, Math.min(50, Number(formData.get("quantity") ?? 1) || 1));
-    const line = {
-      id: lineId,
-      productName: product.name,
-      variantName: variant.name,
-      quantity,
-      amount: variant.price * quantity,
-      previewUrl: (personalised ? (areaMockup ?? gallery[0]?.url) : variantPhoto(product, variant.id)) ?? null,
-      // Drawn over the photo until the composite is ready, and kept if it never is.
-      previewOverlay:
-        personalised && area
-          ? { rect: area.rect, textColour: personalisationTextColour(variant.colourHex) }
-          : null,
-      text: text.trim() || null,
-      artworkUrl: artwork ? artworkPreview : null,
-      artworkPlacement: artwork ? placement : null,
-      plainVariantId: personalised ? null : variant.id,
-      pending: true,
-    };
-    basket.addLine(line);
-    await renderPreview(formData, (previewUrl) =>
-      // Past an await, so the update has to join the add's transition again.
-      startTransition(() => basket.addLine({ ...line, previewUrl, previewOverlay: null })),
-    );
-  }
-
-  async function renderPreview(formData: FormData, onDrawn?: (url: string) => void) {
     if (artwork) appendStoredImage(formData, "artwork", artwork);
+    previewJob.current = null;
     const mockup = areaMockup ?? gallery[0]?.url;
-    if (!area || !mockup || (!artwork && !text)) return;
+    if (!area || !mockup || (!artwork && !text.trim())) return;
     const layers: MockupLayer[] = [];
     if (artwork && artworkPreview) {
       layers.push({
@@ -358,24 +327,71 @@ export function ProductPurchase({
         ...placement,
       });
     }
-    if (text) {
+    if (text.trim()) {
       layers.push({
         x: 0.5,
         y: 0.86,
         scale: 0.8,
         rotation: 0,
-        text,
+        text: text.trim(),
         textColour: personalisationTextColour(variant?.colourHex),
       });
     }
-    const blob = await renderMockup(mockup, area.rect, layers);
-    onDrawn?.(URL.createObjectURL(blob));
-    const stored = await uploadImage(
-      new File([blob], "preview.webp", { type: blob.type || "image/webp" }),
-      "shopperPreview",
-      { storeId: product.storeId, productId: product.id },
-    );
-    appendStoredImage(formData, "preview", stored);
+    previewJob.current = { lineId, mockup, rect: area.rect, layers };
+  }
+
+  async function add(previous: AddToCartState, formData: FormData): Promise<AddToCartState> {
+    try {
+      return await addToCart(previous, formData);
+    } catch {
+      return { status: "error", message: t("addFailed") };
+    }
+  }
+
+  /**
+   * Composites the personalisation onto the product photography and puts it on
+   * the saved line, so the basket and the production job carry the picture the
+   * shopper approved. If it cannot be drawn the line keeps the photo with the
+   * personalisation laid over it.
+   */
+  async function attachPreview(lineId: string) {
+    const job = previewJob.current;
+    if (!job || job.lineId !== lineId) return;
+    previewJob.current = null;
+    try {
+      const blob = await renderMockup(job.mockup, job.rect, job.layers);
+      const drawn = URL.createObjectURL(blob);
+      setAdded((current) => (current?.id === lineId ? { ...current, previewUrl: drawn, previewOverlay: null } : current));
+      const stored = await uploadImage(
+        new File([blob], "preview.webp", { type: blob.type || "image/webp" }),
+        "shopperPreview",
+        { storeId: product.storeId, productId: product.id },
+      );
+      const formData = new FormData();
+      formData.set("storeId", product.storeId);
+      formData.set("itemId", lineId);
+      appendStoredImage(formData, "preview", stored);
+      await attachLinePreview(formData);
+    } catch {
+      // The line already shows the photo with the personalisation over it.
+    }
+  }
+
+  // The drawn preview lives in the panel only; it is let go when the panel moves on.
+  const addedPreview = added?.previewUrl;
+  useEffect(
+    () => () => {
+      if (addedPreview?.startsWith("blob:")) URL.revokeObjectURL(addedPreview);
+    },
+    [addedPreview],
+  );
+
+  function onAdded(state: AddToCartState) {
+    if (state.basket) basket.showSaved(state.basket);
+    if (state.added) {
+      setAdded(state.added);
+      void attachPreview(state.added.id);
+    }
   }
 
   return (
@@ -495,14 +511,12 @@ export function ProductPurchase({
       </div>
 
       <ActionForm
-        ref={formRef}
-        // Opened here rather than in the action: state set inside the action is
+        // Cleared here rather than in the action: state set inside the action is
         // held back until the save has finished.
-        onSubmit={() => {
-          if (purchasable) basket.setOpen(true);
-        }}
-        action={addToCart}
-        beforeSubmit={addInstantly}
+        onSubmit={() => setAdded(null)}
+        action={add}
+        beforeSubmit={prepareAdd}
+        quietSuccess
         submitLabel={variant?.soldOut ? t("soldOut") : t("addToBasket")}
         pendingLabel={t("adding")}
         submitSize="lg"
@@ -518,7 +532,7 @@ export function ProductPurchase({
       >
         {(state) => (
           <>
-            <SettleBasket state={state} form={formRef} />
+            <SettleAdd state={state} onAdded={onAdded} />
             <input type="hidden" name="variantId" value={variantId} />
             {artwork ? (
               <>
@@ -818,22 +832,101 @@ export function ProductPurchase({
           </>
         )}
       </ActionForm>
+      {added ? <AddedPanel line={added} base={product.base} onClose={() => setAdded(null)} /> : null}
     </div>
   );
 }
 
+type AddedLine = NonNullable<AddToCartState["added"]>;
+
 /**
- * Tells the basket how the add went: a refusal closes the drawer, so the
- * reason beside the button is read, and a success lets a checkout pressed
- * while it saved go ahead.
+ * Confirms a saved add with the line as it went into the basket. It stays
+ * until it is closed or the shopper adds again.
  */
-function SettleBasket({ state, form }: { state: ActionState; form: React.RefObject<HTMLFormElement | null> }) {
-  const { settle } = useBasket();
+function AddedPanel({ line, base, onClose }: { line: AddedLine; base: string; onClose: () => void }) {
+  const t = useTranslations("storefront.purchase");
+  const basketCopy = useTranslations("storefront.basket");
+  const common = useTranslations("common");
+  const format = useFormatter();
+  const { currency } = useBasket();
+  const panel = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (state.status === "success") settle(true);
-    if (state.status === "error") {
-      settle(false, () => form.current?.querySelector<HTMLElement>('[role="status"]') ?? null);
-    }
-  }, [state, settle, form]);
+    panel.current?.focus();
+  }, []);
+
+  return (
+    <Card
+      ref={panel}
+      role="dialog"
+      aria-labelledby="added-to-basket"
+      tabIndex={-1}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") onClose();
+      }}
+      className="fixed inset-x-4 bottom-24 z-50 gap-0 py-0 shadow-lg outline-none lg:inset-x-auto lg:right-6 lg:bottom-6 lg:w-96"
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2">
+          <CheckIcon aria-hidden className="size-4 text-emerald-600" />
+          <p id="added-to-basket" className="flex-1 text-sm font-medium text-foreground">
+            {t("added")}
+          </p>
+          <Button type="button" variant="ghost" size="icon-sm" aria-label={common("close")} onClick={onClose}>
+            <XIcon aria-hidden />
+          </Button>
+        </div>
+        <div className="mt-3 flex gap-3">
+          <LineThumbnail
+            previewUrl={line.previewUrl}
+            previewOverlay={line.previewOverlay}
+            text={line.text}
+            artworkUrl={line.artworkUrl}
+            artworkPlacement={line.artworkPlacement}
+            alt=""
+            className="size-16"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-foreground">{line.productName}</p>
+            <p className="text-xs text-muted-foreground">
+              {line.variantName} × {line.quantity}
+            </p>
+            {line.text ? (
+              <p className="mt-0.5 truncate text-xs text-inksoft">
+                {basketCopy("personalisation")} {line.text}
+              </p>
+            ) : null}
+            {line.artworkFileName ? (
+              <p className="mt-0.5 truncate text-xs text-inksoft">
+                {basketCopy("artwork", { file: line.artworkFileName })}
+              </p>
+            ) : null}
+          </div>
+          <p className="shrink-0 text-sm font-medium tabular-nums text-foreground">
+            {formatMinorUnits(format, line.amount, currency)}
+          </p>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Link href={`${base}/cart`} className={buttonVariants({ variant: "outline", size: "lg" })}>
+            {t("viewBasket")}
+          </Link>
+          <Link href={`${base}/checkout`} className={buttonVariants({ size: "lg" })}>
+            {basketCopy("checkout")}
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Hands a successful add to the page once, when its answer lands. */
+function SettleAdd({ state, onAdded }: { state: AddToCartState; onAdded: (state: AddToCartState) => void }) {
+  const latest = useRef(onAdded);
+  useEffect(() => {
+    latest.current = onAdded;
+  });
+  useEffect(() => {
+    if (state.status === "success") latest.current(state);
+  }, [state]);
   return null;
 }

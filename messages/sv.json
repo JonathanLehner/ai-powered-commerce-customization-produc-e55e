@@ -3570,6 +3570,8 @@
       "addToBasket": "Lägg i varukorgen",
       "adding": "Lägger till…",
       "viewBasket": "Visa varukorgen",
+      "added": "Tillagd i varukorgen",
+      "addFailed": "Det gick inte att lägga till i varukorgen. Försök igen.",
       "colour": "Färg",
       "size": "Storlek",
       "option": "Variant",

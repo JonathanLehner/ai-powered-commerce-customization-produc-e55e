@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { after } from "next/server";
 import { readCurrency, setCurrency } from "@/app/actions/shop";
-import { BasketProvider, BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
+import { BasketProvider, BasketSheet } from "@/components/BasketSheet";
 import { CurrencySelect } from "@/components/CurrencySelect";
 import { Document, siteMetadata } from "@/components/Document";
 import { LanguageSelect } from "@/components/LanguageSelect";
@@ -16,13 +16,12 @@ import { UserRoundIcon } from "lucide-react";
 import { BLOG_PATH, resolveMenu, storeMenus } from "@/lib/content";
 import { menuLookups } from "@/lib/storefront-menus";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
-import { basketTotals } from "@/lib/basket";
+import { basketSheetLines, basketTotals } from "@/lib/basket";
 import { fxStale, usesAutomaticRates } from "@/lib/currency";
 import { refreshStoreFxIfStale } from "@/lib/fx-rates";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { collectionProducts, localizeCollection, navCollectionIds } from "@/lib/collections";
-import { variantPhoto } from "@/lib/line-preview";
 import { POLICY_KEYS, policyPath } from "@/lib/policies";
 import { shipDays } from "@/lib/shipping-promise";
 import { storefrontBySlug } from "@/lib/storefront-data";
@@ -122,26 +121,16 @@ export default async function StorefrontLayout({
 
   // The drawer shows the same prices the basket page does, so they are worked
   // out in the same place rather than re-derived from the stored line.
-  const { products, lines, subtotal } = await basketTotals(
+  const totals = await basketTotals(
     store,
     items,
     currency,
     basket?.discountCode ?? null,
     basket ?? { products: new Map(), rates: new Map() },
   );
-  const basketLines: BasketSheetLine[] = lines.map(({ item, unit }, index) => ({
-    id: item.id,
-    productName: item.productName,
-    variantName: item.variantName,
-    quantity: item.quantity,
-    amount: unit * item.quantity,
-    previewUrl: item.previewUrl ?? variantPhoto(products[index], item.variantId),
-    previewOverlay: item.previewOverlay ?? null,
-    text: item.text,
-    artworkUrl: item.artworkUrl,
-    artworkPlacement: item.artworkPlacement ?? null,
-    plainVariantId: item.text || item.artworkUrl ? null : item.variantId,
-  }));
+  const { subtotal } = totals;
+  const basketLines = basketSheetLines(totals);
+
 
   // The header menu the store built, or the built-in links when it has none:
   // Shop, the collections chosen in the storefront editor and Order status.

@@ -3570,6 +3570,8 @@
       "addToBasket": "Añadir a la cesta",
       "adding": "Añadiendo…",
       "viewBasket": "Ver la cesta",
+      "added": "Añadido a tu cesta",
+      "addFailed": "No se ha podido añadir a tu cesta. Inténtalo de nuevo.",
       "colour": "Color",
       "size": "Talla",
       "option": "Opción",

@@ -3570,6 +3570,8 @@
       "addToBasket": "Add to basket",
       "adding": "Adding…",
       "viewBasket": "View basket",
+      "added": "Added to your basket",
+      "addFailed": "This could not be added to your basket. Try again.",
       "colour": "Colour",
       "size": "Size",
       "option": "Option",

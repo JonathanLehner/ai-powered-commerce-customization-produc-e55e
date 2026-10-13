@@ -21,6 +21,7 @@ import {
   getStore,
   getStoreBySlug,
   getStoreProduct,
+  getStoreProductsByIds,
   listShippingZones,
   releaseDiscountUse,
   updateOrder,
@@ -37,7 +38,7 @@ import { localizeProduct } from "@/lib/translations";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
 import { isLive } from "@/lib/artwork";
-import { basketTotals, cartDiscountCode } from "@/lib/basket";
+import { basketSheetLines, basketTotals, cartDiscountCode, type BasketSheetLine } from "@/lib/basket";
 import { checkDiscount, normalizeDiscountCode } from "@/lib/discounts";
 import { personalisationTextColour, variantPhoto } from "@/lib/line-preview";
 import { readStoredImage } from "@/lib/uploads";
@@ -58,6 +59,7 @@ import {
   type Order,
   type PreviewOverlay,
   type Store,
+  type StoreProduct,
 } from "@/lib/types";
 import { formatMoney, newId, orderCode } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -225,7 +227,14 @@ async function shopperCopy(store: Store | null) {
 
 /* -------------------------------------------------------------- add to cart */
 
-export async function addToCart(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/** The add's answer, with the basket as saved so the header can show it straight away. */
+export interface AddToCartState extends ActionState {
+  basket?: { lines: BasketSheetLine[]; subtotal: number };
+  /** The line just added, at the quantity added, for the confirmation beside the button. */
+  added?: BasketSheetLine & { artworkFileName: string | null };
+}
+
+export async function addToCart(_prev: AddToCartState, formData: FormData): Promise<AddToCartState> {
   const storeId = String(formData.get("storeId") ?? "");
   const productId = String(formData.get("productId") ?? "");
   const variantId = String(formData.get("variantId") ?? "");
@@ -238,10 +247,11 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   // Independent reads go out together: this action sits between the shopper
   // and the basket they are waiting on.
-  const [store, product, cart] = await Promise.all([
+  const [store, product, cart, level] = await Promise.all([
     getStore(storeId),
     getStoreProduct(productId),
     loadCart(storeId, true),
+    getLevel(productId, variantId),
   ]);
   const { t, locale } = await shopperCopy(store);
   if (!store || store.status !== "active") {
@@ -261,7 +271,6 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   }
   // A soft check: the units are only held once checkout starts, but a shopper
   // should not fill a basket with more than the store can sell.
-  const level = await getLevel(product.id, variant.id);
   const inBasket = (cart?.items ?? []).filter((i) => i.variantId === variant.id).reduce((sum, i) => sum + i.quantity, 0);
   if (!canSell(level, inBasket + quantity) && !cart?.items.some((i) => i.id === id)) {
     const left = level ? Math.max(0, availableOf(level) - inBasket) : 0;
@@ -288,6 +297,10 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   // The file itself went to /api/uploads before the form was submitted, so only
   // its stored URL and metadata arrive here.
   const stored = readStoredImage(formData, "artwork", "shopperArtwork");
+  const [catalog, currency] = await Promise.all([
+    stored || text ? getCatalogProduct(product.catalogProductId) : null,
+    readCurrency(store.defaultCurrency, store.currencies),
+  ]);
   let artworkUrl: string | null = null;
   let artworkFileName: string | null = null;
   let shopperArtwork: Artwork | null = null;
@@ -297,7 +310,6 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     if (!product.shopperCustomization.artworkUpload) {
       return { status: "error", message: t("actions.noArtworkUpload") };
     }
-    const catalog = await getCatalogProduct(product.catalogProductId);
     if (!catalog) return { status: "error", message: t("actions.productUnavailable") };
     if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
       return {
@@ -338,21 +350,18 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
     artworkFileName = stored.fileName;
   }
 
-  // The browser composites the personalisation onto the product photography,
-  // stores it the same way and posts back the URL, so the basket shows what
-  // will be printed. When it could not, the line keeps the photo in the chosen
-  // colour and the print area, and thumbnails draw the personalisation over it.
+  // The line starts on the photo in the chosen colour, with the print area the
+  // personalisation is drawn over. The product page composites the real
+  // preview once the line is saved and attaches it with attachLinePreview.
   let previewUrl = variantPhoto(product, variant.id);
   let previewOverlay: PreviewOverlay | null = null;
   if (shopperArtwork || text) {
     const rendered = readStoredImage(formData, "preview", "shopperPreview");
+    const area = catalog?.printAreas[0];
     if (rendered) previewUrl = rendered.url;
-    else {
-      const area = (await getCatalogProduct(product.catalogProductId))?.printAreas[0];
-      if (area) {
-        previewUrl = variantPhoto(product, variant.id, area.view);
-        previewOverlay = { rect: area.rect, textColour: personalisationTextColour(variant.colourHex) };
-      }
+    else if (area) {
+      previewUrl = variantPhoto(product, variant.id, area.view);
+      previewOverlay = { rect: area.rect, textColour: personalisationTextColour(variant.colourHex) };
     }
   }
 
@@ -360,8 +369,6 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
 
   // The basket line keeps the names the shopper saw, in their language.
   const shown = localizeProduct(product, locale, storeLanguages(store).defaultLocale);
-  const added: ActionState = { status: "success", message: t("actions.addedToBasket", { product: shown.name }) };
-  if (cart.items.some((i) => i.id === id) || cart.addKeys?.includes(id)) return added;
   const item: CartItem = {
     id,
     storeProductId: product.id,
@@ -382,14 +389,51 @@ export async function addToCart(_prev: ActionState, formData: FormData): Promise
   const existing = cart.items.find(
     (i) => i.variantId === item.variantId && !i.text && !i.artworkUrl && !item.text && !item.artworkUrl,
   );
-  const items = existing
-    ? cart.items.map((i) => (i.id === existing.id ? { ...i, quantity: Math.min(50, i.quantity + quantity) } : i))
-    : [...cart.items, item];
+  let items = cart.items;
+  // A resubmission of an add already stored changes nothing.
+  if (!cart.items.some((i) => i.id === id) && !cart.addKeys?.includes(id)) {
+    items = existing
+      ? cart.items.map((i) => (i.id === existing.id ? { ...i, quantity: Math.min(50, i.quantity + quantity) } : i))
+      : [...cart.items, item];
+    // A line folded into another keeps no id of its own, so the add is remembered.
+    await saveCart(cart, items, existing ? [...(cart.addKeys ?? []).slice(-19), id] : undefined);
+  }
 
-  // A line folded into another keeps no id of its own, so the add is remembered.
-  await saveCart(cart, items, existing ? [...(cart.addKeys ?? []).slice(-19), id] : undefined);
-  refreshBasket(store.slug);
-  return added;
+  // The saved basket goes back with the answer, so the page the shopper is on
+  // is not rendered again just to update the header.
+  const others = [...new Set(items.map((i) => i.storeProductId))].filter((pid) => pid !== product.id);
+  const products = others.length > 0 ? await getStoreProductsByIds(others) : new Map<string, StoreProduct>();
+  products.set(product.id, product);
+  const totals = await basketTotals(store, items, currency, null, { products, rates: new Map() });
+  const lines = basketSheetLines(totals);
+  const line = lines.find((l) => l.id === (existing?.id ?? id)) ?? lines.find((l) => l.id === id);
+  const unit = totals.lines.find((l) => l.item.id === line?.id)?.unit ?? 0;
+  return {
+    status: "success",
+    message: t("actions.addedToBasket", { product: shown.name }),
+    basket: { lines, subtotal: totals.subtotal },
+    added: line ? { ...line, quantity, amount: unit * quantity, artworkFileName } : undefined,
+  };
+}
+
+/**
+ * Puts the composited preview on a personalised line once the product page has
+ * drawn and stored it. Until then the line shows the photo with the
+ * personalisation drawn over it.
+ */
+export async function attachLinePreview(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const itemId = String(formData.get("itemId") ?? "");
+  const preview = readStoredImage(formData, "preview", "shopperPreview");
+  if (!preview) return;
+  const cart = await loadCart(storeId, false);
+  const line = cart?.items.find((i) => i.id === itemId);
+  if (!cart || !line || (!line.text && !line.artworkUrl)) return;
+  await db.updateOne(
+    COLLECTIONS.carts,
+    { id: cart.id, "items.id": itemId },
+    { $set: { "items.$.previewUrl": preview.url, "items.$.previewOverlay": null } },
+  );
 }
 
 export async function updateCartItem(formData: FormData): Promise<void> {

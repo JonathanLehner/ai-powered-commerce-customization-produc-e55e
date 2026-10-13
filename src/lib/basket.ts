@@ -1,5 +1,6 @@
 import { getDiscountCodeByCode, getStoreProductsByIds, getTaxBracketsByIds } from "./data";
 import { allocateDiscount, checkDiscount, type DiscountRefusal } from "./discounts";
+import { variantPhoto } from "./line-preview";
 import { paymentMode } from "./payment-mode";
 import { presentmentPrice, storeFxTable } from "./currency";
 import { parcelShipping, type TaxRow } from "./pricing";
@@ -14,7 +15,16 @@ import {
   type QuoteBasis,
   type ShippingOption,
 } from "./shipping";
-import type { Cart, CartItem, DiscountCode, ShippingZone, Store, StoreProduct } from "./types";
+import type {
+  ArtworkPlacement,
+  Cart,
+  CartItem,
+  DiscountCode,
+  PreviewOverlay,
+  ShippingZone,
+  Store,
+  StoreProduct,
+} from "./types";
 
 /**
  * The stored code behind whatever the shopper typed into the basket. Read fresh
@@ -36,6 +46,37 @@ export interface AppliedDiscount {
   value: number;
   /** Taken off the goods subtotal, in the basket currency. */
   amount: number;
+}
+
+/** A line in the header basket drawer. */
+export interface BasketSheetLine {
+  id: string;
+  productName: string;
+  variantName: string;
+  quantity: number;
+  /** The line total in minor units of the basket's display currency. */
+  amount: number;
+  previewUrl: string | null;
+  previewOverlay: PreviewOverlay | null;
+  text: string | null;
+  artworkUrl: string | null;
+  artworkPlacement: ArtworkPlacement | null;
+}
+
+/** The drawer's lines, priced the way the basket page prices them. */
+export function basketSheetLines({ products, lines }: Pick<BasketTotals, "products" | "lines">): BasketSheetLine[] {
+  return lines.map(({ item, unit }, index) => ({
+    id: item.id,
+    productName: item.productName,
+    variantName: item.variantName,
+    quantity: item.quantity,
+    amount: unit * item.quantity,
+    previewUrl: item.previewUrl ?? variantPhoto(products[index], item.variantId),
+    previewOverlay: item.previewOverlay ?? null,
+    text: item.text,
+    artworkUrl: item.artworkUrl,
+    artworkPlacement: item.artworkPlacement ?? null,
+  }));
 }
 
 export interface BasketTotals {

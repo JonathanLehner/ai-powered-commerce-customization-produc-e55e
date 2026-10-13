@@ -3570,6 +3570,8 @@
       "addToBasket": "In de winkelmand",
       "adding": "Toevoegen…",
       "viewBasket": "Winkelmand bekijken",
+      "added": "Toegevoegd aan je winkelmand",
+      "addFailed": "Kan niet worden toegevoegd aan je winkelmand. Probeer het opnieuw.",
       "colour": "Kleur",
       "size": "Maat",
       "option": "Optie",
