@@ -21,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <WorkspaceDocument>
       <div data-surface="workspace" className="flex min-h-full flex-col bg-canvas">
         {agency?.billing?.status === "past_due" ? <PastDueBanner owner={user.platformRole === "agency_admin"} /> : null}
-        {onTrial(agency) && trialDaysLeft(agency) > 0 ? (
+        {onTrial(agency) && !trialEnded(agency) ? (
           <TrialBanner days={trialDaysLeft(agency)} owner={user.platformRole === "agency_admin"} />
         ) : null}
         {trialEnded(agency) ? (

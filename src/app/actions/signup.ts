@@ -6,12 +6,13 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { asLocale } from "@/i18n/metadata";
-import { TRIAL_DAYS, billingConfigured, billingPending, canStartCheckout, startPlanCheckout } from "@/lib/billing";
-import { COLLECTIONS, getAgency, getUserByEmail, recordAudit } from "@/lib/data";
+import { TRIAL_DAYS, billingConfigured, billingPending, canStartCheckout, onTrial, startPlanCheckout } from "@/lib/billing";
+import { COLLECTIONS, countActiveStoresForAgency, getAgency, getUserByEmail, recordAudit } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
 import { db } from "@/lib/mongo";
 import { getSessionUser } from "@/lib/session";
-import { checkSignup, isBillingCycle } from "@/lib/signup";
+import { PLANS, storeAllowance } from "@/lib/plans";
+import { checkSignup, isBillingCycle, isSelfServePlan } from "@/lib/signup";
 import type { Agency, AgencyBilling, User } from "@/lib/types";
 import { newId, slugify } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -109,7 +110,7 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
     recordAudit({
       category: "administration",
       action: "agency.signed_up",
-      summary: `${user.name} created the agency “${agency.name}” on a ${TRIAL_DAYS}-day ${input.plan} trial`,
+      summary: `${user.name} created the agency “${agency.name}” on a ${TRIAL_DAYS}-day ${PLANS[input.plan].name} trial`,
       agencyId: agency.id,
       actorId: user.id,
       actorName: user.name,
@@ -132,7 +133,12 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
   redirect("/app/stores/new?welcome=1");
 }
 
-/** "Add payment details" on the billing page, during or after the free trial, or for an owner who left Checkout. */
+/**
+ * "Add payment details" on the billing page, during or after the free trial, or
+ * for an owner who left Checkout. During the trial the owner can also switch
+ * between the self-serve plans; the trial carries on with the plan chosen,
+ * unless it allows fewer live stores than the agency already runs.
+ */
 export async function continueToPayment(formData: FormData): Promise<void> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
@@ -140,10 +146,23 @@ export async function continueToPayment(formData: FormData): Promise<void> {
   if (user.platformRole !== "agency_admin" || !agency?.billing || !canStartCheckout(agency)) redirect("/app");
 
   const cycle = String(formData.get("cycle") ?? "");
+  const plan = String(formData.get("plan") ?? "");
   let billing = agency.billing;
+  let agencyPlan = agency.plan;
+  const changes: Record<string, string> = {};
   if (isBillingCycle(cycle) && cycle !== billing.cycle) {
     billing = { ...billing, cycle };
-    await db.updateOne(COLLECTIONS.agencies, { id: agency.id }, { $set: { "billing.cycle": cycle } });
+    changes["billing.cycle"] = cycle;
   }
-  redirect(await checkoutAddress({ ...agency, billing }, user.email, user.uiLanguage ?? (await getLocale())));
+  if (onTrial(agency) && isSelfServePlan(plan) && plan !== billing.plan) {
+    const allowance = storeAllowance(plan, await countActiveStoresForAgency(agency.id));
+    if (allowance.limit === null || allowance.used <= allowance.limit) {
+      billing = { ...billing, plan };
+      agencyPlan = plan;
+      changes["billing.plan"] = plan;
+      changes.plan = plan;
+    }
+  }
+  if (Object.keys(changes).length > 0) await db.updateOne(COLLECTIONS.agencies, { id: agency.id }, { $set: changes });
+  redirect(await checkoutAddress({ ...agency, plan: agencyPlan, billing }, user.email, user.uiLanguage ?? (await getLocale())));
 }

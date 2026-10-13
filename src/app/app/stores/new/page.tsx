@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { agencyStoreAllowance, listAgencies } from "@/lib/data";
 import { planStoresText, storeLimitText, storeUsageText } from "@/i18n/plan-copy";
-import { billingPending } from "@/lib/billing";
+import { TRIAL_DAYS, billingPending, onTrial } from "@/lib/billing";
 import { accessibleStores, getAgencyForRender, requireUser } from "@/lib/session";
 import { formatDate } from "@/lib/util";
 import { ArchiveStoreForm } from "./ArchiveStoreForm";
@@ -57,7 +57,14 @@ export default async function NewStorePage({ searchParams }: { searchParams: Pro
         <div className="mt-6">
           {welcome && allowance && !allowance.atLimit ? (
             <div className="mb-5">
-              <Callout tone="green" title={t("welcomeTitle", { plan: allowance.plan.name })}>
+              <Callout
+                tone="green"
+                title={
+                  onTrial(agency)
+                    ? t("welcomeTrialTitle", { days: TRIAL_DAYS, plan: allowance.plan.name })
+                    : t("welcomeTitle", { plan: allowance.plan.name })
+                }
+              >
                 {t("welcomeBody")}
               </Callout>
             </div>

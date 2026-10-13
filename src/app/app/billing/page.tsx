@@ -9,11 +9,14 @@ import { Badge, Callout, DataList, PageHeader } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { TRIAL_DAYS, billingPending, onTrial } from "@/lib/billing";
+import { TRIAL_DAYS, billingPending, firstChargeAt, onTrial } from "@/lib/billing";
+import { countActiveStoresForAgency } from "@/lib/data";
+import { planStoresText } from "@/i18n/plan-copy";
 import { nextInvoice } from "@/lib/stripe";
 import type { Agency, User } from "@/lib/types";
 import { formatMoney } from "@/lib/util";
-import { PLANS, planPrice, type BillingCycle } from "@/lib/plans";
+import { PLANS, YEARLY_DISCOUNT, planPrice, type BillingCycle } from "@/lib/plans";
+import { SELF_SERVE_PLANS } from "@/lib/signup";
 import { accessibleStores, getAgencyForRender, requireUser } from "@/lib/session";
 
 const CYCLES: BillingCycle[] = ["monthly", "yearly"];
@@ -137,6 +140,7 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
       : null;
   const date = (iso: string) => format.dateTime(new Date(iso), { dateStyle: "medium" });
   const status = billing?.status ?? "active";
+  const trial = owner && onTrial(agency) && billing ? await trialChoices(agency) : null;
 
   return (
     <>
@@ -183,7 +187,9 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
                         },
                         {
                           label: t("nextInvoice"),
-                          value: upcoming
+                          value: trial
+                            ? trial.summary
+                            : upcoming
                             ? upcoming.date
                               ? t("nextInvoiceOn", {
                                   amount: formatMoney(upcoming.amountDue, upcoming.currency, locale),
@@ -209,10 +215,11 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
                     {t("contactUs")}
                   </Link>
                 </p>
-              ) : owner && onTrial(agency) ? (
-                <form action={continueToPayment} className="space-y-3">
-                  <input type="hidden" name="cycle" value={billing.cycle} />
-                  <p className="text-sm text-muted-foreground">{t("trialNote")}</p>
+              ) : trial ? (
+                <form action={continueToPayment} className="space-y-5 border-t border-border pt-4">
+                  <ChoiceGroup legend={t("planLabel")} name="plan" options={trial.plans} />
+                  <ChoiceGroup legend={t("billingPeriod")} name="cycle" options={trial.cycles} />
+                  {trial.chargedLater ? <p className="text-sm text-muted-foreground">{t("trialNote")}</p> : null}
                   <SubmitButton pendingLabel={t("opening")}>{t("addPayment")}</SubmitButton>
                 </form>
               ) : owner && billing.stripeCustomerId ? (
@@ -230,5 +237,92 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
         </div>
       </div>
     </>
+  );
+}
+
+interface Choice {
+  value: string;
+  label: string;
+  detail?: string;
+  checked: boolean;
+  disabled?: boolean;
+}
+
+/**
+ * What the owner can pick during the trial, priced in the agency's currency,
+ * and what the saved choice costs and when it is first charged. A plan with
+ * fewer live stores than the agency runs cannot be picked.
+ */
+async function trialChoices(agency: Agency) {
+  const billing = agency.billing!;
+  const [t, format, activeStores] = await Promise.all([
+    getTranslations("billing"),
+    getFormatter(),
+    countActiveStoresForAgency(agency.id),
+  ]);
+  const money = (amount: number) =>
+    format.number(amount, { style: "currency", currency: billing.currency, maximumFractionDigits: 0 });
+  const priced = (plan: (typeof PLANS)[keyof typeof PLANS], cycle: BillingCycle) => {
+    const amount = money(planPrice(plan, cycle, billing.currency)!.billed);
+    return cycle === "yearly" ? t("perYear", { amount }) : t("perMonth", { amount });
+  };
+  const charge = firstChargeAt(agency);
+  const price = priced(PLANS[billing.plan], billing.cycle);
+  const plans: Choice[] = await Promise.all(
+    SELF_SERVE_PLANS.map(async (key) => {
+      const plan = PLANS[key];
+      const tooSmall = plan.storeLimit !== null && activeStores > plan.storeLimit;
+      const prices = t("planPrices", { monthly: priced(plan, "monthly"), yearly: priced(plan, "yearly") });
+      return {
+        value: key,
+        label: plan.name,
+        detail: `${prices} · ${tooSmall ? t("storesInUse", { used: activeStores }) : await planStoresText(plan)}`,
+        checked: key === billing.plan,
+        disabled: tooSmall,
+      };
+    }),
+  );
+  const cycles: Choice[] = CYCLES.map((cycle) => ({
+    value: cycle,
+    label: t(cycle),
+    detail: cycle === "yearly" ? t("yearlySaving", { percent: format.number(YEARLY_DISCOUNT, { style: "percent" }) }) : undefined,
+    checked: cycle === billing.cycle,
+  }));
+  return {
+    plans,
+    cycles,
+    chargedLater: charge !== null,
+    summary: charge
+      ? t("firstCharge", { price, date: format.dateTime(charge, { dateStyle: "medium" }) })
+      : t("chargedNow", { price }),
+  };
+}
+
+function ChoiceGroup({ legend, name, options }: { legend: string; name: string; options: Choice[] }) {
+  return (
+    <fieldset>
+      <legend className="mb-3 text-sm leading-none font-medium text-foreground select-none">{legend}</legend>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {options.map((option) => (
+          <Label
+            key={option.value}
+            className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3.5 font-normal hover:border-primary/40 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60"
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              defaultChecked={option.checked}
+              disabled={option.disabled}
+              className="mt-1 size-4 accent-primary"
+            />
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-foreground">{option.label}</span>
+              {option.detail ? <span className="mt-1 block text-xs text-muted-foreground">{option.detail}</span> : null}
+            </span>
+          </Label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

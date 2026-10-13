@@ -27,16 +27,33 @@ function trialEnds(agency: BillingFields): number {
   return onTrial(agency) && agency?.billing?.trialEndsAt ? Date.parse(agency.billing.trialEndsAt) : NaN;
 }
 
-/** Whole days left on the free trial, rounded up; 0 once it has ended. */
+/**
+ * Whole days left on the free trial, rounded down the way Stripe Checkout
+ * counts its "days free", so the two always agree. 0 on the last day and once
+ * the trial has ended.
+ */
 export function trialDaysLeft(agency: BillingFields, now = Date.now()): number {
   const ends = trialEnds(agency);
   if (Number.isNaN(ends)) return 0;
-  return Math.max(0, Math.ceil((ends - now) / DAY_MS));
+  return Math.max(0, Math.floor((ends - now) / DAY_MS));
 }
 
 /** True once a trial has run out without payment details. */
 export function trialEnded(agency: BillingFields, now = Date.now()): boolean {
-  return onTrial(agency) && trialDaysLeft(agency, now) === 0;
+  if (!onTrial(agency)) return false;
+  const ends = trialEnds(agency);
+  return Number.isNaN(ends) || now >= ends;
+}
+
+/**
+ * When the first charge falls if payment details are added now: the end of the
+ * trial, which Checkout keeps, or null when it is too close for Stripe (which
+ * needs a trial end at least two days out) and the plan is billed at once.
+ */
+export function firstChargeAt(agency: BillingFields, now = Date.now()): Date | null {
+  const ends = trialEnds(agency);
+  if (Number.isNaN(ends) || ends - now < 2 * DAY_MS + 60 * 60 * 1000) return null;
+  return new Date(ends);
 }
 
 /**

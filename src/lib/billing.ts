@@ -6,7 +6,7 @@ import { db } from "./mongo";
 import { PLANS, planPrice } from "./plans";
 import { TRIAL_DAYS } from "./signup";
 import { checkoutLocale, refId, stripeClient } from "./stripe";
-import { onTrial } from "./trial";
+import { firstChargeAt, onTrial } from "./trial";
 import type { Agency, AgencyBilling } from "./types";
 
 /**
@@ -16,9 +16,7 @@ import type { Agency, AgencyBilling } from "./types";
  */
 
 export { TRIAL_DAYS, billingConfigured };
-export { billingPending, onTrial, trialDaysLeft } from "./trial";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+export { billingPending, firstChargeAt, onTrial, trialDaysLeft } from "./trial";
 
 /** Whether the owner can open Checkout: on a trial, after it, or still pending. */
 export function canStartCheckout(agency: Agency | null): boolean {
@@ -33,9 +31,8 @@ export function canStartCheckout(agency: Agency | null): boolean {
  */
 function checkoutTrial(billing: AgencyBilling, now = Date.now()): Partial<Pick<Stripe.Checkout.SessionCreateParams.SubscriptionData, "trial_end" | "trial_period_days">> {
   if (billing.status === "pending") return { trial_period_days: TRIAL_DAYS };
-  const ends = billing.trialEndsAt ? Date.parse(billing.trialEndsAt) : NaN;
-  if (Number.isNaN(ends) || ends - now < 2 * DAY_MS + 60 * 60 * 1000) return {};
-  return { trial_end: Math.floor(ends / 1000) };
+  const charge = firstChargeAt({ billing }, now);
+  return charge ? { trial_end: Math.floor(charge.getTime() / 1000) } : {};
 }
 
 interface CheckoutSession {
@@ -152,7 +149,7 @@ export async function activateSubscription(
   recordAudit({
     category: "administration",
     action: "agency.subscribed",
-    summary: `Subscribed ${agency.name} to the ${agency.billing.plan} plan, billed ${agency.billing.cycle}`,
+    summary: `Subscribed ${agency.name} to the ${PLANS[agency.billing.plan].name} plan, billed ${agency.billing.cycle}`,
     agencyId: agency.id,
     actorId: actor.id,
     actorName: actor.name,

@@ -147,8 +147,9 @@ const trialing = (endsIn) => ({
 // Sign-up starts a trial with no Checkout; the workspace stays open until it ends.
 assert.match(signup, /status: "trialing"/);
 assert.match(signup, /trialEndsAt: new Date\(Date\.parse\(now\) \+ TRIAL_DAYS \* 24 \* 60 \* 60 \* 1000\)/);
-assert.equal(trialDaysLeft(trialing(14 * DAY - 1000)), 14);
-assert.equal(trialDaysLeft(trialing(DAY / 2)), 1);
+// Days left round down, as Stripe Checkout counts its "days free", so the banner and Checkout agree.
+assert.equal(trialDaysLeft(trialing(14 * DAY - 1000)), 13);
+assert.equal(trialDaysLeft(trialing(DAY / 2)), 0, "the last day reads as ending today");
 assert.equal(billingPending(trialing(DAY / 2)), false, "a running trial is not blocked");
 assert.equal(billingPending(trialing(-1000)), true, "an ended trial asks for payment");
 assert.equal(billingPending(agency), true, "a card-first sign-up still finishes checkout");
@@ -168,9 +169,23 @@ assert.equal(late.get("subscription_data[trial_end]"), null);
 assert.equal(late.get("subscription_data[trial_period_days]"), null);
 assert.match(requests[4].headers.get("idempotency-key"), /-none$/);
 
+// The billing page names the first charge: the trial end Checkout keeps, or at once near the end.
+const { firstChargeAt } = await import("../src/lib/trial.ts");
+assert.equal(firstChargeAt(midTrial).toISOString(), midTrial.billing.trialEndsAt);
+assert.equal(firstChargeAt(trialing(DAY)), null);
+assert.equal(firstChargeAt({ billing: { ...agency.billing, status: "active" } }), null);
+const billingPage = source("src/app/app/billing/page.tsx");
+assert.match(billingPage, /t\("firstCharge", \{ price, date:/);
+assert.match(billingPage, /name="plan" options=\{trial\.plans\}/, "the owner picks the plan before Checkout");
+assert.match(billingPage, /name="cycle" options=\{trial\.cycles\}/, "the owner picks the billing period before Checkout");
+assert.match(signup, /onTrial\(agency\) && isSelfServePlan\(plan\)/, "a plan switch is saved during the trial");
+assert.match(signup, /-day \$\{PLANS\[input\.plan\]\.name\} trial/, "the activity feed names the plan");
+assert.equal(JSON.parse(source("messages/en.json")).newStore.welcomeTrialTitle, "Your {days}-day {plan} trial has started");
+
 for (const locale of LOCALES) {
-  const { billing: copy } = JSON.parse(source(`messages/${locale}.json`));
+  const { billing: copy, newStore } = JSON.parse(source(`messages/${locale}.json`));
   assert.ok(copy.status.trialing && copy.addPayment && copy.trialBanner && copy.trialEndedTitle, `${locale} has the trial copy`);
+  assert.ok(copy.firstCharge && copy.chargedNow && copy.perMonth && copy.perYear && newStore.welcomeTrialTitle, `${locale} has the plan choice copy`);
 }
 assert.match(JSON.parse(source("messages/en.json")).signup.lead, /no credit card required/);
 
@@ -179,9 +194,12 @@ assert.match(JSON.parse(source("messages/en.json")).signup.lead, /no credit card
 const { STOREFRONT_GRACE_DAYS, storefrontsClosed, storefrontsCloseAt, trialEnded, trialReminderDue } = await import(
   "../src/lib/trial.ts"
 );
+const layout0 = () => source("src/app/app/layout.tsx");
 const ended = trialing(-1000);
 assert.equal(trialEnded(ended), true);
 assert.equal(trialEnded(trialing(DAY)), false);
+assert.equal(trialEnded(trialing(DAY / 2)), false, "the last day is still part of the trial");
+assert.match(layout0(), /onTrial\(agency\) && !trialEnded\(agency\) \? \(\s*<TrialBanner/, "the banner shows through the last day");
 assert.equal(trialEnded({ billing: { ...agency.billing, status: "active" } }), false, "a paid plan never ends a trial");
 
 // Storefronts keep taking orders for the grace period, then pause.
