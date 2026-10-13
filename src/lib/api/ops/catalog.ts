@@ -113,7 +113,7 @@ export const catalogOperations: ApiOperation[] = [
     scope: "products:write",
     tag: "Artwork and mockups",
     summary: "Place artwork in a print area",
-    description: `Places an image already uploaded to the store's asset storage in one of the product's print areas (see getProductPrintAreas), replacing any artwork there, centred at 60% of the area's width. The file is read back and checked as the workspace upload checks it: PNG, JPG or WEBP, at most 25 MB, measurable pixel dimensions, and the supplier's size limit. blockingIssues counts the pre-flight problems that would stop publishing. ${ARTWORK_GUARD}`,
+    description: `Places an image already uploaded to the store's asset storage in one of the product's print areas (see getProductPrintAreas), replacing any artwork there, centred at 60% of the area's width. The file is read back and checked as the workspace upload checks it: PNG, JPG or WEBP, at most 25 MB, measurable pixel dimensions, and the supplier's accepted formats and size limit (see fileRequirements from getProductPrintAreas). blockingIssues counts the pre-flight problems that would stop publishing. ${ARTWORK_GUARD}`,
     status: 201,
     actions: ["products#attachArtwork"],
     input: z.object({

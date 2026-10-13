@@ -1,7 +1,7 @@
 import "server-only";
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
-import { blockingIssues, validateArtwork } from "../artwork";
+import { acceptedFormats, blockingIssues, formatOf, isAcceptedFormat, validateArtwork } from "../artwork";
 import {
   archiveBlock,
   bracketBlock,
@@ -386,6 +386,16 @@ export async function attachArtwork(
 
   if (!stored || !stored.pixelWidth || !stored.pixelHeight) {
     throw new OperationError("invalid", t("fileRequired"), "artwork");
+  }
+  if (!isAcceptedFormat(stored.mimeType, catalog.fileRequirements)) {
+    throw new OperationError(
+      "invalid",
+      t("badFormat", {
+        format: formatOf(stored.mimeType),
+        formats: acceptedFormats(catalog.fileRequirements).join(", "),
+      }),
+      "artwork",
+    );
   }
   if (stored.sizeBytes > catalog.fileRequirements.maxFileMb * 1024 * 1024) {
     throw new OperationError(

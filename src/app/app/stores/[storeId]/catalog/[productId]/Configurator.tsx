@@ -12,10 +12,19 @@ import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { ActionState } from "@/app/actions/stores";
 import { artworkIssueText } from "@/i18n/artwork-copy";
-import { placementBox, validateArtwork, type ArtworkIssue } from "@/lib/artwork";
+import {
+  acceptedFormats,
+  acceptedMimeTypes,
+  formatOf,
+  isAcceptedFormat,
+  placementBox,
+  requiredDpi,
+  validateArtwork,
+  type ArtworkIssue,
+} from "@/lib/artwork";
 import { renderMockupWithShareCopy, sameOriginAsset } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
-import type { Artwork, CatalogProduct, StoreProduct } from "@/lib/types";
+import type { Artwork, CatalogProduct, FileRequirements, StoreProduct } from "@/lib/types";
 import { classNames } from "@/lib/util";
 
 interface Placement {
@@ -37,15 +46,15 @@ function UploadForm({
   productId,
   areaId,
   areaName,
-  maxFileMb,
-  needsTransparency,
+  rules,
+  minDpi,
 }: {
   storeId: string;
   productId: string;
   areaId: string;
   areaName: string;
-  maxFileMb: number;
-  needsTransparency: boolean;
+  rules: FileRequirements;
+  minDpi: number;
 }) {
   const [state, formAction, saving] = useActionState<ActionState, FormData>(attachArtwork, {
     status: "idle",
@@ -64,9 +73,15 @@ function UploadForm({
     if (!file) return;
 
     setUploadError(null);
-    if (file.size > maxFileMb * 1024 * 1024) {
+    if (!isAcceptedFormat(file.type, rules)) {
       setUploadError(
-        t("fileTooLarge", { size: (file.size / 1024 / 1024).toFixed(1), max: maxFileMb }),
+        t("badFormat", { format: formatOf(file.type || file.name.split(".").pop() || ""), formats: acceptedFormats(rules).join(", ") }),
+      );
+      return;
+    }
+    if (file.size > rules.maxFileMb * 1024 * 1024) {
+      setUploadError(
+        t("fileTooLarge", { size: (file.size / 1024 / 1024).toFixed(1), max: rules.maxFileMb }),
       );
       return;
     }
@@ -94,7 +109,7 @@ function UploadForm({
         <Input
           id="artwork"
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept={acceptedMimeTypes(rules)}
           disabled={busy}
           onChange={onFileChosen}
           aria-invalid={invalid ? true : undefined}
@@ -105,8 +120,8 @@ function UploadForm({
           )}
         />
         <p id="artwork-hint" className="text-xs text-muted-foreground">
-          {t("fileHint", { max: maxFileMb })}
-          {needsTransparency ? t("needsTransparency") : ""}
+          {t("fileHint", { formats: acceptedFormats(rules).join(", "), max: rules.maxFileMb, dpi: minDpi })}
+          {rules.transparentBackgroundRequired ? t("needsTransparency") : ""}
         </p>
         {busy ? (
           <p role="status" aria-live="polite" className="mt-3 text-sm text-muted-foreground">
@@ -504,7 +519,7 @@ export function Configurator({
                   <span
                     className={classNames(
                       "font-semibold tabular-nums",
-                      box && box.effectiveDpi >= Math.max(area.minDpi, catalog.fileRequirements.minDpi)
+                      box && box.effectiveDpi >= requiredDpi(area, catalog.fileRequirements)
                         ? "text-emerald-700"
                         : "text-rose-700",
                     )}
@@ -579,11 +594,15 @@ export function Configurator({
               <dl className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex justify-between gap-2">
                   <dt>{t("formats")}</dt>
-                  <dd className="text-foreground">{catalog.fileRequirements.formats.join(", ")}</dd>
+                  <dd className="text-foreground">{acceptedFormats(catalog.fileRequirements).join(", ")}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
                   <dt>{t("maxSize")}</dt>
                   <dd className="text-foreground">{catalog.fileRequirements.maxFileMb} MB</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt>{t("minDpi")}</dt>
+                  <dd className="text-foreground">{requiredDpi(area, catalog.fileRequirements)} DPI</dd>
                 </div>
                 <div className="flex justify-between gap-2">
                   <dt>{t("transparentBackground")}</dt>
@@ -615,8 +634,8 @@ export function Configurator({
             productId={product.id}
             areaId={area.id}
             areaName={area.name}
-            maxFileMb={catalog.fileRequirements.maxFileMb}
-            needsTransparency={catalog.fileRequirements.transparentBackgroundRequired}
+            rules={catalog.fileRequirements}
+            minDpi={requiredDpi(area, catalog.fileRequirements)}
           />
         ) : null}
 

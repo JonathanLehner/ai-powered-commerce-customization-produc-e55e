@@ -123,6 +123,37 @@ export function formatOf(mimeType: string): string {
   return MIME_TO_FORMAT[mimeType] ?? mimeType.split("/").pop()?.toUpperCase() ?? "UNKNOWN";
 }
 
+/** Formats whose pixels can be measured for DPI and composited into a mockup. */
+export const MEASURABLE_FORMATS = ["PNG", "JPG", "WEBP"];
+
+/**
+ * The formats a print area takes, for every surface that names them: the
+ * supplier's list narrowed to the files that can be measured and previewed.
+ * The storefront hint, the workspace upload field and its pre-flight all read
+ * this, so they cannot disagree with the supplier or with each other.
+ */
+export function acceptedFormats(requirements: FileRequirements): string[] {
+  return requirements.formats.filter((f) => MEASURABLE_FORMATS.includes(f));
+}
+
+/** The `accept` attribute for a file input restricted to `acceptedFormats`. */
+export function acceptedMimeTypes(requirements: FileRequirements): string {
+  const formats = acceptedFormats(requirements);
+  return Object.entries(MIME_TO_FORMAT)
+    .filter(([, name]) => formats.includes(name))
+    .map(([mime]) => mime)
+    .join(",");
+}
+
+export function isAcceptedFormat(mimeType: string, requirements: FileRequirements): boolean {
+  return acceptedFormats(requirements).includes(formatOf(mimeType.split(";")[0].trim().toLowerCase()));
+}
+
+/** The DPI a print area needs: the stricter of the area's and the supplier's minimum. */
+export function requiredDpi(area: PrintArea, requirements: FileRequirements): number {
+  return Math.max(area.minDpi, requirements.minDpi);
+}
+
 /**
  * Supplier pre-flight. Every returned `error` blocks approval and publishing;
  * warnings are advisory. Each issue carries the correction the user must make.
@@ -160,32 +191,33 @@ export function validateArtwork(
     });
   }
 
-  const requiredDpi = Math.max(area.minDpi, requirements.minDpi);
-  if (box.effectiveDpi > 0 && box.effectiveDpi < requiredDpi) {
-    const maxWidthMm = (artwork.pixelWidth / requiredDpi) * MM_PER_INCH;
+  const minimumDpi = requiredDpi(area, requirements);
+  if (box.effectiveDpi > 0 && box.effectiveDpi < minimumDpi) {
+    const maxWidthMm = (artwork.pixelWidth / minimumDpi) * MM_PER_INCH;
     issues.push({
       code: "low_dpi",
       severity: "error",
-      message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI at this size. ${area.name} requires at least ${requiredDpi} DPI.`,
-      fix: `Scale the artwork down to ${Math.floor(maxWidthMm)} mm wide or less, or upload a file at least ${Math.ceil((requiredDpi * box.printedWidthMm) / MM_PER_INCH)} px wide.`,
+      message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI at this size. ${area.name} requires at least ${minimumDpi} DPI.`,
+      fix: `Scale the artwork down to ${Math.floor(maxWidthMm)} mm wide or less, or upload a file at least ${Math.ceil((minimumDpi * box.printedWidthMm) / MM_PER_INCH)} px wide.`,
       values: {
         dpi: Math.round(box.effectiveDpi),
         area: area.name,
-        required: requiredDpi,
+        required: minimumDpi,
         maxWidth: Math.floor(maxWidthMm),
-        minPx: Math.ceil((requiredDpi * box.printedWidthMm) / MM_PER_INCH),
+        minPx: Math.ceil((minimumDpi * box.printedWidthMm) / MM_PER_INCH),
       },
     });
   }
 
   const format = formatOf(artwork.mimeType);
-  if (!requirements.formats.includes(format)) {
+  if (!acceptedFormats(requirements).includes(format)) {
+    const formats = acceptedFormats(requirements).join(", ");
     issues.push({
       code: "bad_format",
       severity: "error",
       message: `${format} files are not accepted by this supplier.`,
-      fix: `Re-export the artwork as ${requirements.formats.join(", ")} and upload it again.`,
-      values: { format, formats: requirements.formats.join(", ") },
+      fix: `Re-export the artwork as ${formats} and upload it again.`,
+      values: { format, formats },
     });
   }
 
@@ -223,13 +255,13 @@ export function validateArtwork(
     });
   }
 
-  if (box.effectiveDpi >= requiredDpi && box.effectiveDpi < requiredDpi * 1.25) {
+  if (box.effectiveDpi >= minimumDpi && box.effectiveDpi < minimumDpi * 1.25) {
     issues.push({
       code: "dpi_close_to_limit",
       severity: "warning",
-      message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI, just above the ${requiredDpi} DPI minimum.`,
+      message: `Print resolution is ${Math.round(box.effectiveDpi)} DPI, just above the ${minimumDpi} DPI minimum.`,
       fix: "Fine detail and thin lines may soften. A larger source file gives a cleaner print.",
-      values: { dpi: Math.round(box.effectiveDpi), required: requiredDpi },
+      values: { dpi: Math.round(box.effectiveDpi), required: minimumDpi },
     });
   }
 

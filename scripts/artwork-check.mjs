@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import {
   canPreview,
   fileTooLargeIssue,
+  formatNotAcceptedIssue,
   issueSentence,
   shopperAccept,
   shopperArtworkIssues,
@@ -15,7 +16,7 @@ import {
   shopperFormats,
   unreadableFormatIssue,
 } from "../src/lib/artwork-shopper.ts";
-import { placementBox } from "../src/lib/artwork.ts";
+import { acceptedFormats, acceptedMimeTypes, isAcceptedFormat, placementBox, validateArtwork } from "../src/lib/artwork.ts";
 import { LOCALES } from "../src/i18n/locales.ts";
 import { shopperT } from "./shopper-intl.mjs";
 import { DEFAULT_PLACEMENT } from "../src/lib/types.ts";
@@ -152,6 +153,24 @@ const pdf = unreadableFormatIssue("application/pdf", RULES, t);
 assert.equal(pdf.severity, "error");
 assert.match(pdf.message, /PDF/);
 assert.match(pdf.fix, /PNG, JPG/);
+
+/* ------------------ one format list for the storefront and the workspace */
+
+// The product page hint, the workspace upload field and its pre-flight all name
+// the same formats, so a WEBP the mug supplier refuses is refused everywhere.
+assert.deepEqual(acceptedFormats(RULES), shopperFormats(RULES));
+assert.equal(acceptedMimeTypes(RULES), shopperAccept(RULES));
+assert.equal(isAcceptedFormat("image/webp", RULES), false);
+assert.equal(isAcceptedFormat("image/jpeg; charset=binary", RULES), true);
+assert.equal(formatNotAcceptedIssue("image/png", RULES, t), null);
+const webp = formatNotAcceptedIssue("image/webp", RULES, t);
+assert.equal(webp.code, "bad_format");
+assert.match(webp.message, /WEBP/);
+assert.match(webp.fix, /PNG, JPG/);
+assert.equal(formatNotAcceptedIssue("application/pdf", RULES, t).code, "unreadable_format");
+const webpPreflight = validateArtwork(artwork({ mimeType: "image/webp" }), AREA, RULES).find((i) => i.code === "bad_format");
+assert.ok(webpPreflight, "the workspace pre-flight refuses a format the supplier does not take");
+assert.equal(webpPreflight.values.formats, "PNG, JPG");
 
 const early = fileTooLargeIssue(18 * 1024 * 1024, RULES, t);
 assert.equal(early.code, "file_too_large");
