@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logotyp och tema",
-      "localisation": "Språk och valutor",
+      "languages": "Språk",
+      "localisation": "Försäljningsvalutor",
       "support": "Supportkontakter",
       "domain": "Egen domän",
       "payments": "Stripe-konto",
       "shipping": "Fraktbolag",
-      "tax": "Momsinställningar"
+      "zones": "Fraktzoner och priser",
+      "tax": "Momsinställningar",
+      "policies": "Butikens policyer"
     },
     "theme": {
       "atelier": "Redaktionell layout med gott om luft.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Guidad inställning",
     "progress": "Förlopp: {done} av {total} steg",
     "complete": "Inställningen är klar",
-    "startSelling": "Anslut betalningar och ett fraktbolag för att börja sälja.",
+    "startSelling": "Slutför {steps} för att börja sälja.",
     "connectPayments": "Anslut betalningar för att börja sälja.",
     "addCarrier": "Lägg till ett fraktbolag för att börja sälja.",
+    "addZones": "Lägg till en fraktzon med ett pris för att börja sälja.",
     "canSell": "Din butik kan redan sälja.",
     "stillToFinish": "Kvar att göra: {steps}.",
     "nextStep": {
       "branding": "Lägg till logotyp och tema för att ge butiken din profil.",
-      "localisation": "Välj språk och valutor för dina kunder.",
+      "languages": "Välj vilka språk butiken visas på.",
+      "localisation": "Välj vilka valutor kunderna kan betala i.",
       "support": "Lägg till supportkontakter så att kunder kan nå dig.",
       "domain": "Lägg till en egen domän för att använda din egen adress.",
-      "tax": "Ställ in moms för att ta ut rätt satser."
+      "tax": "Ställ in moms för att ta ut rätt satser.",
+      "policies": "Gå igenom butikens policyer."
     },
     "storeDetails": "Butiksuppgifter",
     "storeAddress": "Butiksadress:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "Kontots land",
     "carriers": "Fraktbolag",
     "carriersDescription": "Aktivera fraktbolagen som kunden har konto hos.",
+    "zones": "Fraktzoner och priser",
+    "zonesDescription": "Välj vilka länder du skickar till och vad kunderna betalar för leverans.",
+    "manageZones": "Öppna Frakt och moms",
     "saveCarriers": "Spara fraktbolag",
     "accountNumber": "Kundnummer",
     "requiredWhenEnabled": "Obligatoriskt när det är aktiverat",

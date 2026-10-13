@@ -26,8 +26,9 @@ import {
   listQuoteRequests,
   listRecentOrders,
   listStoreProducts,
+  storesWithShippingRates,
 } from "@/lib/data";
-import { setupProgress, type StoreMetrics } from "@/lib/metrics";
+import { setupProgress, setupStatus, type StoreMetrics } from "@/lib/metrics";
 import { loadOrderMetrics, loadTopProducts } from "@/lib/metrics-data";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan, type Capability } from "@/lib/session";
@@ -62,7 +63,7 @@ export default async function StoreOverviewPage({
   const canSource = roleCan(role, "store.catalog");
   const can = (capability: Capability) => roleCan(role, capability);
   // The figures are added up in the database; only the six newest orders are read.
-  const [orderMetrics, topProducts, recentOrders, products, storefront, audit, enquiries, report] = await Promise.all([
+  const [orderMetrics, topProducts, recentOrders, products, storefront, audit, enquiries, report, shipsWithRates] = await Promise.all([
     loadOrderMetrics([store.id]).then((byStore) => byStore.get(store.id)!),
     loadTopProducts(store.id),
     listRecentOrders(store.id, 6),
@@ -71,6 +72,7 @@ export default async function StoreOverviewPage({
     listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
     canSource ? listQuoteRequests(store.id) : Promise.resolve([]),
     loadStoreAnalytics(store, range),
+    storesWithShippingRates([store.id]),
   ]);
   const openEnquiries = enquiries.filter(isOpenEnquiry);
 
@@ -90,7 +92,8 @@ export default async function StoreOverviewPage({
     draftProducts: products.filter((p) => p.status === "draft" || p.status === "in_review").length,
     topProducts,
   };
-  const progress = setupProgress(store.setup);
+  const status = setupStatus(store.setup, shipsWithRates.has(store.id));
+  const progress = setupProgress(status);
   const theme = THEMES[store.theme];
 
   const [t, labels, dashboard, analytics, locale, format] = await Promise.all([
@@ -169,8 +172,8 @@ export default async function StoreOverviewPage({
               <ul className="flex flex-wrap gap-2">
                 {SETUP_STEPS.map((key) => (
                   <li key={key}>
-                    <Badge tone={store.setup[key] ? "green" : "amber"}>
-                      {store.setup[key] ? "✓" : "•"} {labels(`setupStep.${key}`)}
+                    <Badge tone={status[key] ? "green" : "amber"}>
+                      {status[key] ? "✓" : "•"} {labels(`setupStep.${key}`)}
                     </Badge>
                   </li>
                 ))}

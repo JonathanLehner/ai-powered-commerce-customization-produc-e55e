@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "ロゴとテーマ",
-      "localisation": "言語と通貨",
+      "languages": "言語",
+      "localisation": "販売通貨",
       "support": "サポート連絡先",
       "domain": "独自ドメイン",
       "payments": "Stripe アカウント",
       "shipping": "配送業者",
-      "tax": "税設定"
+      "zones": "配送ゾーンと料金",
+      "tax": "税設定",
+      "policies": "ストアポリシー"
     },
     "theme": {
       "atelier": "余白を活かしたエディトリアルなレイアウト。",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "ガイド付き設定",
     "progress": "設定の進捗:{total} ステップ中 {done}",
     "complete": "設定完了",
-    "startSelling": "販売を始めるには、決済と配送業者を接続してください。",
+    "startSelling": "販売を始めるには、{steps}を完了してください。",
     "connectPayments": "販売を始めるには、決済を接続してください。",
     "addCarrier": "販売を始めるには、配送業者を追加してください。",
+    "addZones": "販売を始めるには、料金を設定した配送ゾーンを追加してください。",
     "canSell": "ストアはすでに販売できます。",
     "stillToFinish": "残りのステップ: {steps}。",
     "nextStep": {
       "branding": "ロゴとテーマを追加してストアをブランド化しましょう。",
-      "localisation": "お客様向けの言語と通貨を選択してください。",
+      "languages": "ストアを表示する言語を選択してください。",
+      "localisation": "お客様が支払いに使える通貨を選択してください。",
       "support": "お客様が連絡できるようサポート窓口を追加してください。",
       "domain": "独自のアドレスを使うにはカスタムドメインを追加してください。",
-      "tax": "正しい税率を適用するには税金を設定してください。"
+      "tax": "正しい税率を適用するには税金を設定してください。",
+      "policies": "ストアのポリシーを確認してください。"
     },
     "storeDetails": "ストアの詳細",
     "storeAddress": "ストアのアドレス:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "アカウントの国",
     "carriers": "配送業者",
     "carriersDescription": "クライアントがアカウントを持つ配送業者を有効にしてください。",
+    "zones": "配送ゾーンと料金",
+    "zonesDescription": "配送先の国と、お客様が支払う配送料を設定します。",
+    "manageZones": "配送と税を開く",
     "saveCarriers": "配送業者を保存",
     "accountNumber": "アカウント番号",
     "requiredWhenEnabled": "有効にする場合は必須",

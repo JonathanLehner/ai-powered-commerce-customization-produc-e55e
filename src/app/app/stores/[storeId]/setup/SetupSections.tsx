@@ -44,25 +44,29 @@ import { storeLanguages } from "@/i18n/storefront-routing";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, storePolicyText, type PolicyKey } from "@/lib/policies";
 import { storeUrl } from "@/lib/seo";
 import { uploadImage } from "@/lib/upload-client";
-import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
+import type { SetupStatus } from "@/lib/metrics";
+import { SETUP_STEPS, THEMES, type SetupStep, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
 import { CARRIER_LABELS, CURRENCY_OPTIONS } from "@/lib/util";
 import { StripeStep } from "./ConnectStripe";
 import { CurrencyRates } from "./CurrencyRates";
 
 function Step({
-  index,
+  step,
   title,
   description,
-  done,
+  status,
   children,
 }: {
-  index: number;
+  step: SetupStep;
   title: string;
   description: string;
-  done: boolean;
+  status: SetupStatus;
   children: React.ReactNode;
 }) {
   const t = useTranslations("settings");
+  // Numbered from the same list the progress bar counts.
+  const index = SETUP_STEPS.indexOf(step) + 1;
+  const done = status[step];
   return (
     <Card asChild>
     <section id={`step-${index}`}>
@@ -204,10 +208,12 @@ function StoredImageFields({ prefix, image }: { prefix: string; image: StoredIma
 
 export function SetupSections({
   store,
+  status,
   brackets,
   policyDefaults,
 }: {
   store: Store;
+  status: SetupStatus;
   brackets: TaxBracket[];
   /** The built-in policy text per store language. */
   policyDefaults: Record<string, Record<PolicyKey, string>>;
@@ -242,10 +248,10 @@ export function SetupSections({
   return (
     <div className="space-y-5">
       <Step
-        index={1}
+        step="branding"
         title={t("branding")}
         description={t("brandingDescription")}
-        done={store.setup.branding}
+        status={status}
       >
         <ActionForm action={saveBranding} submitLabel={t("saveBranding")} hidden={hidden}>
           {(state) => (
@@ -292,10 +298,10 @@ export function SetupSections({
       </Step>
 
       <Step
-        index={2}
+        step="languages"
         title={t("languages")}
         description={t("languagesDescription")}
-        done
+        status={status}
       >
         <ActionForm action={saveLanguages} submitLabel={t("saveLanguages")} hidden={hidden}>
           {(state) => (
@@ -353,10 +359,10 @@ export function SetupSections({
       </Step>
 
       <Step
-        index={3}
+        step="localisation"
         title={t("localisation")}
         description={t("localisationDescription")}
-        done={store.setup.localisation}
+        status={status}
       >
         <ActionForm action={saveLocalisation} submitLabel={t("saveLocalisation")} hidden={hidden}>
           {(state) => (
@@ -420,10 +426,10 @@ export function SetupSections({
       </Step>
 
       <Step
-        index={4}
+        step="support"
         title={t("support")}
         description={t("supportDescription")}
-        done={store.setup.support}
+        status={status}
       >
         <ActionForm action={saveSupport} submitLabel={t("saveSupport")} hidden={hidden}>
           {(state) => (
@@ -458,10 +464,10 @@ export function SetupSections({
       </Step>
 
       <Step
-        index={5}
+        step="domain"
         title={t("domain")}
         description={t("domainDescription")}
-        done={store.setup.domain}
+        status={status}
       >
         <div className="flex flex-wrap items-center gap-3 text-sm">
           {store.customDomain ? (
@@ -481,19 +487,19 @@ export function SetupSections({
       </Step>
 
       <Step
-        index={6}
+        step="payments"
         title={t("stripe")}
         description={t("stripeDescription")}
-        done={store.setup.payments}
+        status={status}
       >
         <StripeStep store={store} />
       </Step>
 
       <Step
-        index={7}
+        step="shipping"
         title={t("carriers")}
         description={t("carriersDescription")}
-        done={store.setup.shipping}
+        status={status}
       >
         <ActionForm action={saveCarriers} submitLabel={t("saveCarriers")} hidden={hidden}>
           {(state) => (
@@ -539,10 +545,21 @@ export function SetupSections({
       </Step>
 
       <Step
-        index={8}
+        step="zones"
+        title={t("zones")}
+        description={t("zonesDescription")}
+        status={status}
+      >
+        <Link href={`/app/stores/${store.id}/shipping`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+          {t("manageZones")}
+        </Link>
+      </Step>
+
+      <Step
+        step="tax"
         title={t("tax")}
         description={t("taxDescription")}
-        done={store.setup.tax}
+        status={status}
       >
         <ActionForm action={saveTaxSettings} submitLabel={t("saveTax")} hidden={hidden}>
           {(state) => (
@@ -619,10 +636,10 @@ export function SetupSections({
         </ActionForm>
       </Step>
       <Step
-        index={9}
+        step="policies"
         title={t("policies")}
         description={t("policiesDescription")}
-        done
+        status={status}
       >
         {(() => {
           const { locales: storeLocales, defaultLocale: storeDefault } = storeLanguages(store);

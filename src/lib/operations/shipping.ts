@@ -35,6 +35,8 @@ async function refuse(ctx: OperationContext, problem: ShippingProblem): Promise<
 function revalidateShipping(ctx: OperationContext) {
   revalidatePath(`/app/stores/${ctx.store.id}/shipping`);
   revalidatePath(`/app/stores/${ctx.store.id}/catalog`);
+  // Guided setup counts a zone with a rate as a step.
+  revalidatePath(`/app/stores/${ctx.store.id}/setup`);
   revalidatePath(`/s/${ctx.store.slug}`, "layout");
 }
 

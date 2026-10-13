@@ -345,6 +345,17 @@ export function listShippingZones(storeId: string) {
   return db.find<ShippingZone>(COLLECTIONS.shippingZones, { storeId }, { sort: { createdAt: 1, id: 1 } });
 }
 
+/** Which of these stores have a shipping zone with at least one rate, in one read. */
+export async function storesWithShippingRates(storeIds: string[]): Promise<Set<string>> {
+  if (storeIds.length === 0) return new Set();
+  const zones = await db.find<Pick<ShippingZone, "storeId">>(
+    COLLECTIONS.shippingZones,
+    { storeId: { $in: storeIds }, "rates.0": { $exists: true } },
+    { projection: { storeId: 1 } },
+  );
+  return new Set(zones.map((zone) => zone.storeId));
+}
+
 export function getProductCollection(id: string) {
   return db.findOne<ProductCollection>(COLLECTIONS.productCollections, { id });
 }

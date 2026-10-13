@@ -4,9 +4,9 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { listTaxBrackets } from "@/lib/data";
+import { listTaxBrackets, storesWithShippingRates } from "@/lib/data";
 import { POLICY_KEYS } from "@/lib/policies";
-import { setupProgress, setupRemaining } from "@/lib/metrics";
+import { setupProgress, setupRemaining, setupStatus } from "@/lib/metrics";
 import { requireStoreAccess } from "@/lib/session";
 import { SetupSections } from "./SetupSections";
 import { StoreAdminPanel } from "./StoreAdminPanel";
@@ -21,9 +21,10 @@ export default async function StoreSetupPage({
   const { storeId } = await params;
   const { created } = await searchParams;
   const { store } = await requireStoreAccess(storeId, "store.settings");
-  const brackets = await listTaxBrackets();
-  const progress = setupProgress(store.setup);
-  const remaining = setupRemaining(store.setup);
+  const [brackets, shipsWithRates] = await Promise.all([listTaxBrackets(), storesWithShippingRates([store.id])]);
+  const status = setupStatus(store.setup, shipsWithRates.has(store.id));
+  const progress = setupProgress(status);
+  const remaining = setupRemaining(status);
   // The built-in policy text in each of the store's languages, so the editor
   // starts from what shoppers read today.
   const policyDefaults = Object.fromEntries(
@@ -41,16 +42,19 @@ export default async function StoreSetupPage({
     getTranslations("labels"),
     getFormatter(),
   ]);
-  // Name what is actually left: payments and a carrier block selling, the
-  // other steps only polish a store that can already take orders.
+  // Name what is actually left: payments, a carrier and a shipping zone with a
+  // rate block selling, the other steps only polish a store that can already
+  // take orders.
   const nextMessage =
-    remaining.toSell.length === 2
-      ? t("startSelling")
+    remaining.toSell.length > 1
+      ? t("startSelling", { steps: format.list(remaining.toSell.map((step) => labels(`setupStep.${step}`))) })
       : remaining.toSell[0] === "payments"
         ? t("connectPayments")
         : remaining.toSell[0] === "shipping"
           ? t("addCarrier")
-          : remaining.optional.length === 1
+          : remaining.toSell[0] === "zones"
+            ? t("addZones")
+            : remaining.optional.length === 1
             ? `${t("canSell")} ${t(`nextStep.${remaining.optional[0]}`)}`
             : `${t("canSell")} ${t("stillToFinish", {
                 steps: format.list(remaining.optional.map((step) => labels(`setupStep.${step}`))),
@@ -122,7 +126,7 @@ export default async function StoreSetupPage({
           </CardContent>
         </Card>
 
-        <SetupSections store={store} brackets={brackets} policyDefaults={policyDefaults} />
+        <SetupSections store={store} status={status} brackets={brackets} policyDefaults={policyDefaults} />
       </section>
     </div>
   );

@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logotipo y tema",
-      "localisation": "Idioma y monedas",
+      "languages": "Idiomas",
+      "localisation": "Monedas de venta",
       "support": "Contactos de soporte",
       "domain": "Dominio propio",
       "payments": "Cuenta de Stripe",
       "shipping": "Transportistas",
-      "tax": "Configuración de impuestos"
+      "zones": "Zonas y tarifas de envío",
+      "tax": "Configuración de impuestos",
+      "policies": "Políticas de la tienda"
     },
     "theme": {
       "atelier": "Diseño editorial con mucho espacio en blanco.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Configuración guiada",
     "progress": "Progreso: {done} de {total} pasos",
     "complete": "Configuración completada",
-    "startSelling": "Conecta los pagos y un transportista para empezar a vender.",
+    "startSelling": "Para empezar a vender, completa {steps}.",
     "connectPayments": "Conecta los pagos para empezar a vender.",
     "addCarrier": "Añade un transportista para empezar a vender.",
+    "addZones": "Añade una zona de envío con una tarifa para empezar a vender.",
     "canSell": "Tu tienda ya puede vender.",
     "stillToFinish": "Pendiente: {steps}.",
     "nextStep": {
       "branding": "Añade un logotipo y un tema para personalizar tu tienda.",
-      "localisation": "Elige idiomas y monedas para tus clientes.",
+      "languages": "Elige los idiomas en los que se muestra tu tienda.",
+      "localisation": "Elige las monedas en las que pueden pagar los clientes.",
       "support": "Añade contactos de soporte para que los clientes puedan escribirte.",
       "domain": "Añade un dominio propio para usar tu propia dirección.",
-      "tax": "Configura los impuestos para cobrar los tipos correctos."
+      "tax": "Configura los impuestos para cobrar los tipos correctos.",
+      "policies": "Revisa las políticas de tu tienda."
     },
     "storeDetails": "Datos de la tienda",
     "storeAddress": "Dirección de la tienda:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "País de la cuenta",
     "carriers": "Transportistas",
     "carriersDescription": "Activa los transportistas con los que el cliente tiene cuenta.",
+    "zones": "Zonas y tarifas de envío",
+    "zonesDescription": "Elige a qué países envías y cuánto pagan los clientes por la entrega.",
+    "manageZones": "Abrir Envíos e impuestos",
     "saveCarriers": "Guardar transportistas",
     "accountNumber": "Número de cuenta",
     "requiredWhenEnabled": "Obligatorio si está activado",

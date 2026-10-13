@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logo et thème",
-      "localisation": "Langue et devises",
+      "languages": "Langues",
+      "localisation": "Devises de vente",
       "support": "Contacts d’assistance",
       "domain": "Domaine personnalisé",
       "payments": "Compte Stripe",
       "shipping": "Transporteurs",
-      "tax": "Configuration des taxes"
+      "zones": "Zones et tarifs d’expédition",
+      "tax": "Configuration des taxes",
+      "policies": "Politiques de la boutique"
     },
     "theme": {
       "atelier": "Mise en page éditoriale, avec beaucoup d’espace.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Configuration guidée",
     "progress": "Progression : {done} étapes sur {total}",
     "complete": "Configuration terminée",
-    "startSelling": "Connectez les paiements et un transporteur pour commencer à vendre.",
+    "startSelling": "Pour commencer à vendre, terminez {steps}.",
     "connectPayments": "Connectez les paiements pour commencer à vendre.",
     "addCarrier": "Ajoutez un transporteur pour commencer à vendre.",
+    "addZones": "Ajoutez une zone d’expédition avec un tarif pour commencer à vendre.",
     "canSell": "Votre boutique peut déjà vendre.",
     "stillToFinish": "Reste à faire : {steps}.",
     "nextStep": {
       "branding": "Ajoutez un logo et un thème pour personnaliser votre boutique.",
-      "localisation": "Choisissez les langues et devises pour vos clients.",
+      "languages": "Choisissez les langues de votre boutique.",
+      "localisation": "Choisissez les devises dans lesquelles les clients peuvent payer.",
       "support": "Ajoutez des contacts d'assistance pour que les clients puissent vous joindre.",
       "domain": "Ajoutez un domaine personnalisé pour utiliser votre propre adresse.",
-      "tax": "Configurez les taxes pour appliquer les bons taux."
+      "tax": "Configurez les taxes pour appliquer les bons taux.",
+      "policies": "Vérifiez les politiques de votre boutique."
     },
     "storeDetails": "Détails de la boutique",
     "storeAddress": "Adresse de la boutique :",
@@ -1766,6 +1772,9 @@
     "accountCountry": "Pays du compte",
     "carriers": "Transporteurs",
     "carriersDescription": "Activez les transporteurs chez lesquels le client a un compte.",
+    "zones": "Zones et tarifs d’expédition",
+    "zonesDescription": "Choisissez les pays où vous livrez et ce que les clients paient pour la livraison.",
+    "manageZones": "Ouvrir Expédition et taxes",
     "saveCarriers": "Enregistrer les transporteurs",
     "accountNumber": "Numéro de compte",
     "requiredWhenEnabled": "Obligatoire si activé",

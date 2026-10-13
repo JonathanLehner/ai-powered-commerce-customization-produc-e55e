@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logo and theme",
-      "localisation": "Language and currencies",
+      "languages": "Languages",
+      "localisation": "Selling currencies",
       "support": "Support contacts",
       "domain": "Custom domain",
       "payments": "Stripe account",
       "shipping": "Shipping carriers",
-      "tax": "Tax configuration"
+      "zones": "Shipping zones and rates",
+      "tax": "Tax configuration",
+      "policies": "Store policies"
     },
     "theme": {
       "atelier": "Editorial layout with generous whitespace.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Guided setup",
     "progress": "Setup progress: {done} of {total} steps",
     "complete": "Setup complete",
-    "startSelling": "Connect payments and a carrier to start selling.",
+    "startSelling": "To start selling, finish {steps}.",
     "connectPayments": "Connect payments to start selling.",
     "addCarrier": "Add a shipping carrier to start selling.",
+    "addZones": "Add a shipping zone with a rate to start selling.",
     "canSell": "Your store can already sell.",
     "stillToFinish": "Still to finish: {steps}.",
     "nextStep": {
       "branding": "Add a logo and theme to brand your storefront.",
-      "localisation": "Choose languages and currencies for your shoppers.",
+      "languages": "Choose the languages your storefront is shown in.",
+      "localisation": "Choose the currencies shoppers can pay in.",
       "support": "Add support contacts so shoppers can reach you.",
       "domain": "Add a custom domain to use your own address.",
-      "tax": "Set up tax to charge the right rates."
+      "tax": "Set up tax to charge the right rates.",
+      "policies": "Review your store policies."
     },
     "storeDetails": "Store details",
     "storeAddress": "Store address:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "Account country",
     "carriers": "Shipping carriers",
     "carriersDescription": "Enable the carriers the client has accounts with.",
+    "zones": "Shipping zones and rates",
+    "zonesDescription": "Choose the countries you ship to and what shoppers pay for delivery.",
+    "manageZones": "Open Shipping and taxes",
     "saveCarriers": "Save carriers",
     "accountNumber": "Account number",
     "requiredWhenEnabled": "Required when enabled",

@@ -137,19 +137,26 @@ export interface StoreSetupState {
 }
 
 /**
- * The guided setup steps, in the order they are worked through. Progress is
- * counted against this list rather than the keys a stored record happens to
- * carry, so a store saved before a step existed reads as not having done it.
+ * The guided setup steps, in the order they are numbered on the Settings page.
+ * Progress everywhere is counted against this list rather than the keys a
+ * stored record happens to carry, so a store saved before a step existed reads
+ * as not having done it. `languages`, `zones` and `policies` are not stored:
+ * read every step through `setupStatus()` in `@/lib/metrics`.
  */
 export const SETUP_STEPS = [
   "branding",
+  "languages",
   "localisation",
   "support",
   "domain",
   "payments",
   "shipping",
+  "zones",
   "tax",
-] as const satisfies readonly (keyof StoreSetupState)[];
+  "policies",
+] as const;
+
+export type SetupStep = (typeof SETUP_STEPS)[number];
 
 export interface Store {
   id: string;

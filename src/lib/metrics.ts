@@ -1,5 +1,5 @@
 import { attentionBreakdown, type AttentionBreakdown } from "./attention";
-import { SETUP_STEPS, type Order, type StoreProduct, type StoreSetupState } from "./types";
+import { SETUP_STEPS, type Order, type SetupStep, type StoreProduct, type StoreSetupState } from "./types";
 
 export interface StoreMetrics {
   orderCount: number;
@@ -211,25 +211,46 @@ export function topProductsPipeline(storeId: string) {
   ];
 }
 
+export type SetupStatus = Record<SetupStep, boolean>;
+
 /**
- * Counted against `SETUP_STEPS`, not the keys the record carries: a store saved
- * before a step existed is missing that key, and counting only what is stored
- * would report it as fully set up.
+ * Whether each guided setup step is done. A store always has a language and the
+ * built-in policies, so those two start complete. `shipsWithRates` is whether a
+ * shipping zone has at least one rate: without one checkout has nothing to offer.
  */
-export function setupProgress(setup: Partial<StoreSetupState>): { done: number; total: number; pct: number } {
-  const done = SETUP_STEPS.filter((step) => setup[step]).length;
+export function setupStatus(setup: Partial<StoreSetupState>, shipsWithRates: boolean): SetupStatus {
+  return {
+    branding: Boolean(setup.branding),
+    languages: true,
+    localisation: Boolean(setup.localisation),
+    support: Boolean(setup.support),
+    domain: Boolean(setup.domain),
+    payments: Boolean(setup.payments),
+    shipping: Boolean(setup.shipping),
+    zones: shipsWithRates,
+    tax: Boolean(setup.tax),
+    policies: true,
+  };
+}
+
+/**
+ * Counted against `SETUP_STEPS`, not the keys the status carries: a step that
+ * is missing counts as not done, so nothing reads as fully set up by omission.
+ */
+export function setupProgress(status: Partial<SetupStatus>): { done: number; total: number; pct: number } {
+  const done = SETUP_STEPS.filter((step) => status[step]).length;
   return { done, total: SETUP_STEPS.length, pct: (done / SETUP_STEPS.length) * 100 };
 }
 
 /** The steps a store cannot take orders without. The rest are optional. */
-export const SELLING_STEPS = ["payments", "shipping"] as const;
+export const SELLING_STEPS = ["payments", "shipping", "zones"] as const;
 
 type SellingStep = (typeof SELLING_STEPS)[number];
 const isSellingStep = (step: string): step is SellingStep => (SELLING_STEPS as readonly string[]).includes(step);
 
 /** Unfinished steps, split into what blocks selling and what is optional. */
-export function setupRemaining(setup: Partial<StoreSetupState>) {
-  const missing = SETUP_STEPS.filter((step) => !setup[step]);
+export function setupRemaining(status: Partial<SetupStatus>) {
+  const missing = SETUP_STEPS.filter((step) => !status[step]);
   return {
     toSell: missing.filter(isSellingStep),
     optional: missing.filter((step): step is Exclude<typeof step, SellingStep> => !isSellingStep(step)),

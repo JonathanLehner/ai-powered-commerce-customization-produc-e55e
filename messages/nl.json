@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logo en thema",
-      "localisation": "Taal en valuta",
+      "languages": "Talen",
+      "localisation": "Verkoopvaluta",
       "support": "Supportcontacten",
       "domain": "Eigen domein",
       "payments": "Stripe-account",
       "shipping": "Vervoerders",
-      "tax": "Belastinginstellingen"
+      "zones": "Verzendzones en tarieven",
+      "tax": "Belastinginstellingen",
+      "policies": "Winkelbeleid"
     },
     "theme": {
       "atelier": "Redactionele lay-out met veel witruimte.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Begeleide inrichting",
     "progress": "Voortgang: {done} van {total} stappen",
     "complete": "Inrichting voltooid",
-    "startSelling": "Koppel betalingen en een vervoerder om te gaan verkopen.",
+    "startSelling": "Rond {steps} af om te gaan verkopen.",
     "connectPayments": "Koppel betalingen om te gaan verkopen.",
     "addCarrier": "Voeg een vervoerder toe om te gaan verkopen.",
+    "addZones": "Voeg een verzendzone met een tarief toe om te gaan verkopen.",
     "canSell": "Je winkel kan al verkopen.",
     "stillToFinish": "Nog te doen: {steps}.",
     "nextStep": {
       "branding": "Voeg een logo en thema toe om je winkel vorm te geven.",
-      "localisation": "Kies talen en valuta voor je klanten.",
+      "languages": "Kies de talen waarin je winkel wordt getoond.",
+      "localisation": "Kies de valuta waarin klanten kunnen betalen.",
       "support": "Voeg supportcontacten toe zodat klanten je kunnen bereiken.",
       "domain": "Voeg een eigen domein toe om je eigen adres te gebruiken.",
-      "tax": "Stel belastingen in om de juiste tarieven te rekenen."
+      "tax": "Stel belastingen in om de juiste tarieven te rekenen.",
+      "policies": "Controleer het beleid van je winkel."
     },
     "storeDetails": "Winkelgegevens",
     "storeAddress": "Winkeladres:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "Land van het account",
     "carriers": "Vervoerders",
     "carriersDescription": "Schakel de vervoerders in waar de klant een account heeft.",
+    "zones": "Verzendzones en tarieven",
+    "zonesDescription": "Kies naar welke landen je verzendt en wat klanten voor bezorging betalen.",
+    "manageZones": "Verzending en btw openen",
     "saveCarriers": "Vervoerders opslaan",
     "accountNumber": "Klantnummer",
     "requiredWhenEnabled": "Verplicht als ingeschakeld",

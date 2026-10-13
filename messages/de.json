@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logo und Design",
-      "localisation": "Sprache und Währungen",
+      "languages": "Sprachen",
+      "localisation": "Verkaufswährungen",
       "support": "Support-Kontakte",
       "domain": "Eigene Domain",
       "payments": "Stripe-Konto",
       "shipping": "Versanddienstleister",
-      "tax": "Steuereinstellungen"
+      "zones": "Versandzonen und Tarife",
+      "tax": "Steuereinstellungen",
+      "policies": "Shop-Richtlinien"
     },
     "theme": {
       "atelier": "Redaktionelles Layout mit viel Weißraum.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Geführte Einrichtung",
     "progress": "Fortschritt: {done} von {total} Schritten",
     "complete": "Einrichtung abgeschlossen",
-    "startSelling": "Verbinden Sie Zahlungen und einen Versanddienstleister, um mit dem Verkauf zu beginnen.",
+    "startSelling": "Schließen Sie {steps} ab, um mit dem Verkauf zu beginnen.",
     "connectPayments": "Verbinden Sie Zahlungen, um mit dem Verkauf zu beginnen.",
     "addCarrier": "Fügen Sie einen Versanddienstleister hinzu, um mit dem Verkauf zu beginnen.",
+    "addZones": "Fügen Sie eine Versandzone mit einem Tarif hinzu, um mit dem Verkauf zu beginnen.",
     "canSell": "Ihr Shop kann bereits verkaufen.",
     "stillToFinish": "Noch offen: {steps}.",
     "nextStep": {
       "branding": "Fügen Sie Logo und Design hinzu, um Ihren Shop zu gestalten.",
-      "localisation": "Wählen Sie Sprachen und Währungen für Ihre Kunden.",
+      "languages": "Wählen Sie die Sprachen Ihres Shops.",
+      "localisation": "Wählen Sie die Währungen, in denen Kunden bezahlen können.",
       "support": "Fügen Sie Supportkontakte hinzu, damit Kunden Sie erreichen.",
       "domain": "Fügen Sie eine eigene Domain hinzu, um Ihre eigene Adresse zu nutzen.",
-      "tax": "Richten Sie Steuern ein, um die richtigen Sätze zu berechnen."
+      "tax": "Richten Sie Steuern ein, um die richtigen Sätze zu berechnen.",
+      "policies": "Prüfen Sie Ihre Shop-Richtlinien."
     },
     "storeDetails": "Shop-Details",
     "storeAddress": "Shop-Adresse:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "Land des Kontos",
     "carriers": "Versanddienstleister",
     "carriersDescription": "Aktivieren Sie die Versanddienstleister, bei denen der Kunde ein Konto hat.",
+    "zones": "Versandzonen und Tarife",
+    "zonesDescription": "Legen Sie fest, in welche Länder Sie liefern und was Kunden für den Versand zahlen.",
+    "manageZones": "Versand und Steuern öffnen",
     "saveCarriers": "Versanddienstleister speichern",
     "accountNumber": "Kundennummer",
     "requiredWhenEnabled": "Erforderlich, wenn aktiviert",

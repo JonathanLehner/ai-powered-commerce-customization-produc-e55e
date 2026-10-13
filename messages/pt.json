@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logótipo e tema",
-      "localisation": "Idioma e moedas",
+      "languages": "Idiomas",
+      "localisation": "Moedas de venda",
       "support": "Contactos de apoio",
       "domain": "Domínio próprio",
       "payments": "Conta Stripe",
       "shipping": "Transportadoras",
-      "tax": "Configuração de impostos"
+      "zones": "Zonas e tarifas de envio",
+      "tax": "Configuração de impostos",
+      "policies": "Políticas da loja"
     },
     "theme": {
       "atelier": "Layout editorial com muito espaço em branco.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Configuração guiada",
     "progress": "Progresso: {done} de {total} passos",
     "complete": "Configuração concluída",
-    "startSelling": "Ligue os pagamentos e uma transportadora para começar a vender.",
+    "startSelling": "Para começar a vender, conclua {steps}.",
     "connectPayments": "Ligue os pagamentos para começar a vender.",
     "addCarrier": "Adicione uma transportadora para começar a vender.",
+    "addZones": "Adicione uma zona de envio com uma tarifa para começar a vender.",
     "canSell": "A sua loja já pode vender.",
     "stillToFinish": "Por concluir: {steps}.",
     "nextStep": {
       "branding": "Adicione um logótipo e um tema para personalizar a sua loja.",
-      "localisation": "Escolha idiomas e moedas para os seus clientes.",
+      "languages": "Escolha os idiomas em que a sua loja é apresentada.",
+      "localisation": "Escolha as moedas em que os clientes podem pagar.",
       "support": "Adicione contactos de apoio para que os clientes o possam contactar.",
       "domain": "Adicione um domínio personalizado para usar o seu próprio endereço.",
-      "tax": "Configure os impostos para cobrar as taxas corretas."
+      "tax": "Configure os impostos para cobrar as taxas corretas.",
+      "policies": "Reveja as políticas da sua loja."
     },
     "storeDetails": "Dados da loja",
     "storeAddress": "Endereço da loja:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "País da conta",
     "carriers": "Transportadoras",
     "carriersDescription": "Ative as transportadoras com que o cliente tem conta.",
+    "zones": "Zonas e tarifas de envio",
+    "zonesDescription": "Escolha os países para onde envia e quanto os clientes pagam pela entrega.",
+    "manageZones": "Abrir Envio e impostos",
     "saveCarriers": "Guardar transportadoras",
     "accountNumber": "Número de conta",
     "requiredWhenEnabled": "Obrigatório quando ativa",

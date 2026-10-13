@@ -966,12 +966,15 @@
     },
     "setupStep": {
       "branding": "Logo e tema",
-      "localisation": "Lingua e valute",
+      "languages": "Lingue",
+      "localisation": "Valute di vendita",
       "support": "Contatti di assistenza",
       "domain": "Dominio personalizzato",
       "payments": "Account Stripe",
       "shipping": "Corrieri",
-      "tax": "Configurazione fiscale"
+      "zones": "Zone e tariffe di spedizione",
+      "tax": "Configurazione fiscale",
+      "policies": "Politiche del negozio"
     },
     "theme": {
       "atelier": "Layout editoriale con ampi spazi bianchi.",
@@ -1696,17 +1699,20 @@
     "guidedSetup": "Configurazione guidata",
     "progress": "Avanzamento: {done} di {total} passaggi",
     "complete": "Configurazione completata",
-    "startSelling": "Collega i pagamenti e un corriere per iniziare a vendere.",
+    "startSelling": "Per iniziare a vendere, completa {steps}.",
     "connectPayments": "Collega i pagamenti per iniziare a vendere.",
     "addCarrier": "Aggiungi un corriere per iniziare a vendere.",
+    "addZones": "Aggiungi una zona di spedizione con una tariffa per iniziare a vendere.",
     "canSell": "Il tuo negozio può già vendere.",
     "stillToFinish": "Da completare: {steps}.",
     "nextStep": {
       "branding": "Aggiungi un logo e un tema per personalizzare il negozio.",
-      "localisation": "Scegli lingue e valute per i tuoi clienti.",
+      "languages": "Scegli le lingue in cui viene mostrato il tuo negozio.",
+      "localisation": "Scegli le valute con cui i clienti possono pagare.",
       "support": "Aggiungi i contatti di assistenza per farti raggiungere dai clienti.",
       "domain": "Aggiungi un dominio personalizzato per usare il tuo indirizzo.",
-      "tax": "Configura le imposte per applicare le aliquote corrette."
+      "tax": "Configura le imposte per applicare le aliquote corrette.",
+      "policies": "Controlla le policy del tuo negozio."
     },
     "storeDetails": "Dettagli del negozio",
     "storeAddress": "Indirizzo del negozio:",
@@ -1766,6 +1772,9 @@
     "accountCountry": "Paese dell’account",
     "carriers": "Corrieri",
     "carriersDescription": "Attiva i corrieri con cui il cliente ha un account.",
+    "zones": "Zone e tariffe di spedizione",
+    "zonesDescription": "Scegli in quali paesi spedisci e quanto pagano i clienti per la consegna.",
+    "manageZones": "Apri Spedizioni e imposte",
     "saveCarriers": "Salva i corrieri",
     "accountNumber": "Numero di conto",
     "requiredWhenEnabled": "Obbligatorio se attivo",
