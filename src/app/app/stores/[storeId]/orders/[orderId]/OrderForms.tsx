@@ -77,6 +77,10 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
   // "Failed on" only reads true for a job routing could not place; the same
   // panel doubles as "move production elsewhere" for one already accepted.
   const held = order.fulfillment.routing !== "submitted";
+  // A purchase order by hand is only a way forward when someone covers the
+  // destination: with an exception open and nobody, it would resend the job
+  // to the partner that cannot make it.
+  const manualPossible = held && !(order.fulfillment.exception && options.manualOnly.length === 0);
 
   if (options.available.length === 0) {
     const current = order.fulfillment.supplierName;
@@ -93,7 +97,7 @@ export function SupplierPickerForm({ order, options }: { order: Order; options: 
         {current ? <p className="mt-1">{t("currentSupplier", { name: current })}</p> : null}
         <p className="mt-2 font-semibold">{t("options")}</p>
         <ul className="mt-1 list-disc space-y-1 pl-4">
-          {held ? (
+          {manualPossible ? (
             <li>
               {t("optionManual")}
             </li>

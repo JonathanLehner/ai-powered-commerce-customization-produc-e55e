@@ -2049,6 +2049,7 @@
     "timeline": "Histórico do processamento",
     "showAllEvents": "Mostrar todos os {count} eventos",
     "showLatestEvents": "Mostrar os últimos {count}",
+    "repeated": "{count} vezes, a primeira em {date}",
     "manualSteps": "Passos manuais de processamento",
     "supplierRouting": "Encaminhamento para o fornecedor",
     "notRouted": "Esta encomenda ainda não foi encaminhada.",

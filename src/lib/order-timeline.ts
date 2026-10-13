@@ -47,3 +47,34 @@ export function shopperTimeline(events: FulfillmentEvent[]): { milestone: Shoppe
   }
   return out;
 }
+
+/** A timeline step for the store team, with how often the identical step was recorded. */
+export interface CollapsedEvent extends FulfillmentEvent {
+  count: number;
+  /** When the identical step was first recorded. */
+  firstAt: string;
+}
+
+/**
+ * The store team's timeline with repeats folded in: identical steps (same
+ * title, note and actor) become one entry at their latest occurrence, with a
+ * count and when the first one was recorded. Oldest first, as recorded.
+ */
+export function collapseRepeats(events: FulfillmentEvent[]): CollapsedEvent[] {
+  const byKey = new Map<string, CollapsedEvent>();
+  const out: CollapsedEvent[] = [];
+  for (let i = events.length - 1; i >= 0; i--) {
+    const event = events[i];
+    const key = JSON.stringify([event.status, event.note, event.actor]);
+    const seen = byKey.get(key);
+    if (seen) {
+      seen.count += 1;
+      seen.firstAt = event.at;
+      continue;
+    }
+    const entry = { ...event, count: 1, firstAt: event.at };
+    byKey.set(key, entry);
+    out.push(entry);
+  }
+  return out.reverse();
+}

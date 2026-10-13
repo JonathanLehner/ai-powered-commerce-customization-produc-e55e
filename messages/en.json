@@ -2049,6 +2049,7 @@
     "timeline": "Fulfilment timeline",
     "showAllEvents": "Show all {count} events",
     "showLatestEvents": "Show latest {count}",
+    "repeated": "{count} times, first {date}",
     "manualSteps": "Manual fulfilment steps",
     "supplierRouting": "Supplier routing",
     "notRouted": "This order has not been routed yet.",

@@ -2049,6 +2049,7 @@
     "timeline": "Leveranshistorik",
     "showAllEvents": "Visa alla {count} händelser",
     "showLatestEvents": "Visa de senaste {count}",
+    "repeated": "{count} gånger, första {date}",
     "manualSteps": "Manuella leveranssteg",
     "supplierRouting": "Routning till leverantör",
     "notRouted": "Ordern har inte routats än.",

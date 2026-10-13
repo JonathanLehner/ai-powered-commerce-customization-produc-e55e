@@ -120,7 +120,28 @@ assert.equal(rules.recoveryState(abandonedAt(11, { customer: { anonymisedAt: hou
 assert.equal(rules.readDelayHours("10"), 10);
 for (const bad of ["0", "73", "1.5", "", "ten"]) assert.equal(rules.readDelayHours(bad), null, `${bad} hours is refused`);
 
-const { shopperTimeline } = await import("../src/lib/order-timeline.ts");
+const { collapseRepeats, shopperTimeline } = await import("../src/lib/order-timeline.ts");
+// Identical steps fold into one entry at their latest place, with a count.
+const sent = { status: "Sent to supplier", note: "PO 1", actor: "Ada" };
+const flagged = { status: "Exception raised", note: "Out of region", actor: "Ada" };
+const folded = collapseRepeats([
+  { status: "Payment captured", note: "", actor: "Stripe", at: "1" },
+  { ...sent, at: "2" },
+  { ...flagged, at: "3" },
+  { ...sent, at: "4" },
+  { ...flagged, at: "5" },
+  { ...flagged, note: "Other", at: "6" },
+]);
+assert.deepEqual(
+  folded.map((e) => [e.status, e.count, e.firstAt, e.at]),
+  [
+    ["Payment captured", 1, "1", "1"],
+    ["Sent to supplier", 2, "2", "4"],
+    ["Exception raised", 2, "3", "5"],
+    ["Exception raised", 1, "6", "6"],
+  ],
+);
+
 assert.deepEqual(
   shopperTimeline([
     { status: "Payment captured", at: "1" },
@@ -439,6 +460,33 @@ try {
     ["order.created", "order.paid"],
     "payment raises order.created and order.paid",
   );
+
+  /* ------------------------------------------- an exception is not looped */
+
+  // Re-running routing, recording the same purchase order and raising the same
+  // exception, over and over, records the first round and nothing after it.
+  const stuck = await makeOrder({
+    status: "exception",
+    fulfillment: { supplierId: null, supplierName: null, routing: "manual_required", supplierOrderRef: null, submittedAt: null, submissionMessage: "Held", carrier: null, trackingNumber: null, trackingUrl: null, exception: "Out of region" },
+  });
+  const loopOnce = async () => {
+    await orders.routeToSupplier(ctx(), await getOrder(stuck.id));
+    await orders.recordManualSubmission(ctx(), await getOrder(stuck.id), "QA-PO-REF");
+    await orders.raiseException(ctx(), await getOrder(stuck.id), "Out of region again");
+  };
+  await loopOnce();
+  const afterFirst = await getOrder(stuck.id);
+  assert.deepEqual(afterFirst.events.slice(1).map((e) => e.status), ["Sent to supplier", "Exception raised"], "routing on an open exception records nothing");
+  for (let i = 0; i < 3; i++) await loopOnce();
+  const afterLoop = await getOrder(stuck.id);
+  assert.equal(afterLoop.events.length, afterFirst.events.length, "an order already in exception is not resent or re-flagged");
+  assert.equal(afterLoop.status, "exception");
+  assert.equal((await audits({ entityId: stuck.code, action: "order.exception" })).length, 1, "the team is notified once");
+  // A paid order routing reaches the same answer for twice is recorded once.
+  const held = await makeOrder({ status: "paid", fulfillment: { ...stuck.fulfillment, exception: null } });
+  await orders.routeToSupplier(ctx(), await getOrder(held.id));
+  await orders.routeToSupplier(ctx(), await getOrder(held.id));
+  assert.equal((await getOrder(held.id)).events.filter((e) => e.status === "Manual handling required").length, 1);
 
   assert.equal(stray, 0, "no request left the process");
   console.error = quiet.error;

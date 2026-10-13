@@ -2049,6 +2049,7 @@
     "timeline": "Afhandelingsverloop",
     "showAllEvents": "Alle {count} gebeurtenissen tonen",
     "showLatestEvents": "Laatste {count} tonen",
+    "repeated": "{count} keer, eerste op {date}",
     "manualSteps": "Handmatige afhandelingsstappen",
     "supplierRouting": "Routering naar leverancier",
     "notRouted": "Deze bestelling is nog niet gerouteerd.",

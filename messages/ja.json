@@ -2049,6 +2049,7 @@
     "timeline": "フルフィルメントの履歴",
     "showAllEvents": "{count} 件すべて表示",
     "showLatestEvents": "最新の {count} 件を表示",
+    "repeated": "{count}回、初回 {date}",
     "manualSteps": "手動フルフィルメントの手順",
     "supplierRouting": "サプライヤーへのルーティング",
     "notRouted": "この注文はまだルーティングされていません。",

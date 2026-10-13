@@ -2049,6 +2049,7 @@
     "timeline": "Suivi de l’exécution",
     "showAllEvents": "Afficher les {count} événements",
     "showLatestEvents": "Afficher les {count} derniers",
+    "repeated": "{count} fois, la première le {date}",
     "manualSteps": "Étapes d’exécution manuelles",
     "supplierRouting": "Acheminement fournisseur",
     "notRouted": "Cette commande n’a pas encore été acheminée.",

@@ -2049,6 +2049,7 @@
     "timeline": "Abwicklungsverlauf",
     "showAllEvents": "Alle {count} Ereignisse anzeigen",
     "showLatestEvents": "Nur die letzten {count} anzeigen",
+    "repeated": "{count}-mal, zuerst {date}",
     "manualSteps": "Manuelle Abwicklungsschritte",
     "supplierRouting": "Lieferanten-Routing",
     "notRouted": "Diese Bestellung wurde noch nicht geroutet.",

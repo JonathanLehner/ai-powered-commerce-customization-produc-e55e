@@ -14,7 +14,8 @@ import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
 import { orderInvoiceUrl, signOrderToken } from "@/lib/order-access";
 import { orderTax } from "@/lib/shipping";
 import { requireStoreAccess, roleCan } from "@/lib/session";
-import { canMoveOrder, type FulfillmentEvent } from "@/lib/types";
+import { canMoveOrder } from "@/lib/types";
+import { collapseRepeats, type CollapsedEvent } from "@/lib/order-timeline";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
 import { giftCardLineIds } from "@/lib/gift-card-data";
 import { canEditAddress, fulfilmentState, remainingQuantities, shippedQuantities } from "@/lib/order-ops";
@@ -77,14 +78,22 @@ export default async function OrderDetailPage({
   const orders = await getTranslations("orders");
   const money = (minor: number) => formatMoney(minor, order.currency, locale);
   const when = (iso: string) => formatDateTime(iso, locale);
-  const region = (code: string) => {
-    const name = regionForCountry(code);
-    return labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
-  };
+  const regionLabel = (name: string) =>
+    labels.has(`region.${name}` as "region.APAC") ? labels(`region.${name}` as "region.APAC") : name;
+  const region = (code: string) => regionLabel(regionForCountry(code));
 
-  const latestEvents = order.events.slice(-TIMELINE_PREVIEW);
-  const earlierEvents = order.events.slice(0, -TIMELINE_PREVIEW);
-  const renderEvent = (entry: FulfillmentEvent, index: number) => (
+  // While an exception is open the order is not in production anywhere,
+  // whatever routing last recorded.
+  const exceptionOpen = order.status === "exception" || Boolean(order.fulfillment.exception);
+  // Nobody approved can make this order for its destination: rerouting is not
+  // an option, so the page names the ones that are.
+  const noPartner = routingOptions ? routingOptions.available.length === 0 : false;
+  // Not even by a purchase order raised by hand.
+  const noCover = noPartner && !routingOptions?.manualOnly.length;
+  const timeline = collapseRepeats(order.events);
+  const latestEvents = timeline.slice(-TIMELINE_PREVIEW);
+  const earlierEvents = timeline.slice(0, -TIMELINE_PREVIEW);
+  const renderEvent = (entry: CollapsedEvent, index: number) => (
     <li key={index} className="flex gap-3">
       <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
       <div className="min-w-0">
@@ -97,6 +106,7 @@ export default async function OrderDetailPage({
         <p className="text-xs text-muted-foreground">
           {when(entry.at)}
           {viaPlatform ? null : ` · ${entry.actor}`}
+          {entry.count > 1 ? ` · ${t("repeated", { count: entry.count, date: when(entry.firstAt) })}` : null}
         </p>
       </div>
     </li>
@@ -171,6 +181,20 @@ export default async function OrderDetailPage({
           {viaPlatform
             ? t("exceptionHidden")
             : order.fulfillment.exception}
+          {canManage && routingOptions && noPartner ? (
+            <div className="mt-2">
+              <p>
+                {t("noSupplierFor", {
+                  needs: routingOptions.requirements.map((r) => r.label).join(", ") || t("theseItems"),
+                  destination: routingOptions.destination,
+                })}
+              </p>
+              <ul className="mt-1 list-disc space-y-1 pl-4">
+                <li>{t("optionRefund")}</li>
+                <li>{t("optionAdmin", { region: regionLabel(routingOptions.region) })}</li>
+              </ul>
+            </div>
+          ) : null}
           {canManage ? (
             <div className="mt-3 flex flex-wrap gap-2">
               <form action={resolveException}>
@@ -180,9 +204,14 @@ export default async function OrderDetailPage({
                   {t("markResolved")}
                 </Button>
               </form>
-              {routingOptions ? (
+              {routingOptions && !noPartner ? (
                 <Button asChild size="sm">
                   <a href="#supplier-picker">{t("rerouteSupplier")}</a>
+                </Button>
+              ) : null}
+              {noPartner ? (
+                <Button asChild size="sm">
+                  <a href="#refund">{t("refundTitle")}</a>
                 </Button>
               ) : null}
             </div>
@@ -344,7 +373,7 @@ export default async function OrderDetailPage({
                 {earlierEvents.length > 0 ? (
                   <details className="group mb-4">
                     <summary className="cursor-pointer list-none text-sm font-medium text-primary hover:underline [&::-webkit-details-marker]:hidden">
-                      <span className="group-open:hidden">{t("showAllEvents", { count: order.events.length })}</span>
+                      <span className="group-open:hidden">{t("showAllEvents", { count: timeline.length })}</span>
                       <span className="hidden group-open:inline">{t("showLatestEvents", { count: latestEvents.length })}</span>
                     </summary>
                     <ol className="mt-4 space-y-4">
@@ -396,7 +425,7 @@ export default async function OrderDetailPage({
                         <SupplierPickerForm order={order} options={routingOptions} />
                       </div>
                     ) : null}
-                    {order.fulfillment.routing !== "submitted" ? (
+                    {order.fulfillment.routing !== "submitted" && !(exceptionOpen && noCover) ? (
                       <div className="mt-5 border-t border-border pt-4">
                         <h4 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                           {t("manualPo")}
@@ -454,7 +483,7 @@ export default async function OrderDetailPage({
                   <div className="rounded-xl border border-border p-4">
                     <h3 className="text-sm font-semibold text-foreground">{t("status")}</h3>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {(["in_production", "shipped", "delivered", "cancelled"] as const).map((status) => (
+                      {[...(order.status === "exception" ? (["exception"] as const) : []), ...(["in_production", "shipped", "delivered", "cancelled"] as const)].map((status) => (
                         <form key={status} action={advanceStatus}>
                           <input type="hidden" name="storeId" value={storeId} />
                           <input type="hidden" name="orderId" value={order.id} />
@@ -463,7 +492,7 @@ export default async function OrderDetailPage({
                             type="submit"
                             size="sm"
                             variant={order.status === status ? "default" : "outline"}
-                            disabled={!canMoveOrder(order, status)}
+                            disabled={!canMoveOrder(order, status) || (status === "in_production" && exceptionOpen)}
                           >
                             {labels(`orderStatus.${status}`)}
                           </Button>
@@ -479,7 +508,7 @@ export default async function OrderDetailPage({
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-destructive/30 p-4">
+                  <div id="refund" className="scroll-mt-24 rounded-xl border border-destructive/30 p-4">
                     <h3 className="text-sm font-semibold text-foreground">{t("refundTitle")}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {t("refundedSoFar", { amount: money(refunded) })}
@@ -653,14 +682,14 @@ export default async function OrderDetailPage({
                         <Badge variant="outline" className="gap-1.5">
                           <Dot
                             tone={
-                              order.fulfillment.routing === "submitted"
-                                ? "green"
-                                : order.fulfillment.routing === "failed"
-                                  ? "rose"
+                              exceptionOpen || order.fulfillment.routing === "failed"
+                                ? "rose"
+                                : order.fulfillment.routing === "submitted"
+                                  ? "green"
                                   : "amber"
                             }
                           />
-                          {orders(`routing.${order.fulfillment.routing}`)}
+                          {exceptionOpen ? labels("orderStatus.exception") : orders(`routing.${order.fulfillment.routing}`)}
                         </Badge>
                       ),
                     },

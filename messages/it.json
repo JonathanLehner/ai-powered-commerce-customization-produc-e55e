@@ -2049,6 +2049,7 @@
     "timeline": "Cronologia dell’evasione",
     "showAllEvents": "Mostra tutti i {count} eventi",
     "showLatestEvents": "Mostra gli ultimi {count}",
+    "repeated": "{count} volte, la prima il {date}",
     "manualSteps": "Passaggi di evasione manuale",
     "supplierRouting": "Instradamento al fornitore",
     "notRouted": "Questo ordine non è ancora stato instradato.",

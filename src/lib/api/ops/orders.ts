@@ -149,7 +149,7 @@ export const orderOperations: ApiOperation[] = [
     tag: "Orders",
     summary: "Send an order to its supplier",
     description:
-      "Runs automatic supplier routing for the order, for instance again after a carrier or supplier problem is fixed. `routing` is submitted when a supplier accepted the job (the order moves to in_production), or manual_required with the reason in `message`.",
+      "Runs automatic supplier routing for the order, for instance again after a carrier or supplier problem is fixed. `routing` is submitted when a supplier accepted the job (the order moves to in_production), or manual_required with the reason in `message`. Nothing is recorded when the order is already in exception or routing reaches the same result as last time.",
     input: z.object({ orderId: id("order") }),
     actions: ["orders#routeToSupplier"],
     run: async (ctx, input) => {
@@ -190,7 +190,7 @@ export const orderOperations: ApiOperation[] = [
     tag: "Orders",
     summary: "Record a manual purchase order",
     description:
-      "Records the reference of a purchase order raised with the supplier by hand, for suppliers without an order API, and moves the order to in_production.",
+      "Records the reference of a purchase order raised with the supplier by hand, for suppliers without an order API, and moves the order to in_production. Recording the reference already on the order changes nothing.",
     input: z.object({
       orderId: id("order"),
       reference: z.string().describe("The supplier's purchase order reference, at least 3 characters."),
@@ -208,7 +208,8 @@ export const orderOperations: ApiOperation[] = [
     scope: "orders:write",
     tag: "Orders",
     summary: "Flag a problem on an order",
-    description: "Moves the order to exception with a note describing the problem, and notifies the store team.",
+    description:
+      "Moves the order to exception with a note describing the problem, and notifies the store team. Repeating the note on an order already in exception for it changes nothing.",
     input: z.object({
       orderId: id("order"),
       note: z.string().describe("What is wrong, at least 5 characters. Shown in the order history."),

@@ -580,6 +580,14 @@ export async function refundOrder(
 export async function routeToSupplier(ctx: OperationContext, order: Order): Promise<RoutingDecision> {
   const { store, actor } = ctx;
   const decision = await routeOrder(order, store);
+  // Routing that lands on the problem the order already has records nothing:
+  // an order in exception stays flagged until someone changes something, so
+  // a retried button or a client re-running routing cannot pile up events.
+  const unchanged =
+    order.fulfillment.routing === decision.routing &&
+    order.fulfillment.supplierId === decision.supplierId &&
+    order.fulfillment.submissionMessage === decision.message;
+  if (decision.routing !== "submitted" && (order.status === "exception" || unchanged)) return decision;
   const events = [...order.events, orderEvent(
     decision.routing === "submitted" ? "Sent to supplier" : "Manual handling required",
     decision.message,
@@ -717,6 +725,8 @@ export async function recordManualSubmission(ctx: OperationContext, order: Order
   const reference = entered.trim();
   const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
   if (reference.length < 3) throw new OperationError("invalid", t("referenceRequired"), "reference");
+  // The same purchase order recorded again is not a second submission.
+  if (order.fulfillment.routing === "submitted" && order.fulfillment.supplierOrderRef === reference) return reference;
 
   await updateOrder(order.id, {
     status: "in_production",
@@ -754,6 +764,8 @@ export async function raiseException(ctx: OperationContext, order: Order, entere
   const note = entered.trim();
   const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
   if (note.length < 5) throw new OperationError("invalid", t("describeProblem"), "note");
+  // Already flagged for this exact problem: nothing new to record or notify.
+  if (order.status === "exception" && order.fulfillment.exception === note) return;
 
   await updateOrder(order.id, {
     status: "exception",

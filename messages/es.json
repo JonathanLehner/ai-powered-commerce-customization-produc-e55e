@@ -2049,6 +2049,7 @@
     "timeline": "Historial de preparación",
     "showAllEvents": "Mostrar los {count} eventos",
     "showLatestEvents": "Mostrar los últimos {count}",
+    "repeated": "{count} veces, la primera el {date}",
     "manualSteps": "Pasos manuales de preparación",
     "supplierRouting": "Enrutamiento al proveedor",
     "notRouted": "Este pedido aún no se ha enrutado.",
