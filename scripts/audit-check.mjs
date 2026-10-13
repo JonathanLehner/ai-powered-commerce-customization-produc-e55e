@@ -4,6 +4,7 @@
 // what a filter says it shows, what the list pages through and what the download
 // contains all have to be the same set of entries.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   auditActors,
   auditCsv,
@@ -301,6 +302,17 @@ assert.equal(
 assert.equal(
   auditDetail(entry({ action: "gifting.campaign_created", meta: { recipients: 4, total: 13596, currency: "EUR" } }), readable),
   "Recipients: 4 · Total: €135.96",
+);
+// A refund is read in the order's currency, not the store's: a 2.00 refund on a
+// EUR order in a USD store once read "Amount: $2.00".
+assert.equal(
+  auditDetail(entry({ action: "order.refunded", category: "order_routing", meta: { amount: 200, currency: "EUR", reason: "Damaged", restocked: false } }), readable),
+  "Amount: €2.00 · Reason: Damaged · Restocked: No",
+);
+assert.match(
+  readFileSync(new URL("../src/lib/operations/orders.ts", import.meta.url), "utf8"),
+  /meta: \{ amount, currency: order\.currency,/,
+  "refund entries record the order's currency next to the amount",
 );
 // A currency recorded as the subject of a change is still shown as itself.
 assert.equal(

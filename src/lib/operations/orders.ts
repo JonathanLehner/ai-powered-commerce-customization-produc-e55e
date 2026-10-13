@@ -18,8 +18,9 @@ import {
   type EmailCopy,
 } from "../email-templates";
 import { routeOrder, submitToSupplier, trackingNumberFor, type RoutingDecision } from "../fulfillment";
-import { releaseOrderStock, restockOrder } from "../inventory";
+import { releaseOrderStock, restockUnits } from "../inventory";
 import { orderStatusUrl, signOrderToken } from "../order-access";
+import { fullyRestocked, refundedQuantities, refundedShipping, restockPlan, type RefundLineInput } from "../refunds";
 import { refundOnConnectedAccount } from "../stripe";
 import { giftCardLineIds } from "../gift-card-data";
 import {
@@ -515,7 +516,11 @@ export interface RefundInput {
   reason: string;
   /** Cancel the order as well. */
   cancel: boolean;
-  /** Put the order's units back on hand. */
+  /** Units refunded per line, and whether they go back on hand. */
+  lines?: RefundLineInput[];
+  /** Shipping refunded, in minor units and part of `amount`; null when what was entered is not an amount. */
+  shipping?: number | null;
+  /** Put every unit not yet back on hand back, when no lines are given. */
   restock?: boolean;
   /** Email the shopper about the refund; on by default. */
   notify?: boolean;
@@ -545,6 +550,25 @@ export async function refundOrder(
       "amount",
     );
   }
+  const done = refundedQuantities(order);
+  const lines = (input.lines ?? []).filter((line) => line.quantity !== 0 || line.restock);
+  for (const line of lines) {
+    const item = order.items.find((i) => i.id === line.itemId);
+    if (!item) throw new OperationError("invalid", t("lineGone"), "lines");
+    const left = item.quantity - (done.get(item.id) ?? 0);
+    if (!Number.isInteger(line.quantity) || line.quantity < 0 || line.quantity > left) {
+      throw new OperationError("invalid", t("quantityOver", { count: left, item: item.productName }), `refund_qty_${item.id}`);
+    }
+  }
+  const shipping = input.shipping === undefined ? 0 : input.shipping;
+  const shippingLeft = order.shipping - refundedShipping(order);
+  if (shipping === null || !Number.isInteger(shipping) || shipping < 0 || shipping > shippingLeft) {
+    throw new OperationError(
+      "invalid",
+      t("shippingOver", { amount: formatMoney(Math.max(0, shippingLeft), order.currency, ctx.locale) }),
+      "shipping",
+    );
+  }
   if (reason.length < 4) throw new OperationError("invalid", t("reasonRequired"), "reason");
   if (order.payment.status !== "succeeded" && order.payment.status !== "refunded") {
     throw new OperationError("conflict", t("noPayment"));
@@ -570,6 +594,24 @@ export async function refundOrder(
     throw new OperationError("payment_failed", message);
   }
 
+  const plan = restockPlan(
+    order,
+    input.lines
+      ? lines.filter((line) => line.restock)
+      : input.restock
+        ? order.items.map((item) => ({ itemId: item.id, quantity: item.quantity }))
+        : [],
+  );
+  const recordedLines = [
+    ...lines.map((line) => ({
+      itemId: line.itemId,
+      quantity: line.quantity,
+      restocked: plan.find((p) => p.itemId === line.itemId)?.quantity ?? 0,
+    })),
+    ...plan
+      .filter((p) => !lines.some((line) => line.itemId === p.itemId))
+      .map((p) => ({ itemId: p.itemId, quantity: 0, restocked: p.quantity })),
+  ];
   const refunds = [
     ...order.refunds,
     {
@@ -579,11 +621,16 @@ export async function refundOrder(
       at: new Date().toISOString(),
       actor: actor.name,
       gatewayRefundId: gateway.refundId ?? undefined,
+      ...(recordedLines.length > 0 ? { lines: recordedLines } : {}),
+      ...(shipping > 0 ? { shipping } : {}),
     },
   ];
   const fullyRefunded = refunds.reduce((sum, r) => sum + r.amount, 0) >= order.total;
   const patch: Partial<Order> = {
     refunds,
+    ...(plan.length > 0 && order.inventory && fullyRestocked({ ...order, refunds })
+      ? { inventory: { ...order.inventory, restockedAt: new Date().toISOString() } }
+      : {}),
     status: input.cancel ? "cancelled" : order.status,
     payment: { ...order.payment, status: fullyRefunded ? "refunded" : order.payment.status },
     events: [
@@ -603,8 +650,9 @@ export async function refundOrder(
     revalidateOrder(store.id, order.id);
     throw new OperationError("conflict", t("orderChanged"));
   }
-  const restocked = input.restock ? await restockOrder(order, store, actor) : false;
+  const restocked = plan.length > 0;
   if (restocked) {
+    await restockUnits(order, store, actor, plan);
     revalidatePath(`/app/stores/${store.id}/catalog/inventory`);
   }
   recordAudit({
@@ -617,7 +665,7 @@ export async function refundOrder(
     actorName: actor.name,
     entity: "order",
     entityId: order.code,
-    meta: { amount, reason, gatewayRefundId: gateway.refundId, restocked },
+    meta: { amount, currency: order.currency, reason, gatewayRefundId: gateway.refundId, restocked },
     notify: {
       type: "refund_recorded",
       href: `/app/stores/${store.id}/orders/${order.id}`,

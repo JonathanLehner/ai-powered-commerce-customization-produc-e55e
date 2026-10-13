@@ -1209,10 +1209,21 @@ const orders = [
       amount: money("The amount to refund").positive(),
       reason: z.string().describe("Why, in a few words. Shown in the order history."),
       cancel: z.boolean().default(false).describe("Cancel the order as well."),
+      lines: z
+        .array(
+          z.object({
+            itemId: z.string().describe("The order line's id."),
+            quantity: z.number().int().min(0).describe("Units of the line refunded."),
+            restock: z.boolean().default(false).describe("Put these units back on hand if the variant is tracked."),
+          }),
+        )
+        .optional()
+        .describe("The units refunded per line. The amount is not derived from them; send it too."),
+      shipping: money("Shipping refunded, as part of amount").optional(),
       restock: z
         .boolean()
         .default(false)
-        .describe("Put the order's units back on hand for its tracked variants. Done once per order."),
+        .describe("Without lines: put every unit not yet back on hand back for the order's tracked variants."),
       notifyCustomer: z.boolean().default(true).describe("Email the shopper about the refund."),
     }),
     run: async (ctx, input) => {

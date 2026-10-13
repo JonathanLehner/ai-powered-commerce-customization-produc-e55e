@@ -130,11 +130,10 @@ async function claimOrderStock(
   order: Order,
   from: OrderInventory["state"],
   set: Record<string, unknown>,
-  extra: Record<string, unknown> = {},
 ): Promise<OrderInventory | null> {
   const updated = await db.findOneAndUpdate<Order>(
     COLLECTIONS.orders,
-    { id: order.id, "inventory.state": from, ...extra },
+    { id: order.id, "inventory.state": from },
     { $set: set },
   );
   return updated?.inventory ?? null;
@@ -171,14 +170,17 @@ export async function releaseOrderStock(order: Order): Promise<boolean> {
   return true;
 }
 
-/** Puts a refunded order's units back on hand. Runs once per order. */
-export async function restockOrder(order: Order, store: Store, actor: StockActor): Promise<boolean> {
-  const now = new Date().toISOString();
-  const inventory = await claimOrderStock(order, "committed", { "inventory.restockedAt": now }, {
-    "inventory.restockedAt": { $in: [null] },
-  });
-  if (!inventory) return false;
-  for (const line of inventory.lines) {
+/**
+ * Puts refunded units back on hand. The refund row that records them is written
+ * first, against the order's last update, so a repeat submit never gets here.
+ */
+export async function restockUnits(
+  order: Order,
+  store: Store,
+  actor: StockActor,
+  lines: { productId: string; variantId: string; quantity: number }[],
+): Promise<void> {
+  for (const line of lines) {
     await applyDelta(store, line, { onHand: line.quantity, committed: 0 }, {
       reason: "restock",
       reference: order.code,
@@ -186,7 +188,6 @@ export async function restockOrder(order: Order, store: Store, actor: StockActor
       label: labelFor(order, line.variantId),
     });
   }
-  return true;
 }
 
 /**

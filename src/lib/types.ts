@@ -925,6 +925,10 @@ export interface Order {
     at: string;
     actor: string;
     gatewayRefundId?: string;
+    /** Units refunded per line and how many went back on hand. Absent on refunds recorded as a bare amount. */
+    lines?: { itemId: string; quantity: number; restocked: number }[];
+    /** Shipping refunded, in minor units, as part of `amount`. */
+    shipping?: number;
   }[];
   events: FulfillmentEvent[];
   /**

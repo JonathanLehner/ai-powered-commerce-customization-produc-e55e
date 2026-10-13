@@ -217,7 +217,12 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
       amount: parseMoney(String(formData.get("amount") ?? ""), order.currency),
       reason: String(formData.get("reason") ?? ""),
       cancel,
-      restock: formData.get("restock") === "on",
+      lines: order.items.map((item) => ({
+        itemId: item.id,
+        quantity: Number(formData.get(`refund_qty_${item.id}`) || 0),
+        restock: formData.get(`refund_restock_${item.id}`) === "on",
+      })),
+      shipping: parseMoney(String(formData.get("shipping") || "0"), order.currency),
       notify: formData.get("notify") === "on",
     });
     return {

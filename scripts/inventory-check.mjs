@@ -10,8 +10,8 @@
 //   as a sale, however often Stripe delivers it;
 // - checkout.session.expired, and cancelling an unpaid order by hand, give the
 //   held units back once;
-// - a refund puts the units back on hand only when "restock" is ticked, and
-//   only once per order;
+// - a refund puts a line's units back on hand only when "restock" is ticked,
+//   and never more units than the order took off hand;
 // - a stock change that crosses the low-stock threshold notifies the team.
 //
 // No request reaches Stripe. It needs MONGODB_URI and MONGODB_DB from
@@ -269,16 +269,37 @@ try {
   assert.equal(result.restocked, false);
   assert.equal((await stock()).onHand, 0, "a refund without restock leaves stock alone");
 
+  // One of the two units comes back, chosen on its line.
   current = await reload(refunded.id);
-  result = await refundOrder(ctx, current, { amount: 100, reason: "Returned unworn", cancel: false, restock: true });
+  const itemId = current.items[0].id;
+  result = await refundOrder(ctx, current, {
+    amount: 100,
+    reason: "Returned unworn",
+    cancel: false,
+    lines: [{ itemId, quantity: 1, restock: true }],
+  });
   assert.equal(result.restocked, true);
-  assert.equal((await stock()).onHand, 2, "restock puts both units back on hand");
+  assert.equal((await stock()).onHand, 1, "restock puts back the units refunded on the line");
+  assert.deepEqual(result.order.refunds.at(-1).lines, [{ itemId, quantity: 1, restocked: 1 }], "the refund records its units");
   const restock = await db.find(COLLECTIONS.inventoryAdjustments, { storeId: store.id, reason: "restock" });
-  assert.deepEqual([restock.length, restock[0].delta, restock[0].actorName], [1, 2, actor.name], "the restock is in the history, under who did it");
+  assert.deepEqual([restock.length, restock[0].delta, restock[0].actorName], [1, 1, actor.name], "the restock is in the history, under who did it");
 
   current = await reload(refunded.id);
-  result = await refundOrder(ctx, current, { amount: 100, reason: "Second refund", cancel: true, restock: true });
-  assert.equal(result.restocked, false, "an order is restocked once");
+  await assert.rejects(
+    refundOrder(ctx, current, { amount: 100, reason: "Too many", cancel: false, lines: [{ itemId, quantity: 2, restock: false }] }),
+    (error) => error.field === `refund_qty_${itemId}`,
+    "a line cannot refund more units than are left on it",
+  );
+
+  // Without lines, restock puts back whatever is still out, and only that.
+  result = await refundOrder(ctx, current, { amount: 100, reason: "Second refund", cancel: false, restock: true });
+  assert.equal(result.restocked, true);
+  assert.equal((await stock()).onHand, 2, "the remaining unit comes back, not both again");
+
+  current = await reload(refunded.id);
+  assert.ok(current.inventory.restockedAt, "an order with every unit back on hand is marked restocked");
+  result = await refundOrder(ctx, current, { amount: 100, reason: "Third refund", cancel: true, restock: true });
+  assert.equal(result.restocked, false, "a unit is restocked once");
   assert.equal((await stock()).onHand, 2);
 
   /* ------------------------------------------------- low-stock notification */
