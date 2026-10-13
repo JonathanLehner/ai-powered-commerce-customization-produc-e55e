@@ -3200,6 +3200,18 @@
       "notConnected": "Inte anslutet",
       "storeActive": "Aktiv",
       "storeArchived": "Arkiverad",
+      "filterByStatus": "Filtrera butiker efter status",
+      "status": {
+        "active": "Aktiva",
+        "archived": "Arkiverade",
+        "all": "Alla"
+      },
+      "searchStores": "Sök butiker",
+      "searchStoresPlaceholder": "Butik eller byrå",
+      "search": "Sök",
+      "clear": "Rensa",
+      "noStoresMatch": "Inga butiker matchar sökningen.",
+      "noStores": "Inga butiker än.",
       "enquiries": "Förfrågningar om planer",
       "enquiriesBody": "Skickade från kontaktsidan.",
       "askedForCall": " · vill bli uppringd",

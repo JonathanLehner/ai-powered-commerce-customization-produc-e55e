@@ -3200,6 +3200,18 @@
       "notConnected": "Não ligado",
       "storeActive": "Ativa",
       "storeArchived": "Arquivada",
+      "filterByStatus": "Filtrar lojas por status",
+      "status": {
+        "active": "Ativas",
+        "archived": "Arquivadas",
+        "all": "Todas"
+      },
+      "searchStores": "Pesquisar lojas",
+      "searchStoresPlaceholder": "Loja ou agência",
+      "search": "Pesquisar",
+      "clear": "Limpar",
+      "noStoresMatch": "Nenhuma loja corresponde à sua pesquisa.",
+      "noStores": "Ainda não há lojas.",
       "enquiries": "Pedidos de informação sobre planos",
       "enquiriesBody": "Enviados a partir da página de contacto.",
       "askedForCall": " · pediu uma chamada",

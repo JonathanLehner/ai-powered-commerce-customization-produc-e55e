@@ -3200,6 +3200,18 @@
       "notConnected": "Not connected",
       "storeActive": "Active",
       "storeArchived": "Archived",
+      "filterByStatus": "Filter stores by status",
+      "status": {
+        "active": "Active",
+        "archived": "Archived",
+        "all": "All"
+      },
+      "searchStores": "Search stores",
+      "searchStoresPlaceholder": "Store or agency",
+      "search": "Search",
+      "clear": "Clear",
+      "noStoresMatch": "No stores match your search.",
+      "noStores": "No stores yet.",
       "enquiries": "Plan enquiries",
       "enquiriesBody": "Sent from the contact page.",
       "askedForCall": " · asked for a call",

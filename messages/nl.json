@@ -3200,6 +3200,18 @@
       "notConnected": "Niet gekoppeld",
       "storeActive": "Actief",
       "storeArchived": "Gearchiveerd",
+      "filterByStatus": "Winkels filteren op status",
+      "status": {
+        "active": "Actief",
+        "archived": "Gearchiveerd",
+        "all": "Alle"
+      },
+      "searchStores": "Winkels zoeken",
+      "searchStoresPlaceholder": "Winkel of bureau",
+      "search": "Zoeken",
+      "clear": "Wissen",
+      "noStoresMatch": "Geen winkels gevonden.",
+      "noStores": "Nog geen winkels.",
       "enquiries": "Abonnementsaanvragen",
       "enquiriesBody": "Verstuurd via de contactpagina.",
       "askedForCall": " · wil teruggebeld worden",

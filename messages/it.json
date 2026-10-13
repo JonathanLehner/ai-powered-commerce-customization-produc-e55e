@@ -3200,6 +3200,18 @@
       "notConnected": "Non collegato",
       "storeActive": "Attivo",
       "storeArchived": "Archiviato",
+      "filterByStatus": "Filtra i negozi per stato",
+      "status": {
+        "active": "Attivi",
+        "archived": "Archiviati",
+        "all": "Tutti"
+      },
+      "searchStores": "Cerca negozi",
+      "searchStoresPlaceholder": "Negozio o agenzia",
+      "search": "Cerca",
+      "clear": "Cancella",
+      "noStoresMatch": "Nessun negozio corrisponde alla ricerca.",
+      "noStores": "Ancora nessun negozio.",
       "enquiries": "Richieste sui piani",
       "enquiriesBody": "Inviate dalla pagina dei contatti.",
       "askedForCall": " · ha chiesto una chiamata",

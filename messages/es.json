@@ -3200,6 +3200,18 @@
       "notConnected": "Sin conectar",
       "storeActive": "Activa",
       "storeArchived": "Archivada",
+      "filterByStatus": "Filtrar tiendas por estado",
+      "status": {
+        "active": "Activas",
+        "archived": "Archivadas",
+        "all": "Todas"
+      },
+      "searchStores": "Buscar tiendas",
+      "searchStoresPlaceholder": "Tienda o agencia",
+      "search": "Buscar",
+      "clear": "Borrar",
+      "noStoresMatch": "Ninguna tienda coincide con tu búsqueda.",
+      "noStores": "Aún no hay tiendas.",
       "enquiries": "Consultas de planes",
       "enquiriesBody": "Enviadas desde la página de contacto.",
       "askedForCall": " · pidió una llamada",

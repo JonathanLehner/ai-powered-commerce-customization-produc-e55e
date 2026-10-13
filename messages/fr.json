@@ -3200,6 +3200,18 @@
       "notConnected": "Non connecté",
       "storeActive": "Active",
       "storeArchived": "Archivée",
+      "filterByStatus": "Filtrer les boutiques par statut",
+      "status": {
+        "active": "Actives",
+        "archived": "Archivées",
+        "all": "Toutes"
+      },
+      "searchStores": "Rechercher des boutiques",
+      "searchStoresPlaceholder": "Boutique ou agence",
+      "search": "Rechercher",
+      "clear": "Effacer",
+      "noStoresMatch": "Aucune boutique ne correspond à votre recherche.",
+      "noStores": "Aucune boutique pour le moment.",
       "enquiries": "Demandes d’offre",
       "enquiriesBody": "Envoyées depuis la page de contact.",
       "askedForCall": " · souhaite être rappelé",

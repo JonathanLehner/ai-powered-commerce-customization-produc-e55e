@@ -3200,6 +3200,18 @@
       "notConnected": "Nicht verbunden",
       "storeActive": "Aktiv",
       "storeArchived": "Archiviert",
+      "filterByStatus": "Shops nach Status filtern",
+      "status": {
+        "active": "Aktiv",
+        "archived": "Archiviert",
+        "all": "Alle"
+      },
+      "searchStores": "Shops durchsuchen",
+      "searchStoresPlaceholder": "Shop oder Agentur",
+      "search": "Suchen",
+      "clear": "Zurücksetzen",
+      "noStoresMatch": "Keine Shops entsprechen Ihrer Suche.",
+      "noStores": "Noch keine Shops.",
       "enquiries": "Tarifanfragen",
       "enquiriesBody": "Über die Kontaktseite gesendet.",
       "askedForCall": " · möchte einen Rückruf",

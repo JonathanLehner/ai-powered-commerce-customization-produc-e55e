@@ -3200,6 +3200,18 @@
       "notConnected": "未接続",
       "storeActive": "有効",
       "storeArchived": "アーカイブ済み",
+      "filterByStatus": "ステータスでストアを絞り込む",
+      "status": {
+        "active": "有効",
+        "archived": "アーカイブ済み",
+        "all": "すべて"
+      },
+      "searchStores": "ストアを検索",
+      "searchStoresPlaceholder": "ストア名またはエージェンシー名",
+      "search": "検索",
+      "clear": "クリア",
+      "noStoresMatch": "検索条件に一致するストアはありません。",
+      "noStores": "ストアはまだありません。",
       "enquiries": "プランに関するお問い合わせ",
       "enquiriesBody": "お問い合わせページから送信されました。",
       "askedForCall": "・電話を希望",

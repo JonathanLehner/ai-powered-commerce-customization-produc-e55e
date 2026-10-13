@@ -1,8 +1,10 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -23,11 +25,19 @@ import {
 import { planEnquiryLabel, UNDECIDED } from "@/lib/enquiry";
 import { formatDateTime } from "@/lib/util";
 import { paymentsReady } from "@/lib/payment-mode";
+import {
+  filterStoreList,
+  parseStoreListFilters,
+  storeListQuery,
+  STORE_STATUS_FILTERS,
+  type StoreListParams,
+} from "@/lib/store-list";
 
 /** The column-head style every table in the workspace shares. */
 const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foreground";
 
-export default async function AdminOverviewPage() {
+export default async function AdminOverviewPage({ searchParams }: { searchParams: Promise<StoreListParams> }) {
+  const filters = parseStoreListFilters(await searchParams);
   const [agencies, stores, suppliers, catalog, brackets, audit, enquiries] = await Promise.all([
     listAgencies(),
     listAllStores(),
@@ -40,6 +50,8 @@ export default async function AdminOverviewPage() {
 
   const pendingSuppliers = suppliers.filter((s) => s.status === "pending_review");
   const activeStores = stores.filter((s) => s.status === "active");
+  const agencyName = (id: string) => agencies.find((a) => a.id === id)?.name;
+  const storeList = filterStoreList(stores, filters, agencyName);
 
   const [pages, t, locale] = await Promise.all([
     getTranslations("pages.admin"),
@@ -110,7 +122,58 @@ export default async function AdminOverviewPage() {
               {t("storesHidden")}
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {/* Plain links and a GET form: the view lives in the URL, and none
+                  of the links prefetch another reading of the same table. */}
+              <nav aria-label={t("filterByStatus")} className="flex flex-wrap gap-2">
+                {STORE_STATUS_FILTERS.map((status) => (
+                  <Button key={status} asChild size="sm" variant={filters.status === status ? "default" : "outline"}>
+                    <Link
+                      href={`/admin${storeListQuery(filters, { status })}`}
+                      prefetch={false}
+                      scroll={false}
+                      aria-current={filters.status === status ? "true" : undefined}
+                    >
+                      {t(`status.${status}`)}
+                      <span className="tabular-nums opacity-70">{storeList.counts[status]}</span>
+                    </Link>
+                  </Button>
+                ))}
+              </nav>
+              <form method="get" action="/admin" role="search" className="flex items-center gap-2">
+                {filters.status !== "active" ? <input type="hidden" name="status" value={filters.status} /> : null}
+                <div className="relative">
+                  <SearchIcon
+                    aria-hidden
+                    className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    type="search"
+                    name="q"
+                    defaultValue={filters.q}
+                    aria-label={t("searchStores")}
+                    placeholder={t("searchStoresPlaceholder")}
+                    className="w-64 pl-8"
+                  />
+                </div>
+                <Button type="submit" variant="outline" size="sm">
+                  {t("search")}
+                </Button>
+                {filters.q ? (
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href={`/admin${storeListQuery(filters, { q: "" })}`} prefetch={false} scroll={false}>
+                      {t("clear")}
+                    </Link>
+                  </Button>
+                ) : null}
+              </form>
+            </div>
+            {storeList.rows.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                {filters.q ? t("noStoresMatch") : t("noStores")}
+              </p>
+            ) : (
             <div className="relative overflow-x-auto">
               <Table className="min-w-[42rem]">
                 <TableHeader>
@@ -123,7 +186,7 @@ export default async function AdminOverviewPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {stores.map((store) => (
+                  {storeList.rows.map((store) => (
                     <TableRow key={store.id} className="hover:bg-transparent">
                       <TableCell className="px-0 py-3 align-top whitespace-normal">
                         <Link
@@ -135,7 +198,7 @@ export default async function AdminOverviewPage() {
                         <p className="text-xs text-muted-foreground">{store.clientName}</p>
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
-                        {agencies.find((a) => a.id === store.agencyId)?.name ?? "–"}
+                        {agencyName(store.agencyId) ?? "–"}
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
                         {store.currencies.join(", ")}
@@ -155,6 +218,7 @@ export default async function AdminOverviewPage() {
                 </TableBody>
               </Table>
             </div>
+            )}
           </CardContent>
       </section>
       </Card>
