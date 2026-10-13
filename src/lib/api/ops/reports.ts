@@ -113,7 +113,7 @@ export const reportOperations: ApiOperation[] = [
     scope: "analytics:read",
     tag: "Analytics",
     summary: "Get the store's sales report",
-    description: `The Analytics page for a period: net revenue, gross sales, refunds, orders, units, average order value and refund rate, against the same number of days just before; the sales series (daily up to 62 days, weekly beyond); sales by language and by currency; the top products and discount codes. Money is in minor units of the store's default currency (\`currency\`), orders in other currencies converted. ${RANGE_NOTE}`,
+    description: `The Analytics page for a period: net revenue, gross sales, refunds, orders, units, average order value, refund rate, margin earned (net revenue less supplier base, customisation and shipping cost), and orders that hit an exception with their share of all orders (\`exceptions\`, \`exceptionRate\`), against the same number of days just before; the sales series (daily up to 62 days, weekly beyond); sales by language and by currency; the top products and discount codes. Money is in minor units of the store's default currency (\`currency\`), orders in other currencies converted. ${RANGE_NOTE}`,
     input: analyticsInput,
     run: async (ctx, input) => loadStoreAnalytics(ctx.store, analyticsRange(input)),
   }),
@@ -124,7 +124,7 @@ export const reportOperations: ApiOperation[] = [
     scope: "analytics:read",
     tag: "Analytics",
     summary: "Get the store's daily sales",
-    description: `One row per day of the period, zero where nothing sold: orders, units, gross sales, refunds and net revenue, in minor units of the store's default currency. The same rows as the Analytics page's spreadsheet download. ${RANGE_NOTE}`,
+    description: `One row per day of the period, zero where nothing sold: orders, units, gross sales, refunds, net revenue, margin earned and orders that hit an exception, in minor units of the store's default currency. The same rows as the Analytics page's spreadsheet download. ${RANGE_NOTE}`,
     input: analyticsInput,
     run: async (ctx, input) => {
       const range = analyticsRange(input);

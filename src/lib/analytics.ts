@@ -12,6 +12,16 @@
  * rates `convert()` uses. Cancelled orders and orders whose payment never
  * succeeded are left out entirely. Days are UTC days, and an order and its
  * refunds both count on the day the order was placed.
+ *
+ * Margin is that revenue less what the order's units cost: each line's supplier
+ * base cost, customisation cost and shipping cost, times its quantity. The costs
+ * are kept on the order line; for orders placed before customisation and
+ * shipping cost were kept there, the product's current costs stand in. Costs are
+ * in the store's currency at the time (`shopCurrency`, else the order's own).
+ *
+ * An order hit an exception if it is in exception now, carries an exception
+ * note, or its history shows one raised or resolved. The exception rate is the
+ * share of the counted orders that did.
  */
 import { csvDocument } from "./audit-log";
 import { FX_TO_USD } from "./pricing";
@@ -26,8 +36,6 @@ export const MAX_RANGE_DAYS = 731;
 const DAILY_LIMIT = 62;
 /** Rows in each top-products and top-codes table. */
 export const TOP_ROWS = 10;
-/** Days drawn in the dashboard's sparkline. */
-export const SPARKLINE_DAYS = 30;
 
 const DAY = 86_400_000;
 
@@ -114,6 +122,12 @@ export function rangeQuery(range: AnalyticsRange): string {
 
 /* ---------------------------------------------------------------- pipelines */
 
+/** `COLLECTIONS.storeProducts`: this module stays free of the data layer so the check script can load it. */
+const STORE_PRODUCTS = "store_products";
+
+/** Event statuses that mean an exception was raised on the order at some point. */
+const EXCEPTION_EVENTS = ["exception", "Exception raised", "Exception resolved"];
+
 const startOf = (day: string) => `${day}T00:00:00.000Z`;
 const endOf = (day: string) => startOf(addDays(day, 1));
 
@@ -170,6 +184,20 @@ function paidOrderStages(storeId: string | { $in: string[] }, from: string, to: 
         refunded: { $sum: "$refunds.amount" },
         units: { $sum: "$items.quantity" },
         fx: { $divide: [usdPerMinorExpr("$currency"), target] },
+        exception: {
+          $cond: [
+            {
+              $or: [
+                { $eq: ["$status", "exception"] },
+                { $gt: [{ $ifNull: ["$fulfillment.exception", null] }, null] },
+                { $anyElementTrue: [{ $map: { input: { $ifNull: ["$events", []] }, in: { $in: ["$$this.status", EXCEPTION_EVENTS] } } }] },
+              ],
+            },
+            1,
+            0,
+          ],
+        },
+        costFx: { $divide: [usdPerMinorExpr({ $ifNull: ["$shopCurrency", "$currency"] }), target] },
       },
     },
     {
@@ -179,6 +207,62 @@ function paidOrderStages(storeId: string | { $in: string[] }, from: string, to: 
         net: { $multiply: [{ $subtract: ["$total", "$refunded"] }, "$fx"] },
       },
     },
+  ];
+}
+
+/**
+ * Adds `cost`: what the order's units cost, converted like its amounts. Only the
+ * Analytics report and its download need it, so the dashboard's sparklines skip
+ * the product lookup.
+ */
+function costStages() {
+  const line = (field: string, fallback: string) => ({
+    $ifNull: [
+      `$$item.${field}`,
+      { $first: { $map: { input: { $filter: { input: "$products", cond: { $eq: ["$$this.id", "$$item.storeProductId"] } } }, in: `$$this.costs.${fallback}` } } },
+      0,
+    ],
+  });
+  return [
+    {
+      $lookup: {
+        from: STORE_PRODUCTS,
+        localField: "items.storeProductId",
+        foreignField: "id",
+        pipeline: [{ $project: { _id: 0, id: 1, "costs.customizationCost": 1, "costs.shippingEstimate": 1 } }],
+        as: "products",
+      },
+    },
+    {
+      $addFields: {
+        cost: {
+          $multiply: [
+            {
+              $sum: {
+                $map: {
+                  input: "$items",
+                  as: "item",
+                  in: {
+                    $multiply: [
+                      "$$item.quantity",
+                      {
+                        $add: [
+                          { $ifNull: ["$$item.supplierCost", 0] },
+                          line("customizationCost", "customizationCost"),
+                          line("shippingCost", "shippingEstimate"),
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            "$costFx",
+          ],
+        },
+      },
+    },
+    { $project: { products: 0 } },
   ];
 }
 
@@ -196,6 +280,8 @@ const SERIES_GROUP = {
   refunded: { $sum: "$refundedFx" },
   orders: { $sum: 1 },
   units: { $sum: "$units" },
+  cost: { $sum: "$cost" },
+  exceptions: { $sum: "$exception" },
 };
 
 function seriesStages(range: AnalyticsRange, bucketDays: number) {
@@ -248,6 +334,7 @@ export function analyticsPipeline(
 ) {
   return [
     ...paidOrderStages(store.id, range.previous.from, range.to, usdPerMinor(store.defaultCurrency), store.defaultLanguage),
+    ...costStages(),
     { $addFields: { period: { $cond: [{ $gte: ["$createdAt", startOf(range.from)] }, "current", "previous"] } } },
     {
       $facet: {
@@ -282,6 +369,7 @@ export function dailySeriesPipeline(
 ) {
   return [
     ...paidOrderStages(store.id, range.from, range.to, usdPerMinor(store.defaultCurrency), store.defaultLanguage),
+    ...costStages(),
     ...seriesStages(range, 1),
   ];
 }
@@ -313,6 +401,12 @@ export interface Kpis {
   aov: number;
   /** Share of gross sales refunded, 0 to 1. */
   refundRate: number;
+  /** Net revenue less supplier base, customisation and shipping cost. */
+  margin: number;
+  /** Orders that hit an exception. */
+  exceptions: number;
+  /** Share of orders that hit an exception, 0 to 1. */
+  exceptionRate: number;
 }
 
 export interface SeriesPoint {
@@ -323,6 +417,8 @@ export interface SeriesPoint {
   refunded: number;
   orders: number;
   units: number;
+  margin: number;
+  exceptions: number;
 }
 
 export interface AnalyticsReport {
@@ -339,7 +435,16 @@ export interface AnalyticsReport {
   discountsByRevenue: { id: string; code: string; uses: number; revenue: number; discounted: number }[];
 }
 
-type SeriesRow = { _id: number; revenue: number; gross: number; refunded: number; orders: number; units: number };
+type SeriesRow = {
+  _id: number;
+  revenue: number;
+  gross: number;
+  refunded: number;
+  orders: number;
+  units: number;
+  cost: number;
+  exceptions: number;
+};
 
 /** What `analyticsPipeline` returns: one document of facets. */
 export interface AnalyticsFacets {
@@ -358,6 +463,7 @@ function kpis(row: Omit<SeriesRow, "_id"> | undefined): Kpis {
   const gross = Math.round(row?.gross ?? 0);
   const refunded = Math.round(row?.refunded ?? 0);
   const orders = row?.orders ?? 0;
+  const exceptions = row?.exceptions ?? 0;
   return {
     revenue,
     gross,
@@ -366,6 +472,9 @@ function kpis(row: Omit<SeriesRow, "_id"> | undefined): Kpis {
     units: row?.units ?? 0,
     aov: orders ? Math.round(revenue / orders) : 0,
     refundRate: gross ? refunded / gross : 0,
+    margin: Math.round((row?.revenue ?? 0) - (row?.cost ?? 0)),
+    exceptions,
+    exceptionRate: orders ? exceptions / orders : 0,
   };
 }
 
@@ -382,6 +491,8 @@ export function fillSeries(rows: SeriesRow[], range: AnalyticsRange, bucketDays:
       refunded: Math.round(row?.refunded ?? 0),
       orders: row?.orders ?? 0,
       units: row?.units ?? 0,
+      margin: Math.round((row?.revenue ?? 0) - (row?.cost ?? 0)),
+      exceptions: row?.exceptions ?? 0,
     });
   }
   return points;
@@ -425,7 +536,8 @@ export function shapeReport(facets: AnalyticsFacets | undefined, range: Analytic
 /** Change from the previous period as a fraction, or null when there is nothing to compare with. */
 export function percentChange(current: number, previous: number): number | null {
   if (previous === 0) return current === 0 ? 0 : null;
-  return (current - previous) / previous;
+  // Against the size of the previous figure, so a margin climbing out of a loss reads as a rise.
+  return (current - previous) / Math.abs(previous);
 }
 
 /** One series of daily values per store, oldest first, zero-filled. */
@@ -445,6 +557,7 @@ export function shapeSparklines(
 /** The daily series as a spreadsheet, amounts in major units of the store's currency. */
 export function seriesCsv(points: SeriesPoint[], currency: string, columns: string[]): string {
   const money = (minor: number) => toMajorString(minor, currency);
+  const share = (part: number, whole: number) => (whole ? ((part / whole) * 100).toFixed(1) : "0.0");
   return csvDocument([
     columns,
     ...points.map((point) => [
@@ -454,6 +567,9 @@ export function seriesCsv(points: SeriesPoint[], currency: string, columns: stri
       money(point.gross),
       money(point.refunded),
       money(point.revenue),
+      money(point.margin),
+      String(point.exceptions),
+      share(point.exceptions, point.orders),
     ]),
   ]);
 }

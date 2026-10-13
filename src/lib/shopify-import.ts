@@ -647,6 +647,8 @@ class ImportContext {
         quantity: item.quantity,
         unitPrice: item.price,
         supplierCost: 0,
+        customizationCost: 0,
+        shippingCost: 0,
         customization: { artworkUrl: null, artworkFileName: null, text: null, previewUrl: null },
         supplierId: match?.supplierId ?? "",
       };

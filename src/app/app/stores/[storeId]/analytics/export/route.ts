@@ -34,6 +34,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     `${t("csvGross")} (${currency})`,
     `${t("csvRefunds")} (${currency})`,
     `${t("csvNet")} (${currency})`,
+    `${t("margin")} (${currency})`,
+    t("csvExceptions"),
+    t("csvExceptionRate"),
   ]);
   const name = slugify(t("fileName", { store: store.name })) || "analytics";
   return auditCsvResponse(csv, `${name}-${range.from}-to-${range.to}.csv`);

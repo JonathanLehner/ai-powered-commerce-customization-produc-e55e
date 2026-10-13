@@ -782,6 +782,13 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   supplierCost: number;
+  /**
+   * Per unit, from the product's costs when the order was placed, in the same
+   * currency as `supplierCost`. Absent on orders placed before they were kept:
+   * analytics reads the product's current costs for those.
+   */
+  customizationCost?: number;
+  shippingCost?: number;
   customization: {
     artworkUrl: string | null;
     artworkFileName: string | null;

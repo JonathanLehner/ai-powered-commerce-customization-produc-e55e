@@ -70,6 +70,8 @@ export async function raiseCampaignOrders(
           unitPrice: line.unit,
           supplierCost:
             line.product?.variants.find((v) => v.id === recipient.variantId)?.baseCost ?? 0,
+          customizationCost: line.product?.costs.customizationCost ?? 0,
+          shippingCost: line.product?.costs.shippingEstimate ?? 0,
           customization: {
             artworkUrl: null,
             artworkFileName: null,

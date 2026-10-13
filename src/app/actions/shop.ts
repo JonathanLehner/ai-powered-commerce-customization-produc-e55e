@@ -745,6 +745,8 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       unitPrice: lines[index].unit,
       supplierCost:
         products[index]?.variants.find((v) => v.id === item.variantId)?.baseCost ?? 0,
+      customizationCost: products[index]?.costs.customizationCost ?? 0,
+      shippingCost: products[index]?.costs.shippingEstimate ?? 0,
       customization: {
         artworkUrl: item.artworkUrl,
         artworkFileName: item.artworkFileName,

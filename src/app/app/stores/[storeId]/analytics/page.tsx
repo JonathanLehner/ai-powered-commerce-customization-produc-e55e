@@ -2,17 +2,17 @@ import { DownloadIcon } from "lucide-react";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
+import { KpiCards } from "@/components/KpiCards";
+import { RangeControls } from "@/components/RangeControls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { languageName } from "@/i18n/display";
 import { formatMinorUnits } from "@/i18n/format";
-import { parseRange, percentChange, rangeQuery, type Kpis } from "@/lib/analytics";
+import { parseRange, rangeQuery } from "@/lib/analytics";
 import { loadStoreAnalytics } from "@/lib/analytics-data";
 import { requireStoreAccess } from "@/lib/session";
-import { cn } from "@/lib/utils";
 import { AnalyticsCharts } from "./AnalyticsCharts";
-import { RangeControls } from "./RangeControls";
 
 const TH = "h-9 text-xs font-medium text-muted-foreground";
 
@@ -41,21 +41,6 @@ export default async function AnalyticsPage({
   const money = (minor: number) => formatMinorUnits(format, minor, currency);
   const day = (value: string) => format.dateTime(new Date(`${value}T00:00:00Z`), { dateStyle: "medium", timeZone: "UTC" });
   const base = `/app/stores/${store.id}/analytics`;
-
-  const kpis: { key: keyof Kpis; label: string; sub?: string; value: (k: Kpis) => string; lowerIsBetter?: boolean; money?: boolean }[] = [
-    { key: "revenue", label: t("revenue"), sub: t("revenueSub"), value: (k) => money(k.revenue), money: true },
-    { key: "orders", label: t("orders"), value: (k) => format.number(k.orders) },
-    { key: "aov", label: t("aov"), value: (k) => money(k.aov), money: true },
-    { key: "units", label: t("units"), value: (k) => format.number(k.units) },
-    {
-      key: "refundRate",
-      label: t("refundRate"),
-      value: (k) => format.number(k.refundRate, { style: "percent", maximumFractionDigits: 1 }),
-      lowerIsBetter: true,
-      money: true,
-    },
-  ];
-  const visible = kpis.filter((kpi) => showMoney || !kpi.money);
 
   const empty = report.current.orders === 0;
 
@@ -96,37 +81,12 @@ export default async function AnalyticsPage({
         }
       />
 
-      <section className={cn("grid grid-cols-2 gap-3 sm:gap-4", showMoney ? "lg:grid-cols-5" : "lg:grid-cols-2")}>
-        {visible.map((kpi) => {
-          const change = percentChange(report.current[kpi.key], report.previous[kpi.key]);
-          const good = change === null || change === 0 ? null : kpi.lowerIsBetter ? change < 0 : change > 0;
-          return (
-            <Card key={kpi.key} size="sm" className="border border-border ring-0">
-              <CardContent>
-                <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
-                <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
-                  {kpi.value(report.current)}
-                </p>
-                <p
-                  className={cn(
-                    "mt-1 text-xs tabular-nums",
-                    good === null ? "text-muted-foreground" : good ? "text-emerald-700" : "text-rose-700",
-                  )}
-                >
-                  {change === null
-                    ? report.previous.orders === 0
-                      ? t("noComparison")
-                      : t("previousValue", { value: kpi.value(report.previous) })
-                    : t("change", {
-                        change: format.number(change, { style: "percent", maximumFractionDigits: 1, signDisplay: "exceptZero" }),
-                      })}
-                </p>
-                {kpi.sub ? <p className="mt-0.5 text-xs text-muted-foreground">{kpi.sub}</p> : null}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </section>
+      <KpiCards
+        report={report}
+        keys={["revenue", "margin", "orders", "aov", "units", "refundRate", "exceptionRate"]}
+        showMoney={showMoney}
+        className={showMoney ? "lg:grid-cols-4" : "lg:grid-cols-3"}
+      />
 
       {empty ? (
         <EmptyState title={t("noSales")} description={t("noSalesBody")} />

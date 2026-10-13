@@ -3,11 +3,9 @@ import {
   analyticsPipeline,
   dailySeriesPipeline,
   fillSeries,
-  parseRange,
   shapeReport,
   shapeSparklines,
   sparklinePipeline,
-  SPARKLINE_DAYS,
   type AnalyticsFacets,
   type AnalyticsRange,
 } from "./analytics";
@@ -32,13 +30,12 @@ export async function loadDailySeries(store: ReportStore, range: AnalyticsRange)
   return fillSeries(rows, range, 1);
 }
 
-/** The last 30 days of net revenue per store, for the dashboard cards. One read for every store. */
-export async function loadSparklines(stores: Pick<Store, "id" | "defaultCurrency">[], now: Date) {
+/** Daily net revenue per store over the range, for the dashboard cards. One read for every store. */
+export async function loadSparklines(stores: Pick<Store, "id" | "defaultCurrency">[], range: AnalyticsRange) {
   if (stores.length === 0) return new Map<string, number[]>();
-  const range = parseRange({ range: "30d" }, now);
   const rows = await db.aggregate<Parameters<typeof shapeSparklines>[0][number]>(
     COLLECTIONS.orders,
     sparklinePipeline(stores, range),
   );
-  return shapeSparklines(rows, stores.map((store) => store.id), SPARKLINE_DAYS);
+  return shapeSparklines(rows, stores.map((store) => store.id), range.days);
 }

@@ -144,8 +144,6 @@ export default async function OrderStatusPage({
         </>
       ) : null}
       {confirmed ? (
-        // No order email is sent, so this page — and the lookup below it — is
-        // the shopper's only way back to the order. The banner says so.
         <Callout tone="green" title={t("order.confirmedTitle")}>
           <p>{t("order.confirmedBody")}</p>
           <p className="mt-1">

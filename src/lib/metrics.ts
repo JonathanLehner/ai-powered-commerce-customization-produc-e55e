@@ -18,8 +18,6 @@ export interface StoreMetrics {
   refunded: number;
   publishedProducts: number;
   draftProducts: number;
-  last30Sales: number;
-  last30Orders: number;
   topProducts: { name: string; units: number; revenue: number }[];
 }
 
@@ -30,20 +28,13 @@ const REVENUE_STATUSES = new Set(["paid", "in_production", "shipped", "delivered
  * carts across stores — the agency dashboard stacks per-store rows instead.
  */
 export function storeMetrics(orders: Order[], products: StoreProduct[], currency: string): StoreMetrics {
-  const cutoff = Date.now() - 30 * 86400000;
   let grossSales = 0;
-  let last30Sales = 0;
-  let last30Orders = 0;
   let refunded = 0;
   const productTotals = new Map<string, { name: string; units: number; revenue: number }>();
 
   for (const order of orders) {
     const counts = REVENUE_STATUSES.has(order.status);
     if (counts) grossSales += order.total;
-    if (counts && new Date(order.createdAt).getTime() >= cutoff) {
-      last30Sales += order.total;
-      last30Orders += 1;
-    }
     for (const refund of order.refunds) refunded += refund.amount;
     if (!counts) continue;
     for (const item of order.items) {
@@ -77,8 +68,6 @@ export function storeMetrics(orders: Order[], products: StoreProduct[], currency
     refunded,
     publishedProducts: products.filter((p) => p.status === "published").length,
     draftProducts: products.filter((p) => p.status === "draft" || p.status === "in_review").length,
-    last30Sales,
-    last30Orders,
     topProducts: [...productTotals.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 5),
   };
 }

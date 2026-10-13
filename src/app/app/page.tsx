@@ -7,6 +7,7 @@ import { RevenueSparkline } from "@/app/app/RevenueSparkline";
 import { setStoreStatus } from "@/app/actions/stores";
 import { AppHeader } from "@/components/AppHeader";
 import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
+import { RangeControls } from "@/components/RangeControls";
 import { EmptyState, PageHeader, ProgressBar, StatCard } from "@/components/ui";
 import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo, formatMinorUnits } from "@/i18n/format";
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { parseRange, rangeQuery } from "@/lib/analytics";
 import { loadSparklines } from "@/lib/analytics-data";
 import { recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import { getAgency, listAudit, listOrdersByStore, listStoreProductsByStore } from "@/lib/data";
@@ -43,9 +45,10 @@ function storeInitials(name: string): string {
 export default async function AgencyDashboard({
   searchParams,
 }: {
-  searchParams: Promise<{ denied?: string }>;
+  searchParams: Promise<{ denied?: string; range?: string; from?: string; to?: string }>;
 }) {
-  const { denied } = await searchParams;
+  const query = await searchParams;
+  const { denied } = query;
   const user = await requireUser();
   const [t, attention, shell, roles, format] = await Promise.all([
     getTranslations("dashboard"),
@@ -55,6 +58,8 @@ export default async function AgencyDashboard({
     getFormatter(),
   ]);
   const now = new Date();
+  // Every card reports the same period, in the address so a comparison can be shared.
+  const range = parseRange(query, now);
   // A platform administrator runs no store, so they get the oversight view:
   // grouped by agency, nothing added up across them.
   if (user.platformRole === "platform_admin") return <PlatformWorkspace user={user} denied={denied} />;
@@ -90,7 +95,7 @@ export default async function AgencyDashboard({
     listStoreProductsByStore(storeIds),
     loadSparklines(
       stores.filter(({ store }) => store.status === "active").map(({ store }) => store),
-      now,
+      range,
     ),
   ]);
 
@@ -119,6 +124,7 @@ export default async function AgencyDashboard({
       }) + (planAllowance.atLimit ? t("limitReached") : "")
     : null;
   const money = (minor: number, currency: string) => formatMinorUnits(format, minor, currency);
+  const day = (value: string) => format.dateTime(new Date(`${value}T00:00:00Z`), { dateStyle: "medium", timeZone: "UTC" });
 
   const totalOrders = active.reduce((sum, r) => sum + r.metrics.orderCount, 0);
   // Each store counted on its own, then the counts summed: no orders are mixed.
@@ -180,7 +186,26 @@ export default async function AgencyDashboard({
         </div>
 
         <section className="mt-9">
-          <h2 className="text-base font-semibold text-foreground">{t("clientStores")}</h2>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-foreground">{t("clientStores")}</h2>
+              {active.length > 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("revenuePeriod", { from: day(range.from), to: day(range.to) })}
+                </p>
+              ) : null}
+            </div>
+            {active.length > 0 ? (
+              <RangeControls
+                key={rangeQuery(range)}
+                base="/app"
+                range={range.key}
+                from={range.from}
+                to={range.to}
+                today={now.toISOString().slice(0, 10)}
+              />
+            ) : null}
+          </div>
 
           {active.length === 0 ? (
             <div className="mt-4">
@@ -262,7 +287,7 @@ export default async function AgencyDashboard({
                         <div className="space-y-2 border-y border-border py-3">
                         <dl className="grid grid-cols-3 gap-3 text-sm">
                           <div>
-                            <dt className="text-xs text-muted-foreground">{t("revenue30")}</dt>
+                            <dt className="text-xs text-muted-foreground">{t("revenue")}</dt>
                             <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
                               {money(revenue.reduce((sum, day) => sum + day, 0), store.defaultCurrency)}
                             </dd>
@@ -280,7 +305,10 @@ export default async function AgencyDashboard({
                             </dd>
                           </div>
                         </dl>
-                        <RevenueSparkline values={revenue} label={t("revenue30")} />
+                        <RevenueSparkline
+                          values={revenue}
+                          label={t("revenuePeriod", { from: day(range.from), to: day(range.to) })}
+                        />
                         </div>
 
                         <p className="text-xs text-muted-foreground">

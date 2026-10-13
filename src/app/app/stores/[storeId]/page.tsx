@@ -1,6 +1,8 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
+import { KpiCards } from "@/components/KpiCards";
+import { RangeControls } from "@/components/RangeControls";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { parseRange, rangeQuery } from "@/lib/analytics";
+import { loadStoreAnalytics } from "@/lib/analytics-data";
 import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
 import {
   agencyStoreAllowance,
@@ -43,20 +47,25 @@ export default async function StoreOverviewPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ denied?: string; limit?: string }>;
+  searchParams: Promise<{ denied?: string; limit?: string; range?: string; from?: string; to?: string }>;
 }) {
   const { storeId } = await params;
-  const { denied, limit } = await searchParams;
+  const query = await searchParams;
+  const { denied, limit } = query;
   const { store, role, viaPlatform } = await requireStoreAccess(storeId);
+  const now = new Date();
+  // The sales figures read the same report as the Analytics page, for the same range.
+  const range = parseRange(query, now);
 
   const canSource = roleCan(role, "store.catalog");
   const can = (capability: Capability) => roleCan(role, capability);
-  const [orders, products, storefront, audit, enquiries] = await Promise.all([
+  const [orders, products, storefront, audit, enquiries, report] = await Promise.all([
     listOrders(store.id),
     listStoreProducts(store.id).then((rows) => takeOffFailingPreflight(rows)),
     getStorefront(store.id),
     listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
     canSource ? listQuoteRequests(store.id) : Promise.resolve([]),
+    loadStoreAnalytics(store, range),
   ]);
   const openEnquiries = enquiries.filter(isOpenEnquiry);
 
@@ -74,10 +83,11 @@ export default async function StoreOverviewPage({
   const recentOrders = orders.slice(0, 6);
   const theme = THEMES[store.theme];
 
-  const [t, labels, dashboard, locale, format] = await Promise.all([
+  const [t, labels, dashboard, analytics, locale, format] = await Promise.all([
     getTranslations("overview"),
     getTranslations("labels"),
     getTranslations("dashboard"),
+    getTranslations("analytics"),
     getLocale(),
     getFormatter(),
   ]);
@@ -88,7 +98,7 @@ export default async function StoreOverviewPage({
   ).length;
   const attentionTotal = metrics.awaitingAction + preflightFailed;
   const attentionSub = await attentionSummary(metrics.attention, preflightFailed);
-  const now = new Date();
+  const day = (value: string) => format.dateTime(new Date(`${value}T00:00:00Z`), { dateStyle: "medium", timeZone: "UTC" });
 
   return (
     <div className="space-y-7">
@@ -158,26 +168,51 @@ export default async function StoreOverviewPage({
         </section>
       ) : null}
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">{t("sales")}</h2>
+            <p className="text-sm text-muted-foreground">
+              {analytics("period", {
+                from: day(range.from),
+                to: day(range.to),
+                previousFrom: day(range.previous.from),
+                previousTo: day(range.previous.to),
+              })}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <RangeControls
+              key={rangeQuery(range)}
+              base={`/app/stores/${store.id}`}
+              range={range.key}
+              from={range.from}
+              to={range.to}
+              today={now.toISOString().slice(0, 10)}
+            />
+            <Button asChild variant="outline">
+              <Link href={`/app/stores/${store.id}/analytics${rangeQuery(range)}`}>{t("viewAnalytics")}</Link>
+            </Button>
+          </div>
+        </div>
         {/* Money is the store's own; platform access counts orders instead. */}
+        <KpiCards
+          report={report}
+          keys={["revenue", "margin", "orders", "exceptionRate"]}
+          showMoney={!viaPlatform}
+          className={viaPlatform ? "lg:grid-cols-2" : "lg:grid-cols-4"}
+        />
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-3">
         {viaPlatform ? (
-          <>
-            <StatCard label={t("orders30")} value={String(metrics.last30Orders)} />
-            <StatCard label={t("ordersLifetime")} value={String(metrics.orderCount)} sub={t("paid", { count: metrics.paidOrders })} />
-          </>
+          <StatCard label={t("ordersLifetime")} value={String(metrics.orderCount)} sub={t("paid", { count: metrics.paidOrders })} />
         ) : (
-          <>
-            <StatCard
-              label={t("sales30")}
-              value={formatMoney(metrics.last30Sales, store.defaultCurrency, locale)}
-              sub={t("ordersCount", { count: metrics.last30Orders })}
-            />
-            <StatCard
-              label={t("lifetimeSales")}
-              value={formatMoney(metrics.grossSales, store.defaultCurrency, locale)}
-              sub={t("paidOrders", { count: metrics.paidOrders })}
-            />
-          </>
+          <StatCard
+            label={t("lifetimeSales")}
+            value={formatMoney(metrics.grossSales, store.defaultCurrency, locale)}
+            sub={t("paidOrders", { count: metrics.paidOrders })}
+          />
         )}
         <StatCard
           label={t("published")}
