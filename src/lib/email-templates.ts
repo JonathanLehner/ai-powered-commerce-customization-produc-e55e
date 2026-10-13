@@ -222,6 +222,79 @@ export function shippingNotificationEmail(
   });
 }
 
+export interface OrderRefund {
+  amount: number;
+  currency: string;
+  reason: string;
+}
+
+function refundRows(copy: EmailCopy, refund: OrderRefund): { label: string; value: string }[] {
+  return [
+    { label: copy.t("refundAmountLabel"), value: formatMinorUnits(copy.format, refund.amount, refund.currency) },
+    ...(refund.reason ? [{ label: copy.t("refundReasonLabel"), value: refund.reason }] : []),
+  ];
+}
+
+export interface RefundIssuedInput {
+  customerName: string;
+  code: string;
+  refund: OrderRefund;
+  statusUrl: string;
+}
+
+/** Money given back on an order, how much, why, and when it reaches the card. */
+export function refundIssuedEmail(brand: EmailBrand, copy: EmailCopy, input: RefundIssuedInput): BuiltEmail {
+  const { t } = copy;
+  const amount = formatMinorUnits(copy.format, input.refund.amount, input.refund.currency);
+  return render(brand, copy, t("refundSubject", { code: input.code, store: brand.storeName }), {
+    heading: t("refundHeading"),
+    greetingName: input.customerName,
+    paragraphs: [t("refundBody", { amount, code: input.code }), t("refundTiming")],
+    rows: refundRows(copy, input.refund),
+    action: { label: t("orderCta"), url: input.statusUrl },
+  });
+}
+
+export interface OrderCancelledInput {
+  customerName: string;
+  code: string;
+  /** The refund issued with the cancellation, if there was one. */
+  refund?: OrderRefund | null;
+  statusUrl: string;
+}
+
+export function orderCancelledEmail(brand: EmailBrand, copy: EmailCopy, input: OrderCancelledInput): BuiltEmail {
+  const { t } = copy;
+  return render(brand, copy, t("cancelledSubject", { code: input.code, store: brand.storeName }), {
+    heading: t("cancelledHeading"),
+    greetingName: input.customerName,
+    paragraphs: [
+      t("cancelledBody", { code: input.code }),
+      ...(input.refund
+        ? [t("cancelledRefund", { amount: formatMinorUnits(copy.format, input.refund.amount, input.refund.currency) }), t("refundTiming")]
+        : []),
+    ],
+    rows: input.refund ? refundRows(copy, input.refund) : [],
+    action: { label: t("orderCta"), url: input.statusUrl },
+  });
+}
+
+export interface OrderDeliveredInput {
+  customerName: string;
+  code: string;
+  statusUrl: string;
+}
+
+export function orderDeliveredEmail(brand: EmailBrand, copy: EmailCopy, input: OrderDeliveredInput): BuiltEmail {
+  const { t } = copy;
+  return render(brand, copy, t("deliveredSubject", { code: input.code, store: brand.storeName }), {
+    heading: t("deliveredHeading"),
+    greetingName: input.customerName,
+    paragraphs: [t("deliveredBody", { code: input.code })],
+    action: { label: t("orderCta"), url: input.statusUrl },
+  });
+}
+
 export interface CheckoutRecoveryInput {
   customerName: string;
   items: { name: string; variant: string; quantity: number }[];

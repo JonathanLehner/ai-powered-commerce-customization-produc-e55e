@@ -379,6 +379,23 @@ try {
   assert.equal(refundEvents.length, 2, "order.refunded for each refund");
   assert.equal(refundEvents.at(-1).data.refundedTotal, 7000);
   assert.equal(received.filter((e) => e.type === "order.cancelled" && e.data.id === refundable.id).length, 1);
+  const refundEmails = await audits({ action: "email.logged", "meta.kind": "refund issued", entityId: refundable.code });
+  assert.equal(refundEmails.length, 1, "the shopper is told about the partial refund");
+  const cancelEmails = await audits({ action: "email.logged", "meta.kind": "order cancelled", entityId: refundable.code });
+  assert.equal(cancelEmails.length, 1, "a refund that cancels sends the cancellation email instead");
+
+  // The shopper hears about delivery and cancellation, unless the team says not to.
+  const delivering = await makeOrder({ status: "shipped" });
+  assert.ok(await orders.moveOrder(ctx(), delivering, "delivered"));
+  assert.equal((await getOrder(delivering.id)).events.at(-1).status, "Delivered", "capitalised like the other steps");
+  const quiet = await makeOrder({ status: "paid" });
+  await orders.refundOrder(ctx(), quiet, { amount: 100, reason: "Goodwill", cancel: false, notify: false });
+  const quietCancel = await makeOrder({ status: "awaiting_payment", payment: { provider: "stripe", status: "requires_payment", paymentIntentId: null, stripeAccountId: null, last4: null, failureMessage: null, paidAt: null } });
+  assert.ok(await orders.moveOrder(ctx(), quietCancel, "cancelled", false));
+  await settle();
+  assert.equal((await audits({ action: "email.logged", "meta.kind": "order delivered", entityId: delivering.code })).length, 1);
+  assert.equal((await audits({ category: "email", entityId: quiet.code })).length, 0, "no email when notify is off");
+  assert.equal((await audits({ category: "email", entityId: quietCancel.code })).length, 0, "no email when notify is off");
 
   /* ---------------------------------------------------- abandoned checkouts */
 

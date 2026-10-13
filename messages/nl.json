@@ -2203,7 +2203,8 @@
     "parcel": "Pakket {number}",
     "notShippable": "Pakketten kunnen worden verzonden zodra de bestelling is betaald.",
     "notesTitle": "Notities en tags",
-    "editAddress": "Verzendadres bewerken"
+    "editAddress": "Verzendadres bewerken",
+    "notifyCustomer": "Klant informeren"
   },
   "customers": {
     "title": "Klanten",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "Je winkelwagen wacht op je",
       "recoveryBody": "Je hebt je bestelling bij {store} niet afgerond. Je artikelen staan hieronder.",
       "recoveryCta": "Terug naar je winkelwagen",
-      "recoveryConsent": "Je ontvangt deze e-mail omdat je bij het afrekenen hebt ingestemd met e-mails van {store}."
+      "recoveryConsent": "Je ontvangt deze e-mail omdat je bij het afrekenen hebt ingestemd met e-mails van {store}.",
+      "refundSubject": "Terugbetaling voor je bestelling {code} bij {store}",
+      "refundHeading": "We hebben een terugbetaling gedaan",
+      "refundBody": "We hebben {amount} voor bestelling {code} terugbetaald via je oorspronkelijke betaalmethode.",
+      "refundTiming": "Terugbetalingen staan meestal binnen 5 tot 10 werkdagen op je afschrift, afhankelijk van je bank.",
+      "refundAmountLabel": "Terugbetaling",
+      "refundReasonLabel": "Reden",
+      "cancelledSubject": "Je bestelling {code} bij {store} is geannuleerd",
+      "cancelledHeading": "Je bestelling is geannuleerd",
+      "cancelledBody": "Bestelling {code} is geannuleerd.",
+      "cancelledRefund": "We hebben {amount} terugbetaald via je oorspronkelijke betaalmethode.",
+      "deliveredSubject": "Je bestelling {code} bij {store} is bezorgd",
+      "deliveredHeading": "Je bestelling is bezorgd",
+      "deliveredBody": "Bestelling {code} is bezorgd. Neem contact met ons op als er iets ontbreekt of niet klopt."
     },
     "gift": {
       "chromeSubtitle": "Cadeaucatalogus · {store}",

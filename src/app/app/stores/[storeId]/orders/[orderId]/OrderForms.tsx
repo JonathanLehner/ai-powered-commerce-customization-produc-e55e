@@ -480,6 +480,10 @@ export function RefundForm({ order }: { order: Order }) {
             {t("restock", { count: order.inventory.lines.reduce((sum, line) => sum + line.quantity, 0) })}
           </Label>
         ) : null}
+        <Label htmlFor="refund-notify" className="cursor-pointer font-normal text-inksoft">
+          <input id="refund-notify" type="checkbox" name="notify" defaultChecked className="size-4 accent-primary" />
+          {t("notifyCustomer")}
+        </Label>
       </div>
       <FormStatus state={state} />
       <div className="mt-5">

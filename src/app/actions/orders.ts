@@ -182,7 +182,7 @@ export async function advanceStatus(formData: FormData): Promise<void> {
   if (!allowed.includes(status)) return;
 
   const { order, ...access } = await load(storeId, orderId);
-  await moveOrder(await operationContext(access), order, status);
+  await moveOrder(await operationContext(access), order, status, formData.get("notify") === "on");
 }
 
 export async function raiseException(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -218,6 +218,7 @@ export async function recordRefund(_prev: ActionState, formData: FormData): Prom
       reason: String(formData.get("reason") ?? ""),
       cancel,
       restock: formData.get("restock") === "on",
+      notify: formData.get("notify") === "on",
     });
     return {
       status: "success",

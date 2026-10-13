@@ -8,6 +8,7 @@ import { Breadcrumbs, Callout, DataList, Dot, PageHeader } from "@/components/ui
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { countryName } from "@/i18n/display";
 import { getOrder, getOrderByCode, getSupplier } from "@/lib/data";
 import { regionForCountry, routingOptionsFor } from "@/lib/fulfillment";
@@ -97,7 +98,7 @@ export default async function OrderDetailPage({
     <li key={index} className="flex gap-3">
       <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
       <div className="min-w-0">
-        <p className="text-sm font-medium text-foreground">{entry.status}</p>
+        <p className="text-sm font-medium text-foreground first-letter:uppercase">{entry.status}</p>
         {/* Notes quote amounts and, on a refund, the reason the team
             wrote. Platform access sees the step, not the wording. */}
         {viaPlatform ? null : <p className="text-sm text-inksoft">{entry.note}</p>}
@@ -482,23 +483,29 @@ export default async function OrderDetailPage({
 
                   <div className="rounded-xl border border-border p-4">
                     <h3 className="text-sm font-semibold text-foreground">{t("status")}</h3>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {[...(order.status === "exception" ? (["exception"] as const) : []), ...(["in_production", "shipped", "delivered", "cancelled"] as const)].map((status) => (
-                        <form key={status} action={advanceStatus}>
-                          <input type="hidden" name="storeId" value={storeId} />
-                          <input type="hidden" name="orderId" value={order.id} />
-                          <input type="hidden" name="status" value={status} />
+                    <form action={advanceStatus}>
+                      <input type="hidden" name="storeId" value={storeId} />
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {[...(order.status === "exception" ? (["exception"] as const) : []), ...(["in_production", "shipped", "delivered", "cancelled"] as const)].map((status) => (
                           <Button
+                            key={status}
                             type="submit"
+                            name="status"
+                            value={status}
                             size="sm"
                             variant={order.status === status ? "default" : "outline"}
                             disabled={!canMoveOrder(order, status) || (status === "in_production" && exceptionOpen)}
                           >
                             {labels(`orderStatus.${status}`)}
                           </Button>
-                        </form>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                      <Label htmlFor="status-notify" className="mt-3 cursor-pointer font-normal text-inksoft">
+                        <input id="status-notify" type="checkbox" name="notify" defaultChecked className="size-4 accent-primary" />
+                        {t("notifyCustomer")}
+                      </Label>
+                    </form>
                   </div>
 
                   <div className="rounded-xl border border-border p-4">

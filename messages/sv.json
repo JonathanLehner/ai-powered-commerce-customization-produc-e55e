@@ -2203,7 +2203,8 @@
     "parcel": "Paket {number}",
     "notShippable": "Paket kan skickas när ordern är betald.",
     "notesTitle": "Anteckningar och taggar",
-    "editAddress": "Redigera leveransadress"
+    "editAddress": "Redigera leveransadress",
+    "notifyCustomer": "Meddela kunden"
   },
   "customers": {
     "title": "Kunder",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "Din varukorg väntar",
       "recoveryBody": "Du slutförde inte köpet hos {store}. Dina artiklar finns sparade nedan.",
       "recoveryCta": "Tillbaka till varukorgen",
-      "recoveryConsent": "Du får det här mejlet eftersom du godkände mejl från {store} i kassan."
+      "recoveryConsent": "Du får det här mejlet eftersom du godkände mejl från {store} i kassan.",
+      "refundSubject": "Återbetalning för din order {code} hos {store}",
+      "refundHeading": "Vi har gjort en återbetalning",
+      "refundBody": "Vi har återbetalat {amount} för order {code} till ditt ursprungliga betalsätt.",
+      "refundTiming": "Återbetalningar syns oftast på kontoutdraget inom 5 till 10 bankdagar, beroende på din bank.",
+      "refundAmountLabel": "Återbetalning",
+      "refundReasonLabel": "Anledning",
+      "cancelledSubject": "Din order {code} hos {store} har avbrutits",
+      "cancelledHeading": "Din order har avbrutits",
+      "cancelledBody": "Order {code} har avbrutits.",
+      "cancelledRefund": "Vi har återbetalat {amount} till ditt ursprungliga betalsätt.",
+      "deliveredSubject": "Din order {code} hos {store} har levererats",
+      "deliveredHeading": "Din order har levererats",
+      "deliveredBody": "Order {code} har levererats. Kontakta oss om något saknas eller inte blev som väntat."
     },
     "gift": {
       "chromeSubtitle": "Gåvokatalog · {store}",

@@ -2203,7 +2203,8 @@
     "parcel": "荷物 {number}",
     "notShippable": "注文の支払い後に発送できます。",
     "notesTitle": "メモとタグ",
-    "editAddress": "配送先住所を編集"
+    "editAddress": "配送先住所を編集",
+    "notifyCustomer": "お客様に通知する"
   },
   "customers": {
     "title": "顧客",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "カートの商品が待っています",
       "recoveryBody": "{store} でのお手続きが完了していません。商品は下記に保存されています。",
       "recoveryCta": "カートに戻る",
-      "recoveryConsent": "このメールは、チェックアウト時に {store} からのメール受信に同意されたため送信しています。"
+      "recoveryConsent": "このメールは、チェックアウト時に {store} からのメール受信に同意されたため送信しています。",
+      "refundSubject": "{store} のご注文 {code} の返金について",
+      "refundHeading": "返金手続きを行いました",
+      "refundBody": "ご注文 {code} について、{amount} を元のお支払い方法に返金しました。",
+      "refundTiming": "ご利用の銀行によりますが、通常 5〜10 営業日以内にご利用明細に反映されます。",
+      "refundAmountLabel": "返金額",
+      "refundReasonLabel": "理由",
+      "cancelledSubject": "{store} のご注文 {code} をキャンセルしました",
+      "cancelledHeading": "ご注文をキャンセルしました",
+      "cancelledBody": "ご注文 {code} はキャンセルされました。",
+      "cancelledRefund": "{amount} を元のお支払い方法に返金しました。",
+      "deliveredSubject": "{store} のご注文 {code} をお届けしました",
+      "deliveredHeading": "ご注文をお届けしました",
+      "deliveredBody": "ご注文 {code} をお届けしました。不足しているものや気になる点があればご連絡ください。"
     },
     "gift": {
       "chromeSubtitle": "ギフトカタログ · {store}",

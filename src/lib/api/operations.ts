@@ -1144,10 +1144,14 @@ const orders = [
     input: z.object({
       orderId: id("order"),
       status: z.enum(["paid", "in_production", "shipped", "delivered", "cancelled", "exception"]),
+      notifyCustomer: z
+        .boolean()
+        .default(true)
+        .describe("Email the shopper when the order is delivered or cancelled."),
     }),
     run: async (ctx, input) => {
       const current = await order(ctx, input.orderId);
-      if (current.status !== input.status && !(await moveOrder(ctx, current, input.status))) {
+      if (current.status !== input.status && !(await moveOrder(ctx, current, input.status, input.notifyCustomer))) {
         throw new ApiError(
           409,
           "conflict",
@@ -1179,9 +1183,10 @@ const orders = [
         .boolean()
         .default(false)
         .describe("Put the order's units back on hand for its tracked variants. Done once per order."),
+      notifyCustomer: z.boolean().default(true).describe("Email the shopper about the refund."),
     }),
     run: async (ctx, input) => {
-      const result = await refundOrder(ctx, await order(ctx, input.orderId), input);
+      const result = await refundOrder(ctx, await order(ctx, input.orderId), { ...input, notify: input.notifyCustomer });
       return {
         amount: result.amount,
         refundId: result.refundId,

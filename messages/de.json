@@ -2203,7 +2203,8 @@
     "parcel": "Paket {number}",
     "notShippable": "Pakete können versendet werden, sobald die Bestellung bezahlt ist.",
     "notesTitle": "Notizen und Tags",
-    "editAddress": "Lieferadresse bearbeiten"
+    "editAddress": "Lieferadresse bearbeiten",
+    "notifyCustomer": "Kunden benachrichtigen"
   },
   "customers": {
     "title": "Kunden",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "Ihr Warenkorb wartet auf Sie",
       "recoveryBody": "Sie haben Ihren Einkauf bei {store} nicht abgeschlossen. Ihre Artikel sind unten gespeichert.",
       "recoveryCta": "Zurück zum Warenkorb",
-      "recoveryConsent": "Sie erhalten diese E-Mail, weil Sie beim Checkout E-Mails von {store} zugestimmt haben."
+      "recoveryConsent": "Sie erhalten diese E-Mail, weil Sie beim Checkout E-Mails von {store} zugestimmt haben.",
+      "refundSubject": "Erstattung für Ihre Bestellung {code} bei {store}",
+      "refundHeading": "Wir haben eine Erstattung veranlasst",
+      "refundBody": "Wir haben {amount} für Bestellung {code} auf Ihre ursprüngliche Zahlungsmethode erstattet.",
+      "refundTiming": "Erstattungen erscheinen je nach Bank in der Regel innerhalb von 5 bis 10 Werktagen auf Ihrer Abrechnung.",
+      "refundAmountLabel": "Erstattung",
+      "refundReasonLabel": "Grund",
+      "cancelledSubject": "Ihre Bestellung {code} bei {store} wurde storniert",
+      "cancelledHeading": "Ihre Bestellung wurde storniert",
+      "cancelledBody": "Bestellung {code} wurde storniert.",
+      "cancelledRefund": "Wir haben {amount} auf Ihre ursprüngliche Zahlungsmethode erstattet.",
+      "deliveredSubject": "Ihre Bestellung {code} bei {store} wurde zugestellt",
+      "deliveredHeading": "Ihre Bestellung wurde zugestellt",
+      "deliveredBody": "Bestellung {code} wurde zugestellt. Melden Sie sich bei uns, falls etwas fehlt oder nicht wie erwartet ist."
     },
     "gift": {
       "chromeSubtitle": "Geschenkkatalog · {store}",

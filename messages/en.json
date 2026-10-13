@@ -2203,7 +2203,8 @@
     "parcel": "Parcel {number}",
     "notShippable": "Parcels can be shipped once the order is paid.",
     "notesTitle": "Notes and tags",
-    "editAddress": "Edit shipping address"
+    "editAddress": "Edit shipping address",
+    "notifyCustomer": "Notify customer"
   },
   "customers": {
     "title": "Customers",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "Your basket is waiting",
       "recoveryBody": "You didn't finish checking out at {store}. Your items are saved below.",
       "recoveryCta": "Return to your basket",
-      "recoveryConsent": "You're receiving this email because you agreed to emails from {store} at checkout."
+      "recoveryConsent": "You're receiving this email because you agreed to emails from {store} at checkout.",
+      "refundSubject": "Refund for your {store} order {code}",
+      "refundHeading": "We've issued a refund",
+      "refundBody": "We've refunded {amount} on order {code} to your original payment method.",
+      "refundTiming": "Refunds usually appear on your statement within 5 to 10 business days, depending on your bank.",
+      "refundAmountLabel": "Refund",
+      "refundReasonLabel": "Reason",
+      "cancelledSubject": "Your {store} order {code} has been cancelled",
+      "cancelledHeading": "Your order has been cancelled",
+      "cancelledBody": "Order {code} has been cancelled.",
+      "cancelledRefund": "We've refunded {amount} to your original payment method.",
+      "deliveredSubject": "Your {store} order {code} has been delivered",
+      "deliveredHeading": "Your order has been delivered",
+      "deliveredBody": "Order {code} has been delivered. Contact us if anything is missing or not as expected."
     },
     "gift": {
       "chromeSubtitle": "Gift catalogue · {store}",

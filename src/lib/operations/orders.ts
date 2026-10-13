@@ -8,7 +8,15 @@ import { refreshCustomers } from "../customer-data";
 import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder, updateStore } from "../data";
 import { refundSimulated, type RefundResult } from "../demo-payment";
 import { sendEmail, siteOrigin } from "../email";
-import { brandFor, shippingNotificationEmail } from "../email-templates";
+import {
+  brandFor,
+  orderCancelledEmail,
+  orderDeliveredEmail,
+  refundIssuedEmail,
+  shippingNotificationEmail,
+  type BuiltEmail,
+  type EmailCopy,
+} from "../email-templates";
 import { routeOrder, submitToSupplier, trackingNumberFor, type RoutingDecision } from "../fulfillment";
 import { releaseOrderStock, restockOrder } from "../inventory";
 import { orderStatusUrl, signOrderToken } from "../order-access";
@@ -59,6 +67,37 @@ export async function findOrder(storeId: string, orderId: string): Promise<Order
 
 export function orderEvent(status: string, note: string, actor: string): FulfillmentEvent {
   return { at: new Date().toISOString(), status, note, actor };
+}
+
+/**
+ * Queues an email to the shopper about their order, written in the language
+ * they checked out in (if the store still offers it) and linking to the
+ * order page. A mail provider that is down leaves the change recorded and the
+ * attempt in the store's activity.
+ */
+async function emailShopper(
+  store: Store,
+  order: Order,
+  kind: string,
+  build: (copy: EmailCopy, statusUrl: string) => BuiltEmail,
+): Promise<void> {
+  try {
+    const origin = await siteOrigin();
+    const locale = shopperLocale(store, order.locale ?? "");
+    const base = storeLinkBase(store, locale, origin);
+    const statusUrl = orderStatusUrl(base, order.code, await signOrderToken(store.id, order.code));
+    sendEmail({
+      to: order.customer.email,
+      message: build(await emailCopy(locale), statusUrl),
+      kind,
+      storeId: store.id,
+      agencyId: store.agencyId,
+      entity: "order",
+      entityId: order.code,
+    });
+  } catch (error) {
+    console.error(`The ${kind} email could not be queued`, error);
+  }
 }
 
 export function revalidateOrder(storeId: string, orderId: string) {
@@ -161,39 +200,24 @@ export async function fulfilOrder(
   });
   if (plan.complete) emitOrderWebhook(storeId, order.id, "order.fulfilled");
 
-  // The shopper is told their parcel is moving; a mail provider that is down
-  // leaves the shipment recorded and the attempt in the store's activity.
-  try {
-    const origin = await siteOrigin();
-    // Written in the language the shopper checked out in, if the store still offers it.
-    const locale = shopperLocale(store, order.locale ?? "");
-    const base = storeLinkBase(store, locale, origin);
-    const partial = !plan.complete || (order.shipments?.length ?? 0) > 0;
-    sendEmail({
-      to: order.customer.email,
-      message: shippingNotificationEmail(brandFor(store), await emailCopy(locale), {
-        customerName: order.customer.name,
-        code: order.code,
-        carrierName: CARRIER_LABELS[carrier],
-        trackingNumber,
-        trackingUrl,
-        statusUrl: orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code)),
-        partialItems: partial
-          ? plan.lines.map((line) => ({
-              name: order.items.find((item) => item.id === line.itemId)?.productName ?? "",
-              quantity: line.quantity,
-            }))
-          : null,
-      }),
-      kind: "shipping notification",
-      storeId,
-      agencyId: store.agencyId,
-      entity: "order",
-      entityId: order.code,
-    });
-  } catch (error) {
-    console.error("Shipping notification could not be queued", error);
-  }
+  // The shopper is told their parcel is moving.
+  const partial = !plan.complete || (order.shipments?.length ?? 0) > 0;
+  await emailShopper(store, order, "shipping notification", (copy, statusUrl) =>
+    shippingNotificationEmail(brandFor(store), copy, {
+      customerName: order.customer.name,
+      code: order.code,
+      carrierName: CARRIER_LABELS[carrier],
+      trackingNumber,
+      trackingUrl,
+      statusUrl,
+      partialItems: partial
+        ? plan.lines.map((line) => ({
+            name: order.items.find((item) => item.id === line.itemId)?.productName ?? "",
+            quantity: line.quantity,
+          }))
+        : null,
+    }),
+  );
 
   revalidateOrder(storeId, order.id);
   return { shipment, complete: plan.complete };
@@ -350,8 +374,28 @@ export async function updateShippingAddress(
 
 /* ---------------------------------------------------------------- statuses */
 
-/** Moves one order to the status asked for; false when the status rules do not allow it. */
-export async function moveOrder(ctx: OperationContext, order: Order, status: OrderStatus): Promise<boolean> {
+/** Timeline titles, capitalised like the other steps. */
+const STATUS_TITLES: Record<OrderStatus, string> = {
+  awaiting_payment: "Awaiting payment",
+  paid: "Paid",
+  in_production: "In production",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+  exception: "Exception",
+};
+
+/**
+ * Moves one order to the status asked for; false when the status rules do not
+ * allow it. A delivered or cancelled order emails the shopper unless `notify`
+ * is false.
+ */
+export async function moveOrder(
+  ctx: OperationContext,
+  order: Order,
+  status: OrderStatus,
+  notify = true,
+): Promise<boolean> {
   const { store, actor } = ctx;
   if (!canMoveOrder(order, status)) return false;
   const notes: Partial<Record<OrderStatus, string>> = {
@@ -365,7 +409,7 @@ export async function moveOrder(ctx: OperationContext, order: Order, status: Ord
 
   const patch: Partial<Order> = {
     status,
-    events: [...order.events, orderEvent(status.replace("_", " "), notes[status] ?? "", actor.name)],
+    events: [...order.events, orderEvent(STATUS_TITLES[status], notes[status] ?? "", actor.name)],
   };
   if (status !== "exception") {
     patch.fulfillment = { ...order.fulfillment, exception: null };
@@ -389,6 +433,16 @@ export async function moveOrder(ctx: OperationContext, order: Order, status: Ord
   if (status === "cancelled") {
     refreshCustomers(store, [order.customer.email]);
     emitOrderWebhook(store.id, order.id, "order.cancelled");
+  }
+  if (notify && status === "cancelled") {
+    await emailShopper(store, order, "order cancelled", (copy, statusUrl) =>
+      orderCancelledEmail(brandFor(store), copy, { customerName: order.customer.name, code: order.code, statusUrl }),
+    );
+  }
+  if (notify && status === "delivered") {
+    await emailShopper(store, order, "order delivered", (copy, statusUrl) =>
+      orderDeliveredEmail(brandFor(store), copy, { customerName: order.customer.name, code: order.code, statusUrl }),
+    );
   }
   revalidateOrder(store.id, order.id);
   return true;
@@ -463,6 +517,8 @@ export interface RefundInput {
   cancel: boolean;
   /** Put the order's units back on hand. */
   restock?: boolean;
+  /** Email the shopper about the refund; on by default. */
+  notify?: boolean;
 }
 
 /**
@@ -568,6 +624,15 @@ export async function refundOrder(
       params: { code: order.code, amount, currency: order.currency },
     },
   });
+  if (input.notify !== false) {
+    const refund = { amount, currency: order.currency, reason };
+    const customerName = order.customer.name;
+    await emailShopper(store, order, input.cancel ? "order cancelled" : "refund issued", (copy, statusUrl) =>
+      input.cancel
+        ? orderCancelledEmail(brandFor(store), copy, { customerName, code: order.code, refund, statusUrl })
+        : refundIssuedEmail(brandFor(store), copy, { customerName, code: order.code, refund, statusUrl }),
+    );
+  }
   refreshCustomers(store, [order.customer.email]);
   emitOrderWebhook(store.id, order.id, "order.refunded", ...(input.cancel && order.status !== "cancelled" ? (["order.cancelled"] as const) : []));
   revalidateOrder(store.id, order.id);

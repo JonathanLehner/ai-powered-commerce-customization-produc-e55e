@@ -2203,7 +2203,8 @@
     "parcel": "Paquete {number}",
     "notShippable": "Los paquetes se pueden enviar cuando el pedido esté pagado.",
     "notesTitle": "Notas y etiquetas",
-    "editAddress": "Editar dirección de envío"
+    "editAddress": "Editar dirección de envío",
+    "notifyCustomer": "Notificar al cliente"
   },
   "customers": {
     "title": "Clientes",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "Tu carrito te espera",
       "recoveryBody": "No terminaste tu compra en {store}. Tus artículos están guardados abajo.",
       "recoveryCta": "Volver al carrito",
-      "recoveryConsent": "Recibes este correo porque aceptaste recibir correos de {store} al pagar."
+      "recoveryConsent": "Recibes este correo porque aceptaste recibir correos de {store} al pagar.",
+      "refundSubject": "Reembolso de tu pedido {code} de {store}",
+      "refundHeading": "Hemos emitido un reembolso",
+      "refundBody": "Hemos reembolsado {amount} del pedido {code} en tu método de pago original.",
+      "refundTiming": "Los reembolsos suelen aparecer en tu extracto en un plazo de 5 a 10 días hábiles, según tu banco.",
+      "refundAmountLabel": "Reembolso",
+      "refundReasonLabel": "Motivo",
+      "cancelledSubject": "Tu pedido {code} de {store} se ha cancelado",
+      "cancelledHeading": "Tu pedido se ha cancelado",
+      "cancelledBody": "El pedido {code} se ha cancelado.",
+      "cancelledRefund": "Hemos reembolsado {amount} en tu método de pago original.",
+      "deliveredSubject": "Tu pedido {code} de {store} se ha entregado",
+      "deliveredHeading": "Tu pedido se ha entregado",
+      "deliveredBody": "El pedido {code} se ha entregado. Escríbenos si falta algo o no es lo que esperabas."
     },
     "gift": {
       "chromeSubtitle": "Catálogo de regalos · {store}",

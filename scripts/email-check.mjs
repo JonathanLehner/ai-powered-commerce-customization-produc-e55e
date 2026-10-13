@@ -10,7 +10,10 @@ import { emailCopyFor, shopperT } from "./shopper-intl.mjs";
 import {
   brandFor,
   giftApprovalEmail,
+  orderCancelledEmail,
   orderConfirmationEmail,
+  orderDeliveredEmail,
+  refundIssuedEmail,
   shippingNotificationEmail,
   teamInviteEmail,
 } from "../src/lib/email-templates.ts";
@@ -50,6 +53,8 @@ const shipment = {
   trackingUrl: "https://www.dhl.com/track?id=DHL8821640055",
   statusUrl: order.statusUrl,
 };
+const refund = { amount: 200, currency: "EUR", reason: "Late delivery" };
+const orderUpdate = { customerName: "Priya Raman", code: "ORD-7HQ4K2", statusUrl: order.statusUrl };
 const invite = {
   name: "Sam Okafor",
   inviterName: "Dana Whitfield",
@@ -76,6 +81,14 @@ function built(language) {
     { name: "shipping notification", email: shippingNotificationEmail(b, copy, shipment), link: shipment.trackingUrl },
     { name: "team invitation", email: teamInviteEmail(b, copy, invite), link: invite.acceptUrl },
     { name: "gift approval", email: giftApprovalEmail(b, copy, approval), link: approval.approvalUrl },
+    { name: "refund issued", email: refundIssuedEmail(b, copy, { ...orderUpdate, refund }), link: order.statusUrl },
+    { name: "order cancelled", email: orderCancelledEmail(b, copy, orderUpdate), link: order.statusUrl },
+    {
+      name: "order cancelled with refund",
+      email: orderCancelledEmail(b, copy, { ...orderUpdate, refund }),
+      link: order.statusUrl,
+    },
+    { name: "order delivered", email: orderDeliveredEmail(b, copy, orderUpdate), link: order.statusUrl },
   ];
 }
 
@@ -113,6 +126,15 @@ assert.ok(
 // Money follows the store's language, like everything else on the storefront.
 assert.ok(english[0].email.text.includes("€84.50"));
 assert.ok(german[0].email.text.replace(/[  ]/g, " ").includes("84,50 €"));
+
+// A refund email says how much, why, and when it reaches the card.
+const refundText = english.find((e) => e.name === "refund issued").email.text;
+assert.ok(refundText.includes("€2.00"), "the refund amount is in the email");
+assert.ok(refundText.includes("Late delivery"), "the refund reason is in the email");
+assert.ok(refundText.includes(shopperT("en", "email")("refundTiming")), "the refund email says when the money arrives");
+const cancelledText = english.find((e) => e.name === "order cancelled").email.text;
+assert.ok(!cancelledText.includes("€"), "a cancellation without a refund promises no money");
+assert.ok(english.find((e) => e.name === "order cancelled with refund").email.text.includes("€2.00"));
 
 /* ------------------------------------------------------- escaping and fallbacks */
 

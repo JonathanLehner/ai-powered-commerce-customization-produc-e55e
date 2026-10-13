@@ -2203,7 +2203,8 @@
     "parcel": "Colis {number}",
     "notShippable": "Les colis peuvent être expédiés une fois la commande payée.",
     "notesTitle": "Notes et étiquettes",
-    "editAddress": "Modifier l'adresse de livraison"
+    "editAddress": "Modifier l'adresse de livraison",
+    "notifyCustomer": "Prévenir le client"
   },
   "customers": {
     "title": "Clients",
@@ -3931,7 +3932,20 @@
       "recoveryHeading": "Votre panier vous attend",
       "recoveryBody": "Vous n'avez pas terminé votre commande chez {store}. Vos articles sont enregistrés ci-dessous.",
       "recoveryCta": "Retourner au panier",
-      "recoveryConsent": "Vous recevez cet e-mail car vous avez accepté de recevoir des e-mails de {store} lors du paiement."
+      "recoveryConsent": "Vous recevez cet e-mail car vous avez accepté de recevoir des e-mails de {store} lors du paiement.",
+      "refundSubject": "Remboursement de votre commande {store} {code}",
+      "refundHeading": "Nous avons effectué un remboursement",
+      "refundBody": "Nous avons remboursé {amount} sur la commande {code} sur votre moyen de paiement d’origine.",
+      "refundTiming": "Selon votre banque, le remboursement apparaît généralement sur votre relevé sous 5 à 10 jours ouvrés.",
+      "refundAmountLabel": "Remboursement",
+      "refundReasonLabel": "Motif",
+      "cancelledSubject": "Votre commande {store} {code} a été annulée",
+      "cancelledHeading": "Votre commande a été annulée",
+      "cancelledBody": "La commande {code} a été annulée.",
+      "cancelledRefund": "Nous avons remboursé {amount} sur votre moyen de paiement d’origine.",
+      "deliveredSubject": "Votre commande {store} {code} a été livrée",
+      "deliveredHeading": "Votre commande a été livrée",
+      "deliveredBody": "La commande {code} a été livrée. Contactez-nous s’il manque quelque chose ou si un article ne correspond pas."
     },
     "gift": {
       "chromeSubtitle": "Catalogue cadeaux · {store}",
