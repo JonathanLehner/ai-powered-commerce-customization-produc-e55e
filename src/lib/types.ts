@@ -1360,6 +1360,11 @@ export interface AiSuggestion {
   createdAt: string;
   decidedBy: string | null;
   decidedAt: string | null;
+  /** The product's name when the suggestion was drafted, so history still names it if the product is renamed or removed. */
+  productName?: string | null;
+  /** A newer pending suggestion of the same kind for the same product. */
+  supersededBy?: string | null;
+  supersededAt?: string | null;
 }
 
 /**

@@ -2915,7 +2915,20 @@
     "supplierTitle": "Leveranciersvergelijking",
     "supplierBody": "De beste productiepartner voor een bestemming.",
     "supplierProduct": "Leveranciersproduct",
-    "destination": "Belangrijkste bestemming"
+    "destination": "Belangrijkste bestemming",
+    "superseded": "Vervangen",
+    "dismissOlder": "Oudere suggesties negeren",
+    "olderCount": "{count, plural, one {# oudere suggestie} other {# oudere suggesties}}",
+    "groupIdeas": "Nieuwe productideeën",
+    "groupSupplier": "Aanbevolen leveranciers",
+    "removedProduct": "Verwijderd product",
+    "pendingCount": "{count} in behandeling",
+    "working": "Bezig…",
+    "detailDescription": "Beschrijving: {text}",
+    "detailTags": "Tags: {tags}",
+    "detailPrice": "Prijs: {price}",
+    "detailSupplier": "Partner: {name}",
+    "detailIdea": "Nieuw product: {name}"
   },
   "editor": {
     "sections": {

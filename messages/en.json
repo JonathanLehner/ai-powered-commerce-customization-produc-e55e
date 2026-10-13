@@ -2915,7 +2915,20 @@
     "supplierTitle": "Supplier comparison",
     "supplierBody": "The best production partner for a destination.",
     "supplierProduct": "Supplier product",
-    "destination": "Main destination"
+    "destination": "Main destination",
+    "superseded": "Superseded",
+    "dismissOlder": "Dismiss older suggestions",
+    "olderCount": "{count, plural, one {# older suggestion} other {# older suggestions}}",
+    "groupIdeas": "New product ideas",
+    "groupSupplier": "Supplier recommendations",
+    "removedProduct": "Removed product",
+    "pendingCount": "{count} pending",
+    "working": "Working…",
+    "detailDescription": "Description: {text}",
+    "detailTags": "Tags: {tags}",
+    "detailPrice": "Price: {price}",
+    "detailSupplier": "Partner: {name}",
+    "detailIdea": "New product: {name}"
   },
   "editor": {
     "sections": {

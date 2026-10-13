@@ -17,6 +17,7 @@ import {
   updateStoreProduct,
 } from "../data";
 import { db } from "../mongo";
+import { supersededIds, supersedes } from "../suggestions";
 import { breakdownFor } from "../pricing";
 import type { AiSuggestion, StoreProduct } from "../types";
 import { formatMoney, minorFactor, newId } from "../util";
@@ -33,6 +34,7 @@ async function storeDrafts(
   ctx: OperationContext,
   drafts: DraftSuggestion[],
   productId: string | null,
+  productName: string | null,
 ): Promise<AiSuggestion[]> {
   const now = new Date().toISOString();
   const docs: AiSuggestion[] = drafts.map((draft) => ({
@@ -48,10 +50,33 @@ async function storeDrafts(
     createdAt: now,
     decidedBy: null,
     decidedAt: null,
+    productName,
+    supersededBy: null,
+    supersededAt: null,
   }));
   if (docs.length) {
     await db.insertMany(COLLECTIONS.suggestions, docs as unknown as Record<string, unknown>[]);
   }
+  // Older pending suggestions of the same kind for the same product are marked
+  // as replaced; they stay pending until someone applies or dismisses them.
+  await Promise.all(
+    docs
+      .filter((doc) => supersedes(doc.kind, doc.productId))
+      .map((doc) =>
+        db.updateMany(
+          COLLECTIONS.suggestions,
+          {
+            storeId: ctx.store.id,
+            productId: doc.productId,
+            kind: doc.kind,
+            status: "pending",
+            createdAt: { $lte: doc.createdAt },
+            id: { $ne: doc.id },
+          },
+          { $set: { supersededBy: doc.id, supersededAt: now } },
+        ),
+      ),
+  );
   revalidatePath(`/app/stores/${ctx.store.id}/assistant`);
   return docs;
 }
@@ -96,7 +121,7 @@ export async function draftProductIdeas(ctx: OperationContext, brief: string): P
   const drafts = await suggestProductIdeas(ctx.store, available, existing, brief.trim());
   const valid = drafts.filter((d) => available.some((c) => c.id === d.payload.catalogId));
   if (valid.length === 0) throw new OperationError("invalid", t("noMatches"), "brief");
-  return storeDrafts(ctx, valid, null);
+  return storeDrafts(ctx, valid, null, null);
 }
 
 /** A description and a set of tags for one of the store's products. */
@@ -106,7 +131,7 @@ export async function draftCopy(
 ): Promise<{ product: StoreProduct; suggestions: AiSuggestion[] }> {
   const product = await storeProduct(ctx, productId);
   const { description, tags } = await suggestCopy(product, ctx.store);
-  return { product, suggestions: await storeDrafts(ctx, [description, tags], product.id) };
+  return { product, suggestions: await storeDrafts(ctx, [description, tags], product.id, product.name) };
 }
 
 /** A retail price for one of the store's products, from its landed cost. */
@@ -117,7 +142,7 @@ export async function draftPrice(
   const product = await storeProduct(ctx, productId);
   const landed = product.costs.supplierCost + product.costs.customizationCost + product.costs.shippingEstimate;
   const draft = await suggestPrice(product, ctx.store, landed);
-  return { product, suggestions: await storeDrafts(ctx, [draft], product.id) };
+  return { product, suggestions: await storeDrafts(ctx, [draft], product.id, product.name) };
 }
 
 /** Which approved supplier should produce a catalog product for a destination. */
@@ -131,7 +156,7 @@ export async function draftSupplier(
   if (!catalog) throw new OperationError("not_found", t("chooseCatalog"), "catalogId");
   const suppliers = (await listSuppliers()).filter((s) => s.status === "approved");
   const draft = await suggestSupplier(catalog, suppliers, destination);
-  return { catalogName: catalog.name, suggestions: await storeDrafts(ctx, [draft], null) };
+  return { catalogName: catalog.name, suggestions: await storeDrafts(ctx, [draft], null, catalog.name) };
 }
 
 /** Moves a pending suggestion to its decision, once: a second decision finds it already taken. */
@@ -203,6 +228,12 @@ export async function applyAssistantSuggestion(
           costs: breakdownFor(updated, catalog, bracket, store.pricesIncludeTax),
         });
         productId = created.id;
+        // History links the product the idea became.
+        await db.updateOne(
+          COLLECTIONS.suggestions,
+          { id: suggestion.id },
+          { $set: { productId: created.id, productName: String(patch.name) } },
+        );
         summary = `Applied AI product idea “${suggestion.title}”: imported ${catalog.name} as a draft`;
       }
     } else if (suggestion.productId) {
@@ -274,4 +305,47 @@ export async function dismissAssistantSuggestion(ctx: OperationContext, suggesti
   });
   revalidatePath(`/app/stores/${store.id}/assistant`);
   return (await getSuggestion(suggestion.id)) ?? suggestion;
+}
+
+/**
+ * Dismisses a product's superseded suggestions in one step. Only suggestions
+ * still pending and superseded are dismissed, and when `only` is given, only
+ * those of them the caller saw, so a suggestion that arrived since is kept.
+ * Running it again dismisses nothing more.
+ */
+export async function dismissOlderSuggestions(
+  ctx: OperationContext,
+  productId: string,
+  only?: string[],
+): Promise<AiSuggestion[]> {
+  const { store, actor } = ctx;
+  const product = await storeProduct(ctx, productId);
+  const pending = await db.find<AiSuggestion>(COLLECTIONS.suggestions, {
+    storeId: store.id,
+    productId: product.id,
+    status: "pending",
+  });
+  const ids = supersededIds(pending, only);
+  const dismissed: string[] = [];
+  for (const id of ids) {
+    if (await decide(ctx, id, "dismissed")) dismissed.push(id);
+  }
+  if (dismissed.length) {
+    recordAudit({
+      category: "ai",
+      action: "ai.suggestions_dismissed_older",
+      summary: `Dismissed ${dismissed.length} older AI suggestions for “${product.name}”`,
+      storeId: store.id,
+      agencyId: store.agencyId,
+      actorId: actor.id,
+      actorName: actor.name,
+      entity: "store_product",
+      entityId: product.id,
+      meta: { count: dismissed.length, suggestionIds: dismissed.join(",") },
+    });
+  }
+  revalidatePath(`/app/stores/${store.id}/assistant`);
+  return pending
+    .filter((s) => dismissed.includes(s.id))
+    .map((s) => ({ ...s, status: "dismissed" as const, decidedBy: actor.name, decidedAt: new Date().toISOString() }));
 }

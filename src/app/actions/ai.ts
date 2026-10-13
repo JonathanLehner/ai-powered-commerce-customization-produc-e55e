@@ -5,6 +5,7 @@ import {
   applyAssistantSuggestion,
   assistantFailure,
   dismissAssistantSuggestion,
+  dismissOlderSuggestions as dismissOlder,
   draftCopy,
   draftPrice,
   draftProductIdeas,
@@ -102,4 +103,13 @@ export async function dismissSuggestion(formData: FormData): Promise<void> {
   const suggestionId = String(formData.get("suggestionId") ?? "");
   const access = await assertStoreAccess(storeId, "store.catalog");
   await dismissAssistantSuggestion(await operationContext(access), suggestionId).catch(ignoreRefusal);
+}
+
+/** Dismisses the older suggestions the page showed for one product. */
+export async function dismissOlderSuggestions(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const productId = String(formData.get("productId") ?? "");
+  const suggestionIds = formData.getAll("suggestionId").map(String);
+  const access = await assertStoreAccess(storeId, "store.catalog");
+  await dismissOlder(await operationContext(access), productId, suggestionIds).catch(ignoreRefusal);
 }

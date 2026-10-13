@@ -2915,7 +2915,20 @@
     "supplierTitle": "Leverantörsjämförelse",
     "supplierBody": "Den bästa produktionspartnern för en destination.",
     "supplierProduct": "Leverantörsprodukt",
-    "destination": "Huvuddestination"
+    "destination": "Huvuddestination",
+    "superseded": "Ersatt",
+    "dismissOlder": "Avvisa äldre förslag",
+    "olderCount": "{count, plural, one {# äldre förslag} other {# äldre förslag}}",
+    "groupIdeas": "Nya produktidéer",
+    "groupSupplier": "Rekommenderade leverantörer",
+    "removedProduct": "Borttagen produkt",
+    "pendingCount": "{count} väntar",
+    "working": "Arbetar…",
+    "detailDescription": "Beskrivning: {text}",
+    "detailTags": "Taggar: {tags}",
+    "detailPrice": "Pris: {price}",
+    "detailSupplier": "Partner: {name}",
+    "detailIdea": "Ny produkt: {name}"
   },
   "editor": {
     "sections": {

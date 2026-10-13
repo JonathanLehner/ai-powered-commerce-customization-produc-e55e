@@ -2915,7 +2915,20 @@
     "supplierTitle": "Lieferantenvergleich",
     "supplierBody": "Der beste Produktionspartner für ein Ziel.",
     "supplierProduct": "Lieferantenprodukt",
-    "destination": "Hauptziel"
+    "destination": "Hauptziel",
+    "superseded": "Ersetzt",
+    "dismissOlder": "Ältere Vorschläge verwerfen",
+    "olderCount": "{count, plural, one {# älterer Vorschlag} other {# ältere Vorschläge}}",
+    "groupIdeas": "Neue Produktideen",
+    "groupSupplier": "Lieferantenempfehlungen",
+    "removedProduct": "Entferntes Produkt",
+    "pendingCount": "{count} offen",
+    "working": "Wird bearbeitet…",
+    "detailDescription": "Beschreibung: {text}",
+    "detailTags": "Tags: {tags}",
+    "detailPrice": "Preis: {price}",
+    "detailSupplier": "Partner: {name}",
+    "detailIdea": "Neues Produkt: {name}"
   },
   "editor": {
     "sections": {

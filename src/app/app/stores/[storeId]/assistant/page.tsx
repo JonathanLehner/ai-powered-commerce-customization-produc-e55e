@@ -1,13 +1,14 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { applySuggestion, dismissSuggestion } from "@/app/actions/ai";
+import { applySuggestion, dismissOlderSuggestions, dismissSuggestion } from "@/app/actions/ai";
+import { SubmitButton } from "@/components/forms";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
-import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
 import { listCatalogProducts, listStoreProducts, listSuggestions, listSuppliers } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
-import type { AiSuggestion } from "@/lib/types";
+import { groupPendingSuggestions, type PendingEntry } from "@/lib/suggestions";
+import type { AiSuggestion, StoreProduct } from "@/lib/types";
 import { formatAgo } from "@/i18n/format";
 import { formatDate, formatDateTime } from "@/lib/util";
 import { CopyForm, IdeaForm, PriceForm, SupplierForm } from "./AssistantForms";
@@ -65,6 +66,89 @@ async function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
   );
 }
 
+/** What a decided suggestion wrote, or would have written, in one line. */
+async function HistoryDetail({ suggestion, product }: { suggestion: AiSuggestion; product?: StoreProduct }) {
+  const [t, format] = await Promise.all([getTranslations("assistant"), getFormatter()]);
+  const payload = suggestion.payload as Record<string, unknown>;
+  let detail: string;
+  if (suggestion.kind === "description") {
+    detail = t("detailDescription", { text: String(payload.description ?? "") });
+  } else if (suggestion.kind === "tags") {
+    const tags = Array.isArray(payload.tags) ? (payload.tags as string[]) : [];
+    detail = t("detailTags", { tags: tags.join(", ") });
+  } else if (suggestion.kind === "price") {
+    const major = Number(payload.priceMajor ?? 0);
+    const currency = String(payload.currency ?? product?.currency ?? "");
+    detail = t("detailPrice", {
+      price: currency ? format.number(major, { style: "currency", currency }) : String(major),
+    });
+  } else if (suggestion.kind === "supplier") {
+    detail = t("detailSupplier", { name: String(payload.supplierName ?? "") });
+  } else {
+    detail = t("detailIdea", { name: String(payload.name ?? suggestion.title) });
+  }
+  return <p className="line-clamp-2 text-xs text-inksoft">{detail}</p>;
+}
+
+async function SuggestionCard({
+  entry,
+  storeId,
+  forName,
+  now,
+}: {
+  entry: PendingEntry;
+  storeId: string;
+  /** Shown when the group itself does not name the product. */
+  forName: string | null;
+  now: Date;
+}) {
+  const [t, format] = await Promise.all([getTranslations("assistant"), getFormatter()]);
+  const { suggestion, superseded } = entry;
+  return (
+    <Card className={superseded ? "h-full opacity-75" : "h-full"}>
+      <CardHeader>
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-1.5">
+            <Badge tone="iris">{t(`kind.${suggestion.kind}`)}</Badge>
+            {superseded ? <Badge tone="slate">{t("superseded")}</Badge> : null}
+          </div>
+          <h3 className="mt-2 text-sm font-semibold text-foreground">{suggestion.title}</h3>
+          {forName ? (
+            <p className="text-xs text-muted-foreground">
+              {t("for")} {forName}
+            </p>
+          ) : null}
+        </div>
+        <CardAction>
+          <span className="text-xs text-muted-foreground">{formatAgo(format, suggestion.createdAt, now)}</span>
+        </CardAction>
+      </CardHeader>
+
+      <CardContent>
+        <p className="text-sm text-inksoft">{suggestion.rationale}</p>
+        <SuggestionBody suggestion={suggestion} />
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <form action={applySuggestion}>
+            <input type="hidden" name="storeId" value={storeId} />
+            <input type="hidden" name="suggestionId" value={suggestion.id} />
+            <SubmitButton size="sm" variant={superseded ? "outline" : undefined} pendingLabel={t("working")}>
+              {t("apply")}
+            </SubmitButton>
+          </form>
+          <form action={dismissSuggestion}>
+            <input type="hidden" name="storeId" value={storeId} />
+            <input type="hidden" name="suggestionId" value={suggestion.id} />
+            <SubmitButton variant="outline" size="sm" pendingLabel={t("working")}>
+              {t("dismiss")}
+            </SubmitButton>
+          </form>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default async function AssistantPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
   const { store } = await requireStoreAccess(storeId, "store.catalog");
@@ -80,13 +164,14 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
   const availableCatalog = catalog.filter((c) => c.status === "active" && approved.has(c.supplierId));
   const pending = suggestions.filter((s) => s.status === "pending");
   const decided = suggestions.filter((s) => s.status !== "pending");
+  const groups = groupPendingSuggestions(pending);
+  const productById = new Map(products.map((p) => [p.id, p]));
   // A store can hold two copies of the same supplier product, so a name on its
   // own is not enough to choose between them — the SKU and import date are.
-  const [pages, t, locale, format] = await Promise.all([
+  const [pages, t, locale] = await Promise.all([
     getTranslations("pages.store"),
     getTranslations("assistant"),
     getLocale(),
-    getFormatter(),
   ]);
   const now = new Date();
   const productOptions = products.map((p) => ({
@@ -124,62 +209,85 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
             />
           </div>
         ) : (
-          <ul className="mt-4 grid gap-4 lg:grid-cols-2">
-            {pending.map((suggestion) => {
-              const product = products.find((p) => p.id === suggestion.productId);
+          <div className="mt-4 space-y-5">
+            {groups.map((group) => {
+              const product = group.productId ? productById.get(group.productId) : undefined;
+              const count = group.current.length + group.older.length;
               return (
-                <li key={suggestion.id}>
-                  <Card className="h-full">
+                <Card key={group.key} className="gap-4">
                   <CardHeader>
                     <div className="min-w-0">
-                      <Badge tone="iris">{t(`kind.${suggestion.kind}`)}</Badge>
-                      <h3 className="mt-2 text-sm font-semibold text-foreground">{suggestion.title}</h3>
-                      {product ? (
-                        <p className="text-xs text-muted-foreground">
-                          {t("for")}{" "}
-                          <Link
-                            href={`/app/stores/${storeId}/catalog/${product.id}`}
-                            className="hover:underline"
-                          >
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {product ? (
+                          <Link href={`/app/stores/${storeId}/catalog/${product.id}`} className="hover:underline">
                             {product.name}
-                          </Link>{" "}
-                          · <span className="font-mono">{storeSku(product, store.channelCode)}</span>
-                        </p>
-                      ) : null}
+                          </Link>
+                        ) : group.kind === "product_idea" ? (
+                          t("groupIdeas")
+                        ) : group.kind === "supplier" ? (
+                          t("groupSupplier")
+                        ) : (
+                          (group.current[0] ?? group.older[0]).suggestion.productName ?? t("removedProduct")
+                        )}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {product ? (
+                          <>
+                            <span className="font-mono">{storeSku(product, store.channelCode)}</span> ·{" "}
+                          </>
+                        ) : null}
+                        {t("pendingCount", { count })}
+                      </p>
                     </div>
-                    <CardAction>
-                      <span className="text-xs text-muted-foreground">
-                        {formatAgo(format, suggestion.createdAt, now)}
-                      </span>
-                    </CardAction>
+                    {group.productId && group.older.length > 0 ? (
+                      <CardAction>
+                        <form action={dismissOlderSuggestions}>
+                          <input type="hidden" name="storeId" value={storeId} />
+                          <input type="hidden" name="productId" value={group.productId} />
+                          {group.older.map((entry) => (
+                            <input key={entry.suggestion.id} type="hidden" name="suggestionId" value={entry.suggestion.id} />
+                          ))}
+                          <SubmitButton variant="outline" size="sm" pendingLabel={t("working")}>
+                            {t("dismissOlder")}
+                          </SubmitButton>
+                        </form>
+                      </CardAction>
+                    ) : null}
                   </CardHeader>
-
-                  <CardContent>
-                    <p className="text-sm text-inksoft">{suggestion.rationale}</p>
-                    <SuggestionBody suggestion={suggestion} />
-
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <form action={applySuggestion}>
-                        <input type="hidden" name="storeId" value={storeId} />
-                        <input type="hidden" name="suggestionId" value={suggestion.id} />
-                        <Button type="submit" size="sm">
-                          {t("apply")}
-                        </Button>
-                      </form>
-                      <form action={dismissSuggestion}>
-                        <input type="hidden" name="storeId" value={storeId} />
-                        <input type="hidden" name="suggestionId" value={suggestion.id} />
-                        <Button type="submit" variant="outline" size="sm">
-                          {t("dismiss")}
-                        </Button>
-                      </form>
-                    </div>
+                  <CardContent className="space-y-4">
+                    {group.current.length > 0 ? (
+                      <ul className="grid gap-4 lg:grid-cols-2">
+                        {group.current.map((entry) => (
+                          <li key={entry.suggestion.id}>
+                            <SuggestionCard
+                              entry={entry}
+                              storeId={storeId}
+                              forName={group.productId ? null : (entry.suggestion.productName ?? null)}
+                              now={now}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {group.older.length > 0 ? (
+                      <details>
+                        <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                          {t("olderCount", { count: group.older.length })}
+                        </summary>
+                        <ul className="mt-3 grid gap-4 lg:grid-cols-2">
+                          {group.older.map((entry) => (
+                            <li key={entry.suggestion.id}>
+                              <SuggestionCard entry={entry} storeId={storeId} forName={null} now={now} />
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : null}
                   </CardContent>
-                  </Card>
-                </li>
+                </Card>
               );
             })}
-          </ul>
+          </div>
         )}
       </section>
 
@@ -195,25 +303,41 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
           <h2 className="text-base font-semibold text-foreground">{t("history")}</h2>
           <Card className="mt-3 py-0">
           <ul className="divide-y divide-border">
-            {decided.map((suggestion) => (
-              <li key={suggestion.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm text-foreground">{suggestion.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("draftedBy", { kind: t(`kind.${suggestion.kind}`), name: suggestion.createdBy })}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <Badge tone={suggestion.status === "applied" ? "green" : "slate"}>
-                    {suggestion.status === "applied" ? t("applied") : t("dismissed")}
-                  </Badge>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {suggestion.decidedBy} ·{" "}
-                    {suggestion.decidedAt ? formatDateTime(suggestion.decidedAt, locale) : ""}
-                  </p>
-                </div>
-              </li>
-            ))}
+            {decided.map((suggestion) => {
+              const product = suggestion.productId ? productById.get(suggestion.productId) : undefined;
+              const name =
+                product?.name ??
+                suggestion.productName ??
+                (suggestion.kind === "product_idea" ? String(suggestion.payload.name ?? suggestion.title) : null);
+              return (
+                <li key={suggestion.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm text-foreground">
+                      {product ? (
+                        <Link href={`/app/stores/${storeId}/catalog/${product.id}`} className="font-medium hover:underline">
+                          {product.name}
+                        </Link>
+                      ) : (
+                        <span className="font-medium">{name ?? suggestion.title}</span>
+                      )}
+                    </p>
+                    <HistoryDetail suggestion={suggestion} product={product} />
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {t("draftedBy", { kind: t(`kind.${suggestion.kind}`), name: suggestion.createdBy })}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge tone={suggestion.status === "applied" ? "green" : "slate"}>
+                      {suggestion.status === "applied" ? t("applied") : t("dismissed")}
+                    </Badge>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {suggestion.decidedBy} ·{" "}
+                      {suggestion.decidedAt ? formatDateTime(suggestion.decidedAt, locale) : ""}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           </Card>
         </section>

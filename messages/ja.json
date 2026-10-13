@@ -2915,7 +2915,20 @@
     "supplierTitle": "サプライヤー比較",
     "supplierBody": "配送先に最適な生産パートナー。",
     "supplierProduct": "サプライヤー商品",
-    "destination": "主な配送先"
+    "destination": "主な配送先",
+    "superseded": "置き換え済み",
+    "dismissOlder": "古い提案を却下",
+    "olderCount": "{count, plural, other {古い提案 # 件}}",
+    "groupIdeas": "新しい商品アイデア",
+    "groupSupplier": "おすすめのサプライヤー",
+    "removedProduct": "削除された商品",
+    "pendingCount": "保留中 {count} 件",
+    "working": "処理中…",
+    "detailDescription": "説明: {text}",
+    "detailTags": "タグ: {tags}",
+    "detailPrice": "価格: {price}",
+    "detailSupplier": "パートナー: {name}",
+    "detailIdea": "新しい商品: {name}"
   },
   "editor": {
     "sections": {

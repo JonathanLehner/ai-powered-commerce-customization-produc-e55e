@@ -64,6 +64,8 @@ export function presentSuggestion(suggestion: AiSuggestion) {
     kind: suggestion.kind,
     status: suggestion.status,
     productId: suggestion.productId,
+    productName: suggestion.productName ?? null,
+    supersededBy: suggestion.supersededBy ?? null,
     title: suggestion.title,
     rationale: suggestion.rationale,
     payload: suggestion.payload,

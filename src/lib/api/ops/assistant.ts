@@ -5,6 +5,7 @@ import {
   applyAssistantSuggestion,
   assistantFailure,
   dismissAssistantSuggestion,
+  dismissOlderSuggestions,
   draftCopy,
   draftPrice,
   draftProductIdeas,
@@ -176,5 +177,23 @@ export const assistantOperations: ApiOperation[] = [
     actions: ["ai#dismissSuggestion"],
     input: z.object({ suggestionId: id("suggestion") }),
     run: async (ctx, input) => presentSuggestion(await dismissAssistantSuggestion(ctx, input.suggestionId)),
+  }),
+  define({
+    id: "dismissOlderSuggestions",
+    method: "POST",
+    path: "/assistant/suggestions/dismiss-older",
+    scope: "assistant:write",
+    tag: "Assistant",
+    summary: "Dismiss a product's older suggestions",
+    description:
+      "Dismisses the pending suggestions for a product that a newer suggestion of the same kind has superseded, without changing the product. The newest suggestion of each kind stays pending. Pass suggestionIds to dismiss only those of them. Returns the suggestions dismissed; running it again dismisses nothing more.",
+    actions: ["ai#dismissOlderSuggestions"],
+    input: z.object({
+      productId: id("product"),
+      suggestionIds: z.array(z.string()).max(200).optional().describe("Only these superseded suggestions."),
+    }),
+    run: async (ctx, input) => ({
+      data: (await dismissOlderSuggestions(ctx, input.productId, input.suggestionIds)).map(presentSuggestion),
+    }),
   }),
 ];

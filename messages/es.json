@@ -2915,7 +2915,20 @@
     "supplierTitle": "Comparación de proveedores",
     "supplierBody": "El mejor socio de producción para un destino.",
     "supplierProduct": "Producto del proveedor",
-    "destination": "Destino principal"
+    "destination": "Destino principal",
+    "superseded": "Reemplazada",
+    "dismissOlder": "Descartar sugerencias anteriores",
+    "olderCount": "{count, plural, one {# sugerencia anterior} other {# sugerencias anteriores}}",
+    "groupIdeas": "Nuevas ideas de producto",
+    "groupSupplier": "Recomendaciones de proveedor",
+    "removedProduct": "Producto eliminado",
+    "pendingCount": "{count} pendientes",
+    "working": "Procesando…",
+    "detailDescription": "Descripción: {text}",
+    "detailTags": "Etiquetas: {tags}",
+    "detailPrice": "Precio: {price}",
+    "detailSupplier": "Socio: {name}",
+    "detailIdea": "Nuevo producto: {name}"
   },
   "editor": {
     "sections": {

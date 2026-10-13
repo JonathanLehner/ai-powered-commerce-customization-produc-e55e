@@ -145,6 +145,6 @@ Return JSON: {"priceMajor": 29.00, "reason":"2 sentences referencing margin and 
     kind: "price",
     title: `Set price to ${result.priceMajor} ${product.currency}`,
     rationale: result.reason,
-    payload: { priceMajor: result.priceMajor },
+    payload: { priceMajor: result.priceMajor, currency: product.currency },
   };
 }
