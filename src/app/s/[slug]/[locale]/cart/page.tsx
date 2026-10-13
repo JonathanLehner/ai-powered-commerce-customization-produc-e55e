@@ -6,7 +6,7 @@ import { GiftCardEntry } from "@/components/GiftCardEntry";
 import { getGiftCardByCode } from "@/lib/gift-card-data";
 import { basketGiftCardCover, giftCardRefusal } from "@/lib/gift-cards";
 import { paymentMode } from "@/lib/payment-mode";
-import { convert } from "@/lib/pricing";
+import { presentmentAmount, storeFxTable } from "@/lib/currency";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { EmptyState } from "@/components/ui";
@@ -57,7 +57,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   const giftCard = cart?.giftCardCode ? await getGiftCardByCode(store.id, cart.giftCardCode) : null;
   const giftUsable = giftCard && !giftCardRefusal(giftCard) ? giftCard : null;
   const giftCover = giftUsable
-    ? basketGiftCardCover(giftUsable, { total, shipping, stripeTax }, currency, paymentMode(store) === "stripe" ? "stripe" : "demo")
+    ? basketGiftCardCover(giftUsable, { total, shipping, stripeTax }, currency, paymentMode(store) === "stripe" ? "stripe" : "demo", storeFxTable(store))
     : null;
 
   return (
@@ -208,7 +208,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
             />
             <GiftCardEntry
               storeId={store.id}
-              card={giftCard ? { last4: giftCard.last4, balance: money(convert(giftCard.balance, giftCard.currency, currency), currency) } : null}
+              card={giftCard ? { last4: giftCard.last4, balance: money(presentmentAmount(store, giftCard.balance, giftCard.currency, currency), currency) } : null}
               note={giftCard && !giftUsable ? t("giftCard.notUsable") : null}
             />
             <Link

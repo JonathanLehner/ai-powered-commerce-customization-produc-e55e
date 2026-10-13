@@ -59,6 +59,9 @@
     "accounts-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/accounts-check.mjs",
     "gift-cards-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/gift-cards-check.mjs",
     "reviews-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/reviews-check.mjs",
+    "domains-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/domains-check.mjs",
+    "currency-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/currency-check.mjs",
+    "shopify-import-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/shopify-import-check.mjs",
     "backfill-share-images": "node --env-file-if-exists=.env.local scripts/backfill-share-images.mjs"
   },
   "dependencies": {
@@ -77,6 +80,7 @@
     "@tiptap/starter-kit": "^3.31.4",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
+    "cloudflare": "^7.3.0",
     "cmdk": "^1.1.1",
     "cn": "^0.4.0",
     "fuse.js": "^7.5.0",

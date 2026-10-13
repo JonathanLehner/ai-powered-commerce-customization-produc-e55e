@@ -21,6 +21,7 @@ export const INDEXES: Record<string, IndexSpec[]> = {
     byId,
     { key: { slug: 1 }, unique: true },
     { key: { customDomain: 1 } },
+    { key: { domainHosts: 1 } },
     { key: { agencyId: 1, createdAt: -1 } },
     { key: { agencyId: 1, status: 1 } },
     { key: { createdAt: -1 } },
@@ -94,6 +95,12 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   // Shopper sign-in, kept by Auth.js's MongoDB adapter under its own ObjectIds.
   shopper_accounts: [{ key: { email: 1 }, unique: true }],
   shopper_verification_tokens: [{ key: { identifier: 1, token: 1 }, unique: true }],
+  // A host name is connected to one store, platform-wide: the unique index is
+  // what turns away a second claim made at the same instant.
+  store_domains: [byId, { key: { hostname: 1 }, unique: true }, { key: { storeId: 1, createdAt: 1 } }],
+  shopify_imports: [byId, { key: { storeId: 1, createdAt: -1 } }, { key: { storeId: 1, submissionKey: 1 } }],
+  shopify_import_rows: [byId, { key: { importId: 1, kind: 1, seq: 1 } }],
+  url_redirects: [byId, { key: { storeId: 1, path: 1 }, unique: true }],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

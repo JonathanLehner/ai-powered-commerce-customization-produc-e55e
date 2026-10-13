@@ -11,9 +11,10 @@ import {
   renameStore as rename,
   saveBranding as brand,
   saveCarriers as setCarriers,
+  refreshExchangeRates as refreshRates,
   saveCurrencies as setCurrencies,
+  saveCurrencyRates as setCurrencyRates,
   saveDefaultTax as setDefaultTax,
-  saveDomain as setDomain,
   saveLanguages as setLanguages,
   savePolicies as setPolicies,
   saveSupport as setSupport,
@@ -22,6 +23,7 @@ import {
 import { POLICY_KEYS } from "@/lib/policies";
 import { assertAgencyAdmin, assertStoreAccess, getSessionUser, operationContext } from "@/lib/session";
 import { readStoredImage } from "@/lib/uploads";
+import type { RoundingRule } from "@/lib/currency";
 import type { Store, ThemeKey } from "@/lib/types";
 
 export interface ActionState {
@@ -154,6 +156,44 @@ export async function saveLocalisation(_prev: ActionState, formData: FormData): 
   return ok(t("localisationSaved"));
 }
 
+/** Exchange rate and rounding for each presentment currency. */
+export async function saveCurrencyRates(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const access = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
+  const codes = formData.getAll("rateCurrency").map(String);
+  try {
+    await setCurrencyRates(
+      await operationContext(access),
+      Object.fromEntries(
+        codes.map((code) => [
+          code,
+          {
+            mode: formData.get(`mode_${code}`) === "manual" ? "manual" : "auto",
+            rate: Number(String(formData.get(`rate_${code}`) ?? "").replace(",", ".")) || null,
+            rounding: String(formData.get(`rounding_${code}`) ?? "none") as RoundingRule,
+          },
+        ]),
+      ),
+    );
+  } catch (error) {
+    return refusal(error);
+  }
+  return ok(t("ratesSaved"));
+}
+
+export async function refreshExchangeRates(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const access = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.stores");
+  try {
+    await refreshRates(await operationContext(access));
+  } catch (error) {
+    return refusal(error);
+  }
+  return ok(t("ratesRefreshed"));
+}
+
 /** The support contacts a shopper is given on the order status page and in the storefront footer. */
 export async function saveSupport(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const storeId = String(formData.get("storeId") ?? "");
@@ -185,24 +225,6 @@ export async function savePolicies(_prev: ActionState, formData: FormData): Prom
     return refusal(error);
   }
   return ok(t("policiesSaved"));
-}
-
-export async function saveDomain(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const storeId = String(formData.get("storeId") ?? "");
-  const access = await assertStoreAccess(storeId, "store.settings");
-  const t = await getTranslations("actions.stores");
-  const verify = formData.get("intent") === "verify";
-  try {
-    const saved = await setDomain(await operationContext(access), {
-      domain: String(formData.get("customDomain") ?? ""),
-      verify,
-    });
-    const domain = saved.customDomain;
-    if (!domain) return ok(t("domainRemoved"));
-    return ok(verify ? t("domainVerified", { domain }) : t("domainSaved", { domain }));
-  } catch (error) {
-    return refusal(error);
-  }
 }
 
 /**
@@ -270,10 +292,3 @@ export async function storesForAgency(): Promise<Store[]> {
   const user = await assertAgencyAdmin();
   return agencyStores(user);
 }
-
-/* ------------------------------- void wrappers for plain <form action={…}> */
-
-export async function verifyDomain(formData: FormData): Promise<void> {
-  await saveDomain({ status: "idle" }, formData);
-}
-

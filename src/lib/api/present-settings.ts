@@ -28,10 +28,6 @@ export function presentCarriers(store: Store) {
   }));
 }
 
-export function presentDomain(store: Store) {
-  return { customDomain: store.customDomain, domainStatus: store.domainStatus };
-}
-
 export function presentDefaultTax(store: Store) {
   return { defaultTaxBracketId: store.defaultTaxBracketId, pricesIncludeTax: store.pricesIncludeTax };
 }

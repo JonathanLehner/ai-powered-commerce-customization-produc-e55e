@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { after } from "next/server";
 import { readCurrency, setCurrency } from "@/app/actions/shop";
 import { BasketProvider, BasketSheet, type BasketSheetLine } from "@/components/BasketSheet";
 import { CurrencySelect } from "@/components/CurrencySelect";
@@ -16,6 +17,8 @@ import { BLOG_PATH, resolveMenu, storeMenus } from "@/lib/content";
 import { menuLookups } from "@/lib/storefront-menus";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
 import { basketTotals } from "@/lib/basket";
+import { fxStale, usesAutomaticRates } from "@/lib/currency";
+import { refreshStoreFxIfStale } from "@/lib/fx-rates";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { collectionProducts, localizeCollection, navCollectionIds } from "@/lib/collections";
@@ -93,7 +96,7 @@ export default async function StorefrontLayout({
 
   const { store, storefront, collections, basket, menuLinks } = data;
   const theme = THEMES[store.theme];
-  const { locale, t, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
+  const { locale, t, base, root } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { locales, defaultLocale } = storeLanguages(store);
   const messages = await shopperMessages(store, locale);
   // The announcement, navigation labels and footer note the store published,
@@ -109,6 +112,10 @@ export default async function StorefrontLayout({
   );
   const support = storeSupport(store);
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
+  // Market rates a day old are fetched again once this page has gone out.
+  if (store.currencies.length > 1 && usesAutomaticRates(store) && fxStale(store)) {
+    after(() => refreshStoreFxIfStale(store).catch(() => store));
+  }
   const items = basket?.cart.items ?? [];
 
   // The drawer shows the same prices the basket page does, so they are worked
@@ -216,7 +223,7 @@ export default async function StorefrontLayout({
             ) : null}
             <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:backdrop-blur">
               <div className="mx-auto flex w-full max-w-6xl items-center gap-x-3 gap-y-2 px-4 py-2.5 sm:px-6 md:flex-wrap md:gap-x-5 md:py-3">
-                <Link href={base} className="flex min-w-0 items-center gap-2.5">
+                <Link href={base || "/"} className="flex min-w-0 items-center gap-2.5">
                   <StoreMark name={store.name} logoUrl={store.logoUrl} />
                   <span className="font-heading truncate text-base font-semibold tracking-tight text-foreground">
                     {store.name}
@@ -252,7 +259,7 @@ export default async function StorefrontLayout({
                   </Link>
                   {locales.length > 1 ? (
                     <div className="hidden md:block">
-                      <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
+                      <LanguageSelect root={root} locales={locales} defaultLocale={defaultLocale} />
                     </div>
                   ) : null}
                   {currencyForm("store-currency", "hidden md:flex", true)}
@@ -261,7 +268,7 @@ export default async function StorefrontLayout({
                       {locales.length > 1 ? (
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm text-muted-foreground">{t("chrome.languageLabel")}</span>
-                          <LanguageSelect root={`/s/${store.slug}`} locales={locales} defaultLocale={defaultLocale} />
+                          <LanguageSelect root={root} locales={locales} defaultLocale={defaultLocale} />
                         </div>
                       ) : null}
                       <div className="flex items-center justify-between gap-3">

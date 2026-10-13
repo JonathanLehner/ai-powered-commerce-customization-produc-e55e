@@ -163,6 +163,33 @@ gifting, orders, team, guided setup, activity.
   written to the store's activity history under the Email category instead of
   failing, and nothing an email does can block or fail a checkout
   (`npm run email-check`).
+- **Custom domains.** A store administrator connects a domain (a subdomain, or
+  a root domain together with its www) on the Domains page. Each one becomes a
+  Cloudflare for SaaS custom hostname on the platform's zone, validated over
+  HTTP, plus a Worker route `{hostname}/*` to this app, through Cloudflare's SDK
+  (`src/lib/cloudflare-saas.ts`). The zone is shared, so a host name already
+  on it, as a hostname or under any route, is refused, as is anything under
+  clawcorp.ai; the ids Cloudflare returns are written to `store_domains`, and
+  only those are ever deleted, each read back first. The page shows the CNAME
+  (or ALIAS for a root domain) and the live verification and certificate
+  status. Once the primary domain is active the storefront is served at its
+  root, `/s/<slug>` and the other domains redirect to it, and canonical links,
+  the sitemap and emails use it. Without the Cloudflare settings a domain is
+  saved as setup pending and connects on its next check
+  (`npm run domains-check`, which mocks Cloudflare entirely).
+- **Presentment currencies.** Each extra selling currency has an automatic
+  (daily market rate) or manual exchange rate and a rounding rule (.00, .90,
+  .95, .99; 10 or 100 without cents). The storefront opens in the shopper's
+  country's currency when the store sells in it, with the header switcher to
+  change it; Stripe Checkout charges in that currency and the order records
+  the shop currency, its total in it and the rate (`npm run currency-check`).
+- **Import from Shopify.** The Import page reads Shopify's product export, and
+  optionally the customer and order exports, previews them with every problem
+  by line, and imports in the background with progress: handles, options,
+  variants, photos (copied into the store's own storage), SEO fields and stock,
+  then customers and orders. A product whose handle is taken gets a new address
+  and a 301 from `/products/<old-handle>`; merchants add their own redirects for
+  `/collections/…` and `/pages/…` (`npm run shopify-import-check`).
 - **Addresses that no longer work.** An old product link, a renamed shop, a
   mistyped path: each lands on a page belonging to the surface it was aimed at.
   Inside a shop the store's header, logo and footer stay, the copy is in the
@@ -310,6 +337,18 @@ with a made-up test key, and the webhook signature check;
 `npm run stripe-webhook-check` sends signed events through the handler against
 throwaway records in the development database to prove verification and
 idempotency. Neither reaches Stripe.
+
+### Custom domains
+
+```
+CLOUDFLARE_SAAS_API_TOKEN=…   # custom hostnames and Worker routes on the zone
+CLOUDFLARE_ZONE_ID=…
+CLOUDFLARE_SAAS_CNAME_TARGET=customers.clawcorp.ai
+CLOUDFLARE_WORKER_NAME=…      # this app's Worker script
+```
+
+All four are read per request. With any missing, the Domains page says setup
+is pending and domains are saved without calling Cloudflare.
 
 ### Demo accounts
 

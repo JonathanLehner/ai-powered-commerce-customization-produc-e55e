@@ -137,16 +137,21 @@ export const FX_TO_USD: Record<string, number> = {
  * ships as one parcel; a gift campaign ships one per recipient, so both charge
  * it through here.
  */
-export function parcelShipping(productNames: string[], currency: string): number {
+export function parcelShipping(productNames: string[], currency: string, table: Record<string, number> = FX_TO_USD): number {
   if (productNames.length === 0) return 0;
   const heavy = productNames.some((name) => name.toLowerCase().includes("mug"));
-  return convert(heavy ? 690 : 590, "USD", currency);
+  return convert(heavy ? 690 : 590, "USD", currency, table);
 }
 
-export function convert(minor: number, from: string, to: string): number {
+/**
+ * Converts between currencies at `table` (US dollars per unit). A storefront
+ * passes its store's table (`storeFxTable` in `./currency`), so its own rates
+ * apply; reports use the built-in one.
+ */
+export function convert(minor: number, from: string, to: string, table: Record<string, number> = FX_TO_USD): number {
   if (from === to) return minor;
-  const fromRate = FX_TO_USD[from.toUpperCase()] ?? 1;
-  const toRate = FX_TO_USD[to.toUpperCase()] ?? 1;
+  const fromRate = table[from.toUpperCase()] ?? FX_TO_USD[from.toUpperCase()] ?? 1;
+  const toRate = table[to.toUpperCase()] ?? FX_TO_USD[to.toUpperCase()] ?? 1;
   const fromDecimals = from.toUpperCase() === "JPY" ? 0 : 2;
   const toDecimals = to.toUpperCase() === "JPY" ? 0 : 2;
   const major = minor / 10 ** fromDecimals;

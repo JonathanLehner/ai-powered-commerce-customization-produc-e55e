@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
-import { convert } from "@/lib/pricing";
+import { presentmentPrice } from "@/lib/currency";
 import { sectionsFromTree } from "@/lib/storefront-schema";
 import { organizationJsonLd, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata, storeSeo, storeTagline } from "@/lib/storefront-meta";
@@ -71,7 +71,7 @@ export default async function StorefrontHome({
       id: p.id,
       name: p.name,
       slug: p.slug,
-      price: money(convert(p.price, p.currency, currency), currency),
+      price: money(presentmentPrice(store, p.price, p.currency, currency), currency),
       imageUrl: p.mockups[0]?.url ?? null,
       tagline: p.description.split("\n")[0],
     })),

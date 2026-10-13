@@ -1,5 +1,5 @@
 import { isCountryCode } from "./countries";
-import { convert, orderTaxRows, taxRowsFor, type TaxRow } from "./pricing";
+import { FX_TO_USD, convert, orderTaxRows, taxRowsFor, type TaxRow } from "./pricing";
 import type {
   Order,
   ShippingRate,
@@ -109,7 +109,12 @@ export function emailDeliveryOption(): ShippingOption {
 }
 
 /** The options of one zone for an order, cheapest first. */
-export function zoneOptions(zone: ShippingZone, measure: OrderMeasure, currency: string): ShippingOption[] {
+export function zoneOptions(
+  zone: ShippingZone,
+  measure: OrderMeasure,
+  currency: string,
+  fx: Record<string, number> = FX_TO_USD,
+): ShippingOption[] {
   return zone.rates
     .flatMap((rate) => {
       const amount = rateAmount(rate, measure);
@@ -120,7 +125,7 @@ export function zoneOptions(zone: ShippingZone, measure: OrderMeasure, currency:
           zoneName: zone.name,
           rateId: rate.id,
           name: rate.name,
-          amount: convert(amount, zone.currency, currency),
+          amount: convert(amount, zone.currency, currency, fx),
           minDays: rate.minDays,
           maxDays: rate.maxDays,
         },
@@ -137,14 +142,17 @@ export function zoneOptions(zone: ShippingZone, measure: OrderMeasure, currency:
 export function shippingOptions(
   zones: ShippingZone[],
   country: string,
-  basket: { weightGrams: number; subtotal: number; currency: string },
+  /** `fx` is the store's exchange rates (`storeFxTable`); the built-in ones otherwise. */
+  basket: { weightGrams: number; subtotal: number; currency: string; fx?: Record<string, number> },
 ): ShippingOption[] {
   const zone = zoneFor(zones, country);
   if (!zone) return [];
+  const fx = basket.fx ?? FX_TO_USD;
   return zoneOptions(
     zone,
-    { weightGrams: basket.weightGrams, subtotal: convert(basket.subtotal, basket.currency, zone.currency) },
+    { weightGrams: basket.weightGrams, subtotal: convert(basket.subtotal, basket.currency, zone.currency, fx) },
     basket.currency,
+    fx,
   );
 }
 

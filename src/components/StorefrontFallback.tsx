@@ -146,7 +146,7 @@ function StoreError({
           <Button type="button" onClick={retry} className="text-white" style={{ background: accent }}>
             {t("errorRetry")}
           </Button>
-          <Link href={base} className={buttonVariants({ variant: "outline" })}>
+          <Link href={base || "/"} className={buttonVariants({ variant: "outline" })}>
             {t("errorHome", { store: storeName })}
           </Link>
         </>

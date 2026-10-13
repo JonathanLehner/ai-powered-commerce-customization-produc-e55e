@@ -1,8 +1,9 @@
 import "server-only";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { ADMIN_SCOPE, AGENCY_RESOURCES, scopeAllows, type ApiAccess, type ApiResource } from "../api-scopes";
-import { getUserById } from "../data";
+import { ADMIN_SCOPE, AGENCY_RESOURCES, STORE_ADMIN_RESOURCES, scopeAllows, type ApiAccess, type ApiResource } from "../api-scopes";
+import { getUserById, listMembershipsForUser } from "../data";
+import { resolveStoreRole } from "../store-access";
 import { isOperationError, type OperationErrorCode } from "../operations/context";
 import { ApiError, adminContext, authenticate, errorResponse, keyContext, type ApiCaller, type ApiErrorCode } from "./auth";
 import { findOperation, pathParams, type ApiOperation } from "./operations";
@@ -85,6 +86,13 @@ export async function authorize(caller: ApiCaller, operation: ApiOperation): Pro
     const maker = await getUserById(key.createdById);
     if (maker?.platformRole !== "agency_admin" || maker.agencyId !== caller.store.agencyId) {
       return new ApiError(403, "forbidden", "The person who made this key no longer administers the agency.");
+    }
+  }
+  if (STORE_ADMIN_RESOURCES.includes(resource)) {
+    const maker = await getUserById(key.createdById);
+    const grant = maker ? resolveStoreRole(maker, caller.store, await listMembershipsForUser(maker.id)) : null;
+    if (grant?.role !== "store_admin") {
+      return new ApiError(403, "forbidden", "Only a store administrator can manage domains. The person who made this key no longer administers the store.");
     }
   }
   return null;

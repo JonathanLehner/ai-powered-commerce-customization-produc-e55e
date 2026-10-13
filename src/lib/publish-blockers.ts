@@ -47,16 +47,18 @@ export async function publishBlockersFor(
     if (!shipsAnywhere.get(product.storeId)) {
       blockers.push({ reason: t("noShippingZone"), fix: t("noShippingZoneFix") });
     }
-    if (!catalog) {
+    // An imported product has no supplier listing or print artwork; its own
+    // photos are what shoppers see.
+    if (!catalog && !product.imported) {
       blockers.push({ reason: t("retired"), fix: t("retiredFix") });
       continue;
     }
-    if (product.artworks.length === 0) {
+    if (catalog && product.artworks.length === 0) {
       blockers.push({ reason: t("noArtwork"), fix: t("noArtworkFix") });
     }
     for (const artwork of product.artworks) {
-      const area = catalog.printAreas.find((a) => a.id === artwork.printAreaId);
-      if (!area) continue;
+      const area = catalog?.printAreas.find((a) => a.id === artwork.printAreaId);
+      if (!area || !catalog) continue;
       for (const issue of blockingIssues(validateArtwork(artwork, area, catalog.fileRequirements))) {
         const text = artworkIssueText(issuesT, issue, locale);
         blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix });

@@ -2,7 +2,7 @@ import "server-only";
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { emailCopy, shopperLocale } from "@/i18n/storefront";
-import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
+import { storeLinkBase } from "@/lib/seo";
 import { BULK_STATUSES, moveBlock, parseOrderIds, routeBlock, shipBlock, type BulkBlock, type BulkStatus } from "../bulk-orders";
 import { refreshCustomers } from "../customer-data";
 import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder } from "../data";
@@ -95,7 +95,7 @@ export async function shipOrder(
     const origin = await siteOrigin();
     // Written in the language the shopper checked out in, if the store still offers it.
     const locale = shopperLocale(store, order.locale ?? "");
-    const base = localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale);
+    const base = storeLinkBase(store, locale, origin);
     sendEmail({
       to: order.customer.email,
       message: shippingNotificationEmail(brandFor(store), await emailCopy(locale), {
@@ -104,7 +104,7 @@ export async function shipOrder(
         carrierName: CARRIER_LABELS[carrier],
         trackingNumber,
         trackingUrl,
-        statusUrl: `${origin}${orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code))}`,
+        statusUrl: orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code)),
       }),
       kind: "shipping notification",
       storeId,

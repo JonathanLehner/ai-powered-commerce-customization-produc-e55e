@@ -3,10 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_LOCALE, MARKETING_PATHS, isLocale, type Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { negotiateShopperLocale } from "@/i18n/shopper-negotiation";
-import { SHOPPER_LOCALE_COOKIE, storeLanguages } from "@/i18n/storefront-routing";
+import { SHOPPER_LOCALE_COOKIE, STORE_ROOT_HEADER, storeLanguages } from "@/i18n/storefront-routing";
 import { isLive } from "@/lib/artwork";
 import { billingConfigured } from "@/lib/billing-config";
 import { getGiftCatalogueBySlug, getStore, getStoreByDomain, getStoreBySlug } from "@/lib/data";
+import { shopifyRedirect } from "@/lib/url-redirects";
 import { getPublishedEntry } from "@/lib/content-data";
 import { isPolicyKey } from "@/lib/policies";
 import { matchesRoute, segmentsOf } from "@/lib/routes";
@@ -144,13 +145,42 @@ function isPlatformHost(host: string): boolean {
 /** A store, with its collections when they were read with it. */
 type KnownStore = { store: Store; collections: ProductCollection[] | null };
 
-/** The store whose custom domain this request was sent to, if any. */
-async function customDomainStore(request: NextRequest): Promise<KnownStore | null> {
-  const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "")
+/** The host name the request was sent to, lowercased and without a port. */
+function requestHost(request: NextRequest): string {
+  return (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "")
     .split(",")[0]
     .trim()
     .toLowerCase()
     .replace(/:\d+$/, "");
+}
+
+/**
+ * The domain a store's shoppers are sent to: its primary domain, once that
+ * serves over HTTPS. Only a domain connected on the Domains page counts, so a
+ * store that merely recorded a domain is never redirected to one that does not
+ * reach it.
+ */
+function servingDomain(store: Store): string | null {
+  const primary = store.customDomain;
+  if (!primary || store.domainStatus !== "verified" || !store.domainHosts?.includes(primary)) return null;
+  return primary;
+}
+
+/** A permanent redirect to `pathname` (and the request's query) on `host`, or on this host. */
+function movedTo(request: NextRequest, pathname: string, host?: string): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname || "/";
+  if (host) {
+    url.protocol = "https:";
+    url.host = host;
+    url.port = "";
+  }
+  return NextResponse.redirect(url, 301);
+}
+
+/** The store whose custom domain this request was sent to, if any. */
+async function customDomainStore(request: NextRequest): Promise<KnownStore | null> {
+  const host = requestHost(request);
   if (!host || isPlatformHost(host)) return null;
   try {
     if (!isRead(request)) {
@@ -177,12 +207,21 @@ function shopperSession(request: NextRequest): string | null {
 async function serveCustomDomain(request: NextRequest, known: KnownStore): Promise<NextResponse | null> {
   const { store } = known;
   const { pathname } = request.nextUrl;
+  // The store's other domains (www and root, say) send shoppers to the
+  // primary one once it serves.
+  const primary = servingDomain(store);
+  if (primary && isRead(request) && requestHost(request) !== primary) return movedTo(request, pathname, primary);
   if (pathname === "/sitemap.xml" || pathname === "/robots.txt") {
     const url = request.nextUrl.clone();
     url.pathname = `/s/${store.slug}${pathname}`;
     return NextResponse.rewrite(url);
   }
   const segments = segmentsOf(pathname);
+  // The platform address of this very store, opened on its own domain: the
+  // same page at the domain root.
+  if (segments[0] === "s" && decodeSegment(segments[1] ?? "") === store.slug && isRead(request)) {
+    return movedTo(request, `/${segments.slice(2).join("/")}`);
+  }
   if (["s", "g", "api", "_next"].includes(segments[0] ?? "")) return null;
   return localizeShopper(request, ["s", store.slug, ...segments], { ...known, publicRoot: "" });
 }
@@ -224,6 +263,11 @@ async function localizeShopper(
       store = undefined;
     }
   }
+  // A storefront with a primary domain lives there: its platform address
+  // redirects, page for page.
+  const domain = !known && surface === "s" && store && read ? servingDomain(store) : null;
+  if (domain) return movedTo(request, `${requested ? `/${requested}` : ""}${restPath}`, domain);
+
   const { locales, defaultLocale } = store
     ? storeLanguages(store)
     : { locales: [DEFAULT_LOCALE], defaultLocale: DEFAULT_LOCALE };
@@ -248,10 +292,19 @@ async function localizeShopper(
   }
 
   const missing = read && (await shopperMissing(`${root}${restPath}`, store, collections, rest));
+  // Old Shopify addresses on the store's own domain, such as a product whose
+  // handle changed on import, are sent on to the page that replaced them.
+  if (missing && known && store) {
+    const target = await shopifyRedirect(store.id, rest).catch(() => null);
+    if (target) return movedTo(request, `${requested && requested !== defaultLocale ? `/${requested}` : ""}${target}`);
+  }
   const url = request.nextUrl.clone();
   url.pathname = `${root}/${locale}${restPath}`;
   const headers = new Headers(request.headers);
   headers.set("X-NEXT-INTL-LOCALE", locale);
+  // Tells the pages they are on the store's own domain, so they link from its root.
+  headers.delete(STORE_ROOT_HEADER);
+  if (known && surface === "s") headers.set(STORE_ROOT_HEADER, slug);
   const response = NextResponse.rewrite(url, { request: { headers }, ...(missing ? { status: 404 } : {}) });
   return read && requested && locales.includes(requested) ? remember(response, request, requested) : response;
 }

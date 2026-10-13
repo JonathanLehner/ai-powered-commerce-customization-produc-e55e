@@ -12,7 +12,7 @@ import { db } from "./mongo";
 import { orderInvoiceUrl, orderStatusUrl, signOrderToken } from "./order-access";
 import { orderTax } from "./shipping";
 import { emailCopy, shopperLocale } from "@/i18n/storefront";
-import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
+import { storeLinkBase } from "@/lib/seo";
 import type { Order, Store } from "./types";
 import { formatMoney } from "./util";
 
@@ -52,10 +52,9 @@ export interface SettledPayment {
   amounts?: SettledAmounts | null;
 }
 
-/** The storefront's address in the language the shopper checked out in. */
-function shopperBase(store: Store, order: Order): string {
-  const locale = shopperLocale(store, order.locale ?? store.defaultLanguage);
-  return localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale);
+/** The storefront's absolute address in the language the shopper checked out in, on its own domain once it serves. */
+function shopperBase(store: Store, order: Order, origin: string): string {
+  return storeLinkBase(store, shopperLocale(store, order.locale ?? store.defaultLanguage), origin);
 }
 
 /**
@@ -203,11 +202,11 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
         ]
           .filter(Boolean)
           .join(", "),
-        statusUrl: `${origin}${orderStatusUrl(shopperBase(store, order), code, token)}`,
+        statusUrl: orderStatusUrl(shopperBase(store, order, origin), code, token),
         ...(order.shippingRate ? { shipping: { name: order.shippingRate.name, amount: order.shipping } } : {}),
         taxRows: tax.rows.filter((row) => row.amount > 0),
         taxInclusive: tax.inclusive,
-        invoiceUrl: `${origin}${orderInvoiceUrl(shopperBase(store, order), code, token)}`,
+        invoiceUrl: orderInvoiceUrl(shopperBase(store, order, origin), code, token),
       }),
       kind: "order confirmation",
       storeId,

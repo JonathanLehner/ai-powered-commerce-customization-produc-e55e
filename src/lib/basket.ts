@@ -1,7 +1,8 @@
 import { getDiscountCodeByCode, getStoreProductsByIds, getTaxBracketsByIds } from "./data";
 import { allocateDiscount, checkDiscount, type DiscountRefusal } from "./discounts";
 import { paymentMode } from "./payment-mode";
-import { convert, parcelShipping, type TaxRow } from "./pricing";
+import { presentmentPrice, storeFxTable } from "./currency";
+import { parcelShipping, type TaxRow } from "./pricing";
 import {
   basketWeight,
   emailDeliveryOption,
@@ -106,13 +107,15 @@ export async function basketTotals(
     known?.rates ??
     new Map((bracketIds.length > 0 ? await getTaxBracketsByIds(bracketIds) : []).map((b) => [b.id, b.rate]));
 
+  // Product prices at the store's rate and rounding for the shopper's currency.
+  const fx = storeFxTable(store);
   const lines = items.map((item, index) => ({
     item,
-    unit: convert(item.unitPrice, products[index]?.currency ?? store.defaultCurrency, currency),
+    unit: presentmentPrice(store, item.unitPrice, products[index]?.currency ?? store.defaultCurrency, currency),
   }));
   const lineAmounts = lines.map((line) => line.unit * line.item.quantity);
   const subtotal = lineAmounts.reduce((sum, amount) => sum + amount, 0);
-  const verdict = discountCode ? checkDiscount(discountCode, subtotal, currency) : null;
+  const verdict = discountCode ? checkDiscount(discountCode, subtotal, currency, undefined, fx) : null;
   const applied: AppliedDiscount | null =
     discountCode && verdict && !verdict.refusal
       ? {
@@ -151,9 +154,9 @@ export async function basketTotals(
   const options = digitalOnly
     ? [emailDeliveryOption()]
     : delivery.zones.length > 0
-      ? shippingOptions(delivery.zones, country, { weightGrams, subtotal: goods, currency })
+      ? shippingOptions(delivery.zones, country, { weightGrams, subtotal: goods, currency, fx })
       : items.length > 0
-        ? [standardOption(parcelShipping(items.map((i) => i.productName), currency))]
+        ? [standardOption(parcelShipping(items.map((i) => i.productName), currency, fx))]
         : [];
   const shippingOption = pickOption(options, delivery.rateId);
   const { shipping, taxRows, taxAmount, total } = quoteTotals(basis, country, shippingOption?.amount ?? 0);

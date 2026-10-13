@@ -21,7 +21,7 @@ import {
   type CollectionSort,
 } from "@/lib/collections";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
-import { convert } from "@/lib/pricing";
+import { presentmentPrice } from "@/lib/currency";
 import { soldOutProducts } from "@/lib/inventory";
 import { breadcrumbJsonLd, metaDescription, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
@@ -92,7 +92,7 @@ export default async function StorefrontCollectionPage({
   // shopper's currency so the price sorts compare like with like.
   const products = collectionProducts(stored.productIds, published)
     .map((p) => localizeProduct(p, locale, defaultLocale))
-    .map((p) => ({ ...p, price: convert(p.price, p.currency, currency) }));
+    .map((p) => ({ ...p, price: presentmentPrice(store, p.price, p.currency, currency) }));
   const tags = [...new Set(products.flatMap((p) => p.tags))].sort((a, b) => a.localeCompare(b, locale));
   const visible = sortProducts(
     products.filter((p) => (tag ? p.tags.includes(tag) : true)),

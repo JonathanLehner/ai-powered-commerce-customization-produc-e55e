@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
+import { presentmentRate, shopperCurrency, storeFxTable, toShopAmount } from "@/lib/currency";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
@@ -31,7 +32,7 @@ import { getGiftCardByCode, holdGiftCard, releaseGiftCardHold } from "@/lib/gift
 import { basketGiftCardCover, giftCardRefusal, looksLikeGiftCode } from "@/lib/gift-cards";
 import { formatMinorUnits } from "@/i18n/format";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
-import { shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { publicStoreRoot, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localizeProduct } from "@/lib/translations";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { emailMatchesOrder, orderStatusUrl, signOrderToken } from "@/lib/order-access";
@@ -106,10 +107,19 @@ export async function readShopperSession(): Promise<string | null> {
   return jar.get(SHOPPER_COOKIE)?.value ?? null;
 }
 
+/**
+ * The shopper's currency: the one they picked in the header, else their
+ * country's (from Cloudflare's visitor country) when the store sells in it,
+ * else the shop currency.
+ */
 export async function readCurrency(fallback: string, allowed: string[]): Promise<string> {
-  const jar = await cookies();
-  const value = jar.get(CURRENCY_COOKIE)?.value;
-  return value && allowed.includes(value) ? value : fallback;
+  const [jar, list] = await Promise.all([cookies(), headers()]);
+  return shopperCurrency({
+    chosen: jar.get(CURRENCY_COOKIE)?.value,
+    country: list.get("cf-ipcountry"),
+    enabled: allowed,
+    fallback,
+  });
 }
 
 /**
@@ -209,7 +219,7 @@ async function shopperCopy(store: Store | null) {
     store ? shopperTranslator(store, locale) : getTranslations({ locale, namespace: "storefront" }),
     getFormatter({ locale }),
   ]);
-  const base = store ? localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale) : "";
+  const base = store ? localeBase(await publicStoreRoot(store.slug), locale, storeLanguages(store).defaultLocale) : "";
   return { locale, t, format, base };
 }
 
@@ -438,7 +448,7 @@ export async function applyDiscount(_prev: ActionState, formData: FormData): Pro
 
   const money = (minor: number) => formatMinorUnits(format, minor, currency);
   const { subtotal } = await basketTotals(store, cart.items, currency);
-  const verdict = checkDiscount(record, subtotal, currency);
+  const verdict = checkDiscount(record, subtotal, currency, undefined, storeFxTable(store));
   if (verdict.refusal) {
     return {
       status: "error",
@@ -633,7 +643,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     const card = await getGiftCardByCode(storeId, cart.giftCardCode);
     const cover =
       card && !giftCardRefusal(card)
-        ? basketGiftCardCover(card, { total, shipping, stripeTax }, currency, mode === "stripe" ? "stripe" : "demo")
+        ? basketGiftCardCover(card, { total, shipping, stripeTax }, currency, mode === "stripe" ? "stripe" : "demo", storeFxTable(store))
         : null;
     if (!card || !cover || cover.amount <= 0 || !(await holdGiftCard(storeId, card.id, orderId, cover.cardAmount))) {
       if (claimed && discount) await releaseDiscountUse(discount.codeId);
@@ -709,6 +719,10 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     code,
     status: "awaiting_payment",
     currency,
+    // What the order comes to in the store's own currency, at the rate it was priced at.
+    shopCurrency: store.defaultCurrency,
+    shopTotal: toShopAmount(store, total, currency),
+    exchangeRate: presentmentRate(store, currency),
     locale,
     customer: {
       name,

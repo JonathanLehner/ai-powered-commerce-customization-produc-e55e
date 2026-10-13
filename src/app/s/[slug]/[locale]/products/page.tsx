@@ -13,7 +13,7 @@ import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { localizeProduct } from "@/lib/translations";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
-import { convert } from "@/lib/pricing";
+import { presentmentPrice } from "@/lib/currency";
 import { soldOutProducts } from "@/lib/inventory";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
@@ -153,7 +153,7 @@ export default async function StorefrontProductsPage({
               href={`${base}/products/${product.slug}`}
               name={product.name}
               tagline={product.description.split("\n")[0]}
-              price={money(convert(product.price, product.currency, currency), currency)}
+              price={money(presentmentPrice(store, product.price, product.currency, currency), currency)}
               imageUrl={product.mockups[0]?.url ?? null}
               imageAlt={product.name}
               placeholder={t("shop.previewSoon")}

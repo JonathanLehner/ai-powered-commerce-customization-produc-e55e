@@ -11,6 +11,13 @@ import { DEFAULT_LOCALE, LOCALES, isLocale, type Locale } from "./locales";
  * read it.
  */
 
+/**
+ * Set by the proxy on a request it serves on a store's own domain, naming the
+ * store's slug: there the storefront lives at the domain root, so its links
+ * leave out `/s/<slug>`. The proxy clears it on every other request.
+ */
+export const STORE_ROOT_HEADER = "x-parcelith-store-root";
+
 /** Remembers the language a shopper last chose or visited. */
 export const SHOPPER_LOCALE_COOKIE = "NEXT_LOCALE";
 
@@ -48,5 +55,6 @@ export function switchLocalePath(
   const after = pathname.startsWith(root) ? pathname.slice(root.length) : "";
   const segments = after.split("/").filter(Boolean);
   const rest = isLocale(segments[0]) ? segments.slice(1) : segments;
-  return localeBase(root, locale, defaultLocale) + (rest.length > 0 ? `/${rest.join("/")}` : "");
+  // A store on its own domain has an empty root, and its home page is `/`.
+  return localeBase(root, locale, defaultLocale) + (rest.length > 0 ? `/${rest.join("/")}` : "") || "/";
 }

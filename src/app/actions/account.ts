@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { shopperSignIn, shopperSignOut } from "@/shopper-auth";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
-import { shopperLocale, shopperTranslator } from "@/i18n/storefront";
+import { publicStoreRoot, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { cleanAddress, withAddress, withoutAddress, type AddressProblem } from "@/lib/account-rules";
 import { getShopperAccount, linkCustomerAccount, saveAddressBook, saveMarketingConsent } from "@/lib/accounts";
@@ -20,7 +20,7 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 async function copyFor(store: Store | null) {
   const locale = store ? shopperLocale(store, await getLocale()) : DEFAULT_LOCALE;
   const t = store ? await shopperTranslator(store, locale) : await getTranslations({ locale, namespace: "storefront" });
-  const base = store ? localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale) : "";
+  const base = store ? localeBase(await publicStoreRoot(store.slug), locale, storeLanguages(store).defaultLocale) : "";
   return { locale, t, base };
 }
 

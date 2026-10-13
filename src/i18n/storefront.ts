@@ -2,13 +2,14 @@ import "server-only";
 import type { Metadata } from "next";
 import { createTranslator } from "next-intl";
 import { getFormatter, getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { headers } from "next/headers";
 import type { EmailCopy } from "@/lib/email-templates";
 import { applyShopText } from "@/lib/shop-text";
 import type { Store } from "@/lib/types";
 import { formatMinorUnits } from "./format";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "./locales";
 import { storeLanguageUrls, storeUrl } from "@/lib/seo";
-import { localeBase, storeLanguages } from "./storefront-routing";
+import { STORE_ROOT_HEADER, localeBase, storeLanguages } from "./storefront-routing";
 
 type StoreLanguageFields = Pick<Store, "defaultLanguage" | "languages" | "shopText">;
 
@@ -43,12 +44,24 @@ export async function shopperTranslator(store: Pick<Store, "shopText">, locale: 
 }
 
 /**
+ * Where a store's pages are linked from on this request: `/s/<slug>` on the
+ * platform, the bare domain root (`""`) when the shopper is on the store's own
+ * domain.
+ */
+export async function publicStoreRoot(slug: string): Promise<string> {
+  const list = await headers();
+  return list.get(STORE_ROOT_HEADER) === slug ? "" : `/s/${slug}`;
+}
+
+/**
  * The shopper's language on a storefront or gift portal page: the translator
  * for the built-in copy, the formatter for money and dates, and the address of
- * the surface in that language (`root` is `/s/<slug>` or `/g/<slug>`).
+ * the surface in that language (`root` is `/s/<slug>` or `/g/<slug>`; a
+ * storefront on its own domain is linked from the domain root instead).
  */
-export async function shopperIntl(store: StoreLanguageFields, requested: string, root: string) {
+export async function shopperIntl(store: StoreLanguageFields, requested: string, surfaceRoot: string) {
   const locale = shopperLocale(store, requested);
+  const root = surfaceRoot.startsWith("/s/") ? await publicStoreRoot(surfaceRoot.slice(3)) : surfaceRoot;
   setRequestLocale(locale);
   const [t, format] = await Promise.all([shopperTranslator(store, locale), getFormatter({ locale })]);
   return {
@@ -57,6 +70,7 @@ export async function shopperIntl(store: StoreLanguageFields, requested: string,
     format,
     money: (minor: number, currency: string) => formatMinorUnits(format, minor, currency),
     base: localeBase(root, locale, storeLanguages(store).defaultLocale),
+    root,
   };
 }
 

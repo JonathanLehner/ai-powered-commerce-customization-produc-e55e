@@ -14,6 +14,7 @@ export const API_RESOURCES = [
   "content",
   "storefront",
   "store",
+  "domains",
   "gifting",
   "sourcing",
   "assistant",
@@ -36,6 +37,13 @@ export const READ_ONLY_RESOURCES: readonly ApiResource[] = ["analytics", "activi
  * may hold one, and only while that person still is the administrator.
  */
 export const AGENCY_RESOURCES: readonly ApiResource[] = ["agency"];
+
+/**
+ * Areas only a store administrator may change, such as the store's domains.
+ * A key on one works only while the person who made it still administers the
+ * store.
+ */
+export const STORE_ADMIN_RESOURCES: readonly ApiResource[] = ["domains"];
 
 /**
  * The scope of a platform key: the platform administration screens (suppliers,

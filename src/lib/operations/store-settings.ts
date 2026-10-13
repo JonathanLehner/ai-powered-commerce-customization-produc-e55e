@@ -4,7 +4,17 @@ import { revalidatePath } from "next/cache";
 import { LOCALES, isLocale, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { storeLimitText } from "@/i18n/plan-copy";
+import {
+  MAX_MANUAL_RATE,
+  fxStale,
+  roundingRulesFor,
+  usesAutomaticRates,
+  type CurrencyRateSetting,
+  type RateMode,
+  type RoundingRule,
+} from "../currency";
 import { countActiveStoresForAgency, getAgency, listTaxBrackets, recordAudit, updateStore } from "../data";
+import { refreshStoreFx } from "../fx-rates";
 import { siteOrigin } from "../email";
 import { storeAllowance } from "../plans";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type PolicyKey, type StorePolicies } from "../policies";
@@ -17,7 +27,7 @@ import { OperationError, type OperationContext } from "./context";
 
 /**
  * A store's own settings: its name and status, branding, languages,
- * currencies, shopper support contacts, policies, domain, payments, carriers
+ * currencies, shopper support contacts, policies, payments, carriers
  * and default tax. The workspace's settings forms and the Admin
  * API both run these. Each returns the store as saved.
  */
@@ -136,6 +146,73 @@ export async function saveCurrencies(
   return { ...store, currencies, defaultCurrency, setup };
 }
 
+export interface CurrencyRateInput {
+  mode: RateMode;
+  /** Units of the currency per unit of the shop currency; required when `mode` is manual. */
+  rate?: number | null;
+  rounding: RoundingRule;
+}
+
+/**
+ * How each presentment currency is priced: automatic or manual exchange rate,
+ * and the rounding rule for product prices. Only currencies the store sells
+ * in, other than the shop currency, can be set. Automatic rates a day old are
+ * fetched again on save.
+ */
+export async function saveCurrencyRates(
+  ctx: OperationContext,
+  input: Record<string, CurrencyRateInput>,
+): Promise<Store> {
+  const { store } = ctx;
+  const t = await messages(ctx);
+  const rates: Partial<Record<string, CurrencyRateSetting>> = {};
+  for (const code of store.currencies) {
+    if (code !== store.defaultCurrency && store.currencyRates?.[code]) rates[code] = store.currencyRates[code];
+  }
+  for (const [code, entry] of Object.entries(input)) {
+    if (code === store.defaultCurrency || !store.currencies.includes(code)) {
+      throw new OperationError("invalid", t("rateCurrencyNotSold", { currency: code }), `rate_${code}`);
+    }
+    if (!roundingRulesFor(code).includes(entry.rounding)) {
+      throw new OperationError("invalid", t("roundingInvalid", { currency: code }), `rounding_${code}`);
+    }
+    let rate: number | null = null;
+    if (entry.mode === "manual") {
+      rate = Number(entry.rate);
+      if (!Number.isFinite(rate) || rate <= 0 || rate > MAX_MANUAL_RATE) {
+        throw new OperationError("invalid", t("rateInvalid", { currency: code }), `rate_${code}`);
+      }
+      rate = Number(rate.toPrecision(8));
+    }
+    rates[code] = { mode: entry.mode === "manual" ? "manual" : "auto", rate, rounding: entry.rounding };
+  }
+
+  let saved: Store = { ...store, currencyRates: rates };
+  if (usesAutomaticRates(saved) && fxStale(saved)) saved = await refreshStoreFx(saved);
+  await updateStore(store.id, { currencyRates: rates });
+  audit(
+    ctx,
+    "store.currency_rates_updated",
+    `Updated exchange rates and rounding for ${Object.keys(input).join(", ") || "no currencies"}`,
+    { currencies: Object.keys(input).join(", ") },
+  );
+  revalidatePath(`/app/stores/${store.id}/setup`);
+  revalidatePath(`/s/${store.slug}`, "layout");
+  return saved;
+}
+
+/** Fetches today's market rates for the automatic exchange rates. */
+export async function refreshExchangeRates(ctx: OperationContext): Promise<Store> {
+  const { store } = ctx;
+  const t = await messages(ctx);
+  const saved = await refreshStoreFx(store);
+  if (saved === store) throw new OperationError("conflict", t("ratesUnavailable"));
+  audit(ctx, "store.exchange_rates_refreshed", "Refreshed the automatic exchange rates", {});
+  revalidatePath(`/app/stores/${store.id}/setup`);
+  revalidatePath(`/s/${store.slug}`, "layout");
+  return saved;
+}
+
 /**
  * The support contacts a shopper is given on the order status page and in the
  * storefront footer. The address is required: it is the only working route
@@ -251,40 +328,6 @@ export async function setStoreStatus(ctx: OperationContext, status: Store["statu
   revalidatePath("/app");
   revalidatePath(`/app/stores/${store.id}`);
   return { ...store, status, archivedAt };
-}
-
-/**
- * Sets, verifies or (given an empty domain) removes the store's custom domain.
- * Returns the store as saved; its `customDomain` is null once removed.
- */
-export async function saveDomain(ctx: OperationContext, input: { domain: string; verify: boolean }): Promise<Store> {
-  const { store } = ctx;
-  const t = await messages(ctx);
-  const raw = input.domain.trim().toLowerCase();
-
-  if (!raw) {
-    const setup = { ...store.setup, domain: false };
-    await updateStore(store.id, { customDomain: null, domainStatus: "unset", setup });
-    revalidatePath(`/app/stores/${store.id}/setup`);
-    return { ...store, customDomain: null, domainStatus: "unset", setup };
-  }
-
-  const domain = raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain)) {
-    throw new OperationError("invalid", t("domainInvalid"), "customDomain");
-  }
-
-  const domainStatus = input.verify ? "verified" : "pending";
-  const setup = { ...store.setup, domain: domainStatus === "verified" };
-  await updateStore(store.id, { customDomain: domain, domainStatus, setup });
-  audit(
-    ctx,
-    input.verify ? "store.domain_verified" : "store.domain_set",
-    input.verify ? `Verified custom domain ${domain}` : `Set custom domain ${domain}, awaiting DNS verification`,
-    { domain },
-  );
-  revalidatePath(`/app/stores/${store.id}/setup`);
-  return { ...store, customDomain: domain, domainStatus, setup };
 }
 
 /**

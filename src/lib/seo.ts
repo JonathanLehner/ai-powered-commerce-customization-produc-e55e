@@ -53,6 +53,17 @@ export function storeUrl(store: StoreAddress, locale: Locale, path = ""): string
   return `${origin}${at || "/"}`;
 }
 
+/**
+ * The absolute address of a store's pages in `locale`, for links sent away
+ * from the site such as emails: on the store's domain once it serves, on the
+ * platform (`platformOrigin`, the deployment's own address) until then.
+ */
+export function storeLinkBase(store: StoreAddress, locale: Locale, platformOrigin: string): string {
+  const { origin, root } = storeHome(store);
+  const { defaultLocale } = storeLanguages(store);
+  return `${root ? platformOrigin : origin}${localeBase(root, locale, defaultLocale)}`;
+}
+
 /** The address of `path` in every enabled language, plus `x-default`. Empty with one language. */
 export function storeLanguageUrls(store: StoreAddress, path = ""): Record<string, string> {
   const { locales, defaultLocale } = storeLanguages(store);

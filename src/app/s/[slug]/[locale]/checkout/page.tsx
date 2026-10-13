@@ -9,7 +9,7 @@ import { getShopperAccount } from "@/lib/accounts";
 import { getCustomerByEmail } from "@/lib/customer-data";
 import { getGiftCardByCode } from "@/lib/gift-card-data";
 import { giftCardRefusal } from "@/lib/gift-cards";
-import { convert } from "@/lib/pricing";
+import { presentmentAmount, storeFxTable } from "@/lib/currency";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
 import { Callout } from "@/components/ui";
@@ -81,7 +81,7 @@ export default async function CheckoutPage({
       zones.length > 0 && !digitalOnly
         ? zones.map((zone) => ({
             countries: zone.countries,
-            options: shippingOptions([zone], zone.countries[0], { weightGrams, subtotal: basis.goods, currency }),
+            options: shippingOptions([zone], zone.countries[0], { weightGrams, subtotal: basis.goods, currency, fx: storeFxTable(store) }),
           }))
         : null,
     standard: digitalOnly
@@ -93,7 +93,8 @@ export default async function CheckoutPage({
   // The card on the basket, as the summary prices it for whichever rate is picked.
   const giftCard =
     giftCardRecord && !giftCardRefusal(giftCardRecord)
-      ? { last4: giftCardRecord.last4, balance: giftCardRecord.balance, currency: giftCardRecord.currency }
+      ? // In the checkout currency already, at the store's rate, so the form needs no rates of its own.
+        { last4: giftCardRecord.last4, balance: presentmentAmount(store, giftCardRecord.balance, giftCardRecord.currency, currency), currency }
       : null;
 
   // Which supplier stands behind each basket line, so the form can tell the
@@ -187,7 +188,7 @@ export default async function CheckoutPage({
                 />
                 <GiftCardEntry
                   storeId={store.id}
-                  card={giftCardRecord ? { last4: giftCardRecord.last4, balance: money(convert(giftCardRecord.balance, giftCardRecord.currency, currency), currency) } : null}
+                  card={giftCardRecord ? { last4: giftCardRecord.last4, balance: money(presentmentAmount(store, giftCardRecord.balance, giftCardRecord.currency, currency), currency) } : null}
                   note={cart.giftCardCode && !giftCard ? t("giftCard.notUsable") : null}
                 />
               </CardContent>

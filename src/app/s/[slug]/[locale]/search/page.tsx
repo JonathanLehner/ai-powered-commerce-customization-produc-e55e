@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
-import { convert } from "@/lib/pricing";
+import { presentmentPrice } from "@/lib/currency";
 import { cleanQuery, SEARCH_LIMITS, searchStore } from "@/lib/search";
 import { storeSearchDocuments } from "@/lib/search-data";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
@@ -99,7 +99,7 @@ export default async function SearchPage({
                 key={result.id}
                 href={`${base}${result.path}`}
                 name={result.title}
-                price={result.price !== null && result.currency ? money(convert(result.price, result.currency, currency), currency) : null}
+                price={result.price !== null && result.currency ? money(presentmentPrice(store, result.price, result.currency, currency), currency) : null}
                 imageUrl={result.imageUrl}
                 imageAlt={result.title}
                 placeholder={t("shop.previewSoon")}

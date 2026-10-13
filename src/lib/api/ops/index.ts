@@ -4,6 +4,9 @@ import { adminOperations } from "./admin";
 import { agencyOperations } from "./agency";
 import { assistantOperations } from "./assistant";
 import { catalogOperations } from "./catalog";
+import { currencyOperations } from "./currencies";
+import { domainOperations } from "./domains";
+import { importOperations } from "./imports";
 import { giftingOperations } from "./gifting";
 import { orderOperations } from "./orders";
 import { reportOperations } from "./reports";
@@ -18,6 +21,9 @@ import { teamOperations } from "./team";
  */
 export const OPS_MODULES: ApiOperation[] = [
   ...settingsOperations,
+  ...domainOperations,
+  ...currencyOperations,
+  ...importOperations,
   ...catalogOperations,
   ...storeContentOperations,
   ...orderOperations,

@@ -67,6 +67,10 @@ export const COLLECTIONS = {
   shopperAccountLinks: "shopper_account_links",
   shopperSessions: "shopper_sessions",
   shopperVerificationTokens: "shopper_verification_tokens",
+  storeDomains: "store_domains",
+  shopifyImports: "shopify_imports",
+  shopifyImportRows: "shopify_import_rows",
+  urlRedirects: "url_redirects",
 } as const;
 
 /* ------------------------------------------------------------------ paging */
@@ -150,11 +154,19 @@ export function getStoreBySlug(slug: string) {
 }
 
 /**
+ * Stores reached at a host name: any domain connected on the Domains page, or
+ * the single domain a store recorded before domains were connected there.
+ */
+export function storeDomainFilter(domain: string): Record<string, unknown> {
+  return { $or: [{ domainHosts: domain }, { customDomain: domain }] };
+}
+
+/**
  * The store a custom domain belongs to. A domain typed into more than one store
  * goes to the verified, active one first.
  */
 export async function getStoreByDomain(domain: string): Promise<Store | null> {
-  const stores = await db.find<Store>(COLLECTIONS.stores, { customDomain: domain }, { limit: 10 });
+  const stores = await db.find<Store>(COLLECTIONS.stores, storeDomainFilter(domain), { limit: 10 });
   const rank = (store: Store) => (store.domainStatus === "verified" ? 0 : 2) + (store.status === "active" ? 0 : 1);
   return stores.sort((a, b) => rank(a) - rank(b))[0] ?? null;
 }

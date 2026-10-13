@@ -2,21 +2,21 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import {
   saveBranding,
   saveCarriers,
-  saveDomain,
   saveLanguages,
   saveLocalisation,
   savePolicies,
   saveSupport,
   saveTaxSettings,
-  verifyDomain,
 } from "@/app/actions/stores";
-import { ActionForm, SubmitButton } from "@/components/forms";
+import { ActionForm } from "@/components/forms";
 import { Badge } from "@/components/ui";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,7 @@ import { uploadImage } from "@/lib/upload-client";
 import { THEMES, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
 import { CARRIER_LABELS, CURRENCY_OPTIONS } from "@/lib/util";
 import { StripeStep } from "./ConnectStripe";
+import { CurrencyRates } from "./CurrencyRates";
 
 function Step({
   index,
@@ -411,6 +412,11 @@ export function SetupSections({
             </>
           )}
         </ActionForm>
+        <div className="mt-8 border-t border-border pt-6">
+          <h3 className="text-sm font-semibold text-foreground">{t("rates.title")}</h3>
+          <p className="mt-1 mb-4 max-w-2xl text-xs text-muted-foreground">{t("rates.description")}</p>
+          <CurrencyRates store={store} />
+        </div>
       </Step>
 
       <Step
@@ -457,54 +463,21 @@ export function SetupSections({
         description={t("domainDescription")}
         done={store.setup.domain}
       >
-        <ActionForm action={saveDomain} submitLabel={t("saveDomain")} hidden={hidden}>
-          {(state) => (
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          {store.customDomain ? (
             <>
-              <div className="grid max-w-md gap-1.5">
-                <Label htmlFor="customDomain">{t("domainLabel")}</Label>
-                <Input
-                  id="customDomain"
-                  name="customDomain"
-                  defaultValue={store.customDomain ?? ""}
-                  placeholder="shop.yourclient.com"
-                  aria-invalid={state.field === "customDomain" ? true : undefined}
-                  aria-describedby="domain-hint"
-                />
-                <p id="domain-hint" className="text-xs text-muted-foreground">
-                  {t.rich("domainHint", {
-                    slug: store.slug,
-                    code: (chunks) => <span className="font-mono">{chunks}</span>,
-                  })}
-                </p>
-              </div>
-
-              <div className="mt-4 rounded-lg border border-border bg-canvas p-4 text-sm">
-                <p className="font-medium text-foreground">{t("dnsRecord")}</p>
-                <p className="mt-1.5 font-mono text-xs text-inksoft">
-                  CNAME {store.customDomain ?? "shop"} → stores.parcelith.net
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {t("currentStatus")}{" "}
-                  <Badge tone={store.domainStatus === "verified" ? "green" : store.domainStatus === "pending" ? "amber" : "neutral"}>
-                    {store.domainStatus === "verified"
-                      ? t("domainVerified")
-                      : store.domainStatus === "pending"
-                        ? t("domainPending")
-                        : t("domainNone")}
-                  </Badge>
-                </p>
-              </div>
+              <span className="font-medium break-all text-foreground">{store.customDomain}</span>
+              <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>
+                {store.domainStatus === "verified" ? t("domainVerified") : t("domainPending")}
+              </Badge>
             </>
+          ) : (
+            <span className="text-muted-foreground">{t("domainNone")}</span>
           )}
-        </ActionForm>
-        <form action={verifyDomain} className="mt-3">
-          <input type="hidden" name="storeId" value={store.id} />
-          <input type="hidden" name="customDomain" value={store.customDomain ?? ""} />
-          <input type="hidden" name="intent" value="verify" />
-          <SubmitButton variant="outline" size="sm" pendingLabel={t("checkingDns")} disabled={!store.customDomain}>
-            {t("runVerification")}
-          </SubmitButton>
-        </form>
+          <Link href={`/app/stores/${store.id}/domains`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+            {t("manageDomains")}
+          </Link>
+        </div>
       </Step>
 
       <Step

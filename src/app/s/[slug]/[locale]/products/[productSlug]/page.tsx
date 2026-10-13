@@ -8,7 +8,7 @@ import { isLive } from "@/lib/artwork";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale } from "@/i18n/storefront";
 import { storefrontBySlug, storefrontProduct } from "@/lib/storefront-data";
-import { convert } from "@/lib/pricing";
+import { presentmentPrice } from "@/lib/currency";
 import { levelsForProducts } from "@/lib/inventory";
 import { inventorySettings, levelId, shopperStock } from "@/lib/inventory-rules";
 import { breadcrumbJsonLd, metaDescription, productJsonLd, storeUrl } from "@/lib/seo";
@@ -105,7 +105,7 @@ export default async function StorefrontProductPage({
         colour: v.colour,
         colourHex: v.colourHex,
         size: v.size,
-        price: convert(v.price, product.currency, currency),
+        price: presentmentPrice(store, v.price, product.currency, currency),
         availability: v.availability,
         ...stock(v.id),
       })),

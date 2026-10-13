@@ -276,6 +276,15 @@ export default async function OrderDetailPage({
                           label: t("total"),
                           value: <span className="text-base">{money(order.total)}</span>,
                         },
+                        // Charged in another currency: what it came to in the store's own.
+                        ...(order.shopCurrency && order.shopCurrency !== order.currency && order.shopTotal !== undefined
+                          ? [
+                              {
+                                label: t("shopTotal", { currency: order.shopCurrency }),
+                                value: formatMoney(order.shopTotal, order.shopCurrency, locale),
+                              },
+                            ]
+                          : []),
                         ...(refunded > 0
                           ? [{ label: t("refunded"), value: `− ${money(refunded)}` }]
                           : []),

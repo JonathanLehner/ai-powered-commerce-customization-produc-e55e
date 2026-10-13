@@ -38,6 +38,8 @@ export default async function StoreLayout({
     { href: `${base}/gift-cards`, section: "giftCards", capability: "store.settings" },
     { href: `${base}/shipping`, section: "shipping", capability: "store.settings" },
     { href: `${base}/team`, section: "team", capability: "store.team" },
+    { href: `${base}/domains`, section: "domains", capability: "store.settings" },
+    { href: `${base}/import`, section: "import", capability: "store.settings" },
     { href: `${base}/setup`, section: "settings", capability: "store.settings" },
     { href: `${base}/activity`, section: "activity", capability: "store.view" },
   ];

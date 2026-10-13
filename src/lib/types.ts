@@ -9,6 +9,7 @@ import type { NotificationPrefs } from "./notifications";
 import type { StorePolicies } from "./policies";
 import type { ShopTextOverrides } from "./shop-text";
 import type { FieldTranslations } from "./translations";
+import type { CurrencyRateSetting, FxSnapshot } from "./currency";
 
 export type StoreRole = "store_admin" | "catalog_manager" | "order_manager" | "viewer";
 export type PlatformRole = "platform_admin" | "agency_admin" | "agency_member";
@@ -172,9 +173,25 @@ export interface Store {
    */
   shopText?: Partial<Record<string, ShopTextOverrides>>;
   currencies: string[];
+  /** The shop currency: products are priced in it and reports add up in it. */
   defaultCurrency: string;
+  /**
+   * How each extra presentment currency is priced: an automatic or manual
+   * exchange rate and a rounding rule. Absent entries are automatic and
+   * unrounded; read it through `currencySettings()` in `@/lib/currency`.
+   */
+  currencyRates?: Partial<Record<string, CurrencyRateSetting>>;
+  /** The latest automatic exchange rates, kept on the store so a page needs no extra read. */
+  fxRates?: FxSnapshot | null;
+  /**
+   * The primary domain shoppers are sent to, mirrored from the Domains page
+   * (`store_domains`) so the storefront reads it with the store.
+   */
   customDomain: string | null;
+  /** `verified` once the primary domain serves over HTTPS. */
   domainStatus: "unset" | "pending" | "verified";
+  /** Every host name connected on the Domains page, so a request's host finds its store in one read. */
+  domainHosts?: string[];
   /**
    * Where a shopper with a problem reaches the seller. Both are absent on
    * stores saved before support contacts were part of setup, so read them
@@ -643,6 +660,11 @@ export interface StoreProduct {
    */
   importKey?: string | null;
   /**
+   * Set on products brought over from another platform. They have no supplier
+   * listing or print artwork: the imported photos are the product's images.
+   */
+  imported?: { platform: "shopify"; handle: string; importId: string } | null;
+  /**
    * Set on products copied in from an accepted bulk quote. Orders for them are
    * never sent to a supplier API: a buyer raises the purchase order by hand.
    */
@@ -774,7 +796,18 @@ export interface Order {
   storeId: string;
   code: string;
   status: OrderStatus;
+  /** The presentment currency: what the shopper saw and was charged in. Every amount on the order is in it. */
   currency: string;
+  /**
+   * The store's own currency at the time, the total in it, and the rate used
+   * (presentment units per shop unit). Absent on orders placed before
+   * multi-currency pricing and on imported orders.
+   */
+  shopCurrency?: string;
+  shopTotal?: number;
+  exchangeRate?: number;
+  /** Set on orders brought over from another platform: its order name, such as `#1001`. */
+  imported?: { platform: "shopify"; name: string; importId: string } | null;
   /** The language the shopper checked out in. Emails about the order use it. */
   locale?: string;
   customer: {
@@ -982,6 +1015,8 @@ export interface Customer {
   addresses?: CustomerAddress[];
   /** Whether the shopper agreed to marketing email, and when they last said so. */
   marketing?: { subscribed: boolean; updatedAt: string } | null;
+  /** Set on customers brought over from another platform, by the import that last wrote them. */
+  imported?: { platform: "shopify"; importId: string } | null;
   anonymisedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -1542,4 +1577,18 @@ export interface ProductReview {
   moderatedAt: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/* ------------------------------------------------------------ redirects */
+
+/** A permanent redirect from an old address on the store's own domain. */
+export interface UrlRedirect {
+  id: string;
+  storeId: string;
+  /** `/products/old-handle`, `/collections/…` or `/pages/…`, lowercased. Unique within the store. */
+  path: string;
+  /** A path on the storefront, such as `/products/new-handle`. */
+  target: string;
+  source: "shopify_import" | "manual";
+  createdAt: string;
 }

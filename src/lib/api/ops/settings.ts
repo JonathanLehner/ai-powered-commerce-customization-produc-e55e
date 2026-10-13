@@ -5,18 +5,16 @@ import {
   disconnectStripe,
   saveCarriers,
   saveDefaultTax,
-  saveDomain,
   setStoreStatus,
 } from "../../operations/store-settings";
 import { STRIPE_COUNTRIES } from "../../util";
-import { ApiError } from "../auth";
 import { define, type ApiOperation } from "../define";
 import { presentStore } from "../present";
-import { presentCarriers, presentDefaultTax, presentDomain, presentPayments } from "../present-settings";
+import { presentCarriers, presentDefaultTax, presentPayments } from "../present-settings";
 
 /**
- * Store settings beyond the first API: archiving, the custom domain, Stripe
- * payments, shipping carriers and the default tax bracket.
+ * Store settings beyond the first API: archiving, Stripe payments, shipping
+ * carriers and the default tax bracket. Domains are in `./domains`.
  */
 
 const carrier = z.enum(["dhl", "fedex", "ups"]);
@@ -35,39 +33,6 @@ export const settingsOperations: ApiOperation[] = [
     input: z.object({ status: z.enum(["active", "archived"]) }),
     actions: ["stores#setStoreStatus"],
     run: async (ctx, input) => presentStore(await setStoreStatus(ctx, input.status)),
-  }),
-  define({
-    id: "updateCustomDomain",
-    method: "PUT",
-    path: "/domain",
-    scope: "store:write",
-    tag: "Store",
-    summary: "Set the custom domain",
-    description:
-      "Sets the domain the storefront is served on, such as shop.example.com, pending DNS verification (verify it with verifyCustomDomain). An empty domain removes it. The current domain is on getStore.",
-    input: z.object({
-      domain: z.string().describe("A host name, such as shop.example.com, or empty to remove the custom domain."),
-    }),
-    actions: ["stores#saveDomain"],
-    run: async (ctx, input) => presentDomain(await saveDomain(ctx, { domain: input.domain, verify: false })),
-  }),
-  define({
-    id: "verifyCustomDomain",
-    method: "POST",
-    path: "/domain/verify",
-    scope: "store:write",
-    tag: "Store",
-    summary: "Verify the custom domain",
-    description: "Marks the custom domain verified once its DNS points at the storefront. Without `domain`, the domain already set is verified.",
-    input: z.object({
-      domain: z.string().optional().describe("The domain to set and verify. Defaults to the store's current one."),
-    }),
-    actions: ["stores#verifyDomain", "stores#saveDomain"],
-    run: async (ctx, input) => {
-      const domain = input.domain?.trim() || ctx.store.customDomain;
-      if (!domain) throw new ApiError(409, "conflict", "The store has no custom domain to verify. Set one first.", "domain");
-      return presentDomain(await saveDomain(ctx, { domain, verify: true }));
-    },
   }),
 
   /* ---------------------------------------------------------- payments */

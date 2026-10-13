@@ -95,11 +95,11 @@ export function giftCardCover(
   card: Pick<GiftCard, "balance" | "currency">,
   total: number,
   currency: string,
-  options: { canCoverAll?: boolean; partialLimit?: number } = {},
+  options: { canCoverAll?: boolean; partialLimit?: number; fx?: Record<string, number> } = {},
 ): GiftCardCover {
   const none = { amount: 0, cardAmount: 0, coversAll: false };
   if (total <= 0 || card.balance <= 0) return none;
-  const available = convert(card.balance, card.currency, currency);
+  const available = convert(card.balance, card.currency, currency, options.fx);
   let amount: number;
   let coversAll = false;
   if (available >= total && (options.canCoverAll ?? true)) {
@@ -110,7 +110,7 @@ export function giftCardCover(
   }
   if (amount <= 0) return none;
   // Back into the card's currency, never above what it holds.
-  const cardAmount = Math.min(card.balance, Math.max(1, convert(amount, currency, card.currency)));
+  const cardAmount = Math.min(card.balance, Math.max(1, convert(amount, currency, card.currency, options.fx)));
   return { amount, cardAmount, coversAll };
 }
 
@@ -131,9 +131,12 @@ export function basketGiftCardCover(
   totals: { total: number; shipping: number; stripeTax: boolean },
   currency: string,
   payment: "stripe" | "demo",
+  /** The store's exchange rates (`storeFxTable`); the built-in ones otherwise. */
+  fx?: Record<string, number>,
 ): GiftCardCover {
   return giftCardCover(card, totals.total, currency, {
     canCoverAll: !totals.stripeTax,
     partialLimit: payment === "stripe" ? totals.total - totals.shipping : totals.total,
+    fx,
   });
 }

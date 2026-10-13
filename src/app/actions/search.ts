@@ -2,10 +2,10 @@
 
 import { getFormatter } from "next-intl/server";
 import { formatMinorUnits } from "@/i18n/format";
-import { shopperLocale } from "@/i18n/storefront";
+import { publicStoreRoot, shopperLocale } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { getStore } from "@/lib/data";
-import { convert } from "@/lib/pricing";
+import { presentmentPrice } from "@/lib/currency";
 import { cleanQuery, SEARCH_LIMITS, searchStore, type SearchKind } from "@/lib/search";
 import { storeSearchDocuments } from "@/lib/search-data";
 import { readCurrency } from "./shop";
@@ -29,7 +29,7 @@ export async function instantSearch(storeId: string, language: string, query: st
   const store = await getStore(storeId);
   if (!store || store.status !== "active") return [];
   const locale = shopperLocale(store, language);
-  const base = localeBase(`/s/${store.slug}`, locale, storeLanguages(store).defaultLocale);
+  const base = localeBase(await publicStoreRoot(store.slug), locale, storeLanguages(store).defaultLocale);
   const [documents, currency, format] = await Promise.all([
     storeSearchDocuments(store, locale),
     readCurrency(store.defaultCurrency, store.currencies),
@@ -43,7 +43,7 @@ export async function instantSearch(storeId: string, language: string, query: st
     imageUrl: doc.imageUrl,
     price:
       doc.price !== null && doc.currency
-        ? formatMinorUnits(format, convert(doc.price, doc.currency, currency), currency)
+        ? formatMinorUnits(format, presentmentPrice(store, doc.price, doc.currency, currency), currency)
         : null,
   }));
 }

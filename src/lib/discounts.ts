@@ -7,7 +7,7 @@
  * shopper: the code typed into the form is only ever a lookup key, and every
  * rule is re-checked against the stored record at payment time.
  */
-import { convert } from "./pricing";
+import { FX_TO_USD, convert } from "./pricing";
 import type { DiscountCode, DiscountKind } from "./types";
 
 /** The longest code a store can create, and what a shopper may type. */
@@ -44,8 +44,10 @@ export function checkDiscount(
   subtotal: number,
   currency: string,
   now: Date = new Date(),
+  /** The store's exchange rates (`storeFxTable`); the built-in ones otherwise. */
+  fx: Record<string, number> = FX_TO_USD,
 ): DiscountVerdict {
-  const minimum = code.minimumSubtotal > 0 ? convert(code.minimumSubtotal, code.currency, currency) : 0;
+  const minimum = code.minimumSubtotal > 0 ? convert(code.minimumSubtotal, code.currency, currency, fx) : 0;
   const refuse = (refusal: DiscountRefusal): DiscountVerdict => ({ refusal, amount: 0, minimum });
 
   if (!code.active) return refuse("inactive");
@@ -53,7 +55,7 @@ export function checkDiscount(
   if (code.usageLimit !== null && code.timesUsed >= code.usageLimit) return refuse("limitReached");
   if (subtotal < minimum) return refuse("belowMinimum");
 
-  const amount = discountAmount(code, subtotal, currency);
+  const amount = discountAmount(code, subtotal, currency, fx);
   // A code that is worth nothing against this basket — a fixed amount in a
   // currency that rounds to zero, say — is not an applied discount.
   if (amount <= 0) return refuse("belowMinimum");
@@ -72,11 +74,12 @@ export function discountAmount(
   code: Pick<DiscountCode, "kind" | "value" | "currency">,
   subtotal: number,
   currency: string,
+  fx: Record<string, number> = FX_TO_USD,
 ): number {
   const raw =
     code.kind === "percentage"
       ? Math.round((subtotal * clampPercentage(code.value)) / 100)
-      : convert(code.value, code.currency, currency);
+      : convert(code.value, code.currency, currency, fx);
   return Math.max(0, Math.min(subtotal, raw));
 }
 

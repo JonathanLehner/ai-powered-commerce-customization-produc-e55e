@@ -5,10 +5,14 @@ import type { Artwork, FileRequirements, PrintArea, StoreProduct } from "./types
  * printed. Uploading, moving or removing artwork clears the mockups, and
  * regenerating them resets every preview to unapproved, so either state means
  * the product must come off the storefront. A gift card prints nothing, so it
- * only needs its photo.
+ * only needs its photo, and so does a product imported from another platform,
+ * whose photos are its previews.
  */
-export function hasApprovedPreviews(product: Pick<StoreProduct, "artworks" | "mockups"> & Pick<Partial<StoreProduct>, "giftCard">) {
+export function hasApprovedPreviews(
+  product: Pick<StoreProduct, "artworks" | "mockups"> & Pick<Partial<StoreProduct>, "giftCard" | "imported">,
+) {
   if (product.giftCard) return product.mockups.length > 0;
+  if (product.imported) return product.mockups.length > 0 && product.mockups.every((m) => m.approved);
   return (
     product.artworks.length > 0 &&
     product.mockups.length > 0 &&

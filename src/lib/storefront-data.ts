@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { COLLECTIONS, listPublishedProducts } from "./data";
+import { COLLECTIONS, listPublishedProducts, storeDomainFilter } from "./data";
 import { db } from "./mongo";
 import { POLICY_KEYS, storePolicyText, type PolicyKey } from "./policies";
 import type {
@@ -53,7 +53,7 @@ export interface StorefrontData {
 
 export interface MenuLinkRecords {
   entries: Pick<ContentEntry, "id" | "kind" | "handle">[];
-  products: Pick<StoreProduct, "id" | "slug" | "status" | "visibility" | "giftCard" | "mockups" | "artworks">[];
+  products: Pick<StoreProduct, "id" | "slug" | "status" | "visibility" | "giftCard" | "imported" | "mockups" | "artworks">[];
 }
 
 export interface StorefrontProduct {
@@ -127,6 +127,7 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
               status: 1,
               visibility: 1,
               giftCard: 1,
+              "imported.platform": 1,
               "mockups.approved": 1,
               "artworks.id": 1,
             },
@@ -226,7 +227,7 @@ async function loadBySlug(slug: string, session: string | null): Promise<Storefr
  * one first, as `getStoreByDomain` decides.
  */
 async function loadByDomain(domain: string, session: string | null): Promise<StorefrontData | null> {
-  const rows = await readStorefront({ customDomain: domain }, session);
+  const rows = await readStorefront(storeDomainFilter(domain), session);
   const rank = (store: Store) => (store.domainStatus === "verified" ? 0 : 2) + (store.status === "active" ? 0 : 1);
   const row = rows.sort((a, b) => rank(a) - rank(b))[0];
   return row ? toStorefrontData(row) : null;

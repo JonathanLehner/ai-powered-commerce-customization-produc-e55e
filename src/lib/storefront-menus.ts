@@ -13,7 +13,7 @@ export function menuLookups(data: Pick<StorefrontData, "collections" | "menuLink
     (product) =>
       product.status === "published" &&
       product.visibility === "public" &&
-      hasApprovedPreviews(product as Pick<StoreProduct, "artworks" | "mockups" | "giftCard">),
+      hasApprovedPreviews(product as Pick<StoreProduct, "artworks" | "mockups" | "giftCard" | "imported">),
   );
   return {
     collections: new Map(data.collections.map((c) => [c.id, c.handle])),
