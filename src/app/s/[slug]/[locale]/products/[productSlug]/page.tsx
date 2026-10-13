@@ -16,6 +16,7 @@ import { breadcrumbJsonLd, metaDescription, productJsonLd, storeUrl } from "@/li
 import { shipDays } from "@/lib/shipping-promise";
 import { storeSku } from "@/lib/sku";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
+import { labelLocationConflict } from "@/lib/line-preview";
 import { localizeProduct } from "@/lib/translations";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { Card, CardContent } from "@/components/ui/card";
@@ -117,7 +118,12 @@ export default async function StorefrontProductPage({
         ...stock(v.id),
       })),
     mockups: product.mockups.map((m) => ({ id: m.id, url: m.url, view: m.view, colour: m.colour })),
-    shopperCustomization: product.shopperCustomization,
+    // A label naming another place than the print area would contradict the
+    // "Printed on" hint beside it, so it gives way to a neutral one.
+    shopperCustomization:
+      area && labelLocationConflict(stored.shopperCustomization.textLabel, area.name)
+        ? { ...product.shopperCustomization, textLabel: t("purchase.textLabelFallback") }
+        : product.shopperCustomization,
     printArea: area,
     // The whole requirements record, not a summary: the storefront runs the
     // same pre-flight the workspace configurator does.

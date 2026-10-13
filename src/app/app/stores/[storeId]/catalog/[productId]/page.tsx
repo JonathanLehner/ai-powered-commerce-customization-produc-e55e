@@ -428,7 +428,7 @@ export default async function ProductEditorPage({
       </section>
       </Card>
 
-      {canEdit ? <ProductDetailsForm product={product} brackets={brackets} /> : null}
+      {canEdit ? <ProductDetailsForm product={product} brackets={brackets} textArea={catalog?.printAreas[0]?.name ?? null} /> : null}
       {canEdit ? <VariantsForm product={product} /> : null}
 
       {canEdit ? <DeleteProductForm product={product} /> : null}

@@ -38,6 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { labelLocationConflict } from "@/lib/line-preview";
 import type { StoreProduct, TaxBracket } from "@/lib/types";
 import { formatMoney, parseMoney, toMajorString } from "@/lib/util";
 import { cn } from "@/lib/utils";
@@ -54,11 +55,16 @@ const TH = "px-0 text-xs font-semibold tracking-wide uppercase text-muted-foregr
 export function ProductDetailsForm({
   product,
   brackets,
+  textArea,
 }: {
   product: StoreProduct;
   brackets: TaxBracket[];
+  /** The name of the print area shopper text is printed on. */
+  textArea: string | null;
 }) {
   const [bracket, setBracket] = useState(product.taxBracketId ?? NO_BRACKET);
+  const [textLabel, setTextLabel] = useState(product.shopperCustomization.textLabel);
+  const labelConflict = textArea ? labelLocationConflict(textLabel, textArea) : null;
   const t = useTranslations("productForms");
   const locale = useLocale();
 
@@ -228,10 +234,22 @@ export function ProductDetailsForm({
                       <Input
                         id="textLabel"
                         name="textLabel"
-                        defaultValue={product.shopperCustomization.textLabel}
+                        value={textLabel}
+                        onChange={(e) => setTextLabel(e.currentTarget.value)}
+                        aria-describedby="textLabel-hint"
                       />
+                      {textArea ? (
+                        <p
+                          id="textLabel-hint"
+                          className={cn("text-xs", labelConflict ? "text-amber-700" : "text-muted-foreground")}
+                        >
+                          {labelConflict
+                            ? t("textLabelConflict", { word: labelConflict, area: textArea })
+                            : t("textPrintsOn", { area: textArea })}
+                        </p>
+                      ) : null}
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid content-start gap-1.5">
                       <Label htmlFor="maxTextLength" className="text-xs">
                         {t("maxCharacters")}
                       </Label>

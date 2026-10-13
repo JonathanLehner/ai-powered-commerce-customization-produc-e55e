@@ -1,7 +1,7 @@
 // Self-check for basket, checkout and order thumbnails: npm run line-preview-check
 import assert from "node:assert/strict";
 import VARIANTS from "./image-variants.json" with { type: "json" };
-import { personalisationTextColour, thumbnailSource, variantPhoto } from "../src/lib/line-preview.ts";
+import { labelLocationConflict, personalisationTextColour, thumbnailSource, variantPhoto } from "../src/lib/line-preview.ts";
 
 const product = {
   variants: [
@@ -27,6 +27,14 @@ assert.equal(variantPhoto(null, "var_black_m"), null);
 // Text reads dark on a white garment and light on anything else, as in the composite.
 assert.equal(personalisationTextColour("#ffffff"), "#111827");
 assert.equal(personalisationTextColour("#111111"), "#f8fafc");
+
+// A personalisation label naming another place than the print area is caught.
+assert.equal(labelLocationConflict("Name on the sleeve", "Front chest"), "sleeve");
+assert.equal(labelLocationConflict("Name on the back", "Front chest"), "back");
+assert.equal(labelLocationConflict("Name on the chest", "Front"), null);
+assert.equal(labelLocationConflict("Back name", "Back"), null);
+assert.equal(labelLocationConflict("Your name", "Front chest"), null);
+assert.equal(labelLocationConflict("Name on the mug", "Left wrap"), null);
 
 // Catalogue photography uses its small prebuilt variant; a shopper's own preview is left alone.
 const [original, sizes] = Object.entries(VARIANTS)[0];

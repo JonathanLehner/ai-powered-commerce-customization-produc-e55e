@@ -382,7 +382,7 @@ export function ProductPurchase({
     <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
       <div>
         <div className="overflow-hidden rounded-xl border border-border bg-muted">
-          <div ref={canvasRef} className="relative" style={{ aspectRatio: "1 / 1" }}>
+          <div ref={canvasRef} className="@container relative" style={{ aspectRatio: "1 / 1" }}>
             {activeMockup ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -394,7 +394,7 @@ export function ProductPurchase({
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{t("noPreview")}</div>
             )}
-            {onAreaView && area && artworkPreview ? (
+            {onAreaView && area && (artworkPreview || text) ? (
               <div
                 aria-hidden
                 className={classNames(
@@ -447,9 +447,10 @@ export function ProductPurchase({
                   </div>
                 ) : null}
                 {text ? (
+                  // Sized to the print area, as the composite in the basket draws it.
                   <span
-                    className="pointer-events-none absolute left-1/2 top-[86%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[3.2cqw] font-bold"
-                    style={{ color: variant?.colourHex === "#ffffff" ? "#111827" : "#f8fafc" }}
+                    className="pointer-events-none absolute left-1/2 top-[86%] -translate-1/2 whitespace-nowrap font-bold leading-none"
+                    style={{ color: personalisationTextColour(variant?.colourHex), fontSize: `${area.rect.w * 17.6}cqw` }}
                   >
                     {text}
                   </span>
