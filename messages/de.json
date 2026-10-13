@@ -2409,6 +2409,7 @@
     "mockupAlt": "Mockup von {name}",
     "noMockup": "Noch kein Mockup",
     "hidden": "Ausgeblendet",
+    "preflightFailed": "Preflight fehlgeschlagen",
     "manualFulfilment": "Manuelle Abwicklung · {code}",
     "meta": "{count, plural, one {# Variante} other {# Varianten}} · importiert am {imported} · aktualisiert {updated}",
     "price": "Preis",
@@ -2525,6 +2526,7 @@
     "restore": "Als Entwurf wiederherstellen",
     "takenOffTitle": "Aus der Storefront genommen",
     "takenOffBody": "Das Motiv wurde geändert. Erstellen Sie die Mockups neu und geben Sie sie frei, um erneut zu veröffentlichen.",
+    "takenOffPreflightBody": "Das Motiv besteht die Dateiprüfung des Lieferanten nicht mehr. Beheben Sie die folgenden Probleme, um erneut zu veröffentlichen.",
     "howToFix": "Lösung: {fix}",
     "artwork": "Motiv und Druckbereiche",
     "retiredTitle": "Lieferantenprodukt eingestellt",
@@ -4196,7 +4198,8 @@
       "quote_received": "Angebot von {name} für {code} erhalten",
       "invite_accepted": "{name} hat die Einladung angenommen",
       "low_stock": "{name} hat nur noch {count} auf Lager",
-      "webhook_disabled": "Webhook-Endpunkt {name} wurde nach wiederholten Fehlern deaktiviert"
+      "webhook_disabled": "Webhook-Endpunkt {name} wurde nach wiederholten Fehlern deaktiviert",
+      "product_unpublished": "{name} wurde nach fehlgeschlagenem Preflight aus der Storefront genommen"
     },
     "settings": {
       "menu": "Benachrichtigungen",
@@ -4217,7 +4220,8 @@
         "quote_received": "Beschaffungsangebote",
         "invite_accepted": "Angenommene Einladungen",
         "low_stock": "Niedriger Lagerbestand",
-        "webhook_disabled": "Deaktivierte Webhook-Endpunkte"
+        "webhook_disabled": "Deaktivierte Webhook-Endpunkte",
+        "product_unpublished": "Aus der Storefront genommene Produkte"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# Ausnahme} other {# Ausnahmen}}",
       "manual_routing": "{count} manuelles Routing",
-      "awaiting_production": "{count} warten auf Produktion"
+      "awaiting_production": "{count} warten auf Produktion",
+      "preflight_failed": "{count, plural, one {# Produkt mit fehlgeschlagenem Preflight} other {# Produkte mit fehlgeschlagenem Preflight}}"
     },
     "none": "Nichts offen",
     "reason": {

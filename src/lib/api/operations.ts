@@ -59,6 +59,7 @@ import { flattenShopText, shopTextEntries } from "../shop-text";
 import { shipBlock } from "../bulk-orders";
 import { THEMES, type Customer, type DiscountCode, type Order, type StoreProduct, type ThemeKey } from "../types";
 import { CURRENCY_OPTIONS } from "../util";
+import { takeOffFailingPreflight } from "../preflight-guard";
 import { ApiError } from "./auth";
 import {
   assetUrl,
@@ -314,17 +315,19 @@ const products = [
       status: productStatus.optional().describe("Only products in this status."),
       ...paging,
     }),
-    run: async (ctx, input) =>
-      page(
-        await pageRecords<StoreProduct>(
-          COLLECTIONS.storeProducts,
-          { storeId: ctx.store.id, ...(input.status ? { status: input.status } : {}) },
-          "importedAt",
-          input.limit,
-          decodeCursor(input.cursor),
-        ),
-        (row) => presentProduct(row, ctx.store),
-      ),
+    run: async (ctx, input) => {
+      const rows = await pageRecords<StoreProduct>(
+        COLLECTIONS.storeProducts,
+        { storeId: ctx.store.id, ...(input.status ? { status: input.status } : {}) },
+        "importedAt",
+        input.limit,
+        decodeCursor(input.cursor),
+      );
+      // A product taken off for failing pre-flight is listed as in review, and
+      // left out of a list of published ones.
+      const data = (await takeOffFailingPreflight(rows.data)).filter((p) => !input.status || p.status === input.status);
+      return page({ ...rows, data }, (row) => presentProduct(row, ctx.store));
+    },
   }),
   define({
     id: "getProduct",
@@ -424,12 +427,22 @@ const products = [
     tag: "Products",
     summary: "Publish, unpublish or archive a product",
     description:
-      "Moves a product to draft, in_review, published or archived. Publishing runs the same checks as the workspace (approved mockups, print-ready artwork, a tax bracket); when any fails, nothing changes and the error lists what to fix.",
+      "Moves a product to draft, in_review, published or archived. Publishing runs the same checks as the workspace (approved mockups, print-ready artwork, a tax bracket); when any fails, nothing changes and the error lists what to fix. A published product whose artwork later fails the supplier's pre-flight check is moved to in_review with unpublishedReason preflight_failed, and cannot be published again until the issue is fixed.",
     actions: ["products#setProductStatus"],
     input: z.object({ productId: id("product"), status: productStatus }),
     run: async (ctx, input) => {
       const current = await product(ctx, input.productId);
       const { blockers } = await setProductStatus(ctx, current, input.status);
+      const preflight = blockers.filter((b) => b.preflight);
+      if (preflight.length > 0) {
+        throw new ApiError(
+          409,
+          "conflict",
+          `The product cannot be published while its artwork has ${preflight.length === 1 ? "a blocking pre-flight issue" : `${preflight.length} blocking pre-flight issues`}: ${preflight.map((b) => b.reason).join(" ")}`,
+          "status",
+          { blockers },
+        );
+      }
       if (blockers.length > 0) {
         throw new ApiError(409, "conflict", "The product cannot be published yet.", "status", { blockers });
       }

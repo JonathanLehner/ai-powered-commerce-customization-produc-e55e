@@ -371,7 +371,7 @@ async function shopperMissing(
   try {
     if (rest[0] === "products") {
       const found = await proxyStorefrontProduct(store.id, decodeSegment(rest[1]));
-      return !(found != null && isLive(found.product));
+      return !(found != null && isLive(found.product, found.catalog));
     }
     if (rest[0] === "collections") {
       const handle = decodeSegment(rest[1]);

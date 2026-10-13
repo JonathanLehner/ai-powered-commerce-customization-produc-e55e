@@ -2409,6 +2409,7 @@
     "mockupAlt": "{name} mockup",
     "noMockup": "No mockup yet",
     "hidden": "Hidden",
+    "preflightFailed": "Failed pre-flight",
     "manualFulfilment": "Manual fulfilment · {code}",
     "meta": "{count, plural, one {# variant} other {# variants}} · imported {imported} · updated {updated}",
     "price": "Price",
@@ -2525,6 +2526,7 @@
     "restore": "Restore to draft",
     "takenOffTitle": "Taken off the storefront",
     "takenOffBody": "The artwork changed. Regenerate and approve the mockups to republish.",
+    "takenOffPreflightBody": "The artwork no longer passes the supplier's file check. Fix the issues below to republish.",
     "howToFix": "How to fix: {fix}",
     "artwork": "Artwork and print areas",
     "retiredTitle": "Supplier product retired",
@@ -4196,7 +4198,8 @@
       "quote_received": "Quote received from {name} for {code}",
       "invite_accepted": "{name} accepted the invitation",
       "low_stock": "{name} is low on stock: {count} left",
-      "webhook_disabled": "Webhook endpoint {name} was turned off after repeated failures"
+      "webhook_disabled": "Webhook endpoint {name} was turned off after repeated failures",
+      "product_unpublished": "{name} was taken off the storefront after failing pre-flight"
     },
     "settings": {
       "menu": "Notifications",
@@ -4217,7 +4220,8 @@
         "quote_received": "Sourcing quotes",
         "invite_accepted": "Accepted invitations",
         "low_stock": "Low stock",
-        "webhook_disabled": "Webhook endpoints turned off"
+        "webhook_disabled": "Webhook endpoints turned off",
+        "product_unpublished": "Products taken off the storefront"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# exception} other {# exceptions}}",
       "manual_routing": "{count} manual routing",
-      "awaiting_production": "{count} awaiting production"
+      "awaiting_production": "{count} awaiting production",
+      "preflight_failed": "{count, plural, one {# product failed pre-flight} other {# products failed pre-flight}}"
     },
     "none": "Nothing waiting",
     "reason": {

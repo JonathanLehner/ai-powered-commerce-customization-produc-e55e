@@ -10,6 +10,8 @@ import { formatMoney } from "./util";
 export interface PublishBlocker {
   reason: string;
   fix: string;
+  /** Set on a supplier pre-flight issue in the placed artwork. */
+  preflight?: true;
 }
 
 /**
@@ -61,7 +63,7 @@ export async function publishBlockersFor(
       if (!area || !catalog) continue;
       for (const issue of blockingIssues(validateArtwork(artwork, area, catalog.fileRequirements))) {
         const text = artworkIssueText(issuesT, issue, locale);
-        blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix });
+        blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix, preflight: true });
       }
     }
     if (product.mockups.length === 0) {

@@ -2409,6 +2409,7 @@
     "mockupAlt": "{name} のモックアップ",
     "noMockup": "モックアップ未作成",
     "hidden": "非表示",
+    "preflightFailed": "プリフライト不合格",
     "manualFulfilment": "手動フルフィルメント・{code}",
     "meta": "{count, plural, other {バリエーション # 件}}・{imported}に取り込み・{updated}に更新",
     "price": "価格",
@@ -2525,6 +2526,7 @@
     "restore": "下書きに戻す",
     "takenOffTitle": "ストアフロントから取り下げました",
     "takenOffBody": "デザインが変更されました。再公開するには、モックアップを再生成して承認してください。",
+    "takenOffPreflightBody": "デザインがサプライヤーのファイルチェックに通らなくなりました。再公開するには、以下の問題を修正してください。",
     "howToFix": "対処方法:{fix}",
     "artwork": "デザインとプリントエリア",
     "retiredTitle": "サプライヤー商品の提供終了",
@@ -4196,7 +4198,8 @@
       "quote_received": "{name} から {code} の見積もりが届きました",
       "invite_accepted": "{name} さんが招待を承諾しました",
       "low_stock": "{name}の在庫が少なくなっています（残り{count}点）",
-      "webhook_disabled": "Webhook エンドポイント {name} は失敗が続いたためオフになりました"
+      "webhook_disabled": "Webhook エンドポイント {name} は失敗が続いたためオフになりました",
+      "product_unpublished": "{name} はプリフライト不合格のためストアフロントから取り下げられました"
     },
     "settings": {
       "menu": "通知",
@@ -4217,7 +4220,8 @@
         "quote_received": "仕入れの見積もり",
         "invite_accepted": "承諾された招待",
         "low_stock": "在庫僅少",
-        "webhook_disabled": "オフになった Webhook エンドポイント"
+        "webhook_disabled": "オフになった Webhook エンドポイント",
+        "product_unpublished": "ストアフロントから取り下げられた商品"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, other {例外 # 件}}",
       "manual_routing": "手動ルーティング {count} 件",
-      "awaiting_production": "生産待ち {count} 件"
+      "awaiting_production": "生産待ち {count} 件",
+      "preflight_failed": "{count, plural, other {プリフライト不合格の商品 # 件}}"
     },
     "none": "対応待ちなし",
     "reason": {

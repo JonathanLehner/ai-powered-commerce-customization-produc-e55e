@@ -286,7 +286,8 @@ export async function listPublishedProducts(storeId: string) {
     { storeId, status: "published", visibility: "public" },
     { sort: { updatedAt: -1 } },
   );
-  return products.filter(hasApprovedPreviews);
+  const { takeOffFailingPreflight } = await import("./preflight-guard");
+  return (await takeOffFailingPreflight(products)).filter((p) => p.status === "published" && hasApprovedPreviews(p));
 }
 
 export function getStoreProduct(id: string) {

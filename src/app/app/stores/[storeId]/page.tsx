@@ -23,6 +23,7 @@ import {
   listStoreProducts,
 } from "@/lib/data";
 import { setupProgress, storeMetrics } from "@/lib/metrics";
+import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan, type Capability } from "@/lib/session";
 import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo } from "@/i18n/format";
@@ -52,7 +53,7 @@ export default async function StoreOverviewPage({
   const can = (capability: Capability) => roleCan(role, capability);
   const [orders, products, storefront, audit, enquiries] = await Promise.all([
     listOrders(store.id),
-    listStoreProducts(store.id),
+    listStoreProducts(store.id).then((rows) => takeOffFailingPreflight(rows)),
     getStorefront(store.id),
     listAudit({ storeId: store.id }, recentAuditReadSize(ACTIVITY_ROWS)),
     canSource ? listQuoteRequests(store.id) : Promise.resolve([]),
@@ -81,7 +82,12 @@ export default async function StoreOverviewPage({
     getFormatter(),
   ]);
   const limitText = allowance && agency ? await storeLimitText(allowance, agency.name) : "";
-  const attentionSub = await attentionSummary(metrics.attention);
+  // Products taken off the storefront for failing pre-flight wait on the team too.
+  const preflightFailed = products.filter(
+    (p) => p.status === "in_review" && p.unpublishedReason === "preflight_failed",
+  ).length;
+  const attentionTotal = metrics.awaitingAction + preflightFailed;
+  const attentionSub = await attentionSummary(metrics.attention, preflightFailed);
   const now = new Date();
 
   return (
@@ -180,10 +186,14 @@ export default async function StoreOverviewPage({
         />
         <StatCard
           label={t("attention")}
-          value={String(metrics.awaitingAction)}
-          tone={metrics.awaitingAction > 0 ? "amber" : "green"}
+          value={String(attentionTotal)}
+          tone={attentionTotal > 0 ? "amber" : "green"}
           sub={attentionSub}
-          href={`/app/stores/${store.id}/orders?view=attention`}
+          href={
+            metrics.awaitingAction === 0 && preflightFailed > 0
+              ? `/app/stores/${store.id}/catalog?status=in_review`
+              : `/app/stores/${store.id}/orders?view=attention`
+          }
         />
       </section>
 

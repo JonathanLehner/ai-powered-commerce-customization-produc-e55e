@@ -21,6 +21,7 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { marginTone } from "@/lib/pricing";
+import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import { formatDate, formatDateTime, formatMoney, formatPercent } from "@/lib/util";
@@ -54,7 +55,7 @@ export default async function ProductEditorPage({
   // storefront with nothing approved. Correct it on sight, so the page never
   // shows "published" next to the reasons it cannot be published.
   const stale = stored.status === "published" && !hasApprovedPreviews(stored);
-  const product = stale
+  const corrected = stale
     ? { ...stored, status: "in_review" as const, unpublishedReason: "artwork_changed" as const }
     : stored;
   if (stale) {
@@ -62,11 +63,13 @@ export default async function ProductEditorPage({
   }
 
   const [catalog, supplier, brackets, blockers] = await Promise.all([
-    getCatalogProduct(product.catalogProductId),
-    getSupplier(product.supplierId),
+    getCatalogProduct(corrected.catalogProductId),
+    getSupplier(corrected.supplierId),
     listTaxBrackets(),
     publishBlockers(productId),
   ]);
+  // Likewise a live product whose artwork now fails the supplier's file check.
+  const [product] = await takeOffFailingPreflight([corrected], new Map([[corrected.catalogProductId, catalog]]));
 
   const bracket = brackets.find((b) => b.id === product.taxBracketId) ?? null;
   const costs = product.costs;
@@ -77,6 +80,8 @@ export default async function ProductEditorPage({
   const printAreaCount = new Set(product.artworks.map((a) => a.printAreaId)).size;
   const unpublished = product.status !== "published";
   const artworkChanged = product.unpublishedReason === "artwork_changed" && unpublished;
+  const preflightFailed =
+    product.unpublishedReason === "preflight_failed" && product.status === "in_review" && blockers.length > 0;
   const showBlockers = blockers.length > 0 && unpublished;
   const [t, labels, locale] = await Promise.all([
     getTranslations("product"),
@@ -210,11 +215,15 @@ export default async function ProductEditorPage({
             ) : null}
           </CardHeader>
 
-          {artworkChanged || showBlockers ? (
+          {artworkChanged || preflightFailed || showBlockers ? (
             <CardContent className="space-y-4">
               {artworkChanged ? (
                 <Callout tone="amber" title={t("takenOffTitle")}>
                   {t("takenOffBody")}
+                </Callout>
+              ) : preflightFailed ? (
+                <Callout tone="amber" title={t("takenOffTitle")}>
+                  {t("takenOffPreflightBody")}
                 </Callout>
               ) : null}
 

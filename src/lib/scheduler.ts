@@ -3,10 +3,12 @@ import { after } from "next/server";
 import { sendDueRecoveryEmails } from "./checkout-recovery";
 import { COLLECTIONS } from "./data";
 import { db } from "./mongo";
+import { sweepPreflight } from "./preflight-guard";
 import { runDueDeliveries } from "./webhooks";
 
 /**
- * Work that comes due later: webhook retries and abandoned checkout emails.
+ * Work that comes due later: webhook retries, abandoned checkout emails, and
+ * taking off the storefront any product that now fails its supplier's file check.
  *
  * There is no cron on the deployment, so the requests the app serves anyway
  * run it, after their response: the workspace and the storefronts kick it, at
@@ -38,11 +40,12 @@ async function claimLease(now: Date): Promise<boolean> {
 }
 
 /** Runs what is due, unless another run holds the lease. */
-export async function runScheduledWork(): Promise<{ deliveries: number; recoveryEmails: number } | null> {
+export async function runScheduledWork(): Promise<{ deliveries: number; recoveryEmails: number; takenOff: number } | null> {
   if (!(await claimLease(new Date()))) return null;
   const deliveries = await runDueDeliveries(25);
   const recoveryEmails = await sendDueRecoveryEmails(25);
-  return { deliveries, recoveryEmails };
+  const takenOff = await sweepPreflight();
+  return { deliveries, recoveryEmails, takenOff };
 }
 
 /** Runs the scheduler after the current response, if this isolate has not lately. */

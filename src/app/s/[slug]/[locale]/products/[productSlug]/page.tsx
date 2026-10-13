@@ -5,6 +5,7 @@ import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
 import { Badge, Breadcrumbs } from "@/components/ui";
 import { isLive } from "@/lib/artwork";
+import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale } from "@/i18n/storefront";
 import { storefrontBySlug, storefrontProduct } from "@/lib/storefront-data";
@@ -33,8 +34,9 @@ export async function generateMetadata({
   const { slug, locale, productSlug } = await params;
   const store = (await storefrontBySlug(slug))?.store ?? null;
   if (!store) return { title: "Not found", ...notFoundRobots };
-  const stored = (await storefrontProduct(store.id, productSlug))?.product;
-  if (!stored || !isLive(stored)) return { title: "Not found", ...notFoundRobots };
+  const found = await storefrontProduct(store.id, productSlug);
+  if (!found || !isLive(found.product, found.catalog)) return { title: "Not found", ...notFoundRobots };
+  const stored = found.product;
   const active = shopperLocale(store, locale);
   const product = localizeProduct(stored, active, storeLanguages(store).defaultLocale);
   // The SEO title the store wrote is used as written; the product name gets
@@ -61,9 +63,14 @@ export default async function StorefrontProductPage({
 
   const { store, storefront } = data;
   const found = await storefrontProduct(store.id, productSlug);
+  // A live product whose artwork has since failed the supplier's file check
+  // comes off the storefront here, as well as on the scheduler's next pass.
+  if (found && isLive(found.product) && !isLive(found.product, found.catalog)) {
+    await takeOffFailingPreflight([found.product], new Map([[found.product.catalogProductId, found.catalog]]));
+  }
   // Taken off sale, or never existed: the store's own not-found page, in the
   // store's language and inside its header and footer.
-  if (!found || !isLive(found.product)) return <StorefrontNotFoundView store={store} locale={requested} />;
+  if (!found || !isLive(found.product, found.catalog)) return <StorefrontNotFoundView store={store} locale={requested} />;
 
   const { product: stored, catalog } = found;
   const [currency, levels, rating, reviews] = await Promise.all([

@@ -2409,6 +2409,7 @@
     "mockupAlt": "Mockup de {name}",
     "noMockup": "Ainda sem mockup",
     "hidden": "Oculto",
+    "preflightFailed": "Pré-verificação falhada",
     "manualFulfilment": "Processamento manual · {code}",
     "meta": "{count, plural, one {# variante} other {# variantes}} · importado a {imported} · atualizado {updated}",
     "price": "Preço",
@@ -2525,6 +2526,7 @@
     "restore": "Restaurar como rascunho",
     "takenOffTitle": "Retirado da montra",
     "takenOffBody": "A arte mudou. Volte a gerar e a aprovar os mockups para publicar de novo.",
+    "takenOffPreflightBody": "A arte já não passa na verificação de ficheiros do fornecedor. Corrija os problemas abaixo para publicar de novo.",
     "howToFix": "Como resolver: {fix}",
     "artwork": "Arte e áreas de impressão",
     "retiredTitle": "Produto do fornecedor retirado",
@@ -4196,7 +4198,8 @@
       "quote_received": "Orçamento recebido de {name} para {code}",
       "invite_accepted": "{name} aceitou o convite",
       "low_stock": "Estoque baixo de {name}: restam {count}",
-      "webhook_disabled": "O endpoint de webhook {name} foi desativado após falhas repetidas"
+      "webhook_disabled": "O endpoint de webhook {name} foi desativado após falhas repetidas",
+      "product_unpublished": "{name} foi retirado da montra após falhar a pré-verificação"
     },
     "settings": {
       "menu": "Notificações",
@@ -4217,7 +4220,8 @@
         "quote_received": "Orçamentos de fornecedores",
         "invite_accepted": "Convites aceitos",
         "low_stock": "Estoque baixo",
-        "webhook_disabled": "Endpoints de webhook desativados"
+        "webhook_disabled": "Endpoints de webhook desativados",
+        "product_unpublished": "Produtos retirados da montra"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# exceção} other {# exceções}}",
       "manual_routing": "{count} encaminhamento manual",
-      "awaiting_production": "{count} aguardando produção"
+      "awaiting_production": "{count} aguardando produção",
+      "preflight_failed": "{count, plural, one {# produto falhou a pré-verificação} other {# produtos falharam a pré-verificação}}"
     },
     "none": "Nada pendente",
     "reason": {

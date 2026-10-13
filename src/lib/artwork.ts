@@ -1,4 +1,4 @@
-import type { Artwork, FileRequirements, PrintArea, StoreProduct } from "./types";
+import type { Artwork, CatalogProduct, FileRequirements, PrintArea, StoreProduct } from "./types";
 
 /**
  * A product can only be sold while its previews show what will actually be
@@ -20,8 +20,32 @@ export function hasApprovedPreviews(
   );
 }
 
-export function isLive(product: StoreProduct) {
-  return product.status === "published" && hasApprovedPreviews(product);
+/**
+ * Pass the product's supplier listing where it has been read: a product whose
+ * artwork fails the supplier's file check cannot be sold either.
+ */
+export function isLive(product: StoreProduct, catalog?: Pick<CatalogProduct, "printAreas" | "fileRequirements"> | null) {
+  return (
+    product.status === "published" &&
+    hasApprovedPreviews(product) &&
+    !(catalog && failsPreflight(product, catalog))
+  );
+}
+
+/**
+ * Whether any placed artwork has a blocking pre-flight issue against the
+ * supplier's current requirements. The requirements can change after the
+ * product went live, for example when the supplier raises its minimum DPI.
+ */
+export function failsPreflight(
+  product: Pick<StoreProduct, "artworks">,
+  catalog: Pick<CatalogProduct, "printAreas" | "fileRequirements"> | null,
+): boolean {
+  if (!catalog) return false;
+  return product.artworks.some((artwork) => {
+    const area = catalog.printAreas.find((a) => a.id === artwork.printAreaId);
+    return area ? blockingIssues(validateArtwork(artwork, area, catalog.fileRequirements)).length > 0 : false;
+  });
 }
 
 

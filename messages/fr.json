@@ -2409,6 +2409,7 @@
     "mockupAlt": "Maquette de {name}",
     "noMockup": "Pas encore de maquette",
     "hidden": "Masqué",
+    "preflightFailed": "Pré-contrôle échoué",
     "manualFulfilment": "Exécution manuelle · {code}",
     "meta": "{count, plural, one {# variante} other {# variantes}} · importé le {imported} · mis à jour {updated}",
     "price": "Prix",
@@ -2525,6 +2526,7 @@
     "restore": "Restaurer en brouillon",
     "takenOffTitle": "Retiré de la vitrine",
     "takenOffBody": "Le visuel a changé. Régénérez et approuvez les maquettes pour republier.",
+    "takenOffPreflightBody": "Le visuel ne passe plus le contrôle de fichiers du fournisseur. Corrigez les problèmes ci-dessous pour republier.",
     "howToFix": "Solution : {fix}",
     "artwork": "Visuel et zones d’impression",
     "retiredTitle": "Produit fournisseur retiré",
@@ -4196,7 +4198,8 @@
       "quote_received": "Devis reçu de {name} pour {code}",
       "invite_accepted": "{name} a accepté l’invitation",
       "low_stock": "Stock faible pour {name} : {count} restant(s)",
-      "webhook_disabled": "Le point de terminaison webhook {name} a été désactivé après des échecs répétés"
+      "webhook_disabled": "Le point de terminaison webhook {name} a été désactivé après des échecs répétés",
+      "product_unpublished": "{name} a été retiré de la vitrine après l'échec du pré-contrôle"
     },
     "settings": {
       "menu": "Notifications",
@@ -4217,7 +4220,8 @@
         "quote_received": "Devis fournisseurs",
         "invite_accepted": "Invitations acceptées",
         "low_stock": "Stock faible",
-        "webhook_disabled": "Points de terminaison webhook désactivés"
+        "webhook_disabled": "Points de terminaison webhook désactivés",
+        "product_unpublished": "Produits retirés de la vitrine"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# exception} other {# exceptions}}",
       "manual_routing": "{count} acheminement manuel",
-      "awaiting_production": "{count} en attente de production"
+      "awaiting_production": "{count} en attente de production",
+      "preflight_failed": "{count, plural, one {# produit a échoué au pré-contrôle} other {# produits ont échoué au pré-contrôle}}"
     },
     "none": "Rien en attente",
     "reason": {

@@ -2409,6 +2409,7 @@
     "mockupAlt": "Mockup di {name}",
     "noMockup": "Ancora nessun mockup",
     "hidden": "Nascosto",
+    "preflightFailed": "Controllo preliminare non superato",
     "manualFulfilment": "Evasione manuale · {code}",
     "meta": "{count, plural, one {# variante} other {# varianti}} · importato il {imported} · aggiornato {updated}",
     "price": "Prezzo",
@@ -2525,6 +2526,7 @@
     "restore": "Ripristina come bozza",
     "takenOffTitle": "Ritirato dalla vetrina",
     "takenOffBody": "La grafica è cambiata. Rigenera e approva i mockup per ripubblicare.",
+    "takenOffPreflightBody": "La grafica non supera più il controllo file del fornitore. Correggi i problemi qui sotto per ripubblicare.",
     "howToFix": "Come risolvere: {fix}",
     "artwork": "Grafica e aree di stampa",
     "retiredTitle": "Prodotto del fornitore ritirato",
@@ -4196,7 +4198,8 @@
       "quote_received": "Preventivo ricevuto da {name} per {code}",
       "invite_accepted": "{name} ha accettato l’invito",
       "low_stock": "Scorte basse per {name}: ne restano {count}",
-      "webhook_disabled": "L'endpoint webhook {name} è stato disattivato dopo errori ripetuti"
+      "webhook_disabled": "L'endpoint webhook {name} è stato disattivato dopo errori ripetuti",
+      "product_unpublished": "{name} è stato ritirato dalla vetrina perché non ha superato il controllo preliminare"
     },
     "settings": {
       "menu": "Notifiche",
@@ -4217,7 +4220,8 @@
         "quote_received": "Preventivi dei fornitori",
         "invite_accepted": "Inviti accettati",
         "low_stock": "Scorte basse",
-        "webhook_disabled": "Endpoint webhook disattivati"
+        "webhook_disabled": "Endpoint webhook disattivati",
+        "product_unpublished": "Prodotti ritirati dalla vetrina"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# eccezione} other {# eccezioni}}",
       "manual_routing": "{count} instradamento manuale",
-      "awaiting_production": "{count} in attesa di produzione"
+      "awaiting_production": "{count} in attesa di produzione",
+      "preflight_failed": "{count, plural, one {# prodotto non ha superato il controllo preliminare} other {# prodotti non hanno superato il controllo preliminare}}"
     },
     "none": "Niente in sospeso",
     "reason": {

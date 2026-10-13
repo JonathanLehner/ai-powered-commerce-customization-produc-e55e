@@ -1,4 +1,5 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { TriangleAlertIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { listStoreProducts, listTaxBrackets } from "@/lib/data";
 import type { BulkProduct } from "@/lib/bulk-products";
 import { marginTone } from "@/lib/pricing";
+import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { publishBlockersFor } from "@/lib/publish-blockers";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
@@ -35,7 +37,9 @@ export default async function StoreCatalogPage({
   const { storeId } = await params;
   const { status, q } = await searchParams;
   const { store, role } = await requireStoreAccess(storeId);
-  const products = await listStoreProducts(storeId);
+  // A live product that now fails its supplier's file check comes off the
+  // storefront before the list is drawn, so its row shows why.
+  const products = await takeOffFailingPreflight(await listStoreProducts(storeId));
   const canEdit = roleCan(role, "store.catalog");
 
   const filtered = products
@@ -186,6 +190,14 @@ export default async function StoreCatalogPage({
                     <p className="mt-1 font-mono text-xs text-muted-foreground">
                       {storeSku(product, store.channelCode)}
                     </p>
+                    {product.status === "in_review" && product.unpublishedReason === "preflight_failed" ? (
+                      <p className="mt-1.5">
+                        <Badge tone="amber">
+                          <TriangleAlertIcon aria-hidden className="size-3" />
+                          {t("preflightFailed")}
+                        </Badge>
+                      </p>
+                    ) : null}
                     {product.manualFulfilment ? (
                       <p className="mt-1.5">
                         <Badge tone="iris">{t("manualFulfilment", { code: product.manualFulfilment.quoteCode })}</Badge>

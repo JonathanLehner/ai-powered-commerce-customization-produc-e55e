@@ -28,6 +28,7 @@ import {
 } from "../data";
 import { db } from "../mongo";
 import { breakdownFor } from "../pricing";
+import { takeOffFailingPreflight } from "../preflight-guard";
 import { publishBlockersFor, type PublishBlocker } from "../publish-blockers";
 import type { Locale } from "@/i18n/locales";
 import { storeSku } from "../sku";
@@ -46,7 +47,11 @@ import { emitProductDeleted } from "../webhook-events";
 /** The product, provided it belongs to the context's store. */
 export async function findProduct(storeId: string, productId: string): Promise<StoreProduct | null> {
   const product = await getStoreProduct(productId);
-  return product && product.storeId === storeId ? product : null;
+  if (!product || product.storeId !== storeId) return null;
+  // A live product that now fails its supplier's file check is reported, and
+  // acted on, as the in-review product it has become.
+  const [checked] = await takeOffFailingPreflight([product]);
+  return checked;
 }
 
 async function recost(product: StoreProduct, store: Store, catalog: CatalogProduct | null) {
@@ -573,7 +578,7 @@ export async function bulkUpdateProducts(
   }
 
   const wanted = new Set(ids);
-  const products = (await listStoreProducts(storeId)).filter((p) => wanted.has(p.id));
+  const products = await takeOffFailingPreflight((await listStoreProducts(storeId)).filter((p) => wanted.has(p.id)));
   const outcome: BulkProductOutcome = { succeeded: [], failed: [] };
   const found = new Set(products.map((p) => p.id));
   for (const id of ids) {

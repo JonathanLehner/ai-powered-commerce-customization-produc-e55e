@@ -176,6 +176,7 @@ const sources = [
   "../src/lib/gift-payment.ts",
   "../src/lib/inventory.ts",
   "../src/lib/webhooks.ts",
+  "../src/lib/preflight-guard.ts",
 ]
   .map((path) => readFileSync(new URL(path, import.meta.url), "utf8"))
   .join("\n");

@@ -18,6 +18,7 @@ export const NOTIFICATION_TYPES = [
   "invite_accepted",
   "low_stock",
   "webhook_disabled",
+  "product_unpublished",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -39,6 +40,7 @@ export const DEFAULT_NOTIFICATION_PREFS: Record<NotificationType, NotificationCh
   invite_accepted: { inApp: true, email: false },
   low_stock: { inApp: true, email: true },
   webhook_disabled: { inApp: true, email: true },
+  product_unpublished: { inApp: true, email: true },
 };
 
 /** What the code that records an audit entry passes along when the entry should notify. */

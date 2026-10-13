@@ -2409,6 +2409,7 @@
     "mockupAlt": "Mockup van {name}",
     "noMockup": "Nog geen mockup",
     "hidden": "Verborgen",
+    "preflightFailed": "Preflight mislukt",
     "manualFulfilment": "Handmatige afhandeling · {code}",
     "meta": "{count, plural, one {# variant} other {# varianten}} · geïmporteerd op {imported} · bijgewerkt {updated}",
     "price": "Prijs",
@@ -2525,6 +2526,7 @@
     "restore": "Herstellen als concept",
     "takenOffTitle": "Uit de etalage gehaald",
     "takenOffBody": "Het ontwerp is gewijzigd. Maak de mockups opnieuw en keur ze goed om opnieuw te publiceren.",
+    "takenOffPreflightBody": "Het ontwerp voldoet niet meer aan de bestandscontrole van de leverancier. Los de onderstaande problemen op om opnieuw te publiceren.",
     "howToFix": "Oplossing: {fix}",
     "artwork": "Ontwerp en printvlakken",
     "retiredTitle": "Leveranciersproduct uit assortiment",
@@ -4196,7 +4198,8 @@
       "quote_received": "Offerte ontvangen van {name} voor {code}",
       "invite_accepted": "{name} heeft de uitnodiging geaccepteerd",
       "low_stock": "{name} raakt op: nog {count} over",
-      "webhook_disabled": "Webhook-endpoint {name} is uitgezet na herhaalde fouten"
+      "webhook_disabled": "Webhook-endpoint {name} is uitgezet na herhaalde fouten",
+      "product_unpublished": "{name} is uit de etalage gehaald na een mislukte preflight"
     },
     "settings": {
       "menu": "Meldingen",
@@ -4217,7 +4220,8 @@
         "quote_received": "Leveranciersoffertes",
         "invite_accepted": "Geaccepteerde uitnodigingen",
         "low_stock": "Lage voorraad",
-        "webhook_disabled": "Uitgezette webhook-endpoints"
+        "webhook_disabled": "Uitgezette webhook-endpoints",
+        "product_unpublished": "Uit de etalage gehaalde producten"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# uitzondering} other {# uitzonderingen}}",
       "manual_routing": "{count} handmatige routering",
-      "awaiting_production": "{count} wacht op productie"
+      "awaiting_production": "{count} wacht op productie",
+      "preflight_failed": "{count, plural, one {# product met mislukte preflight} other {# producten met mislukte preflight}}"
     },
     "none": "Niets openstaand",
     "reason": {

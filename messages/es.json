@@ -2409,6 +2409,7 @@
     "mockupAlt": "Mockup de {name}",
     "noMockup": "Aún sin mockup",
     "hidden": "Oculto",
+    "preflightFailed": "Revisión previa fallida",
     "manualFulfilment": "Gestión manual · {code}",
     "meta": "{count, plural, one {# variante} other {# variantes}} · importado el {imported} · actualizado {updated}",
     "price": "Precio",
@@ -2525,6 +2526,7 @@
     "restore": "Restaurar como borrador",
     "takenOffTitle": "Retirado del escaparate",
     "takenOffBody": "El diseño ha cambiado. Vuelve a generar y aprobar los mockups para publicarlo de nuevo.",
+    "takenOffPreflightBody": "El diseño ya no supera la revisión de archivos del proveedor. Corrige los problemas siguientes para publicarlo de nuevo.",
     "howToFix": "Cómo solucionarlo: {fix}",
     "artwork": "Diseño y áreas de impresión",
     "retiredTitle": "Producto del proveedor retirado",
@@ -4196,7 +4198,8 @@
       "quote_received": "Presupuesto recibido de {name} para {code}",
       "invite_accepted": "{name} aceptó la invitación",
       "low_stock": "Quedan pocas unidades de {name}: {count}",
-      "webhook_disabled": "El endpoint de webhook {name} se desactivó tras fallos repetidos"
+      "webhook_disabled": "El endpoint de webhook {name} se desactivó tras fallos repetidos",
+      "product_unpublished": "{name} se retiró del escaparate al no superar la revisión previa"
     },
     "settings": {
       "menu": "Notificaciones",
@@ -4217,7 +4220,8 @@
         "quote_received": "Presupuestos de proveedores",
         "invite_accepted": "Invitaciones aceptadas",
         "low_stock": "Stock bajo",
-        "webhook_disabled": "Endpoints de webhook desactivados"
+        "webhook_disabled": "Endpoints de webhook desactivados",
+        "product_unpublished": "Productos retirados del escaparate"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# incidencia} other {# incidencias}}",
       "manual_routing": "{count} enrutamiento manual",
-      "awaiting_production": "{count} pendientes de producción"
+      "awaiting_production": "{count} pendientes de producción",
+      "preflight_failed": "{count, plural, one {# producto no superó la revisión previa} other {# productos no superaron la revisión previa}}"
     },
     "none": "Nada pendiente",
     "reason": {

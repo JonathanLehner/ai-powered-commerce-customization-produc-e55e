@@ -2,6 +2,7 @@
 
 import {
   BellIcon,
+  EyeOffIcon,
   FileTextIcon,
   GiftIcon,
   PackageMinusIcon,
@@ -42,6 +43,7 @@ const ICONS: Record<NotificationType, LucideIcon> = {
   invite_accepted: UserCheckIcon,
   low_stock: PackageMinusIcon,
   webhook_disabled: WebhookOffIcon,
+  product_unpublished: EyeOffIcon,
 };
 
 export function NotificationBell() {

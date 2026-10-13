@@ -2409,6 +2409,7 @@
     "mockupAlt": "Mockup av {name}",
     "noMockup": "Ingen mockup ännu",
     "hidden": "Dold",
+    "preflightFailed": "Förkontroll misslyckades",
     "manualFulfilment": "Manuell leverans · {code}",
     "meta": "{count, plural, one {# variant} other {# varianter}} · importerad {imported} · uppdaterad {updated}",
     "price": "Pris",
@@ -2525,6 +2526,7 @@
     "restore": "Återställ som utkast",
     "takenOffTitle": "Borttagen från butiksfronten",
     "takenOffBody": "Motivet har ändrats. Skapa om och godkänn mockupsen för att publicera igen.",
+    "takenOffPreflightBody": "Motivet klarar inte längre leverantörens filkontroll. Åtgärda problemen nedan för att publicera igen.",
     "howToFix": "Så åtgärdar du det: {fix}",
     "artwork": "Motiv och tryckytor",
     "retiredTitle": "Leverantörsprodukten har utgått",
@@ -4196,7 +4198,8 @@
       "quote_received": "Offert mottagen från {name} för {code}",
       "invite_accepted": "{name} har accepterat inbjudan",
       "low_stock": "{name} har lågt lager: {count} kvar",
-      "webhook_disabled": "Webhook-slutpunkten {name} stängdes av efter upprepade fel"
+      "webhook_disabled": "Webhook-slutpunkten {name} stängdes av efter upprepade fel",
+      "product_unpublished": "{name} togs bort från butiksfronten efter en misslyckad förkontroll"
     },
     "settings": {
       "menu": "Aviseringar",
@@ -4217,7 +4220,8 @@
         "quote_received": "Leverantörsofferter",
         "invite_accepted": "Accepterade inbjudningar",
         "low_stock": "Lågt lager",
-        "webhook_disabled": "Avstängda webhook-slutpunkter"
+        "webhook_disabled": "Avstängda webhook-slutpunkter",
+        "product_unpublished": "Produkter borttagna från butiksfronten"
       }
     },
     "email": {
@@ -4241,7 +4245,8 @@
     "parts": {
       "exception": "{count, plural, one {# avvikelse} other {# avvikelser}}",
       "manual_routing": "{count} manuell routning",
-      "awaiting_production": "{count} väntar på produktion"
+      "awaiting_production": "{count} väntar på produktion",
+      "preflight_failed": "{count, plural, one {# produkt klarade inte förkontrollen} other {# produkter klarade inte förkontrollen}}"
     },
     "none": "Inget väntar",
     "reason": {
