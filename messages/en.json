@@ -1392,9 +1392,19 @@
         "noVariants": "Every variant is disabled.",
         "noVariantsFix": "Enable at least one size or colour.",
         "noShippingZone": "The store has no shipping zones.",
-        "noShippingZoneFix": "Add a shipping zone under Shipping and taxes."
+        "noShippingZoneFix": "Add a shipping zone under Shipping and taxes.",
+        "notLinked": "Imported from Shopify – not linked to a supplier yet.",
+        "notLinkedFix": "Link it to a catalog product, or mark it as fulfilled by you.",
+        "noPhotos": "This product has no photos.",
+        "noPhotosFix": "Add image URLs to the Shopify export and import it again."
       },
-      "weightRange": "Enter a weight for {name} in whole grams, up to 1,000,000."
+      "weightRange": "Enter a weight for {name} in whole grams, up to 1,000,000.",
+      "linked": "Linked. Add artwork to generate mockups.",
+      "merchantFulfilled": "Saved. You fulfil orders for this product.",
+      "alreadyLinked": "This product is already linked to a catalog product.",
+      "linkUnavailable": "Choose a catalog product that is still available.",
+      "unitCostRequired": "Enter a unit cost of 0 or more.",
+      "unitCostAbovePrice": "“{name}” sells for {price}. Enter a unit cost below every variant price."
     },
     "sourcing": {
       "listingGone": "That catalog item is no longer offered. Pick another or describe it.",
@@ -2585,7 +2595,9 @@
         "price": "{count, plural, =0 {No prices changed.} one {Price changed on # product.} other {Prices changed on # products.}}",
         "failed": "{count, plural, one {# product skipped:} other {# products skipped:}}"
       }
-    }
+    },
+    "notLinked": "Not linked",
+    "fulfilledByStore": "Fulfilled by you"
   },
   "product": {
     "catalog": "Catalog",
@@ -2644,7 +2656,18 @@
     "sellingPrice": "Selling price",
     "margin": "Margin",
     "belowCost": "This price is below cost.",
-    "thinMargin": "Margin is under 25%."
+    "thinMargin": "Margin is under 25%.",
+    "fulfilledByStore": " · fulfilled by you",
+    "fulfilment": "Fulfilment",
+    "unlinkedTitle": "Imported from Shopify – not linked to a supplier yet",
+    "unlinkedBody": "Choose how this product is fulfilled before you publish it.",
+    "merchantTitle": "Fulfilled by you",
+    "merchantBody": "You ship orders for this product at {cost} per unit. Its imported photos are shown in place of mockups.",
+    "photos": "Product photos",
+    "photosBody": "Imported from Shopify and shown on the storefront.",
+    "noPhotos": "No photos were imported for this product.",
+    "unitCost": "Unit cost",
+    "notSet": "Not set"
   },
   "productForms": {
     "saveDetails": "Save product details",
@@ -5178,5 +5201,22 @@
     "duration": "{ms} ms",
     "resend": "Resend",
     "settingsTitle": "Endpoint settings"
+  },
+  "importedFulfilment": {
+    "merchantTitle": "Fulfil it yourself",
+    "merchantBody": "You ship the orders. The imported photos replace mockups.",
+    "unitCost": "Unit cost ({currency})",
+    "unitCostHint": "What one unit costs you. Used for the margin.",
+    "markMerchant": "Mark as fulfilled by me",
+    "saveUnitCost": "Save unit cost",
+    "saving": "Saving…",
+    "linkTitle": "Link to a catalog product",
+    "linkBody": "Use its print areas, cost and mockups. The imported photos are replaced.",
+    "linkLabel": "Catalog product",
+    "linkPlaceholder": "Choose a product",
+    "linkOption": "{name} · from {cost}",
+    "link": "Link product",
+    "linking": "Linking…",
+    "noCatalog": "No catalog products are available to link."
   }
 }

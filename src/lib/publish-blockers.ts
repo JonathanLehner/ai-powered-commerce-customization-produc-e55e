@@ -2,7 +2,7 @@ import "server-only";
 import { getLocale, getTranslations } from "next-intl/server";
 import { artworkIssueText } from "@/i18n/artwork-copy";
 import type { Locale } from "@/i18n/locales";
-import { blockingIssues, validateArtwork } from "./artwork";
+import { blockingIssues, importedPath, sellsOwnPhotos, validateArtwork } from "./artwork";
 import { getCatalogProduct, listShippingZones } from "./data";
 import type { CatalogProduct, StoreProduct } from "./types";
 import { formatMoney } from "./util";
@@ -49,11 +49,16 @@ export async function publishBlockersFor(
     if (!shipsAnywhere.get(product.storeId)) {
       blockers.push({ reason: t("noShippingZone"), fix: t("noShippingZoneFix") });
     }
-    // An imported product has no supplier listing or print artwork; its own
-    // photos are what shoppers see.
-    if (!catalog && !product.imported) {
+    // An imported product that is not linked to a catalog product has no
+    // print artwork; its own photos are what shoppers see. Until the store
+    // links it or ships it itself, nobody would make or send an order.
+    const ownPhotos = sellsOwnPhotos(product);
+    if (!catalog && !ownPhotos) {
       blockers.push({ reason: t("retired"), fix: t("retiredFix") });
       continue;
+    }
+    if (importedPath(product) === "unlinked") {
+      blockers.push({ reason: t("notLinked"), fix: t("notLinkedFix") });
     }
     if (catalog && product.artworks.length === 0) {
       blockers.push({ reason: t("noArtwork"), fix: t("noArtworkFix") });
@@ -66,7 +71,9 @@ export async function publishBlockersFor(
         blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix, preflight: true });
       }
     }
-    if (product.mockups.length === 0) {
+    if (ownPhotos && product.mockups.length === 0) {
+      blockers.push({ reason: t("noPhotos"), fix: t("noPhotosFix") });
+    } else if (product.mockups.length === 0) {
       blockers.push({ reason: t("noMockups"), fix: t("noMockupsFix") });
     } else if (product.mockups.some((m) => !m.approved)) {
       blockers.push({ reason: t("unapproved"), fix: t("unapprovedFix") });

@@ -1,11 +1,12 @@
 import "server-only";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
+import { UNLINKED_CATALOG_ID, importedPath } from "./artwork";
 import { syncCustomers } from "./customer-data";
-import { COLLECTIONS, getStore, getStoreProductBySlug, getTaxBracket, recordAudit } from "./data";
+import { COLLECTIONS, getCatalogProduct, getStore, getStoreProductBySlug, getTaxBracket, recordAudit } from "./data";
 import { changeStock } from "./inventory";
 import { db } from "./mongo";
-import { computeBreakdown } from "./pricing";
+import { breakdownFor, computeBreakdown } from "./pricing";
 import { publishBlockersFor } from "./publish-blockers";
 import { SEO_LIMITS } from "./seo";
 import {
@@ -380,7 +381,11 @@ class ImportContext {
     }
     if (slug !== source.handle) await this.redirect(`/products/${source.handle}`, `/products/${slug}`);
 
-    const mockups = await this.images(source, existing, issues);
+    // A product already linked to a catalog product keeps its supplier, print
+    // artwork and mockups; one the store ships itself keeps its unit cost.
+    const path = existing ? importedPath(existing) : null;
+    const linked = path === "linked" ? existing : null;
+    const mockups = linked ? linked.mockups : await this.images(source, existing, issues);
     const variants = this.variants(source, existing);
     const first = variants[0];
     const bracket = store.defaultTaxBracketId ? await getTaxBracket(store.defaultTaxBracketId) : null;
@@ -399,8 +404,8 @@ class ImportContext {
     const product: StoreProduct = {
       id: existing?.id ?? newId("prd"),
       storeId: store.id,
-      catalogProductId: "shopify",
-      supplierId: "",
+      catalogProductId: linked?.catalogProductId ?? UNLINKED_CATALOG_ID,
+      supplierId: linked?.supplierId ?? "",
       name: source.title.slice(0, 120),
       slug,
       sku: existing?.sku ?? baseStoreSku(store.channelCode, source.title),
@@ -415,7 +420,7 @@ class ImportContext {
       currency: store.defaultCurrency,
       taxBracketId: bracket?.id ?? null,
       variants,
-      artworks: [],
+      artworks: linked?.artworks ?? [],
       mockups,
       shopperCustomization: existing?.shopperCustomization ?? {
         artworkUpload: false,
@@ -426,11 +431,14 @@ class ImportContext {
       costs,
       translations: existing?.translations ?? {},
       imported: { platform: "shopify", handle: source.handle, importId: this.job.id },
+      merchantFulfilled: existing?.merchantFulfilled ?? null,
       importedBy: existing?.importedBy ?? this.actor.name,
       importedAt: existing?.importedAt ?? now,
       updatedAt: now,
       publishedAt: existing?.publishedAt ?? null,
     };
+
+    if (linked) product.costs = breakdownFor(product, await getCatalogProduct(linked.catalogProductId), bracket, store.pricesIncludeTax);
 
     // Live on Shopify goes live here when nothing stands in the way; anything
     // else waits as a draft with the reasons on its page.
@@ -474,20 +482,23 @@ class ImportContext {
       const sku = nextFreeSku(variant.sku || `${baseStoreSku(this.store.channelCode, source.title)}-${taken.size + 1}`, taken);
       taken.add(sku);
       const quantity = variant.quantity;
+      // Linked or self-fulfilled, the cost is the store's, not the file's.
+      const kept = existing && importedPath(existing) !== "unlinked" ? previous : undefined;
       return {
         id: previous?.id ?? newId("svar"),
-        catalogVariantId: "shopify",
+        catalogVariantId: kept?.catalogVariantId ?? UNLINKED_CATALOG_ID,
         name: name.slice(0, 120),
         colour: colourAt >= 0 ? variant.options[colourAt] : "",
         colourHex: previous?.colourHex ?? "",
         size: sizeAt >= 0 ? variant.options[sizeAt] : "",
         sku,
-        baseCost: variant.cost ?? 0,
+        baseCost: existing?.merchantFulfilled?.unitCost ?? kept?.baseCost ?? variant.cost ?? 0,
         price: variant.price,
         enabled: true,
         availability:
           quantity === null || variant.policy === "continue" ? "in_stock" : quantity <= 0 ? "out_of_stock" : quantity < 5 ? "low_stock" : "in_stock",
-        weightGrams: variant.grams,
+        // A blank weight in the file leaves one entered here alone.
+        weightGrams: variant.grams || previous?.weightGrams || 0,
       };
     });
   }

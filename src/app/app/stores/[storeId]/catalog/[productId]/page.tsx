@@ -12,11 +12,12 @@ import { SubmitButton } from "@/components/forms";
 import { Badge, Breadcrumbs, Callout, DataList, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { hasApprovedPreviews } from "@/lib/artwork";
+import { hasApprovedPreviews, importedPath, sellsOwnPhotos } from "@/lib/artwork";
 import {
   getCatalogProduct,
   getStoreProduct,
   getSupplier,
+  listCatalogProducts,
   listTaxBrackets,
   updateStoreProduct,
 } from "@/lib/data";
@@ -24,8 +25,10 @@ import { marginTone } from "@/lib/pricing";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
+import { isQuoteOnly } from "@/lib/sourcing";
 import { formatDate, formatDateTime, formatMoney, formatPercent } from "@/lib/util";
 import { Configurator } from "./Configurator";
+import { ImportedFulfilment, type LinkableProduct } from "./ImportedFulfilment";
 import { DeleteProductForm, ProductDetailsForm, VariantsForm } from "./ProductForms";
 
 export default async function ProductEditorPage({
@@ -62,11 +65,23 @@ export default async function ProductEditorPage({
     await updateStoreProduct(stored.id, { status: "in_review", unpublishedReason: "artwork_changed" }, stored);
   }
 
-  const [catalog, supplier, brackets, blockers] = await Promise.all([
+  const path = importedPath(corrected);
+  const ownPhotos = sellsOwnPhotos(corrected);
+  const [catalog, supplier, brackets, blockers, linkable] = await Promise.all([
     getCatalogProduct(corrected.catalogProductId),
     getSupplier(corrected.supplierId),
     listTaxBrackets(),
     publishBlockers(productId),
+    // What an imported product can be linked to: live listings with a unit
+    // cost, its own kind of product first.
+    ownPhotos && canEdit
+      ? listCatalogProducts().then((all) =>
+          all
+            .filter((c) => c.status === "active" && !isQuoteOnly(c) && c.variants.length > 0)
+            .sort((a, b) => Number(b.category === corrected.category) - Number(a.category === corrected.category) || a.name.localeCompare(b.name))
+            .map((c): LinkableProduct => ({ id: c.id, name: c.name, baseCost: Math.min(...c.variants.map((v) => v.baseCost)) })),
+        )
+      : Promise.resolve([] as LinkableProduct[]),
   ]);
   // Likewise a live product whose artwork now fails the supplier's file check.
   const [product] = await takeOffFailingPreflight([corrected], new Map([[corrected.catalogProductId, catalog]]));
@@ -75,6 +90,8 @@ export default async function ProductEditorPage({
   const costs = product.costs;
   const landed = costs.supplierCost + costs.customizationCost + costs.shippingEstimate;
   const tone = marginTone(costs.marginPct);
+  // Nobody has said what an unlinked import costs, so there is no margin to show.
+  const costKnown = path !== "unlinked";
   const mockupsApproved = product.mockups.length > 0 && product.mockups.every((m) => m.approved);
   const sku = storeSku(product, store.channelCode);
   const printAreaCount = new Set(product.artworks.map((a) => a.printAreaId)).size;
@@ -107,7 +124,7 @@ export default async function ProductEditorPage({
             <span className="font-mono">{sku}</span> ·{" "}
             {product.category === "apparel" ? t("apparel") : t("drinkware")} ·{" "}
             {t("enabledVariants", { count: product.variants.filter((v) => v.enabled).length })}
-            {supplier ? t("producedBy", { supplier: supplier.name }) : ""} ·{" "}
+            {supplier ? t("producedBy", { supplier: supplier.name }) : path === "merchant" ? t("fulfilledByStore") : ""} ·{" "}
             {t("importedBy", { name: product.importedBy, date: formatDate(product.importedAt, locale) })}
           </>
         }
@@ -247,12 +264,27 @@ export default async function ProductEditorPage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>{t("artwork")}</h2>
+              <h2>{ownPhotos ? t("fulfilment") : t("artwork")}</h2>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             {catalog ? (
               <Configurator product={product} catalog={catalog} readOnly={!canEdit} />
+            ) : ownPhotos ? (
+              <>
+                {path === "merchant" && product.merchantFulfilled ? (
+                  <Callout tone="neutral" title={t("merchantTitle")}>
+                    {t("merchantBody", { cost: money(product.merchantFulfilled.unitCost) })}
+                  </Callout>
+                ) : (
+                  <Callout tone="amber" title={t("unlinkedTitle")}>
+                    {t("unlinkedBody")}
+                  </Callout>
+                )}
+                {canEdit ? (
+                  <ImportedFulfilment product={product} catalog={linkable} merchant={path === "merchant"} />
+                ) : null}
+              </>
             ) : (
               <Callout tone="rose" title={t("retiredTitle")}>
                 {t("retiredBody")}
@@ -267,19 +299,24 @@ export default async function ProductEditorPage({
       <section>
           <CardHeader>
             <CardTitle asChild>
-              <h2>{t("mockupApproval")}</h2>
+              <h2>{ownPhotos ? t("photos") : t("mockupApproval")}</h2>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              {product.mockups.length === 0
-                ? t("noMockups")
-                : mockupsApproved
-                  ? t("approvedBy", {
-                      name: product.mockups[0].approvedBy ?? "",
-                      date: formatDateTime(product.mockups[0].approvedAt ?? product.mockups[0].generatedAt, locale),
-                    })
-                  : t("approvalRequired")}
+              {ownPhotos
+                ? product.mockups.length === 0
+                  ? t("noPhotos")
+                  : t("photosBody")
+                : product.mockups.length === 0
+                  ? t("noMockups")
+                  : mockupsApproved
+                    ? t("approvedBy", {
+                        name: product.mockups[0].approvedBy ?? "",
+                        date: formatDateTime(product.mockups[0].approvedAt ?? product.mockups[0].generatedAt, locale),
+                      })
+                    : t("approvalRequired")}
             </p>
-            {canEdit && product.mockups.length > 0 ? (
+            {/* Imported photos are the product's only copy of them: nothing to approve or throw away. */}
+            {canEdit && product.mockups.length > 0 && !ownPhotos ? (
               <CardAction className="flex gap-2">
               {!mockupsApproved ? (
                 <form action={approveMockups}>
@@ -308,7 +345,7 @@ export default async function ProductEditorPage({
               <li key={mockup.id} className="overflow-hidden rounded-xl border border-border">
                 <Image
                   src={mockup.url}
-                  alt={t("viewAlt", { name: product.name, view: labels(`view.${mockup.view}`) })}
+                  alt={ownPhotos ? product.name : t("viewAlt", { name: product.name, view: labels(`view.${mockup.view}`) })}
                   width={640}
                   height={640}
                   loading="lazy"
@@ -316,12 +353,14 @@ export default async function ProductEditorPage({
                   className="h-auto w-full bg-canvas object-cover"
                   style={{ aspectRatio: "1 / 1" }}
                 />
-                <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
-                  <span className="text-sm font-medium text-foreground">{labels(`view.${mockup.view}`)}</span>
-                  <Badge tone={mockup.approved ? "green" : "amber"}>
-                    {mockup.approved ? t("approved") : t("awaitingApproval")}
-                  </Badge>
-                </div>
+                {ownPhotos ? null : (
+                  <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
+                    <span className="text-sm font-medium text-foreground">{labels(`view.${mockup.view}`)}</span>
+                    <Badge tone={mockup.approved ? "green" : "amber"}>
+                      {mockup.approved ? t("approved") : t("awaitingApproval")}
+                    </Badge>
+                  </div>
+                )}
               </li>
             ))}
             </ul>
@@ -343,10 +382,10 @@ export default async function ProductEditorPage({
               <DataList
                 rows={[
                   {
-                    label: t("supplierCost"),
+                    label: path === "merchant" ? t("unitCost") : t("supplierCost"),
                     value: (
                       <span className="tabular-nums">
-                        {money(costs.supplierCost)}
+                        {costKnown ? money(costs.supplierCost) : t("notSet")}
                       </span>
                     ),
                   },
@@ -370,7 +409,7 @@ export default async function ProductEditorPage({
                     label: t("landed"),
                     value: (
                       <span className="font-semibold tabular-nums">
-                        {money(landed)}
+                        {costKnown ? money(landed) : t("notSet")}
                       </span>
                     ),
                   },
@@ -399,7 +438,9 @@ export default async function ProductEditorPage({
                   },
                   {
                     label: t("margin"),
-                    value: (
+                    value: !costKnown ? (
+                      <span className="text-muted-foreground">{t("notSet")}</span>
+                    ) : (
                       <span
                         className={
                           tone === "healthy"
@@ -417,7 +458,7 @@ export default async function ProductEditorPage({
                 ]}
               />
             </div>
-            {tone !== "healthy" ? (
+            {costKnown && tone !== "healthy" ? (
               <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
                 {tone === "negative"
                   ? t("belowCost")

@@ -20,6 +20,8 @@ import {
   bulkUpdateProducts as updateProducts,
   deleteProduct as removeProduct,
   importProduct,
+  linkImportedProduct as linkProduct,
+  markMerchantFulfilled as markFulfilled,
   productPublishBlockers,
   removeArtwork as deleteArtwork,
   saveProductDetails as saveDetails,
@@ -136,6 +138,38 @@ export async function saveVariants(_prev: ActionState, formData: FormData): Prom
   try {
     const saved = await updateVariants(await operationContext(access), product, changes);
     return { status: "success", message: t("variantsSaved", { count: saved.variants.filter((v) => v.enabled).length }) };
+  } catch (error) {
+    return refusal(error);
+  }
+}
+
+/* ------------------------------------------------------- imported products */
+
+export async function linkImportedProduct(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const productId = String(formData.get("productId") ?? "");
+  const { product, ...access } = await loadProduct(storeId, productId);
+  const t = await getTranslations("actions.products");
+  try {
+    await linkProduct(await operationContext(access), product, String(formData.get("catalogProductId") ?? ""));
+    return { status: "success", message: t("linked") };
+  } catch (error) {
+    return refusal(error);
+  }
+}
+
+export async function markMerchantFulfilled(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const productId = String(formData.get("productId") ?? "");
+  const { product, ...access } = await loadProduct(storeId, productId);
+  const t = await getTranslations("actions.products");
+  try {
+    await markFulfilled(
+      await operationContext(access),
+      product,
+      parseMoney(String(formData.get("unitCost") ?? ""), product.currency),
+    );
+    return { status: "success", message: t("merchantFulfilled") };
   } catch (error) {
     return refusal(error);
   }

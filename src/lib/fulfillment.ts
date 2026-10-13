@@ -36,6 +36,21 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
   const overrideId = order.fulfillment.reroute ? order.fulfillment.supplierId : null;
   const supplierIds = Array.from(new Set(order.items.map((i) => i.supplierId).filter(Boolean)));
   if (!overrideId && supplierIds.length === 0) {
+    // Products the store ships itself have no supplier to send a job to.
+    const products = await listStoreProducts(order.storeId);
+    const shipsItself = order.items.every(
+      (item) => products.find((p) => p.id === item.storeProductId)?.merchantFulfilled,
+    );
+    if (order.items.length > 0 && shipsItself) {
+      return {
+        routing: "manual_required",
+        supplierId: null,
+        supplierName: null,
+        supplierOrderRef: null,
+        message: "Fulfilled by the store. Pack and ship the order, then add the tracking number.",
+        exception: null,
+      };
+    }
     return {
       routing: "manual_required",
       supplierId: null,

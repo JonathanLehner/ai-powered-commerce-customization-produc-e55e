@@ -9,9 +9,13 @@
 // - the import runs in the background in small batches, under a lease, so two
 //   workers never import the same rows; it can be cancelled;
 // - products land with their photos copied into the store's own storage,
-//   variants with colour and size, stock levels, SEO and a redirect from the
-//   old address when the handle was taken; live ones are published when
-//   nothing stands in the way;
+//   variants with colour, size and weight, stock levels, SEO and a redirect
+//   from the old address when the handle was taken; they wait as drafts until
+//   the store links them to a catalog product or ships them itself, and keep
+//   that choice when the file is imported again;
+// - a product the store ships itself sells on its photos at the unit cost
+//   entered, and its orders are not sent to a supplier; a linked one takes on
+//   the catalog product's supplier, cost, print areas and mockups;
 // - customers and orders follow, orders linked to products by SKU and the
 //   customer records rebuilt from them;
 // - importing the same file again updates instead of duplicating;
@@ -85,6 +89,7 @@ assert.deepEqual(tee.variants.map((v) => v.options.join("/")), ["Black/M", "Blac
 assert.deepEqual(tee.variants.map((v) => v.price), [2500, 2500, 2650], "prices in minor units");
 assert.equal(tee.variants[0].compareAtPrice, 3000);
 assert.equal(tee.variants[0].cost, 950);
+assert.deepEqual(tee.variants.map((v) => v.grams), [180, 190, 180], "Variant Grams is the variant's weight");
 assert.deepEqual(tee.variants.map((v) => v.quantity), [12, 0, 4], "stock tracked by Shopify");
 assert.equal(tee.variants[2].policy, "continue");
 assert.deepEqual(tee.tags, ["summer", "cotton"]);
@@ -112,6 +117,10 @@ const fresh = shopify.readProducts(shopify.parseCsv(NEW_FORMAT), 2);
 assert.equal(fresh.products[0].handle, "trail-cap", "the 2024 export's column names are read too");
 assert.equal(fresh.products[0].variants[0].price, 129900, "thousands separators are understood");
 assert.equal(fresh.products[0].variants[0].quantity, 7);
+assert.equal(fresh.products[0].variants[0].grams, 90);
+assert.equal(shopify.gramsOf("", "0.35", "kg"), 350, "a weight with a unit is converted to grams");
+assert.equal(shopify.gramsOf("", "12", "oz"), 340);
+assert.equal(shopify.gramsOf("250.0", "9", "kg"), 250, "Variant Grams wins over the display weight");
 assert.equal(shopify.readProducts(shopify.parseCsv("Title,Vendor\nx,y"), 2).issues[0].key, "missingColumns", "a file that is not a product export says so");
 assert.equal(shopify.parseAmount("1.299", 2), 129900);
 assert.equal(shopify.parseAmount("12,5", 2), 1250);
@@ -177,7 +186,11 @@ const { COLLECTIONS } = await import("../src/lib/data.ts");
 const runner = await import("../src/lib/shopify-import.ts");
 const { saveRedirect } = await import("../src/lib/operations/shopify-import.ts");
 const { shopifyRedirect } = await import("../src/lib/url-redirects.ts");
-const { hasApprovedPreviews } = await import("../src/lib/artwork.ts");
+const { hasApprovedPreviews, importedPath } = await import("../src/lib/artwork.ts");
+const { linkImportedProduct, markMerchantFulfilled } = await import("../src/lib/operations/products.ts");
+const { publishBlockersFor } = await import("../src/lib/publish-blockers.ts");
+const { routeOrder } = await import("../src/lib/fulfillment.ts");
+const blockerReasons = async (product) => ((await publishBlockersFor([product], "en")).get(product.id) ?? []).map((b) => b.reason);
 
 const quiet = { error: console.error, info: console.info };
 console.error = () => {};
@@ -262,7 +275,11 @@ try {
   assert.ok(importedTee.mockups.every((m) => m.url.startsWith("https://assets.clawcorp.ai/")), "photos live in the store's own storage");
   assert.equal(importedTee.mockups.find((m) => m.colour === "Black")?.view, "front", "a variant photo is tied to its colour");
   assert.ok(hasApprovedPreviews(importedTee), "an imported product needs only its photos to sell");
-  assert.equal(importedTee.status, zoneTemplate ? "published" : "draft", "live on Shopify goes live when nothing stands in the way");
+  assert.deepEqual(importedTee.variants.map((v) => v.weightGrams), [180, 190, 180], "Variant Grams becomes the variant weight");
+  assert.equal(importedPath(importedTee), "unlinked");
+  assert.equal(importedTee.status, "draft", "an import nobody has linked or chosen to ship waits as a draft");
+  assert.ok((await blockerReasons(importedTee)).some((r) => /not linked to a supplier yet/.test(r)), "and says why");
+  assert.ok(!(await blockerReasons(importedTee)).some((r) => /retired|mockups/i.test(r)), "never as a retired product or for want of mockups");
   const mug = products.find((p) => p.imported.handle === "camp-mug");
   assert.equal(mug.status, "draft", "a Shopify draft stays a draft");
   assert.equal(mug.category, "drinkware");
@@ -286,6 +303,36 @@ try {
   assert.equal(second.payment.status, "refunded");
   assert.equal(second.items[1].storeProductId, "", "an unknown SKU keeps its line without a product");
 
+  // Shipped by the store: a unit cost below every price, photos in place of mockups.
+  await assert.rejects(markMerchantFulfilled(ctx, importedTee, 2500), /sells for/, "a unit cost at a variant's price is refused");
+  await assert.rejects(markMerchantFulfilled(ctx, importedTee, null), /unit cost/i);
+  const own = await markMerchantFulfilled(ctx, importedTee, 900);
+  assert.equal(importedPath(own), "merchant");
+  assert.ok(own.variants.every((v) => v.baseCost === 900));
+  assert.equal(own.costs.supplierCost, 900);
+  assert.ok(own.costs.marginPct > 0 && own.costs.marginPct < 100, "the margin is worked out from the unit cost");
+  assert.deepEqual(await blockerReasons(own), zoneTemplate ? [] : ["The store has no shipping zones."], "nothing else stands in the way");
+  assert.equal((await markMerchantFulfilled(ctx, own, 950)).merchantFulfilled.unitCost, 950, "saving again changes the unit cost");
+  const routed = await routeOrder({ storeId: store.id, code: "ORD-X", items: [{ storeProductId: own.id, supplierId: "" }], fulfillment: {}, customer: { country: "US" } }, store);
+  assert.equal(routed.routing, "manual_required");
+  assert.equal(routed.exception, null, "an order for it is the store's to ship, not an exception");
+
+  // Linked to a catalog product: its supplier, cost, print areas and mockups.
+  const listing = await db.findOne(COLLECTIONS.catalog, { category: "drinkware", status: "active", "bulkSourcing.minimumOrderQuantity": { $not: { $gt: 0 } }, "variants.0": { $exists: true } });
+  assert.ok(listing, "the seeded catalog has a drinkware product (npm run seed)");
+  {
+    const linked = await linkImportedProduct(ctx, mug, listing.id);
+    assert.equal(importedPath(linked), "linked");
+    assert.equal(linked.catalogProductId, listing.id);
+    assert.equal(linked.supplierId, listing.supplierId);
+    assert.ok(linked.variants.every((v) => listing.variants.some((c) => c.id === v.catalogVariantId && c.baseCost === v.baseCost)), "variants take the catalog product's cost");
+    assert.ok(linked.mockups.length > 0 && linked.mockups.every((m) => !m.approved), "its base mockups come over, awaiting approval");
+    const reasons = await blockerReasons(linked);
+    assert.ok(!reasons.some((r) => /not linked/.test(r)) && reasons.some((r) => /artwork/i.test(r)), "from here it is published like any catalog product");
+    assert.equal((await linkImportedProduct(ctx, linked, listing.id)).id, linked.id, "linking again changes nothing");
+    await assert.rejects(markMerchantFulfilled(ctx, linked, 100), /already linked/);
+  }
+
   // The same files again: updated, not duplicated, and no photo copied twice.
   const uploadsBefore = uploads;
   const rerun = await runImport(`rerun-${RUN}`);
@@ -295,6 +342,13 @@ try {
   assert.equal(rerun.created.orders, 0, "and leaves orders it already has");
   assert.equal(await db.count(COLLECTIONS.storeProducts, { storeId: store.id, "imported.platform": "shopify" }), 2);
   assert.equal(uploads, uploadsBefore, "photos copied before are reused");
+  const keptOwn = await db.findOne(COLLECTIONS.storeProducts, { id: importedTee.id });
+  assert.equal(keptOwn.merchantFulfilled?.unitCost, 950, "importing again keeps the store's own fulfilment");
+  assert.ok(keptOwn.variants.every((v) => v.baseCost === 950));
+  {
+    const keptLink = await db.findOne(COLLECTIONS.storeProducts, { id: mug.id });
+    assert.equal(keptLink.catalogProductId, listing.id, "and a link to a catalog product");
+  }
 
   // Cancelling stops a running import and drops what it had not done.
   let cancelled = await runner.createImportJob(store, actor, `cancel-${RUN}`);

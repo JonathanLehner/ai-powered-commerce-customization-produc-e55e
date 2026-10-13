@@ -22,7 +22,7 @@ export const SECTION_NAMESPACES = {
   activity: ["audit", "labels", "pager"],
   analytics: ["analytics"],
   assistant: ["assistant", "labels"],
-  catalog: ["artworkIssues", "catalog", "collections", "configurator", "inventory", "labels", "productForms"],
+  catalog: ["artworkIssues", "catalog", "collections", "configurator", "importedFulfilment", "inventory", "labels", "productForms"],
   content: ["content"],
   customers: ["customers"],
   discounts: ["discounts"],

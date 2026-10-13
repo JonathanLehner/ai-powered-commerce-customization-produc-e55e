@@ -1392,9 +1392,19 @@
         "noVariants": "すべてのバリエーションが無効です。",
         "noVariantsFix": "サイズまたはカラーを 1 つ以上有効にしてください。",
         "noShippingZone": "ストアに配送ゾーンがありません。",
-        "noShippingZoneFix": "「配送と税」で配送ゾーンを追加してください。"
+        "noShippingZoneFix": "「配送と税」で配送ゾーンを追加してください。",
+        "notLinked": "Shopifyからインポート済み – まだサプライヤーにリンクされていません。",
+        "notLinkedFix": "カタログ商品にリンクするか、ストアで発送する商品として設定してください。",
+        "noPhotos": "この商品には写真がありません。",
+        "noPhotosFix": "Shopifyのエクスポートに画像URLを追加して、もう一度インポートしてください。"
       },
-      "weightRange": "{name} の重量を 1,000,000 以下の整数のグラムで入力してください。"
+      "weightRange": "{name} の重量を 1,000,000 以下の整数のグラムで入力してください。",
+      "linked": "リンクしました。アートワークを追加してモックアップを生成してください。",
+      "merchantFulfilled": "保存しました。この商品の注文はストアで発送します。",
+      "alreadyLinked": "この商品はすでにカタログ商品にリンクされています。",
+      "linkUnavailable": "現在も提供されているカタログ商品を選択してください。",
+      "unitCostRequired": "0以上の単価を入力してください。",
+      "unitCostAbovePrice": "「{name}」の販売価格は{price}です。すべてのバリエーション価格より低い単価を入力してください。"
     },
     "sourcing": {
       "listingGone": "このカタログ商品は提供されていません。別の商品を選ぶか、内容を記述してください。",
@@ -2585,7 +2595,9 @@
         "price": "{count, plural, =0 {価格は変更されていません。} other {# 件の商品の価格を変更しました。}}",
         "failed": "{count} 件の商品をスキップしました："
       }
-    }
+    },
+    "notLinked": "未リンク",
+    "fulfilledByStore": "ストアで発送"
   },
   "product": {
     "catalog": "カタログ",
@@ -2644,7 +2656,18 @@
     "sellingPrice": "販売価格",
     "margin": "利益",
     "belowCost": "この価格は原価を下回っています。",
-    "thinMargin": "利益率が 25% 未満です。"
+    "thinMargin": "利益率が 25% 未満です。",
+    "fulfilledByStore": " · ストアで発送",
+    "fulfilment": "フルフィルメント",
+    "unlinkedTitle": "Shopifyからインポート済み – まだサプライヤーにリンクされていません",
+    "unlinkedBody": "公開する前に、この商品の発送方法を選択してください。",
+    "merchantTitle": "ストアで発送",
+    "merchantBody": "この商品の注文は1点あたり{cost}でストアから発送します。インポートした写真がモックアップの代わりに表示されます。",
+    "photos": "商品写真",
+    "photosBody": "Shopifyからインポートされ、ストアに表示されます。",
+    "noPhotos": "この商品の写真はインポートされていません。",
+    "unitCost": "単価",
+    "notSet": "未設定"
   },
   "productForms": {
     "saveDetails": "商品の詳細を保存",
@@ -5178,5 +5201,22 @@
     "duration": "{ms} ms",
     "resend": "再送",
     "settingsTitle": "エンドポイントの設定"
+  },
+  "importedFulfilment": {
+    "merchantTitle": "ストアで発送する",
+    "merchantBody": "注文はストアから発送します。インポートした写真がモックアップの代わりになります。",
+    "unitCost": "単価（{currency}）",
+    "unitCostHint": "1点あたりの仕入れ額です。利益率の計算に使います。",
+    "markMerchant": "ストアで発送する商品にする",
+    "saveUnitCost": "単価を保存",
+    "saving": "保存中…",
+    "linkTitle": "カタログ商品にリンク",
+    "linkBody": "印刷エリア、原価、モックアップを引き継ぎます。インポートした写真は置き換えられます。",
+    "linkLabel": "カタログ商品",
+    "linkPlaceholder": "商品を選択",
+    "linkOption": "{name} · {cost}から",
+    "link": "商品をリンク",
+    "linking": "リンク中…",
+    "noCatalog": "リンクできるカタログ商品がありません。"
   }
 }

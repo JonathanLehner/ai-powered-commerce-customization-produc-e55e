@@ -28,6 +28,8 @@ import {
   approveMockups,
   findProduct,
   importProduct,
+  linkImportedProduct,
+  markMerchantFulfilled,
   saveProductDetails,
   saveVariants,
   setProductStatus,
@@ -460,6 +462,34 @@ const products = [
     actions: ["products#approveMockups"],
     input: z.object({ productId: id("product") }),
     run: async (ctx, input) => presentProduct(await approveMockups(ctx, await product(ctx, input.productId)), ctx.store),
+  }),
+  define({
+    id: "linkImportedProduct",
+    method: "POST",
+    path: "/products/{productId}/link",
+    scope: "products:write",
+    tag: "Products",
+    summary: "Link an imported product to a catalog product",
+    description:
+      "Links a product imported from Shopify to a supplier catalog product (see listCatalogProducts). It takes on that product's supplier, print areas, variant costs and base mockups, and its imported photos are replaced; from then on it needs artwork and approved mockups to publish. Linking it again to the same catalog product changes nothing.",
+    actions: ["products#linkImportedProduct"],
+    input: z.object({ productId: id("product"), catalogProductId: id("supplier catalog product") }),
+    run: async (ctx, input) =>
+      presentProduct(await linkImportedProduct(ctx, await product(ctx, input.productId), input.catalogProductId), ctx.store),
+  }),
+  define({
+    id: "markProductMerchantFulfilled",
+    method: "POST",
+    path: "/products/{productId}/merchant-fulfilment",
+    scope: "products:write",
+    tag: "Products",
+    summary: "Fulfil an imported product yourself",
+    description:
+      "Marks a product imported from Shopify as shipped by the store, at the unit cost given; its imported photos stand in for mockups. Sending it again changes the unit cost. The unit cost must be below every enabled variant's price.",
+    actions: ["products#markMerchantFulfilled"],
+    input: z.object({ productId: id("product"), unitCost: money("What one unit costs the store") }),
+    run: async (ctx, input) =>
+      presentProduct(await markMerchantFulfilled(ctx, await product(ctx, input.productId), input.unitCost), ctx.store),
   }),
 ];
 

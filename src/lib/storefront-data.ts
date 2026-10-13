@@ -60,7 +60,7 @@ export type ShopperStorefront = Omit<Storefront, "draft" | "history">;
 
 export interface MenuLinkRecords {
   entries: Pick<ContentEntry, "id" | "kind" | "handle">[];
-  products: Pick<StoreProduct, "id" | "slug" | "status" | "visibility" | "giftCard" | "imported" | "mockups" | "artworks">[];
+  products: Pick<StoreProduct, "id" | "slug" | "status" | "visibility" | "giftCard" | "imported" | "catalogProductId" | "mockups" | "artworks">[];
 }
 
 export interface StorefrontProduct {
@@ -147,6 +147,7 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
               visibility: 1,
               giftCard: 1,
               "imported.platform": 1,
+              catalogProductId: 1,
               "mockups.approved": 1,
               "artworks.id": 1,
             },

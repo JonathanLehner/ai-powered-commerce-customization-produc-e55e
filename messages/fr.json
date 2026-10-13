@@ -1392,9 +1392,19 @@
         "noVariants": "Toutes les variantes sont désactivées.",
         "noVariantsFix": "Activez au moins une taille ou une couleur.",
         "noShippingZone": "La boutique n’a aucune zone d’expédition.",
-        "noShippingZoneFix": "Ajoutez une zone d’expédition dans Expédition et taxes."
+        "noShippingZoneFix": "Ajoutez une zone d’expédition dans Expédition et taxes.",
+        "notLinked": "Importé depuis Shopify – pas encore associé à un fournisseur.",
+        "notLinkedFix": "Associez-le à un produit du catalogue ou indiquez que vous l'expédiez vous-même.",
+        "noPhotos": "Ce produit n'a pas de photos.",
+        "noPhotosFix": "Ajoutez les URL des images à l'export Shopify et importez-le à nouveau."
       },
-      "weightRange": "Saisissez un poids pour {name} en grammes entiers, jusqu’à 1 000 000."
+      "weightRange": "Saisissez un poids pour {name} en grammes entiers, jusqu’à 1 000 000.",
+      "linked": "Associé. Ajoutez un visuel pour générer les maquettes.",
+      "merchantFulfilled": "Enregistré. Vous expédiez les commandes de ce produit.",
+      "alreadyLinked": "Ce produit est déjà associé à un produit du catalogue.",
+      "linkUnavailable": "Choisissez un produit du catalogue encore disponible.",
+      "unitCostRequired": "Saisissez un coût unitaire de 0 ou plus.",
+      "unitCostAbovePrice": "« {name} » est vendu {price}. Saisissez un coût unitaire inférieur au prix de chaque variante."
     },
     "sourcing": {
       "listingGone": "Cet article du catalogue n’est plus proposé. Choisissez-en un autre ou décrivez-le.",
@@ -2585,7 +2595,9 @@
         "price": "{count, plural, =0 {Aucun prix modifié.} one {Prix modifié sur # produit.} other {Prix modifiés sur # produits.}}",
         "failed": "{count, plural, one {# produit ignoré :} other {# produits ignorés :}}"
       }
-    }
+    },
+    "notLinked": "Non associé",
+    "fulfilledByStore": "Expédié par vous"
   },
   "product": {
     "catalog": "Catalogue",
@@ -2644,7 +2656,18 @@
     "sellingPrice": "Prix de vente",
     "margin": "Marge",
     "belowCost": "Ce prix est inférieur au coût.",
-    "thinMargin": "La marge est inférieure à 25 %."
+    "thinMargin": "La marge est inférieure à 25 %.",
+    "fulfilledByStore": " · expédié par vous",
+    "fulfilment": "Expédition",
+    "unlinkedTitle": "Importé depuis Shopify – pas encore associé à un fournisseur",
+    "unlinkedBody": "Choisissez comment ce produit est expédié avant de le publier.",
+    "merchantTitle": "Expédié par vous",
+    "merchantBody": "Vous expédiez les commandes de ce produit à {cost} l'unité. Ses photos importées remplacent les maquettes.",
+    "photos": "Photos du produit",
+    "photosBody": "Importées depuis Shopify et affichées sur la boutique.",
+    "noPhotos": "Aucune photo n'a été importée pour ce produit.",
+    "unitCost": "Coût unitaire",
+    "notSet": "Non défini"
   },
   "productForms": {
     "saveDetails": "Enregistrer le produit",
@@ -5178,5 +5201,22 @@
     "duration": "{ms} ms",
     "resend": "Renvoyer",
     "settingsTitle": "Paramètres du point de terminaison"
+  },
+  "importedFulfilment": {
+    "merchantTitle": "L'expédier vous-même",
+    "merchantBody": "Vous expédiez les commandes. Les photos importées remplacent les maquettes.",
+    "unitCost": "Coût unitaire ({currency})",
+    "unitCostHint": "Ce que vous coûte une unité. Sert au calcul de la marge.",
+    "markMerchant": "Marquer comme expédié par moi",
+    "saveUnitCost": "Enregistrer le coût unitaire",
+    "saving": "Enregistrement…",
+    "linkTitle": "Associer à un produit du catalogue",
+    "linkBody": "Reprend ses zones d'impression, son coût et ses maquettes. Les photos importées sont remplacées.",
+    "linkLabel": "Produit du catalogue",
+    "linkPlaceholder": "Choisir un produit",
+    "linkOption": "{name} · à partir de {cost}",
+    "link": "Associer le produit",
+    "linking": "Association…",
+    "noCatalog": "Aucun produit du catalogue n'est disponible."
   }
 }

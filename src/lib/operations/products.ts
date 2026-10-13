@@ -1,7 +1,14 @@
 import "server-only";
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
-import { acceptedFormats, blockingIssues, formatOf, isAcceptedFormat, validateArtwork } from "../artwork";
+import {
+  acceptedFormats,
+  blockingIssues,
+  formatOf,
+  importedPath,
+  isAcceptedFormat,
+  validateArtwork,
+} from "../artwork";
 import {
   archiveBlock,
   bracketBlock,
@@ -33,7 +40,16 @@ import { publishBlockersFor, type PublishBlocker } from "../publish-blockers";
 import type { Locale } from "@/i18n/locales";
 import { storeSku } from "../sku";
 import { isQuoteOnly } from "../sourcing";
-import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct, StoredImage } from "../types";
+import type {
+  Artwork,
+  CatalogProduct,
+  CatalogVariant,
+  MockupImage,
+  Store,
+  StoreProduct,
+  StoreVariant,
+  StoredImage,
+} from "../types";
 import { formatMoney, newId } from "../util";
 import { OperationError, type OperationContext } from "./context";
 import { emitProductDeleted } from "../webhook-events";
@@ -362,6 +378,146 @@ export async function addCatalogVariant(
   });
   revalidatePath(`/app/stores/${ctx.store.id}/catalog/${product.id}`);
   return { ...next, costs };
+}
+
+/* -------------------------------------------------------- imported products */
+
+const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/** The catalog variant an imported variant becomes: same colour and size, then same size, then same colour, then the cheapest. */
+function matchCatalogVariant(variant: StoreVariant, catalog: CatalogProduct): CatalogVariant {
+  const { variants } = catalog;
+  return (
+    variants.find((v) => same(v.colour, variant.colour) && same(v.size, variant.size)) ??
+    (variant.size ? variants.find((v) => same(v.size, variant.size)) : undefined) ??
+    (variant.colour ? variants.find((v) => same(v.colour, variant.colour)) : undefined) ??
+    variants.reduce((cheapest, v) => (v.baseCost < cheapest.baseCost ? v : cheapest))
+  );
+}
+
+/**
+ * Links a product imported from another platform to a shared-catalog product.
+ * It takes on that product's supplier, print areas, costs and base mockups,
+ * and from then on is made and published like any other catalog product. The
+ * imported photos give way to the catalog product's mockups.
+ */
+export async function linkImportedProduct(
+  ctx: OperationContext,
+  product: StoreProduct,
+  catalogId: string,
+): Promise<StoreProduct> {
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.products" });
+  // A resubmitted form finds the link it already made.
+  if (product.catalogProductId === catalogId && importedPath(product) === "linked") return product;
+  if (importedPath(product) !== "unlinked" && importedPath(product) !== "merchant") {
+    throw new OperationError("conflict", t("alreadyLinked"));
+  }
+  const catalog = catalogId ? await getCatalogProduct(catalogId) : null;
+  if (!catalog || catalog.status !== "active" || isQuoteOnly(catalog) || catalog.variants.length === 0) {
+    throw new OperationError("invalid", t("linkUnavailable"), "catalogProductId");
+  }
+
+  const variants = product.variants.map((variant) => {
+    const match = matchCatalogVariant(variant, catalog);
+    return {
+      ...variant,
+      catalogVariantId: match.id,
+      baseCost: match.baseCost,
+      colourHex: variant.colourHex || match.colourHex,
+      availability: match.availability,
+    };
+  });
+  const colour = variants.find((v) => v.enabled)?.colour ?? "";
+  const now = new Date().toISOString();
+  const views = [...new Set(catalog.printAreas.map((area) => area.view))];
+  const mockups: MockupImage[] = views.flatMap((view) => {
+    const base =
+      catalog.mockups.find((m) => m.view === view && same(m.colour, colour)) ?? catalog.mockups.find((m) => m.view === view);
+    return base
+      ? [{
+          id: newId("mck"),
+          view,
+          url: base.url,
+          shareUrl: null,
+          colour: base.colour,
+          generatedAt: now,
+          approved: false,
+          approvedBy: null,
+          approvedAt: null,
+        }]
+      : [];
+  });
+
+  const patch = {
+    catalogProductId: catalog.id,
+    supplierId: catalog.supplierId,
+    category: catalog.category,
+    variants,
+    artworks: [] as Artwork[],
+    mockups,
+    merchantFulfilled: null,
+  } satisfies Partial<StoreProduct>;
+  const next: StoreProduct = { ...product, ...patch };
+  next.costs = await recost(next, ctx.store, catalog);
+  await updateStoreProduct(product.id, { ...patch, costs: next.costs }, product);
+  audit(ctx, {
+    category: "product_import",
+    action: "product.linked",
+    summary: `Linked imported product “${product.name}” to “${catalog.name}” from the shared catalog`,
+    entityId: product.id,
+    meta: { catalogId: catalog.id, supplier: catalog.supplierId },
+  });
+  revalidateAfterArtworkChange(ctx.store, product.id);
+  return next;
+}
+
+/**
+ * Marks a product imported from another platform as shipped by the store
+ * itself, at a unit cost the team enters. Its imported photos stand in for
+ * mockups. Saving again changes the unit cost.
+ */
+export async function markMerchantFulfilled(
+  ctx: OperationContext,
+  product: StoreProduct,
+  unitCost: number | null,
+): Promise<StoreProduct> {
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.products" });
+  const path = importedPath(product);
+  if (path !== "unlinked" && path !== "merchant") throw new OperationError("conflict", t("alreadyLinked"));
+  if (unitCost === null || !Number.isInteger(unitCost) || unitCost < 0) {
+    throw new OperationError("invalid", t("unitCostRequired"), "unitCost");
+  }
+  const below = product.variants.find((v) => v.enabled && v.price <= unitCost);
+  if (below) {
+    throw new OperationError(
+      "invalid",
+      t("unitCostAbovePrice", { name: below.name, price: formatMoney(below.price, product.currency, ctx.locale) }),
+      "unitCost",
+    );
+  }
+
+  const variants = product.variants.map((variant) => ({ ...variant, baseCost: unitCost }));
+  const merchantFulfilled = {
+    unitCost,
+    markedBy: product.merchantFulfilled?.markedBy ?? ctx.actor.name,
+    markedAt: product.merchantFulfilled?.markedAt ?? new Date().toISOString(),
+  };
+  const next: StoreProduct = { ...product, variants, merchantFulfilled };
+  next.costs = await recost(next, ctx.store, null);
+  await updateStoreProduct(product.id, { variants, merchantFulfilled, costs: next.costs }, product);
+  audit(ctx, {
+    category: "product_import",
+    action: path === "merchant" ? "product.unit_cost_changed" : "product.merchant_fulfilled",
+    summary:
+      path === "merchant"
+        ? `Changed the unit cost of “${product.name}” to ${formatMoney(unitCost, product.currency)}`
+        : `Marked “${product.name}” as fulfilled by the store at ${formatMoney(unitCost, product.currency)} per unit`,
+    entityId: product.id,
+    meta: { unitCost },
+  });
+  revalidatePath(`/app/stores/${ctx.store.id}/catalog`);
+  revalidatePath(`/app/stores/${ctx.store.id}/catalog/${product.id}`);
+  return next;
 }
 
 /* ----------------------------------------------------------------- artwork */

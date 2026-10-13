@@ -148,6 +148,8 @@ const MONEY_META: Record<string, readonly string[]> = {
   "order.cancelled_refunded": ["amount"],
   "product.price_changed": ["from", "to"],
   "product.imported": ["quotedUnitCost"],
+  "product.merchant_fulfilled": ["unitCost"],
+  "product.unit_cost_changed": ["unitCost"],
   "gifting.catalogue_created": ["spendLimit"],
   "gifting.catalogue_updated": ["spendLimit"],
   "gifting.campaign_created": ["total"],
@@ -169,6 +171,7 @@ const PERCENT_META: Record<string, readonly string[]> = {
 /** Supplier ids, which are read as the supplier's name. */
 const SUPPLIER_META: Record<string, readonly string[]> = {
   "product.imported": ["supplier"],
+  "product.linked": ["supplier"],
   "order.rerouted": ["from", "to"],
 };
 

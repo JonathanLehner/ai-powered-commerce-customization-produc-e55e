@@ -1392,9 +1392,19 @@
         "noVariants": "Alle varianten zijn uitgeschakeld.",
         "noVariantsFix": "Schakel minstens één maat of kleur in.",
         "noShippingZone": "De winkel heeft geen verzendzones.",
-        "noShippingZoneFix": "Voeg een verzendzone toe onder Verzending en btw."
+        "noShippingZoneFix": "Voeg een verzendzone toe onder Verzending en btw.",
+        "notLinked": "Geïmporteerd uit Shopify – nog niet gekoppeld aan een leverancier.",
+        "notLinkedFix": "Koppel het aan een catalogusproduct of markeer het als zelf verzonden.",
+        "noPhotos": "Dit product heeft geen foto's.",
+        "noPhotosFix": "Voeg afbeeldings-URL's toe aan de Shopify-export en importeer opnieuw."
       },
-      "weightRange": "Voer voor {name} een gewicht in hele grammen in, tot 1.000.000."
+      "weightRange": "Voer voor {name} een gewicht in hele grammen in, tot 1.000.000.",
+      "linked": "Gekoppeld. Voeg een ontwerp toe om mockups te maken.",
+      "merchantFulfilled": "Opgeslagen. Je verzendt bestellingen voor dit product zelf.",
+      "alreadyLinked": "Dit product is al gekoppeld aan een catalogusproduct.",
+      "linkUnavailable": "Kies een catalogusproduct dat nog beschikbaar is.",
+      "unitCostRequired": "Vul een kostprijs per stuk van 0 of meer in.",
+      "unitCostAbovePrice": "‘{name}’ kost {price}. Vul een kostprijs in die lager is dan elke variantprijs."
     },
     "sourcing": {
       "listingGone": "Dat catalogusartikel wordt niet meer aangeboden. Kies een ander of beschrijf het.",
@@ -2585,7 +2595,9 @@
         "price": "{count, plural, =0 {Geen prijzen gewijzigd.} one {Prijs gewijzigd bij # product.} other {Prijzen gewijzigd bij # producten.}}",
         "failed": "{count, plural, one {# product overgeslagen:} other {# producten overgeslagen:}}"
       }
-    }
+    },
+    "notLinked": "Niet gekoppeld",
+    "fulfilledByStore": "Zelf verzonden"
   },
   "product": {
     "catalog": "Catalogus",
@@ -2644,7 +2656,18 @@
     "sellingPrice": "Verkoopprijs",
     "margin": "Marge",
     "belowCost": "Deze prijs ligt onder de kostprijs.",
-    "thinMargin": "De marge is lager dan 25%."
+    "thinMargin": "De marge is lager dan 25%.",
+    "fulfilledByStore": " · zelf verzonden",
+    "fulfilment": "Verzending",
+    "unlinkedTitle": "Geïmporteerd uit Shopify – nog niet gekoppeld aan een leverancier",
+    "unlinkedBody": "Kies hoe dit product wordt verzonden voordat je het publiceert.",
+    "merchantTitle": "Zelf verzonden",
+    "merchantBody": "Je verzendt bestellingen voor dit product voor {cost} per stuk. De geïmporteerde foto's vervangen de mockups.",
+    "photos": "Productfoto's",
+    "photosBody": "Geïmporteerd uit Shopify en getoond in de winkel.",
+    "noPhotos": "Er zijn geen foto's voor dit product geïmporteerd.",
+    "unitCost": "Kostprijs per stuk",
+    "notSet": "Niet ingesteld"
   },
   "productForms": {
     "saveDetails": "Productgegevens opslaan",
@@ -5178,5 +5201,22 @@
     "duration": "{ms} ms",
     "resend": "Opnieuw versturen",
     "settingsTitle": "Endpoint-instellingen"
+  },
+  "importedFulfilment": {
+    "merchantTitle": "Zelf verzenden",
+    "merchantBody": "Je verzendt de bestellingen zelf. De geïmporteerde foto's vervangen de mockups.",
+    "unitCost": "Kostprijs per stuk ({currency})",
+    "unitCostHint": "Wat één stuk je kost. Gebruikt voor de marge.",
+    "markMerchant": "Markeren als zelf verzonden",
+    "saveUnitCost": "Kostprijs opslaan",
+    "saving": "Opslaan…",
+    "linkTitle": "Koppelen aan een catalogusproduct",
+    "linkBody": "Neemt de printvlakken, kosten en mockups over. De geïmporteerde foto's worden vervangen.",
+    "linkLabel": "Catalogusproduct",
+    "linkPlaceholder": "Kies een product",
+    "linkOption": "{name} · vanaf {cost}",
+    "link": "Product koppelen",
+    "linking": "Koppelen…",
+    "noCatalog": "Er zijn geen catalogusproducten om te koppelen."
   }
 }

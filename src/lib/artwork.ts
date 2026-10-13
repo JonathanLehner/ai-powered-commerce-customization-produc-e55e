@@ -1,5 +1,30 @@
 import type { Artwork, CatalogProduct, FileRequirements, PrintArea, StoreProduct } from "./types";
 
+/** What `catalogProductId` holds on an imported product not linked to a shared-catalog product. */
+export const UNLINKED_CATALOG_ID = "shopify";
+
+/**
+ * An imported product that is not linked to a shared-catalog product: it has
+ * no print areas, and its imported photos are its images. Once linked it is
+ * made, priced and previewed like any other catalog product.
+ */
+export function sellsOwnPhotos(product: Pick<Partial<StoreProduct>, "imported" | "catalogProductId">): boolean {
+  return Boolean(product.imported) && product.catalogProductId === UNLINKED_CATALOG_ID;
+}
+
+/**
+ * Where an imported product stands: not linked to anything yet, shipped by
+ * the store itself, or linked to a shared-catalog product. Null for every
+ * product that was not imported.
+ */
+export function importedPath(
+  product: Pick<Partial<StoreProduct>, "imported" | "catalogProductId" | "merchantFulfilled">,
+): "unlinked" | "merchant" | "linked" | null {
+  if (!product.imported) return null;
+  if (!sellsOwnPhotos(product)) return "linked";
+  return product.merchantFulfilled ? "merchant" : "unlinked";
+}
+
 /**
  * A product can only be sold while its previews show what will actually be
  * printed. Uploading, moving or removing artwork clears the mockups, and
@@ -9,10 +34,11 @@ import type { Artwork, CatalogProduct, FileRequirements, PrintArea, StoreProduct
  * whose photos are its previews.
  */
 export function hasApprovedPreviews(
-  product: Pick<StoreProduct, "artworks" | "mockups"> & Pick<Partial<StoreProduct>, "giftCard" | "imported">,
+  product: Pick<StoreProduct, "artworks" | "mockups"> &
+    Pick<Partial<StoreProduct>, "giftCard" | "imported" | "catalogProductId">,
 ) {
   if (product.giftCard) return product.mockups.length > 0;
-  if (product.imported) return product.mockups.length > 0 && product.mockups.every((m) => m.approved);
+  if (sellsOwnPhotos(product)) return product.mockups.length > 0 && product.mockups.every((m) => m.approved);
   return (
     product.artworks.length > 0 &&
     product.mockups.length > 0 &&

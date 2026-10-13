@@ -1,5 +1,5 @@
 import "server-only";
-import { failsPreflight } from "./artwork";
+import { failsPreflight, sellsOwnPhotos } from "./artwork";
 import { COLLECTIONS, getStore, recordAudit } from "./data";
 import { db } from "./mongo";
 import type { CatalogProduct, StoreProduct } from "./types";
@@ -19,7 +19,7 @@ export async function takeOffFailingPreflight<T extends StoreProduct>(
   products: T[],
   catalogs?: Map<string, Pick<CatalogProduct, "printAreas" | "fileRequirements"> | null>,
 ): Promise<T[]> {
-  const live = products.filter((p) => p.status === "published" && p.artworks.length > 0 && !p.imported);
+  const live = products.filter((p) => p.status === "published" && p.artworks.length > 0 && !sellsOwnPhotos(p));
   if (live.length === 0) return products;
   const listings =
     catalogs ??

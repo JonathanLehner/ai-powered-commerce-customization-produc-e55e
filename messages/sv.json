@@ -1392,9 +1392,19 @@
         "noVariants": "Alla varianter är inaktiverade.",
         "noVariantsFix": "Aktivera minst en storlek eller färg.",
         "noShippingZone": "Butiken har inga fraktzoner.",
-        "noShippingZoneFix": "Lägg till en fraktzon under Frakt och moms."
+        "noShippingZoneFix": "Lägg till en fraktzon under Frakt och moms.",
+        "notLinked": "Importerad från Shopify – inte länkad till någon leverantör än.",
+        "notLinkedFix": "Länka den till en katalogprodukt eller markera att du skickar den själv.",
+        "noPhotos": "Produkten har inga foton.",
+        "noPhotosFix": "Lägg till bild-URL:er i Shopify-exporten och importera den igen."
       },
-      "weightRange": "Ange en vikt för {name} i hela gram, upp till 1 000 000."
+      "weightRange": "Ange en vikt för {name} i hela gram, upp till 1 000 000.",
+      "linked": "Länkad. Lägg till ett motiv för att skapa mockups.",
+      "merchantFulfilled": "Sparat. Du skickar beställningar för den här produkten själv.",
+      "alreadyLinked": "Produkten är redan länkad till en katalogprodukt.",
+      "linkUnavailable": "Välj en katalogprodukt som fortfarande finns.",
+      "unitCostRequired": "Ange en styckkostnad på 0 eller mer.",
+      "unitCostAbovePrice": "”{name}” säljs för {price}. Ange en styckkostnad under varje variants pris."
     },
     "sourcing": {
       "listingGone": "Katalogartikeln erbjuds inte längre. Välj en annan eller beskriv den.",
@@ -2585,7 +2595,9 @@
         "price": "{count, plural, =0 {Inga priser ändrade.} one {Pris ändrat på # produkt.} other {Priser ändrade på # produkter.}}",
         "failed": "{count, plural, one {# produkt hoppades över:} other {# produkter hoppades över:}}"
       }
-    }
+    },
+    "notLinked": "Inte länkad",
+    "fulfilledByStore": "Skickas av dig"
   },
   "product": {
     "catalog": "Katalog",
@@ -2644,7 +2656,18 @@
     "sellingPrice": "Försäljningspris",
     "margin": "Marginal",
     "belowCost": "Priset ligger under kostnaden.",
-    "thinMargin": "Marginalen är under 25 %."
+    "thinMargin": "Marginalen är under 25 %.",
+    "fulfilledByStore": " · skickas av dig",
+    "fulfilment": "Leverans",
+    "unlinkedTitle": "Importerad från Shopify – inte länkad till någon leverantör än",
+    "unlinkedBody": "Välj hur produkten levereras innan du publicerar den.",
+    "merchantTitle": "Skickas av dig",
+    "merchantBody": "Du skickar beställningar för produkten till {cost} per styck. De importerade fotona visas i stället för mockups.",
+    "photos": "Produktfoton",
+    "photosBody": "Importerade från Shopify och visas i butiken.",
+    "noPhotos": "Inga foton importerades för den här produkten.",
+    "unitCost": "Styckkostnad",
+    "notSet": "Inte angiven"
   },
   "productForms": {
     "saveDetails": "Spara produktuppgifter",
@@ -5178,5 +5201,22 @@
     "duration": "{ms} ms",
     "resend": "Skicka igen",
     "settingsTitle": "Inställningar för slutpunkt"
+  },
+  "importedFulfilment": {
+    "merchantTitle": "Skicka själv",
+    "merchantBody": "Du skickar beställningarna. De importerade fotona ersätter mockups.",
+    "unitCost": "Styckkostnad ({currency})",
+    "unitCostHint": "Vad en enhet kostar dig. Används för marginalen.",
+    "markMerchant": "Markera att jag skickar den",
+    "saveUnitCost": "Spara styckkostnad",
+    "saving": "Sparar…",
+    "linkTitle": "Länka till en katalogprodukt",
+    "linkBody": "Använder dess tryckytor, kostnad och mockups. De importerade fotona ersätts.",
+    "linkLabel": "Katalogprodukt",
+    "linkPlaceholder": "Välj en produkt",
+    "linkOption": "{name} · från {cost}",
+    "link": "Länka produkt",
+    "linking": "Länkar…",
+    "noCatalog": "Det finns inga katalogprodukter att länka."
   }
 }

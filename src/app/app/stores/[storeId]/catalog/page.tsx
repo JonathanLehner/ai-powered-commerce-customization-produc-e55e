@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { importedPath } from "@/lib/artwork";
 import { listStoreProducts, listTaxBrackets } from "@/lib/data";
 import type { BulkProduct } from "@/lib/bulk-products";
 import { marginTone } from "@/lib/pricing";
@@ -53,9 +54,11 @@ export default async function StoreCatalogPage({
     );
 
   const published = products.filter((p) => p.status === "published");
+  // An import nobody has linked or costed yet has no margin to count.
+  const costed = published.filter((p) => importedPath(p) !== "unlinked");
   const avgMargin =
-    published.length > 0
-      ? published.reduce((sum, p) => sum + p.costs.marginPct, 0) / published.length
+    costed.length > 0
+      ? costed.reduce((sum, p) => sum + p.costs.marginPct, 0) / costed.length
       : 0;
 
   const [pages, t, labels, locale, format, brackets, blockers] = await Promise.all([
@@ -147,6 +150,7 @@ export default async function StoreCatalogPage({
           {filtered.map((product) => {
             const cover = product.mockups[0];
             const tone = marginTone(product.costs.marginPct);
+            const path = importedPath(product);
             return (
               <SelectableItem key={product.id} id={product.id} className="flex">
                 <Card className="flex-1 gap-0 py-0 group-data-[state=selected]:ring-2 group-data-[state=selected]:ring-primary">
@@ -198,6 +202,15 @@ export default async function StoreCatalogPage({
                         </Badge>
                       </p>
                     ) : null}
+                    {path === "unlinked" ? (
+                      <p className="mt-1.5">
+                        <Badge tone="amber">{t("notLinked")}</Badge>
+                      </p>
+                    ) : path === "merchant" ? (
+                      <p className="mt-1.5">
+                        <Badge tone="iris">{t("fulfilledByStore")}</Badge>
+                      </p>
+                    ) : null}
                     {product.manualFulfilment ? (
                       <p className="mt-1.5">
                         <Badge tone="iris">{t("manualFulfilment", { code: product.manualFulfilment.quoteCode })}</Badge>
@@ -221,27 +234,31 @@ export default async function StoreCatalogPage({
                       <div>
                         <dt className="text-muted-foreground">{t("cost")}</dt>
                         <dd className="font-semibold tabular-nums text-foreground">
-                          {formatMoney(
-                            product.costs.supplierCost +
-                              product.costs.customizationCost +
-                              product.costs.shippingEstimate,
-                            product.currency,
-                            locale,
-                          )}
+                          {path === "unlinked"
+                            ? "–"
+                            : formatMoney(
+                                product.costs.supplierCost +
+                                  product.costs.customizationCost +
+                                  product.costs.shippingEstimate,
+                                product.currency,
+                                locale,
+                              )}
                         </dd>
                       </div>
                       <div>
                         <dt className="text-muted-foreground">{t("margin")}</dt>
                         <dd
                           className={
-                            tone === "healthy"
-                              ? "font-semibold tabular-nums text-emerald-700"
-                              : tone === "thin"
-                                ? "font-semibold tabular-nums text-amber-700"
-                                : "font-semibold tabular-nums text-rose-700"
+                            path === "unlinked"
+                              ? "font-semibold tabular-nums text-muted-foreground"
+                              : tone === "healthy"
+                                ? "font-semibold tabular-nums text-emerald-700"
+                                : tone === "thin"
+                                  ? "font-semibold tabular-nums text-amber-700"
+                                  : "font-semibold tabular-nums text-rose-700"
                           }
                         >
-                          {formatPercent(product.costs.marginPct)}
+                          {path === "unlinked" ? "–" : formatPercent(product.costs.marginPct)}
                         </dd>
                       </div>
                     </dl>

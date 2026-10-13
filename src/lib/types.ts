@@ -677,6 +677,13 @@ export interface StoreProduct {
    */
   imported?: { platform: "shopify"; handle: string; importId: string } | null;
   /**
+   * Set on an imported product the store ships itself. `unitCost` (minor
+   * units) is what one unit costs the store, and the imported photos stand in
+   * for mockups. An imported product linked to a shared-catalog product
+   * instead carries that product's id in `catalogProductId`.
+   */
+  merchantFulfilled?: { unitCost: number; markedBy: string; markedAt: string } | null;
+  /**
    * Set on products copied in from an accepted bulk quote. Orders for them are
    * never sent to a supplier API: a buyer raises the purchase order by hand.
    */

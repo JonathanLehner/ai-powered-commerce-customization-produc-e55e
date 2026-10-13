@@ -180,6 +180,20 @@ function isHttpUrl(raw: string): boolean {
   }
 }
 
+const GRAMS_PER_UNIT: Record<string, number> = { g: 1, kg: 1000, lb: 453.592, oz: 28.3495 };
+
+/**
+ * A variant's weight in whole grams. Shopify writes it in grams whatever unit
+ * the shop displays; other exports give a weight and its unit instead.
+ */
+export function gramsOf(grams: string, weight: string, unit: string): number {
+  const exact = Number.parseFloat(grams);
+  if (Number.isFinite(exact) && exact > 0) return Math.round(exact);
+  const value = Number.parseFloat(weight);
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.round(value * (GRAMS_PER_UNIT[unit.trim().toLowerCase()] ?? 1));
+}
+
 /** A handle as Shopify writes them, which is also a valid storefront address segment. */
 export function cleanHandle(raw: string): string {
   return raw
@@ -205,6 +219,8 @@ const P = {
   status: ["Status"],
   sku: ["Variant SKU", "SKU"],
   grams: ["Variant Grams", "Weight value (grams)"],
+  weight: ["Variant Weight", "Weight"],
+  weightUnit: ["Variant Weight Unit", "Weight unit for display"],
   tracker: ["Variant Inventory Tracker", "Inventory tracker"],
   quantity: ["Variant Inventory Qty", "Inventory quantity"],
   policy: ["Variant Inventory Policy", "Continue selling when out of stock"],
@@ -378,7 +394,7 @@ export function readProducts(table: CsvTable, decimals: number): { products: Sho
       price,
       compareAtPrice: parseAmount(get(P.compareAt), decimals),
       cost,
-      grams: Math.max(0, Math.round(Number.parseFloat(get(P.grams)) || 0)),
+      grams: gramsOf(get(P.grams), get(P.weight), get(P.weightUnit)),
       quantity: tracked && quantity !== null && Number.isFinite(quantity) ? quantity : null,
       policy: policyText === "continue" || truthy(policyText) ? "continue" : "deny",
       image: variantImage && isHttpUrl(variantImage) ? variantImage : null,
