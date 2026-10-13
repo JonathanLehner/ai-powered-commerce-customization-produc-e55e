@@ -12,7 +12,7 @@ export type SelfServePlan = (typeof SELF_SERVE_PLANS)[number];
 
 export const MIN_PASSWORD_LENGTH = 8;
 
-/** Starter and Studio start with a free trial; the card is collected at checkout. */
+/** Starter and Studio start with a free trial with no card; payment details are added from the billing page. */
 export const TRIAL_DAYS = 14;
 
 export function isSelfServePlan(value: unknown): value is SelfServePlan {

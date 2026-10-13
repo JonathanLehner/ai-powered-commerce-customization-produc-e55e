@@ -9,7 +9,7 @@ import { Badge, Callout, DataList, PageHeader } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { TRIAL_DAYS, billingPending } from "@/lib/billing";
+import { TRIAL_DAYS, billingPending, onTrial } from "@/lib/billing";
 import { getAgency } from "@/lib/data";
 import { nextInvoice } from "@/lib/stripe";
 import type { Agency, User } from "@/lib/types";
@@ -20,9 +20,10 @@ import { accessibleStores, requireUser } from "@/lib/session";
 const CYCLES: BillingCycle[] = ["monthly", "yearly"];
 
 /**
- * The agency's plan and billing. A new owner who has not paid yet finishes
- * checkout here; everyone else sees the plan, the next invoice and the way
- * into the Stripe Customer Portal.
+ * The agency's plan and billing. An owner whose free trial has ended (or who
+ * signed up card-first and never paid) finishes checkout here; everyone else
+ * sees the plan, the trial or next invoice, and the way to add payment
+ * details or into the Stripe Customer Portal.
  */
 export default async function BillingPage({
   searchParams,
@@ -40,14 +41,16 @@ export default async function BillingPage({
   const { plan: planKey, cycle, currency } = agency.billing;
   const plan = PLANS[planKey];
   const money = (amount: number) => format.number(amount, { style: "currency", currency, maximumFractionDigits: 0 });
+  const trialEnded = onTrial(agency);
 
   return (
     <>
       <AppHeader user={user} stores={[]} />
       <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-7 sm:px-6">
-        <PageHeader title={t("title")} description={agency.name} />
+        <PageHeader title={trialEnded ? t("trialEndedTitle") : t("title")} description={agency.name} />
 
         <div className="mt-6 space-y-5">
+          {trialEnded ? <Callout tone="amber">{t("trialEndedBody")}</Callout> : null}
           {error === "unavailable" ? (
             <Callout tone="amber" title={t("unavailableTitle")}>
               {t("unavailableBody")}
@@ -97,7 +100,9 @@ export default async function BillingPage({
                       })}
                     </div>
                   </fieldset>
-                  <p className="mt-4 text-sm text-muted-foreground">{t("trial", { days: TRIAL_DAYS })}</p>
+                  {trialEnded ? null : (
+                    <p className="mt-4 text-sm text-muted-foreground">{t("trial", { days: TRIAL_DAYS })}</p>
+                  )}
                   <div className="mt-5">
                     <SubmitButton pendingLabel={t("opening")}>{t("proceed")}</SubmitButton>
                   </div>
@@ -141,6 +146,11 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
               {t("unavailableBody")}
             </Callout>
           ) : null}
+          {error === "unavailable" ? (
+            <Callout tone="amber" title={t("unavailableTitle")}>
+              {t("unavailableBody")}
+            </Callout>
+          ) : null}
           {status === "past_due" ? (
             <Callout tone="rose" title={t("pastDueTitle")}>
               {t("pastDueBody")}
@@ -162,7 +172,7 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
                         {
                           label: t("statusLabel"),
                           value: (
-                            <Badge tone={status === "active" ? "green" : status === "past_due" ? "rose" : "slate"}>
+                            <Badge tone={status === "active" ? "green" : status === "trialing" ? "iris" : status === "past_due" ? "rose" : "slate"}>
                               {t(`status.${status}`)}
                             </Badge>
                           ),
@@ -178,6 +188,9 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
                               : formatMoney(upcoming.amountDue, upcoming.currency, locale)
                             : t("noInvoice"),
                         },
+                        ...(onTrial(agency) && billing.trialEndsAt
+                          ? [{ label: t("trialEndsOn"), value: date(billing.trialEndsAt) }]
+                          : []),
                         ...(billing.cancelAtPeriodEnd && billing.currentPeriodEnd
                           ? [{ label: t("endsOn"), value: date(billing.currentPeriodEnd) }]
                           : []),
@@ -192,6 +205,12 @@ async function PlanBilling({ user, agency, error }: { user: User; agency: Agency
                     {t("contactUs")}
                   </Link>
                 </p>
+              ) : owner && onTrial(agency) ? (
+                <form action={continueToPayment} className="space-y-3">
+                  <input type="hidden" name="cycle" value={billing.cycle} />
+                  <p className="text-sm text-muted-foreground">{t("trialNote")}</p>
+                  <SubmitButton pendingLabel={t("opening")}>{t("addPayment")}</SubmitButton>
+                </form>
               ) : owner && billing.stripeCustomerId ? (
                 <form action={openBillingPortal}>
                   <SubmitButton pendingLabel={t("portalOpening")}>{t("manage")}</SubmitButton>

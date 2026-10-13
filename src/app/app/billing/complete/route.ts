@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
   if (!user) return to("/login");
   const agency = user.agencyId ? await getAgency(user.agencyId) : null;
   if (!agency?.billing) return to("/app");
-  if (agency.billing.status !== "pending") return to("/app/stores/new?welcome=1");
+  const trialing = agency.billing.status === "trialing";
+  if (!trialing && agency.billing.status !== "pending") return to("/app/stores/new?welcome=1");
 
   const session = await getCheckoutSession(request.nextUrl.searchParams.get("session_id") ?? "");
   if (!session || session.client_reference_id !== agency.id || session.status !== "complete") {
@@ -24,5 +25,6 @@ export async function GET(request: NextRequest) {
   }
 
   await activateSubscription({ ...agency, billing: agency.billing }, session, user);
-  return to("/app/stores/new?welcome=1");
+  // A trial owner already has a workspace, so they go back to their plan.
+  return to(trialing ? "/app/billing" : "/app/stores/new?welcome=1");
 }

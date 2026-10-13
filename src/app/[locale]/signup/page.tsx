@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { asLocale, pageMetadata } from "@/i18n/metadata";
 import { Section } from "../kit";
+import { TRIAL_DAYS } from "@/lib/signup";
 import { SignupForm } from "./SignupForm";
 
 export const dynamic = "force-static";
@@ -19,7 +20,7 @@ export default async function SignupPage({ params }: PageProps<"/[locale]/signup
       <h1 className="font-heading text-[2rem] leading-[1.1] font-semibold tracking-tight text-foreground sm:text-4xl">
         {t("title")}
       </h1>
-      <p className="mt-3 max-w-[62ch] text-base text-muted-foreground">{t("lead")}</p>
+      <p className="mt-3 max-w-[62ch] text-base text-muted-foreground">{t("lead", { days: TRIAL_DAYS })}</p>
       <div className="mt-8">
         <SignupForm />
       </div>

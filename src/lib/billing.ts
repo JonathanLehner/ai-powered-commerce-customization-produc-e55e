@@ -16,9 +16,46 @@ import type { Agency, AgencyBilling } from "./types";
 
 export { TRIAL_DAYS, billingConfigured };
 
-/** True while a self-serve agency has not finished checkout. Platform-managed agencies are never pending. */
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** True while the agency is on its free trial without payment details, whether or not the trial has ended. */
+export function onTrial(agency: Agency | null): boolean {
+  return agency?.billing?.status === "trialing";
+}
+
+/** Whole days left on the free trial, rounded up; 0 once it has ended. */
+export function trialDaysLeft(agency: Agency | null, now = Date.now()): number {
+  const ends = agency?.billing?.trialEndsAt ? Date.parse(agency.billing.trialEndsAt) : NaN;
+  if (!onTrial(agency) || Number.isNaN(ends)) return 0;
+  return Math.max(0, Math.ceil((ends - now) / DAY_MS));
+}
+
+/**
+ * True while a self-serve agency has to add payment details before it can go
+ * on: its free trial has ended, or it signed up card-first and never finished
+ * checkout. Platform-managed agencies never are.
+ */
 export function billingPending(agency: Agency | null): boolean {
-  return agency?.billing?.status === "pending";
+  if (agency?.billing?.status === "pending") return true;
+  return onTrial(agency) && trialDaysLeft(agency) === 0;
+}
+
+/** Whether the owner can open Checkout: on a trial, after it, or still pending. */
+export function canStartCheckout(agency: Agency | null): boolean {
+  return agency?.billing?.status === "pending" || onTrial(agency);
+}
+
+/**
+ * The trial Checkout gives the subscription. A trialing agency keeps the days
+ * it has left, so adding a card early never resets the clock; Stripe needs a
+ * trial end at least two days out, and anything shorter bills straight away.
+ * A card-first sign-up still gets the full trial.
+ */
+function checkoutTrial(billing: AgencyBilling, now = Date.now()): Partial<Pick<Stripe.Checkout.SessionCreateParams.SubscriptionData, "trial_end" | "trial_period_days">> {
+  if (billing.status === "pending") return { trial_period_days: TRIAL_DAYS };
+  const ends = billing.trialEndsAt ? Date.parse(billing.trialEndsAt) : NaN;
+  if (Number.isNaN(ends) || ends - now < 2 * DAY_MS + 60 * 60 * 1000) return {};
+  return { trial_end: Math.floor(ends / 1000) };
 }
 
 interface CheckoutSession {
@@ -45,8 +82,8 @@ export function summarize(session: Stripe.Checkout.Session): CheckoutSession {
 /**
  * A Checkout session for the agency's chosen plan, cycle and currency, or null
  * when Stripe cannot be reached. The idempotency key covers that combination,
- * so a double submission or a return from the cancel page within a day opens
- * the same session instead of a second one.
+ * and trial, so a double submission or a return from the cancel page within a
+ * day opens the same session instead of a second one.
  */
 export async function startPlanCheckout(input: {
   agency: Agency & { billing: AgencyBilling };
@@ -60,6 +97,7 @@ export async function startPlanCheckout(input: {
   const price = planPrice(plan, cycle, currency);
   const stripe = stripeClient();
   if (!price || !stripe) return null;
+  const trial = checkoutTrial(agency.billing);
 
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: "subscription",
@@ -77,14 +115,14 @@ export async function startPlanCheckout(input: {
         },
       },
     ],
-    subscription_data: { trial_period_days: TRIAL_DAYS, metadata: { agencyId: agency.id } },
+    subscription_data: { ...trial, metadata: { agencyId: agency.id } },
     metadata: { agencyId: agency.id, plan: planKey, cycle },
     success_url: `${origin}/app/billing/complete?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/app/billing?cancelled=1`,
   };
   try {
     const session = await stripe.checkout.sessions.create(params, {
-      idempotencyKey: `plan-checkout-${agency.id}-${planKey}-${cycle}-${currency}`,
+      idempotencyKey: `plan-checkout-${agency.id}-${planKey}-${cycle}-${currency}-${trial.trial_end ?? trial.trial_period_days ?? "none"}`,
     });
     return summarize(session);
   } catch (error) {
@@ -109,7 +147,7 @@ export async function getCheckoutSession(id: string): Promise<CheckoutSession | 
 /**
  * Switches the plan on once Checkout completed. Reached from the success page
  * and from the webhook, whichever is first; the write only applies while the
- * agency is still pending, so the second one changes nothing.
+ * agency is still trialing or pending, so the second one changes nothing.
  */
 export async function activateSubscription(
   agency: Agency & { billing: AgencyBilling },
@@ -118,7 +156,7 @@ export async function activateSubscription(
 ): Promise<void> {
   const result = await db.updateOne(
     COLLECTIONS.agencies,
-    { id: agency.id, "billing.status": "pending" },
+    { id: agency.id, "billing.status": { $in: ["trialing", "pending"] } },
     {
       $set: {
         plan: agency.billing.plan,

@@ -369,7 +369,7 @@
     "annualContract": "Jahresvertrag",
     "currency": "Währung",
     "taxNote": "{currency, select, EUR {Preise zzgl. MwSt. Die MwSt. wird beim Checkout je nach Rechnungsland berechnet.} other {Preise zzgl. Steuern. MwSt. oder Umsatzsteuer wird beim Checkout je nach Rechnungsland berechnet.}}",
-    "getStarted": "Jetzt starten",
+    "getStarted": "Kostenlos testen",
     "contactSales": "Vertrieb kontaktieren",
     "liveStores": "{count, plural, one {# aktiver Shop} other {# aktive Shops}}",
     "unlimitedLiveStores": "Unbegrenzt aktive Shops",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "Gibt es eine kostenlose Testphase?",
-        "answer": "Ja. Starter und Studio können 14 Tage kostenlos getestet werden. Den Demo-Arbeitsbereich können Sie jederzeit ausprobieren."
+        "answer": "Ja. Starter und Studio können 14 Tage kostenlos getestet werden, ohne Kreditkarte. Den Demo-Arbeitsbereich können Sie jederzeit ausprobieren."
       },
       {
         "question": "Kann ich kündigen oder den Plan wechseln?",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "Konto erstellen",
-    "metaDescription": "Starten Sie einen Parcelith-Agenturarbeitsbereich im Starter- oder Studio-Tarif.",
-    "title": "Konto erstellen",
-    "lead": "Richten Sie Ihren Agenturarbeitsbereich ein. Die Zahlungsdaten geben Sie im nächsten Schritt an.",
+    "metaTitle": "Kostenlos testen",
+    "metaDescription": "Testen Sie Parcelith 14 Tage kostenlos im Starter- oder Studio-Tarif. Keine Kreditkarte erforderlich.",
+    "title": "Kostenlos testen",
+    "lead": "{days} Tage kostenlos testen, keine Kreditkarte erforderlich. Richten Sie Ihren Agenturarbeitsbereich ein und erstellen Sie in wenigen Minuten Ihren ersten Shop.",
     "name": "Ihr Name",
     "email": "Geschäftliche E-Mail",
     "agencyName": "Name der Agentur",
     "password": "Passwort",
     "passwordHint": "Mindestens {count} Zeichen.",
     "terms": "Mit der Kontoerstellung stimmen Sie den <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzerklärung</privacy> zu.",
-    "submit": "Weiter zur Zahlung",
-    "pending": "Konto wird erstellt…",
+    "submit": "Kostenlos testen",
+    "pending": "Arbeitsbereich wird erstellt…",
     "haveAccount": "Sie haben bereits ein Konto?",
     "signIn": "Anmelden",
     "summaryTitle": "Ihr Tarif",
@@ -504,7 +504,7 @@
     "perMonth": "/Monat",
     "billedMonthly": "Monatliche Abrechnung",
     "billedYearly": "Jährliche Abrechnung: {amount}",
-    "trial": "{days} Tage kostenlos testen. Wenn Sie vorher kündigen, wird nichts berechnet.",
+    "trial": "{days} Tage kostenlos testen, keine Kreditkarte erforderlich. Zahlungsdaten können Sie jederzeit hinterlegen.",
     "scale": "Sie brauchen mehr Live-Shops? <link>Kontaktieren Sie den Vertrieb</link> zum Scale-Tarif.",
     "unavailableTitle": "Die Online-Registrierung startet in Kürze",
     "unavailableLead": "<link>Kontaktieren Sie den Vertrieb</link>, um loszulegen.",
@@ -1099,6 +1099,7 @@
     "planLabel": "Tarif",
     "statusLabel": "Status",
     "status": {
+      "trialing": "Testphase",
       "pending": "Ausstehend",
       "active": "Aktiv",
       "past_due": "Überfällig",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "Zurück zum Arbeitsbereich",
     "pastDueBanner": "Ihre letzte Tarifzahlung ist fehlgeschlagen.",
     "pastDueAction": "Zahlungsmethode aktualisieren",
-    "pastDueAskOwner": "Bitten Sie den Kontoinhaber, die Zahlungsmethode zu aktualisieren."
+    "pastDueAskOwner": "Bitten Sie den Kontoinhaber, die Zahlungsmethode zu aktualisieren.",
+    "trialEndsOn": "Testphase endet",
+    "trialNote": "Noch keine Karte hinterlegt. Hinterlegen Sie Zahlungsdaten, damit Ihr Tarif nach der Testphase weiterläuft; berechnet wird erst danach.",
+    "addPayment": "Zahlungsdaten hinterlegen",
+    "trialBanner": "Noch {days, plural, one {# Tag} other {# Tage}} in Ihrer kostenlosen Testphase.",
+    "trialEndedTitle": "Ihre kostenlose Testphase ist abgelaufen",
+    "trialEndedBody": "Hinterlegen Sie Zahlungsdaten, um Ihren Arbeitsbereich weiter zu nutzen. Ihre Shops und Daten bleiben erhalten."
   },
   "actions": {
     "common": {

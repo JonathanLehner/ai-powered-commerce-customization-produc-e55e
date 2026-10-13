@@ -369,7 +369,7 @@
     "annualContract": "Contrat annuel",
     "currency": "Devise",
     "taxNote": "{currency, select, EUR {Prix HT. La TVA est ajoutée au paiement selon votre pays de facturation.} other {Prix hors taxes. La TVA ou la taxe de vente est ajoutée au paiement selon votre pays de facturation.}}",
-    "getStarted": "Commencer",
+    "getStarted": "Essai gratuit",
     "contactSales": "Contacter les ventes",
     "liveStores": "{count, plural, one {# boutique en ligne} other {# boutiques en ligne}}",
     "unlimitedLiveStores": "Boutiques en ligne illimitées",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "Y a-t-il un essai gratuit ?",
-        "answer": "Oui. Starter et Studio incluent un essai gratuit de 14 jours. Vous pouvez aussi explorer l'espace de démonstration à tout moment."
+        "answer": "Oui. Starter et Studio incluent un essai gratuit de 14 jours, sans carte bancaire. Vous pouvez aussi explorer l'espace de démonstration à tout moment."
       },
       {
         "question": "Puis-je résilier ou changer de formule ?",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "Créer un compte",
-    "metaDescription": "Lancez un espace agence Parcelith avec la formule Starter ou Studio.",
-    "title": "Créer un compte",
-    "lead": "Configurez votre espace agence. Vous ajouterez vos informations de paiement à l'étape suivante.",
+    "metaTitle": "Commencez votre essai gratuit",
+    "metaDescription": "Essayez Parcelith gratuitement pendant 14 jours avec la formule Starter ou Studio. Sans carte bancaire.",
+    "title": "Commencez votre essai gratuit",
+    "lead": "Essai gratuit de {days} jours, sans carte bancaire. Configurez votre espace agence et créez votre première boutique en quelques minutes.",
     "name": "Votre nom",
     "email": "E-mail professionnel",
     "agencyName": "Nom de l'agence",
     "password": "Mot de passe",
     "passwordHint": "Au moins {count} caractères.",
     "terms": "En créant un compte, vous acceptez les <terms>Conditions d'utilisation</terms> et la <privacy>Politique de confidentialité</privacy>.",
-    "submit": "Continuer vers le paiement",
-    "pending": "Création du compte…",
+    "submit": "Commencer l'essai gratuit",
+    "pending": "Création de votre espace…",
     "haveAccount": "Vous avez déjà un compte ?",
     "signIn": "Se connecter",
     "summaryTitle": "Votre formule",
@@ -504,7 +504,7 @@
     "perMonth": "/mois",
     "billedMonthly": "Facturé mensuellement",
     "billedYearly": "Facturé {amount} par an",
-    "trial": "Essai gratuit de {days} jours. Annulez avant la fin et vous ne serez pas débité.",
+    "trial": "Essai gratuit de {days} jours, sans carte bancaire. Ajoutez vos informations de paiement quand vous le souhaitez.",
     "scale": "Besoin de plus de boutiques en ligne ? <link>Contactez les ventes</link> pour Scale.",
     "unavailableTitle": "L'inscription en ligne ouvre bientôt",
     "unavailableLead": "<link>Contactez les ventes</link> pour commencer.",
@@ -1099,6 +1099,7 @@
     "planLabel": "Forfait",
     "statusLabel": "Statut",
     "status": {
+      "trialing": "Essai gratuit",
       "pending": "En attente",
       "active": "Actif",
       "past_due": "En retard",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "Retour à l’espace de travail",
     "pastDueBanner": "Le dernier paiement de votre forfait a échoué.",
     "pastDueAction": "Mettre à jour le moyen de paiement",
-    "pastDueAskOwner": "Demandez au propriétaire du compte de mettre à jour le moyen de paiement."
+    "pastDueAskOwner": "Demandez au propriétaire du compte de mettre à jour le moyen de paiement.",
+    "trialEndsOn": "Fin de l'essai",
+    "trialNote": "Aucune carte enregistrée. Ajoutez vos informations de paiement pour que votre formule continue après l'essai ; vous n'êtes débité qu'à la fin de celui-ci.",
+    "addPayment": "Ajouter un moyen de paiement",
+    "trialBanner": "Il reste {days, plural, one {# jour} other {# jours}} à votre essai gratuit.",
+    "trialEndedTitle": "Votre essai gratuit est terminé",
+    "trialEndedBody": "Ajoutez un moyen de paiement pour continuer à utiliser votre espace. Vos boutiques et vos données sont conservées."
   },
   "actions": {
     "common": {

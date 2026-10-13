@@ -6,7 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { asLocale } from "@/i18n/metadata";
-import { billingConfigured, billingPending, startPlanCheckout } from "@/lib/billing";
+import { TRIAL_DAYS, billingConfigured, billingPending, canStartCheckout, startPlanCheckout } from "@/lib/billing";
 import { COLLECTIONS, getAgency, getUserByEmail, recordAudit } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
 import { db } from "@/lib/mongo";
@@ -30,15 +30,18 @@ async function checkoutAddress(agency: BillingAgency, email: string, locale: str
 }
 
 /**
- * Creates an agency with its owner, signs the owner in and opens Checkout for
- * the plan chosen on the pricing page.
+ * Creates an agency with its owner on a free trial of the plan chosen on the
+ * pricing page, signs the owner in and opens the workspace. No card is asked
+ * for: the owner adds payment details from the billing page, at the latest
+ * when the trial ends.
  *
  * The form carries one key per filled-in form. A second submission with the
- * same key and password finds the account it already made and goes on to
- * Checkout, rather than failing on the email address it just took.
+ * same key and password finds the account it already made and signs in to it,
+ * rather than failing on the email address it just took.
  *
- * Without a billing key no account is made: the sign-up page sends visitors to
- * sales then, and this only answers a form left open from before.
+ * Without a billing key no account is made, since a trial could never be paid
+ * for: the sign-up page sends visitors to sales then, and this only answers a
+ * form left open from before.
  */
 export async function createAccount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const locale = asLocale(String(formData.get("locale") ?? ""));
@@ -77,7 +80,7 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
       status: "active",
       createdAt: now,
       billing: {
-        status: "pending",
+        status: "trialing",
         plan: input.plan,
         cycle: input.cycle,
         currency: input.currency,
@@ -85,6 +88,7 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
         stripeCustomerId: null,
         stripeSubscriptionId: null,
         activatedAt: null,
+        trialEndsAt: new Date(Date.parse(now) + TRIAL_DAYS * 24 * 60 * 60 * 1000).toISOString(),
       },
       signupKey: input.submissionKey,
     };
@@ -105,7 +109,7 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
     recordAudit({
       category: "administration",
       action: "agency.signed_up",
-      summary: `${user.name} created the agency “${agency.name}” on the ${input.plan} plan`,
+      summary: `${user.name} created the agency “${agency.name}” on a ${TRIAL_DAYS}-day ${input.plan} trial`,
       agencyId: agency.id,
       actorId: user.id,
       actorName: user.name,
@@ -123,16 +127,17 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
     throw error;
   }
 
-  if (!billingPending(agency)) redirect("/app");
-  redirect(await checkoutAddress(agency as BillingAgency, input.email, locale));
+  // A card-first sign-up from before the trial still finishes its checkout.
+  if (billingPending(agency)) redirect(await checkoutAddress(agency as BillingAgency, input.email, locale));
+  redirect("/app/stores/new?welcome=1");
 }
 
-/** "Continue to payment" on the billing page, for an owner who left Checkout or could not reach it. */
+/** "Add payment details" on the billing page, during or after the free trial, or for an owner who left Checkout. */
 export async function continueToPayment(formData: FormData): Promise<void> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
   const agency = user.agencyId ? await getAgency(user.agencyId) : null;
-  if (user.platformRole !== "agency_admin" || !agency?.billing || !billingPending(agency)) redirect("/app");
+  if (user.platformRole !== "agency_admin" || !agency?.billing || !canStartCheckout(agency)) redirect("/app");
 
   const cycle = String(formData.get("cycle") ?? "");
   let billing = agency.billing;

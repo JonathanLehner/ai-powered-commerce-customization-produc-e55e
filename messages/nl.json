@@ -369,7 +369,7 @@
     "annualContract": "Jaarcontract",
     "currency": "Valuta",
     "taxNote": "{currency, select, EUR {Prijzen excl. btw. Btw wordt bij het afrekenen berekend op basis van je factuurland.} other {Prijzen excl. belasting. Btw of sales tax wordt bij het afrekenen berekend op basis van je factuurland.}}",
-    "getStarted": "Aan de slag",
+    "getStarted": "Gratis proberen",
     "contactSales": "Contact met sales",
     "liveStores": "{count, plural, one {# live winkel} other {# live winkels}}",
     "unlimitedLiveStores": "Onbeperkt live winkels",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "Is er een gratis proefperiode?",
-        "answer": "Ja. Starter en Studio hebben een gratis proefperiode van 14 dagen. Je kunt ook altijd de demowerkruimte bekijken."
+        "answer": "Ja. Starter en Studio hebben een gratis proefperiode van 14 dagen, zonder creditcard. Je kunt de demowerkruimte ook altijd bekijken."
       },
       {
         "question": "Kan ik opzeggen of van abonnement wisselen?",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "Account aanmaken",
-    "metaDescription": "Start een Parcelith-bureauwerkruimte met het Starter- of Studio-abonnement.",
-    "title": "Account aanmaken",
-    "lead": "Richt je bureauwerkruimte in. In de volgende stap voeg je je betaalgegevens toe.",
+    "metaTitle": "Start je gratis proefperiode",
+    "metaDescription": "Probeer Parcelith 14 dagen gratis met het Starter- of Studio-abonnement. Geen creditcard nodig.",
+    "title": "Start je gratis proefperiode",
+    "lead": "{days} dagen gratis proberen, geen creditcard nodig. Richt de werkruimte van je bureau in en maak binnen enkele minuten je eerste winkel.",
     "name": "Je naam",
     "email": "Zakelijk e-mailadres",
     "agencyName": "Naam van het bureau",
     "password": "Wachtwoord",
     "passwordHint": "Minimaal {count} tekens.",
     "terms": "Door een account aan te maken ga je akkoord met de <terms>Servicevoorwaarden</terms> en het <privacy>Privacybeleid</privacy>.",
-    "submit": "Doorgaan naar betalen",
-    "pending": "Account wordt aangemaakt…",
+    "submit": "Gratis proefperiode starten",
+    "pending": "Werkruimte wordt aangemaakt…",
     "haveAccount": "Heb je al een account?",
     "signIn": "Inloggen",
     "summaryTitle": "Je abonnement",
@@ -504,7 +504,7 @@
     "perMonth": "/maand",
     "billedMonthly": "Maandelijks gefactureerd",
     "billedYearly": "Jaarlijks gefactureerd: {amount}",
-    "trial": "{days} dagen gratis proberen. Zeg je op voordat de proefperiode eindigt, dan betaal je niets.",
+    "trial": "{days} dagen gratis proberen, geen creditcard nodig. Voeg betaalgegevens toe wanneer je wilt.",
     "scale": "Meer live winkels nodig? <link>Neem contact op met sales</link> over Scale.",
     "unavailableTitle": "Online aanmelden is binnenkort mogelijk",
     "unavailableLead": "<link>Neem contact op met sales</link> om te beginnen.",
@@ -1099,6 +1099,7 @@
     "planLabel": "Abonnement",
     "statusLabel": "Status",
     "status": {
+      "trialing": "Proefperiode",
       "pending": "In behandeling",
       "active": "Actief",
       "past_due": "Achterstallig",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "Terug naar werkruimte",
     "pastDueBanner": "De laatste betaling voor je abonnement is mislukt.",
     "pastDueAction": "Betaalmethode bijwerken",
-    "pastDueAskOwner": "Vraag de accounteigenaar om de betaalmethode bij te werken."
+    "pastDueAskOwner": "Vraag de accounteigenaar om de betaalmethode bij te werken.",
+    "trialEndsOn": "Proefperiode eindigt",
+    "trialNote": "Nog geen kaart vastgelegd. Voeg betaalgegevens toe zodat je abonnement na de proefperiode doorloopt; je betaalt pas als die afloopt.",
+    "addPayment": "Betaalgegevens toevoegen",
+    "trialBanner": "Nog {days, plural, one {# dag} other {# dagen}} in je gratis proefperiode.",
+    "trialEndedTitle": "Je gratis proefperiode is afgelopen",
+    "trialEndedBody": "Voeg betaalgegevens toe om je werkruimte te blijven gebruiken. Je winkels en gegevens blijven bewaard."
   },
   "actions": {
     "common": {

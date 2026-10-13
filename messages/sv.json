@@ -369,7 +369,7 @@
     "annualContract": "Årsavtal",
     "currency": "Valuta",
     "taxNote": "{currency, select, EUR {Priser exkl. moms. Moms läggs till i kassan utifrån ditt faktureringsland.} other {Priser exkl. skatt. Moms eller försäljningsskatt läggs till i kassan utifrån ditt faktureringsland.}}",
-    "getStarted": "Kom igång",
+    "getStarted": "Prova gratis",
     "contactSales": "Kontakta sälj",
     "liveStores": "{count, plural, one {# aktiv butik} other {# aktiva butiker}}",
     "unlimitedLiveStores": "Obegränsat antal aktiva butiker",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "Finns det en gratis provperiod?",
-        "answer": "Ja. Starter och Studio har 14 dagars gratis provperiod. Du kan också utforska demoarbetsytan när du vill."
+        "answer": "Ja. Starter och Studio har en gratis provperiod på 14 dagar, utan kreditkort. Du kan också utforska demoarbetsytan när som helst."
       },
       {
         "question": "Kan jag säga upp eller byta plan?",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "Skapa konto",
-    "metaDescription": "Starta en Parcelith-arbetsyta för din byrå med Starter eller Studio.",
-    "title": "Skapa konto",
-    "lead": "Konfigurera byråns arbetsyta. Du lägger till betaluppgifter i nästa steg.",
+    "metaTitle": "Starta din gratis provperiod",
+    "metaDescription": "Prova Parcelith gratis i 14 dagar med Starter eller Studio. Inget kreditkort krävs.",
+    "title": "Starta din gratis provperiod",
+    "lead": "{days} dagars gratis provperiod, inget kreditkort krävs. Sätt upp byråns arbetsyta och skapa din första butik på några minuter.",
     "name": "Ditt namn",
     "email": "Jobbmejl",
     "agencyName": "Byråns namn",
     "password": "Lösenord",
     "passwordHint": "Minst {count} tecken.",
     "terms": "Genom att skapa ett konto godkänner du <terms>användarvillkoren</terms> och <privacy>integritetspolicyn</privacy>.",
-    "submit": "Fortsätt till betalning",
-    "pending": "Skapar konto…",
+    "submit": "Starta gratis provperiod",
+    "pending": "Arbetsytan skapas…",
     "haveAccount": "Har du redan ett konto?",
     "signIn": "Logga in",
     "summaryTitle": "Din plan",
@@ -504,7 +504,7 @@
     "perMonth": "/mån",
     "billedMonthly": "Faktureras månadsvis",
     "billedYearly": "Faktureras {amount} per år",
-    "trial": "{days} dagars gratis provperiod. Säg upp innan den tar slut så debiteras du inte.",
+    "trial": "{days} dagars gratis provperiod, inget kreditkort krävs. Lägg till betalningsuppgifter när du vill.",
     "scale": "Behöver du fler aktiva butiker? <link>Kontakta sälj</link> om Scale.",
     "unavailableTitle": "Registrering online öppnar snart",
     "unavailableLead": "<link>Kontakta sälj</link> för att komma igång.",
@@ -1099,6 +1099,7 @@
     "planLabel": "Plan",
     "statusLabel": "Status",
     "status": {
+      "trialing": "Provperiod",
       "pending": "Väntar",
       "active": "Aktiv",
       "past_due": "Förfallen",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "Tillbaka till arbetsytan",
     "pastDueBanner": "Den senaste betalningen för din plan misslyckades.",
     "pastDueAction": "Uppdatera betalningsmetod",
-    "pastDueAskOwner": "Be kontoägaren att uppdatera betalningsmetoden."
+    "pastDueAskOwner": "Be kontoägaren att uppdatera betalningsmetoden.",
+    "trialEndsOn": "Provperioden slutar",
+    "trialNote": "Inget kort registrerat än. Lägg till betalningsuppgifter så fortsätter ditt abonnemang efter provperioden; du debiteras först när den är slut.",
+    "addPayment": "Lägg till betalningsuppgifter",
+    "trialBanner": "{days, plural, one {# dag} other {# dagar}} kvar av din gratis provperiod.",
+    "trialEndedTitle": "Din gratis provperiod är slut",
+    "trialEndedBody": "Lägg till betalningsuppgifter för att fortsätta använda arbetsytan. Dina butiker och data finns kvar."
   },
   "actions": {
     "common": {

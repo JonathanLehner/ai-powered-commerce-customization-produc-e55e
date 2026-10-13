@@ -60,8 +60,13 @@ export interface Agency {
 }
 
 export interface AgencyBilling {
-  /** `past_due` after a failed renewal; `canceled` once the subscription has ended. */
-  status: "pending" | "active" | "past_due" | "canceled";
+  /**
+   * `trialing` from sign-up until payment details are added, with no card on
+   * file; `pending` is the older card-first sign-up that has not finished
+   * checkout. `past_due` after a failed renewal; `canceled` once the
+   * subscription has ended.
+   */
+  status: "trialing" | "pending" | "active" | "past_due" | "canceled";
   plan: "starter" | "studio";
   cycle: "monthly" | "yearly";
   currency: "USD" | "EUR";
@@ -69,6 +74,8 @@ export interface AgencyBilling {
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   activatedAt: string | null;
+  /** When a `trialing` agency's free trial ends. */
+  trialEndsAt?: string | null;
   /** When the current period ends, as Stripe last reported it. */
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;

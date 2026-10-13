@@ -208,6 +208,11 @@ async function billedAgency(filter: Record<string, unknown>): Promise<BilledAgen
   return agency?.billing ? (agency as BilledAgency) : null;
 }
 
+/** Still on the free trial or card-first checkout, so no subscription to follow yet. */
+function unsubscribed(agency: BilledAgency): boolean {
+  return agency.billing.status === "pending" || agency.billing.status === "trialing";
+}
+
 async function planCheckout(type: SessionEvent, session: Stripe.Checkout.Session) {
   const agency = await getAgency(session.metadata?.agencyId ?? session.client_reference_id ?? "");
   if (!agency?.billing) return "unknown_agency";
@@ -256,7 +261,7 @@ async function subscriptionChanged(subscription: Stripe.Subscription, deleted: b
   if (!agency) return "unknown_agency";
   // A subscription event can overtake the Checkout one; activation sets the
   // status, and later updates follow it.
-  if (agency.billing.status === "pending") return "agency_pending";
+  if (unsubscribed(agency)) return "agency_pending";
 
   const periodEnd = subscription.items.data[0]?.current_period_end;
   const status = deleted ? "canceled" : (billingStatusFor(subscription.status) ?? agency.billing.status);
@@ -273,7 +278,7 @@ async function invoiceFailed(invoice: Stripe.Invoice) {
   if (!customer) return "unknown_agency";
   const agency = await billedAgency({ "billing.stripeCustomerId": customer });
   if (!agency) return "unknown_agency";
-  if (agency.billing.status === "pending") return "agency_pending";
+  if (unsubscribed(agency)) return "agency_pending";
   await setBillingStatus(agency, "past_due");
   return "plan_past_due";
 }

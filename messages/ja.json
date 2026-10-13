@@ -369,7 +369,7 @@
     "annualContract": "年間契約",
     "currency": "通貨",
     "taxNote": "{currency, select, EUR {価格はVAT別です。VATはチェックアウト時に請求先の国に応じて加算されます。} other {価格は税別です。消費税、売上税またはVATはチェックアウト時に請求先の国に応じて加算されます。}}",
-    "getStarted": "始める",
+    "getStarted": "無料で試す",
     "contactSales": "営業に問い合わせる",
     "liveStores": "{count, plural, other {公開ストア # 店舗}}",
     "unlimitedLiveStores": "公開ストア数無制限",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "無料トライアルはありますか？",
-        "answer": "はい。StarterとStudioは14日間無料でお試しいただけます。デモワークスペースはいつでもご覧いただけます。"
+        "answer": "はい。StarterとStudioは14日間無料でお試しいただけます。クレジットカードは不要です。デモワークスペースはいつでもご覧いただけます。"
       },
       {
         "question": "解約やプランの変更はできますか？",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "アカウントを作成",
-    "metaDescription": "StarterまたはStudioプランでParcelithのエージェンシーワークスペースを開始します。",
-    "title": "アカウントを作成",
-    "lead": "エージェンシーのワークスペースを設定します。お支払い情報は次のステップで入力します。",
+    "metaTitle": "無料トライアルを開始",
+    "metaDescription": "StarterまたはStudioプランでParcelithを14日間無料でお試しいただけます。クレジットカードは不要です。",
+    "title": "無料トライアルを開始",
+    "lead": "{days}日間の無料トライアル、クレジットカード不要。エージェンシーのワークスペースを設定し、数分で最初のストアを作成できます。",
     "name": "お名前",
     "email": "勤務先メールアドレス",
     "agencyName": "エージェンシー名",
     "password": "パスワード",
     "passwordHint": "{count}文字以上。",
     "terms": "アカウントを作成すると、<terms>利用規約</terms>および<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。",
-    "submit": "お支払いへ進む",
-    "pending": "アカウントを作成しています…",
+    "submit": "無料トライアルを開始",
+    "pending": "ワークスペースを作成中…",
     "haveAccount": "アカウントをお持ちですか？",
     "signIn": "サインイン",
     "summaryTitle": "ご利用プラン",
@@ -504,7 +504,7 @@
     "perMonth": "/月",
     "billedMonthly": "毎月請求",
     "billedYearly": "年額{amount}を請求",
-    "trial": "{days}日間の無料トライアル。終了前に解約すれば料金はかかりません。",
+    "trial": "{days}日間の無料トライアル、クレジットカード不要。お支払い情報はいつでも追加できます。",
     "scale": "さらに多くの公開ストアが必要ですか？Scaleについては<link>営業チームにお問い合わせ</link>ください。",
     "unavailableTitle": "オンライン登録はまもなく開始します",
     "unavailableLead": "ご利用を開始するには<link>営業チームにお問い合わせ</link>ください。",
@@ -1099,6 +1099,7 @@
     "planLabel": "プラン",
     "statusLabel": "ステータス",
     "status": {
+      "trialing": "無料トライアル",
       "pending": "保留中",
       "active": "有効",
       "past_due": "支払い遅延",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "ワークスペースに戻る",
     "pastDueBanner": "前回のプランのお支払いに失敗しました。",
     "pastDueAction": "お支払い方法を更新",
-    "pastDueAskOwner": "アカウント所有者にお支払い方法の更新を依頼してください。"
+    "pastDueAskOwner": "アカウント所有者にお支払い方法の更新を依頼してください。",
+    "trialEndsOn": "トライアル終了日",
+    "trialNote": "カードはまだ登録されていません。トライアル後もプランを継続するにはお支払い情報を追加してください。請求はトライアル終了後に行われます。",
+    "addPayment": "お支払い情報を追加",
+    "trialBanner": "無料トライアルの残り日数：{days}日",
+    "trialEndedTitle": "無料トライアルが終了しました",
+    "trialEndedBody": "ワークスペースを引き続きご利用いただくには、お支払い情報を追加してください。ストアとデータは保存されています。"
   },
   "actions": {
     "common": {

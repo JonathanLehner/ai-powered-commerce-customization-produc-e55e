@@ -369,7 +369,7 @@
     "annualContract": "Contratto annuale",
     "currency": "Valuta",
     "taxNote": "{currency, select, EUR {Prezzi IVA esclusa. L'IVA viene aggiunta al pagamento in base al paese di fatturazione.} other {Prezzi tasse escluse. IVA o imposta sulle vendite vengono aggiunte al pagamento in base al paese di fatturazione.}}",
-    "getStarted": "Inizia",
+    "getStarted": "Prova gratis",
     "contactSales": "Contatta il team vendite",
     "liveStores": "{count, plural, one {# negozio attivo} other {# negozi attivi}}",
     "unlimitedLiveStores": "Negozi attivi illimitati",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "C'è una prova gratuita?",
-        "answer": "Sì. Starter e Studio includono una prova gratuita di 14 giorni. Puoi anche esplorare lo spazio demo in qualsiasi momento."
+        "answer": "Sì. Starter e Studio includono una prova gratuita di 14 giorni, senza carta di credito. Puoi anche esplorare lo spazio demo in qualsiasi momento."
       },
       {
         "question": "Posso disdire o cambiare piano?",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "Crea il tuo account",
-    "metaDescription": "Apri uno spazio agenzia Parcelith con il piano Starter o Studio.",
-    "title": "Crea il tuo account",
-    "lead": "Configura lo spazio della tua agenzia. Inserirai i dati di pagamento nel passaggio successivo.",
+    "metaTitle": "Inizia la prova gratuita",
+    "metaDescription": "Prova Parcelith gratis per 14 giorni con il piano Starter o Studio. Nessuna carta di credito richiesta.",
+    "title": "Inizia la prova gratuita",
+    "lead": "Prova gratuita di {days} giorni, senza carta di credito. Configura lo spazio della tua agenzia e crea il tuo primo negozio in pochi minuti.",
     "name": "Il tuo nome",
     "email": "Email di lavoro",
     "agencyName": "Nome dell'agenzia",
     "password": "Password",
     "passwordHint": "Almeno {count} caratteri.",
     "terms": "Creando un account accetti i <terms>Termini di servizio</terms> e l’<privacy>Informativa sulla privacy</privacy>.",
-    "submit": "Continua al pagamento",
-    "pending": "Creazione account…",
+    "submit": "Inizia la prova gratuita",
+    "pending": "Creazione dello spazio…",
     "haveAccount": "Hai già un account?",
     "signIn": "Accedi",
     "summaryTitle": "Il tuo piano",
@@ -504,7 +504,7 @@
     "perMonth": "/mese",
     "billedMonthly": "Fatturazione mensile",
     "billedYearly": "Fatturazione annuale di {amount}",
-    "trial": "Prova gratuita di {days} giorni. Annulla prima della scadenza e non ti verrà addebitato nulla.",
+    "trial": "Prova gratuita di {days} giorni, senza carta di credito. Aggiungi i dati di pagamento quando vuoi.",
     "scale": "Ti servono più negozi attivi? <link>Contatta le vendite</link> per Scale.",
     "unavailableTitle": "La registrazione online apre a breve",
     "unavailableLead": "<link>Contatta le vendite</link> per iniziare.",
@@ -1099,6 +1099,7 @@
     "planLabel": "Piano",
     "statusLabel": "Stato",
     "status": {
+      "trialing": "Prova gratuita",
       "pending": "In attesa",
       "active": "Attivo",
       "past_due": "Scaduto",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "Torna all’area di lavoro",
     "pastDueBanner": "L’ultimo pagamento del piano non è riuscito.",
     "pastDueAction": "Aggiorna il metodo di pagamento",
-    "pastDueAskOwner": "Chiedi al titolare dell’account di aggiornare il metodo di pagamento."
+    "pastDueAskOwner": "Chiedi al titolare dell’account di aggiornare il metodo di pagamento.",
+    "trialEndsOn": "Fine della prova",
+    "trialNote": "Nessuna carta registrata. Aggiungi i dati di pagamento per mantenere attivo il piano dopo la prova; l'addebito avviene solo alla fine.",
+    "addPayment": "Aggiungi dati di pagamento",
+    "trialBanner": "{days, plural, one {Manca # giorno} other {Mancano # giorni}} alla fine della prova gratuita.",
+    "trialEndedTitle": "La prova gratuita è terminata",
+    "trialEndedBody": "Aggiungi i dati di pagamento per continuare a usare lo spazio. I tuoi negozi e dati sono salvati."
   },
   "actions": {
     "common": {

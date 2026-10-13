@@ -369,7 +369,7 @@
     "annualContract": "Contrato anual",
     "currency": "Moneda",
     "taxNote": "{currency, select, EUR {Precios sin IVA. El IVA se añade al pagar según tu país de facturación.} other {Precios sin impuestos. El IVA o el impuesto sobre las ventas se añade al pagar según tu país de facturación.}}",
-    "getStarted": "Empezar",
+    "getStarted": "Prueba gratis",
     "contactSales": "Contactar con ventas",
     "liveStores": "{count, plural, one {# tienda activa} other {# tiendas activas}}",
     "unlimitedLiveStores": "Tiendas activas ilimitadas",
@@ -410,7 +410,7 @@
     "faq": [
       {
         "question": "¿Hay una prueba gratuita?",
-        "answer": "Sí. Starter y Studio incluyen 14 días de prueba gratuita. También puedes explorar el espacio de demostración cuando quieras."
+        "answer": "Sí. Starter y Studio incluyen una prueba gratuita de 14 días, sin tarjeta de crédito. También puedes explorar el espacio de demostración cuando quieras."
       },
       {
         "question": "¿Puedo cancelar o cambiar de plan?",
@@ -482,18 +482,18 @@
     }
   },
   "signup": {
-    "metaTitle": "Crea tu cuenta",
-    "metaDescription": "Abre un espacio de agencia en Parcelith con el plan Starter o Studio.",
-    "title": "Crea tu cuenta",
-    "lead": "Configura el espacio de tu agencia. Añadirás los datos de pago en el siguiente paso.",
+    "metaTitle": "Empieza tu prueba gratuita",
+    "metaDescription": "Prueba Parcelith gratis durante 14 días con el plan Starter o Studio. Sin tarjeta de crédito.",
+    "title": "Empieza tu prueba gratuita",
+    "lead": "Prueba gratuita de {days} días, sin tarjeta de crédito. Configura el espacio de tu agencia y crea tu primera tienda en minutos.",
     "name": "Tu nombre",
     "email": "Correo de trabajo",
     "agencyName": "Nombre de la agencia",
     "password": "Contraseña",
     "passwordHint": "Al menos {count} caracteres.",
     "terms": "Al crear una cuenta, aceptas los <terms>Términos del servicio</terms> y la <privacy>Política de privacidad</privacy>.",
-    "submit": "Continuar al pago",
-    "pending": "Creando cuenta…",
+    "submit": "Empezar prueba gratuita",
+    "pending": "Creando tu espacio…",
     "haveAccount": "¿Ya tienes una cuenta?",
     "signIn": "Iniciar sesión",
     "summaryTitle": "Tu plan",
@@ -504,7 +504,7 @@
     "perMonth": "/mes",
     "billedMonthly": "Facturación mensual",
     "billedYearly": "Facturación anual de {amount}",
-    "trial": "{days} días de prueba gratuita. Cancela antes de que termine y no se te cobrará.",
+    "trial": "Prueba gratuita de {days} días, sin tarjeta de crédito. Añade tus datos de pago cuando quieras.",
     "scale": "¿Necesitas más tiendas activas? <link>Contacta con ventas</link> sobre Scale.",
     "unavailableTitle": "El registro online abrirá pronto",
     "unavailableLead": "<link>Contacta con ventas</link> para empezar.",
@@ -1099,6 +1099,7 @@
     "planLabel": "Plan",
     "statusLabel": "Estado",
     "status": {
+      "trialing": "Prueba gratuita",
       "pending": "Pendiente",
       "active": "Activo",
       "past_due": "Vencido",
@@ -1121,7 +1122,13 @@
     "backToWorkspace": "Volver al espacio de trabajo",
     "pastDueBanner": "El último pago de tu plan ha fallado.",
     "pastDueAction": "Actualizar método de pago",
-    "pastDueAskOwner": "Pide al titular de la cuenta que actualice el método de pago."
+    "pastDueAskOwner": "Pide al titular de la cuenta que actualice el método de pago.",
+    "trialEndsOn": "La prueba termina",
+    "trialNote": "Aún no hay ninguna tarjeta. Añade tus datos de pago para que tu plan continúe después de la prueba; solo se cobra cuando termina.",
+    "addPayment": "Añadir datos de pago",
+    "trialBanner": "{days, plural, one {Queda # día} other {Quedan # días}} de tu prueba gratuita.",
+    "trialEndedTitle": "Tu prueba gratuita ha terminado",
+    "trialEndedBody": "Añade tus datos de pago para seguir usando tu espacio. Tus tiendas y datos se conservan."
   },
   "actions": {
     "common": {
