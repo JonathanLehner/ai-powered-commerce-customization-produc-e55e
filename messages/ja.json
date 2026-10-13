@@ -667,8 +667,6 @@
     "emailPlaceholder": "name@company.co.jp",
     "password": "パスワード",
     "signIn": "ログイン",
-    "invitedEmail": "招待されたメールアドレスでログイン",
-    "continue": "続行",
     "failed": "ログインできませんでした",
     "errors": {
       "unknownUser": "このメールアドレスのアカウントはありません。",
@@ -688,7 +686,10 @@
     "creates": "承諾すると、{email} の Parcelith アカウントが作成され、ログインします。",
     "invited": "招待日：{date}",
     "accept": "招待を承諾",
-    "accepting": "アカウントを準備しています…"
+    "accepting": "アカウントを準備しています…",
+    "password": "パスワードを設定",
+    "passwordHint": "{count}文字以上。メールアドレスと一緒にサインインに使います。",
+    "passwordError": "{count}文字以上で入力してください。"
   },
   "roles": {
     "store_admin": "ストア管理者",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "{currency} の端数処理",
       "rules": {
+        "10": "10 単位に切り上げ",
+        "100": "100 単位に切り上げ",
         "none": "端数処理なし",
         "0_00": ".00 に切り上げ",
         "0_90": ".90 に切り上げ",
         "0_95": ".95 に切り上げ",
-        "0_99": ".99 に切り上げ",
-        "10": "10 単位に切り上げ",
-        "100": "100 単位に切り上げ"
+        "0_99": ".99 に切り上げ"
       },
       "save": "為替レートを保存",
       "refresh": "今すぐレートを更新",

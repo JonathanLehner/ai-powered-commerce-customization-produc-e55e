@@ -667,8 +667,6 @@
     "emailPlaceholder": "name@company.com",
     "password": "Password",
     "signIn": "Sign in",
-    "invitedEmail": "Sign in with an invited email address",
-    "continue": "Continue",
     "failed": "Sign-in failed",
     "errors": {
       "unknownUser": "No account uses that email address.",
@@ -688,7 +686,10 @@
     "creates": "Accepting creates a Parcelith account for {email} and signs you in.",
     "invited": "Invited {date}.",
     "accept": "Accept invitation",
-    "accepting": "Setting up your account…"
+    "accepting": "Setting up your account…",
+    "password": "Choose a password",
+    "passwordHint": "At least {count} characters. You'll use it with your email to sign in.",
+    "passwordError": "Use at least {count} characters."
   },
   "roles": {
     "store_admin": "Store administrator",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Rounding for {currency}",
       "rules": {
+        "10": "Round up to 10",
+        "100": "Round up to 100",
         "none": "No rounding",
         "0_00": "Round up to .00",
         "0_90": "Round up to .90",
         "0_95": "Round up to .95",
-        "0_99": "Round up to .99",
-        "10": "Round up to 10",
-        "100": "Round up to 100"
+        "0_99": "Round up to .99"
       },
       "save": "Save exchange rates",
       "refresh": "Update rates now",

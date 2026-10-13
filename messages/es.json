@@ -667,8 +667,6 @@
     "emailPlaceholder": "nombre@empresa.com",
     "password": "Contraseña",
     "signIn": "Iniciar sesión",
-    "invitedEmail": "Iniciar sesión con un correo invitado",
-    "continue": "Continuar",
     "failed": "No se ha podido iniciar sesión",
     "errors": {
       "unknownUser": "No hay ninguna cuenta con ese correo electrónico.",
@@ -688,7 +686,10 @@
     "creates": "Al aceptar, se crea una cuenta de Parcelith para {email} y se inicia tu sesión.",
     "invited": "Invitación del {date}.",
     "accept": "Aceptar invitación",
-    "accepting": "Configurando tu cuenta…"
+    "accepting": "Configurando tu cuenta…",
+    "password": "Elige una contraseña",
+    "passwordHint": "Al menos {count} caracteres. La usarás con tu correo para iniciar sesión.",
+    "passwordError": "Usa al menos {count} caracteres."
   },
   "roles": {
     "store_admin": "Administrador de tienda",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Redondeo para {currency}",
       "rules": {
+        "10": "Redondear al alza a 10",
+        "100": "Redondear al alza a 100",
         "none": "Sin redondeo",
         "0_00": "Redondear al alza a .00",
         "0_90": "Redondear al alza a .90",
         "0_95": "Redondear al alza a .95",
-        "0_99": "Redondear al alza a .99",
-        "10": "Redondear al alza a 10",
-        "100": "Redondear al alza a 100"
+        "0_99": "Redondear al alza a .99"
       },
       "save": "Guardar tipos de cambio",
       "refresh": "Actualizar tipos ahora",

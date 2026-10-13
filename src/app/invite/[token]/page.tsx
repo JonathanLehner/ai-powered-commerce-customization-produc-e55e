@@ -6,7 +6,11 @@ import { SubmitButton } from "@/components/forms";
 import { Badge, Logo } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getMembershipByToken, getStore } from "@/lib/data";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { getMembershipByToken, getStore, getUserByEmail } from "@/lib/data";
+import { hasUsablePassword } from "@/lib/demo-personas";
+import { MIN_PASSWORD_LENGTH } from "@/lib/signup";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("invite");
@@ -32,10 +36,19 @@ async function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default async function InvitePage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params;
+export default async function InvitePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const [{ token }, { error }] = await Promise.all([params, searchParams]);
   const membership = await getMembershipByToken(token);
   const store = membership ? await getStore(membership.storeId) : null;
+  const existing = membership ? await getUserByEmail(membership.email) : null;
+  // A new account, or one invited before passwords were asked, chooses one here.
+  const choosePassword = !existing || !hasUsablePassword(existing);
   const [t, roles, format] = await Promise.all([
     getTranslations("invite"),
     getTranslations("roles"),
@@ -86,6 +99,31 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
 
           <form action={acceptInvitation} className="mt-6">
             <input type="hidden" name="token" value={token} />
+            {choosePassword ? (
+              <div className="mb-4">
+                <Label htmlFor="invite-password">{t("password")}</Label>
+                <Input
+                  id="invite-password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={MIN_PASSWORD_LENGTH}
+                  maxLength={200}
+                  className="mt-1.5"
+                  aria-describedby="invite-password-hint"
+                  aria-invalid={error === "password" ? true : undefined}
+                />
+                <p
+                  id="invite-password-hint"
+                  className={error === "password" ? "mt-1.5 text-xs text-destructive" : "mt-1.5 text-xs text-muted-foreground"}
+                >
+                  {error === "password"
+                    ? t("passwordError", { count: MIN_PASSWORD_LENGTH })
+                    : t("passwordHint", { count: MIN_PASSWORD_LENGTH })}
+                </p>
+              </div>
+            ) : null}
             <SubmitButton pendingLabel={t("accepting")} className="w-full">
               {t("accept")}
             </SubmitButton>

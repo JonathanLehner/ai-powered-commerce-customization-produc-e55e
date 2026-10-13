@@ -667,8 +667,6 @@
     "emailPlaceholder": "nom@entreprise.fr",
     "password": "Mot de passe",
     "signIn": "Se connecter",
-    "invitedEmail": "Se connecter avec une adresse e-mail invitée",
-    "continue": "Continuer",
     "failed": "Échec de la connexion",
     "errors": {
       "unknownUser": "Aucun compte n’utilise cette adresse e-mail.",
@@ -688,7 +686,10 @@
     "creates": "En acceptant, un compte Parcelith est créé pour {email} et vous êtes connecté.",
     "invited": "Invitation du {date}.",
     "accept": "Accepter l’invitation",
-    "accepting": "Création de votre compte…"
+    "accepting": "Création de votre compte…",
+    "password": "Choisissez un mot de passe",
+    "passwordHint": "Au moins {count} caractères. Vous l'utiliserez avec votre adresse e-mail pour vous connecter.",
+    "passwordError": "Utilisez au moins {count} caractères."
   },
   "roles": {
     "store_admin": "Administrateur de boutique",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Arrondi pour {currency}",
       "rules": {
+        "10": "Arrondir à la dizaine supérieure",
+        "100": "Arrondir à la centaine supérieure",
         "none": "Aucun arrondi",
         "0_00": "Arrondir à .00 supérieur",
         "0_90": "Arrondir à .90 supérieur",
         "0_95": "Arrondir à .95 supérieur",
-        "0_99": "Arrondir à .99 supérieur",
-        "10": "Arrondir à la dizaine supérieure",
-        "100": "Arrondir à la centaine supérieure"
+        "0_99": "Arrondir à .99 supérieur"
       },
       "save": "Enregistrer les taux de change",
       "refresh": "Mettre à jour les taux",

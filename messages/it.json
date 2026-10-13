@@ -667,8 +667,6 @@
     "emailPlaceholder": "nome@azienda.it",
     "password": "Password",
     "signIn": "Accedi",
-    "invitedEmail": "Accedi con un indirizzo email invitato",
-    "continue": "Continua",
     "failed": "Accesso non riuscito",
     "errors": {
       "unknownUser": "Nessun account usa questo indirizzo email.",
@@ -688,7 +686,10 @@
     "creates": "Accettando, viene creato un account Parcelith per {email} e accedi automaticamente.",
     "invited": "Invitato il {date}.",
     "accept": "Accetta l’invito",
-    "accepting": "Configurazione dell’account…"
+    "accepting": "Configurazione dell’account…",
+    "password": "Scegli una password",
+    "passwordHint": "Almeno {count} caratteri. La userai con la tua email per accedere.",
+    "passwordError": "Usa almeno {count} caratteri."
   },
   "roles": {
     "store_admin": "Amministratore del negozio",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Arrotondamento per {currency}",
       "rules": {
+        "10": "Arrotonda per eccesso a 10",
+        "100": "Arrotonda per eccesso a 100",
         "none": "Nessun arrotondamento",
         "0_00": "Arrotonda per eccesso a .00",
         "0_90": "Arrotonda per eccesso a .90",
         "0_95": "Arrotonda per eccesso a .95",
-        "0_99": "Arrotonda per eccesso a .99",
-        "10": "Arrotonda per eccesso a 10",
-        "100": "Arrotonda per eccesso a 100"
+        "0_99": "Arrotonda per eccesso a .99"
       },
       "save": "Salva i tassi di cambio",
       "refresh": "Aggiorna i tassi ora",

@@ -667,8 +667,6 @@
     "emailPlaceholder": "namn@foretag.se",
     "password": "Lösenord",
     "signIn": "Logga in",
-    "invitedEmail": "Logga in med en inbjuden e-postadress",
-    "continue": "Fortsätt",
     "failed": "Inloggningen misslyckades",
     "errors": {
       "unknownUser": "Det finns inget konto med den e-postadressen.",
@@ -688,7 +686,10 @@
     "creates": "När du accepterar skapas ett Parcelith-konto för {email} och du loggas in.",
     "invited": "Inbjuden {date}.",
     "accept": "Acceptera inbjudan",
-    "accepting": "Ditt konto skapas…"
+    "accepting": "Ditt konto skapas…",
+    "password": "Välj ett lösenord",
+    "passwordHint": "Minst {count} tecken. Du använder det tillsammans med din e-postadress för att logga in.",
+    "passwordError": "Använd minst {count} tecken."
   },
   "roles": {
     "store_admin": "Butiksadministratör",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Avrundning för {currency}",
       "rules": {
+        "10": "Avrunda uppåt till 10",
+        "100": "Avrunda uppåt till 100",
         "none": "Ingen avrundning",
         "0_00": "Avrunda uppåt till .00",
         "0_90": "Avrunda uppåt till .90",
         "0_95": "Avrunda uppåt till .95",
-        "0_99": "Avrunda uppåt till .99",
-        "10": "Avrunda uppåt till 10",
-        "100": "Avrunda uppåt till 100"
+        "0_99": "Avrunda uppåt till .99"
       },
       "save": "Spara växelkurser",
       "refresh": "Uppdatera kurser nu",

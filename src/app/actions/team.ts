@@ -2,6 +2,7 @@
 
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
+import { hash } from "bcryptjs";
 import { redirect } from "next/navigation";
 import { COLLECTIONS, getMembershipByToken, getStore, getUserByEmail, recordAudit } from "@/lib/data";
 import { isLocale } from "@/i18n/locales";
@@ -22,6 +23,8 @@ import {
 import { assertAgencyAdmin, assertStoreAccess, operationContext } from "@/lib/session";
 import { STORE_ROLE_LABELS, type StoreRole, type User } from "@/lib/types";
 import { newId } from "@/lib/util";
+import { hasUsablePassword } from "@/lib/demo-personas";
+import { MIN_PASSWORD_LENGTH } from "@/lib/signup";
 import { signInUser } from "./auth";
 import type { ActionState } from "./stores";
 
@@ -127,8 +130,9 @@ export async function resendInvite(formData: FormData): Promise<void> {
 
 /**
  * Opens the account behind an invitation link: creates the person's user record
- * the first time, activates their membership, signs them in and drops them into
- * the store. The token is single-use — it is cleared here, so a reused link
+ * the first time with the password they choose here, activates their
+ * membership, signs them in and drops them into the store. An existing account
+ * that has no password yet (invited before passwords were asked) sets one too. The token is single-use — it is cleared here, so a reused link
  * lands on the "already accepted" screen instead of re-running any of this.
  */
 export async function acceptInvitation(formData: FormData): Promise<void> {
@@ -141,12 +145,22 @@ export async function acceptInvitation(formData: FormData): Promise<void> {
 
   const now = new Date().toISOString();
   let account = await getUserByEmail(membership.email);
+  const choosing = !account || !hasUsablePassword(account);
+  const password = String(formData.get("password") ?? "");
+  if (choosing && (password.length < MIN_PASSWORD_LENGTH || password.length > 200)) {
+    redirect(`/invite/${encodeURIComponent(token)}?error=password`);
+  }
+  const passwordHash = choosing ? await hash(password, 10) : null;
+
+  if (account && passwordHash) {
+    await db.updateOne(COLLECTIONS.users, { id: account.id }, { $set: { password: passwordHash } });
+  }
   if (!account) {
     const user: User = {
       id: newId("usr"),
       email: membership.email,
       name: membership.name,
-      password: newId("pw"),
+      password: passwordHash!,
       platformRole: "agency_member",
       agencyId: membership.agencyId,
       title: STORE_ROLE_LABELS[membership.role],

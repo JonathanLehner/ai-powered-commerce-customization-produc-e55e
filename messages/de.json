@@ -667,8 +667,6 @@
     "emailPlaceholder": "name@firma.de",
     "password": "Passwort",
     "signIn": "Anmelden",
-    "invitedEmail": "Mit einer eingeladenen E-Mail-Adresse anmelden",
-    "continue": "Weiter",
     "failed": "Anmeldung fehlgeschlagen",
     "errors": {
       "unknownUser": "Zu dieser E-Mail-Adresse gibt es kein Konto.",
@@ -688,7 +686,10 @@
     "creates": "Mit der Annahme wird ein Parcelith-Konto für {email} angelegt und Sie werden angemeldet.",
     "invited": "Eingeladen am {date}.",
     "accept": "Einladung annehmen",
-    "accepting": "Ihr Konto wird eingerichtet…"
+    "accepting": "Ihr Konto wird eingerichtet…",
+    "password": "Passwort wählen",
+    "passwordHint": "Mindestens {count} Zeichen. Damit melden Sie sich zusammen mit Ihrer E-Mail-Adresse an.",
+    "passwordError": "Verwenden Sie mindestens {count} Zeichen."
   },
   "roles": {
     "store_admin": "Shop-Administrator",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Rundung für {currency}",
       "rules": {
+        "10": "Auf 10 aufrunden",
+        "100": "Auf 100 aufrunden",
         "none": "Keine Rundung",
         "0_00": "Auf .00 aufrunden",
         "0_90": "Auf .90 aufrunden",
         "0_95": "Auf .95 aufrunden",
-        "0_99": "Auf .99 aufrunden",
-        "10": "Auf 10 aufrunden",
-        "100": "Auf 100 aufrunden"
+        "0_99": "Auf .99 aufrunden"
       },
       "save": "Wechselkurse speichern",
       "refresh": "Kurse jetzt aktualisieren",

@@ -667,8 +667,6 @@
     "emailPlaceholder": "nome@empresa.pt",
     "password": "Palavra-passe",
     "signIn": "Iniciar sessão",
-    "invitedEmail": "Iniciar sessão com um email convidado",
-    "continue": "Continuar",
     "failed": "Não foi possível iniciar sessão",
     "errors": {
       "unknownUser": "Não existe nenhuma conta com esse endereço de email.",
@@ -688,7 +686,10 @@
     "creates": "Ao aceitar, é criada uma conta Parcelith para {email} e a sessão é iniciada.",
     "invited": "Convite de {date}.",
     "accept": "Aceitar convite",
-    "accepting": "A configurar a sua conta…"
+    "accepting": "A configurar a sua conta…",
+    "password": "Escolha uma senha",
+    "passwordHint": "Pelo menos {count} caracteres. Você vai usá-la com seu e-mail para entrar.",
+    "passwordError": "Use pelo menos {count} caracteres."
   },
   "roles": {
     "store_admin": "Administrador da loja",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Arredondamento para {currency}",
       "rules": {
+        "10": "Arredondar para cima até 10",
+        "100": "Arredondar para cima até 100",
         "none": "Sem arredondamento",
         "0_00": "Arredondar para cima até .00",
         "0_90": "Arredondar para cima até .90",
         "0_95": "Arredondar para cima até .95",
-        "0_99": "Arredondar para cima até .99",
-        "10": "Arredondar para cima até 10",
-        "100": "Arredondar para cima até 100"
+        "0_99": "Arredondar para cima até .99"
       },
       "save": "Guardar taxas de câmbio",
       "refresh": "Atualizar taxas agora",

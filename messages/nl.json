@@ -667,8 +667,6 @@
     "emailPlaceholder": "naam@bedrijf.nl",
     "password": "Wachtwoord",
     "signIn": "Inloggen",
-    "invitedEmail": "Inloggen met een uitgenodigd e-mailadres",
-    "continue": "Doorgaan",
     "failed": "Inloggen mislukt",
     "errors": {
       "unknownUser": "Er is geen account met dit e-mailadres.",
@@ -688,7 +686,10 @@
     "creates": "Als je accepteert, wordt er een Parcelith-account voor {email} aangemaakt en word je ingelogd.",
     "invited": "Uitgenodigd op {date}.",
     "accept": "Uitnodiging accepteren",
-    "accepting": "Je account wordt ingericht…"
+    "accepting": "Je account wordt ingericht…",
+    "password": "Kies een wachtwoord",
+    "passwordHint": "Minstens {count} tekens. Je gebruikt het samen met je e-mailadres om in te loggen.",
+    "passwordError": "Gebruik minstens {count} tekens."
   },
   "roles": {
     "store_admin": "Winkelbeheerder",
@@ -1744,13 +1745,13 @@
       "rateValue": "1 {shop} = {rate} {currency}",
       "roundingLabel": "Afronding voor {currency}",
       "rules": {
+        "10": "Naar boven afronden op 10",
+        "100": "Naar boven afronden op 100",
         "none": "Geen afronding",
         "0_00": "Naar boven afronden op .00",
         "0_90": "Naar boven afronden op .90",
         "0_95": "Naar boven afronden op .95",
-        "0_99": "Naar boven afronden op .99",
-        "10": "Naar boven afronden op 10",
-        "100": "Naar boven afronden op 100"
+        "0_99": "Naar boven afronden op .99"
       },
       "save": "Wisselkoersen opslaan",
       "refresh": "Koersen nu bijwerken",

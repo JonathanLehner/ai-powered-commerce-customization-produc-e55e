@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DEMO_PERSONAS } from "@/lib/demo-personas";
 import { SignInError } from "./SignInError";
 
 /**
@@ -20,13 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: `${t("metaTitle")} · Parcelith`, description: t("metaDescription") };
 }
 
-const PERSONAS = [
-  { key: "alex", email: "alex@northlight.studio", name: "Alex Moreau", tone: "brand" },
-  { key: "sam", email: "sam@northlight.studio", name: "Sam Okafor", tone: "iris" },
-  { key: "ines", email: "ines@northlight.studio", name: "Inés Duarte", tone: "amber" },
-  { key: "dana", email: "dana@northwind.example", name: "Dana Whitfield", tone: "slate" },
-  { key: "priya", email: "ops@parcelith.com", name: "Priya Raman", tone: "green" },
-] as const;
+const PERSONAS = DEMO_PERSONAS;
 
 export default async function LoginPage() {
   const [t, locale] = await Promise.all([getTranslations("auth"), getLocale()]);
@@ -128,28 +123,6 @@ export default async function LoginPage() {
           </form>
           </Card>
 
-          <Card asChild size="sm" className="mt-4">
-          <form action={signInAs}>
-              <CardContent>
-                <Label htmlFor="signin-email">
-                  {t("invitedEmail")}
-                </Label>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <Input
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder={t("emailPlaceholder")}
-                    className="w-full sm:w-72"
-                  />
-                  <Button type="submit" variant="outline" size="sm">
-                    {t("continue")}
-                  </Button>
-                </div>
-              </CardContent>
-          </form>
-          </Card>
 
           
         </section>

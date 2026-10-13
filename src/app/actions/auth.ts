@@ -4,6 +4,8 @@ import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { signIn, signOut as authSignOut } from "@/auth";
 import { getUserByEmail, getUserById } from "@/lib/data";
+import { isDemoPersona } from "@/lib/demo-personas";
+import { mintSignInTicket } from "@/lib/sign-in-token";
 import type { User } from "@/lib/types";
 
 /** Where a person lands once signed in, by platform role. */
@@ -20,12 +22,13 @@ export async function signInUser(userId: string): Promise<void> {
   const user = await getUserById(userId);
   if (!user) redirect("/login?error=unknown-user");
   // The caller redirects into the store itself, so only the cookie is wanted here.
-  await signIn("persona", { email: user.email, redirect: false });
+  await signIn("ticket", { ticket: await mintSignInTicket(user.id), redirect: false });
 }
 
 /** One-click sign-in used by the demo persona list on the login screen. */
 export async function signInAs(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
+  if (!isDemoPersona(email)) redirect("/login?error=unknown-user");
   const user = await getUserByEmail(email);
   if (!user) redirect("/login?error=unknown-user");
 
