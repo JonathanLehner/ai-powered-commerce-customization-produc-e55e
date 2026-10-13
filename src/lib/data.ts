@@ -380,11 +380,6 @@ export function getTaxBracket(id: string) {
   return db.findOne<TaxBracket>(COLLECTIONS.taxBrackets, { id });
 }
 
-/** Several tax brackets by id, in one read. */
-export function getTaxBracketsByIds(ids: string[]) {
-  return db.findIn<TaxBracket>(COLLECTIONS.taxBrackets, "id", ids);
-}
-
 /* ------------------------------------------------------------------ orders */
 
 export function listOrders(storeId: string) {

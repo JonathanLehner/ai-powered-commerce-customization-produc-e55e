@@ -64,7 +64,7 @@ export function CheckoutForm({
   // Generated once per page load so a double submit cannot create two orders.
   const [idempotencyKey] = useState(() => `idem_${crypto.randomUUID()}`);
   // Shared with the order summary, which reprices shipping and tax for it.
-  const { country, setCountry, countries } = useCheckoutDelivery();
+  const { country, setCountry, countries, quote } = useCheckoutDelivery();
   const unfulfilled = suppliersOutsideRegion(country, fulfillmentSources);
   const destination = localCountryName(country, localeTag);
   const regionKind = addressRegionKind(country);
@@ -78,6 +78,7 @@ export function CheckoutForm({
       submitSize="lg"
       submitClassName="w-full sm:w-auto"
       hidden={{ storeId, idempotencyKey }}
+      submitDisabled={quote.taxUnavailable}
       footer={
         <p className="w-full text-xs text-muted-foreground">
           {policies.rich("agreement", {
@@ -245,6 +246,12 @@ export function CheckoutForm({
                 </SelectContent>
               </Select>
             </div>
+
+            {quote.taxUnavailable ? (
+              <div className="sm:col-span-2">
+                <Callout tone="rose">{t("noTaxFor", { country: destination })}</Callout>
+              </div>
+            ) : null}
 
             {unfulfilled.length > 0 ? (
               <div className="sm:col-span-2">

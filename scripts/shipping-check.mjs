@@ -103,7 +103,28 @@ assert.deepEqual(quoteTotals(withCountry, "DE", 0).taxRows, [{ rate: 20, amount:
 
 // Stripe Tax: nothing is added here; Checkout calculates it.
 const stripe = quoteTotals(basis(false, { stripeTax: true }), "DE", 1000);
-assert.deepEqual(stripe, { shipping: 1000, taxRows: [], taxAmount: 0, total: 11000 });
+assert.deepEqual(stripe, { shipping: 1000, taxRows: [], taxAmount: 0, total: 11000, taxUnavailable: false });
+
+// A bracket only applies in its regions. Elsewhere the line takes the store's
+// bracket for the destination: one coded for the country first, then the
+// order the store lists them in (default first, standard before reduced).
+const storeBrackets = [
+  { code: "US-8.25", rate: 8.25, regions: ["North America"] },
+  { code: "STD-20", rate: 20, regions: ["United Kingdom", "European Union"] },
+  { code: "DE-VAT-19", rate: 19, regions: ["European Union"] },
+  { code: "RED-07", rate: 7, regions: ["European Union"] },
+];
+const usOnly = basis(false, { lines: [{ amount: 10000, rate: 8.25, regions: ["North America"] }], brackets: storeBrackets });
+assert.deepEqual(quoteTotals(usOnly, "US", 0).taxRows, [{ rate: 8.25, amount: 825 }]);
+assert.deepEqual(quoteTotals(usOnly, "DE", 0).taxRows, [{ rate: 19, amount: 1900 }], "Germany: German VAT");
+assert.deepEqual(quoteTotals(usOnly, "FR", 0).taxRows, [{ rate: 20, amount: 2000 }], "France: the standard rate");
+assert.deepEqual(quoteTotals(usOnly, "GB", 0).taxRows, [{ rate: 20, amount: 2000 }]);
+// No bracket covers Japan: nothing is charged and the order is stopped.
+const japan = quoteTotals(usOnly, "JP", 1000);
+assert.equal(japan.taxUnavailable, true);
+assert.deepEqual(japan.taxRows, []);
+// A store rate for the country still wins over every bracket.
+assert.equal(quoteTotals({ ...usOnly, countryRates: [{ country: "JP", rate: 10 }] }, "JP", 0).taxAmount, 1000);
 
 // Placed orders report how they were taxed.
 const placed = { subtotal: 10000, shipping: 1000, total: 11000, taxAmount: 1667, taxRate: 20, taxLines: [{ rate: 20, amount: 1667 }], discount: null };

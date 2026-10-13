@@ -3713,7 +3713,8 @@
       "noShippingOptions": "Vi skickar inte till det här landet än.",
       "emailDelivery": "Leverans via e-post",
       "billingDetails": "Dina uppgifter",
-      "marketingConsent": "Mejla mig nyheter och erbjudanden"
+      "marketingConsent": "Mejla mig nyheter och erbjudanden",
+      "noTaxFor": "Vi kan inte beräkna moms för {country}. Välj ett annat land."
     },
     "order": {
       "title": "Orderstatus",
@@ -3810,7 +3811,8 @@
       "soldOut": "{variant} är slutsåld.",
       "onlyLeft": "Endast {count} kvar av {variant}.",
       "noShippingTo": "Vi skickar inte till {country}.",
-      "noShippingRate": "Välj ett fraktsätt."
+      "noShippingRate": "Välj ett fraktsätt.",
+      "noTaxFor": "Vi kan inte beräkna moms för {country}. Välj ett annat land."
     },
     "artwork": {
       "lowDpi": "Bilden trycks i {dpi} DPI, under de {required} DPI som produkten kräver.",

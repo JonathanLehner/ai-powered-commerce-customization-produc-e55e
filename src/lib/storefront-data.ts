@@ -35,8 +35,8 @@ export interface Basket {
   cart: Cart;
   discountCode: DiscountCode | null;
   products: Map<string, StoreProduct>;
-  /** Tax rate by bracket id. */
-  rates: Map<string, number>;
+  /** Every tax bracket: the basket is charged at the one for the destination. */
+  brackets: TaxBracket[];
 }
 
 export interface StorefrontData {
@@ -173,8 +173,6 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
                 {
                   $lookup: {
                     from: COLLECTIONS.taxBrackets,
-                    localField: "products.taxBracketId",
-                    foreignField: "id",
                     pipeline: [WITHOUT_ID],
                     as: "taxBrackets",
                   },
@@ -209,7 +207,7 @@ function toStorefrontData(row: StoreRow): StorefrontData {
       // A code is only looked up when the basket holds one.
       discountCode: plain.discountCode ? (discount[0] ?? null) : null,
       products: new Map(products.map((p) => [p.id, p])),
-      rates: new Map(taxBrackets.map((b) => [b.id, b.rate])),
+      brackets: taxBrackets,
     };
   }
   return {

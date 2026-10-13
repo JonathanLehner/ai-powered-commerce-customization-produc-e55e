@@ -3713,7 +3713,8 @@
       "noShippingOptions": "We don't ship to this country yet.",
       "emailDelivery": "Email delivery",
       "billingDetails": "Your details",
-      "marketingConsent": "Email me with news and offers"
+      "marketingConsent": "Email me with news and offers",
+      "noTaxFor": "We can't calculate tax for {country}. Choose another country."
     },
     "order": {
       "title": "Order status",
@@ -3810,7 +3811,8 @@
       "soldOut": "{variant} is sold out.",
       "onlyLeft": "Only {count} left of {variant}.",
       "noShippingTo": "We don't ship to {country}.",
-      "noShippingRate": "Choose a shipping method."
+      "noShippingRate": "Choose a shipping method.",
+      "noTaxFor": "We can't calculate tax for {country}. Choose another country."
     },
     "artwork": {
       "lowDpi": "This image will print at {dpi} DPI, below the {required} DPI this product needs.",

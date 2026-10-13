@@ -3713,7 +3713,8 @@
       "noShippingOptions": "We verzenden nog niet naar dit land.",
       "emailDelivery": "Levering via e-mail",
       "billingDetails": "Jouw gegevens",
-      "marketingConsent": "Stuur me nieuws en aanbiedingen per e-mail"
+      "marketingConsent": "Stuur me nieuws en aanbiedingen per e-mail",
+      "noTaxFor": "We kunnen de btw voor {country} niet berekenen. Kies een ander land."
     },
     "order": {
       "title": "Bestelstatus",
@@ -3810,7 +3811,8 @@
       "soldOut": "{variant} is uitverkocht.",
       "onlyLeft": "Van {variant} zijn er nog maar {count}.",
       "noShippingTo": "We verzenden niet naar {country}.",
-      "noShippingRate": "Kies een verzendmethode."
+      "noShippingRate": "Kies een verzendmethode.",
+      "noTaxFor": "We kunnen de btw voor {country} niet berekenen. Kies een ander land."
     },
     "artwork": {
       "lowDpi": "Deze afbeelding wordt gedrukt op {dpi} DPI, onder de {required} DPI die dit product nodig heeft.",

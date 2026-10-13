@@ -129,6 +129,11 @@ export function SummaryTotals({
           <dt className="text-muted-foreground">{t("checkout.tax")}</dt>
           <dd className="text-muted-foreground">{inclusive ? t("checkout.taxIncludedSuffix") : t("checkout.taxAtPayment")}</dd>
         </div>
+      ) : quote.taxUnavailable ? (
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">{t("checkout.tax")}</dt>
+          <dd className="text-foreground">–</dd>
+        </div>
       ) : (
         quote.taxRows.map((row) => (
           <div key={row.rate} className="flex justify-between gap-3">

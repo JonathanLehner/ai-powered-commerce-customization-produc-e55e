@@ -3713,7 +3713,8 @@
       "noShippingOptions": "Non spediamo ancora in questo paese.",
       "emailDelivery": "Consegna via e-mail",
       "billingDetails": "I tuoi dati",
-      "marketingConsent": "Inviami novità e offerte via email"
+      "marketingConsent": "Inviami novità e offerte via email",
+      "noTaxFor": "Non possiamo calcolare le imposte per {country}. Scegli un altro paese."
     },
     "order": {
       "title": "Stato dell’ordine",
@@ -3810,7 +3811,8 @@
       "soldOut": "{variant} è esaurito.",
       "onlyLeft": "Di {variant} ne restano solo {count}.",
       "noShippingTo": "Non spediamo in {country}.",
-      "noShippingRate": "Scegli un metodo di spedizione."
+      "noShippingRate": "Scegli un metodo di spedizione.",
+      "noTaxFor": "Non possiamo calcolare le imposte per {country}. Scegli un altro paese."
     },
     "artwork": {
       "lowDpi": "Questa immagine verrà stampata a {dpi} DPI, sotto i {required} DPI richiesti da questo prodotto.",

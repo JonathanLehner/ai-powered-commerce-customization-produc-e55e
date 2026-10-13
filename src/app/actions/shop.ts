@@ -404,7 +404,7 @@ export async function addToCart(_prev: AddToCartState, formData: FormData): Prom
   const others = [...new Set(items.map((i) => i.storeProductId))].filter((pid) => pid !== product.id);
   const products = others.length > 0 ? await getStoreProductsByIds(others) : new Map<string, StoreProduct>();
   products.set(product.id, product);
-  const totals = await basketTotals(store, items, currency, null, { products, rates: new Map() });
+  const totals = await basketTotals(store, items, currency, null, { products, brackets: [] });
   const lines = basketSheetLines(totals);
   const line = lines.find((l) => l.id === (existing?.id ?? id)) ?? lines.find((l) => l.id === id);
   const unit = totals.lines.find((l) => l.item.id === line?.id)?.unit ?? 0;
@@ -643,6 +643,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     options,
     shippingOption,
     stripeTax,
+    taxUnavailable,
     digitalOnly,
   } = await basketTotals(store, cart.items, currency, discountCode, undefined, { zones, country, rateId });
   // A store with shipping zones ships only to their countries. Gift cards on
@@ -656,6 +657,13 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
   }
   if (!shippingOption) {
     return { status: "error", message: t("actions.noShippingRate"), field: "shippingRate" };
+  }
+  if (taxUnavailable) {
+    return {
+      status: "error",
+      message: t("actions.noTaxFor", { country: localCountryName(country, locale) }),
+      field: "country",
+    };
   }
   if (discountCode && discountRefusal) {
     await saveCartDiscount(cart, null);

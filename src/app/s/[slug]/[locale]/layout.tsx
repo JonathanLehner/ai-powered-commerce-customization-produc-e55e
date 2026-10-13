@@ -126,7 +126,7 @@ export default async function StorefrontLayout({
     items,
     currency,
     basket?.discountCode ?? null,
-    basket ?? { products: new Map(), rates: new Map() },
+    basket ?? { products: new Map(), brackets: [] },
   );
   const { subtotal } = totals;
   const basketLines = basketSheetLines(totals);

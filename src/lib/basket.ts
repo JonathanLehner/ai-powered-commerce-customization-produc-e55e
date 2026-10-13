@@ -1,4 +1,4 @@
-import { getDiscountCodeByCode, getStoreProductsByIds, getTaxBracketsByIds } from "./data";
+import { getDiscountCodeByCode, getStoreProductsByIds, listTaxBrackets } from "./data";
 import { allocateDiscount, checkDiscount, type DiscountRefusal } from "./discounts";
 import { variantPhoto } from "./line-preview";
 import { paymentMode } from "./payment-mode";
@@ -24,6 +24,7 @@ import type {
   ShippingZone,
   Store,
   StoreProduct,
+  TaxBracket,
 } from "./types";
 
 /**
@@ -101,6 +102,8 @@ export interface BasketTotals {
   shippingOption: ShippingOption | null;
   /** Tax is left to Stripe Tax at payment; `taxRows` is empty and `total` excludes it. */
   stripeTax: boolean;
+  /** No tax bracket covers the destination; `taxRows` is empty and the order cannot be placed. */
+  taxUnavailable: boolean;
   /** The order's weight in grams, from each variant's weight. */
   weightGrams: number;
   /** What the checkout form needs to work the totals out again for another country or rate. */
@@ -134,7 +137,8 @@ export async function basketTotals(
   items: CartItem[],
   currency: string,
   discountCode: DiscountCode | null = null,
-  known?: { products: Map<string, StoreProduct>; rates: Map<string, number> },
+  /** Every tax bracket, so a line can be charged at the one for the destination. */
+  known?: { products: Map<string, StoreProduct>; brackets: TaxBracket[] },
   delivery: BasketDelivery = { zones: [] },
 ): Promise<BasketTotals> {
   // One read for the whole basket. A read per line meant a fetch per line, and
@@ -143,10 +147,8 @@ export async function basketTotals(
   // with the store.
   const byId = known?.products ?? (await getStoreProductsByIds(items.map((i) => i.storeProductId)));
   const products = items.map((i) => byId.get(i.storeProductId) ?? null);
-  const bracketIds = [...new Set(products.map((p) => p?.taxBracketId).filter(Boolean))] as string[];
-  const brackets =
-    known?.rates ??
-    new Map((bracketIds.length > 0 ? await getTaxBracketsByIds(bracketIds) : []).map((b) => [b.id, b.rate]));
+  const allBrackets = known?.brackets ?? (items.length > 0 ? await listTaxBrackets() : []);
+  const brackets = new Map(allBrackets.map((b) => [b.id, b]));
 
   // Product prices at the store's rate and rounding for the shopper's currency.
   const fx = storeFxTable(store);
@@ -174,17 +176,22 @@ export async function basketTotals(
   const goods = subtotal - (applied?.amount ?? 0);
   const tax = storeTax(store);
   const basis: QuoteBasis = {
-    lines: lines.map((line, index) => ({
-      amount: lineAmounts[index] - shares[index],
+    lines: lines.map((line, index) => {
       // A published product always has a bracket, so this only falls back to
       // zero for a product pulled from sale mid-basket.
-      rate: brackets.get(products[index]?.taxBracketId ?? "") ?? 0,
-    })),
+      const bracket = brackets.get(products[index]?.taxBracketId ?? "");
+      return { amount: lineAmounts[index] - shares[index], rate: bracket?.rate ?? 0, regions: bracket?.regions };
+    }),
     goods,
     inclusive: store.pricesIncludeTax,
     // Stripe Tax only runs on a real Checkout session; a demo store works it out here.
     stripeTax: tax.mode === "stripe" && paymentMode(store) === "stripe",
     countryRates: tax.rates,
+    // Where a line's own bracket does not cover the destination: the store's
+    // default bracket first, then the standard rate before reduced ones.
+    brackets: [...allBrackets]
+      .sort((a, b) => Number(b.id === store.defaultTaxBracketId) - Number(a.id === store.defaultTaxBracketId) || b.rate - a.rate)
+      .map(({ code, rate, regions }) => ({ code, rate, regions })),
   };
 
   const country = delivery.country ?? store.stripe.country;
@@ -200,7 +207,7 @@ export async function basketTotals(
         ? [standardOption(parcelShipping(items.map((i) => i.productName), currency, fx))]
         : [];
   const shippingOption = pickOption(options, delivery.rateId);
-  const { shipping, taxRows, taxAmount, total } = quoteTotals(basis, country, shippingOption?.amount ?? 0);
+  const { shipping, taxRows, taxAmount, total, taxUnavailable } = quoteTotals(basis, country, shippingOption?.amount ?? 0);
 
   return {
     products,
@@ -216,6 +223,7 @@ export async function basketTotals(
     options,
     shippingOption,
     stripeTax: basis.stripeTax,
+    taxUnavailable,
     weightGrams,
     basis,
     digitalOnly,

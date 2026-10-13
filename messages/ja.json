@@ -3713,7 +3713,8 @@
       "noShippingOptions": "この国への配送はまだ行っていません。",
       "emailDelivery": "メールで送付",
       "billingDetails": "あなたの詳細",
-      "marketingConsent": "ニュースやお得な情報をメールで受け取る"
+      "marketingConsent": "ニュースやお得な情報をメールで受け取る",
+      "noTaxFor": "{country} の税額を計算できません。別の国を選択してください。"
     },
     "order": {
       "title": "注文状況",
@@ -3810,7 +3811,8 @@
       "soldOut": "{variant}は売り切れです。",
       "onlyLeft": "{variant}は残り{count}点です。",
       "noShippingTo": "{country} への配送は行っていません。",
-      "noShippingRate": "配送方法を選択してください。"
+      "noShippingRate": "配送方法を選択してください。",
+      "noTaxFor": "{country} の税額を計算できません。別の国を選択してください。"
     },
     "artwork": {
       "lowDpi": "この画像は {dpi} DPI でプリントされ、この商品に必要な {required} DPI を下回ります。",

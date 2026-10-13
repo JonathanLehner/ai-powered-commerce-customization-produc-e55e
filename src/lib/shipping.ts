@@ -1,4 +1,4 @@
-import { isCountryCode } from "./countries";
+import { isCountryCode, regionForCountry } from "./countries";
 import { FX_TO_USD, convert, orderTaxRows, taxRowsFor, type TaxRow } from "./pricing";
 import type {
   Order,
@@ -183,16 +183,46 @@ export function countryTaxRate(settings: Pick<StoreTaxSettings, "rates">, countr
   return settings.rates.find((row) => row.country === code)?.rate ?? null;
 }
 
+/** A tax bracket a line can be charged at, with the fulfilment regions it applies to. */
+export interface QuoteBracket {
+  code: string;
+  rate: number;
+  regions: string[];
+}
+
+/**
+ * The rate a line is charged for a destination: its own bracket where that
+ * covers the country's region, otherwise a bracket that does, preferring one
+ * coded for the country itself (`DE-VAT-19` for Germany), then the order
+ * `brackets` comes in. Null when no bracket covers the destination.
+ */
+export function destinationRate(
+  line: { rate: number; regions?: string[] },
+  country: string,
+  brackets: QuoteBracket[],
+): number | null {
+  const region = regionForCountry(country);
+  if (!line.regions || line.regions.includes(region)) return line.rate;
+  const covering = brackets.filter((bracket) => bracket.regions.includes(region));
+  const prefix = `${country.toUpperCase()}-`;
+  return (covering.find((bracket) => bracket.code.toUpperCase().startsWith(prefix)) ?? covering[0])?.rate ?? null;
+}
+
 /** What a checkout's tax and total are worked out from, before the destination is known. */
 export interface QuoteBasis {
-  /** Each line's goods after its share of the discount, with its product's bracket rate. */
-  lines: { amount: number; rate: number }[];
+  /**
+   * Each line's goods after its share of the discount, with its product's
+   * bracket rate and the regions that bracket covers (absent: everywhere).
+   */
+  lines: { amount: number; rate: number; regions?: string[] }[];
   /** The goods after discounts. */
   goods: number;
   inclusive: boolean;
   /** Tax is calculated by Stripe Tax at payment, so none is added here. */
   stripeTax: boolean;
   countryRates: { country: string; rate: number }[];
+  /** The store's brackets for a line whose own does not cover the destination, default first. */
+  brackets?: QuoteBracket[];
 }
 
 export interface Quote {
@@ -200,21 +230,27 @@ export interface Quote {
   taxRows: TaxRow[];
   taxAmount: number;
   total: number;
+  /** No rate covers the destination, so the order cannot be placed there. */
+  taxUnavailable: boolean;
 }
 
 /**
  * The tax and total for a destination and a shipping charge. A country with
  * a rate of the store's own charges it on every line; anywhere else each line
- * keeps its product's bracket. Inclusive prices already hold the tax, so it is
- * reported and not added.
+ * is charged at the bracket for the destination (`destinationRate`).
+ * Inclusive prices already hold the tax, so it is reported and not added.
  */
 export function quoteTotals(basis: QuoteBasis, country: string, shipping: number): Quote {
   if (basis.stripeTax) {
-    return { shipping, taxRows: [], taxAmount: 0, total: basis.goods + shipping };
+    return { shipping, taxRows: [], taxAmount: 0, total: basis.goods + shipping, taxUnavailable: false };
   }
   const override = countryTaxRate({ rates: basis.countryRates }, country);
+  const rates = basis.lines.map((line) => override ?? destinationRate(line, country, basis.brackets ?? []));
+  if (rates.some((rate) => rate === null)) {
+    return { shipping, taxRows: [], taxAmount: 0, total: basis.goods + shipping, taxUnavailable: true };
+  }
   const taxRows = taxRowsFor(
-    basis.lines.map((line) => ({ amount: line.amount, rate: override ?? line.rate })),
+    basis.lines.map((line, index) => ({ amount: line.amount, rate: rates[index] ?? 0 })),
     shipping,
     basis.inclusive,
   );
@@ -224,6 +260,7 @@ export function quoteTotals(basis: QuoteBasis, country: string, shipping: number
     taxRows,
     taxAmount,
     total: basis.inclusive ? basis.goods + shipping : basis.goods + shipping + taxAmount,
+    taxUnavailable: false,
   };
 }
 

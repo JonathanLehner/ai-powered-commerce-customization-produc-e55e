@@ -3713,7 +3713,8 @@
       "noShippingOptions": "Nous ne livrons pas encore dans ce pays.",
       "emailDelivery": "Livraison par e-mail",
       "billingDetails": "Vos coordonnées",
-      "marketingConsent": "Recevoir les actualités et offres par e-mail"
+      "marketingConsent": "Recevoir les actualités et offres par e-mail",
+      "noTaxFor": "Nous ne pouvons pas calculer les taxes pour {country}. Choisissez un autre pays."
     },
     "order": {
       "title": "Suivi de commande",
@@ -3810,7 +3811,8 @@
       "soldOut": "{variant} est épuisé.",
       "onlyLeft": "Il ne reste que {count} {variant}.",
       "noShippingTo": "Nous ne livrons pas vers ce pays : {country}.",
-      "noShippingRate": "Choisissez un mode de livraison."
+      "noShippingRate": "Choisissez un mode de livraison.",
+      "noTaxFor": "Nous ne pouvons pas calculer les taxes pour {country}. Choisissez un autre pays."
     },
     "artwork": {
       "lowDpi": "Ce visuel s’imprimera à {dpi} DPI, en dessous des {required} DPI exigés par ce produit.",

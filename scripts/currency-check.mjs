@@ -103,7 +103,7 @@ const store = {
 };
 const product = { id: "p1", currency: "USD", taxBracketId: null, variants: [{ id: "v1", weightGrams: 300 }], giftCard: false };
 const items = [{ id: "i1", storeProductId: "p1", variantId: "v1", productName: "Tee", variantName: "M", quantity: 2, unitPrice: 2500 }];
-const known = { products: new Map([["p1", product]]), rates: new Map() };
+const known = { products: new Map([["p1", product]]), brackets: [] };
 const totals = await basketTotals(store, items, "EUR", null, known, { zones: [] });
 assert.equal(totals.lines[0].unit, 2290, "the basket prices each line at the rate and rounding the catalog shows");
 assert.equal(totals.subtotal, 4580);

@@ -52,12 +52,21 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   const shippable = shippingCountries(zones);
   const home = isCountryCode(store.stripe.country) ? store.stripe.country.toUpperCase() : "US";
   const country = zones.length === 0 || shippable.includes(home) ? home : shippable[0];
-  const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, shippingOption, stripeTax, taxRows, total } =
+  const { products, lines, subtotal, discount, discountRefusal, discountMinimum, shipping, shippingOption, stripeTax, taxAmount, total: taxed } =
     await basketTotals(store, items, currency, basket?.discountCode ?? null, basket ?? undefined, { zones, country });
+  // The rate depends on the delivery address, which checkout asks for, so the
+  // basket adds no tax on top: inclusive prices already hold it.
+  const total = store.pricesIncludeTax ? taxed : taxed - taxAmount;
   const giftCard = cart?.giftCardCode ? await getGiftCardByCode(store.id, cart.giftCardCode) : null;
   const giftUsable = giftCard && !giftCardRefusal(giftCard) ? giftCard : null;
   const giftCover = giftUsable
-    ? basketGiftCardCover(giftUsable, { total, shipping, stripeTax }, currency, paymentMode(store) === "stripe" ? "stripe" : "demo", storeFxTable(store))
+    ? basketGiftCardCover(
+        giftUsable,
+        { total, shipping, stripeTax: stripeTax || !store.pricesIncludeTax },
+        currency,
+        paymentMode(store) === "stripe" ? "stripe" : "demo",
+        storeFxTable(store),
+      )
     : null;
 
   return (
@@ -163,23 +172,12 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
                   </dd>
                 </div>
               ) : null}
-              {stripeTax ? (
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("basket.tax")}</dt>
-                  <dd className="text-muted-foreground">
-                    {store.pricesIncludeTax ? t("basket.taxIncludedSuffix") : t("basket.atCheckout")}
-                  </dd>
-                </div>
-              ) : null}
-              {taxRows.map((row) => (
-                <div key={row.rate} className="flex justify-between">
-                  <dt className="text-muted-foreground">
-                    {t("basket.taxRow", { rate: row.rate })}{" "}
-                    {store.pricesIncludeTax ? t("basket.taxIncludedSuffix") : ""}
-                  </dt>
-                  <dd className="font-medium tabular-nums text-foreground">{money(row.amount, currency)}</dd>
-                </div>
-              ))}
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">{t("basket.tax")}</dt>
+                <dd className="text-muted-foreground">
+                  {store.pricesIncludeTax ? t("basket.taxIncludedSuffix") : t("basket.atCheckout")}
+                </dd>
+              </div>
               <div className="flex justify-between border-t border-border pt-2.5">
                 <dt className="font-semibold text-foreground">{t("basket.total")}</dt>
                 <dd className="text-base font-semibold tabular-nums text-foreground">{money(total, currency)}</dd>
