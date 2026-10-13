@@ -748,6 +748,12 @@
       "domains": "Domini",
       "import": "Importazione"
     },
+    "tabGroups": {
+      "products": "Prodotti",
+      "selling": "Vendita",
+      "orders": "Ordini e clienti",
+      "settings": "Impostazioni negozio"
+    },
     "adminTabs": {
       "overview": "Panoramica",
       "suppliers": "Fornitori",
@@ -757,6 +763,10 @@
       "agencies": "Agenzie e accessi",
       "audit": "Registro di controllo",
       "apiKeys": "Chiavi API"
+    },
+    "adminTabGroups": {
+      "sourcing": "Approvvigionamento",
+      "platform": "Piattaforma"
     },
     "people": "Persone",
     "billing": "Fatturazione"

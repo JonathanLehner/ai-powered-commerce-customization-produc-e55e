@@ -748,6 +748,12 @@
       "domains": "Domains",
       "import": "Import"
     },
+    "tabGroups": {
+      "products": "Products",
+      "selling": "Selling",
+      "orders": "Orders and customers",
+      "settings": "Store settings"
+    },
     "adminTabs": {
       "overview": "Overview",
       "suppliers": "Suppliers",
@@ -757,6 +763,10 @@
       "agencies": "Agencies and access",
       "audit": "Audit log",
       "apiKeys": "API keys"
+    },
+    "adminTabGroups": {
+      "sourcing": "Sourcing",
+      "platform": "Platform"
     },
     "people": "People",
     "billing": "Billing"

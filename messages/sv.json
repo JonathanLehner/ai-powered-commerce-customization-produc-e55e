@@ -748,6 +748,12 @@
       "domains": "Domäner",
       "import": "Import"
     },
+    "tabGroups": {
+      "products": "Produkter",
+      "selling": "Försäljning",
+      "orders": "Ordrar och kunder",
+      "settings": "Butiksinställningar"
+    },
     "adminTabs": {
       "overview": "Översikt",
       "suppliers": "Leverantörer",
@@ -757,6 +763,10 @@
       "agencies": "Byråer och åtkomst",
       "audit": "Granskningslogg",
       "apiKeys": "API-nycklar"
+    },
+    "adminTabGroups": {
+      "sourcing": "Inköp",
+      "platform": "Plattform"
     },
     "people": "Personer",
     "billing": "Fakturering"

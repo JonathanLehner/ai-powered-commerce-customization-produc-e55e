@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { Messages } from "next-intl";
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import { getTranslations } from "next-intl/server";
@@ -10,16 +11,17 @@ import { Separator } from "@/components/ui/separator";
 import { WorkspaceDocument } from "@/components/WorkspaceIntl";
 import { requirePlatformAdmin } from "@/lib/session";
 
-const NAV = [
+// `group` places a section in a menu (labels under shell.adminTabGroups).
+const NAV: { href: string; section: keyof Messages["shell"]["adminTabs"]; group?: "sourcing" | "platform" }[] = [
   { href: "/admin", section: "overview" },
-  { href: "/admin/suppliers", section: "suppliers" },
-  { href: "/admin/catalog", section: "catalog" },
-  { href: "/admin/quotes", section: "quotes" },
-  { href: "/admin/tax", section: "tax" },
-  { href: "/admin/agencies", section: "agencies" },
-  { href: "/admin/audit", section: "audit" },
-  { href: "/admin/api-keys", section: "apiKeys" },
-] as const;
+  { href: "/admin/suppliers", section: "suppliers", group: "sourcing" },
+  { href: "/admin/catalog", section: "catalog", group: "sourcing" },
+  { href: "/admin/quotes", section: "quotes", group: "sourcing" },
+  { href: "/admin/agencies", section: "agencies", group: "platform" },
+  { href: "/admin/tax", section: "tax", group: "platform" },
+  { href: "/admin/api-keys", section: "apiKeys", group: "platform" },
+  { href: "/admin/audit", section: "audit", group: "platform" },
+];
 
 export const metadata: Metadata = siteMetadata;
 
@@ -58,7 +60,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </header>
         <StoreNav
           label={t("platformAdministration")}
-          items={NAV.map(({ href, section }) => ({ href, section, label: t(`adminTabs.${section}`) }))}
+          groups={{ sourcing: t("adminTabGroups.sourcing"), platform: t("adminTabGroups.platform") }}
+          items={NAV.map(({ href, section, group }) => ({ href, section, group, label: t(`adminTabs.${section}`) }))}
         />
         <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">{children}</div>
       </div>

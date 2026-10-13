@@ -748,6 +748,12 @@
       "domains": "Domeinen",
       "import": "Importeren"
     },
+    "tabGroups": {
+      "products": "Producten",
+      "selling": "Verkoop",
+      "orders": "Bestellingen en klanten",
+      "settings": "Winkelinstellingen"
+    },
     "adminTabs": {
       "overview": "Overzicht",
       "suppliers": "Leveranciers",
@@ -757,6 +763,10 @@
       "agencies": "Bureaus en toegang",
       "audit": "Auditlogboek",
       "apiKeys": "API-sleutels"
+    },
+    "adminTabGroups": {
+      "sourcing": "Inkoop",
+      "platform": "Platform"
     },
     "people": "Personen",
     "billing": "Facturering"

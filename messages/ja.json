@@ -748,6 +748,12 @@
       "domains": "ドメイン",
       "import": "インポート"
     },
+    "tabGroups": {
+      "products": "商品",
+      "selling": "販売",
+      "orders": "注文と顧客",
+      "settings": "ストア設定"
+    },
     "adminTabs": {
       "overview": "概要",
       "suppliers": "サプライヤー",
@@ -757,6 +763,10 @@
       "agencies": "エージェンシーとアクセス",
       "audit": "監査ログ",
       "apiKeys": "APIキー"
+    },
+    "adminTabGroups": {
+      "sourcing": "調達",
+      "platform": "プラットフォーム"
     },
     "people": "メンバー",
     "billing": "請求"

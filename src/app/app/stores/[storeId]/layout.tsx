@@ -24,26 +24,32 @@ export default async function StoreLayout({
   ]);
 
   const base = `/app/stores/${store.id}`;
-  const items: { href: string; section: keyof Messages["shell"]["tabs"]; capability: Capability }[] = [
+  // Sections in display order; `group` places one in a menu (labels under shell.tabGroups).
+  const items: {
+    href: string;
+    section: keyof Messages["shell"]["tabs"];
+    group?: keyof Messages["shell"]["tabGroups"];
+    capability: Capability;
+  }[] = [
     { href: base, section: "overview", capability: "store.view" },
-    { href: `${base}/catalog`, section: "catalog", capability: "store.view" },
-    { href: `${base}/sourcing`, section: "sourcing", capability: "store.catalog" },
-    { href: `${base}/assistant`, section: "assistant", capability: "store.catalog" },
-    { href: `${base}/storefront`, section: "storefront", capability: "store.storefront" },
-    { href: `${base}/content`, section: "content", capability: "store.storefront" },
-    { href: `${base}/gifting`, section: "gifting", capability: "store.gifting" },
-    { href: `${base}/orders`, section: "orders", capability: "store.view" },
-    { href: `${base}/customers`, section: "customers", capability: "store.orders" },
-    { href: `${base}/analytics`, section: "analytics", capability: "store.view" },
-    { href: `${base}/reviews`, section: "reviews", capability: "store.view" },
-    { href: `${base}/discounts`, section: "discounts", capability: "store.settings" },
-    { href: `${base}/gift-cards`, section: "giftCards", capability: "store.settings" },
-    { href: `${base}/shipping`, section: "shipping", capability: "store.settings" },
-    { href: `${base}/team`, section: "team", capability: "store.team" },
-    { href: `${base}/domains`, section: "domains", capability: "store.settings" },
-    { href: `${base}/import`, section: "import", capability: "store.settings" },
-    { href: `${base}/setup`, section: "settings", capability: "store.settings" },
-    { href: `${base}/activity`, section: "activity", capability: "store.view" },
+    { href: `${base}/catalog`, section: "catalog", group: "products", capability: "store.view" },
+    { href: `${base}/sourcing`, section: "sourcing", group: "products", capability: "store.catalog" },
+    { href: `${base}/assistant`, section: "assistant", group: "products", capability: "store.catalog" },
+    { href: `${base}/import`, section: "import", group: "products", capability: "store.settings" },
+    { href: `${base}/reviews`, section: "reviews", group: "products", capability: "store.view" },
+    { href: `${base}/storefront`, section: "storefront", group: "selling", capability: "store.storefront" },
+    { href: `${base}/content`, section: "content", group: "selling", capability: "store.storefront" },
+    { href: `${base}/discounts`, section: "discounts", group: "selling", capability: "store.settings" },
+    { href: `${base}/gift-cards`, section: "giftCards", group: "selling", capability: "store.settings" },
+    { href: `${base}/gifting`, section: "gifting", group: "selling", capability: "store.gifting" },
+    { href: `${base}/orders`, section: "orders", group: "orders", capability: "store.view" },
+    { href: `${base}/customers`, section: "customers", group: "orders", capability: "store.orders" },
+    { href: `${base}/analytics`, section: "analytics", group: "orders", capability: "store.view" },
+    { href: `${base}/setup`, section: "settings", group: "settings", capability: "store.settings" },
+    { href: `${base}/team`, section: "team", group: "settings", capability: "store.team" },
+    { href: `${base}/shipping`, section: "shipping", group: "settings", capability: "store.settings" },
+    { href: `${base}/domains`, section: "domains", group: "settings", capability: "store.settings" },
+    { href: `${base}/activity`, section: "activity", group: "settings", capability: "store.view" },
   ];
 
   return (
@@ -66,9 +72,15 @@ export default async function StoreLayout({
       </div>
       <StoreNav
         label={t("storeSections")}
+        groups={{
+          products: t("tabGroups.products"),
+          selling: t("tabGroups.selling"),
+          orders: t("tabGroups.orders"),
+          settings: t("tabGroups.settings"),
+        }}
         items={items
           .filter((i) => roleCan(role, i.capability))
-          .map(({ href, section }) => ({ href, section, label: t(`tabs.${section}`) }))}
+          .map(({ href, section, group }) => ({ href, section, group, label: t(`tabs.${section}`) }))}
       />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">{children}</div>
     </>
