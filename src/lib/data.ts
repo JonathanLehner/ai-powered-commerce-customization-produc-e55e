@@ -71,6 +71,9 @@ export const COLLECTIONS = {
   shopifyImports: "shopify_imports",
   shopifyImportRows: "shopify_import_rows",
   urlRedirects: "url_redirects",
+  webhookEndpoints: "webhook_endpoints",
+  webhookDeliveries: "webhook_deliveries",
+  jobLeases: "job_leases",
 } as const;
 
 /* ------------------------------------------------------------------ paging */
@@ -317,6 +320,8 @@ export async function updateStoreProduct(id: string, patch: Partial<StoreProduct
     { id },
     { $set: { ...(patch as Record<string, unknown>), updatedAt: new Date().toISOString() } },
   );
+  const { emitProductWebhook } = await import("./webhook-events");
+  emitProductWebhook(current?.storeId ?? null, id, "product.updated");
 }
 
 /* ------------------------------------------------------------- collections */

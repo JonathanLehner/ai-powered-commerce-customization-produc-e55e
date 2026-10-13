@@ -24,6 +24,8 @@ import { reviewsForOrder } from "@/lib/review-data";
 import { reviewableItems, reviewerName } from "@/lib/reviews";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { giftCardLineIds } from "@/lib/gift-card-data";
+import { fulfilmentState } from "@/lib/order-ops";
 
 export async function generateMetadata({
   params,
@@ -91,7 +93,18 @@ export default async function OrderStatusPage({
   // The token verified but the order is gone: the store's own not-found page.
   if (!order) return <StorefrontNotFoundView store={store} locale={requested} />;
 
-  const status = SHOPPER_STATUS[order.status];
+  // Part of the order is on its way: said so until the rest follows.
+  const giftLines = order.shipments?.length ? await giftCardLineIds(order) : new Set<string>();
+  const partlyShipped =
+    order.status !== "cancelled" &&
+    order.status !== "shipped" &&
+    order.status !== "delivered" &&
+    fulfilmentState(order, giftLines) === "partial";
+  const status = partlyShipped
+    ? { label: "partiallyShipped" as const, note: "partiallyShippedNote" as const, tone: "brand" as const }
+    : SHOPPER_STATUS[order.status];
+  const shipments = order.shipments ?? [];
+  const itemName = (itemId: string) => order.items.find((item) => item.id === itemId)?.productName ?? "";
   // A delivered order invites a review of each product on it, gift cards aside.
   const [orderProducts, written] =
     order.status === "delivered"
@@ -160,7 +173,38 @@ export default async function OrderStatusPage({
         {t(`status.${status.note}`)}
       </p>
 
-      {order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
+      {shipments.length > 1 || partlyShipped ? (
+        <section className="mt-8">
+          <h2 className="font-heading text-base font-semibold text-foreground">{t("order.shipments")}</h2>
+          <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
+            {shipments.map((shipment, index) => (
+              <li key={shipment.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground">
+                    {t("order.shipmentNumber", { number: index + 1 })} · {CARRIER_LABELS[shipment.carrier]}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{dateTime(shipment.at)}</p>
+                  <ul className="mt-1.5 text-xs text-inksoft">
+                    {shipment.lines.map((line) => (
+                      <li key={line.itemId}>
+                        {t("order.shipmentLine", { name: itemName(line.itemId), count: line.quantity })}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <a
+                  href={shipment.trackingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  {t("order.trackParcel")}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : order.fulfillment.trackingNumber && order.fulfillment.carrier ? (
         <a
           href={order.fulfillment.trackingUrl ?? "#"}
           target="_blank"

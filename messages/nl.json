@@ -347,7 +347,8 @@
       "Platform administration": "Platformbeheer",
       "Domains": "Domeinen",
       "Currencies": "Valuta",
-      "Import": "Importeren"
+      "Import": "Importeren",
+      "Webhooks": "Webhooks"
     },
     "ctaTitle": "Maak je eerste sleutel",
     "ctaBody": "Log in, open de Instellingen van een winkel en kies API-sleutels.",
@@ -1227,7 +1228,32 @@
       "orderChanged": "Deze bestelling is gewijzigd. Laad opnieuw en controleer de terugbetalingen voordat je het nog eens probeert.",
       "refunded": "{amount} terugbetaald ({reference}).",
       "refundedCancelled": "{amount} terugbetaald en bestelling geannuleerd ({reference}).",
-      "refundFailed": "Stripe kon de terugbetaling niet uitvoeren. Er is niets vastgelegd. Probeer het opnieuw."
+      "refundFailed": "Stripe kon de terugbetaling niet uitvoeren. Er is niets vastgelegd. Probeer het opnieuw.",
+      "partShipped": "Pakket vastgelegd. De klant is op de hoogte gebracht.",
+      "notesSaved": "Notities opgeslagen.",
+      "addressSaved": "Verzendadres bijgewerkt.",
+      "recoveryOn": "E-mails voor verlaten checkouts staan aan.",
+      "recoveryOff": "E-mails voor verlaten checkouts staan uit.",
+      "notShippable": "Deze bestelling kan in de huidige status niet worden verzonden.",
+      "shipment": {
+        "nothingSelected": "Vul in hoeveel stuks er in dit pakket gaan.",
+        "unknownLine": "Dat artikel hoort niet bij deze bestelling.",
+        "tooMany": "Vul een heel getal in tot het aantal resterende stuks van {item}.",
+        "nothingLeft": "Alles van deze bestelling is al verzonden."
+      },
+      "noteTooLong": "Notities mogen maximaal {max} tekens bevatten.",
+      "tooManyTags": "Een bestelling kan maximaal {max} tags hebben.",
+      "addressLocked": "Het adres kan niet meer worden gewijzigd zodra een deel van de bestelling is verzonden of de bestelling is geannuleerd.",
+      "address": {
+        "name": "Vul de naam van de ontvanger in.",
+        "line1": "Vul het adres in.",
+        "city": "Vul de plaats in.",
+        "region": "Vul de staat, provincie of prefectuur in.",
+        "postalCode": "Vul de postcode in.",
+        "country": "Kies een land.",
+        "phone": "Vul een geldig telefoonnummer in of laat het veld leeg."
+      },
+      "recoveryDelay": "Vul een heel aantal uren in van {min} tot {max}."
     },
     "gifting": {
       "nameTooShort": "Geef de catalogus een naam van minstens 3 tekens.",
@@ -1548,6 +1574,28 @@
       "redirectLimit": "Een winkel kan maximaal {max} omleidingen hebben.",
       "redirectSaved": "{path} wordt nu omgeleid",
       "redirectDeleted": "Omleiding verwijderd"
+    },
+    "webhooks": {
+      "url": {
+        "invalid": "Vul een URL in zoals https://example.com/webhooks.",
+        "https": "De URL moet beginnen met https://.",
+        "private": "Gebruik een openbaar adres. Lokale en privénetwerkadressen kunnen geen webhooks ontvangen.",
+        "credentials": "Verwijder de gebruikersnaam en het wachtwoord uit de URL."
+      },
+      "topicsRequired": "Kies minstens één gebeurtenis.",
+      "limit": "Een winkel kan maximaal {max} webhook-endpoints hebben.",
+      "duplicate": "Deze URL is al een endpoint.",
+      "notFound": "Dat endpoint bestaat niet meer.",
+      "deliveryNotFound": "Die levering staat niet meer in het logboek.",
+      "resendDisabled": "Zet het endpoint aan voordat je opnieuw verstuurt.",
+      "resendBusy": "Deze levering wordt nu verstuurd. Probeer het over een minuut opnieuw.",
+      "saved": "Endpoint opgeslagen.",
+      "enabled": "Endpoint aangezet.",
+      "disabled": "Endpoint uitgezet.",
+      "secretRotated": "Ondertekeningssleutel vernieuwd.",
+      "resent": "Afgeleverd. Het endpoint antwoordde {code}.",
+      "resendFailedCode": "Niet afgeleverd. Het endpoint antwoordde {code}.",
+      "resendFailed": "Niet afgeleverd. Het endpoint gaf geen antwoord."
     }
   },
   "settings": {
@@ -1682,7 +1730,10 @@
       "refreshing": "Bijwerken…",
       "updated": "Automatische koersen bijgewerkt {time}",
       "notUpdated": "Automatische koersen worden dagelijks bijgewerkt."
-    }
+    },
+    "webhooksTitle": "Webhooks",
+    "webhooksBody": "Stuur gebeurtenissen over bestellingen, producten, klanten en voorraad naar je eigen systemen.",
+    "webhooksLink": "Webhooks beheren"
   },
   "team": {
     "agencyAdmins": "Bureaubeheerders",
@@ -2076,7 +2127,25 @@
     "taxPlain": "Btw",
     "taxIncludedPlain": "Btw (inbegrepen)",
     "taxIncluded": "Btw {rate}% (inbegrepen)",
-    "shopTotal": "Totaal in {currency}"
+    "shopTotal": "Totaal in {currency}",
+    "shipParcel": "Pakket verzenden",
+    "unitsInParcel": "Stuks in dit pakket",
+    "unitsLeft": "Nog {count} te verzenden",
+    "saveNotes": "Notities opslaan",
+    "note": "Notitie",
+    "tags": "Tags",
+    "tagsPlaceholder": "VIP, cadeauverpakking",
+    "tagsHint": "Scheid tags met komma's. Alleen je team ziet notities en tags.",
+    "saveAddress": "Adres opslaan",
+    "print": "Afdrukken",
+    "backToOrder": "Terug naar bestelling",
+    "partiallyShipped": "Gedeeltelijk verzonden",
+    "packingSlip": "Pakbon",
+    "shippedOf": "{shipped} van {count} verzonden",
+    "parcel": "Pakket {number}",
+    "notShippable": "Pakketten kunnen worden verzonden zodra de bestelling is betaald.",
+    "notesTitle": "Notities en tags",
+    "editAddress": "Verzendadres bewerken"
   },
   "customers": {
     "title": "Klanten",
@@ -3566,7 +3635,8 @@
       "deliveryDaysExact": "{days, plural, one {# werkdag} other {# werkdagen}}",
       "noShippingOptions": "We verzenden nog niet naar dit land.",
       "emailDelivery": "Levering via e-mail",
-      "billingDetails": "Jouw gegevens"
+      "billingDetails": "Jouw gegevens",
+      "marketingConsent": "Stuur me nieuws en aanbiedingen per e-mail"
     },
     "order": {
       "title": "Bestelstatus",
@@ -3608,7 +3678,11 @@
       "tax": "Btw",
       "taxIncludedPlain": "Btw (inbegrepen)",
       "taxIncludedRow": "Btw {rate, number}% (inbegrepen)",
-      "invoice": "Factuur bekijken"
+      "invoice": "Factuur bekijken",
+      "shipments": "Zendingen",
+      "shipmentNumber": "Pakket {number}",
+      "shipmentLine": "{name} × {count}",
+      "trackParcel": "Pakket volgen"
     },
     "status": {
       "awaitingPayment": "Wacht op betaling",
@@ -3624,7 +3698,9 @@
       "cancelled": "Geannuleerd",
       "cancelledNote": "Deze bestelling is geannuleerd en terugbetaald.",
       "exception": "In de wacht",
-      "exceptionNote": "Je bestelling heeft vertraging. We nemen contact met je op met een update."
+      "exceptionNote": "Je bestelling heeft vertraging. We nemen contact met je op met een update.",
+      "partiallyShipped": "Gedeeltelijk verzonden",
+      "partiallyShippedNote": "Een deel van je bestelling is onderweg. De rest volgt."
     },
     "actions": {
       "storeClosed": "Deze winkel neemt op dit moment geen bestellingen aan.",
@@ -3740,7 +3816,16 @@
       "giftCardCodeLabel": "Cadeauboncode",
       "giftCardValueLabel": "Waarde",
       "giftCardExpiresLabel": "Verloopt op",
-      "giftCardCta": "Begin met winkelen"
+      "giftCardCta": "Begin met winkelen",
+      "shippedPartialSubject": "Een deel van je {store}-bestelling {code} is verzonden",
+      "shippedPartialHeading": "Een deel van je bestelling is onderweg",
+      "shippedPartialBody": "Een aantal artikelen uit bestelling {code} is verzonden met {carrier}. De rest volgt.",
+      "shippedQuantity": "× {count}",
+      "recoverySubject": "Je hebt iets in je winkelwagen laten liggen bij {store}",
+      "recoveryHeading": "Je winkelwagen wacht op je",
+      "recoveryBody": "Je hebt je bestelling bij {store} niet afgerond. Je artikelen staan hieronder.",
+      "recoveryCta": "Terug naar je winkelwagen",
+      "recoveryConsent": "Je ontvangt deze e-mail omdat je bij het afrekenen hebt ingestemd met e-mails van {store}."
     },
     "gift": {
       "chromeSubtitle": "Cadeaucatalogus · {store}",
@@ -4017,6 +4102,16 @@
       "bodyTooLong": "Houd je beoordeling onder 2.000 tekens.",
       "nameRequired": "Voer de naam in die bij je beoordeling moet worden getoond.",
       "nameTooLong": "Houd de naam onder 60 tekens."
+    },
+    "packingSlip": {
+      "heading": "Pakbon",
+      "order": "Bestelling",
+      "date": "Datum",
+      "tracking": "Track & trace",
+      "shipTo": "Verzenden naar",
+      "item": "Artikel",
+      "quantity": "Aantal",
+      "thanks": "Bedankt voor je aankoop bij {store}."
     }
   },
   "collections": {
@@ -4100,7 +4195,8 @@
       "gift_approval": "Cadeaucampagne {code} wacht op goedkeuring",
       "quote_received": "Offerte ontvangen van {name} voor {code}",
       "invite_accepted": "{name} heeft de uitnodiging geaccepteerd",
-      "low_stock": "{name} raakt op: nog {count} over"
+      "low_stock": "{name} raakt op: nog {count} over",
+      "webhook_disabled": "Webhook-endpoint {name} is uitgezet na herhaalde fouten"
     },
     "settings": {
       "menu": "Meldingen",
@@ -4120,7 +4216,8 @@
         "gift_approval": "Cadeaucampagnes ter goedkeuring",
         "quote_received": "Leveranciersoffertes",
         "invite_accepted": "Geaccepteerde uitnodigingen",
-        "low_stock": "Lage voorraad"
+        "low_stock": "Lage voorraad",
+        "webhook_disabled": "Uitgezette webhook-endpoints"
       }
     },
     "email": {
@@ -4236,7 +4333,8 @@
       "analytics": "Analyses",
       "activity": "Activiteit",
       "agency": "Bureau: mensen, abonnement en winkels",
-      "domains": "Domeinen"
+      "domains": "Domeinen",
+      "webhooks": "Webhooks"
     },
     "none": "Geen toegang",
     "read": "Lezen",
@@ -4810,5 +4908,121 @@
       "remove": "Verwijderen",
       "actions": "Acties"
     }
+  },
+  "abandoned": {
+    "tabOrders": "Bestellingen",
+    "tabAbandoned": "Verlaten checkouts",
+    "tabsLabel": "Bestellingweergaven",
+    "recoveryTitle": "Herinneringsmail",
+    "recoveryBody": "Stuur één e-mail met een link terug naar de winkelwagen. Alleen klanten die bij het afrekenen met e-mails hebben ingestemd, ontvangen hem.",
+    "enabled": "Herinneringsmail versturen",
+    "delay": "Uren na het afrekenen",
+    "delayHint": "Van 1 tot 72 uur.",
+    "save": "Opslaan",
+    "emptyTitle": "Geen verlaten checkouts",
+    "emptyBody": "Checkouts die verlopen zonder betaling verschijnen hier.",
+    "listTitle": "{count, plural, one {# verlaten checkout} other {# verlaten checkouts}}",
+    "columns": {
+      "date": "Datum",
+      "customer": "Klant",
+      "items": "Artikelen",
+      "total": "Totaal",
+      "recovery": "Herinneringsmail"
+    },
+    "deleted": "Persoonsgegevens verwijderd",
+    "units": "{count, plural, one {# artikel} other {# artikelen}}",
+    "state": {
+      "recovered": "Teruggewonnen",
+      "sent": "Verstuurd",
+      "scheduled": "Gepland",
+      "noConsent": "Geen e-mailtoestemming",
+      "off": "Niet verstuurd",
+      "expired": "Niet verstuurd"
+    },
+    "viewOrder": "Bestelling bekijken"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "pageDescription": "Stuur winkelgebeurtenissen direct naar je eigen systemen.",
+    "reference": "API-referentie",
+    "emptyTitle": "Nog geen endpoints",
+    "emptyBody": "Voeg een endpoint toe om gebeurtenissen te ontvangen.",
+    "endpointsTitle": "Endpoints",
+    "addTitle": "Endpoint toevoegen",
+    "columns": {
+      "endpoint": "Endpoint",
+      "topics": "Gebeurtenissen",
+      "lastDelivery": "Laatste levering",
+      "status": "Status",
+      "event": "Gebeurtenis",
+      "response": "Antwoord",
+      "attempts": "Pogingen"
+    },
+    "topicCount": "{count, plural, one {# gebeurtenis} other {# gebeurtenissen}}",
+    "lastFailed": "Mislukt",
+    "never": "Nooit",
+    "statusEnabled": "Actief",
+    "statusFailing": "Uitgezet na fouten",
+    "statusDisabled": "Uitgezet",
+    "url": "Endpoint-URL",
+    "description": "Beschrijving (optioneel)",
+    "topics": "Gebeurtenissen",
+    "groups": {
+      "order": "Bestellingen",
+      "product": "Producten",
+      "customer": "Klanten",
+      "inventory": "Voorraad"
+    },
+    "topicLabels": {
+      "order_created": "Bestelling aangemaakt",
+      "order_paid": "Bestelling betaald",
+      "order_fulfilled": "Bestelling verzonden",
+      "order_cancelled": "Bestelling geannuleerd",
+      "order_refunded": "Bestelling terugbetaald",
+      "product_created": "Product aangemaakt",
+      "product_updated": "Product bijgewerkt",
+      "product_deleted": "Product verwijderd",
+      "customer_created": "Klant aangemaakt",
+      "customer_updated": "Klant bijgewerkt",
+      "inventory_updated": "Voorraad bijgewerkt"
+    },
+    "add": "Endpoint toevoegen",
+    "adding": "Toevoegen…",
+    "save": "Wijzigingen opslaan",
+    "enable": "Aanzetten",
+    "disable": "Uitzetten",
+    "secretTitle": "Ondertekeningssleutel",
+    "secretBody": "Controleer met deze sleutel dat leveringen van je winkel komen. Leveringen volgen het Standard Webhooks-formaat.",
+    "revealSecret": "Tonen",
+    "hideSecret": "Verbergen",
+    "copySecret": "Sleutel kopiëren",
+    "rotate": "Sleutel vernieuwen",
+    "rotateQuestion": "Leveringen worden met een nieuwe sleutel ondertekend. Doorgaan?",
+    "deleteTitle": "Endpoint verwijderen",
+    "deleteBody": "Stopt alle leveringen aan dit endpoint en verwijdert het logboek.",
+    "delete": "Endpoint verwijderen",
+    "deleteQuestion": "Dit endpoint verwijderen?",
+    "autoDisabledTitle": "Dit endpoint is uitgezet",
+    "autoDisabledBody": "Het mislukte {count} keer achter elkaar en is op {date} uitgezet. Herstel het endpoint en zet het weer aan.",
+    "deliveriesTitle": "Leveringen",
+    "deliveriesBody": "De laatste 50 leveringen van de afgelopen 30 dagen. Mislukte leveringen worden ongeveer een dag lang opnieuw geprobeerd.",
+    "noDeliveriesTitle": "Nog geen leveringen",
+    "noDeliveriesBody": "Leveringen verschijnen hier zodra een van de gekozen gebeurtenissen plaatsvindt.",
+    "payload": "Inhoud",
+    "deliveryStatus": {
+      "pending": "Wordt verstuurd",
+      "retrying": "Opnieuw proberen",
+      "succeeded": "Afgeleverd",
+      "failed": "Mislukt",
+      "cancelled": "Geannuleerd"
+    },
+    "nextAttempt": "Volgende poging {date}",
+    "error": {
+      "timeout": "Time-out",
+      "network": "Geen antwoord"
+    },
+    "duration": "{ms} ms",
+    "resend": "Opnieuw versturen",
+    "settingsTitle": "Endpoint-instellingen"
   }
 }

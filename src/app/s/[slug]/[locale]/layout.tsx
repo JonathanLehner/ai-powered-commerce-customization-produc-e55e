@@ -34,6 +34,7 @@ import { THEMES } from "@/lib/types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { kickScheduler } from "@/lib/scheduler";
 
 /**
  * A client storefront is white-labelled, so its tab titles, description and
@@ -116,6 +117,7 @@ export default async function StorefrontLayout({
   if (store.currencies.length > 1 && usesAutomaticRates(store) && fxStale(store)) {
     after(() => refreshStoreFxIfStale(store).catch(() => store));
   }
+  kickScheduler();
   const items = basket?.cart.items ?? [];
 
   // The drawer shows the same prices the basket page does, so they are worked

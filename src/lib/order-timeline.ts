@@ -8,7 +8,14 @@ import type { FulfillmentEvent } from "./types";
  * where the order has got to, in their own language, so each event is matched
  * to a milestone and everything else is left out.
  */
-export type ShopperMilestone = "paid" | "inProduction" | "shipped" | "delivered" | "cancelled" | "refunded";
+export type ShopperMilestone =
+  | "paid"
+  | "inProduction"
+  | "partiallyShipped"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "refunded";
 
 /** Event titles as written by the app and the demo seed (English and German). */
 const MILESTONES: Record<string, ShopperMilestone> = {
@@ -18,6 +25,7 @@ const MILESTONES: Record<string, ShopperMilestone> = {
   "rerouted to supplier": "inProduction",
   "in production": "inProduction",
   "an die produktion übergeben": "inProduction",
+  "partially shipped": "partiallyShipped",
   shipped: "shipped",
   versandt: "shipped",
   delivered: "delivered",

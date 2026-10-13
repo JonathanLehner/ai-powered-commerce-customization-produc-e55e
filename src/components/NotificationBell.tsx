@@ -9,6 +9,7 @@ import {
   TriangleAlertIcon,
   Undo2Icon,
   UserCheckIcon,
+  WebhookOffIcon,
   type LucideIcon,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -40,6 +41,7 @@ const ICONS: Record<NotificationType, LucideIcon> = {
   quote_received: FileTextIcon,
   invite_accepted: UserCheckIcon,
   low_stock: PackageMinusIcon,
+  webhook_disabled: WebhookOffIcon,
 };
 
 export function NotificationBell() {

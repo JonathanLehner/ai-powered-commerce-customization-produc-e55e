@@ -10,6 +10,7 @@ import {
   bulkAdvanceOrders as advanceMany,
   bulkRouteOrders as routeMany,
   bulkShipOrders as shipMany,
+  fulfilOrder as fulfil,
   moveOrder,
   raiseException as raise,
   recordManualSubmission as recordManual,
@@ -17,7 +18,10 @@ import {
   rerouteToSupplier as reroute,
   resolveException as resolve,
   routeToSupplier as route,
+  saveCheckoutRecovery as saveRecovery,
+  saveOrderNotes as saveNotes,
   shipOrder,
+  updateShippingAddress as updateAddress,
   type BulkResult,
   type Carrier,
 } from "@/lib/operations/orders";
@@ -95,13 +99,79 @@ export async function addTracking(_prev: ActionState, formData: FormData): Promi
     return { status: "error", message: t("chooseCarrier"), field: "carrier" };
   }
 
+  // The line-item form posts a quantity per line; without them, everything left ships.
+  const lines = [...formData.entries()]
+    .filter(([name]) => name.startsWith("quantity_"))
+    .map(([name, value]) => ({ itemId: name.slice("quantity_".length), quantity: Number(String(value).trim() || "0") }));
+
   const { order, ...access } = await load(storeId, orderId);
   try {
-    await shipOrder(await operationContext(access), order, carrier, trackingNumber);
+    const ctx = await operationContext(access);
+    if (lines.length > 0) {
+      const { complete } = await fulfil(ctx, order, { carrier, trackingNumber, lines });
+      return { status: "success", message: t(complete ? "trackingAdded" : "partShipped") };
+    }
+    await shipOrder(ctx, order, carrier, trackingNumber);
   } catch (error) {
     return refusal(error);
   }
   return { status: "success", message: t("trackingAdded") };
+}
+
+/** The team's note and tags on an order. */
+export async function saveOrderNotes(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const orderId = String(formData.get("orderId") ?? "");
+  const t = await getTranslations("actions.orders");
+  const { order, ...access } = await load(storeId, orderId);
+  try {
+    await saveNotes(await operationContext(access), order, {
+      note: String(formData.get("note") ?? ""),
+      tags: String(formData.get("tags") ?? ""),
+    });
+  } catch (error) {
+    return refusal(error);
+  }
+  return { status: "success", message: t("notesSaved") };
+}
+
+/** Corrects the shipping address before anything has shipped. */
+export async function updateShippingAddress(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const orderId = String(formData.get("orderId") ?? "");
+  const t = await getTranslations("actions.orders");
+  const { order, ...access } = await load(storeId, orderId);
+  try {
+    await updateAddress(await operationContext(access), order, {
+      name: formData.get("name"),
+      line1: formData.get("line1"),
+      line2: formData.get("line2"),
+      city: formData.get("city"),
+      region: formData.get("region"),
+      postalCode: formData.get("postalCode"),
+      country: formData.get("country"),
+      phone: formData.get("phone"),
+    });
+  } catch (error) {
+    return refusal(error);
+  }
+  return { status: "success", message: t("addressSaved") };
+}
+
+/** The abandoned checkout email: on or off, and how many hours after checkout. */
+export async function saveCheckoutRecovery(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const access = await assertStoreAccess(storeId, "store.settings");
+  const t = await getTranslations("actions.orders");
+  try {
+    const settings = await saveRecovery(await operationContext(access), {
+      enabled: formData.get("enabled") === "on",
+      delayHours: formData.get("delayHours"),
+    });
+    return { status: "success", message: t(settings.enabled ? "recoveryOn" : "recoveryOff") };
+  } catch (error) {
+    return refusal(error);
+  }
 }
 
 export async function advanceStatus(formData: FormData): Promise<void> {

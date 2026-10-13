@@ -347,7 +347,8 @@
       "Platform administration": "Platform administration",
       "Domains": "Domains",
       "Currencies": "Currencies",
-      "Import": "Import"
+      "Import": "Import",
+      "Webhooks": "Webhooks"
     },
     "ctaTitle": "Create your first key",
     "ctaBody": "Sign in, open a store's Settings and choose API keys.",
@@ -1227,7 +1228,32 @@
       "orderChanged": "This order changed. Reload and check the refunds before trying again.",
       "refunded": "{amount} refunded ({reference}).",
       "refundedCancelled": "{amount} refunded and order cancelled ({reference}).",
-      "refundFailed": "Stripe could not issue the refund. Nothing was recorded. Try again."
+      "refundFailed": "Stripe could not issue the refund. Nothing was recorded. Try again.",
+      "partShipped": "Parcel recorded. The customer has been notified.",
+      "notesSaved": "Notes saved.",
+      "addressSaved": "Shipping address updated.",
+      "recoveryOn": "Abandoned checkout emails are on.",
+      "recoveryOff": "Abandoned checkout emails are off.",
+      "notShippable": "This order can't be shipped in its current status.",
+      "shipment": {
+        "nothingSelected": "Enter how many units go in this parcel.",
+        "unknownLine": "That item isn't on this order.",
+        "tooMany": "Enter a whole number up to the units left of {item}.",
+        "nothingLeft": "Everything on this order has shipped."
+      },
+      "noteTooLong": "Notes can be up to {max} characters.",
+      "tooManyTags": "An order can have up to {max} tags.",
+      "addressLocked": "The address can't be changed once part of the order has shipped or the order is cancelled.",
+      "address": {
+        "name": "Enter the recipient's name.",
+        "line1": "Enter the street address.",
+        "city": "Enter the town or city.",
+        "region": "Enter the state, province or prefecture.",
+        "postalCode": "Enter the postal code.",
+        "country": "Choose a country.",
+        "phone": "Enter a valid phone number or leave it blank."
+      },
+      "recoveryDelay": "Enter a whole number of hours from {min} to {max}."
     },
     "gifting": {
       "nameTooShort": "Give the catalogue a name of at least 3 characters.",
@@ -1548,6 +1574,28 @@
       "redirectLimit": "A store can have up to {max} redirects.",
       "redirectSaved": "{path} now redirects",
       "redirectDeleted": "Redirect removed"
+    },
+    "webhooks": {
+      "url": {
+        "invalid": "Enter a URL such as https://example.com/webhooks.",
+        "https": "The URL must start with https://.",
+        "private": "Use a public address. Local and private network addresses can't receive webhooks.",
+        "credentials": "Remove the username and password from the URL."
+      },
+      "topicsRequired": "Choose at least one event.",
+      "limit": "A store can have up to {max} webhook endpoints.",
+      "duplicate": "This URL is already an endpoint.",
+      "notFound": "That endpoint no longer exists.",
+      "deliveryNotFound": "That delivery is no longer in the log.",
+      "resendDisabled": "Turn the endpoint on before resending.",
+      "resendBusy": "This delivery is being sent right now. Try again in a minute.",
+      "saved": "Endpoint saved.",
+      "enabled": "Endpoint turned on.",
+      "disabled": "Endpoint turned off.",
+      "secretRotated": "Signing secret rotated.",
+      "resent": "Delivered. The endpoint answered {code}.",
+      "resendFailedCode": "Not delivered. The endpoint answered {code}.",
+      "resendFailed": "Not delivered. The endpoint didn't answer."
     }
   },
   "settings": {
@@ -1682,7 +1730,10 @@
       "refreshing": "Updating…",
       "updated": "Automatic rates updated {time}",
       "notUpdated": "Automatic rates update daily."
-    }
+    },
+    "webhooksTitle": "Webhooks",
+    "webhooksBody": "Send order, product, customer and inventory events to your own systems.",
+    "webhooksLink": "Manage webhooks"
   },
   "team": {
     "agencyAdmins": "Agency administrators",
@@ -2076,7 +2127,25 @@
     "taxPlain": "Tax",
     "taxIncludedPlain": "Tax (included)",
     "taxIncluded": "Tax {rate}% (included)",
-    "shopTotal": "Total in {currency}"
+    "shopTotal": "Total in {currency}",
+    "shipParcel": "Ship parcel",
+    "unitsInParcel": "Units in this parcel",
+    "unitsLeft": "{count} left to ship",
+    "saveNotes": "Save notes",
+    "note": "Note",
+    "tags": "Tags",
+    "tagsPlaceholder": "VIP, gift wrap",
+    "tagsHint": "Separate tags with commas. Only your team sees notes and tags.",
+    "saveAddress": "Save address",
+    "print": "Print",
+    "backToOrder": "Back to order",
+    "partiallyShipped": "Partially shipped",
+    "packingSlip": "Packing slip",
+    "shippedOf": "{shipped} of {count} shipped",
+    "parcel": "Parcel {number}",
+    "notShippable": "Parcels can be shipped once the order is paid.",
+    "notesTitle": "Notes and tags",
+    "editAddress": "Edit shipping address"
   },
   "customers": {
     "title": "Customers",
@@ -3566,7 +3635,8 @@
       "deliveryDaysExact": "{days, plural, one {# business day} other {# business days}}",
       "noShippingOptions": "We don't ship to this country yet.",
       "emailDelivery": "Email delivery",
-      "billingDetails": "Your details"
+      "billingDetails": "Your details",
+      "marketingConsent": "Email me with news and offers"
     },
     "order": {
       "title": "Order status",
@@ -3608,7 +3678,11 @@
       "tax": "Tax",
       "taxIncludedPlain": "Tax (included)",
       "taxIncludedRow": "Tax {rate, number}% (included)",
-      "invoice": "View invoice"
+      "invoice": "View invoice",
+      "shipments": "Shipments",
+      "shipmentNumber": "Parcel {number}",
+      "shipmentLine": "{name} × {count}",
+      "trackParcel": "Track parcel"
     },
     "status": {
       "awaitingPayment": "Awaiting payment",
@@ -3624,7 +3698,9 @@
       "cancelled": "Cancelled",
       "cancelledNote": "This order was cancelled and refunded.",
       "exception": "On hold",
-      "exceptionNote": "Your order is delayed. We will contact you with an update."
+      "exceptionNote": "Your order is delayed. We will contact you with an update.",
+      "partiallyShipped": "Partially shipped",
+      "partiallyShippedNote": "Part of your order is on its way. The rest will follow."
     },
     "actions": {
       "storeClosed": "This store is not currently taking orders.",
@@ -3740,7 +3816,16 @@
       "giftCardCodeLabel": "Gift card code",
       "giftCardValueLabel": "Value",
       "giftCardExpiresLabel": "Expires",
-      "giftCardCta": "Start shopping"
+      "giftCardCta": "Start shopping",
+      "shippedPartialSubject": "Part of your {store} order {code} has shipped",
+      "shippedPartialHeading": "Part of your order is on its way",
+      "shippedPartialBody": "Some items from order {code} have shipped with {carrier}. The rest will follow.",
+      "shippedQuantity": "× {count}",
+      "recoverySubject": "You left something in your basket at {store}",
+      "recoveryHeading": "Your basket is waiting",
+      "recoveryBody": "You didn't finish checking out at {store}. Your items are saved below.",
+      "recoveryCta": "Return to your basket",
+      "recoveryConsent": "You're receiving this email because you agreed to emails from {store} at checkout."
     },
     "gift": {
       "chromeSubtitle": "Gift catalogue · {store}",
@@ -4017,6 +4102,16 @@
       "bodyTooLong": "Keep your review under 2,000 characters.",
       "nameRequired": "Enter the name to show with your review.",
       "nameTooLong": "Keep the name under 60 characters."
+    },
+    "packingSlip": {
+      "heading": "Packing slip",
+      "order": "Order",
+      "date": "Date",
+      "tracking": "Tracking",
+      "shipTo": "Ship to",
+      "item": "Item",
+      "quantity": "Quantity",
+      "thanks": "Thank you for shopping with {store}."
     }
   },
   "collections": {
@@ -4100,7 +4195,8 @@
       "gift_approval": "Gift campaign {code} is awaiting approval",
       "quote_received": "Quote received from {name} for {code}",
       "invite_accepted": "{name} accepted the invitation",
-      "low_stock": "{name} is low on stock: {count} left"
+      "low_stock": "{name} is low on stock: {count} left",
+      "webhook_disabled": "Webhook endpoint {name} was turned off after repeated failures"
     },
     "settings": {
       "menu": "Notifications",
@@ -4120,7 +4216,8 @@
         "gift_approval": "Gift campaigns awaiting approval",
         "quote_received": "Sourcing quotes",
         "invite_accepted": "Accepted invitations",
-        "low_stock": "Low stock"
+        "low_stock": "Low stock",
+        "webhook_disabled": "Webhook endpoints turned off"
       }
     },
     "email": {
@@ -4236,7 +4333,8 @@
       "analytics": "Analytics",
       "activity": "Activity",
       "agency": "Agency people, plan and stores",
-      "domains": "Domains"
+      "domains": "Domains",
+      "webhooks": "Webhooks"
     },
     "none": "No access",
     "read": "Read",
@@ -4810,5 +4908,121 @@
       "remove": "Remove",
       "actions": "Actions"
     }
+  },
+  "abandoned": {
+    "tabOrders": "Orders",
+    "tabAbandoned": "Abandoned checkouts",
+    "tabsLabel": "Order views",
+    "recoveryTitle": "Recovery email",
+    "recoveryBody": "Send one email with a link back to the basket. Only customers who agreed to emails at checkout receive it.",
+    "enabled": "Send a recovery email",
+    "delay": "Hours after checkout",
+    "delayHint": "From 1 to 72 hours.",
+    "save": "Save",
+    "emptyTitle": "No abandoned checkouts",
+    "emptyBody": "Checkouts that expire without payment appear here.",
+    "listTitle": "{count, plural, one {# abandoned checkout} other {# abandoned checkouts}}",
+    "columns": {
+      "date": "Date",
+      "customer": "Customer",
+      "items": "Items",
+      "total": "Total",
+      "recovery": "Recovery email"
+    },
+    "deleted": "Personal data deleted",
+    "units": "{count, plural, one {# item} other {# items}}",
+    "state": {
+      "recovered": "Recovered",
+      "sent": "Sent",
+      "scheduled": "Scheduled",
+      "noConsent": "No email consent",
+      "off": "Not sent",
+      "expired": "Not sent"
+    },
+    "viewOrder": "View order"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "pageDescription": "Send store events to your own systems as they happen.",
+    "reference": "API reference",
+    "emptyTitle": "No endpoints yet",
+    "emptyBody": "Add an endpoint to start receiving events.",
+    "endpointsTitle": "Endpoints",
+    "addTitle": "Add endpoint",
+    "columns": {
+      "endpoint": "Endpoint",
+      "topics": "Events",
+      "lastDelivery": "Last delivery",
+      "status": "Status",
+      "event": "Event",
+      "response": "Response",
+      "attempts": "Attempts"
+    },
+    "topicCount": "{count, plural, one {# event} other {# events}}",
+    "lastFailed": "Failed",
+    "never": "Never",
+    "statusEnabled": "Active",
+    "statusFailing": "Turned off after failures",
+    "statusDisabled": "Turned off",
+    "url": "Endpoint URL",
+    "description": "Description (optional)",
+    "topics": "Events",
+    "groups": {
+      "order": "Orders",
+      "product": "Products",
+      "customer": "Customers",
+      "inventory": "Inventory"
+    },
+    "topicLabels": {
+      "order_created": "Order created",
+      "order_paid": "Order paid",
+      "order_fulfilled": "Order fulfilled",
+      "order_cancelled": "Order cancelled",
+      "order_refunded": "Order refunded",
+      "product_created": "Product created",
+      "product_updated": "Product updated",
+      "product_deleted": "Product deleted",
+      "customer_created": "Customer created",
+      "customer_updated": "Customer updated",
+      "inventory_updated": "Inventory updated"
+    },
+    "add": "Add endpoint",
+    "adding": "Adding…",
+    "save": "Save changes",
+    "enable": "Turn on",
+    "disable": "Turn off",
+    "secretTitle": "Signing secret",
+    "secretBody": "Use this secret to verify that deliveries come from your store. Deliveries follow the Standard Webhooks format.",
+    "revealSecret": "Reveal",
+    "hideSecret": "Hide",
+    "copySecret": "Copy secret",
+    "rotate": "Rotate secret",
+    "rotateQuestion": "Deliveries will be signed with a new secret. Continue?",
+    "deleteTitle": "Delete endpoint",
+    "deleteBody": "Stops all deliveries to this endpoint and removes its delivery log.",
+    "delete": "Delete endpoint",
+    "deleteQuestion": "Delete this endpoint?",
+    "autoDisabledTitle": "This endpoint was turned off",
+    "autoDisabledBody": "It failed {count} times in a row and was turned off on {date}. Fix the endpoint, then turn it back on.",
+    "deliveriesTitle": "Deliveries",
+    "deliveriesBody": "The last 50 deliveries from the past 30 days. Failed deliveries are retried for about a day.",
+    "noDeliveriesTitle": "No deliveries yet",
+    "noDeliveriesBody": "Deliveries appear here when one of the selected events happens.",
+    "payload": "Payload",
+    "deliveryStatus": {
+      "pending": "Sending",
+      "retrying": "Retrying",
+      "succeeded": "Delivered",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "nextAttempt": "Next attempt {date}",
+    "error": {
+      "timeout": "Timed out",
+      "network": "No response"
+    },
+    "duration": "{ms} ms",
+    "resend": "Resend",
+    "settingsTitle": "Endpoint settings"
   }
 }

@@ -14,6 +14,7 @@ import { settingsOperations } from "./settings";
 import { sourcingOperations } from "./sourcing";
 import { storeContentOperations } from "./store-content";
 import { teamOperations } from "./team";
+import { webhookOperations } from "./webhooks";
 
 /**
  * The operation modules beyond the first API: each area's REST endpoints and
@@ -22,6 +23,7 @@ import { teamOperations } from "./team";
 export const OPS_MODULES: ApiOperation[] = [
   ...settingsOperations,
   ...domainOperations,
+  ...webhookOperations,
   ...currencyOperations,
   ...importOperations,
   ...catalogOperations,

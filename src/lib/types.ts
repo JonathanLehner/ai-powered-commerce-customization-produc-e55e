@@ -229,6 +229,8 @@ export interface Store {
   pricesIncludeTax: boolean;
   /** Absent until the inventory settings are saved; read it through `inventorySettings()`. */
   inventory?: InventorySettings;
+  /** The one email sent after a checkout expires unpaid. Off unless turned on. */
+  checkoutRecovery?: CheckoutRecoverySettings | null;
   /** Absent until the tax settings are saved; read it through `storeTax()`. */
   tax?: StoreTaxSettings;
   /** The header and footer navigation. Absent until a menu is saved; read it through `storeMenus()`. */
@@ -312,6 +314,14 @@ export interface OrderShippingRate {
   maxDays: number;
   /** In the order currency. */
   amount: number;
+}
+
+export interface CheckoutRecoverySettings {
+  enabled: boolean;
+  /** Hours after the checkout expired. */
+  delayHours: number;
+  /** Only checkouts abandoned after this are emailed, so turning it on never mails old ones. */
+  enabledAt: string | null;
 }
 
 export interface InventorySettings {
@@ -915,9 +925,38 @@ export interface Order {
     catalogueId: string;
     recipientId: string;
   } | null;
+  /** The store team's own note. Never shown to the shopper. */
+  note?: string;
+  tags?: string[];
+  /** Parcels handed to a carrier, oldest first. Absent on orders shipped before partial fulfilment. */
+  shipments?: OrderShipment[];
+  /** Whether the shopper agreed at checkout to emails from the store. */
+  marketingConsent?: boolean;
+  /** Set when the Checkout session expired unpaid. */
+  abandoned?: OrderAbandonment | null;
   idempotencyKey: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** One parcel: which units of which lines went in it, and how to track it. */
+export interface OrderShipment {
+  id: string;
+  carrier: "dhl" | "fedex" | "ups";
+  trackingNumber: string;
+  trackingUrl: string;
+  lines: { itemId: string; quantity: number }[];
+  at: string;
+  actor: string;
+}
+
+export interface OrderAbandonment {
+  at: string;
+  /** When the recovery email went out; null until then. */
+  recoveryEmailAt: string | null;
+  /** Set once the shopper paid for the basket after all. */
+  recoveredAt: string | null;
+  recoveredOrderId?: string | null;
 }
 
 export interface OrderInventory {

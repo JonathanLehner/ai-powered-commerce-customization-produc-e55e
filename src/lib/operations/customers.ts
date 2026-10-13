@@ -18,6 +18,7 @@ import { isSupportEmail } from "../support";
 import type { Customer } from "../types";
 import { CURRENCY_OPTIONS, newId } from "../util";
 import { OperationError, type OperationContext } from "./context";
+import { emitCustomerWebhook } from "../webhook-events";
 
 /**
  * A store's customers. Their figures are rebuilt from the store's orders (see
@@ -209,6 +210,7 @@ export async function createCustomer(
     throw error;
   }
   audit(ctx, "customer.created", `Added customer ${customer.id}`, customer.id);
+  emitCustomerWebhook(ctx.store.id, { id: customer.id }, "customer.created");
   revalidateCustomer(ctx.store.id, customer.id);
   return customer;
 }
@@ -234,6 +236,7 @@ export async function updateCustomer(
   audit(ctx, "customer.updated", `Updated ${changed.join(", ")} on customer ${customer.id}`, customer.id, {
     fields: changed.join(","),
   });
+  emitCustomerWebhook(ctx.store.id, { id: customer.id }, "customer.updated");
   revalidateCustomer(ctx.store.id, customer.id);
   return { ...customer, ...patch };
 }

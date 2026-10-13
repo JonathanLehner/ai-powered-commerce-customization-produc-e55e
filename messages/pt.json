@@ -347,7 +347,8 @@
       "Platform administration": "Administração da plataforma",
       "Domains": "Domínios",
       "Currencies": "Moedas",
-      "Import": "Importação"
+      "Import": "Importação",
+      "Webhooks": "Webhooks"
     },
     "ctaTitle": "Crie a sua primeira chave",
     "ctaBody": "Inicie sessão, abra as Definições de uma loja e escolha Chaves de API.",
@@ -1227,7 +1228,32 @@
       "orderChanged": "Esta encomenda foi alterada. Recarregue e verifique os reembolsos antes de tentar novamente.",
       "refunded": "{amount} reembolsados ({reference}).",
       "refundedCancelled": "{amount} reembolsados e encomenda cancelada ({reference}).",
-      "refundFailed": "O Stripe não conseguiu emitir o reembolso. Nada foi registrado. Tente novamente."
+      "refundFailed": "O Stripe não conseguiu emitir o reembolso. Nada foi registrado. Tente novamente.",
+      "partShipped": "Volume registado. O cliente foi notificado.",
+      "notesSaved": "Notas guardadas.",
+      "addressSaved": "Morada de envio atualizada.",
+      "recoveryOn": "Os emails de checkouts abandonados estão ativados.",
+      "recoveryOff": "Os emails de checkouts abandonados estão desativados.",
+      "notShippable": "Esta encomenda não pode ser enviada no estado atual.",
+      "shipment": {
+        "nothingSelected": "Indique quantas unidades vão neste volume.",
+        "unknownLine": "Esse artigo não faz parte desta encomenda.",
+        "tooMany": "Introduza um número inteiro até às unidades por enviar de {item}.",
+        "nothingLeft": "Tudo nesta encomenda já foi enviado."
+      },
+      "noteTooLong": "As notas podem ter até {max} caracteres.",
+      "tooManyTags": "Uma encomenda pode ter até {max} etiquetas.",
+      "addressLocked": "A morada não pode ser alterada depois de parte da encomenda ter sido enviada ou se a encomenda estiver cancelada.",
+      "address": {
+        "name": "Introduza o nome do destinatário.",
+        "line1": "Introduza a morada.",
+        "city": "Introduza a localidade.",
+        "region": "Introduza o estado, a província ou a prefeitura.",
+        "postalCode": "Introduza o código postal.",
+        "country": "Escolha um país.",
+        "phone": "Introduza um número de telefone válido ou deixe o campo em branco."
+      },
+      "recoveryDelay": "Introduza um número inteiro de horas entre {min} e {max}."
     },
     "gifting": {
       "nameTooShort": "Dê ao catálogo um nome com pelo menos 3 caracteres.",
@@ -1548,6 +1574,28 @@
       "redirectLimit": "Uma loja pode ter até {max} redirecionamentos.",
       "redirectSaved": "{path} agora é redirecionado",
       "redirectDeleted": "Redirecionamento removido"
+    },
+    "webhooks": {
+      "url": {
+        "invalid": "Introduza um URL como https://example.com/webhooks.",
+        "https": "O URL tem de começar por https://.",
+        "private": "Use um endereço público. Endereços locais e de redes privadas não podem receber webhooks.",
+        "credentials": "Remova o nome de utilizador e a palavra-passe do URL."
+      },
+      "topicsRequired": "Escolha pelo menos um evento.",
+      "limit": "Uma loja pode ter até {max} endpoints de webhook.",
+      "duplicate": "Este URL já é um endpoint.",
+      "notFound": "Esse endpoint já não existe.",
+      "deliveryNotFound": "Esse envio já não está no registo.",
+      "resendDisabled": "Ative o endpoint antes de reenviar.",
+      "resendBusy": "Este envio está a ser feito agora. Tente novamente dentro de um minuto.",
+      "saved": "Endpoint guardado.",
+      "enabled": "Endpoint ativado.",
+      "disabled": "Endpoint desativado.",
+      "secretRotated": "Chave de assinatura renovada.",
+      "resent": "Entregue. O endpoint respondeu {code}.",
+      "resendFailedCode": "Não entregue. O endpoint respondeu {code}.",
+      "resendFailed": "Não entregue. O endpoint não respondeu."
     }
   },
   "settings": {
@@ -1682,7 +1730,10 @@
       "refreshing": "A atualizar…",
       "updated": "Taxas automáticas atualizadas {time}",
       "notUpdated": "As taxas automáticas são atualizadas diariamente."
-    }
+    },
+    "webhooksTitle": "Webhooks",
+    "webhooksBody": "Envie eventos de encomendas, produtos, clientes e inventário para os seus próprios sistemas.",
+    "webhooksLink": "Gerir webhooks"
   },
   "team": {
     "agencyAdmins": "Administradores da agência",
@@ -2076,7 +2127,25 @@
     "taxPlain": "Impostos",
     "taxIncludedPlain": "Impostos (incluídos)",
     "taxIncluded": "Impostos {rate}% (incluídos)",
-    "shopTotal": "Total em {currency}"
+    "shopTotal": "Total em {currency}",
+    "shipParcel": "Enviar volume",
+    "unitsInParcel": "Unidades neste volume",
+    "unitsLeft": "{count} por enviar",
+    "saveNotes": "Guardar notas",
+    "note": "Nota",
+    "tags": "Etiquetas",
+    "tagsPlaceholder": "VIP, embrulho para oferta",
+    "tagsHint": "Separe as etiquetas com vírgulas. Só a sua equipa vê as notas e etiquetas.",
+    "saveAddress": "Guardar morada",
+    "print": "Imprimir",
+    "backToOrder": "Voltar à encomenda",
+    "partiallyShipped": "Enviada parcialmente",
+    "packingSlip": "Guia de remessa",
+    "shippedOf": "{shipped} de {count} enviados",
+    "parcel": "Volume {number}",
+    "notShippable": "Os volumes podem ser enviados quando a encomenda estiver paga.",
+    "notesTitle": "Notas e etiquetas",
+    "editAddress": "Editar morada de envio"
   },
   "customers": {
     "title": "Clientes",
@@ -3566,7 +3635,8 @@
       "deliveryDaysExact": "{days, plural, one {# dia útil} other {# dias úteis}}",
       "noShippingOptions": "Ainda não enviamos para este país.",
       "emailDelivery": "Entrega por e-mail",
-      "billingDetails": "Os seus dados"
+      "billingDetails": "Os seus dados",
+      "marketingConsent": "Enviem-me novidades e ofertas por email"
     },
     "order": {
       "title": "Estado da encomenda",
@@ -3608,7 +3678,11 @@
       "tax": "Impostos",
       "taxIncludedPlain": "Impostos (incluídos)",
       "taxIncludedRow": "Imposto {rate, number}% (incluído)",
-      "invoice": "Ver fatura"
+      "invoice": "Ver fatura",
+      "shipments": "Envios",
+      "shipmentNumber": "Volume {number}",
+      "shipmentLine": "{name} × {count}",
+      "trackParcel": "Seguir volume"
     },
     "status": {
       "awaitingPayment": "A aguardar pagamento",
@@ -3624,7 +3698,9 @@
       "cancelled": "Cancelada",
       "cancelledNote": "Esta encomenda foi cancelada e reembolsada.",
       "exception": "Em espera",
-      "exceptionNote": "A sua encomenda está atrasada. Entraremos em contacto com novidades."
+      "exceptionNote": "A sua encomenda está atrasada. Entraremos em contacto com novidades.",
+      "partiallyShipped": "Enviada parcialmente",
+      "partiallyShippedNote": "Parte da sua encomenda está a caminho. O resto seguirá."
     },
     "actions": {
       "storeClosed": "Esta loja não está a aceitar encomendas de momento.",
@@ -3740,7 +3816,16 @@
       "giftCardCodeLabel": "Código do cartão de oferta",
       "giftCardValueLabel": "Valor",
       "giftCardExpiresLabel": "Expira",
-      "giftCardCta": "Começar a comprar"
+      "giftCardCta": "Começar a comprar",
+      "shippedPartialSubject": "Parte da sua encomenda {code} da {store} foi enviada",
+      "shippedPartialHeading": "Parte da sua encomenda está a caminho",
+      "shippedPartialBody": "Alguns artigos da encomenda {code} foram enviados com {carrier}. O resto seguirá.",
+      "shippedQuantity": "× {count}",
+      "recoverySubject": "Deixou algo no seu carrinho na {store}",
+      "recoveryHeading": "O seu carrinho está à sua espera",
+      "recoveryBody": "Não concluiu a sua compra na {store}. Os seus artigos estão guardados abaixo.",
+      "recoveryCta": "Voltar ao carrinho",
+      "recoveryConsent": "Recebe este email porque aceitou receber emails da {store} no checkout."
     },
     "gift": {
       "chromeSubtitle": "Catálogo de presentes · {store}",
@@ -4017,6 +4102,16 @@
       "bodyTooLong": "Mantenha a sua avaliação com menos de 2000 carateres.",
       "nameRequired": "Introduza o nome a apresentar com a sua avaliação.",
       "nameTooLong": "Mantenha o nome com menos de 60 carateres."
+    },
+    "packingSlip": {
+      "heading": "Guia de remessa",
+      "order": "Encomenda",
+      "date": "Data",
+      "tracking": "Seguimento",
+      "shipTo": "Enviar para",
+      "item": "Artigo",
+      "quantity": "Quantidade",
+      "thanks": "Obrigado por comprar na {store}."
     }
   },
   "collections": {
@@ -4100,7 +4195,8 @@
       "gift_approval": "A campanha de presentes {code} aguarda aprovação",
       "quote_received": "Orçamento recebido de {name} para {code}",
       "invite_accepted": "{name} aceitou o convite",
-      "low_stock": "Estoque baixo de {name}: restam {count}"
+      "low_stock": "Estoque baixo de {name}: restam {count}",
+      "webhook_disabled": "O endpoint de webhook {name} foi desativado após falhas repetidas"
     },
     "settings": {
       "menu": "Notificações",
@@ -4120,7 +4216,8 @@
         "gift_approval": "Campanhas de presentes aguardando aprovação",
         "quote_received": "Orçamentos de fornecedores",
         "invite_accepted": "Convites aceitos",
-        "low_stock": "Estoque baixo"
+        "low_stock": "Estoque baixo",
+        "webhook_disabled": "Endpoints de webhook desativados"
       }
     },
     "email": {
@@ -4236,7 +4333,8 @@
       "analytics": "Análises",
       "activity": "Atividade",
       "agency": "Agência: pessoas, plano e lojas",
-      "domains": "Domínios"
+      "domains": "Domínios",
+      "webhooks": "Webhooks"
     },
     "none": "Sem acesso",
     "read": "Leitura",
@@ -4810,5 +4908,121 @@
       "remove": "Remover",
       "actions": "Ações"
     }
+  },
+  "abandoned": {
+    "tabOrders": "Encomendas",
+    "tabAbandoned": "Checkouts abandonados",
+    "tabsLabel": "Vistas de encomendas",
+    "recoveryTitle": "Email de recuperação",
+    "recoveryBody": "Envie um email com uma ligação de volta ao carrinho. Só o recebem os clientes que aceitaram emails no checkout.",
+    "enabled": "Enviar um email de recuperação",
+    "delay": "Horas após o checkout",
+    "delayHint": "Entre 1 e 72 horas.",
+    "save": "Guardar",
+    "emptyTitle": "Sem checkouts abandonados",
+    "emptyBody": "Os checkouts que expiram sem pagamento aparecem aqui.",
+    "listTitle": "{count, plural, one {# checkout abandonado} other {# checkouts abandonados}}",
+    "columns": {
+      "date": "Data",
+      "customer": "Cliente",
+      "items": "Artigos",
+      "total": "Total",
+      "recovery": "Email de recuperação"
+    },
+    "deleted": "Dados pessoais eliminados",
+    "units": "{count, plural, one {# artigo} other {# artigos}}",
+    "state": {
+      "recovered": "Recuperado",
+      "sent": "Enviado",
+      "scheduled": "Agendado",
+      "noConsent": "Sem consentimento de email",
+      "off": "Não enviado",
+      "expired": "Não enviado"
+    },
+    "viewOrder": "Ver encomenda"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "pageDescription": "Envie os eventos da loja para os seus próprios sistemas assim que acontecem.",
+    "reference": "Referência da API",
+    "emptyTitle": "Ainda sem endpoints",
+    "emptyBody": "Adicione um endpoint para começar a receber eventos.",
+    "endpointsTitle": "Endpoints",
+    "addTitle": "Adicionar endpoint",
+    "columns": {
+      "endpoint": "Endpoint",
+      "topics": "Eventos",
+      "lastDelivery": "Último envio",
+      "status": "Estado",
+      "event": "Evento",
+      "response": "Resposta",
+      "attempts": "Tentativas"
+    },
+    "topicCount": "{count, plural, one {# evento} other {# eventos}}",
+    "lastFailed": "Falhou",
+    "never": "Nunca",
+    "statusEnabled": "Ativo",
+    "statusFailing": "Desativado após falhas",
+    "statusDisabled": "Desativado",
+    "url": "URL do endpoint",
+    "description": "Descrição (opcional)",
+    "topics": "Eventos",
+    "groups": {
+      "order": "Encomendas",
+      "product": "Produtos",
+      "customer": "Clientes",
+      "inventory": "Inventário"
+    },
+    "topicLabels": {
+      "order_created": "Encomenda criada",
+      "order_paid": "Encomenda paga",
+      "order_fulfilled": "Encomenda enviada",
+      "order_cancelled": "Encomenda cancelada",
+      "order_refunded": "Encomenda reembolsada",
+      "product_created": "Produto criado",
+      "product_updated": "Produto atualizado",
+      "product_deleted": "Produto eliminado",
+      "customer_created": "Cliente criado",
+      "customer_updated": "Cliente atualizado",
+      "inventory_updated": "Inventário atualizado"
+    },
+    "add": "Adicionar endpoint",
+    "adding": "A adicionar…",
+    "save": "Guardar alterações",
+    "enable": "Ativar",
+    "disable": "Desativar",
+    "secretTitle": "Chave de assinatura",
+    "secretBody": "Use esta chave para confirmar que os envios vêm da sua loja. Os envios seguem o formato Standard Webhooks.",
+    "revealSecret": "Mostrar",
+    "hideSecret": "Ocultar",
+    "copySecret": "Copiar chave",
+    "rotate": "Renovar chave",
+    "rotateQuestion": "Os envios passam a ser assinados com uma nova chave. Continuar?",
+    "deleteTitle": "Eliminar endpoint",
+    "deleteBody": "Para todos os envios para este endpoint e elimina o seu registo.",
+    "delete": "Eliminar endpoint",
+    "deleteQuestion": "Eliminar este endpoint?",
+    "autoDisabledTitle": "Este endpoint foi desativado",
+    "autoDisabledBody": "Falhou {count} vezes seguidas e foi desativado a {date}. Corrija o endpoint e volte a ativá-lo.",
+    "deliveriesTitle": "Envios",
+    "deliveriesBody": "Os últimos 50 envios dos últimos 30 dias. Os envios falhados são repetidos durante cerca de um dia.",
+    "noDeliveriesTitle": "Ainda sem envios",
+    "noDeliveriesBody": "Os envios aparecem aqui quando acontece um dos eventos escolhidos.",
+    "payload": "Conteúdo",
+    "deliveryStatus": {
+      "pending": "A enviar",
+      "retrying": "A repetir",
+      "succeeded": "Entregue",
+      "failed": "Falhou",
+      "cancelled": "Cancelado"
+    },
+    "nextAttempt": "Próxima tentativa {date}",
+    "error": {
+      "timeout": "Tempo esgotado",
+      "network": "Sem resposta"
+    },
+    "duration": "{ms} ms",
+    "resend": "Reenviar",
+    "settingsTitle": "Definições do endpoint"
   }
 }

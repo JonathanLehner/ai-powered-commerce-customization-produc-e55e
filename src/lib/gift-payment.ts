@@ -8,6 +8,7 @@ import { db } from "./mongo";
 import { refreshPages } from "./order-payment";
 import type { GiftCampaign, Order, Store } from "./types";
 import { newId, orderCode } from "./util";
+import { emitOrderWebhook } from "./webhook-events";
 
 export interface CampaignPayment {
   paymentIntentId: string | null;
@@ -165,6 +166,7 @@ export async function raiseCampaignOrders(
   await db.insertMany(COLLECTIONS.orders, orders as unknown as Record<string, unknown>[]);
   for (const order of orders) await deductStock(order, store);
   refreshCustomers(store, orders.map((order) => order.customer.email));
+  for (const order of orders) emitOrderWebhook(store.id, order.id, "order.created", "order.paid");
 
   const held = orders.filter((order) => order.fulfillment.routing !== "submitted").length;
   await updateGiftCampaign(campaign.id, {

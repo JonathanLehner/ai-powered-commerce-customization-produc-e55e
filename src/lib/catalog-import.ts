@@ -8,6 +8,7 @@ import type { Store, StoreProduct, StoreVariant, User } from "./types";
 /** Who the copy is recorded against: a person, or an API key under its name. */
 type Actor = Pick<User, "id" | "name">;
 import { newId, slugify } from "./util";
+import { emitProductWebhook } from "./webhook-events";
 
 /** What an accepted bulk quote puts on the copy in place of the listing's own terms. */
 export interface QuotedCopy {
@@ -129,6 +130,7 @@ export async function copyCatalogProductIntoStore(
   product.costs = breakdownFor(product, catalog, bracket, store.pricesIncludeTax);
 
   await db.insertOne(COLLECTIONS.storeProducts, product as unknown as Record<string, unknown>);
+  emitProductWebhook(store.id, product.id, "product.created");
   recordAudit({
     category: "product_import",
     action: "product.imported",

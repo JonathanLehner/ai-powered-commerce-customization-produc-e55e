@@ -18,7 +18,8 @@ import { addCollectionProducts, createCollection, deleteCollection, findCollecti
 import type { OperationContext } from "../operations/context";
 import { addNote, createCustomer, exportCustomer, updateCustomer } from "../operations/customers";
 import { createDiscount, findDiscount, updateDiscount } from "../operations/discounts";
-import { CARRIERS, findOrder, moveOrder, refundOrder, shipOrder } from "../operations/orders";
+import { CARRIERS, findOrder, fulfilOrder, moveOrder, refundOrder, shipOrder } from "../operations/orders";
+import { canShip } from "../order-ops";
 import { importInventory, saveInventorySettings, storeInventory, updateVariantInventory } from "../operations/inventory";
 import { listAdjustments } from "../inventory";
 import { INVENTORY_FILTERS, INVENTORY_POLICIES, MANUAL_REASONS, filterInventory, inventorySettings } from "../inventory-rules";
@@ -1075,16 +1076,34 @@ const orders = [
     path: "/orders/{orderId}/fulfilment",
     scope: "orders:write",
     tag: "Orders",
-    summary: "Mark an order shipped",
+    summary: "Ship an order, in full or in part",
     description:
-      "Records the carrier and tracking number, marks the order shipped and emails the shopper their tracking link. The order must be in production. Without a tracking number the carrier's own is used. Repeating the same call changes nothing.",
+      "Records a parcel with its carrier and tracking number and emails the shopper the tracking link. Without `lines` everything still to ship goes in it and the order is marked shipped; with `lines` only those units go, and the order is marked shipped once nothing is left. The order must be paid. Without a tracking number the carrier's own is used. Repeating the same full shipment changes nothing; on an order already shipped in full, the last parcel's tracking is corrected. Each parcel is listed in the order's `shipments`.",
     actions: ["orders#addTracking"],
     input: z.object({
       orderId: id("order"),
       carrier: z.enum(CARRIERS).describe("One of the store's enabled carriers."),
       trackingNumber: z.string().default("").describe("At least 6 characters."),
+      lines: z
+        .array(
+          z.object({
+            itemId: id("order item").describe("An id from the order's `items`."),
+            quantity: z.number().int().min(1).describe("Units of that line in this parcel, up to what is left to ship."),
+          }),
+        )
+        .min(1)
+        .optional()
+        .describe("The units in this parcel, for a partial shipment."),
     }),
     run: async (ctx, input) => {
+      if (input.lines) {
+        const current = await order(ctx, input.orderId);
+        if (!canShip(current)) {
+          throw new ApiError(409, "conflict", `Order ${current.code} is ${current.status.replace("_", " ")} and cannot be shipped.`, "orderId");
+        }
+        await fulfilOrder(ctx, current, { carrier: input.carrier, trackingNumber: input.trackingNumber, lines: input.lines });
+        return presentOrder(await order(ctx, input.orderId));
+      }
       const current = await order(ctx, input.orderId);
       const repeat =
         current.status === "shipped" &&

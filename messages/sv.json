@@ -347,7 +347,8 @@
       "Platform administration": "Plattformsadministration",
       "Domains": "Domäner",
       "Currencies": "Valutor",
-      "Import": "Import"
+      "Import": "Import",
+      "Webhooks": "Webhooks"
     },
     "ctaTitle": "Skapa din första nyckel",
     "ctaBody": "Logga in, öppna en butiks Inställningar och välj API-nycklar.",
@@ -1227,7 +1228,32 @@
       "orderChanged": "Ordern har ändrats. Ladda om och kontrollera återbetalningarna innan du försöker igen.",
       "refunded": "{amount} återbetalat ({reference}).",
       "refundedCancelled": "{amount} återbetalat och ordern avbruten ({reference}).",
-      "refundFailed": "Stripe kunde inte genomföra återbetalningen. Inget registrerades. Försök igen."
+      "refundFailed": "Stripe kunde inte genomföra återbetalningen. Inget registrerades. Försök igen.",
+      "partShipped": "Paketet registrerat. Kunden har fått ett meddelande.",
+      "notesSaved": "Anteckningar sparade.",
+      "addressSaved": "Leveransadressen har uppdaterats.",
+      "recoveryOn": "Mejl om övergivna kassor är på.",
+      "recoveryOff": "Mejl om övergivna kassor är av.",
+      "notShippable": "Ordern kan inte skickas i sin nuvarande status.",
+      "shipment": {
+        "nothingSelected": "Ange hur många enheter som ska i paketet.",
+        "unknownLine": "Den artikeln finns inte i ordern.",
+        "tooMany": "Ange ett heltal upp till antalet kvarvarande enheter av {item}.",
+        "nothingLeft": "Allt i ordern har redan skickats."
+      },
+      "noteTooLong": "Anteckningar får vara högst {max} tecken.",
+      "tooManyTags": "En order kan ha högst {max} taggar.",
+      "addressLocked": "Adressen kan inte ändras när en del av ordern har skickats eller om ordern är avbruten.",
+      "address": {
+        "name": "Ange mottagarens namn.",
+        "line1": "Ange gatuadressen.",
+        "city": "Ange ort.",
+        "region": "Ange delstat, provins eller prefektur.",
+        "postalCode": "Ange postnummer.",
+        "country": "Välj ett land.",
+        "phone": "Ange ett giltigt telefonnummer eller lämna fältet tomt."
+      },
+      "recoveryDelay": "Ange ett helt antal timmar från {min} till {max}."
     },
     "gifting": {
       "nameTooShort": "Ge katalogen ett namn på minst 3 tecken.",
@@ -1548,6 +1574,28 @@
       "redirectLimit": "En butik kan ha högst {max} omdirigeringar.",
       "redirectSaved": "{path} omdirigeras nu",
       "redirectDeleted": "Omdirigeringen har tagits bort"
+    },
+    "webhooks": {
+      "url": {
+        "invalid": "Ange en URL som https://example.com/webhooks.",
+        "https": "URL:en måste börja med https://.",
+        "private": "Använd en offentlig adress. Lokala adresser och adresser i privata nätverk kan inte ta emot webhooks.",
+        "credentials": "Ta bort användarnamn och lösenord från URL:en."
+      },
+      "topicsRequired": "Välj minst en händelse.",
+      "limit": "En butik kan ha högst {max} webhook-slutpunkter.",
+      "duplicate": "Den här URL:en är redan en slutpunkt.",
+      "notFound": "Slutpunkten finns inte längre.",
+      "deliveryNotFound": "Leveransen finns inte längre i loggen.",
+      "resendDisabled": "Slå på slutpunkten innan du skickar igen.",
+      "resendBusy": "Leveransen skickas just nu. Försök igen om en minut.",
+      "saved": "Slutpunkten har sparats.",
+      "enabled": "Slutpunkten är påslagen.",
+      "disabled": "Slutpunkten är avstängd.",
+      "secretRotated": "Signeringsnyckeln har förnyats.",
+      "resent": "Levererad. Slutpunkten svarade {code}.",
+      "resendFailedCode": "Inte levererad. Slutpunkten svarade {code}.",
+      "resendFailed": "Inte levererad. Slutpunkten svarade inte."
     }
   },
   "settings": {
@@ -1682,7 +1730,10 @@
       "refreshing": "Uppdaterar…",
       "updated": "Automatiska kurser uppdaterades {time}",
       "notUpdated": "Automatiska kurser uppdateras dagligen."
-    }
+    },
+    "webhooksTitle": "Webhooks",
+    "webhooksBody": "Skicka händelser om ordrar, produkter, kunder och lager till dina egna system.",
+    "webhooksLink": "Hantera webhooks"
   },
   "team": {
     "agencyAdmins": "Byråadministratörer",
@@ -2076,7 +2127,25 @@
     "taxPlain": "Moms",
     "taxIncludedPlain": "Moms (ingår)",
     "taxIncluded": "Moms {rate} % (ingår)",
-    "shopTotal": "Totalt i {currency}"
+    "shopTotal": "Totalt i {currency}",
+    "shipParcel": "Skicka paket",
+    "unitsInParcel": "Enheter i paketet",
+    "unitsLeft": "{count} kvar att skicka",
+    "saveNotes": "Spara anteckningar",
+    "note": "Anteckning",
+    "tags": "Taggar",
+    "tagsPlaceholder": "VIP, presentinslagning",
+    "tagsHint": "Separera taggar med kommatecken. Bara ditt team ser anteckningar och taggar.",
+    "saveAddress": "Spara adress",
+    "print": "Skriv ut",
+    "backToOrder": "Tillbaka till ordern",
+    "partiallyShipped": "Delvis skickad",
+    "packingSlip": "Följesedel",
+    "shippedOf": "{shipped} av {count} skickade",
+    "parcel": "Paket {number}",
+    "notShippable": "Paket kan skickas när ordern är betald.",
+    "notesTitle": "Anteckningar och taggar",
+    "editAddress": "Redigera leveransadress"
   },
   "customers": {
     "title": "Kunder",
@@ -3566,7 +3635,8 @@
       "deliveryDaysExact": "{days, plural, one {# arbetsdag} other {# arbetsdagar}}",
       "noShippingOptions": "Vi skickar inte till det här landet än.",
       "emailDelivery": "Leverans via e-post",
-      "billingDetails": "Dina uppgifter"
+      "billingDetails": "Dina uppgifter",
+      "marketingConsent": "Mejla mig nyheter och erbjudanden"
     },
     "order": {
       "title": "Orderstatus",
@@ -3608,7 +3678,11 @@
       "tax": "Moms",
       "taxIncludedPlain": "Moms (ingår)",
       "taxIncludedRow": "Moms {rate, number} % (ingår)",
-      "invoice": "Visa faktura"
+      "invoice": "Visa faktura",
+      "shipments": "Försändelser",
+      "shipmentNumber": "Paket {number}",
+      "shipmentLine": "{name} × {count}",
+      "trackParcel": "Spåra paket"
     },
     "status": {
       "awaitingPayment": "Väntar på betalning",
@@ -3624,7 +3698,9 @@
       "cancelled": "Avbruten",
       "cancelledNote": "Ordern har avbrutits och återbetalats.",
       "exception": "Pausad",
-      "exceptionNote": "Din order är försenad. Vi hör av oss med en uppdatering."
+      "exceptionNote": "Din order är försenad. Vi hör av oss med en uppdatering.",
+      "partiallyShipped": "Delvis skickad",
+      "partiallyShippedNote": "En del av din order är på väg. Resten kommer senare."
     },
     "actions": {
       "storeClosed": "Den här butiken tar inte emot ordrar just nu.",
@@ -3740,7 +3816,16 @@
       "giftCardCodeLabel": "Presentkortskod",
       "giftCardValueLabel": "Värde",
       "giftCardExpiresLabel": "Gäller till",
-      "giftCardCta": "Börja handla"
+      "giftCardCta": "Börja handla",
+      "shippedPartialSubject": "En del av din order {code} från {store} har skickats",
+      "shippedPartialHeading": "En del av din order är på väg",
+      "shippedPartialBody": "Några artiklar från order {code} har skickats med {carrier}. Resten kommer senare.",
+      "shippedQuantity": "× {count}",
+      "recoverySubject": "Du har något kvar i varukorgen hos {store}",
+      "recoveryHeading": "Din varukorg väntar",
+      "recoveryBody": "Du slutförde inte köpet hos {store}. Dina artiklar finns sparade nedan.",
+      "recoveryCta": "Tillbaka till varukorgen",
+      "recoveryConsent": "Du får det här mejlet eftersom du godkände mejl från {store} i kassan."
     },
     "gift": {
       "chromeSubtitle": "Gåvokatalog · {store}",
@@ -4017,6 +4102,16 @@
       "bodyTooLong": "Håll din recension under 2 000 tecken.",
       "nameRequired": "Ange namnet som ska visas med din recension.",
       "nameTooLong": "Håll namnet under 60 tecken."
+    },
+    "packingSlip": {
+      "heading": "Följesedel",
+      "order": "Order",
+      "date": "Datum",
+      "tracking": "Spårning",
+      "shipTo": "Leverera till",
+      "item": "Artikel",
+      "quantity": "Antal",
+      "thanks": "Tack för att du handlade hos {store}."
     }
   },
   "collections": {
@@ -4100,7 +4195,8 @@
       "gift_approval": "Presentkampanj {code} väntar på godkännande",
       "quote_received": "Offert mottagen från {name} för {code}",
       "invite_accepted": "{name} har accepterat inbjudan",
-      "low_stock": "{name} har lågt lager: {count} kvar"
+      "low_stock": "{name} har lågt lager: {count} kvar",
+      "webhook_disabled": "Webhook-slutpunkten {name} stängdes av efter upprepade fel"
     },
     "settings": {
       "menu": "Aviseringar",
@@ -4120,7 +4216,8 @@
         "gift_approval": "Presentkampanjer att godkänna",
         "quote_received": "Leverantörsofferter",
         "invite_accepted": "Accepterade inbjudningar",
-        "low_stock": "Lågt lager"
+        "low_stock": "Lågt lager",
+        "webhook_disabled": "Avstängda webhook-slutpunkter"
       }
     },
     "email": {
@@ -4236,7 +4333,8 @@
       "analytics": "Analys",
       "activity": "Aktivitet",
       "agency": "Byrå: personer, abonnemang och butiker",
-      "domains": "Domäner"
+      "domains": "Domäner",
+      "webhooks": "Webhooks"
     },
     "none": "Ingen åtkomst",
     "read": "Läsa",
@@ -4810,5 +4908,121 @@
       "remove": "Ta bort",
       "actions": "Åtgärder"
     }
+  },
+  "abandoned": {
+    "tabOrders": "Ordrar",
+    "tabAbandoned": "Övergivna kassor",
+    "tabsLabel": "Ordervyer",
+    "recoveryTitle": "Påminnelsemejl",
+    "recoveryBody": "Skicka ett mejl med en länk tillbaka till varukorgen. Bara kunder som godkände mejl i kassan får det.",
+    "enabled": "Skicka ett påminnelsemejl",
+    "delay": "Timmar efter kassan",
+    "delayHint": "Från 1 till 72 timmar.",
+    "save": "Spara",
+    "emptyTitle": "Inga övergivna kassor",
+    "emptyBody": "Kassor som går ut utan betalning visas här.",
+    "listTitle": "{count, plural, one {# övergiven kassa} other {# övergivna kassor}}",
+    "columns": {
+      "date": "Datum",
+      "customer": "Kund",
+      "items": "Artiklar",
+      "total": "Totalt",
+      "recovery": "Påminnelsemejl"
+    },
+    "deleted": "Personuppgifter raderade",
+    "units": "{count, plural, one {# artikel} other {# artiklar}}",
+    "state": {
+      "recovered": "Återvunnen",
+      "sent": "Skickat",
+      "scheduled": "Schemalagt",
+      "noConsent": "Inget mejlsamtycke",
+      "off": "Inte skickat",
+      "expired": "Inte skickat"
+    },
+    "viewOrder": "Visa order"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "pageDescription": "Skicka butikens händelser till dina egna system när de inträffar.",
+    "reference": "API-referens",
+    "emptyTitle": "Inga slutpunkter än",
+    "emptyBody": "Lägg till en slutpunkt för att börja ta emot händelser.",
+    "endpointsTitle": "Slutpunkter",
+    "addTitle": "Lägg till slutpunkt",
+    "columns": {
+      "endpoint": "Slutpunkt",
+      "topics": "Händelser",
+      "lastDelivery": "Senaste leverans",
+      "status": "Status",
+      "event": "Händelse",
+      "response": "Svar",
+      "attempts": "Försök"
+    },
+    "topicCount": "{count, plural, one {# händelse} other {# händelser}}",
+    "lastFailed": "Misslyckades",
+    "never": "Aldrig",
+    "statusEnabled": "Aktiv",
+    "statusFailing": "Avstängd efter fel",
+    "statusDisabled": "Avstängd",
+    "url": "Slutpunktens URL",
+    "description": "Beskrivning (valfri)",
+    "topics": "Händelser",
+    "groups": {
+      "order": "Ordrar",
+      "product": "Produkter",
+      "customer": "Kunder",
+      "inventory": "Lager"
+    },
+    "topicLabels": {
+      "order_created": "Order skapad",
+      "order_paid": "Order betald",
+      "order_fulfilled": "Order skickad",
+      "order_cancelled": "Order avbruten",
+      "order_refunded": "Order återbetald",
+      "product_created": "Produkt skapad",
+      "product_updated": "Produkt uppdaterad",
+      "product_deleted": "Produkt raderad",
+      "customer_created": "Kund skapad",
+      "customer_updated": "Kund uppdaterad",
+      "inventory_updated": "Lager uppdaterat"
+    },
+    "add": "Lägg till slutpunkt",
+    "adding": "Lägger till…",
+    "save": "Spara ändringar",
+    "enable": "Slå på",
+    "disable": "Stäng av",
+    "secretTitle": "Signeringsnyckel",
+    "secretBody": "Använd nyckeln för att kontrollera att leveranser kommer från din butik. Leveranser följer formatet Standard Webhooks.",
+    "revealSecret": "Visa",
+    "hideSecret": "Dölj",
+    "copySecret": "Kopiera nyckel",
+    "rotate": "Förnya nyckel",
+    "rotateQuestion": "Leveranser signeras med en ny nyckel. Fortsätta?",
+    "deleteTitle": "Radera slutpunkt",
+    "deleteBody": "Stoppar alla leveranser till slutpunkten och raderar dess logg.",
+    "delete": "Radera slutpunkt",
+    "deleteQuestion": "Radera den här slutpunkten?",
+    "autoDisabledTitle": "Slutpunkten har stängts av",
+    "autoDisabledBody": "Den misslyckades {count} gånger i rad och stängdes av {date}. Åtgärda slutpunkten och slå sedan på den igen.",
+    "deliveriesTitle": "Leveranser",
+    "deliveriesBody": "De senaste 50 leveranserna från de senaste 30 dagarna. Misslyckade leveranser försöks igen i ungefär ett dygn.",
+    "noDeliveriesTitle": "Inga leveranser än",
+    "noDeliveriesBody": "Leveranser visas här när någon av de valda händelserna inträffar.",
+    "payload": "Innehåll",
+    "deliveryStatus": {
+      "pending": "Skickas",
+      "retrying": "Försöker igen",
+      "succeeded": "Levererad",
+      "failed": "Misslyckades",
+      "cancelled": "Avbruten"
+    },
+    "nextAttempt": "Nästa försök {date}",
+    "error": {
+      "timeout": "Tidsgränsen nåddes",
+      "network": "Inget svar"
+    },
+    "duration": "{ms} ms",
+    "resend": "Skicka igen",
+    "settingsTitle": "Inställningar för slutpunkt"
   }
 }

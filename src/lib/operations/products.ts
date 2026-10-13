@@ -35,6 +35,7 @@ import { isQuoteOnly } from "../sourcing";
 import type { Artwork, CatalogProduct, MockupImage, Store, StoreProduct, StoredImage } from "../types";
 import { formatMoney, newId } from "../util";
 import { OperationError, type OperationContext } from "./context";
+import { emitProductDeleted } from "../webhook-events";
 
 /**
  * A store's products: copying one in from the shared catalog, its details,
@@ -708,6 +709,7 @@ export async function bulkUpdateProducts(
 /** Removes the product from the store catalog. */
 export async function deleteProduct(ctx: OperationContext, product: StoreProduct): Promise<void> {
   await db.deleteOne(COLLECTIONS.storeProducts, { id: product.id });
+  emitProductDeleted(ctx.store.id, product);
   audit(ctx, {
     category: "administration",
     action: "product.deleted",

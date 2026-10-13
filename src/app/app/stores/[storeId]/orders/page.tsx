@@ -29,6 +29,7 @@ import { requireStoreAccess, roleCan } from "@/lib/session";
 import type { OrderStatus } from "@/lib/types";
 import { CARRIER_LABELS, formatDate, formatMoney } from "@/lib/util";
 import { BulkActionBar, OrderSelection, RowCheckbox, SelectAllCheckbox, SelectableRow } from "./OrderSelection";
+import { OrdersTabs } from "./OrdersTabs";
 import { OrdersToolbar } from "./OrdersToolbar";
 
 const TONES: Record<OrderStatus, "green" | "amber" | "rose" | "brand" | "slate"> = {
@@ -113,6 +114,8 @@ export default async function OrdersPage({
           </Button>
         }
       />
+
+      {canManage && !viaPlatform && !activeCampaign ? <OrdersTabs storeId={storeId} active="orders" /> : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {viaPlatform ? (

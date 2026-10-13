@@ -19,6 +19,7 @@ import type {
   Store,
 } from "./types";
 import { newId } from "./util";
+import { emitInventoryWebhook } from "./webhook-events";
 
 /**
  * Stock of a store's variants, and every write to it.
@@ -283,6 +284,8 @@ export async function changeStock(
     const after: InventoryLevel = { ...level, ...(set as Partial<InventoryLevel>), onHand: level.onHand + delta };
     if (delta !== 0) {
       await logAdjustment(store, after, delta, { reason: change.reason, reference: null, actor, label: target.label });
+    } else if (change.tracked !== undefined || change.policy) {
+      emitInventoryWebhook(store.id, id);
     }
     await warnIfLow(store, availableOf(level), after, target.label);
     return after;
@@ -338,6 +341,7 @@ async function logAdjustment(store: Store, level: InventoryLevel, delta: number,
     at: new Date().toISOString(),
   };
   await db.insertOne(COLLECTIONS.inventoryAdjustments, entry as unknown as Record<string, unknown>);
+  emitInventoryWebhook(store.id, level.id);
 }
 
 async function variantSku(level: InventoryLevel): Promise<string> {

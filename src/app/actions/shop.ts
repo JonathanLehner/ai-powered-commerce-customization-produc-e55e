@@ -786,6 +786,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
       paidAt: null,
     },
     cartId: cart.id,
+    marketingConsent: formData.get("marketingConsent") === "on",
     inventory: held,
     fulfillment: {
       supplierId: null,
@@ -916,7 +917,7 @@ async function closeOpenCheckouts(store: Store, cartId: string) {
     const sessionId = order.payment.checkoutSessionId;
     const accountId = order.payment.stripeAccountId;
     if (sessionId && accountId && !(await expireConnectedCheckout(accountId, sessionId))) continue;
-    await abandonOrderPayment(order, store, "expired");
+    await abandonOrderPayment(order, store, "expired", { superseded: true });
   }
 }
 

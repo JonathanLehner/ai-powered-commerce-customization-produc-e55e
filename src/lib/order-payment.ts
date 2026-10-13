@@ -15,6 +15,7 @@ import { emailCopy, shopperLocale } from "@/i18n/storefront";
 import { storeLinkBase } from "@/lib/seo";
 import type { Order, Store } from "./types";
 import { formatMoney } from "./util";
+import { emitOrderWebhook } from "./webhook-events";
 
 /**
  * What happens to a storefront order once its payment is settled, either way.
@@ -138,6 +139,19 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
       { $set: { items: [], discountCode: null, updatedAt: now } },
     );
   }
+  // A checkout this shopper abandoned earlier is no longer one to chase.
+  await db.updateMany(
+    COLLECTIONS.orders,
+    {
+      storeId,
+      id: { $ne: order.id },
+      "abandoned.at": { $type: "string" },
+      "abandoned.recoveredAt": null,
+      $or: [...(order.cartId ? [{ cartId: order.cartId }] : []), { "customer.email": order.customer.email }],
+    },
+    { $set: { "abandoned.recoveredAt": now, "abandoned.recoveredOrderId": order.id } },
+  );
+  emitOrderWebhook(storeId, order.id, "order.created", "order.paid");
   refreshCustomers(store, [order.customer.email]);
   if (discount) {
     recordAudit({
@@ -228,13 +242,21 @@ export async function abandonOrderPayment(
   order: Order,
   store: Store,
   reason: "failed" | "expired",
+  options: { superseded?: boolean } = {},
 ): Promise<boolean> {
   const now = new Date().toISOString();
   const note = reason === "failed" ? "The payment did not go through." : "Checkout was not completed in time.";
+  // A Checkout session that ran out unpaid is an abandoned checkout, unless the
+  // shopper replaced it with a new one themselves.
+  const abandoned =
+    reason === "expired" && !options.superseded && order.payment.checkoutSessionId && order.customer.email
+      ? { abandoned: { at: now, recoveryEmailAt: null, recoveredAt: null } }
+      : {};
   const written = await updateOrder(
     order.id,
     {
       status: "cancelled",
+      ...abandoned,
       payment: { ...order.payment, status: "failed", failureMessage: note },
       events: [
         ...order.events,

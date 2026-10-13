@@ -18,6 +18,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export const API_TAGS = [
   "Store",
   "Domains",
+  "Webhooks",
   "Currencies",
   "Import",
   "Products",

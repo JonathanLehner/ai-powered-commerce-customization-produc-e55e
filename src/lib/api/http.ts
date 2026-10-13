@@ -92,7 +92,7 @@ export async function authorize(caller: ApiCaller, operation: ApiOperation): Pro
     const maker = await getUserById(key.createdById);
     const grant = maker ? resolveStoreRole(maker, caller.store, await listMembershipsForUser(maker.id)) : null;
     if (grant?.role !== "store_admin") {
-      return new ApiError(403, "forbidden", "Only a store administrator can manage domains. The person who made this key no longer administers the store.");
+      return new ApiError(403, "forbidden", `Only a store administrator can manage ${resource}. The person who made this key no longer administers the store.`);
     }
   }
   return null;

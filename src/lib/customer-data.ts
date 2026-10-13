@@ -5,6 +5,7 @@ import { COLLECTIONS } from "./data";
 import { db } from "./mongo";
 import type { CampaignRecipient, Customer, GiftCampaign, Order, Store } from "./types";
 import { newId } from "./util";
+import { emitCustomerWebhook } from "./webhook-events";
 
 /**
  * Reads and writes for a store's customers. Every read is scoped to one store,
@@ -49,14 +50,16 @@ async function writeCustomer(storeId: string, figures: CustomerFigures): Promise
     $set: { ...figures, updatedAt: now },
     $setOnInsert: { id: newId("cus"), storeId, notes: [], createdAt: now },
   };
+  let created = false;
   try {
-    await db.upsertOne(COLLECTIONS.customers, filter, update);
+    created = (await db.upsertOne(COLLECTIONS.customers, filter, update)).upsertedCount > 0;
   } catch (error) {
     // Two orders from one address at the same instant can both try to insert;
     // the unique index turns one away, and that one updates the winner instead.
     if ((error as { code?: number }).code !== 11000) throw error;
     await db.upsertOne(COLLECTIONS.customers, filter, update);
   }
+  emitCustomerWebhook(storeId, { email: figures.email }, created ? "customer.created" : "customer.updated");
 }
 
 /**

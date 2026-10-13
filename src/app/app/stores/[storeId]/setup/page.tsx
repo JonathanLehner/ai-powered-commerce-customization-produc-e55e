@@ -65,6 +65,22 @@ export default async function StoreSetupPage({
         </section>
       </Card>
 
+      <Card asChild>
+        <section>
+          <CardHeader>
+            <CardTitle asChild>
+              <h2>{t("webhooksTitle")}</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">{t("webhooksBody")}</p>
+            <CardAction>
+              <Link href={`/app/stores/${store.id}/setup/webhooks`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                {t("webhooksLink")}
+              </Link>
+            </CardAction>
+          </CardHeader>
+        </section>
+      </Card>
+
       <section className="space-y-4" id="guided-setup">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-foreground">{t("guidedSetup")}</h2>

@@ -16,9 +16,13 @@ import { orderTax } from "@/lib/shipping";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { canMoveOrder, type FulfillmentEvent } from "@/lib/types";
 import { CARRIER_LABELS, formatDateTime, formatMoney } from "@/lib/util";
+import { giftCardLineIds } from "@/lib/gift-card-data";
+import { canEditAddress, fulfilmentState, remainingQuantities, shippedQuantities } from "@/lib/order-ops";
 import {
+  AddressForm,
   ExceptionForm,
   ManualSubmissionForm,
+  OrderNotesForm,
   RefundForm,
   SupplierPickerForm,
   TrackingForm,
@@ -44,10 +48,23 @@ export default async function OrderDetailPage({
     return <StoreWorkspaceNotFoundView base={`/app/stores/${storeId}`} />;
   }
   // Where else this job could go — only needed by the panel an order manager sees.
-  const [supplier, routingOptions] = await Promise.all([
+  const [supplier, routingOptions, giftLines] = await Promise.all([
     order.fulfillment.supplierId ? getSupplier(order.fulfillment.supplierId) : null,
     canManage ? routingOptionsFor(order, store) : null,
+    giftCardLineIds(order),
   ]);
+  // What has gone out and what is left, per line. Gift cards go by email.
+  const shipped = shippedQuantities(order);
+  const remaining = remainingQuantities(order, giftLines);
+  const fulfilment = fulfilmentState(order, giftLines);
+  const shipments = order.shipments ?? [];
+  const shippable =
+    order.status === "paid" || order.status === "in_production" || order.status === "exception" || order.status === "shipped";
+  const shippableLines = order.items
+    .filter((item) => remaining.has(item.id))
+    .map((item) => ({ itemId: item.id, name: item.productName, variant: item.variantName, left: remaining.get(item.id)! }));
+  const slipHref = (shipmentId?: string) =>
+    `/app/stores/${storeId}/orders/${order.id}/packing-slip${shipmentId ? `?shipment=${shipmentId}` : ""}`;
 
   const refunded = order.refunds.reduce((sum, r) => sum + r.amount, 0);
   const tax = orderTax(order);
@@ -118,6 +135,12 @@ export default async function OrderDetailPage({
               />
               {labels(`orderStatus.${order.status}`)}
             </Badge>
+            {fulfilment === "partial" && order.status !== "cancelled" ? (
+              <Badge variant="outline" className="gap-1.5">
+                <Dot tone="amber" />
+                {t("partiallyShipped")}
+              </Badge>
+            ) : null}
             {viaPlatform ? null : (
               <Button asChild variant="outline" size="sm">
                 <Link href={`/s/${store.slug}/orders/${order.code}`} target="_blank" rel="noreferrer">
@@ -129,6 +152,13 @@ export default async function OrderDetailPage({
               <Button asChild variant="outline" size="sm">
                 <a href={invoiceHref} target="_blank" rel="noreferrer">
                   {t("invoice")}
+                </a>
+              </Button>
+            )}
+            {viaPlatform || order.status === "awaiting_payment" || order.status === "cancelled" ? null : (
+              <Button asChild variant="outline" size="sm">
+                <a href={slipHref()} target="_blank" rel="noreferrer">
+                  {t("packingSlip")}
                 </a>
               </Button>
             )}
@@ -186,6 +216,11 @@ export default async function OrderDetailPage({
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-foreground">{item.productName}</p>
                         <p className="text-xs text-muted-foreground">{item.variantName}</p>
+                        {!giftLines.has(item.id) && (shipped.get(item.id) ?? 0) > 0 && (shipped.get(item.id) ?? 0) < item.quantity ? (
+                          <p className="mt-1 text-xs font-medium text-amber-700">
+                            {t("shippedOf", { shipped: shipped.get(item.id) ?? 0, count: item.quantity })}
+                          </p>
+                        ) : null}
                         <p className="mt-1 text-xs text-muted-foreground">
                           {viaPlatform
                             ? t("quantity", { count: item.quantity })
@@ -375,9 +410,45 @@ export default async function OrderDetailPage({
 
                   <div className="rounded-xl border border-border p-4">
                     <h3 className="text-sm font-semibold text-foreground">{t("shipment")}</h3>
-                    <div className="mt-3">
-                      <TrackingForm order={order} store={store} />
-                    </div>
+                    {shipments.length > 0 ? (
+                      <ul className="mt-3 divide-y divide-border rounded-lg border border-border text-sm">
+                        {shipments.map((shipment, index) => (
+                          <li key={shipment.id} className="flex flex-wrap items-start justify-between gap-2 px-3 py-2.5">
+                            <div className="min-w-0">
+                              <p className="font-medium text-foreground">
+                                {t("parcel", { number: index + 1 })} · {CARRIER_LABELS[shipment.carrier]}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                <a href={shipment.trackingUrl} target="_blank" rel="noreferrer" className="font-mono hover:underline">
+                                  {shipment.trackingNumber}
+                                </a>{" "}
+                                · {when(shipment.at)}
+                              </p>
+                              <p className="mt-0.5 text-xs text-inksoft">
+                                {shipment.lines
+                                  .map((line) => {
+                                    const item = order.items.find((i) => i.id === line.itemId);
+                                    return `${item?.productName ?? ""} × ${line.quantity}`;
+                                  })
+                                  .join(", ")}
+                              </p>
+                            </div>
+                            <Button asChild variant="ghost" size="sm">
+                              <a href={slipHref(shipment.id)} target="_blank" rel="noreferrer">
+                                {t("packingSlip")}
+                              </a>
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {shippable ? (
+                      <div className="mt-3">
+                        <TrackingForm order={order} store={store} lines={shippableLines} />
+                      </div>
+                    ) : shipments.length === 0 ? (
+                      <p className="mt-1 text-xs text-muted-foreground">{t("notShippable")}</p>
+                    ) : null}
                   </div>
 
                   <div className="rounded-xl border border-border p-4">
@@ -417,6 +488,30 @@ export default async function OrderDetailPage({
                       <RefundForm order={order} />
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </section>
+          ) : null}
+
+          {canManage && !viaPlatform ? (
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle asChild>
+                    <h2>{t("notesTitle")}</h2>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {order.tags?.length ? (
+                    <ul className="mb-3 flex flex-wrap gap-1.5" aria-label={t("tags")}>
+                      {order.tags.map((tag) => (
+                        <li key={tag}>
+                          <Badge variant="secondary">{tag}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <OrderNotesForm order={order} />
                 </CardContent>
               </Card>
             </section>
@@ -479,6 +574,16 @@ export default async function OrderDetailPage({
                 ) : (
                   <p className="mt-4 text-xs text-muted-foreground">{t("noTracking")}</p>
                 )}
+                {canManage && !viaPlatform && canEditAddress(order) ? (
+                  <details className="group mt-4 border-t border-border pt-4 @container">
+                    <summary className="cursor-pointer list-none text-sm font-medium text-primary hover:underline [&::-webkit-details-marker]:hidden">
+                      {t("editAddress")}
+                    </summary>
+                    <div className="mt-3">
+                      <AddressForm order={order} />
+                    </div>
+                  </details>
+                ) : null}
               </CardContent>
             </Card>
           </section>

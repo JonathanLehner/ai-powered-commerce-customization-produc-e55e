@@ -1,13 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import {
   addTracking,
   raiseException,
   recordManualSubmission,
   recordRefund,
   rerouteToSupplier,
+  saveOrderNotes,
+  updateShippingAddress,
 } from "@/app/actions/orders";
+import { CountrySelect } from "@/components/CountrySelect";
+import { addressRegionKind } from "@/lib/countries";
 import type { ActionState } from "@/app/actions/stores";
 import { ActionForm, FormStatus, SuccessToast, useSubmission, useValueRestore } from "@/components/forms";
 import {
@@ -183,51 +188,197 @@ export function ManualSubmissionForm({ order }: { order: Order }) {
   );
 }
 
-export function TrackingForm({ order, store }: { order: Order; store: Store }) {
+/** A line still to ship, as the parcel form lists it. */
+export interface ShippableLine {
+  itemId: string;
+  name: string;
+  variant: string;
+  left: number;
+}
+
+/**
+ * Hands a parcel to the carrier. Each line still to ship has its own quantity,
+ * set to everything left, so shipping the lot is one click and a partial
+ * parcel is a matter of lowering the numbers. Once nothing is left, the form
+ * corrects the last parcel's tracking instead.
+ */
+export function TrackingForm({ order, store, lines }: { order: Order; store: Store; lines: ShippableLine[] }) {
   const enabled = store.carriers.filter((c) => c.enabled);
   const t = useTranslations("orderDetail");
+  const retrack = lines.length === 0;
   return (
     <ActionForm
       action={addTracking}
-      submitLabel={order.fulfillment.trackingNumber ? t("updateTracking") : t("markShipped")}
+      submitLabel={retrack ? t("updateTracking") : t("shipParcel")}
+      submitSize="sm"
+      hidden={{ storeId: order.storeId, orderId: order.id }}
+    >
+      {(state) => (
+        <div className="space-y-4">
+          {retrack ? null : (
+            <fieldset>
+              <legend className="text-xs font-medium text-muted-foreground">{t("unitsInParcel")}</legend>
+              <ul className="mt-2 divide-y divide-border rounded-lg border border-border">
+                {lines.map((line) => (
+                  <li key={line.itemId} className="flex items-center gap-3 px-3 py-2">
+                    <Label htmlFor={`quantity_${line.itemId}`} className="min-w-0 flex-1 flex-col items-start gap-0 font-normal">
+                      <span className="truncate text-sm font-medium text-foreground">{line.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {line.variant} · {t("unitsLeft", { count: line.left })}
+                      </span>
+                    </Label>
+                    <Input
+                      id={`quantity_${line.itemId}`}
+                      name={`quantity_${line.itemId}`}
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={line.left}
+                      defaultValue={line.left}
+                      className="w-20 text-right tabular-nums"
+                      aria-invalid={state.field === `quantity_${line.itemId}` ? true : undefined}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </fieldset>
+          )}
+          <div className="grid gap-3 @md:grid-cols-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="carrier">{t("carrier")}</Label>
+              <Select
+                name="carrier"
+                defaultValue={order.fulfillment.carrier ?? enabled[0]?.carrier ?? undefined}
+                disabled={enabled.length === 0}
+              >
+                <SelectTrigger
+                  id="carrier"
+                  className="w-full"
+                  aria-invalid={state.field === "carrier" ? true : undefined}
+                >
+                  <SelectValue placeholder={enabled.length === 0 ? t("noCarriers") : undefined} />
+                </SelectTrigger>
+                <SelectContent>
+                  {enabled.map((c) => (
+                    <SelectItem key={c.carrier} value={c.carrier}>
+                      {CARRIER_LABELS[c.carrier]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="trackingNumber">{t("trackingNumber")}</Label>
+              <Input
+                id="trackingNumber"
+                name="trackingNumber"
+                defaultValue={retrack ? (order.fulfillment.trackingNumber ?? "") : ""}
+                placeholder={t("trackingPlaceholder")}
+                aria-invalid={state.field === "trackingNumber" ? true : undefined}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </ActionForm>
+  );
+}
+
+/** The team's note and tags. Neither is shown to the shopper. */
+export function OrderNotesForm({ order }: { order: Order }) {
+  const t = useTranslations("orderDetail");
+  return (
+    <ActionForm
+      action={saveOrderNotes}
+      submitLabel={t("saveNotes")}
+      submitVariant="outline"
+      submitSize="sm"
+      hidden={{ storeId: order.storeId, orderId: order.id }}
+    >
+      {(state) => (
+        <div className="space-y-3">
+          <div className="grid gap-1.5">
+            <Label htmlFor="order-note">{t("note")}</Label>
+            <Textarea
+              id="order-note"
+              name="note"
+              rows={3}
+              defaultValue={order.note ?? ""}
+              aria-invalid={state.field === "note" ? true : undefined}
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="order-tags">{t("tags")}</Label>
+            <Input
+              id="order-tags"
+              name="tags"
+              defaultValue={(order.tags ?? []).join(", ")}
+              placeholder={t("tagsPlaceholder")}
+              aria-describedby="order-tags-hint"
+              aria-invalid={state.field === "tags" ? true : undefined}
+            />
+            <p id="order-tags-hint" className="text-xs text-muted-foreground">
+              {t("tagsHint")}
+            </p>
+          </div>
+        </div>
+      )}
+    </ActionForm>
+  );
+}
+
+/** Where the order goes, while nothing has shipped yet. */
+export function AddressForm({ order }: { order: Order }) {
+  const t = useTranslations("orderDetail");
+  const checkout = useTranslations("storefront.checkout");
+  const [country, setCountry] = useState(order.customer.country);
+  const regionKind = addressRegionKind(country);
+  const { customer } = order;
+  const field = (name: keyof Order["customer"], label: string, invalid: boolean, autoComplete: string, wide = false) => (
+    <div className={wide ? "grid gap-1.5 @md:col-span-2" : "grid gap-1.5"}>
+      <Label htmlFor={`address-${name}`}>{label}</Label>
+      <Input
+        id={`address-${name}`}
+        name={name}
+        defaultValue={String(customer[name] ?? "")}
+        autoComplete={autoComplete}
+        aria-invalid={invalid ? true : undefined}
+      />
+    </div>
+  );
+  return (
+    <ActionForm
+      action={updateShippingAddress}
+      submitLabel={t("saveAddress")}
       submitSize="sm"
       hidden={{ storeId: order.storeId, orderId: order.id }}
     >
       {(state) => (
         <div className="grid gap-3 @md:grid-cols-2">
-          <div className="grid gap-1.5">
-            <Label htmlFor="carrier">{t("carrier")}</Label>
-            <Select
-              name="carrier"
-              defaultValue={order.fulfillment.carrier ?? enabled[0]?.carrier ?? undefined}
-              disabled={enabled.length === 0}
-            >
-              <SelectTrigger
-                id="carrier"
-                className="w-full"
-                aria-invalid={state.field === "carrier" ? true : undefined}
-              >
-                <SelectValue placeholder={enabled.length === 0 ? t("noCarriers") : undefined} />
-              </SelectTrigger>
-              <SelectContent>
-                {enabled.map((c) => (
-                  <SelectItem key={c.carrier} value={c.carrier}>
-                    {CARRIER_LABELS[c.carrier]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="trackingNumber">{t("trackingNumber")}</Label>
-            <Input
-              id="trackingNumber"
-              name="trackingNumber"
-              defaultValue={order.fulfillment.trackingNumber ?? ""}
-              placeholder={t("trackingPlaceholder")}
-              aria-invalid={state.field === "trackingNumber" ? true : undefined}
+          {field("name", checkout("fullName"), state.field === "name", "name", true)}
+          {field("line1", checkout("street"), state.field === "line1", "address-line1", true)}
+          {field("line2", checkout("line2"), false, "address-line2", true)}
+          {field("city", checkout("city"), state.field === "city", "address-level2")}
+          {field("postalCode", checkout("postalCode"), state.field === "postalCode", "postal-code")}
+          <div className="grid gap-1.5 @md:col-span-2">
+            <Label htmlFor="address-country">{checkout("country")}</Label>
+            <CountrySelect
+              id="address-country"
+              name="country"
+              value={country}
+              onChange={setCountry}
+              invalid={state.field === "country"}
             />
           </div>
+          {regionKind
+            ? field(
+                "region",
+                checkout(regionKind === "state" ? "regionState" : regionKind === "province" ? "regionProvince" : "regionPrefecture"),
+                state.field === "region",
+                "address-level1",
+              )
+            : null}
+          {field("phone", checkout("phone"), state.field === "phone", "tel")}
         </div>
       )}
     </ActionForm>

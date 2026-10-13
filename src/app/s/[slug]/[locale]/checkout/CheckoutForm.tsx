@@ -121,6 +121,10 @@ export function CheckoutForm({
                 aria-invalid={state.field === "email" ? true : undefined}
                 className="mt-1.5"
               />
+              <Label htmlFor="marketingConsent" className="mt-2.5 cursor-pointer font-normal text-inksoft">
+                <input id="marketingConsent" type="checkbox" name="marketingConsent" className="size-4 accent-primary" />
+                {t("marketingConsent")}
+              </Label>
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="line1">

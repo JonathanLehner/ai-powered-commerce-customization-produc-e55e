@@ -347,7 +347,8 @@
       "Platform administration": "Administration de la plateforme",
       "Domains": "Domaines",
       "Currencies": "Devises",
-      "Import": "Importation"
+      "Import": "Importation",
+      "Webhooks": "Webhooks"
     },
     "ctaTitle": "Créez votre première clé",
     "ctaBody": "Connectez-vous, ouvrez les Réglages d'une boutique et choisissez Clés API.",
@@ -1227,7 +1228,32 @@
       "orderChanged": "Cette commande a été modifiée. Rechargez la page et vérifiez les remboursements avant de réessayer.",
       "refunded": "{amount} remboursés ({reference}).",
       "refundedCancelled": "{amount} remboursés et commande annulée ({reference}).",
-      "refundFailed": "Stripe n’a pas pu effectuer le remboursement. Rien n’a été enregistré. Réessayez."
+      "refundFailed": "Stripe n’a pas pu effectuer le remboursement. Rien n’a été enregistré. Réessayez.",
+      "partShipped": "Colis enregistré. Le client a été prévenu.",
+      "notesSaved": "Notes enregistrées.",
+      "addressSaved": "Adresse de livraison mise à jour.",
+      "recoveryOn": "Les e-mails de paniers abandonnés sont activés.",
+      "recoveryOff": "Les e-mails de paniers abandonnés sont désactivés.",
+      "notShippable": "Cette commande ne peut pas être expédiée dans son statut actuel.",
+      "shipment": {
+        "nothingSelected": "Indiquez combien d'unités vont dans ce colis.",
+        "unknownLine": "Cet article ne fait pas partie de cette commande.",
+        "tooMany": "Saisissez un nombre entier jusqu'au nombre d'unités restantes de {item}.",
+        "nothingLeft": "Tout le contenu de cette commande a été expédié."
+      },
+      "noteTooLong": "Les notes peuvent compter jusqu'à {max} caractères.",
+      "tooManyTags": "Une commande peut avoir jusqu'à {max} étiquettes.",
+      "addressLocked": "L'adresse ne peut plus être modifiée une fois qu'une partie de la commande a été expédiée ou que la commande est annulée.",
+      "address": {
+        "name": "Saisissez le nom du destinataire.",
+        "line1": "Saisissez l'adresse.",
+        "city": "Saisissez la ville.",
+        "region": "Saisissez l'État, la province ou la préfecture.",
+        "postalCode": "Saisissez le code postal.",
+        "country": "Choisissez un pays.",
+        "phone": "Saisissez un numéro de téléphone valide ou laissez le champ vide."
+      },
+      "recoveryDelay": "Saisissez un nombre entier d'heures entre {min} et {max}."
     },
     "gifting": {
       "nameTooShort": "Donnez au catalogue un nom d’au moins 3 caractères.",
@@ -1548,6 +1574,28 @@
       "redirectLimit": "Une boutique peut avoir jusqu’à {max} redirections.",
       "redirectSaved": "{path} est désormais redirigé",
       "redirectDeleted": "Redirection supprimée"
+    },
+    "webhooks": {
+      "url": {
+        "invalid": "Saisissez une URL comme https://example.com/webhooks.",
+        "https": "L'URL doit commencer par https://.",
+        "private": "Utilisez une adresse publique. Les adresses locales et de réseau privé ne peuvent pas recevoir de webhooks.",
+        "credentials": "Retirez le nom d'utilisateur et le mot de passe de l'URL."
+      },
+      "topicsRequired": "Choisissez au moins un événement.",
+      "limit": "Une boutique peut avoir jusqu'à {max} points de terminaison webhook.",
+      "duplicate": "Cette URL est déjà un point de terminaison.",
+      "notFound": "Ce point de terminaison n'existe plus.",
+      "deliveryNotFound": "Cet envoi n'est plus dans le journal.",
+      "resendDisabled": "Activez le point de terminaison avant de renvoyer.",
+      "resendBusy": "Cet envoi est en cours. Réessayez dans une minute.",
+      "saved": "Point de terminaison enregistré.",
+      "enabled": "Point de terminaison activé.",
+      "disabled": "Point de terminaison désactivé.",
+      "secretRotated": "Clé de signature renouvelée.",
+      "resent": "Livré. Le point de terminaison a répondu {code}.",
+      "resendFailedCode": "Non livré. Le point de terminaison a répondu {code}.",
+      "resendFailed": "Non livré. Le point de terminaison n'a pas répondu."
     }
   },
   "settings": {
@@ -1682,7 +1730,10 @@
       "refreshing": "Mise à jour…",
       "updated": "Taux automatiques mis à jour {time}",
       "notUpdated": "Les taux automatiques sont mis à jour chaque jour."
-    }
+    },
+    "webhooksTitle": "Webhooks",
+    "webhooksBody": "Envoyez les événements de commandes, produits, clients et stock à vos propres systèmes.",
+    "webhooksLink": "Gérer les webhooks"
   },
   "team": {
     "agencyAdmins": "Administrateurs de l’agence",
@@ -2076,7 +2127,25 @@
     "taxPlain": "Taxes",
     "taxIncludedPlain": "Taxes (incluses)",
     "taxIncluded": "Taxes {rate} % (incluses)",
-    "shopTotal": "Total en {currency}"
+    "shopTotal": "Total en {currency}",
+    "shipParcel": "Expédier le colis",
+    "unitsInParcel": "Unités dans ce colis",
+    "unitsLeft": "{count} restant à expédier",
+    "saveNotes": "Enregistrer les notes",
+    "note": "Note",
+    "tags": "Étiquettes",
+    "tagsPlaceholder": "VIP, emballage cadeau",
+    "tagsHint": "Séparez les étiquettes par des virgules. Seule votre équipe voit les notes et les étiquettes.",
+    "saveAddress": "Enregistrer l'adresse",
+    "print": "Imprimer",
+    "backToOrder": "Retour à la commande",
+    "partiallyShipped": "Partiellement expédiée",
+    "packingSlip": "Bordereau d'expédition",
+    "shippedOf": "{shipped} sur {count} expédiés",
+    "parcel": "Colis {number}",
+    "notShippable": "Les colis peuvent être expédiés une fois la commande payée.",
+    "notesTitle": "Notes et étiquettes",
+    "editAddress": "Modifier l'adresse de livraison"
   },
   "customers": {
     "title": "Clients",
@@ -3566,7 +3635,8 @@
       "deliveryDaysExact": "{days, plural, one {# jour ouvré} other {# jours ouvrés}}",
       "noShippingOptions": "Nous ne livrons pas encore dans ce pays.",
       "emailDelivery": "Livraison par e-mail",
-      "billingDetails": "Vos coordonnées"
+      "billingDetails": "Vos coordonnées",
+      "marketingConsent": "Recevoir les actualités et offres par e-mail"
     },
     "order": {
       "title": "Suivi de commande",
@@ -3608,7 +3678,11 @@
       "tax": "Taxes",
       "taxIncludedPlain": "Taxes (incluses)",
       "taxIncludedRow": "Taxe {rate, number} % (incluse)",
-      "invoice": "Voir la facture"
+      "invoice": "Voir la facture",
+      "shipments": "Expéditions",
+      "shipmentNumber": "Colis {number}",
+      "shipmentLine": "{name} × {count}",
+      "trackParcel": "Suivre le colis"
     },
     "status": {
       "awaitingPayment": "En attente de paiement",
@@ -3624,7 +3698,9 @@
       "cancelled": "Annulée",
       "cancelledNote": "Cette commande a été annulée et remboursée.",
       "exception": "En attente",
-      "exceptionNote": "Votre commande a du retard. Nous vous contacterons avec une mise à jour."
+      "exceptionNote": "Votre commande a du retard. Nous vous contacterons avec une mise à jour.",
+      "partiallyShipped": "Partiellement expédiée",
+      "partiallyShippedNote": "Une partie de votre commande est en route. Le reste suivra."
     },
     "actions": {
       "storeClosed": "Cette boutique ne prend pas de commandes actuellement.",
@@ -3740,7 +3816,16 @@
       "giftCardCodeLabel": "Code de la carte-cadeau",
       "giftCardValueLabel": "Valeur",
       "giftCardExpiresLabel": "Expire le",
-      "giftCardCta": "Commencer vos achats"
+      "giftCardCta": "Commencer vos achats",
+      "shippedPartialSubject": "Une partie de votre commande {store} {code} a été expédiée",
+      "shippedPartialHeading": "Une partie de votre commande est en route",
+      "shippedPartialBody": "Certains articles de la commande {code} ont été expédiés avec {carrier}. Le reste suivra.",
+      "shippedQuantity": "× {count}",
+      "recoverySubject": "Vous avez laissé quelque chose dans votre panier chez {store}",
+      "recoveryHeading": "Votre panier vous attend",
+      "recoveryBody": "Vous n'avez pas terminé votre commande chez {store}. Vos articles sont enregistrés ci-dessous.",
+      "recoveryCta": "Retourner au panier",
+      "recoveryConsent": "Vous recevez cet e-mail car vous avez accepté de recevoir des e-mails de {store} lors du paiement."
     },
     "gift": {
       "chromeSubtitle": "Catalogue cadeaux · {store}",
@@ -4017,6 +4102,16 @@
       "bodyTooLong": "Gardez votre avis en dessous de 2 000 caractères.",
       "nameRequired": "Saisissez le nom à afficher avec votre avis.",
       "nameTooLong": "Gardez le nom en dessous de 60 caractères."
+    },
+    "packingSlip": {
+      "heading": "Bordereau d'expédition",
+      "order": "Commande",
+      "date": "Date",
+      "tracking": "Suivi",
+      "shipTo": "Livrer à",
+      "item": "Article",
+      "quantity": "Quantité",
+      "thanks": "Merci pour votre achat chez {store}."
     }
   },
   "collections": {
@@ -4100,7 +4195,8 @@
       "gift_approval": "La campagne cadeau {code} attend une validation",
       "quote_received": "Devis reçu de {name} pour {code}",
       "invite_accepted": "{name} a accepté l’invitation",
-      "low_stock": "Stock faible pour {name} : {count} restant(s)"
+      "low_stock": "Stock faible pour {name} : {count} restant(s)",
+      "webhook_disabled": "Le point de terminaison webhook {name} a été désactivé après des échecs répétés"
     },
     "settings": {
       "menu": "Notifications",
@@ -4120,7 +4216,8 @@
         "gift_approval": "Campagnes cadeaux à valider",
         "quote_received": "Devis fournisseurs",
         "invite_accepted": "Invitations acceptées",
-        "low_stock": "Stock faible"
+        "low_stock": "Stock faible",
+        "webhook_disabled": "Points de terminaison webhook désactivés"
       }
     },
     "email": {
@@ -4236,7 +4333,8 @@
       "analytics": "Statistiques",
       "activity": "Activité",
       "agency": "Agence : personnes, forfait et boutiques",
-      "domains": "Domaines"
+      "domains": "Domaines",
+      "webhooks": "Webhooks"
     },
     "none": "Aucun accès",
     "read": "Lecture",
@@ -4810,5 +4908,121 @@
       "remove": "Supprimer",
       "actions": "Actions"
     }
+  },
+  "abandoned": {
+    "tabOrders": "Commandes",
+    "tabAbandoned": "Paniers abandonnés",
+    "tabsLabel": "Vues des commandes",
+    "recoveryTitle": "E-mail de relance",
+    "recoveryBody": "Envoyez un e-mail avec un lien vers le panier. Seuls les clients ayant accepté les e-mails lors du paiement le reçoivent.",
+    "enabled": "Envoyer un e-mail de relance",
+    "delay": "Heures après le paiement",
+    "delayHint": "De 1 à 72 heures.",
+    "save": "Enregistrer",
+    "emptyTitle": "Aucun panier abandonné",
+    "emptyBody": "Les paiements expirés sans règlement apparaissent ici.",
+    "listTitle": "{count, plural, one {# panier abandonné} other {# paniers abandonnés}}",
+    "columns": {
+      "date": "Date",
+      "customer": "Client",
+      "items": "Articles",
+      "total": "Total",
+      "recovery": "E-mail de relance"
+    },
+    "deleted": "Données personnelles supprimées",
+    "units": "{count, plural, one {# article} other {# articles}}",
+    "state": {
+      "recovered": "Récupéré",
+      "sent": "Envoyé",
+      "scheduled": "Programmé",
+      "noConsent": "Pas de consentement e-mail",
+      "off": "Non envoyé",
+      "expired": "Non envoyé"
+    },
+    "viewOrder": "Voir la commande"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "pageDescription": "Envoyez les événements de la boutique à vos propres systèmes dès qu'ils se produisent.",
+    "reference": "Référence de l'API",
+    "emptyTitle": "Aucun point de terminaison",
+    "emptyBody": "Ajoutez un point de terminaison pour commencer à recevoir des événements.",
+    "endpointsTitle": "Points de terminaison",
+    "addTitle": "Ajouter un point de terminaison",
+    "columns": {
+      "endpoint": "Point de terminaison",
+      "topics": "Événements",
+      "lastDelivery": "Dernier envoi",
+      "status": "Statut",
+      "event": "Événement",
+      "response": "Réponse",
+      "attempts": "Tentatives"
+    },
+    "topicCount": "{count, plural, one {# événement} other {# événements}}",
+    "lastFailed": "Échec",
+    "never": "Jamais",
+    "statusEnabled": "Actif",
+    "statusFailing": "Désactivé après des échecs",
+    "statusDisabled": "Désactivé",
+    "url": "URL du point de terminaison",
+    "description": "Description (facultatif)",
+    "topics": "Événements",
+    "groups": {
+      "order": "Commandes",
+      "product": "Produits",
+      "customer": "Clients",
+      "inventory": "Stock"
+    },
+    "topicLabels": {
+      "order_created": "Commande créée",
+      "order_paid": "Commande payée",
+      "order_fulfilled": "Commande expédiée",
+      "order_cancelled": "Commande annulée",
+      "order_refunded": "Commande remboursée",
+      "product_created": "Produit créé",
+      "product_updated": "Produit mis à jour",
+      "product_deleted": "Produit supprimé",
+      "customer_created": "Client créé",
+      "customer_updated": "Client mis à jour",
+      "inventory_updated": "Stock mis à jour"
+    },
+    "add": "Ajouter le point de terminaison",
+    "adding": "Ajout…",
+    "save": "Enregistrer les modifications",
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "secretTitle": "Clé de signature",
+    "secretBody": "Utilisez cette clé pour vérifier que les envois proviennent de votre boutique. Les envois suivent le format Standard Webhooks.",
+    "revealSecret": "Afficher",
+    "hideSecret": "Masquer",
+    "copySecret": "Copier la clé",
+    "rotate": "Renouveler la clé",
+    "rotateQuestion": "Les envois seront signés avec une nouvelle clé. Continuer ?",
+    "deleteTitle": "Supprimer le point de terminaison",
+    "deleteBody": "Arrête tous les envois vers ce point de terminaison et supprime son journal.",
+    "delete": "Supprimer le point de terminaison",
+    "deleteQuestion": "Supprimer ce point de terminaison ?",
+    "autoDisabledTitle": "Ce point de terminaison a été désactivé",
+    "autoDisabledBody": "Il a échoué {count} fois de suite et a été désactivé le {date}. Corrigez le point de terminaison, puis réactivez-le.",
+    "deliveriesTitle": "Envois",
+    "deliveriesBody": "Les 50 derniers envois des 30 derniers jours. Les envois échoués sont retentés pendant environ une journée.",
+    "noDeliveriesTitle": "Aucun envoi",
+    "noDeliveriesBody": "Les envois apparaissent ici lorsqu'un des événements choisis se produit.",
+    "payload": "Contenu",
+    "deliveryStatus": {
+      "pending": "Envoi en cours",
+      "retrying": "Nouvelle tentative",
+      "succeeded": "Livré",
+      "failed": "Échec",
+      "cancelled": "Annulé"
+    },
+    "nextAttempt": "Prochaine tentative {date}",
+    "error": {
+      "timeout": "Délai dépassé",
+      "network": "Pas de réponse"
+    },
+    "duration": "{ms} ms",
+    "resend": "Renvoyer",
+    "settingsTitle": "Paramètres du point de terminaison"
   }
 }

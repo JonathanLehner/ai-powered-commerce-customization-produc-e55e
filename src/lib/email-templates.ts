@@ -52,6 +52,8 @@ interface EmailBody {
   action?: { label: string; url: string };
   /** A second, quieter link under the button. */
   link?: { label: string; url: string };
+  /** Small print above the footer. */
+  footnote?: string;
 }
 
 function escape(value: string): string {
@@ -110,6 +112,7 @@ ${
     : ""
 }
 ${support ? `<p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#64748b">${escape(support)}</p>` : ""}
+${body.footnote ? `<p style="margin:12px 0 0;font-size:12px;line-height:1.6;color:#94a3b8">${escape(body.footnote)}</p>` : ""}
 <p style="margin:20px 0 0;padding-top:16px;border-top:1px solid #e2e8f0;font-size:12px;line-height:1.6;color:#94a3b8">${escape(footer)}</p>
 </div></body></html>`;
 
@@ -124,6 +127,7 @@ ${support ? `<p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#647
     ...(body.action ? ["", `${body.action.label}: ${body.action.url}`] : []),
     ...(body.link ? [`${body.link.label}: ${body.link.url}`] : []),
     ...(support ? ["", support] : []),
+    ...(body.footnote ? ["", body.footnote] : []),
     "",
     footer,
   ].join("\n");
@@ -191,6 +195,8 @@ export interface ShippingNotificationInput {
   /** The carrier's own page, or null when only the order page can be linked. */
   trackingUrl: string | null;
   statusUrl: string;
+  /** What is in this parcel, when it holds only part of the order. */
+  partialItems?: { name: string; quantity: number }[] | null;
 }
 
 export function shippingNotificationEmail(
@@ -199,14 +205,42 @@ export function shippingNotificationEmail(
   shipment: ShippingNotificationInput,
 ): BuiltEmail {
   const { t } = copy;
-  return render(brand, copy, t("shippedSubject", { code: shipment.code, store: brand.storeName }), {
-    heading: t("shippedHeading"),
+  const partial = shipment.partialItems?.length ? shipment.partialItems : null;
+  return render(brand, copy, t(partial ? "shippedPartialSubject" : "shippedSubject", { code: shipment.code, store: brand.storeName }), {
+    heading: t(partial ? "shippedPartialHeading" : "shippedHeading"),
     greetingName: shipment.customerName,
-    paragraphs: [t("shippedBody", { code: shipment.code, carrier: shipment.carrierName })],
-    rows: [{ label: t("shippedTrackingLabel"), value: shipment.trackingNumber }],
+    paragraphs: [
+      t(partial ? "shippedPartialBody" : "shippedBody", { code: shipment.code, carrier: shipment.carrierName }),
+    ],
+    rows: [
+      { label: t("shippedTrackingLabel"), value: shipment.trackingNumber },
+      ...(partial ?? []).map((item) => ({ label: item.name, value: t("shippedQuantity", { count: item.quantity }) })),
+    ],
     action: shipment.trackingUrl
       ? { label: t("shippedCta"), url: shipment.trackingUrl }
       : { label: t("orderCta"), url: shipment.statusUrl },
+  });
+}
+
+export interface CheckoutRecoveryInput {
+  customerName: string;
+  items: { name: string; variant: string; quantity: number }[];
+  restoreUrl: string;
+}
+
+/** The one email sent after a checkout expired unpaid, linking back to the basket. */
+export function checkoutRecoveryEmail(brand: EmailBrand, copy: EmailCopy, input: CheckoutRecoveryInput): BuiltEmail {
+  const { t } = copy;
+  return render(brand, copy, t("recoverySubject", { store: brand.storeName }), {
+    heading: t("recoveryHeading"),
+    greetingName: input.customerName,
+    paragraphs: [t("recoveryBody", { store: brand.storeName })],
+    rows: input.items.map((item) => ({
+      label: item.variant ? `${item.name} · ${item.variant}` : item.name,
+      value: t("shippedQuantity", { count: item.quantity }),
+    })),
+    action: { label: t("recoveryCta"), url: input.restoreUrl },
+    footnote: t("recoveryConsent", { store: brand.storeName }),
   });
 }
 

@@ -25,6 +25,7 @@ import { baseStoreSku, nextFreeSku } from "./sku";
 import type { Customer, MockupImage, Order, Store, StoreProduct, StoreVariant, UrlRedirect } from "./types";
 import { storeUpload } from "./uploads";
 import { currencyDecimals, newId, slugify } from "./util";
+import { emitProductWebhook } from "./webhook-events";
 
 /**
  * Runs a Shopify import in the background.
@@ -446,6 +447,7 @@ class ImportContext {
     } else {
       await db.insertOne(COLLECTIONS.storeProducts, product as unknown as Record<string, unknown>);
     }
+    emitProductWebhook(store.id, product.id, existing ? "product.updated" : "product.created");
 
     for (const [index, variant] of source.variants.entries()) {
       if (variant.quantity === null) continue;

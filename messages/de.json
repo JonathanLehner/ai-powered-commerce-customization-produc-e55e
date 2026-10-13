@@ -347,7 +347,8 @@
       "Platform administration": "Plattformverwaltung",
       "Domains": "Domains",
       "Currencies": "Währungen",
-      "Import": "Import"
+      "Import": "Import",
+      "Webhooks": "Webhooks"
     },
     "ctaTitle": "Erstellen Sie Ihren ersten Schlüssel",
     "ctaBody": "Melden Sie sich an, öffnen Sie die Einstellungen eines Shops und wählen Sie API-Schlüssel.",
@@ -1227,7 +1228,32 @@
       "orderChanged": "Diese Bestellung wurde geändert. Laden Sie neu und prüfen Sie die Erstattungen, bevor Sie es erneut versuchen.",
       "refunded": "{amount} erstattet ({reference}).",
       "refundedCancelled": "{amount} erstattet und Bestellung storniert ({reference}).",
-      "refundFailed": "Stripe konnte die Erstattung nicht ausführen. Es wurde nichts erfasst. Versuchen Sie es erneut."
+      "refundFailed": "Stripe konnte die Erstattung nicht ausführen. Es wurde nichts erfasst. Versuchen Sie es erneut.",
+      "partShipped": "Paket erfasst. Der Kunde wurde benachrichtigt.",
+      "notesSaved": "Notizen gespeichert.",
+      "addressSaved": "Lieferadresse aktualisiert.",
+      "recoveryOn": "E-Mails zu abgebrochenen Checkouts sind aktiviert.",
+      "recoveryOff": "E-Mails zu abgebrochenen Checkouts sind deaktiviert.",
+      "notShippable": "Diese Bestellung kann in ihrem aktuellen Status nicht versendet werden.",
+      "shipment": {
+        "nothingSelected": "Geben Sie an, wie viele Einheiten in dieses Paket kommen.",
+        "unknownLine": "Dieser Artikel ist nicht Teil dieser Bestellung.",
+        "tooMany": "Geben Sie eine ganze Zahl bis zur Anzahl der verbleibenden Einheiten von {item} ein.",
+        "nothingLeft": "Alles aus dieser Bestellung wurde bereits versendet."
+      },
+      "noteTooLong": "Notizen dürfen bis zu {max} Zeichen lang sein.",
+      "tooManyTags": "Eine Bestellung kann bis zu {max} Tags haben.",
+      "addressLocked": "Die Adresse kann nicht mehr geändert werden, sobald ein Teil der Bestellung versendet oder die Bestellung storniert wurde.",
+      "address": {
+        "name": "Geben Sie den Namen des Empfängers ein.",
+        "line1": "Geben Sie Straße und Hausnummer ein.",
+        "city": "Geben Sie den Ort ein.",
+        "region": "Geben Sie das Bundesland, die Provinz oder die Präfektur ein.",
+        "postalCode": "Geben Sie die Postleitzahl ein.",
+        "country": "Wählen Sie ein Land.",
+        "phone": "Geben Sie eine gültige Telefonnummer ein oder lassen Sie das Feld leer."
+      },
+      "recoveryDelay": "Geben Sie eine ganze Zahl von Stunden zwischen {min} und {max} ein."
     },
     "gifting": {
       "nameTooShort": "Geben Sie dem Katalog einen Namen mit mindestens 3 Zeichen.",
@@ -1548,6 +1574,28 @@
       "redirectLimit": "Ein Shop kann bis zu {max} Weiterleitungen haben.",
       "redirectSaved": "{path} wird jetzt weitergeleitet",
       "redirectDeleted": "Weiterleitung entfernt"
+    },
+    "webhooks": {
+      "url": {
+        "invalid": "Geben Sie eine URL wie https://example.com/webhooks ein.",
+        "https": "Die URL muss mit https:// beginnen.",
+        "private": "Verwenden Sie eine öffentliche Adresse. Lokale und private Netzwerkadressen können keine Webhooks empfangen.",
+        "credentials": "Entfernen Sie Benutzername und Passwort aus der URL."
+      },
+      "topicsRequired": "Wählen Sie mindestens ein Ereignis.",
+      "limit": "Ein Shop kann bis zu {max} Webhook-Endpunkte haben.",
+      "duplicate": "Diese URL ist bereits ein Endpunkt.",
+      "notFound": "Dieser Endpunkt existiert nicht mehr.",
+      "deliveryNotFound": "Diese Zustellung ist nicht mehr im Protokoll.",
+      "resendDisabled": "Aktivieren Sie den Endpunkt, bevor Sie erneut senden.",
+      "resendBusy": "Diese Zustellung wird gerade gesendet. Versuchen Sie es in einer Minute erneut.",
+      "saved": "Endpunkt gespeichert.",
+      "enabled": "Endpunkt aktiviert.",
+      "disabled": "Endpunkt deaktiviert.",
+      "secretRotated": "Signaturschlüssel erneuert.",
+      "resent": "Zugestellt. Der Endpunkt antwortete mit {code}.",
+      "resendFailedCode": "Nicht zugestellt. Der Endpunkt antwortete mit {code}.",
+      "resendFailed": "Nicht zugestellt. Der Endpunkt hat nicht geantwortet."
     }
   },
   "settings": {
@@ -1682,7 +1730,10 @@
       "refreshing": "Wird aktualisiert…",
       "updated": "Automatische Kurse aktualisiert {time}",
       "notUpdated": "Automatische Kurse werden täglich aktualisiert."
-    }
+    },
+    "webhooksTitle": "Webhooks",
+    "webhooksBody": "Senden Sie Ereignisse zu Bestellungen, Produkten, Kunden und Lagerbestand an Ihre eigenen Systeme.",
+    "webhooksLink": "Webhooks verwalten"
   },
   "team": {
     "agencyAdmins": "Agenturadministratoren",
@@ -2076,7 +2127,25 @@
     "taxPlain": "Steuern",
     "taxIncludedPlain": "Steuern (inklusive)",
     "taxIncluded": "Steuern {rate} % (inklusive)",
-    "shopTotal": "Gesamtbetrag in {currency}"
+    "shopTotal": "Gesamtbetrag in {currency}",
+    "shipParcel": "Paket versenden",
+    "unitsInParcel": "Einheiten in diesem Paket",
+    "unitsLeft": "Noch {count} zu versenden",
+    "saveNotes": "Notizen speichern",
+    "note": "Notiz",
+    "tags": "Tags",
+    "tagsPlaceholder": "VIP, Geschenkverpackung",
+    "tagsHint": "Tags mit Kommas trennen. Notizen und Tags sieht nur Ihr Team.",
+    "saveAddress": "Adresse speichern",
+    "print": "Drucken",
+    "backToOrder": "Zurück zur Bestellung",
+    "partiallyShipped": "Teilweise versendet",
+    "packingSlip": "Lieferschein",
+    "shippedOf": "{shipped} von {count} versendet",
+    "parcel": "Paket {number}",
+    "notShippable": "Pakete können versendet werden, sobald die Bestellung bezahlt ist.",
+    "notesTitle": "Notizen und Tags",
+    "editAddress": "Lieferadresse bearbeiten"
   },
   "customers": {
     "title": "Kunden",
@@ -3566,7 +3635,8 @@
       "deliveryDaysExact": "{days, plural, one {# Werktag} other {# Werktage}}",
       "noShippingOptions": "Wir liefern noch nicht in dieses Land.",
       "emailDelivery": "E-Mail-Zustellung",
-      "billingDetails": "Ihre Daten"
+      "billingDetails": "Ihre Daten",
+      "marketingConsent": "Ich möchte Neuigkeiten und Angebote per E-Mail erhalten"
     },
     "order": {
       "title": "Bestellstatus",
@@ -3608,7 +3678,11 @@
       "tax": "Steuern",
       "taxIncludedPlain": "Steuern (inklusive)",
       "taxIncludedRow": "Steuer {rate, number} % (inklusive)",
-      "invoice": "Rechnung ansehen"
+      "invoice": "Rechnung ansehen",
+      "shipments": "Sendungen",
+      "shipmentNumber": "Paket {number}",
+      "shipmentLine": "{name} × {count}",
+      "trackParcel": "Sendung verfolgen"
     },
     "status": {
       "awaitingPayment": "Zahlung ausstehend",
@@ -3624,7 +3698,9 @@
       "cancelled": "Storniert",
       "cancelledNote": "Diese Bestellung wurde storniert und erstattet.",
       "exception": "Angehalten",
-      "exceptionNote": "Ihre Bestellung verzögert sich. Wir melden uns mit einem Update."
+      "exceptionNote": "Ihre Bestellung verzögert sich. Wir melden uns mit einem Update.",
+      "partiallyShipped": "Teilweise versendet",
+      "partiallyShippedNote": "Ein Teil Ihrer Bestellung ist unterwegs. Der Rest folgt."
     },
     "actions": {
       "storeClosed": "Dieser Shop nimmt derzeit keine Bestellungen an.",
@@ -3740,7 +3816,16 @@
       "giftCardCodeLabel": "Geschenkkartencode",
       "giftCardValueLabel": "Wert",
       "giftCardExpiresLabel": "Läuft ab",
-      "giftCardCta": "Jetzt einkaufen"
+      "giftCardCta": "Jetzt einkaufen",
+      "shippedPartialSubject": "Ein Teil Ihrer {store}-Bestellung {code} wurde versendet",
+      "shippedPartialHeading": "Ein Teil Ihrer Bestellung ist unterwegs",
+      "shippedPartialBody": "Einige Artikel aus Bestellung {code} wurden mit {carrier} versendet. Der Rest folgt.",
+      "shippedQuantity": "× {count}",
+      "recoverySubject": "Sie haben etwas in Ihrem Warenkorb bei {store} vergessen",
+      "recoveryHeading": "Ihr Warenkorb wartet auf Sie",
+      "recoveryBody": "Sie haben Ihren Einkauf bei {store} nicht abgeschlossen. Ihre Artikel sind unten gespeichert.",
+      "recoveryCta": "Zurück zum Warenkorb",
+      "recoveryConsent": "Sie erhalten diese E-Mail, weil Sie beim Checkout E-Mails von {store} zugestimmt haben."
     },
     "gift": {
       "chromeSubtitle": "Geschenkkatalog · {store}",
@@ -4017,6 +4102,16 @@
       "bodyTooLong": "Ihre Bewertung darf maximal 2.000 Zeichen lang sein.",
       "nameRequired": "Geben Sie den Namen ein, der mit Ihrer Bewertung angezeigt werden soll.",
       "nameTooLong": "Der Name darf maximal 60 Zeichen lang sein."
+    },
+    "packingSlip": {
+      "heading": "Lieferschein",
+      "order": "Bestellung",
+      "date": "Datum",
+      "tracking": "Sendungsverfolgung",
+      "shipTo": "Lieferung an",
+      "item": "Artikel",
+      "quantity": "Menge",
+      "thanks": "Vielen Dank für Ihren Einkauf bei {store}."
     }
   },
   "collections": {
@@ -4100,7 +4195,8 @@
       "gift_approval": "Geschenkkampagne {code} wartet auf Freigabe",
       "quote_received": "Angebot von {name} für {code} erhalten",
       "invite_accepted": "{name} hat die Einladung angenommen",
-      "low_stock": "{name} hat nur noch {count} auf Lager"
+      "low_stock": "{name} hat nur noch {count} auf Lager",
+      "webhook_disabled": "Webhook-Endpunkt {name} wurde nach wiederholten Fehlern deaktiviert"
     },
     "settings": {
       "menu": "Benachrichtigungen",
@@ -4120,7 +4216,8 @@
         "gift_approval": "Geschenkkampagnen zur Freigabe",
         "quote_received": "Beschaffungsangebote",
         "invite_accepted": "Angenommene Einladungen",
-        "low_stock": "Niedriger Lagerbestand"
+        "low_stock": "Niedriger Lagerbestand",
+        "webhook_disabled": "Deaktivierte Webhook-Endpunkte"
       }
     },
     "email": {
@@ -4236,7 +4333,8 @@
       "analytics": "Analysen",
       "activity": "Aktivität",
       "agency": "Agentur: Personen, Tarif und Shops",
-      "domains": "Domains"
+      "domains": "Domains",
+      "webhooks": "Webhooks"
     },
     "none": "Kein Zugriff",
     "read": "Lesen",
@@ -4810,5 +4908,121 @@
       "remove": "Entfernen",
       "actions": "Aktionen"
     }
+  },
+  "abandoned": {
+    "tabOrders": "Bestellungen",
+    "tabAbandoned": "Abgebrochene Checkouts",
+    "tabsLabel": "Bestellansichten",
+    "recoveryTitle": "Erinnerungs-E-Mail",
+    "recoveryBody": "Senden Sie eine E-Mail mit einem Link zurück zum Warenkorb. Nur Kunden, die beim Checkout E-Mails zugestimmt haben, erhalten sie.",
+    "enabled": "Erinnerungs-E-Mail senden",
+    "delay": "Stunden nach dem Checkout",
+    "delayHint": "Zwischen 1 und 72 Stunden.",
+    "save": "Speichern",
+    "emptyTitle": "Keine abgebrochenen Checkouts",
+    "emptyBody": "Checkouts, die ohne Zahlung ablaufen, erscheinen hier.",
+    "listTitle": "{count, plural, one {# abgebrochener Checkout} other {# abgebrochene Checkouts}}",
+    "columns": {
+      "date": "Datum",
+      "customer": "Kunde",
+      "items": "Artikel",
+      "total": "Gesamt",
+      "recovery": "Erinnerungs-E-Mail"
+    },
+    "deleted": "Personenbezogene Daten gelöscht",
+    "units": "{count, plural, one {# Artikel} other {# Artikel}}",
+    "state": {
+      "recovered": "Zurückgewonnen",
+      "sent": "Gesendet",
+      "scheduled": "Geplant",
+      "noConsent": "Keine E-Mail-Einwilligung",
+      "off": "Nicht gesendet",
+      "expired": "Nicht gesendet"
+    },
+    "viewOrder": "Bestellung ansehen"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "pageDescription": "Senden Sie Shop-Ereignisse in Echtzeit an Ihre eigenen Systeme.",
+    "reference": "API-Referenz",
+    "emptyTitle": "Noch keine Endpunkte",
+    "emptyBody": "Fügen Sie einen Endpunkt hinzu, um Ereignisse zu empfangen.",
+    "endpointsTitle": "Endpunkte",
+    "addTitle": "Endpunkt hinzufügen",
+    "columns": {
+      "endpoint": "Endpunkt",
+      "topics": "Ereignisse",
+      "lastDelivery": "Letzte Zustellung",
+      "status": "Status",
+      "event": "Ereignis",
+      "response": "Antwort",
+      "attempts": "Versuche"
+    },
+    "topicCount": "{count, plural, one {# Ereignis} other {# Ereignisse}}",
+    "lastFailed": "Fehlgeschlagen",
+    "never": "Nie",
+    "statusEnabled": "Aktiv",
+    "statusFailing": "Nach Fehlern deaktiviert",
+    "statusDisabled": "Deaktiviert",
+    "url": "Endpunkt-URL",
+    "description": "Beschreibung (optional)",
+    "topics": "Ereignisse",
+    "groups": {
+      "order": "Bestellungen",
+      "product": "Produkte",
+      "customer": "Kunden",
+      "inventory": "Lagerbestand"
+    },
+    "topicLabels": {
+      "order_created": "Bestellung erstellt",
+      "order_paid": "Bestellung bezahlt",
+      "order_fulfilled": "Bestellung versendet",
+      "order_cancelled": "Bestellung storniert",
+      "order_refunded": "Bestellung erstattet",
+      "product_created": "Produkt erstellt",
+      "product_updated": "Produkt aktualisiert",
+      "product_deleted": "Produkt gelöscht",
+      "customer_created": "Kunde erstellt",
+      "customer_updated": "Kunde aktualisiert",
+      "inventory_updated": "Lagerbestand aktualisiert"
+    },
+    "add": "Endpunkt hinzufügen",
+    "adding": "Wird hinzugefügt…",
+    "save": "Änderungen speichern",
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren",
+    "secretTitle": "Signaturschlüssel",
+    "secretBody": "Prüfen Sie mit diesem Schlüssel, ob Zustellungen von Ihrem Shop stammen. Zustellungen folgen dem Standard-Webhooks-Format.",
+    "revealSecret": "Anzeigen",
+    "hideSecret": "Ausblenden",
+    "copySecret": "Schlüssel kopieren",
+    "rotate": "Schlüssel erneuern",
+    "rotateQuestion": "Zustellungen werden mit einem neuen Schlüssel signiert. Fortfahren?",
+    "deleteTitle": "Endpunkt löschen",
+    "deleteBody": "Beendet alle Zustellungen an diesen Endpunkt und löscht sein Zustellprotokoll.",
+    "delete": "Endpunkt löschen",
+    "deleteQuestion": "Diesen Endpunkt löschen?",
+    "autoDisabledTitle": "Dieser Endpunkt wurde deaktiviert",
+    "autoDisabledBody": "Er ist {count} Mal in Folge fehlgeschlagen und wurde am {date} deaktiviert. Beheben Sie das Problem und aktivieren Sie ihn wieder.",
+    "deliveriesTitle": "Zustellungen",
+    "deliveriesBody": "Die letzten 50 Zustellungen der vergangenen 30 Tage. Fehlgeschlagene Zustellungen werden etwa einen Tag lang wiederholt.",
+    "noDeliveriesTitle": "Noch keine Zustellungen",
+    "noDeliveriesBody": "Zustellungen erscheinen hier, sobald eines der gewählten Ereignisse eintritt.",
+    "payload": "Inhalt",
+    "deliveryStatus": {
+      "pending": "Wird gesendet",
+      "retrying": "Wird wiederholt",
+      "succeeded": "Zugestellt",
+      "failed": "Fehlgeschlagen",
+      "cancelled": "Abgebrochen"
+    },
+    "nextAttempt": "Nächster Versuch {date}",
+    "error": {
+      "timeout": "Zeitüberschreitung",
+      "network": "Keine Antwort"
+    },
+    "duration": "{ms} ms",
+    "resend": "Erneut senden",
+    "settingsTitle": "Endpunkt-Einstellungen"
   }
 }

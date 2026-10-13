@@ -44,6 +44,8 @@ export const INDEXES: Record<string, IndexSpec[]> = {
     { key: { idempotencyKey: 1 } },
     { key: { "campaign.campaignId": 1, createdAt: 1 } },
     { key: { storeId: 1, "customer.email": 1 } },
+    { key: { storeId: 1, "abandoned.at": -1 } },
+    { key: { "abandoned.recoveryEmailAt": 1, "abandoned.at": 1 } },
   ],
   storefronts: [byId, { key: { storeId: 1 }, unique: true }],
   audit_logs: [byId, { key: { at: -1 } }, { key: { storeId: 1, at: -1 } }, { key: { agencyId: 1, at: -1 } }],
@@ -101,6 +103,15 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   shopify_imports: [byId, { key: { storeId: 1, createdAt: -1 } }, { key: { storeId: 1, submissionKey: 1 } }],
   shopify_import_rows: [byId, { key: { importId: 1, kind: 1, seq: 1 } }],
   url_redirects: [byId, { key: { storeId: 1, path: 1 }, unique: true }],
+  webhook_endpoints: [byId, { key: { storeId: 1, enabled: 1, topics: 1 } }, { key: { storeId: 1, createdAt: 1 } }],
+  webhook_deliveries: [
+    byId,
+    { key: { status: 1, nextAttemptAt: 1 } },
+    { key: { storeId: 1, endpointId: 1, createdAt: -1 } },
+    // The log is kept for 30 days.
+    { key: { expiresAt: 1 }, expireAfterSeconds: 0 },
+  ],
+  job_leases: [byId],
 };
 
 /** The minimal slice of a driver `Db` this needs, so the script can pass its own. */

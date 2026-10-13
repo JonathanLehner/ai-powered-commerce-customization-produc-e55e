@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { StoreNav } from "@/components/StoreNav";
 import { Badge } from "@/components/ui";
 import { accessibleStores, requireStoreAccess, roleCan, type Capability } from "@/lib/session";
+import { kickScheduler } from "@/lib/scheduler";
 
 
 export default async function StoreLayout({
@@ -15,6 +16,7 @@ export default async function StoreLayout({
 }) {
   const { storeId } = await params;
   const { user, store, role, viaPlatform } = await requireStoreAccess(storeId);
+  kickScheduler();
   const [stores, t, roles] = await Promise.all([
     accessibleStores(user),
     getTranslations("shell"),

@@ -5,7 +5,7 @@ import { emailCopy, shopperLocale } from "@/i18n/storefront";
 import { storeLinkBase } from "@/lib/seo";
 import { BULK_STATUSES, moveBlock, parseOrderIds, routeBlock, shipBlock, type BulkBlock, type BulkStatus } from "../bulk-orders";
 import { refreshCustomers } from "../customer-data";
-import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder } from "../data";
+import { getOrder, getStoreOrders, getSupplier, recordAudit, updateOrder, updateStore } from "../data";
 import { refundSimulated, type RefundResult } from "../demo-payment";
 import { sendEmail, siteOrigin } from "../email";
 import { brandFor, shippingNotificationEmail } from "../email-templates";
@@ -13,7 +13,32 @@ import { routeOrder, submitToSupplier, trackingNumberFor, type RoutingDecision }
 import { releaseOrderStock, restockOrder } from "../inventory";
 import { orderStatusUrl, signOrderToken } from "../order-access";
 import { refundOnConnectedAccount } from "../stripe";
-import { canMoveOrder, type FulfillmentEvent, type Order, type OrderStatus, type Store } from "../types";
+import { giftCardLineIds } from "../gift-card-data";
+import {
+  MAX_NOTE_LENGTH,
+  MAX_TAGS,
+  canEditAddress,
+  canShip,
+  normaliseTags,
+  planShipment,
+  RECOVERY_DELAY_MAX,
+  RECOVERY_DELAY_MIN,
+  readAddress,
+  readDelayHours,
+  recoverySettings,
+  remainingQuantities,
+  type AddressInput,
+} from "../order-ops";
+import { emitOrderWebhook } from "../webhook-events";
+import {
+  canMoveOrder,
+  type CheckoutRecoverySettings,
+  type FulfillmentEvent,
+  type Order,
+  type OrderShipment,
+  type OrderStatus,
+  type Store,
+} from "../types";
 import { CARRIER_LABELS, TRACKING_URLS, formatMoney, newId } from "../util";
 import { OperationError, isOperationError, type OperationContext } from "./context";
 
@@ -43,51 +68,98 @@ export function revalidateOrder(storeId: string, orderId: string) {
 
 /* ---------------------------------------------------------------- shipping */
 
+export interface ShipmentInput {
+  carrier: Carrier;
+  /** Blank uses the carrier's own number. */
+  trackingNumber: string;
+  /** The units in this parcel; null ships everything still to ship. */
+  lines: { itemId: string; quantity: number }[] | null;
+}
+
 /**
- * Hands one order to the carrier: records the tracking, the audit entry and
- * the shopper's shipping email. With no tracking number given, the carrier's
- * own is used.
+ * Hands a parcel to the carrier: some or all of the units still to ship, with
+ * its carrier and tracking. Records the shipment, the audit entry and the
+ * shopper's shipping email. The order moves to shipped once nothing is left;
+ * a parcel holding only part of it leaves the status as it was.
  */
-export async function shipOrder(
+export async function fulfilOrder(
   ctx: OperationContext,
   order: Order,
-  carrier: Carrier,
-  entered: string,
-): Promise<{ trackingNumber: string; trackingUrl: string }> {
+  input: ShipmentInput,
+): Promise<{ shipment: OrderShipment; complete: boolean }> {
   const { store, actor } = ctx;
+  const { carrier } = input;
   const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
   if (!CARRIERS.includes(carrier)) throw new OperationError("invalid", t("chooseCarrier"), "carrier");
   const enabled = store.carriers.find((c) => c.carrier === carrier && c.enabled);
   if (!enabled) {
     throw new OperationError("invalid", t("carrierDisabled", { carrier: CARRIER_LABELS[carrier] }), "carrier");
   }
-  const trackingNumber = entered.trim() || trackingNumberFor(carrier, order.code);
+  const trackingNumber = input.trackingNumber.trim() || trackingNumberFor(carrier, order.code);
   if (trackingNumber.length < 6) {
     throw new OperationError("invalid", t("trackingTooShort"), "trackingNumber");
+  }
+  if (!canShip(order)) throw new OperationError("conflict", t("notShippable"));
+
+  // Gift cards go out by email, so there is nothing of them to put in a parcel.
+  const giftLines = await giftCardLineIds(order);
+  const plan = planShipment(order, input.lines, giftLines);
+  if (!plan.ok) {
+    const item = order.items.find((i) => i.id === plan.itemId);
+    throw new OperationError(
+      plan.problem === "nothingLeft" ? "conflict" : "invalid",
+      t(`shipment.${plan.problem}`, { item: item?.productName ?? "" }),
+      plan.itemId ? `quantity_${plan.itemId}` : "lines",
+    );
   }
 
   const storeId = store.id;
   const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
-  await updateOrder(order.id, {
-    status: "shipped",
-    fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
-    events: [
-      ...order.events,
-      orderEvent("Shipped", `Handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`, actor.name),
-    ],
-  });
+  const shipment: OrderShipment = {
+    id: newId("shp"),
+    carrier,
+    trackingNumber,
+    trackingUrl,
+    lines: plan.lines,
+    at: new Date().toISOString(),
+    actor: actor.name,
+  };
+  const units = plan.lines.reduce((sum, line) => sum + line.quantity, 0);
+  const written = await updateOrder(
+    order.id,
+    {
+      status: plan.complete ? "shipped" : order.status,
+      shipments: [...(order.shipments ?? []), shipment],
+      fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
+      events: [
+        ...order.events,
+        orderEvent(
+          plan.complete ? "Shipped" : "Partially shipped",
+          plan.complete && !order.shipments?.length
+            ? `Handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`
+            : `${units} ${units === 1 ? "unit" : "units"} handed to ${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`,
+          actor.name,
+        ),
+      ],
+    },
+    // Two parcels recorded at once must not both take the same units.
+    { updatedAt: order.updatedAt },
+  );
+  if (!written) throw new OperationError("conflict", t("orderChanged"));
+
   recordAudit({
     category: "order_routing",
-    action: "order.shipped",
-    summary: `${order.code} shipped with ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
+    action: plan.complete ? "order.shipped" : "order.partially_shipped",
+    summary: `${order.code} ${plan.complete ? "shipped" : `partly shipped (${units} ${units === 1 ? "unit" : "units"})`} with ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
     storeId,
     agencyId: store.agencyId,
     actorId: actor.id,
     actorName: actor.name,
     entity: "order",
     entityId: order.code,
-    meta: { carrier, trackingNumber },
+    meta: { carrier, trackingNumber, units, complete: plan.complete },
   });
+  if (plan.complete) emitOrderWebhook(storeId, order.id, "order.fulfilled");
 
   // The shopper is told their parcel is moving; a mail provider that is down
   // leaves the shipment recorded and the attempt in the store's activity.
@@ -96,6 +168,7 @@ export async function shipOrder(
     // Written in the language the shopper checked out in, if the store still offers it.
     const locale = shopperLocale(store, order.locale ?? "");
     const base = storeLinkBase(store, locale, origin);
+    const partial = !plan.complete || (order.shipments?.length ?? 0) > 0;
     sendEmail({
       to: order.customer.email,
       message: shippingNotificationEmail(brandFor(store), await emailCopy(locale), {
@@ -105,6 +178,12 @@ export async function shipOrder(
         trackingNumber,
         trackingUrl,
         statusUrl: orderStatusUrl(base, order.code, await signOrderToken(storeId, order.code)),
+        partialItems: partial
+          ? plan.lines.map((line) => ({
+              name: order.items.find((item) => item.id === line.itemId)?.productName ?? "",
+              quantity: line.quantity,
+            }))
+          : null,
       }),
       kind: "shipping notification",
       storeId,
@@ -117,7 +196,156 @@ export async function shipOrder(
   }
 
   revalidateOrder(storeId, order.id);
+  return { shipment, complete: plan.complete };
+}
+
+/**
+ * Ships everything still to ship in one parcel. On an order already shipped in
+ * full, the tracking of its last parcel is corrected instead, without emailing
+ * the shopper again.
+ */
+export async function shipOrder(
+  ctx: OperationContext,
+  order: Order,
+  carrier: Carrier,
+  entered: string,
+): Promise<{ trackingNumber: string; trackingUrl: string }> {
+  const giftLines = await giftCardLineIds(order);
+  if (remainingQuantities(order, giftLines).size > 0 || order.status !== "shipped") {
+    const { shipment } = await fulfilOrder(ctx, order, { carrier, trackingNumber: entered, lines: null });
+    return { trackingNumber: shipment.trackingNumber, trackingUrl: shipment.trackingUrl };
+  }
+  return retrackOrder(ctx, order, carrier, entered);
+}
+
+async function retrackOrder(
+  ctx: OperationContext,
+  order: Order,
+  carrier: Carrier,
+  entered: string,
+): Promise<{ trackingNumber: string; trackingUrl: string }> {
+  const { store, actor } = ctx;
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  if (!CARRIERS.includes(carrier)) throw new OperationError("invalid", t("chooseCarrier"), "carrier");
+  if (!store.carriers.some((c) => c.carrier === carrier && c.enabled)) {
+    throw new OperationError("invalid", t("carrierDisabled", { carrier: CARRIER_LABELS[carrier] }), "carrier");
+  }
+  const trackingNumber = entered.trim() || trackingNumberFor(carrier, order.code);
+  if (trackingNumber.length < 6) throw new OperationError("invalid", t("trackingTooShort"), "trackingNumber");
+  const trackingUrl = TRACKING_URLS[carrier](trackingNumber);
+  const shipments = order.shipments?.length
+    ? order.shipments.map((shipment, index, all) =>
+        index === all.length - 1 ? { ...shipment, carrier, trackingNumber, trackingUrl } : shipment,
+      )
+    : order.shipments;
+  await updateOrder(order.id, {
+    fulfillment: { ...order.fulfillment, carrier, trackingNumber, trackingUrl },
+    ...(shipments ? { shipments } : {}),
+    events: [
+      ...order.events,
+      orderEvent("Tracking updated", `${CARRIER_LABELS[carrier]}, tracking ${trackingNumber}.`, actor.name),
+    ],
+  });
+  recordAudit({
+    category: "order_routing",
+    action: "order.tracking_updated",
+    summary: `Updated tracking on ${order.code} to ${CARRIER_LABELS[carrier]} (${trackingNumber})`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: { carrier, trackingNumber },
+  });
+  revalidateOrder(store.id, order.id);
   return { trackingNumber, trackingUrl };
+}
+
+/* ---------------------------------------------------------- notes and tags */
+
+/** Saves the team's note and tags on the order. Neither is shown to the shopper. */
+export async function saveOrderNotes(
+  ctx: OperationContext,
+  order: Order,
+  input: { note?: string; tags?: unknown },
+): Promise<Order> {
+  const { store, actor } = ctx;
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  const note = input.note === undefined ? (order.note ?? "") : input.note.trim();
+  if (note.length > MAX_NOTE_LENGTH) throw new OperationError("invalid", t("noteTooLong", { max: MAX_NOTE_LENGTH }), "note");
+  const tags = input.tags === undefined ? (order.tags ?? []) : normaliseTags(input.tags);
+  if (tags.length > MAX_TAGS) throw new OperationError("invalid", t("tooManyTags", { max: MAX_TAGS }), "tags");
+
+  const noteChanged = note !== (order.note ?? "");
+  const tagsChanged = tags.join("\n") !== (order.tags ?? []).join("\n");
+  if (!noteChanged && !tagsChanged) return order;
+  await updateOrder(order.id, { note, tags });
+  recordAudit({
+    category: "order_routing",
+    action: "order.notes_updated",
+    summary: `Updated the ${[noteChanged ? "note" : null, tagsChanged ? "tags" : null].filter(Boolean).join(" and ")} on ${order.code}`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: { tags: tags.join(", ") },
+  });
+  revalidateOrder(store.id, order.id);
+  return { ...order, note, tags };
+}
+
+/* -------------------------------------------------------- shipping address */
+
+/**
+ * Corrects where the order goes. Only before anything has shipped: the
+ * supplier and the carrier work from the address on the order.
+ */
+export async function updateShippingAddress(
+  ctx: OperationContext,
+  order: Order,
+  input: Partial<Record<keyof AddressInput, unknown>>,
+): Promise<Order> {
+  const { store, actor } = ctx;
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  if (!canEditAddress(order)) throw new OperationError("conflict", t("addressLocked"));
+  const read = readAddress(input);
+  if (!read.ok) throw new OperationError("invalid", t(`address.${read.field}`), read.field);
+
+  const { email, anonymisedAt } = order.customer;
+  const customer: Order["customer"] = { ...read.address, email, ...(anonymisedAt ? { anonymisedAt } : {}) };
+  const before = order.customer;
+  const changed = (["name", "line1", "line2", "city", "region", "postalCode", "country", "phone"] as const).filter(
+    (key) => (before[key] ?? "") !== (customer[key] ?? ""),
+  );
+  if (changed.length === 0) return order;
+
+  const written = await updateOrder(
+    order.id,
+    {
+      customer,
+      events: [...order.events, orderEvent("Shipping address updated", `Changed ${changed.join(", ")}.`, actor.name)],
+    },
+    { updatedAt: order.updatedAt },
+  );
+  if (!written) throw new OperationError("conflict", t("orderChanged"));
+  recordAudit({
+    category: "order_routing",
+    action: "order.address_updated",
+    summary: `Updated the shipping address on ${order.code}`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "order",
+    entityId: order.code,
+    meta: { fields: changed.join(",") },
+  });
+  refreshCustomers(store, [email]);
+  revalidateOrder(store.id, order.id);
+  return { ...order, customer };
 }
 
 /* ---------------------------------------------------------------- statuses */
@@ -158,9 +386,54 @@ export async function moveOrder(ctx: OperationContext, order: Order, status: Ord
     entityId: order.code,
     meta: { status },
   });
-  if (status === "cancelled") refreshCustomers(store, [order.customer.email]);
+  if (status === "cancelled") {
+    refreshCustomers(store, [order.customer.email]);
+    emitOrderWebhook(store.id, order.id, "order.cancelled");
+  }
   revalidateOrder(store.id, order.id);
   return true;
+}
+
+/* ----------------------------------------------------- abandoned checkouts */
+
+/**
+ * Turns the abandoned checkout email on or off and sets how long after the
+ * checkout expired it goes. Turning it on starts from now: checkouts
+ * abandoned before are never emailed.
+ */
+export async function saveCheckoutRecovery(
+  ctx: OperationContext,
+  input: { enabled: boolean; delayHours: unknown },
+): Promise<CheckoutRecoverySettings> {
+  const { store, actor } = ctx;
+  const t = await getTranslations({ locale: ctx.locale, namespace: "actions.orders" });
+  const delayHours = readDelayHours(input.delayHours);
+  if (delayHours === null) {
+    throw new OperationError("invalid", t("recoveryDelay", { min: RECOVERY_DELAY_MIN, max: RECOVERY_DELAY_MAX }), "delayHours");
+  }
+  const current = recoverySettings(store);
+  const settings: CheckoutRecoverySettings = {
+    enabled: input.enabled,
+    delayHours,
+    enabledAt: input.enabled ? (current.enabled && current.enabledAt ? current.enabledAt : new Date().toISOString()) : null,
+  };
+  await updateStore(store.id, { checkoutRecovery: settings });
+  recordAudit({
+    category: "store_setup",
+    action: "store.checkout_recovery",
+    summary: input.enabled
+      ? `Turned on abandoned checkout emails, sent ${delayHours} ${delayHours === 1 ? "hour" : "hours"} after checkout`
+      : "Turned off abandoned checkout emails",
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "store",
+    entityId: store.id,
+    meta: { enabled: input.enabled, delayHours },
+  });
+  revalidatePath(`/app/stores/${store.id}/orders/abandoned`);
+  return settings;
 }
 
 /* ----------------------------------------------------------------- refunds */
@@ -296,6 +569,7 @@ export async function refundOrder(
     },
   });
   refreshCustomers(store, [order.customer.email]);
+  emitOrderWebhook(store.id, order.id, "order.refunded", ...(input.cancel && order.status !== "cancelled" ? (["order.cancelled"] as const) : []));
   revalidateOrder(store.id, order.id);
   return { order: { ...order, ...patch }, amount, refundId: gateway.refundId, restocked };
 }

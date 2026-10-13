@@ -9,6 +9,7 @@ import { baseStoreSku } from "../sku";
 import type { GiftCard, StoreProduct, StoreVariant } from "../types";
 import { formatMoney, newId } from "../util";
 import { OperationError, type OperationContext } from "./context";
+import { emitProductWebhook } from "../webhook-events";
 
 /**
  * Gift cards issued by hand, their status, and the gift card product a store
@@ -218,6 +219,7 @@ export async function saveGiftCardProduct(ctx: OperationContext, input: GiftCard
       updatedAt: now,
     };
     await db.updateOne(COLLECTIONS.storeProducts, { storeId: ctx.store.id, id: existing.id }, { $set: patch });
+    emitProductWebhook(ctx.store.id, existing.id, "product.updated");
     audit(ctx, "gift_card.product_saved", `Saved the gift card product “${name}”`, existing.id);
     revalidateGiftCards(ctx);
     revalidatePath(`/s/${ctx.store.slug}`, "layout");
@@ -278,6 +280,7 @@ export async function saveGiftCardProduct(ctx: OperationContext, input: GiftCard
     publishedAt: input.published ? now : null,
   };
   await db.insertOne(COLLECTIONS.storeProducts, product as unknown as Record<string, unknown>);
+  emitProductWebhook(ctx.store.id, product.id, "product.created");
   audit(ctx, "gift_card.product_created", `Created the gift card product “${name}”`, product.id);
   revalidateGiftCards(ctx);
   revalidatePath(`/app/stores/${ctx.store.id}/catalog`);
