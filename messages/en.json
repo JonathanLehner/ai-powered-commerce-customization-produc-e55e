@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# live store} other {# live stores}}, no limit",
     "usageLimited": "{used} of {limit} live stores"
   },
+  "emailSetup": {
+    "title": "Shopper emails are not being sent",
+    "body": "Order confirmation, production, shipping, delivery and cancellation emails will not go out until an email provider is configured.",
+    "missing": "Missing settings:"
+  },
   "overview": {
     "deniedPlatform": "That page is not available with platform access.",
     "denied": "You do not have permission to view that page.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Thank you, your order is confirmed",
       "confirmedBody": "A confirmation email is on its way. Bookmark this page to track your order.",
       "confirmedFindAgain": "You can also look it up with order code {code} and {email}.",
+      "noEmailTitle": "Save your order link",
+      "noEmailBody": "We can't send email updates for this order. Bookmark this page to track it.",
+      "noEmailFindAgain": "To find it again, open {page} and enter order code {code} and {email}.",
       "heading": "Order {code}",
       "placed": "Placed {when}",
       "trackWith": "Track with {carrier} ↗",

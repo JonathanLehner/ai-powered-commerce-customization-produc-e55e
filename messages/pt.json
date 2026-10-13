@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# loja ativa} other {# lojas ativas}}, sem limite",
     "usageLimited": "{used} de {limit} lojas ativas"
   },
+  "emailSetup": {
+    "title": "Os emails para clientes não estão a ser enviados",
+    "body": "Os emails de confirmação, produção, envio, entrega e cancelamento de encomendas só serão enviados quando for configurado um fornecedor de email.",
+    "missing": "Definições em falta:"
+  },
   "overview": {
     "deniedPlatform": "Essa página não está disponível com acesso de plataforma.",
     "denied": "Não tem permissão para ver essa página.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Obrigado, a sua encomenda está confirmada",
       "confirmedBody": "Enviámos um email de confirmação. Guarde esta página para acompanhar a encomenda.",
       "confirmedFindAgain": "Também a pode encontrar com o código {code} e {email}.",
+      "noEmailTitle": "Guarde o link da encomenda",
+      "noEmailBody": "Não conseguimos enviar atualizações por email para esta encomenda. Adicione esta página aos favoritos para a acompanhar.",
+      "noEmailFindAgain": "Para a encontrar novamente, abra {page} e introduza o código {code} e {email}.",
       "heading": "Encomenda {code}",
       "placed": "Efetuada a {when}",
       "trackWith": "Seguir com {carrier} ↗",

@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# live winkel} other {# live winkels}}, geen limiet",
     "usageLimited": "{used} van {limit} live winkels"
   },
+  "emailSetup": {
+    "title": "E-mails naar klanten worden niet verstuurd",
+    "body": "E-mails voor orderbevestiging, productie, verzending, levering en annulering worden pas verstuurd als er een e-mailprovider is ingesteld.",
+    "missing": "Ontbrekende instellingen:"
+  },
   "overview": {
     "deniedPlatform": "Die pagina is niet beschikbaar met platformtoegang.",
     "denied": "Je hebt geen toestemming om die pagina te bekijken.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Bedankt, je bestelling is bevestigd",
       "confirmedBody": "Er is een bevestigingsmail onderweg. Bewaar deze pagina om je bestelling te volgen.",
       "confirmedFindAgain": "Je kunt hem ook terugvinden met bestelcode {code} en {email}.",
+      "noEmailTitle": "Bewaar de link naar je bestelling",
+      "noEmailBody": "We kunnen geen e-mailupdates sturen voor deze bestelling. Zet deze pagina in je bladwijzers om hem te volgen.",
+      "noEmailFindAgain": "Om hem terug te vinden, open {page} en vul bestelcode {code} en {email} in.",
       "heading": "Bestelling {code}",
       "placed": "Geplaatst op {when}",
       "trackWith": "Volgen met {carrier} ↗",

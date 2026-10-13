@@ -1011,6 +1011,11 @@
     "usageUnlimited": "公開ストア {used, plural, other {# 件}}・上限なし",
     "usageLimited": "公開ストア {used} / {limit} 件"
   },
+  "emailSetup": {
+    "title": "お客様へのメールが送信されていません",
+    "body": "メールプロバイダーが設定されるまで、注文確認・制作・発送・配達・キャンセルのメールは送信されません。",
+    "missing": "未設定の項目:"
+  },
   "overview": {
     "deniedPlatform": "プラットフォームアクセスではこのページを表示できません。",
     "denied": "このページを表示する権限がありません。",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "ありがとうございます。ご注文が確定しました",
       "confirmedBody": "確認メールをお送りしました。このページをブックマークすると注文状況を確認できます。",
       "confirmedFindAgain": "注文コード {code} と {email} でも確認できます。",
+      "noEmailTitle": "注文リンクを保存してください",
+      "noEmailBody": "この注文に関する最新情報をメールでお送りできません。このページをブックマークして注文状況をご確認ください。",
+      "noEmailFindAgain": "再度確認するには、{page} を開き、注文コード {code} と {email} を入力してください。",
       "heading": "注文 {code}",
       "placed": "注文日時：{when}",
       "trackWith": "{carrier} で追跡する ↗",

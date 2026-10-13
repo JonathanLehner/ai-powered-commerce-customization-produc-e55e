@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# Live-Shop} other {# Live-Shops}}, kein Limit",
     "usageLimited": "{used} von {limit} Live-Shops"
   },
+  "emailSetup": {
+    "title": "Kunden-E-Mails werden nicht versendet",
+    "body": "Bestellbestätigungen sowie E-Mails zu Produktion, Versand, Zustellung und Stornierung werden erst versendet, wenn ein E-Mail-Anbieter eingerichtet ist.",
+    "missing": "Fehlende Einstellungen:"
+  },
   "overview": {
     "deniedPlatform": "Diese Seite ist mit Plattformzugriff nicht verfügbar.",
     "denied": "Sie haben keine Berechtigung für diese Seite.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Vielen Dank, Ihre Bestellung ist bestätigt",
       "confirmedBody": "Eine Bestätigung ist per E-Mail unterwegs. Speichern Sie diese Seite, um Ihre Bestellung zu verfolgen.",
       "confirmedFindAgain": "Sie finden sie auch mit dem Bestellcode {code} und {email}.",
+      "noEmailTitle": "Bestelllink speichern",
+      "noEmailBody": "Für diese Bestellung können wir keine E-Mail-Updates senden. Speichern Sie diese Seite als Lesezeichen, um sie zu verfolgen.",
+      "noEmailFindAgain": "Um sie wiederzufinden, öffnen Sie {page} und geben Sie den Bestellcode {code} und {email} ein.",
       "heading": "Bestellung {code}",
       "placed": "Aufgegeben am {when}",
       "trackWith": "Mit {carrier} verfolgen ↗",

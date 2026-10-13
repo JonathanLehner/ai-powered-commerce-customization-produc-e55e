@@ -83,6 +83,16 @@ export function emailConfigured(): boolean {
   return provider() !== null;
 }
 
+/** The email settings that are missing or not usable, empty once emails can go out. */
+export function missingEmailSettings(): string[] {
+  const name = (process.env.EMAIL_PROVIDER ?? "").trim().toLowerCase();
+  return [
+    ...(name === "clawcorp" || name === "resend" ? [] : ["EMAIL_PROVIDER"]),
+    ...((process.env.EMAIL_API_KEY ?? "").trim() ? [] : ["EMAIL_API_KEY"]),
+    ...((process.env.EMAIL_FROM ?? "").trim() ? [] : ["EMAIL_FROM"]),
+  ];
+}
+
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /**

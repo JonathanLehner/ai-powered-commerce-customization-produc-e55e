@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
+import { EmailSetupWarning } from "@/components/EmailSetupWarning";
 import { Badge, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,6 +65,8 @@ export default async function AdminOverviewPage({ searchParams }: { searchParams
         title={pages("overviewTitle")}
         description={pages("overviewDescription")}
       />
+
+      <EmailSetupWarning />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

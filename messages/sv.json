@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# publicerad butik} other {# publicerade butiker}}, ingen gräns",
     "usageLimited": "{used} av {limit} publicerade butiker"
   },
+  "emailSetup": {
+    "title": "E-post till kunder skickas inte",
+    "body": "Orderbekräftelser och mejl om produktion, leverans, utdelning och avbokning skickas inte förrän en e-postleverantör har konfigurerats.",
+    "missing": "Inställningar som saknas:"
+  },
   "overview": {
     "deniedPlatform": "Sidan är inte tillgänglig med plattformsåtkomst.",
     "denied": "Du har inte behörighet att visa sidan.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Tack, din order är bekräftad",
       "confirmedBody": "En bekräftelse är på väg till din e-post. Spara sidan för att följa din order.",
       "confirmedFindAgain": "Du kan också hitta den med orderkod {code} och {email}.",
+      "noEmailTitle": "Spara länken till din order",
+      "noEmailBody": "Vi kan inte skicka uppdateringar via e-post för den här ordern. Bokmärk sidan för att följa den.",
+      "noEmailFindAgain": "För att hitta den igen, öppna {page} och ange orderkod {code} och {email}.",
       "heading": "Order {code}",
       "placed": "Lagd {when}",
       "trackWith": "Spåra med {carrier} ↗",

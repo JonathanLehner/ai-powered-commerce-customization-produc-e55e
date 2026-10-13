@@ -10,6 +10,7 @@ import type { ShopperMessages } from "@/i18n/shopper-copy";
 import { shopperIntl, shopperLocale, shopperTranslator } from "@/i18n/storefront";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
 import { getOrderByCode } from "@/lib/data";
+import { emailConfigured } from "@/lib/email";
 import { storefrontBySlug } from "@/lib/storefront-data";
 import { orderInvoiceUrl, verifyOrderToken } from "@/lib/order-access";
 import { shopperTimeline } from "@/lib/order-timeline";
@@ -132,6 +133,13 @@ export default async function OrderStatusPage({
   // it lands the page says the payment is being confirmed.
   const processing = Boolean(paid) && order.status === "awaiting_payment";
   const confirmed = isNew || (Boolean(paid) && order.payment.status === "succeeded");
+  // Without email the link is the only way back, so the shopper is told to keep it.
+  const emailing = emailConfigured();
+  const findAgain = t("order.noEmailFindAgain", {
+    page: t("chrome.orderStatus"),
+    code: order.code,
+    email: order.customer.email,
+  });
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
@@ -145,15 +153,24 @@ export default async function OrderStatusPage({
       ) : null}
       {confirmed ? (
         <Callout tone="green" title={t("order.confirmedTitle")}>
-          <p>{t("order.confirmedBody")}</p>
+          <p>{emailing ? t("order.confirmedBody") : t("order.noEmailBody")}</p>
           <p className="mt-1">
-            {t("order.confirmedFindAgain", {
-              code: order.code,
-              email: order.customer.email,
-            })}
+            {emailing
+              ? t("order.confirmedFindAgain", {
+                  code: order.code,
+                  email: order.customer.email,
+                })
+              : findAgain}
           </p>
         </Callout>
-      ) : null}
+      ) : emailing ? null : (
+        <div className={processing ? "mt-3" : undefined}>
+          <Callout tone="neutral" title={t("order.noEmailTitle")}>
+            <p>{t("order.noEmailBody")}</p>
+            <p className="mt-1">{findAgain}</p>
+          </Callout>
+        </div>
+      )}
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
         <div>

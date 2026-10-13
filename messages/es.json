@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# tienda activa} other {# tiendas activas}}, sin límite",
     "usageLimited": "{used} de {limit} tiendas activas"
   },
+  "emailSetup": {
+    "title": "Los correos a clientes no se están enviando",
+    "body": "Los correos de confirmación, producción, envío, entrega y cancelación de pedidos no se enviarán hasta que se configure un proveedor de correo.",
+    "missing": "Ajustes que faltan:"
+  },
   "overview": {
     "deniedPlatform": "Esa página no está disponible con acceso de plataforma.",
     "denied": "No tienes permiso para ver esa página.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Gracias, tu pedido está confirmado",
       "confirmedBody": "Te hemos enviado un correo de confirmación. Guarda esta página para seguir tu pedido.",
       "confirmedFindAgain": "También puedes encontrarlo con el código {code} y {email}.",
+      "noEmailTitle": "Guarda el enlace de tu pedido",
+      "noEmailBody": "No podemos enviarte actualizaciones por correo sobre este pedido. Guarda esta página en marcadores para seguirlo.",
+      "noEmailFindAgain": "Para encontrarlo de nuevo, abre {page} e introduce el código {code} y {email}.",
       "heading": "Pedido {code}",
       "placed": "Realizado el {when}",
       "trackWith": "Seguir con {carrier} ↗",

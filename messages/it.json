@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# negozio attivo} other {# negozi attivi}}, nessun limite",
     "usageLimited": "{used} di {limit} negozi attivi"
   },
+  "emailSetup": {
+    "title": "Le email ai clienti non vengono inviate",
+    "body": "Le email di conferma, produzione, spedizione, consegna e annullamento degli ordini non verranno inviate finché non è configurato un provider email.",
+    "missing": "Impostazioni mancanti:"
+  },
   "overview": {
     "deniedPlatform": "Questa pagina non è disponibile con l’accesso di piattaforma.",
     "denied": "Non hai l’autorizzazione per vedere questa pagina.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Grazie, il tuo ordine è confermato",
       "confirmedBody": "Ti abbiamo inviato un’email di conferma. Salva questa pagina per seguire l’ordine.",
       "confirmedFindAgain": "Puoi ritrovarlo anche con il codice {code} e {email}.",
+      "noEmailTitle": "Salva il link dell’ordine",
+      "noEmailBody": "Non possiamo inviarti aggiornamenti via email per questo ordine. Aggiungi questa pagina ai preferiti per seguirlo.",
+      "noEmailFindAgain": "Per ritrovarlo, apri {page} e inserisci il codice {code} e {email}.",
       "heading": "Ordine {code}",
       "placed": "Effettuato il {when}",
       "trackWith": "Traccia con {carrier} ↗",

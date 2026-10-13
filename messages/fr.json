@@ -1011,6 +1011,11 @@
     "usageUnlimited": "{used, plural, one {# boutique en ligne} other {# boutiques en ligne}}, sans limite",
     "usageLimited": "{used} boutiques en ligne sur {limit}"
   },
+  "emailSetup": {
+    "title": "Les e-mails clients ne sont pas envoyés",
+    "body": "Les e-mails de confirmation, de production, d’expédition, de livraison et d’annulation des commandes ne seront pas envoyés tant qu’aucun fournisseur d’e-mail n’est configuré.",
+    "missing": "Paramètres manquants :"
+  },
   "overview": {
     "deniedPlatform": "Cette page n’est pas disponible avec l’accès plateforme.",
     "denied": "Vous n’avez pas l’autorisation d’afficher cette page.",
@@ -3716,6 +3721,9 @@
       "confirmedTitle": "Merci, votre commande est confirmée",
       "confirmedBody": "Un e-mail de confirmation est en route. Ajoutez cette page à vos favoris pour suivre votre commande.",
       "confirmedFindAgain": "Vous pouvez aussi la retrouver avec le code {code} et l’adresse {email}.",
+      "noEmailTitle": "Enregistrez le lien de votre commande",
+      "noEmailBody": "Nous ne pouvons pas vous envoyer de suivi par e-mail pour cette commande. Ajoutez cette page à vos favoris pour la suivre.",
+      "noEmailFindAgain": "Pour la retrouver, ouvrez {page} et saisissez le code {code} et l’adresse {email}.",
       "heading": "Commande {code}",
       "placed": "Passée le {when}",
       "trackWith": "Suivre avec {carrier} ↗",
