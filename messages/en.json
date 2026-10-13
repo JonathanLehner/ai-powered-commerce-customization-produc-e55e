@@ -1615,6 +1615,17 @@
     "progress": "Setup progress: {done} of {total} steps",
     "complete": "Setup complete",
     "startSelling": "Connect payments and a carrier to start selling.",
+    "connectPayments": "Connect payments to start selling.",
+    "addCarrier": "Add a shipping carrier to start selling.",
+    "canSell": "Your store can already sell.",
+    "stillToFinish": "Still to finish: {steps}.",
+    "nextStep": {
+      "branding": "Add a logo and theme to brand your storefront.",
+      "localisation": "Choose languages and currencies for your shoppers.",
+      "support": "Add support contacts so shoppers can reach you.",
+      "domain": "Add a custom domain to use your own address.",
+      "tax": "Set up tax to charge the right rates."
+    },
     "storeDetails": "Store details",
     "storeAddress": "Store address:",
     "saveName": "Save name",

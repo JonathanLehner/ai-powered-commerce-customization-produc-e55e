@@ -11,7 +11,7 @@ import {
   supportMailto,
   supportTel,
 } from "../src/lib/support.ts";
-import { setupProgress } from "../src/lib/metrics.ts";
+import { setupProgress, setupRemaining } from "../src/lib/metrics.ts";
 import { SETUP_STEPS } from "../src/lib/types.ts";
 
 /* ------------------------------------------------------ reading the record */
@@ -72,5 +72,13 @@ const progress = setupProgress(legacy);
 assert.equal(progress.total, 7);
 assert.equal(progress.done, 6);
 assert.ok(progress.pct < 100, "a store with no support contact is not finished");
+
+// Northwind: payments and carriers are done, only the domain is left. Nothing
+// blocks selling, so the settings page must not ask for payments or a carrier.
+const northwind = { ...complete, domain: false };
+assert.deepEqual(setupRemaining(northwind), { toSell: [], optional: ["domain"] });
+assert.deepEqual(setupRemaining({ ...complete, shipping: false, domain: false }), { toSell: ["shipping"], optional: ["domain"] });
+assert.deepEqual(setupRemaining({}).toSell, ["payments", "shipping"]);
+assert.deepEqual(setupRemaining(complete), { toSell: [], optional: [] });
 
 console.log("support-check ok");

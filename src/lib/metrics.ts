@@ -92,3 +92,18 @@ export function setupProgress(setup: Partial<StoreSetupState>): { done: number; 
   const done = SETUP_STEPS.filter((step) => setup[step]).length;
   return { done, total: SETUP_STEPS.length, pct: (done / SETUP_STEPS.length) * 100 };
 }
+
+/** The steps a store cannot take orders without. The rest are optional. */
+export const SELLING_STEPS = ["payments", "shipping"] as const;
+
+type SellingStep = (typeof SELLING_STEPS)[number];
+const isSellingStep = (step: string): step is SellingStep => (SELLING_STEPS as readonly string[]).includes(step);
+
+/** Unfinished steps, split into what blocks selling and what is optional. */
+export function setupRemaining(setup: Partial<StoreSetupState>) {
+  const missing = SETUP_STEPS.filter((step) => !setup[step]);
+  return {
+    toSell: missing.filter(isSellingStep),
+    optional: missing.filter((step): step is Exclude<typeof step, SellingStep> => !isSellingStep(step)),
+  };
+}

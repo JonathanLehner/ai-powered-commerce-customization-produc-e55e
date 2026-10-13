@@ -1615,6 +1615,17 @@
     "progress": "Voortgang: {done} van {total} stappen",
     "complete": "Inrichting voltooid",
     "startSelling": "Koppel betalingen en een vervoerder om te gaan verkopen.",
+    "connectPayments": "Koppel betalingen om te gaan verkopen.",
+    "addCarrier": "Voeg een vervoerder toe om te gaan verkopen.",
+    "canSell": "Je winkel kan al verkopen.",
+    "stillToFinish": "Nog te doen: {steps}.",
+    "nextStep": {
+      "branding": "Voeg een logo en thema toe om je winkel vorm te geven.",
+      "localisation": "Kies talen en valuta voor je klanten.",
+      "support": "Voeg supportcontacten toe zodat klanten je kunnen bereiken.",
+      "domain": "Voeg een eigen domein toe om je eigen adres te gebruiken.",
+      "tax": "Stel belastingen in om de juiste tarieven te rekenen."
+    },
     "storeDetails": "Winkelgegevens",
     "storeAddress": "Winkeladres:",
     "saveName": "Naam opslaan",

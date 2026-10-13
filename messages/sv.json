@@ -1615,6 +1615,17 @@
     "progress": "Förlopp: {done} av {total} steg",
     "complete": "Inställningen är klar",
     "startSelling": "Anslut betalningar och ett fraktbolag för att börja sälja.",
+    "connectPayments": "Anslut betalningar för att börja sälja.",
+    "addCarrier": "Lägg till ett fraktbolag för att börja sälja.",
+    "canSell": "Din butik kan redan sälja.",
+    "stillToFinish": "Kvar att göra: {steps}.",
+    "nextStep": {
+      "branding": "Lägg till logotyp och tema för att ge butiken din profil.",
+      "localisation": "Välj språk och valutor för dina kunder.",
+      "support": "Lägg till supportkontakter så att kunder kan nå dig.",
+      "domain": "Lägg till en egen domän för att använda din egen adress.",
+      "tax": "Ställ in moms för att ta ut rätt satser."
+    },
     "storeDetails": "Butiksuppgifter",
     "storeAddress": "Butiksadress:",
     "saveName": "Spara namn",

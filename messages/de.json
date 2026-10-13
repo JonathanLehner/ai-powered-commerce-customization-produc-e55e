@@ -1615,6 +1615,17 @@
     "progress": "Fortschritt: {done} von {total} Schritten",
     "complete": "Einrichtung abgeschlossen",
     "startSelling": "Verbinden Sie Zahlungen und einen Versanddienstleister, um mit dem Verkauf zu beginnen.",
+    "connectPayments": "Verbinden Sie Zahlungen, um mit dem Verkauf zu beginnen.",
+    "addCarrier": "Fügen Sie einen Versanddienstleister hinzu, um mit dem Verkauf zu beginnen.",
+    "canSell": "Ihr Shop kann bereits verkaufen.",
+    "stillToFinish": "Noch offen: {steps}.",
+    "nextStep": {
+      "branding": "Fügen Sie Logo und Design hinzu, um Ihren Shop zu gestalten.",
+      "localisation": "Wählen Sie Sprachen und Währungen für Ihre Kunden.",
+      "support": "Fügen Sie Supportkontakte hinzu, damit Kunden Sie erreichen.",
+      "domain": "Fügen Sie eine eigene Domain hinzu, um Ihre eigene Adresse zu nutzen.",
+      "tax": "Richten Sie Steuern ein, um die richtigen Sätze zu berechnen."
+    },
     "storeDetails": "Shop-Details",
     "storeAddress": "Shop-Adresse:",
     "saveName": "Namen speichern",

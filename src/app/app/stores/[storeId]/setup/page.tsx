@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { Callout, PageHeader, ProgressBar } from "@/components/ui";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/componen
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { listTaxBrackets } from "@/lib/data";
 import { POLICY_KEYS } from "@/lib/policies";
-import { setupProgress } from "@/lib/metrics";
+import { setupProgress, setupRemaining } from "@/lib/metrics";
 import { requireStoreAccess } from "@/lib/session";
 import { SetupSections } from "./SetupSections";
 import { StoreAdminPanel } from "./StoreAdminPanel";
@@ -23,6 +23,7 @@ export default async function StoreSetupPage({
   const { store } = await requireStoreAccess(storeId, "store.settings");
   const brackets = await listTaxBrackets();
   const progress = setupProgress(store.setup);
+  const remaining = setupRemaining(store.setup);
   // The built-in policy text in each of the store's languages, so the editor
   // starts from what shoppers read today.
   const policyDefaults = Object.fromEntries(
@@ -34,7 +35,26 @@ export default async function StoreSetupPage({
     ),
   );
 
-  const [pages, t] = await Promise.all([getTranslations("pages.store"), getTranslations("settings")]);
+  const [pages, t, labels, format] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("settings"),
+    getTranslations("labels"),
+    getFormatter(),
+  ]);
+  // Name what is actually left: payments and a carrier block selling, the
+  // other steps only polish a store that can already take orders.
+  const nextMessage =
+    remaining.toSell.length === 2
+      ? t("startSelling")
+      : remaining.toSell[0] === "payments"
+        ? t("connectPayments")
+        : remaining.toSell[0] === "shipping"
+          ? t("addCarrier")
+          : remaining.optional.length === 1
+            ? `${t("canSell")} ${t(`nextStep.${remaining.optional[0]}`)}`
+            : `${t("canSell")} ${t("stillToFinish", {
+                steps: format.list(remaining.optional.map((step) => labels(`setupStep.${step}`))),
+              })}`;
   return (
     <div className="space-y-6">
       <PageHeader
@@ -97,7 +117,7 @@ export default async function StoreSetupPage({
                 {t("complete")}
               </p>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">{t("startSelling")}</p>
+              <p className="mt-3 text-sm text-muted-foreground">{nextMessage}</p>
             )}
           </CardContent>
         </Card>

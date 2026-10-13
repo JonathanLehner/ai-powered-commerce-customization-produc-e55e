@@ -1615,6 +1615,17 @@
     "progress": "Progresso: {done} de {total} passos",
     "complete": "Configuração concluída",
     "startSelling": "Ligue os pagamentos e uma transportadora para começar a vender.",
+    "connectPayments": "Ligue os pagamentos para começar a vender.",
+    "addCarrier": "Adicione uma transportadora para começar a vender.",
+    "canSell": "A sua loja já pode vender.",
+    "stillToFinish": "Por concluir: {steps}.",
+    "nextStep": {
+      "branding": "Adicione um logótipo e um tema para personalizar a sua loja.",
+      "localisation": "Escolha idiomas e moedas para os seus clientes.",
+      "support": "Adicione contactos de apoio para que os clientes o possam contactar.",
+      "domain": "Adicione um domínio personalizado para usar o seu próprio endereço.",
+      "tax": "Configure os impostos para cobrar as taxas corretas."
+    },
     "storeDetails": "Dados da loja",
     "storeAddress": "Endereço da loja:",
     "saveName": "Guardar nome",
