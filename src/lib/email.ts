@@ -7,7 +7,10 @@ import type { BuiltEmail } from "./email-templates";
  * Sending one transactional email.
  *
  * The provider is configured with environment variables — `EMAIL_PROVIDER`
- * (`resend`), `EMAIL_API_KEY` and `EMAIL_FROM`. Where none is configured, which
+ * (`clawcorp` for ClawCorp Mail, or `resend`), `EMAIL_API_KEY` and
+ * `EMAIL_FROM`. ClawCorp Mail takes a `ccm_…` key with the send scope from its
+ * Settings → API keys, and `EMAIL_API_URL` overrides its address. Where none
+ * is configured, which
  * is every preview and development run, the message is logged and written to
  * the store's activity history instead, so the team can see exactly what would
  * have gone out rather than hitting a failure.
@@ -31,18 +34,48 @@ export interface EmailDispatch {
   entityId?: string | null;
 }
 
+type ProviderName = "clawcorp" | "resend";
+
 interface Provider {
-  name: string;
+  name: ProviderName;
   apiKey: string;
   from: string;
 }
+
+const CLAWCORP_MAIL_URL = "https://mailbox-for-startups-6e48.clawcorp.ai";
 
 function provider(): Provider | null {
   const name = (process.env.EMAIL_PROVIDER ?? "").trim().toLowerCase();
   const apiKey = (process.env.EMAIL_API_KEY ?? "").trim();
   const from = (process.env.EMAIL_FROM ?? "").trim();
-  if (name !== "resend" || !apiKey || !from) return null;
+  if ((name !== "clawcorp" && name !== "resend") || !apiKey || !from) return null;
   return { name, apiKey, from };
+}
+
+/** The provider's send request for one message; both take the same JSON shape apart from reply-to. */
+function sendRequest(configured: Provider, to: string, dispatch: EmailDispatch): [string, RequestInit] {
+  const replyTo = dispatch.replyTo && EMAIL.test(dispatch.replyTo) ? dispatch.replyTo : null;
+  const url =
+    configured.name === "clawcorp"
+      ? `${(process.env.EMAIL_API_URL ?? "").trim().replace(/\/+$/, "") || CLAWCORP_MAIL_URL}/api/v1/messages`
+      : "https://api.resend.com/emails";
+  return [
+    url,
+    {
+      method: "POST",
+      headers: { authorization: `Bearer ${configured.apiKey}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        // ClawCorp Mail takes a bare address; the display name comes from its mailbox.
+        from: configured.name === "clawcorp" ? (/<([^>]+)>/.exec(configured.from)?.[1] ?? configured.from) : configured.from,
+        to: [to],
+        subject: dispatch.message.subject,
+        html: dispatch.message.html,
+        text: dispatch.message.text,
+        ...(replyTo ? (configured.name === "clawcorp" ? { replyTo } : { reply_to: replyTo }) : {}),
+      }),
+      cache: "no-store",
+    },
+  ];
 }
 
 /** True when a provider is configured, which is what the workspace tells people. */
@@ -88,21 +121,7 @@ async function deliver(dispatch: EmailDispatch): Promise<void> {
   }
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${configured.apiKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        from: configured.from,
-        to: [to],
-        subject: dispatch.message.subject,
-        html: dispatch.message.html,
-        text: dispatch.message.text,
-        ...(dispatch.replyTo && EMAIL.test(dispatch.replyTo) ? { reply_to: dispatch.replyTo } : {}),
-      }),
-    });
+    const response = await fetch(...sendRequest(configured, to, dispatch));
     if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
     record(dispatch, "email.sent", `Sent the ${dispatch.kind} email to ${to}`, to);
   } catch (error) {

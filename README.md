@@ -242,9 +242,10 @@ store's activity history instead, which is what a preview or a development run
 wants:
 
 ```
-EMAIL_PROVIDER=resend
-EMAIL_API_KEY=…
-EMAIL_FROM="Northwind Supply <orders@northwind.example>"
+EMAIL_PROVIDER=clawcorp     # ClawCorp Mail, or resend
+EMAIL_API_KEY=ccm_…         # ClawCorp Mail → Settings → API keys, send scope, this sender allowed
+EMAIL_FROM=orders@…         # a sender on a domain verified in the provider
+EMAIL_API_URL=…             # optional; ClawCorp Mail's address, defaults to mailbox-for-startups-6e48.clawcorp.ai
 APP_ORIGIN=https://…        # optional; otherwise the request's own origin is used
 SALES_INBOX=sales@…         # optional, comma separated; otherwise every platform admin
 ```
