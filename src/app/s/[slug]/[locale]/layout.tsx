@@ -281,7 +281,18 @@ export default async function StorefrontLayout({
               <StorefrontFallbackProvider
                 value={{ base, storeName: store.name, accent: theme.accent }}
               >
-                {children}
+                {/* The agency's trial ended and its grace period is over: no
+                    page takes orders until payment details are added. */}
+                {data.paused ? (
+                  <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
+                    <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+                      {t("home.pausedTitle")}
+                    </h1>
+                    <p className="mt-3 text-sm text-muted-foreground">{t("home.closedBody")}</p>
+                  </div>
+                ) : (
+                  children
+                )}
               </StorefrontFallbackProvider>
             </main>
 

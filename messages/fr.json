@@ -770,7 +770,8 @@
       "platform": "Plateforme"
     },
     "people": "Personnes",
-    "billing": "Facturation"
+    "billing": "Facturation",
+    "readOnly": "Lecture seule"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "Ajouter un moyen de paiement",
     "trialBanner": "Il reste {days, plural, one {# jour} other {# jours}} à votre essai gratuit.",
     "trialEndedTitle": "Votre essai gratuit est terminé",
-    "trialEndedBody": "Ajoutez un moyen de paiement pour continuer à utiliser votre espace. Vos boutiques et vos données sont conservées."
+    "trialEndedBody": "Ajoutez un moyen de paiement pour continuer à utiliser votre espace. Vos boutiques et vos données sont conservées.",
+    "trialEndedLead": "Votre essai gratuit est terminé.",
+    "trialEndedBanner": "Les boutiques sont en lecture seule et les vitrines restent ouvertes jusqu’au {date}.",
+    "trialEndedBannerClosed": "Les boutiques sont en lecture seule et les vitrines sont hors ligne.",
+    "trialEndedAskOwner": "Demandez au propriétaire du compte d’ajouter un moyen de paiement.",
+    "trialEmail": {
+      "three_days": {
+        "subject": "Votre essai Parcelith se termine dans 3 jours",
+        "heading": "Votre essai gratuit se termine dans 3 jours",
+        "body": "L’essai gratuit de {agency} se termine le {ends}. Ajoutez un moyen de paiement pour que vos boutiques et vitrines continuent de fonctionner. Vous ne serez débité qu’à la fin de l’essai."
+      },
+      "one_day": {
+        "subject": "Votre essai Parcelith se termine demain",
+        "heading": "Votre essai gratuit se termine demain",
+        "body": "L’essai gratuit de {agency} se termine le {ends}. Ajoutez un moyen de paiement dès aujourd’hui pour que vos boutiques et vitrines continuent de fonctionner."
+      },
+      "ended": {
+        "subject": "Votre essai Parcelith est terminé",
+        "heading": "Votre essai gratuit est terminé",
+        "body": "L’essai gratuit de {agency} est terminé. Vos boutiques sont en lecture seule et vos vitrines restent ouvertes jusqu’au {closes}. Ajoutez un moyen de paiement pour reprendre là où vous en étiez."
+      },
+      "cta": "Ajouter un moyen de paiement"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "Les commandes déjà passées seront livrées.",
       "comingSoonTitle": "{store} ouvre bientôt",
       "comingSoonNoProducts": "Revenez bientôt.",
-      "browseProducts": "Voir les {count} produits"
+      "browseProducts": "Voir les {count} produits",
+      "pausedTitle": "Cette boutique est temporairement indisponible"
     },
     "shop": {
       "title": "Tous les produits",

@@ -6,6 +6,7 @@ import { db } from "./mongo";
 import type { NotifyInput } from "./notifications";
 import { storeAllowance, type StoreAllowance } from "./plans";
 import { quoteCode } from "./sourcing";
+import { storefrontsClosed } from "./trial";
 import { newId } from "./util";
 import type {
   Agency,
@@ -118,6 +119,11 @@ export function listAgencies() {
 
 export function getAgency(id: string) {
   return db.findOne<Agency>(COLLECTIONS.agencies, { id });
+}
+
+/** True once the store's agency is past its trial's grace period, so the store takes no orders. */
+export async function storefrontPaused(store: Pick<Store, "agencyId">): Promise<boolean> {
+  return storefrontsClosed(await getAgency(store.agencyId));
 }
 
 /* ------------------------------------------------------------------- users */

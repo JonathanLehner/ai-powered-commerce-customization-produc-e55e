@@ -4,7 +4,9 @@ import { cookies } from "next/headers";
 import { COLLECTIONS, listPublishedProducts, storeDomainFilter } from "./data";
 import { db } from "./mongo";
 import { POLICY_KEYS, storePolicyText, type PolicyKey } from "./policies";
+import { storefrontsClosed } from "./trial";
 import type {
+  Agency,
   Cart,
   ContentEntry,
   CatalogProduct,
@@ -50,6 +52,8 @@ export interface StorefrontData {
   shippingZones: ShippingZone[];
   /** What the header and footer menus link to: published pages and posts, and the products named in a menu. */
   menuLinks: MenuLinkRecords;
+  /** True once the agency's trial has ended and its grace period is over, so the store takes no orders. */
+  paused: boolean;
 }
 
 export type ShopperStorefront = Omit<Storefront, "draft" | "history">;
@@ -77,6 +81,7 @@ type StoreRow = Store & {
   menuEntries: MenuLinkRecords["entries"];
   menuProducts: MenuLinkRecords["products"];
   cart?: BasketRow[];
+  agency?: Pick<Agency, "billing">[];
 };
 
 /** One aggregate: the store, its storefront and collections, and the shopper's basket. */
@@ -85,6 +90,15 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
     { $match: match },
     { $limit: 10 },
     { $project: { _id: 0, policies: 0 } },
+    {
+      $lookup: {
+        from: COLLECTIONS.agencies,
+        localField: "agencyId",
+        foreignField: "id",
+        pipeline: [{ $limit: 1 }, { $project: { _id: 0, "billing.status": 1, "billing.trialEndsAt": 1 } }],
+        as: "agency",
+      },
+    },
     {
       $lookup: {
         from: COLLECTIONS.storefronts,
@@ -197,7 +211,7 @@ async function readStorefront(match: Record<string, unknown>, session: string | 
 }
 
 function toStorefrontData(row: StoreRow): StorefrontData {
-  const { storefront, collections, shippingZones, cart, menuEntries, menuProducts, ...store } = row;
+  const { storefront, collections, shippingZones, cart, menuEntries, menuProducts, agency, ...store } = row;
   const found = cart?.[0];
   let basket: Basket | null = null;
   if (found) {
@@ -217,6 +231,7 @@ function toStorefrontData(row: StoreRow): StorefrontData {
     basket,
     shippingZones,
     menuLinks: { entries: menuEntries ?? [], products: menuProducts ?? [] },
+    paused: storefrontsClosed(agency?.[0]),
   };
 }
 

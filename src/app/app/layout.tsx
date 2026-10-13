@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { siteMetadata } from "@/components/Document";
 import { Toaster } from "@/components/ui/sonner";
 import { WorkspaceDocument } from "@/components/WorkspaceIntl";
 import { onTrial, trialDaysLeft } from "@/lib/billing";
+import { storefrontsClosed, storefrontsCloseAt, trialEnded } from "@/lib/trial";
 import { getAgencyForRender, requireUser } from "@/lib/session";
 
 export const metadata: Metadata = siteMetadata;
@@ -22,6 +23,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {agency?.billing?.status === "past_due" ? <PastDueBanner owner={user.platformRole === "agency_admin"} /> : null}
         {onTrial(agency) && trialDaysLeft(agency) > 0 ? (
           <TrialBanner days={trialDaysLeft(agency)} owner={user.platformRole === "agency_admin"} />
+        ) : null}
+        {trialEnded(agency) ? (
+          <TrialEndedBanner
+            closesAt={storefrontsClosed(agency) ? null : storefrontsCloseAt(agency)}
+            owner={user.platformRole === "agency_admin"}
+          />
         ) : null}
         {children}
       </div>
@@ -59,6 +66,29 @@ async function TrialBanner({ days, owner }: { days: number; owner: boolean }) {
           {t("addPayment")}
         </Link>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * Shown on every workspace page once the free trial has ended without payment
+ * details: stores are read-only, and storefronts close after the grace period.
+ */
+async function TrialEndedBanner({ closesAt, owner }: { closesAt: Date | null; owner: boolean }) {
+  const [t, format] = await Promise.all([getTranslations("billing"), getFormatter()]);
+  return (
+    <div role="status" className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-900 sm:px-6">
+      <strong className="font-semibold">{t("trialEndedLead")}</strong>{" "}
+      {closesAt
+        ? t("trialEndedBanner", { date: format.dateTime(closesAt, { dateStyle: "medium" }) })
+        : t("trialEndedBannerClosed")}{" "}
+      {owner ? (
+        <Link href="/app/billing" className="font-medium underline underline-offset-2 hover:no-underline">
+          {t("addPayment")}
+        </Link>
+      ) : (
+        t("trialEndedAskOwner")
+      )}
     </div>
   );
 }

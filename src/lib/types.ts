@@ -77,6 +77,8 @@ export interface AgencyBilling {
   activatedAt: string | null;
   /** When a `trialing` agency's free trial ends. */
   trialEndsAt?: string | null;
+  /** The trial reminder emails already sent to the owner. */
+  trialReminders?: ("three_days" | "one_day" | "ended")[];
   /** When the current period ends, as Stripe last reported it. */
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;

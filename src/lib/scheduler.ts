@@ -2,13 +2,16 @@ import "server-only";
 import { after } from "next/server";
 import { sendDueRecoveryEmails } from "./checkout-recovery";
 import { COLLECTIONS } from "./data";
+import { siteOrigin } from "./email";
 import { db } from "./mongo";
 import { sweepPreflight } from "./preflight-guard";
+import { sendDueTrialReminders } from "./trial-reminders";
 import { runDueDeliveries } from "./webhooks";
 
 /**
- * Work that comes due later: webhook retries, abandoned checkout emails, and
- * taking off the storefront any product that now fails its supplier's file check.
+ * Work that comes due later: webhook retries, abandoned checkout emails, free
+ * trial reminders, and taking off the storefront any product that now fails
+ * its supplier's file check.
  *
  * There is no cron on the deployment, so the requests the app serves anyway
  * run it, after their response: the workspace and the storefronts kick it, at
@@ -39,13 +42,22 @@ async function claimLease(now: Date): Promise<boolean> {
   }
 }
 
-/** Runs what is due, unless another run holds the lease. */
-export async function runScheduledWork(): Promise<{ deliveries: number; recoveryEmails: number; takenOff: number } | null> {
+/**
+ * Runs what is due, unless another run holds the lease. `origin` is this
+ * deployment's address for the links in emails, read before the response.
+ */
+export async function runScheduledWork(origin?: string): Promise<{
+  deliveries: number;
+  recoveryEmails: number;
+  trialReminders: number;
+  takenOff: number;
+} | null> {
   if (!(await claimLease(new Date()))) return null;
   const deliveries = await runDueDeliveries(25);
   const recoveryEmails = await sendDueRecoveryEmails(25);
+  const trialReminders = await sendDueTrialReminders(origin ?? (await siteOrigin()));
   const takenOff = await sweepPreflight();
-  return { deliveries, recoveryEmails, takenOff };
+  return { deliveries, recoveryEmails, trialReminders, takenOff };
 }
 
 /** Runs the scheduler after the current response, if this isolate has not lately. */
@@ -53,8 +65,12 @@ export function kickScheduler(): void {
   const now = Date.now();
   if (now - lastKick < KICK_INTERVAL_MS) return;
   lastKick = now;
+  // Read during the render: request headers are out of reach once `after` runs.
+  const origin = siteOrigin();
   try {
-    after(() => runScheduledWork().catch((error: unknown) => console.error("Scheduled work failed", error)));
+    after(() =>
+      origin.then(runScheduledWork).catch((error: unknown) => console.error("Scheduled work failed", error)),
+    );
   } catch {
     // Outside a request there is nothing to defer to; the next request runs it.
   }

@@ -770,7 +770,8 @@
       "platform": "Platform"
     },
     "people": "People",
-    "billing": "Billing"
+    "billing": "Billing",
+    "readOnly": "Read-only"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "Add payment details",
     "trialBanner": "{days, plural, one {# day} other {# days}} left in your free trial.",
     "trialEndedTitle": "Your free trial has ended",
-    "trialEndedBody": "Add payment details to keep using your workspace. Your stores and data are saved."
+    "trialEndedBody": "Add payment details to keep using your workspace. Your stores and data are saved.",
+    "trialEndedLead": "Your free trial has ended.",
+    "trialEndedBanner": "Stores are read-only and storefronts stay open until {date}.",
+    "trialEndedBannerClosed": "Stores are read-only and storefronts are offline.",
+    "trialEndedAskOwner": "Ask the account owner to add payment details.",
+    "trialEmail": {
+      "three_days": {
+        "subject": "Your Parcelith trial ends in 3 days",
+        "heading": "Your free trial ends in 3 days",
+        "body": "The free trial for {agency} ends on {ends}. Add payment details to keep your stores and storefronts running. You won't be charged until the trial ends."
+      },
+      "one_day": {
+        "subject": "Your Parcelith trial ends tomorrow",
+        "heading": "Your free trial ends tomorrow",
+        "body": "The free trial for {agency} ends on {ends}. Add payment details today to keep your stores and storefronts running."
+      },
+      "ended": {
+        "subject": "Your Parcelith trial has ended",
+        "heading": "Your free trial has ended",
+        "body": "The free trial for {agency} has ended. Your stores are read-only, and your storefronts stay open until {closes}. Add payment details to pick up where you left off."
+      },
+      "cta": "Add payment details"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "Orders already placed will still be delivered.",
       "comingSoonTitle": "{store} is opening soon",
       "comingSoonNoProducts": "Check back soon.",
-      "browseProducts": "Browse {count} products"
+      "browseProducts": "Browse {count} products",
+      "pausedTitle": "This store is temporarily unavailable"
     },
     "shop": {
       "title": "All products",

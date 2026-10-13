@@ -770,7 +770,8 @@
       "platform": "Plattform"
     },
     "people": "Personen",
-    "billing": "Abrechnung"
+    "billing": "Abrechnung",
+    "readOnly": "Schreibgeschützt"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "Zahlungsdaten hinterlegen",
     "trialBanner": "Noch {days, plural, one {# Tag} other {# Tage}} in Ihrer kostenlosen Testphase.",
     "trialEndedTitle": "Ihre kostenlose Testphase ist abgelaufen",
-    "trialEndedBody": "Hinterlegen Sie Zahlungsdaten, um Ihren Arbeitsbereich weiter zu nutzen. Ihre Shops und Daten bleiben erhalten."
+    "trialEndedBody": "Hinterlegen Sie Zahlungsdaten, um Ihren Arbeitsbereich weiter zu nutzen. Ihre Shops und Daten bleiben erhalten.",
+    "trialEndedLead": "Ihre kostenlose Testphase ist abgelaufen.",
+    "trialEndedBanner": "Shops sind schreibgeschützt, Storefronts bleiben bis {date} geöffnet.",
+    "trialEndedBannerClosed": "Shops sind schreibgeschützt und Storefronts offline.",
+    "trialEndedAskOwner": "Bitten Sie den Kontoinhaber, Zahlungsdaten zu hinterlegen.",
+    "trialEmail": {
+      "three_days": {
+        "subject": "Ihre Parcelith-Testphase endet in 3 Tagen",
+        "heading": "Ihre kostenlose Testphase endet in 3 Tagen",
+        "body": "Die kostenlose Testphase für {agency} endet am {ends}. Hinterlegen Sie Zahlungsdaten, damit Ihre Shops und Storefronts weiterlaufen. Belastet wird erst nach Ende der Testphase."
+      },
+      "one_day": {
+        "subject": "Ihre Parcelith-Testphase endet morgen",
+        "heading": "Ihre kostenlose Testphase endet morgen",
+        "body": "Die kostenlose Testphase für {agency} endet am {ends}. Hinterlegen Sie heute Zahlungsdaten, damit Ihre Shops und Storefronts weiterlaufen."
+      },
+      "ended": {
+        "subject": "Ihre Parcelith-Testphase ist abgelaufen",
+        "heading": "Ihre kostenlose Testphase ist abgelaufen",
+        "body": "Die kostenlose Testphase für {agency} ist abgelaufen. Ihre Shops sind schreibgeschützt, Ihre Storefronts bleiben bis {closes} geöffnet. Hinterlegen Sie Zahlungsdaten, um weiterzuarbeiten."
+      },
+      "cta": "Zahlungsdaten hinterlegen"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "Bereits aufgegebene Bestellungen werden weiterhin geliefert.",
       "comingSoonTitle": "{store} öffnet bald",
       "comingSoonNoProducts": "Schauen Sie bald wieder vorbei.",
-      "browseProducts": "{count} Produkte ansehen"
+      "browseProducts": "{count} Produkte ansehen",
+      "pausedTitle": "Dieser Shop ist vorübergehend nicht verfügbar"
     },
     "shop": {
       "title": "Alle Produkte",

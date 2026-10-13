@@ -2,8 +2,9 @@ import "server-only";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { ADMIN_SCOPE, AGENCY_RESOURCES, STORE_ADMIN_RESOURCES, scopeAllows, type ApiAccess, type ApiResource } from "../api-scopes";
-import { getUserById, listMembershipsForUser } from "../data";
+import { getAgency, getUserById, listMembershipsForUser } from "../data";
 import { resolveStoreRole } from "../store-access";
+import { billingPending } from "../trial";
 import { isOperationError, type OperationErrorCode } from "../operations/context";
 import { ApiError, adminContext, authenticate, errorResponse, keyContext, type ApiCaller, type ApiErrorCode } from "./auth";
 import { findOperation, pathParams, type ApiOperation } from "./operations";
@@ -81,7 +82,10 @@ export async function authorize(caller: ApiCaller, operation: ApiOperation): Pro
   if (!allows(key.scopes, operation)) {
     return new ApiError(403, "insufficient_scope", `This API key needs the ${operation.scope} scope.`);
   }
-  const resource = operation.scope.split(":")[0] as ApiResource;
+  const [resource, access] = operation.scope.split(":") as [ApiResource, ApiAccess];
+  if (access === "write" && billingPending(await getAgency(caller.store.agencyId))) {
+    return new ApiError(403, "forbidden", "The agency's free trial has ended. Add payment details in Billing to make changes.");
+  }
   if (AGENCY_RESOURCES.includes(resource)) {
     const maker = await getUserById(key.createdById);
     if (maker?.platformRole !== "agency_admin" || maker.agencyId !== caller.store.agencyId) {

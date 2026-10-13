@@ -24,6 +24,7 @@ import {
   getStoreProductsByIds,
   listShippingZones,
   releaseDiscountUse,
+  storefrontPaused,
   updateOrder,
 } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
@@ -254,7 +255,7 @@ export async function addToCart(_prev: AddToCartState, formData: FormData): Prom
     getLevel(productId, variantId),
   ]);
   const { t, locale } = await shopperCopy(store);
-  if (!store || store.status !== "active") {
+  if (!store || store.status !== "active" || (await storefrontPaused(store))) {
     return { status: "error", message: t("actions.storeClosed") };
   }
   if (!product || product.storeId !== storeId || !isLive(product)) {
@@ -570,7 +571,7 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     listShippingZones(storeId),
   ]);
   const { locale, t, base } = await shopperCopy(store);
-  if (!store || store.status !== "active") {
+  if (!store || store.status !== "active" || (await storefrontPaused(store))) {
     return { status: "error", message: t("actions.storeClosed") };
   }
   if (replayed) {

@@ -174,5 +174,63 @@ for (const locale of LOCALES) {
 }
 assert.match(JSON.parse(source("messages/en.json")).signup.lead, /no credit card required/);
 
+/* -------------------------------------------- after the trial without a card */
+
+const { STOREFRONT_GRACE_DAYS, storefrontsClosed, storefrontsCloseAt, trialEnded, trialReminderDue } = await import(
+  "../src/lib/trial.ts"
+);
+const ended = trialing(-1000);
+assert.equal(trialEnded(ended), true);
+assert.equal(trialEnded(trialing(DAY)), false);
+assert.equal(trialEnded({ billing: { ...agency.billing, status: "active" } }), false, "a paid plan never ends a trial");
+
+// Storefronts keep taking orders for the grace period, then pause.
+assert.equal(STOREFRONT_GRACE_DAYS, 7);
+assert.equal(storefrontsCloseAt(ended).getTime(), Date.parse(ended.billing.trialEndsAt) + 7 * DAY);
+assert.equal(storefrontsClosed(ended), false, "storefronts stay open on the day the trial ends");
+assert.equal(storefrontsClosed(trialing(-7 * DAY + 60_000)), false);
+assert.equal(storefrontsClosed(trialing(-7 * DAY - 1000)), true, "storefronts pause once the grace period is over");
+assert.equal(storefrontsClosed(trialing(5 * DAY)), false);
+assert.equal(storefrontsClosed({ billing: { ...agency.billing, status: "active", trialEndsAt: new Date(0).toISOString() } }), false);
+assert.equal(storefrontsClosed(null), false, "a platform-managed agency's storefronts never pause");
+
+// Reminders: three days and one day before the end, and on the day it ends; each once.
+const withSent = (a, sent) => ({ ...a, billing: { ...a.billing, trialReminders: sent } });
+assert.equal(trialReminderDue(trialing(5 * DAY)), null);
+assert.equal(trialReminderDue(trialing(3 * DAY - 1000)), "three_days");
+assert.equal(trialReminderDue(withSent(trialing(3 * DAY - 1000), ["three_days"])), null);
+assert.equal(trialReminderDue(withSent(trialing(DAY - 1000), ["three_days"])), "one_day");
+assert.equal(trialReminderDue(trialing(DAY - 1000)), "one_day", "a late run sends only the reminder that applies now");
+assert.equal(trialReminderDue(withSent(ended, ["three_days", "one_day"])), "ended");
+assert.equal(trialReminderDue(withSent(ended, ["ended"])), null);
+assert.equal(trialReminderDue(trialing(-8 * DAY)), null, "nothing once storefronts have paused");
+assert.equal(trialReminderDue({ billing: { ...agency.billing, status: "active", trialEndsAt: ended.billing.trialEndsAt } }), null);
+
+// Wired in: the workspace banner, read-only store access, paused storefronts and the scheduler.
+const layout = source("src/app/app/layout.tsx");
+assert.match(layout, /trialEnded\(agency\) \? \(\s*<TrialEndedBanner/, "every workspace page shows the ended banner");
+assert.match(layout, /href="\/app\/billing"/);
+const sessionSource = source("src/lib/session.ts");
+assert.match(sessionSource, /role: "viewer", readOnly: true/, "store pages render read-only after the trial");
+assert.match(sessionSource, /capability !== "store\.view" && billingPending\(/, "store changes are refused after the trial");
+assert.match(source("src/lib/api/http.ts"), /access === "write" && billingPending\(/, "API writes are refused after the trial");
+assert.match(source("src/app/s/[slug]/[locale]/layout.tsx"), /data\.paused \?/);
+const shop = source("src/app/actions/shop.ts");
+assert.equal((shop.match(/await storefrontPaused\(store\)/g) ?? []).length, 2, "adding to the basket and checkout refuse once paused");
+assert.match(source("src/lib/scheduler.ts"), /sendDueTrialReminders\(/);
+assert.match(source("src/lib/trial-reminders.ts"), /\$addToSet: \{ "billing\.trialReminders": reminder \}/, "each reminder is claimed once");
+
+for (const locale of LOCALES) {
+  const messages = JSON.parse(source(`messages/${locale}.json`));
+  const { billing: copy } = messages;
+  assert.ok(copy.trialEndedLead && copy.trialEndedBanner.includes("{date}") && copy.trialEndedBannerClosed && copy.trialEndedAskOwner, `${locale} has the ended banner`);
+  for (const reminder of ["three_days", "one_day", "ended"]) {
+    for (const part of ["subject", "heading", "body"]) assert.ok(copy.trialEmail[reminder][part], `${locale} trialEmail.${reminder}.${part}`);
+  }
+  assert.ok(copy.trialEmail.ended.body.includes("{closes}") && copy.trialEmail.cta, `${locale} names when storefronts pause`);
+  assert.ok(messages.shell.readOnly && messages.storefront.home.pausedTitle, `${locale} has the read-only and paused copy`);
+}
+assert.equal(JSON.parse(source("messages/en.json")).billing.trialEndedLead, "Your free trial has ended.");
+
 globalThis.fetch = realFetch;
 console.log("billing-check ok");

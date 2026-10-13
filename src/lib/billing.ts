@@ -6,6 +6,7 @@ import { db } from "./mongo";
 import { PLANS, planPrice } from "./plans";
 import { TRIAL_DAYS } from "./signup";
 import { checkoutLocale, refId, stripeClient } from "./stripe";
+import { onTrial } from "./trial";
 import type { Agency, AgencyBilling } from "./types";
 
 /**
@@ -15,30 +16,9 @@ import type { Agency, AgencyBilling } from "./types";
  */
 
 export { TRIAL_DAYS, billingConfigured };
+export { billingPending, onTrial, trialDaysLeft } from "./trial";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** True while the agency is on its free trial without payment details, whether or not the trial has ended. */
-export function onTrial(agency: Agency | null): boolean {
-  return agency?.billing?.status === "trialing";
-}
-
-/** Whole days left on the free trial, rounded up; 0 once it has ended. */
-export function trialDaysLeft(agency: Agency | null, now = Date.now()): number {
-  const ends = agency?.billing?.trialEndsAt ? Date.parse(agency.billing.trialEndsAt) : NaN;
-  if (!onTrial(agency) || Number.isNaN(ends)) return 0;
-  return Math.max(0, Math.ceil((ends - now) / DAY_MS));
-}
-
-/**
- * True while a self-serve agency has to add payment details before it can go
- * on: its free trial has ended, or it signed up card-first and never finished
- * checkout. Platform-managed agencies never are.
- */
-export function billingPending(agency: Agency | null): boolean {
-  if (agency?.billing?.status === "pending") return true;
-  return onTrial(agency) && trialDaysLeft(agency) === 0;
-}
 
 /** Whether the owner can open Checkout: on a trial, after it, or still pending. */
 export function canStartCheckout(agency: Agency | null): boolean {

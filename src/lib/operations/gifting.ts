@@ -14,6 +14,7 @@ import {
   getUserByEmail,
   listPublishedProducts,
   recordAudit,
+  storefrontPaused,
   updateGiftCampaign,
   updateGiftCatalogue,
 } from "../data";
@@ -641,6 +642,7 @@ export async function buildCampaign(
 ): Promise<{ preview: CampaignPreview; campaign: GiftCampaign | null }> {
   const { store } = ctx;
   assertCatalogueOpen(catalogue, store);
+  if (await storefrontPaused(store)) throw new OperationError("conflict", "This gift catalogue is paused.");
 
   const campaignName = input.campaignName.trim();
   const buyerName = input.buyerName.trim();

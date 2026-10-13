@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { getAgency, getStore, getUserById, listMembershipsForUser } from "./data";
 import type { OperationContext } from "./operations/context";
 import { resolveStoreRole, roleCan, type Capability } from "./store-access";
+import { billingPending } from "./trial";
 import type { Membership, Store, StoreRole, User } from "./types";
 
 export { SHOPPER_COOKIE } from "./storefront-data";
@@ -74,7 +75,18 @@ export interface StoreAccess {
    * screens read as status without shopper records.
    */
   viaPlatform: boolean;
+  /**
+   * True once the agency's free trial has ended without payment details. The
+   * store opens as it would for its role, but `role` is `viewer`, so the pages
+   * show what they show a viewer and every change is refused.
+   */
+  readOnly: boolean;
+  /** The role the user holds in the store, which `role` only differs from while `readOnly`. */
+  grantedRole: StoreRole;
 }
+
+/** The refusal for a change while the agency has to add payment details. */
+export const READ_ONLY_MESSAGE = "Your free trial has ended. Add payment details in Billing to make changes.";
 
 type AccessDenial = "signed_out" | "no_store" | "not_a_member" | "capability";
 
@@ -109,6 +121,8 @@ async function loadStoreAccess(
     role: resolved.role,
     viaAgency: resolved.viaAgency,
     viaPlatform: resolved.viaPlatform,
+    readOnly: false,
+    grantedRole: resolved.role,
   };
   if (!roleCan(resolved.role, capability)) return { access, denied: "capability" };
   return { access, denied: null };
@@ -140,7 +154,9 @@ export async function requireStoreAccess(storeId: string, capability: Capability
   if (denied === "no_store") redirect("/app");
   if (denied === "not_a_member") redirect("/app?denied=1");
   if (denied === "capability") redirect(`/app/stores/${storeId}?denied=${capability}`);
-  return access as StoreAccess;
+  const granted = access as StoreAccess;
+  if (granted.viaPlatform || !billingPending(await getAgencyForRender(granted.store.agencyId))) return granted;
+  return { ...granted, role: "viewer", readOnly: true };
 }
 
 /** Store access for server actions — throws instead of redirecting. */
@@ -150,7 +166,9 @@ export async function assertStoreAccess(storeId: string, capability: Capability)
   if (denied === "no_store") throw new Error("Store not found.");
   if (denied === "not_a_member") throw new Error("You do not have access to this store.");
   if (denied === "capability") throw new Error("Your role does not allow this action.");
-  return access as StoreAccess;
+  const granted = access as StoreAccess;
+  if (capability !== "store.view" && billingPending(await getAgency(granted.store.agencyId))) throw new Error(READ_ONLY_MESSAGE);
+  return granted;
 }
 
 /** What a server action hands a store operation: the store, the signed-in person and their language. */

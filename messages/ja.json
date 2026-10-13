@@ -770,7 +770,8 @@
       "platform": "プラットフォーム"
     },
     "people": "メンバー",
-    "billing": "請求"
+    "billing": "請求",
+    "readOnly": "閲覧のみ"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "お支払い情報を追加",
     "trialBanner": "無料トライアルの残り日数：{days}日",
     "trialEndedTitle": "無料トライアルが終了しました",
-    "trialEndedBody": "ワークスペースを引き続きご利用いただくには、お支払い情報を追加してください。ストアとデータは保存されています。"
+    "trialEndedBody": "ワークスペースを引き続きご利用いただくには、お支払い情報を追加してください。ストアとデータは保存されています。",
+    "trialEndedLead": "無料トライアルが終了しました。",
+    "trialEndedBanner": "ストアは閲覧のみとなり、ストアフロントは{date}まで公開されます。",
+    "trialEndedBannerClosed": "ストアは閲覧のみとなり、ストアフロントは停止中です。",
+    "trialEndedAskOwner": "アカウント所有者にお支払い情報の追加を依頼してください。",
+    "trialEmail": {
+      "three_days": {
+        "subject": "Parcelithのトライアルはあと3日で終了します",
+        "heading": "無料トライアルはあと3日で終了します",
+        "body": "{agency}の無料トライアルは{ends}に終了します。ストアとストアフロントを継続するには、お支払い情報を追加してください。トライアル終了まで請求は発生しません。"
+      },
+      "one_day": {
+        "subject": "Parcelithのトライアルは明日終了します",
+        "heading": "無料トライアルは明日終了します",
+        "body": "{agency}の無料トライアルは{ends}に終了します。ストアとストアフロントを継続するには、本日中にお支払い情報を追加してください。"
+      },
+      "ended": {
+        "subject": "Parcelithのトライアルが終了しました",
+        "heading": "無料トライアルが終了しました",
+        "body": "{agency}の無料トライアルが終了しました。ストアは閲覧のみとなり、ストアフロントは{closes}まで公開されます。お支払い情報を追加すると、すぐに作業を再開できます。"
+      },
+      "cta": "お支払い情報を追加"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "ご注文済みの商品は引き続きお届けします。",
       "comingSoonTitle": "{store} はまもなくオープンします",
       "comingSoonNoProducts": "しばらくしてから再度ご確認ください。",
-      "browseProducts": "{count} 点の商品を見る"
+      "browseProducts": "{count} 点の商品を見る",
+      "pausedTitle": "このストアは現在ご利用いただけません"
     },
     "shop": {
       "title": "すべての商品",

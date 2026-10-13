@@ -770,7 +770,8 @@
       "platform": "Plattform"
     },
     "people": "Personer",
-    "billing": "Fakturering"
+    "billing": "Fakturering",
+    "readOnly": "Skrivskyddad"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "Lägg till betalningsuppgifter",
     "trialBanner": "{days, plural, one {# dag} other {# dagar}} kvar av din gratis provperiod.",
     "trialEndedTitle": "Din gratis provperiod är slut",
-    "trialEndedBody": "Lägg till betalningsuppgifter för att fortsätta använda arbetsytan. Dina butiker och data finns kvar."
+    "trialEndedBody": "Lägg till betalningsuppgifter för att fortsätta använda arbetsytan. Dina butiker och data finns kvar.",
+    "trialEndedLead": "Din gratis provperiod är slut.",
+    "trialEndedBanner": "Butikerna är skrivskyddade och butiksfronterna är öppna till {date}.",
+    "trialEndedBannerClosed": "Butikerna är skrivskyddade och butiksfronterna är offline.",
+    "trialEndedAskOwner": "Be kontoägaren att lägga till betalningsuppgifter.",
+    "trialEmail": {
+      "three_days": {
+        "subject": "Din Parcelith-provperiod slutar om 3 dagar",
+        "heading": "Din gratis provperiod slutar om 3 dagar",
+        "body": "Den gratis provperioden för {agency} slutar {ends}. Lägg till betalningsuppgifter så att dina butiker och butiksfronter fortsätter att fungera. Du debiteras inte förrän provperioden är slut."
+      },
+      "one_day": {
+        "subject": "Din Parcelith-provperiod slutar i morgon",
+        "heading": "Din gratis provperiod slutar i morgon",
+        "body": "Den gratis provperioden för {agency} slutar {ends}. Lägg till betalningsuppgifter i dag så att dina butiker och butiksfronter fortsätter att fungera."
+      },
+      "ended": {
+        "subject": "Din Parcelith-provperiod är slut",
+        "heading": "Din gratis provperiod är slut",
+        "body": "Den gratis provperioden för {agency} är slut. Dina butiker är skrivskyddade och dina butiksfronter är öppna till {closes}. Lägg till betalningsuppgifter för att fortsätta där du slutade."
+      },
+      "cta": "Lägg till betalningsuppgifter"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "Redan lagda beställningar levereras som vanligt.",
       "comingSoonTitle": "{store} öppnar snart",
       "comingSoonNoProducts": "Titta in igen snart.",
-      "browseProducts": "Se {count} produkter"
+      "browseProducts": "Se {count} produkter",
+      "pausedTitle": "Den här butiken är tillfälligt otillgänglig"
     },
     "shop": {
       "title": "Alla produkter",

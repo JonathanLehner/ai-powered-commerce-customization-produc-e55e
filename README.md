@@ -296,6 +296,15 @@ All calls go through the official `stripe` SDK with
   next invoice, and "Manage billing" opens the Stripe Customer Portal (enable
   the portal once in the Stripe dashboard). A failed renewal puts the plan past
   due and shows a banner across the workspace.
+- **When the free trial ends** without payment details (`src/lib/trial.ts`):
+  every workspace page shows a banner linking to Billing, the dashboard
+  redirects there, and store pages stay open read-only (changes from the
+  workspace and API writes are refused). Storefronts keep taking orders for a
+  7-day grace period, with the closing date in the banner, then show "This
+  store is temporarily unavailable" and refuse new baskets and checkouts until
+  payment details are added. The owner is emailed 3 days and 1 day before the
+  trial ends and on the day it ends (`src/lib/trial-reminders.ts`, run by the
+  scheduler); set `APP_ORIGIN` so the emails' Billing link is absolute.
 
 #### Webhook
 

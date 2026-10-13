@@ -16,7 +16,7 @@ export default async function StoreLayout({
   params: Promise<{ storeId: string }>;
 }) {
   const { storeId } = await params;
-  const { user, store, role, viaPlatform } = await requireStoreAccess(storeId);
+  const { user, store, grantedRole, readOnly, viaPlatform } = await requireStoreAccess(storeId);
   kickScheduler();
   const [stores, t, roles] = await Promise.all([
     accessibleStores(user),
@@ -63,7 +63,8 @@ export default async function StoreLayout({
           <Badge tone={store.status === "active" ? "green" : "slate"}>
             {store.status === "active" ? t("active") : t("archived")}
           </Badge>
-          <Badge tone={viaPlatform ? "iris" : "neutral"}>{viaPlatform ? roles("platformAccess") : roles(role)}</Badge>
+          <Badge tone={viaPlatform ? "iris" : "neutral"}>{viaPlatform ? roles("platformAccess") : roles(grantedRole)}</Badge>
+          {readOnly ? <Badge tone="amber">{t("readOnly")}</Badge> : null}
         </div>
         {viaPlatform ? (
           <p className="mx-auto w-full max-w-[92rem] px-4 pt-2 text-xs text-muted-foreground sm:px-6">
@@ -80,7 +81,8 @@ export default async function StoreLayout({
           settings: t("tabGroups.settings"),
         }}
         items={items
-          .filter((i) => roleCan(role, i.capability))
+          // Read-only after the trial still opens every section the role does.
+          .filter((i) => roleCan(grantedRole, i.capability))
           .map(({ href, section, group }) => ({ href, section, group, label: t(`tabs.${section}`) }))}
       />
       <div className="mx-auto w-full max-w-[92rem] flex-1 px-4 py-7 sm:px-6">

@@ -770,7 +770,8 @@
       "platform": "Platform"
     },
     "people": "Personen",
-    "billing": "Facturering"
+    "billing": "Facturering",
+    "readOnly": "Alleen-lezen"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "Betaalgegevens toevoegen",
     "trialBanner": "Nog {days, plural, one {# dag} other {# dagen}} in je gratis proefperiode.",
     "trialEndedTitle": "Je gratis proefperiode is afgelopen",
-    "trialEndedBody": "Voeg betaalgegevens toe om je werkruimte te blijven gebruiken. Je winkels en gegevens blijven bewaard."
+    "trialEndedBody": "Voeg betaalgegevens toe om je werkruimte te blijven gebruiken. Je winkels en gegevens blijven bewaard.",
+    "trialEndedLead": "Je gratis proefperiode is afgelopen.",
+    "trialEndedBanner": "Winkels zijn alleen-lezen en storefronts blijven open tot {date}.",
+    "trialEndedBannerClosed": "Winkels zijn alleen-lezen en storefronts zijn offline.",
+    "trialEndedAskOwner": "Vraag de accounteigenaar om betaalgegevens toe te voegen.",
+    "trialEmail": {
+      "three_days": {
+        "subject": "Je Parcelith-proefperiode eindigt over 3 dagen",
+        "heading": "Je gratis proefperiode eindigt over 3 dagen",
+        "body": "De gratis proefperiode voor {agency} eindigt op {ends}. Voeg betaalgegevens toe om je winkels en storefronts online te houden. Er wordt pas afgeschreven als de proefperiode voorbij is."
+      },
+      "one_day": {
+        "subject": "Je Parcelith-proefperiode eindigt morgen",
+        "heading": "Je gratis proefperiode eindigt morgen",
+        "body": "De gratis proefperiode voor {agency} eindigt op {ends}. Voeg vandaag betaalgegevens toe om je winkels en storefronts online te houden."
+      },
+      "ended": {
+        "subject": "Je Parcelith-proefperiode is afgelopen",
+        "heading": "Je gratis proefperiode is afgelopen",
+        "body": "De gratis proefperiode voor {agency} is afgelopen. Je winkels zijn alleen-lezen en je storefronts blijven open tot {closes}. Voeg betaalgegevens toe om verder te gaan waar je gebleven was."
+      },
+      "cta": "Betaalgegevens toevoegen"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "Bestellingen die al zijn geplaatst, worden nog geleverd.",
       "comingSoonTitle": "{store} gaat binnenkort open",
       "comingSoonNoProducts": "Kom binnenkort terug.",
-      "browseProducts": "Bekijk {count} producten"
+      "browseProducts": "Bekijk {count} producten",
+      "pausedTitle": "Deze winkel is tijdelijk niet beschikbaar"
     },
     "shop": {
       "title": "Alle producten",

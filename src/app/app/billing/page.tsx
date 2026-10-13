@@ -36,15 +36,20 @@ export default async function BillingPage({
   if (!billingPending(agency)) return <PlanBilling user={user} agency={agency} error={error} />;
   if (!agency.billing) redirect("/app");
 
-  const [t, format] = await Promise.all([getTranslations("billing"), getFormatter()]);
+  const trialEnded = onTrial(agency);
+  // After a trial the stores stay open read-only, so the switcher lists them.
+  const [t, format, stores] = await Promise.all([
+    getTranslations("billing"),
+    getFormatter(),
+    trialEnded ? accessibleStores(user) : Promise.resolve([]),
+  ]);
   const { plan: planKey, cycle, currency } = agency.billing;
   const plan = PLANS[planKey];
   const money = (amount: number) => format.number(amount, { style: "currency", currency, maximumFractionDigits: 0 });
-  const trialEnded = onTrial(agency);
 
   return (
     <>
-      <AppHeader user={user} stores={[]} />
+      <AppHeader user={user} stores={stores} />
       <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-7 sm:px-6">
         <PageHeader title={trialEnded ? t("trialEndedTitle") : t("title")} description={agency.name} />
 

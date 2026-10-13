@@ -770,7 +770,8 @@
       "platform": "Piattaforma"
     },
     "people": "Persone",
-    "billing": "Fatturazione"
+    "billing": "Fatturazione",
+    "readOnly": "Sola lettura"
   },
   "pages": {
     "admin": {
@@ -1150,7 +1151,29 @@
     "addPayment": "Aggiungi dati di pagamento",
     "trialBanner": "{days, plural, one {Manca # giorno} other {Mancano # giorni}} alla fine della prova gratuita.",
     "trialEndedTitle": "La prova gratuita è terminata",
-    "trialEndedBody": "Aggiungi i dati di pagamento per continuare a usare lo spazio. I tuoi negozi e dati sono salvati."
+    "trialEndedBody": "Aggiungi i dati di pagamento per continuare a usare lo spazio. I tuoi negozi e dati sono salvati.",
+    "trialEndedLead": "La prova gratuita è terminata.",
+    "trialEndedBanner": "I negozi sono in sola lettura e le vetrine restano aperte fino al {date}.",
+    "trialEndedBannerClosed": "I negozi sono in sola lettura e le vetrine sono offline.",
+    "trialEndedAskOwner": "Chiedi al titolare dell’account di aggiungere i dati di pagamento.",
+    "trialEmail": {
+      "three_days": {
+        "subject": "La tua prova di Parcelith termina tra 3 giorni",
+        "heading": "La prova gratuita termina tra 3 giorni",
+        "body": "La prova gratuita di {agency} termina il {ends}. Aggiungi i dati di pagamento per mantenere attivi negozi e vetrine. Non ti verrà addebitato nulla prima della fine della prova."
+      },
+      "one_day": {
+        "subject": "La tua prova di Parcelith termina domani",
+        "heading": "La prova gratuita termina domani",
+        "body": "La prova gratuita di {agency} termina il {ends}. Aggiungi oggi i dati di pagamento per mantenere attivi negozi e vetrine."
+      },
+      "ended": {
+        "subject": "La tua prova di Parcelith è terminata",
+        "heading": "La prova gratuita è terminata",
+        "body": "La prova gratuita di {agency} è terminata. I negozi sono in sola lettura e le vetrine restano aperte fino al {closes}. Aggiungi i dati di pagamento per riprendere da dove eri rimasto."
+      },
+      "cta": "Aggiungi dati di pagamento"
+    }
   },
   "actions": {
     "common": {
@@ -3534,7 +3557,8 @@
       "closedBody": "Gli ordini già effettuati verranno comunque consegnati.",
       "comingSoonTitle": "{store} apre a breve",
       "comingSoonNoProducts": "Torna presto.",
-      "browseProducts": "Sfoglia {count} prodotti"
+      "browseProducts": "Sfoglia {count} prodotti",
+      "pausedTitle": "Questo negozio non è temporaneamente disponibile"
     },
     "shop": {
       "title": "Tutti i prodotti",
