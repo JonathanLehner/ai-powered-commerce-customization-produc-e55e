@@ -12,6 +12,7 @@
  * `npm run seo-check` all read it.
  */
 import { DEFAULT_LOCALE, LOCALES, MARKETING_PATHS, localizedPath, type Locale } from "@/i18n/locales";
+import { TEMPLATE_IDS } from "./templates/index";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { BLOG_PATH, contentPath } from "./content";
 import { POLICY_KEYS } from "./policies";
@@ -106,7 +107,9 @@ function perLanguage(
 
 /** Every page of the marketing site, in all nine languages. */
 export function marketingSitemap(): SitemapEntry[] {
-  return MARKETING_PATHS.flatMap((path) =>
+  // Each template's page in the gallery, beside the fixed pages.
+  const paths = [...MARKETING_PATHS, ...TEMPLATE_IDS.map((id) => `/templates/${id}`)];
+  return paths.flatMap((path) =>
     perLanguage(LOCALES, (locale) => siteUrl(path, locale), {
       ...Object.fromEntries(LOCALES.map((locale) => [locale, siteUrl(path, locale)])),
       "x-default": siteUrl(path, DEFAULT_LOCALE),

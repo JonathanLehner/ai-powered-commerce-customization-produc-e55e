@@ -30,6 +30,7 @@ import { localeBase } from "@/i18n/storefront-routing";
 import type { Locale } from "@/i18n/locales";
 import { NAV_COLLECTIONS_PROP, navCollectionIds } from "@/lib/collections";
 import { resolveDesign } from "@/lib/store-design";
+import { DRAFT_DESIGN_PROP } from "@/lib/templates/tree";
 import { STORE_FONT_CLASSES } from "@/lib/store-fonts";
 import { storeThemeAttributes, storeThemeStyle } from "@/lib/store-theme";
 import { LAYOUT_DEFAULTS, LAYOUT_FIELDS, layoutSettings } from "@/lib/storefront-layout";
@@ -621,6 +622,13 @@ function EditorShell(props: ShellProps) {
   // The design being tried out, drawn on the canvas before it is saved.
   const [design, setDesign] = useState<DesignState>(props.design);
   const [savedDesign, setSavedDesign] = useState<DesignState>(props.design);
+  // A draft built from a template carries its own design, saved and
+  // published with the page rather than going live on its own.
+  const { drafted } = useEditor((state) => ({ drafted: Boolean(state.nodes.ROOT?.data.props?.[DRAFT_DESIGN_PROP]) }));
+  function changeDesign(next: DesignState) {
+    setDesign(next);
+    if (drafted) actions.setProp("ROOT", (p: Record<string, unknown>) => (p[DRAFT_DESIGN_PROP] = next));
+  }
   const t = useTranslations("editor");
   const uiLocale = useLocale();
   const locale = props.locale;
@@ -894,7 +902,8 @@ function EditorShell(props: ShellProps) {
             storeId={props.storeId}
             value={design}
             saved={savedDesign}
-            onChange={setDesign}
+            drafted={drafted}
+            onChange={changeDesign}
             onSaved={(next) => {
               setSavedDesign(next);
               setDesign(next);

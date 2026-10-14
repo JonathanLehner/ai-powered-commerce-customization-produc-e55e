@@ -17,6 +17,7 @@ import { storeContentOperations } from "./store-content";
 import { storefrontSectionOperations } from "./storefront-sections";
 import { workspaceOperations } from "./workspace";
 import { teamOperations } from "./team";
+import { templateOperations } from "./templates";
 import { webhookOperations } from "./webhooks";
 
 /**
@@ -32,6 +33,7 @@ export const OPS_MODULES: ApiOperation[] = [
   ...catalogOperations,
   ...storeContentOperations,
   ...storefrontSectionOperations,
+  ...templateOperations,
   ...workspaceOperations,
   ...orderOperations,
   ...giftingOperations,

@@ -18,12 +18,16 @@ import {
 import { db } from "../mongo";
 import { STORE_ROLES, peopleGrid, type PersonRow } from "../people";
 import { storeAllowance } from "../plans";
+import { cleanDesign } from "../store-design";
 import { treeFromSections } from "../storefront-schema";
+import { getTemplate } from "../templates/index";
+import { templateTree } from "../templates/tree";
 import { STORE_ROLE_LABELS, type Membership, type Store, type StoreRole, type ThemeKey } from "../types";
 import { newId, slugify } from "../util";
 import type { Actor } from "./context";
 import { OperationError } from "./context";
 import { EMAIL_PATTERN, emailInvitation } from "./team";
+import { addStarterProducts } from "./templates";
 
 /**
  * What an agency administrator does across the agency: its stores and the
@@ -56,6 +60,10 @@ export interface CreateStoreInput {
   /** Ignored unless the storefront can be rendered in it; falls back to the default language. */
   defaultLanguage: string;
   theme: string;
+  /** Start from this store template: its design, storefront draft and copy, written for the new store. */
+  templateId?: string | null;
+  /** With a template, also add its suggested shared-catalog products as drafts. */
+  addStarterProducts?: boolean;
 }
 
 /**
@@ -78,7 +86,9 @@ export async function createStore(actx: AgencyContext, input: CreateStoreInput):
   const defaultCurrency = input.defaultCurrency;
   // Only a language the storefront can actually be rendered in is stored.
   const defaultLanguage = isLocale(input.defaultLanguage) ? input.defaultLanguage : DEFAULT_LOCALE;
-  const theme = input.theme as ThemeKey;
+  const template = input.templateId ? getTemplate(input.templateId) : null;
+  if (input.templateId && !template) throw new OperationError("invalid", t("templateMissing"), "templateId");
+  const theme = template ? template.theme : (input.theme as ThemeKey);
 
   if (name.length < 3) throw new OperationError("invalid", t("nameTooShort"), "name");
   if (!clientName) throw new OperationError("invalid", t("clientRequired"), "clientName");
@@ -98,6 +108,7 @@ export async function createStore(actx: AgencyContext, input: CreateStoreInput):
     status: "active",
     logoUrl: null,
     theme,
+    ...(template ? { design: cleanDesign(template.theme, template.design) } : {}),
     defaultLanguage,
     languages: [defaultLanguage],
     currencies: [defaultCurrency],
@@ -132,10 +143,12 @@ export async function createStore(actx: AgencyContext, input: CreateStoreInput):
     db.insertOne(COLLECTIONS.storefronts, {
       id: newId("sfr"),
       storeId: store.id,
-      draft: treeFromSections([
-        { type: "HeroSection", props: { eyebrow: clientName, headline: `${clientName} merch, made to order` } },
-        { type: "ProductGrid", props: {} },
-      ]),
+      draft: template
+        ? templateTree(template, { sourceLocale: defaultLanguage, locales: [defaultLanguage], brandName: name })
+        : treeFromSections([
+            { type: "HeroSection", props: { eyebrow: clientName, headline: `${clientName} merch, made to order` } },
+            { type: "ProductGrid", props: {} },
+          ]),
       published: null,
       publishedAt: null,
       publishedBy: null,
@@ -153,8 +166,11 @@ export async function createStore(actx: AgencyContext, input: CreateStoreInput):
     actorName: actor.name,
     entity: "store",
     entityId: store.id,
-    meta: { currency: defaultCurrency, theme },
+    meta: { currency: defaultCurrency, theme, ...(template ? { templateId: template.id } : {}) },
   });
+  if (template && input.addStarterProducts) {
+    await addStarterProducts({ store, actor, locale: actx.locale }, template);
+  }
 
   revalidatePath("/app");
   return store;

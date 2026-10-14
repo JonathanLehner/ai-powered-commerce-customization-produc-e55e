@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "template-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/template-check.mjs",
+    "template-assets": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/generate-template-assets.mjs",
+    "template-translations": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/translate-templates.mjs",
+    "template-previews": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/template-previews.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -125,6 +129,7 @@
     "@types/sanitize-html": "^2.16.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "playwright-core": "^1.64.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.131.0"

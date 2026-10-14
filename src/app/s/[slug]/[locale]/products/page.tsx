@@ -10,6 +10,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale } from "@/i18n/storefront";
 import { breadcrumbJsonLd, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata } from "@/lib/storefront-meta";
+import { layoutSettings } from "@/lib/storefront-layout";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { localizeProduct } from "@/lib/translations";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
@@ -46,10 +47,12 @@ export default async function StorefrontProductsPage({
 }) {
   const { slug, locale: requested } = await params;
   const { q, tag } = await searchParams;
-  const store = (await storefrontBySlug(slug))?.store ?? null;
+  const data = await storefrontBySlug(slug);
+  const store = data?.store ?? null;
   // A slug that belongs to no store renders the "not this address" page in
   // Parcelith's own chrome, server-side, rather than raising notFound().
   if (!store) return <UnknownStoreView slug={slug} />;
+  const { collectionColumns } = layoutSettings(data?.storefront?.published);
 
   const stored = await publishedProducts(store.id);
   const [currency, soldOut] = await Promise.all([
@@ -146,7 +149,7 @@ export default async function StorefrontProductsPage({
           />
         </div>
       ) : (
-        <ProductTileGrid className="mt-10">
+        <ProductTileGrid className="mt-10" columns={collectionColumns}>
           {visible.map((product, index) => (
             <ProductTile
               key={product.id}

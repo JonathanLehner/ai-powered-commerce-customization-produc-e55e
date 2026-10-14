@@ -13,7 +13,8 @@ import {
   type RateMode,
   type RoundingRule,
 } from "../currency";
-import { countActiveStoresForAgency, getAgency, listTaxBrackets, recordAudit, updateStore } from "../data";
+import { COLLECTIONS, countActiveStoresForAgency, getAgency, listTaxBrackets, recordAudit, updateStore } from "../data";
+import { db } from "../mongo";
 import { refreshStoreFx } from "../fx-rates";
 import { siteOrigin } from "../email";
 import { storeAllowance } from "../plans";
@@ -22,6 +23,7 @@ import { forgetStorePolicies } from "../storefront-data";
 import { createExpressAccount, onboardingLink } from "../stripe";
 import { isSupportEmail, isSupportPhone } from "../support";
 import { cleanDesign, type StoreDesign } from "../store-design";
+import { DRAFT_DESIGN_PROP } from "../templates/tree";
 import type { CarrierAccount, Store, ThemeKey } from "../types";
 import { STRIPE_COUNTRIES } from "../util";
 import { OperationError, type OperationContext } from "./context";
@@ -81,6 +83,13 @@ export async function saveBranding(
   const design = input.design ? cleanDesign(theme, input.design) : theme === store.theme ? (store.design ?? {}) : {};
   const setup = { ...store.setup, branding: Boolean(logoUrl) };
   await updateStore(store.id, { theme, logoUrl, setup, design });
+  // A draft that carries its own design (one built from a template) follows
+  // the saved look, so publishing it later does not undo this change.
+  await db.updateOne(
+    COLLECTIONS.storefronts,
+    { storeId: store.id, [`draft.ROOT.props.${DRAFT_DESIGN_PROP}`]: { $exists: true } },
+    { $set: { [`draft.ROOT.props.${DRAFT_DESIGN_PROP}`]: { theme, design } } },
+  );
   const changed = JSON.stringify(design) !== JSON.stringify(store.design ?? {});
   audit(
     ctx,

@@ -34,6 +34,7 @@ export const MARKETING_PATHS = [
   "/contact",
   "/developers",
   "/signup",
+  "/templates",
   "/legal/terms",
   "/legal/privacy",
 ] as const;

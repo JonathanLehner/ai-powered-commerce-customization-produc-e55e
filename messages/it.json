@@ -49,7 +49,8 @@
     "terms": "Termini di servizio",
     "privacy": "Informativa sulla privacy",
     "language": "Lingua",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Template"
   },
   "notFound": {
     "body": "Controlla l’indirizzo e riprova."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Sì, archivia",
     "welcomeTitle": "Il tuo piano {plan} è attivo",
     "welcomeTrialTitle": "La tua prova {plan} di {days} giorni è iniziata",
-    "welcomeBody": "Crea il tuo primo negozio per iniziare."
+    "welcomeBody": "Crea il tuo primo negozio per iniziare.",
+    "templateStep": "Inizia da un template",
+    "templateStepBody": "Un template imposta il design, le pagine e il testo di esempio. Puoi cambiare tutto più tardi.",
+    "blank": "Inizia da zero",
+    "blankBody": "Scegli un tema qui sotto",
+    "addStarterProducts": "Aggiungi i prodotti suggeriti come bozze"
   },
   "billing": {
     "title": "Completa l'abbonamento",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Inserisci un tasso di cambio per {currency} maggiore di 0.",
       "ratesUnavailable": "Non è stato possibile aggiornare i tassi di cambio. Riprova più tardi.",
       "ratesSaved": "Tassi di cambio salvati",
-      "ratesRefreshed": "Tassi di cambio aggiornati"
+      "ratesRefreshed": "Tassi di cambio aggiornati",
+      "templateMissing": "Quel template non è più disponibile. Scegli un altro."
     },
     "team": {
       "emailInvalid": "Inserisci un indirizzo email valido.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# campo tradotto.} other {# campi tradotti.}} Controlla prima di pubblicare.",
       "translateFailed": "Traduzione non riuscita. Riprova.",
       "seoSaved": "Dati SEO salvati.",
-      "designSaved": "Design salvato."
+      "designSaved": "Design salvato.",
+      "templateApplied": "Template applicato alla bozza. Pubblica quando sei pronto.",
+      "templateAppliedWithProducts": "Template applicato alla bozza e {count, plural, one {# prodotto aggiunto} other {# prodotti aggiunti}} come bozze. Pubblica quando sei pronto.",
+      "templateMissing": "Quel template non esiste più."
     },
     "admin": {
       "supplierGone": "Fornitore non trovato.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Foto grande con miniature",
       "stacked": "Foto impilate",
       "tabs": "Schede",
-      "accordion": "Accordion"
+      "accordion": "Accordion",
+      "simple": "Titolo e testo",
+      "banner": "Banner con la foto della collezione"
     },
     "revert": "Ripristina la versione pubblicata",
     "noProductsTitle": "Ancora nessun prodotto pubblicato",
@@ -3517,7 +3529,9 @@
       "link": "Link",
       "author": "Autore",
       "role": "Ruolo o azienda",
-      "quote": "Citazione"
+      "quote": "Citazione",
+      "collectionColumns": "Prodotti per riga nelle pagine negozio e collezione",
+      "collectionHeader": "Intestazione delle pagine negozio e collezione"
     },
     "repeat": {
       "slide": "Slide {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Realizzato su ordinazione e spedito in tutto il mondo.",
       "samplePrimary": "Acquista ora",
       "sampleSecondary": "Scopri di più",
-      "sampleSurface": "Spedizione gratuita per ordini superiori a 75"
+      "sampleSurface": "Spedizione gratuita per ordini superiori a 75",
+      "draftNote": "Questo design fa parte della bozza. Andrà online quando pubblicherai."
     },
     "productPage": {
       "blocks": "Blocchi pagina prodotto",
@@ -5746,5 +5761,81 @@
     "link": "Collega prodotto",
     "linking": "Collegamento…",
     "noCatalog": "Nessun prodotto del catalogo disponibile da collegare."
+  },
+  "templates": {
+    "demoBasket": "Questo è un negozio demo, quindi nulla viene aggiunto al carrello.",
+    "demoTitle": "Demo del template {name}",
+    "demoNotice": "Stai visualizzando il template {name}. Prodotti e prezzi sono esempi.",
+    "useTemplate": "Usa questo template",
+    "allTemplates": "Tutti i template",
+    "metaTitle": "Template per negozi",
+    "metaDescription": "Design completi per negozi di merchandising per aziende, startup, creator, band e club sportivi. Visualizza in anteprima dal vivo ciascuno e inizia in pochi minuti.",
+    "title": "Parti da un negozio pronto",
+    "lead": "{count} design completi per negozi con layout, immagini, testo di esempio e prodotti suggeriti. Visualizzane in anteprima uno qualsiasi dal vivo, quindi rendilo tuo.",
+    "all": "Tutti",
+    "allStyles": "Tutti gli stili",
+    "category": "Categoria",
+    "style": "Stile",
+    "livePreview": "Anteprima dal vivo",
+    "details": "Visualizza template",
+    "none": "Nessun template corrisponde a questi filtri.",
+    "categories": {
+      "company": "Negozi aziendali e per dipendenti",
+      "tech": "Tech e startup",
+      "creators": "Creator e podcaster",
+      "music": "Band e musicisti",
+      "sports": "Club e squadre sportive"
+    },
+    "styles": {
+      "minimal": "Minimal",
+      "bold": "Audace",
+      "playful": "Divertente",
+      "editorial": "Editoriale",
+      "retro": "Retrò",
+      "luxury": "Lusso",
+      "technical": "Tecnico",
+      "dark": "Scuro"
+    },
+    "templateMetaTitle": "Template per negozio {name}",
+    "startWithIt": "Inizia con questo template",
+    "desktopPreview": "{name} su schermo desktop",
+    "mobilePreview": "{name} su telefono",
+    "design": "Colori e caratteri",
+    "fonts": "{heading} per i titoli, {body} per il testo",
+    "included": "Cosa ottieni",
+    "includedHome": "Una home page con {count, plural, one {una sezione} other {# sezioni}}",
+    "includedProductPage": "Un layout per la pagina prodotto",
+    "includedCollection": "Layout per le pagine negozio e collezione",
+    "includedHeaderFooter": "Intestazione, piè di pagina e barra degli annunci",
+    "includedImages": "Fotografie originali",
+    "includedLanguages": "Contenuti in nove lingue",
+    "sections": "Sezioni della home page",
+    "starterTitle": "Prodotti suggeriti",
+    "starterLead": "Aggiunti al tuo catalogo come bozze quando inizi da questo template. Aggiungi la tua grafica, quindi pubblica.",
+    "moreIn": "Altro in {category}",
+    "previewExpired": "Questo link di anteprima è scaduto",
+    "previewExpiredBody": "Apri nuovamente il template dall'editor del negozio per ottenere un nuovo link.",
+    "storePreviewNotice": "Anteprima del template {name} con i tuoi prodotti. Il tuo negozio non è stato modificato.",
+    "storePreviewSample": "Anteprima del template {name} con prodotti di esempio, perché il tuo negozio non ha ancora prodotti con foto. Il tuo negozio non è stato modificato.",
+    "picker": {
+      "open": "Cambia template",
+      "title": "Cambia template",
+      "body": "Scegli un template per visualizzarlo in anteprima con i tuoi prodotti. L'applicazione di uno modifica solo la bozza.",
+      "choose": "Scegli",
+      "replaces": "Sostituisce le sezioni, la pagina prodotto, l'intestazione, il piè di pagina e il design nella tua bozza.",
+      "keeps": "Prodotti, ordini e impostazioni non vengono modificati.",
+      "history": "La tua bozza attuale viene salvata nella cronologia delle versioni, così puoi ripristinarla.",
+      "unsaved": "Le modifiche non salvate nell'editor vengono scartate.",
+      "addProducts": "Aggiungi anche i prodotti suggeriti al catalogo come bozze",
+      "apply": "Applica alla bozza",
+      "reapply": "Applica di nuovo",
+      "applying": "Applicazione in corso…",
+      "preview": "Anteprima con i miei prodotti",
+      "opening": "Apertura in corso…",
+      "back": "Tutti i template",
+      "failed": "Qualcosa è andato storto. Riprova."
+    },
+    "demoNewsletter": "Questo è un negozio di prova, quindi nessuna email è stata inviata.",
+    "demoMissing": "Non c'è nessun modello a questo indirizzo"
   }
 }

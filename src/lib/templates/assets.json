@@ -1,0 +1,431 @@
+{
+  "onboard": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/8c80eadc4246e662db07c84c7ec1162d-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/9d41c8b0618f2edb526394e117fe9c59-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1ce7d14b4a8a0b67746659b8ba2d174b-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3c4e32cd83379ff991d0d8954ddf38ae.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ee693c5af8d2c60d2b7d4eab0d568702.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6a81877157f1707b9431891a806a915e.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/060045fdcd7844c32e7d2e6f96689ad0.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4ac63392a480b786b2bb0ef047299a50.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c63bda9282ad640da797727e68479221.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d379167c6326a1e564c6291a52c0bea2.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/64d4e893eb83b261fad6ecaecfda288e.webp"
+    }
+  },
+  "field-day": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/cc6c4d03c3f4bfd85736c02552ed0357-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/857d114f96962c0fea74f1ac35014642-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/0500ba1e206a6f610af99926a0f1de8d-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2eb25c5be2cfd322544869504aa87656.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d83d00bb685af36ef2ca1ad26cb01f2d.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4a09f47c1b299a72288382cf0bf36b55.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6151a46107ddfc0c9f6c6e5005010d48.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a7f619d04f4ac81c9a94dc0fb2136634.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/518986662c41360f066848fd41d709c0.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/48dd9e4b29536c1029d918cc517f7461.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/25a3fad54f0aa9d30d0d86123843cedd.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b809366b23fa31a5ef521e23d361a759.webp"
+    }
+  },
+  "ledger": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/9954633371e8e4902644f99549cdfa14-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/60352870339c0010f623c21cb38e978d-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/e54cf9549977443009866bc692bbfac3-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7d2a464d9dced2d5960595604ef670e3.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/bf92337374703f355aa372eec317860e.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b0963e8d353b356fdb852ac7c6c82694.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/490cc56b1e1aabe70027f93ed4c3dfde.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/efc7cf3582e5fee60fed826d31e240de.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fa5b6b8d24965099684ffeac75854fcd.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e608aa2115d5a067f260c707453b4d82.webp"
+    }
+  },
+  "basecamp": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/3e8e16ecdc6f9df6404762fcbe535edd-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/3ca1c8759acde10614fcb547e20bca47-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/57b8405a4d71904141af26587cb455c8-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/101a67ead4d4dec7fdb7cd2c2537cf50.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d779035f83754c97ebb07b4a51e6855a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/bcfa20a9a3edb8aad8699c3d33594b1a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8b1fc51056ad81023deb2da9c8b72a4f.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fbc89b210bd2e8c2c4becbf6de68a333.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/528a242694f00e4875b1b30927475804.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/55962e29c6e657ade89383b01dbabf41.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e6997dbef4295dbcc259905b5c35b9c9.webp"
+    }
+  },
+  "gridline": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/42187dc3f3310e672cac85053d219d66-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/e2df2f74b123b4caf00c36b75b0466cf-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/025d75639419425009e38ec73854a59d-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b17ce7fc0456a200e95d373e52c328ad.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8adfc467f4d39c88adfeb5da98c78ee8.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/49a397920f4841137947943cb214962b.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a77494def94647a30b139750db6e4759.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8b2e6f9a2b90498d63338b6b0c0a6087.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0e06f61fbb9de90635a77b36ce122efb.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b71c11134dd873584bb36b7b927fce2f.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/18bb63dd012dd4fb177e3c29d58f0dff.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/35492e2e03b180c6ddb4eeb006975379.webp"
+    }
+  },
+  "terminal": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/d70d6c15f9fd0b4d7565db1b9370c32e-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/67ca589322c35b5cc582a88e00a1d1e8-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/35b780bbfe0abf2ee1d556fad12aa12c-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8c96754bb6b1924209eea842ffd871ce.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d446fea492c565f6a7707f9c4d03db79.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/15ab39d05d17e4d0afb0fa21324fc09d.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d0eb1411eb4b0fa46bea7608f3eb8a62.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d4c8a32d36d2724c0fb164733261d063.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5d4b963d23dec09e6e4b62bf01545524.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2212b8654506f598ff891d5c6bf071c7.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7205fcc20bdbceabc19562624419e519.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/856ed1fd8d5d30294807fc0f0ecfc011.webp"
+    }
+  },
+  "launchpad": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c07607897981f1ab989be1088d63d07c-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/d6d8f0dce62aca3ef698a4ad6fc5f281-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/8131c5478dd2e651a33b7ed7457df5e6-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/eaf5f7241f0180ca4a3896b566df120a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c83a209cf2a70f7884507aa613396f6e.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/933b818a9700910322729f23c5fd3fff.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c030c7b0f226d22998d25564d87bd6b8.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0c6028a888bb2e1adfaece9fb7c7b04b.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d8421e97be1a7a6e2e81c0cda48a8cf6.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4c0915d4cfec2ba531b8ce7c53dd3aa4.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1a81b2809d95d423d063dde4ec14a9eb.webp"
+    }
+  },
+  "stack": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/6012867cd72eb8c77e5efe91487b82dc-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/48eb4336c356917e976924d45be53236-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/5db5565a12c6da55ae831ff87fab977a-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a12f9d90d95356423da079c86d29af63.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/87ef9549e02711959d353b96ac1f105f.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d342cf1bea4a30b74d55dbd0fc5203d4.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0cd5fec8fcbfb8c1490094aaee0f3783.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/88057de848efac09eac8b251a9d27e4e.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1fb44b3e7f747ab552ef4ec721387e7e.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/74ca40557345fa94603c86921fbccea8.webp"
+    }
+  },
+  "pixel": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a0dbeb913e3702f21ab8b3c6992b61ee-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a45fc2b140042415259c479aebf934bf-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/92f7cf89fc6be57525ee519f441ec29a-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c2e50d393fbe5a2870bcc7532a6990b4.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/32b6f0cc72cecdae0f4bdb4e0450971e.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/268f12b7b33506fe6081c8ea19107e40.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/de8e0c2b2803aa36b273b57b598f76af.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4d96018973e03b11d6b05c5cbada3e22.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6a10c168e1e0b199269d5cd6bd83fa78.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c6bb4689f2150ab4e2ca9c22ca13372c.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c8016d5be77b6c638246dae7a31aa9cf.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/654177e4ac92ba46e55d7f0f4f65b75b.webp"
+    }
+  },
+  "keynote": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/71b3ac7288ecb2079e77e2785495e47e-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/7eb6c263269286e068e3f7bc581eaef8-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/7dcc83d9031839171398160a3815d5db-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/558ea7ca696f36630730cb6ea1bf2e16.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1247fe995bc413376b273d5982273865.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7f62db8900e3d3674c356a409e494d06.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2acfa27090123f15332f30a8e660879c.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/92d369fa714dee03e937a5e8d01f53cf.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4beda1c65a0d276756ad7a346f821ff8.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7c728c90118671743740b5c6cfc1b1c9.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a6108600712ac3958127198ccf9093bf.webp"
+    }
+  },
+  "drop-studio": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a990e0131f18018d7dcb1173131f9f71-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/788a2a9ef1be4aa89e4db6d67093474c-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/800cac1d7035427b497f40541f1c8e88-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/24d199c6c1401941320ca587724cd0d2.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/27a6d5849a22f8a5f9b7a6f3e3fcd0cb.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7b9cef392967155bbdace1f203671e80.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/282c2e209477ae14fbdf446cd637cf52.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/197a248b6c48d76fde82af8d1cb7b4f3.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9668d1e6d15f80fc6f4b16645db3c996.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e51e6c358e885d34de465ae1d039f67c.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3c301e487b49136fa14f52e795949663.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7c4e759f339d4b5864f9f030794c480a.webp"
+    }
+  },
+  "airwaves": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/34bf615b5b35e3ba2a96c10053440b90-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/8d7e4e33b845e3358d5d34f1a6f2e114-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/5bdb2cb836aebec0cdbe8ecc254f111e-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/21898d860846242104eaf775f81faeb0.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a43eba8c90f0b919b6acc0ecad2d81e7.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3977cf68f8b2d0b46d4a48f912d6b7c9.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/accead0461614534a242567ed581a20e.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fd13a063bb4da63e0155ffb64dfefef2.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5c995cddf59832d10fcb34f7c7ea91c5.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/79562f98890fbfa2206913bcb5ac8d59.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/63ec7bf6a14fdd2e273e59f31d6a8f04.webp"
+    }
+  },
+  "inner-circle": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/91bb733719501961ba4d3c6f16c4bc33-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/3bdbfd8745df2463b70179ccea2221f8-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/fd2fe07169b44e251897292b868cce17-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f389cb2125dfc9a3aa1f51d04fea7f4d.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c8fc956580edd822fd551b8809723230.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a81f4fba6d2c5a313bb0798ac0697c8e.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c1c46548b82bea5968993745fea2c4d5.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e3c36bad7669e8ed143c14f41da5491c.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/76ae9861559c5b214b0ee1ffb3de1aae.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2bcbae7e94c38a06ab445a0aa7e1accf.webp"
+    }
+  },
+  "sticker-club": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/883fecc10430efe81f6ef5680c5ca9e1-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/d7939d50f09d8e2ca706316e706b73e9-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/96935a3d77dd8fb601899b6e5ba1ad6b-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6ea1e288f65c881c2dc16abee786a127.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5c8cd0f14fe614ce345371d97a2c29d1.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c0a1b6c8d27ce2d7e09757ff84b806e0.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b13aee91fbdcb20c9f579db222ddbcb7.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8558694f01cb7044644fee4460a83f82.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/96f7b7d3e76745082db03ec0443d4b7c.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/caf9ff30774250265960bdb585c9d3de.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b1917f23eb70eb6feaf93bcd1f23bfe5.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ce397a6af5c2c235c5d9eb37501da1de.webp"
+    }
+  },
+  "notebook": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1f1d4b187011bf3636eb97c9d89e348c-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/16f99cc20656fb014966a80e6f700d4b-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/4b001f69600db573bdd24f6379f1fe81-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8e2ad8634e8c5ef16f78cac8b49b1b81.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/358a477473e7bf7785fce63afb395979.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f8048c1010f5e16b0adea9ba36a1eb39.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fd87d14aae310fdcbc1df3662f91fecc.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/aaff6a1bece939f61cf36fd35f7603e2.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b7dc51b10dd47dc80e94b622697adeee.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/542048ef794e589de8eb08acfad88f14.webp"
+    }
+  },
+  "headliner": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/0a8373615259d62ff62878dc9c6c4f9d-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/3f9fe95d8b28e699dd73f7d4b2b30fb3-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/433c26cbc8dc4bd3409a1b5800b04f84-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c6a6d245e9296e41bbad88096921f6b3.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fff305f3e35368a2c3503c689896f7db.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d1a66d6af036b7297e95799dc3823e7c.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c48448326cac7f0b44545f353d504ee2.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/46fdc92ae56c202ea52500b64bb54fab.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d38abadc7f98b3b3cb008f80ba721ca1.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e2d837143e381afe1367249de1e3687a.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/709e35290841807ef296fbb2f7b15eb3.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/cd568c00fa3e5c71bf6db7ed410daa21.webp"
+    }
+  },
+  "era": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/130772735946a64c0ed352cdafc08064-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1ae97d532196c1c9fe49bab856cb24fa-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/b856bc05fa65de3b2cf79377e28626e6-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ee34dde1b94df2e12c27af132bae0ba4.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/65b07e1a8212aff66142674c5ace2945.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0bcafd5b51f0cfd83376e2bfd51e79dd.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4fe1d3fb6a888a46c723e2aee365cb52.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c59469ce5d35b1e2d940da5896a766e4.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/127d73cfa3bc6cbd139cc21472e41e99.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5893f01904f582e5c63287a06844f9b3.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/eb6133180ff1f6a1015a8bbb427d929c.webp"
+    }
+  },
+  "wax": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/b56727d41fc09a875db7e10a03cddb7f-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/0236d1cef9ae404003595baf75ab812e-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/828d25261837ca86a16b77ea590cfc8a-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8ac2f8ceacec142e8dc092be8ccc3d9a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fc50466a7053d985583f3105f284de6a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7cc53a0c4e0b00eb36d68388dbaa73ec.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/df0f67f8a7173f64afe91aa5b546247b.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/eeb794f3072b288dfbdb9f99179558e0.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d12b1ead5c45c6877744ded0b0e28b11.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f63da45b4e8ae4b715447c0d91cdf1cb.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/491832f56097a647a6a0bea6ebaa775d.webp"
+    }
+  },
+  "noise": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/379d4721e2e9fd4de5e8985270dd85b6-1.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c54d8125b4a9afbd70bd32d8ed7f74b5-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/e2eaec9dec11eab611de47bd2af575c8-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7a706eb3a8af45ee7d53e11aea160a2d.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/dfd2908487a41642d82bbc71e4ef7066.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/930a66f4a9d3328c95f47c6980379a7a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/cca6b8db00d440c9fd56f588374af1ad.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d5b2fa91a242b45970c31458f90a79dc.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/06d77be2bc82f579f1aa59a75f909e8e.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fde8157f90bf85c663d513b0f4e0b6ce.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b14f0ad558cce45a918e119b074aa1ab.webp"
+    }
+  },
+  "nocturne": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/929b097414bef77e31ba8f307bacbbbb-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/28cecf57034bf970889724dd34c36fdb-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/39f0b7be993b2544f35f8f22d701596f-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4c76981052ff4f9817c212cb57493c5c.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/19ccf1474ed66112c81ac2659d2feb4b.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5c493af6e17b4c84b495051058cf3625.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/780b223aa50e431733072215a33cf834.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a9b6470c09e67367561b24bd455d7a17.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ad83c065ccd61532a1edf6c9a73749fa.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/589f89618562eb7bed1f6697f34c149c.webp"
+    }
+  },
+  "matchday": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/9c889259a87fbda2417f8f792c6a9e79-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/6490a02cefecb3b2c0c591ecc0e8b558-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c3a3feca18dfb665fa667c0b3df207d5-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d61383d89322c12cac5b8552e04469c0.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6c48f5dfa079841a238aba3ce9e80712.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1c91ed9f1a074dd0ded37349e7539ee3.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0e647edee71f5f1d4468e905d13f7691.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/abd7ec3ce043187419563cf062cff6b6.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/54594e94034163fd1945d8416f2e3132.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9ad7f7763cf64203d5dedb003bbf17e3.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5444b3835c4f6ede7f3627e024b74f1f.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a66058da51ee5bb9190feca3f53eb445.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ab70a87a899fc5f29fa053d5264dffab.webp"
+    }
+  },
+  "terrace": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/d2f4b8e166068b2262132d3b02dae5ec-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/54e70c4787175cb11a2f6588bea8b904-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/7d9c2c77844f6f012b9e1fffcf55e12b-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/15e5763a88ba03cb1644959f87769cae.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/32983822a078489b1a6ffd53d2555fac.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d10c45eecd8aa1f737479c55a02e3322.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/647b6598ee41bd90576570384e3bdaeb.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7f1abc5081876e00ec6d32c475a40fd7.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ca5ef22ccbdac793091799ee1aa8642c.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c4d6c07e20e6d5636dfa8cc772a15739.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9a82ea1d5e2046e6e50db362a0bbbbaa.webp"
+    }
+  },
+  "academy": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/b1dcf5f9cd3ca3891332fdf25b572128-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/633a8936e74c4e12366404dae0ceaad3-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c0642b2e648f8c2c9b629c2e7f19dfbd-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5689146cf4b460a12ddbf50fc3a14933.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e360e87086ff08357ca5868ac09d46aa.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f5b2ff63ec31a54c2947c8c793fe9f86.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6cec3f1af52134d54a35f98d7c4b2531.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c07e146b8a7ae9e174d0cd4ccce2f51f.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0f1cbfbe343604626a3828d1630b4d1b.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9cc890faa259b741c011fb7979cadae4.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/60454f1a87995f9275601b6bf942d2d0.webp"
+    }
+  },
+  "clubhouse": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/dc83e6b7e9dc374010444fd4e691a962-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/988c632251413a219cba970ca8287f22-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c0773fdb8ae3476c8deba2e753a0902f-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/afcf16b8e9a9c896ca9a61982b549916.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3a15b51e257ccfd2cbfd15e75596598a.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e375fc7d7d8462d2b319972b09e99911.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/44e98f8a445aaaf5b781f66b7732c780.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/728f36e026db5ae451d9ea6a9c2f2026.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/be3ca4abd676e9dc882a381bd38c84d2.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1451e328a9938bc57c10018150046405.webp"
+    }
+  },
+  "pace": {
+    "hero": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/7192106617a8660e267ef6164d76cbc2-0.jpg",
+    "lifestyle": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/ed46b8434d1d1e79397dc0760ec125a0-0.jpg",
+    "banner": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c7e21096d5f6b5fb57b8025879a67139-0.jpg",
+    "products": [
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5e8ebef448f7890756081837df79549f.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6ffcf1f0a95618bda27e67c2b367dc38.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/845222df038fb9f9ecb8ba6f82f90a61.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/dd45d74e8d7c2ca9a97a8d6cd38647f8.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/84244dd7c883b015177303cb6aeb7515.webp",
+      "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0b063b3aaca1c834f77b64e760a3c7b9.webp"
+    ],
+    "previews": {
+      "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/94da9bc2a010b50c44aa8a5496f012f5.webp",
+      "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c843e47c645db142d4c1abb91685598c.webp",
+      "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5644ad87deb256e2bd95a8131633a522.webp"
+    }
+  }
+}

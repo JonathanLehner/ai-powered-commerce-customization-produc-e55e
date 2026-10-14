@@ -49,7 +49,8 @@
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",
     "language": "言語",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "テンプレート"
   },
   "notFound": {
     "body": "アドレスを確認して、もう一度お試しください。"
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "アーカイブする",
     "welcomeTitle": "{plan}プランが有効になりました",
     "welcomeTrialTitle": "{plan}の{days}日間トライアルが始まりました",
-    "welcomeBody": "最初のストアを作成しましょう。"
+    "welcomeBody": "最初のストアを作成しましょう。",
+    "templateStep": "テンプレートから始める",
+    "templateStepBody": "テンプレートでデザイン、ページ、サンプルコピーを設定します。後からすべて変更できます。",
+    "blank": "空白から始める",
+    "blankBody": "以下のテーマを選択してください",
+    "addStarterProducts": "おすすめ商品を下書きとして追加"
   },
   "billing": {
     "title": "サブスクリプションを完了",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "{currency} の為替レートには 0 より大きい値を入力してください。",
       "ratesUnavailable": "為替レートを更新できませんでした。しばらくしてからもう一度お試しください。",
       "ratesSaved": "為替レートを保存しました",
-      "ratesRefreshed": "為替レートを更新しました"
+      "ratesRefreshed": "為替レートを更新しました",
+      "templateMissing": "そのテンプレートは現在利用できません。別のテンプレートを選択してください。"
     },
     "team": {
       "emailInvalid": "有効なメールアドレスを入力してください。",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, other {# 件を翻訳しました。}}公開前に確認してください。",
       "translateFailed": "翻訳に失敗しました。もう一度お試しください。",
       "seoSaved": "SEO 情報を保存しました。",
-      "designSaved": "デザインを保存しました。"
+      "designSaved": "デザインを保存しました。",
+      "templateApplied": "テンプレートが下書きに適用されました。準備ができたら公開してください。",
+      "templateAppliedWithProducts": "テンプレートが下書きに適用され、{count, plural, one {1点の商品} other {#点の商品}} が下書きとして追加されました。準備ができたら公開してください。",
+      "templateMissing": "そのテンプレートは存在しません。"
     },
     "admin": {
       "supplierGone": "サプライヤーが見つかりません。",
@@ -3267,7 +3277,9 @@
       "thumbnails": "サムネイル付き大型写真",
       "stacked": "積み重ね",
       "tabs": "タブ",
-      "accordion": "アコーディオン"
+      "accordion": "アコーディオン",
+      "simple": "タイトルとテキスト",
+      "banner": "コレクション写真付きバナー"
     },
     "revert": "下書きを公開版に戻す",
     "noProductsTitle": "まだ公開中の商品はありません",
@@ -3517,7 +3529,9 @@
       "link": "リンク",
       "author": "著者",
       "role": "役職または会社",
-      "quote": "引用文"
+      "quote": "引用文",
+      "collectionColumns": "ショップページとコレクションページの1行あたりの商品数",
+      "collectionHeader": "ショップページとコレクションページのヘッダー"
     },
     "repeat": {
       "slide": "スライド {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "受注生産、世界中に発送",
       "samplePrimary": "今すぐ購入",
       "sampleSecondary": "詳細はこちら",
-      "sampleSurface": "75以上の注文で送料無料"
+      "sampleSurface": "75以上の注文で送料無料",
+      "draftNote": "このデザインは下書きです。公開時にストアに適用されます。"
     },
     "productPage": {
       "blocks": "商品ページブロック",
@@ -5746,5 +5761,81 @@
     "link": "商品をリンク",
     "linking": "リンク中…",
     "noCatalog": "リンクできるカタログ商品がありません。"
+  },
+  "templates": {
+    "demoBasket": "これはデモストアのため、カートには何も追加されません。",
+    "demoTitle": "{name} テンプレートのデモ",
+    "demoNotice": "{name} テンプレートをご覧いただいています。商品と価格は一例です。",
+    "useTemplate": "このテンプレートを使用",
+    "allTemplates": "すべてのテンプレート",
+    "metaTitle": "ストアテンプレート",
+    "metaDescription": "企業、スタートアップ、クリエイター、バンド、スポーツクラブ向けの完成されたマーチャンダイズストアデザイン。ライブプレビューで各デザインを確認し、数分でストアを始められます。",
+    "title": "完成されたストアから始める",
+    "lead": "レイアウト、画像、サンプルコピー、おすすめ商品を含む {count} 個のストアデザインが完成済みです。ライブプレビューで確認し、あなたのストアにしましょう。",
+    "all": "すべて",
+    "allStyles": "すべてのスタイル",
+    "category": "カテゴリー",
+    "style": "スタイル",
+    "livePreview": "ライブプレビュー",
+    "details": "テンプレートを表示",
+    "none": "これらのフィルターに一致するテンプレートはありません。",
+    "categories": {
+      "company": "企業・従業員向けストア",
+      "tech": "テック・スタートアップ",
+      "creators": "クリエイター・ポッドキャスター",
+      "music": "バンド・ミュージシャン",
+      "sports": "スポーツクラブ・チーム"
+    },
+    "styles": {
+      "minimal": "ミニマル",
+      "bold": "大胆",
+      "playful": "遊び心のある",
+      "editorial": "エディトリアル",
+      "retro": "レトロ",
+      "luxury": "ラグジュアリー",
+      "technical": "テクニカル",
+      "dark": "ダーク"
+    },
+    "templateMetaTitle": "{name} ストアテンプレート",
+    "startWithIt": "このテンプレートで始める",
+    "desktopPreview": "デスクトップ画面での {name}",
+    "mobilePreview": "スマートフォンでの {name}",
+    "design": "色と書体",
+    "fonts": "見出しに {heading}、本文に {body}",
+    "included": "含まれるもの",
+    "includedHome": "{count} セクションを含むホームページ",
+    "includedProductPage": "商品ページのレイアウト",
+    "includedCollection": "ショップとコレクションページのレイアウト",
+    "includedHeaderFooter": "ヘッダー、フッター、告知バー",
+    "includedImages": "オリジナル写真",
+    "includedLanguages": "9言語対応のテキスト",
+    "sections": "ホームページセクション",
+    "starterTitle": "おすすめ商品",
+    "starterLead": "このテンプレートから始める際に、下書きとしてカタログに追加されます。アートワークを追加して公開してください。",
+    "moreIn": "{category} のその他",
+    "previewExpired": "このプレビューリンクは有効期限が切れました",
+    "previewExpiredBody": "ストアフロントエディターからテンプレートを再度開くと、新しいリンクが取得できます。",
+    "storePreviewNotice": "あなたの商品で {name} テンプレートをプレビューしています。ストアは変更されていません。",
+    "storePreviewSample": "ストアに写真付き商品がないため、サンプル商品で {name} テンプレートをプレビューしています。ストアは変更されていません。",
+    "picker": {
+      "open": "テンプレートを変更",
+      "title": "テンプレートを変更",
+      "body": "テンプレートを選択して、あなたのストアの商品でプレビューしてください。適用しても下書きのみが変更されます。",
+      "choose": "選択",
+      "replaces": "下書き内のセクション、商品ページ、ヘッダー、フッター、デザインが置き換えられます。",
+      "keeps": "商品、注文、設定は変更されません。",
+      "history": "現在の下書きはバージョン履歴に保存されており、復元することができます。",
+      "unsaved": "エディターでの未保存の変更は破棄されます。",
+      "addProducts": "おすすめ商品を下書きとしてカタログに追加する",
+      "apply": "下書きに適用",
+      "reapply": "再適用",
+      "applying": "適用中…",
+      "preview": "自分の商品でプレビュー",
+      "opening": "開いています…",
+      "back": "すべてのテンプレート",
+      "failed": "問題が発生しました。もう一度お試しください。"
+    },
+    "demoNewsletter": "こちらはデモストアのため、メールは送信されませんでした。",
+    "demoMissing": "このアドレスにはテンプレートが見つかりません。"
   }
 }

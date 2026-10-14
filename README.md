@@ -214,6 +214,26 @@ gifting, orders, team, guided setup, activity.
   store or the dashboard. Every surface has a matching error page with a retry,
   so a failure mid-flow is explained rather than blank (`npm run fallback-check`).
 
+- **Store templates.** 25 complete starting points in five categories (company
+  and employee stores, tech and startups, creators and podcasters, bands and
+  musicians, sports clubs), five style directions each. A template is plain data
+  in `src/lib/templates/data/*`: design tokens, header and footer settings, home
+  page sections, product page blocks, shop and collection layout, sample copy for
+  a fictional brand (translated into all nine languages in
+  `src/lib/templates/i18n.json`), original photography and product shots
+  (`src/lib/templates/assets.json`) and a starter selection of shared-catalog
+  products. The marketing site has a gallery at `/templates` with a page per
+  template and a prerendered demo store at `/demo/<template>/<lang>`. A new store
+  can start from one, and the storefront editor's "Change template" previews the
+  store's own products in a template (a signed link, `/template-preview/…`) and
+  applies it to the draft only: the draft it replaces is kept in version history,
+  products, orders and settings are untouched, and the template's design goes
+  live when the draft is published. The Admin API and MCP have `listTemplates`,
+  `getTemplate`, `previewTemplate` and `applyTemplate`, and `createStore` takes a
+  `templateId`. `npm run template-check` checks every template's sections,
+  images, contrast and translations, and with `--base <url> --browser` renders
+  every demo store at 1440px and 390px and fails on broken sections, missing
+  images, overflow or text below WCAG AA.
 - **API and MCP for everything.** Every operation is defined once in
   `src/lib/api/operations.ts` (modules under `src/lib/api/ops`) and served as a
   REST endpoint, an OpenAPI operation and an MCP tool. The Admin API
@@ -438,6 +458,20 @@ time.
 ```bash
 node --env-file=.env.local scripts/seed.mjs   # clears and reseeds MONGODB_DB; refuses production
 ```
+
+Template assets are built once and committed, never at request time:
+
+```bash
+npm run template-assets         # photos (image model), product shots on the catalog's mockups, WebP widths
+npm run template-translations   # template copy into the eight other languages
+npm run build && npm start &
+npm run template-previews -- --base http://localhost:3000   # gallery thumbnails and full-page previews
+npm run template-check -- --base http://localhost:3000 --browser
+```
+
+The asset, preview and check scripts drive a local Chrome through
+`playwright-core` (`CHROME_PATH`, default `/usr/bin/google-chrome`); they are
+build tools and never part of the deployed app.
 
 `scripts/migrate-to-mongodb.mjs` copied production off the ClawCorp platform
 database API into `parcelith`, keeping every `id` and `_id`. It pages past the

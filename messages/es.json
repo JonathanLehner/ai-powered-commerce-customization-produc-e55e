@@ -49,7 +49,8 @@
     "terms": "Condiciones del servicio",
     "privacy": "Política de privacidad",
     "language": "Idioma",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Plantillas"
   },
   "notFound": {
     "body": "Comprueba la dirección e inténtalo de nuevo."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Sí, archivar",
     "welcomeTitle": "Tu plan {plan} está activo",
     "welcomeTrialTitle": "Tu prueba de {plan} de {days} días ha comenzado",
-    "welcomeBody": "Crea tu primera tienda para empezar."
+    "welcomeBody": "Crea tu primera tienda para empezar.",
+    "templateStep": "Empieza con una plantilla",
+    "templateStepBody": "Una plantilla define el diseño, las páginas y el texto de ejemplo. Puedes cambiarlo todo más tarde.",
+    "blank": "Empezar desde cero",
+    "blankBody": "Elige un tema a continuación",
+    "addStarterProducts": "Añadir los productos sugeridos como borradores"
   },
   "billing": {
     "title": "Completa tu suscripción",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Introduce un tipo de cambio para {currency} mayor que 0.",
       "ratesUnavailable": "No se han podido actualizar los tipos de cambio. Inténtalo de nuevo más tarde.",
       "ratesSaved": "Tipos de cambio guardados",
-      "ratesRefreshed": "Tipos de cambio actualizados"
+      "ratesRefreshed": "Tipos de cambio actualizados",
+      "templateMissing": "Esa plantilla ya no está disponible. Elige otra."
     },
     "team": {
       "emailInvalid": "Introduce un correo válido.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# campo traducido.} other {# campos traducidos.}} Revísalos antes de publicar.",
       "translateFailed": "La traducción falló. Inténtalo de nuevo.",
       "seoSaved": "Datos SEO guardados.",
-      "designSaved": "Diseño guardado."
+      "designSaved": "Diseño guardado.",
+      "templateApplied": "Plantilla aplicada al borrador. Publica cuando estés listo.",
+      "templateAppliedWithProducts": "Plantilla aplicada al borrador y {count, plural, one {# producto} other {# productos}} añadidos como borradores. Publica cuando estés listo.",
+      "templateMissing": "Esa plantilla ya no existe."
     },
     "admin": {
       "supplierGone": "No se ha encontrado el proveedor.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Foto grande con miniaturas",
       "stacked": "Fotos apiladas",
       "tabs": "Pestañas",
-      "accordion": "Acordeón"
+      "accordion": "Acordeón",
+      "simple": "Título y texto",
+      "banner": "Banner con la foto de la colección"
     },
     "revert": "Volver a la versión publicada",
     "noProductsTitle": "Aún no hay productos publicados",
@@ -3517,7 +3529,9 @@
       "link": "Enlace",
       "author": "Autor",
       "role": "Cargo o empresa",
-      "quote": "Cita"
+      "quote": "Cita",
+      "collectionColumns": "Productos por fila en las páginas de tienda y colecciones",
+      "collectionHeader": "Cabecera de página de tienda y colecciones"
     },
     "repeat": {
       "slide": "Diapositiva {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Hecho bajo pedido y enviado a todo el mundo.",
       "samplePrimary": "Comprar ahora",
       "sampleSecondary": "Más información",
-      "sampleSurface": "Envío gratis en pedidos superiores a 75"
+      "sampleSurface": "Envío gratis en pedidos superiores a 75",
+      "draftNote": "Este diseño forma parte del borrador. Se activará cuando lo publiques."
     },
     "productPage": {
       "blocks": "Bloques de la página de producto",
@@ -5746,5 +5761,81 @@
     "link": "Vincular producto",
     "linking": "Vinculando…",
     "noCatalog": "No hay productos del catálogo disponibles para vincular."
+  },
+  "templates": {
+    "demoBasket": "Esta es una tienda de demostración, así que no se añade nada a la cesta.",
+    "demoTitle": "Demostración de plantilla {name}",
+    "demoNotice": "Estás viendo la plantilla {name}. Los productos y precios son ejemplos.",
+    "useTemplate": "Usar esta plantilla",
+    "allTemplates": "Todas las plantillas",
+    "metaTitle": "Plantillas de tienda",
+    "metaDescription": "Diseños completos de tiendas de merchandising para empresas, startups, creadores, bandas y clubes deportivos. Previsualízalas en vivo y empieza con una en minutos.",
+    "title": "Empieza con una tienda terminada",
+    "lead": "{count} diseños de tiendas completos con diseños, imágenes, textos de ejemplo y productos sugeridos. Previsualiza cualquiera en vivo y luego hazla tuya.",
+    "all": "Todo",
+    "allStyles": "Todos los estilos",
+    "category": "Categoría",
+    "style": "Estilo",
+    "livePreview": "Vista previa en vivo",
+    "details": "Ver plantilla",
+    "none": "Ninguna plantilla coincide con estos filtros.",
+    "categories": {
+      "company": "Tiendas para empresas y empleados",
+      "tech": "Tecnología y startups",
+      "creators": "Creadores y podcasters",
+      "music": "Bandas y músicos",
+      "sports": "Clubes y equipos deportivos"
+    },
+    "styles": {
+      "minimal": "Minimalista",
+      "bold": "Atrevido",
+      "playful": "Juguetón",
+      "editorial": "Editorial",
+      "retro": "Retro",
+      "luxury": "Lujo",
+      "technical": "Técnico",
+      "dark": "Oscuro"
+    },
+    "templateMetaTitle": "Plantilla de tienda {name}",
+    "startWithIt": "Empieza con esta plantilla",
+    "desktopPreview": "{name} en una pantalla de escritorio",
+    "mobilePreview": "{name} en un teléfono",
+    "design": "Colores y tipografía",
+    "fonts": "{heading} para encabezados, {body} para texto",
+    "included": "Qué incluye",
+    "includedHome": "Una página de inicio con {count} secciones",
+    "includedProductPage": "Un diseño de página de producto",
+    "includedCollection": "Diseños de página de tienda y colecciones",
+    "includedHeaderFooter": "Cabecera, pie de página y barra de anuncios",
+    "includedImages": "Fotografía original",
+    "includedLanguages": "Textos en nueve idiomas",
+    "sections": "Secciones de página de inicio",
+    "starterTitle": "Productos sugeridos",
+    "starterLead": "Se añaden a tu catálogo como borradores cuando empieces con esta plantilla. Añade tu diseño y luego publica.",
+    "moreIn": "Más en {category}",
+    "previewExpired": "Este enlace de vista previa ha caducado",
+    "previewExpiredBody": "Abre la plantilla de nuevo desde el editor de la tienda para obtener un nuevo enlace.",
+    "storePreviewNotice": "Vista previa de la plantilla {name} con tus productos. Tu tienda no ha cambiado.",
+    "storePreviewSample": "Vista previa de la plantilla {name} con productos de ejemplo, porque tu tienda aún no tiene productos con fotos. Tu tienda no ha cambiado.",
+    "picker": {
+      "open": "Cambiar plantilla",
+      "title": "Cambiar plantilla",
+      "body": "Elige una plantilla para previsualizarla con tus productos. Al aplicar una, solo se cambia el borrador.",
+      "choose": "Elegir",
+      "replaces": "Reemplaza las secciones, la página de producto, la cabecera, el pie de página y el diseño de tu borrador.",
+      "keeps": "Los productos, pedidos y ajustes no se modifican.",
+      "history": "Tu borrador actual se guarda en el historial de versiones, para que puedas restaurarlo.",
+      "unsaved": "Los cambios no guardados en el editor se descartarán.",
+      "addProducts": "Añadir también los productos sugeridos al catálogo como borradores",
+      "apply": "Aplicar al borrador",
+      "reapply": "Volver a aplicar",
+      "applying": "Aplicando…",
+      "preview": "Previsualizar con mis productos",
+      "opening": "Abriendo…",
+      "back": "Todas las plantillas",
+      "failed": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "demoNewsletter": "Esta es una tienda de demostración, así que no se envió ningún correo electrónico.",
+    "demoMissing": "No hay ninguna plantilla en esta dirección"
   }
 }

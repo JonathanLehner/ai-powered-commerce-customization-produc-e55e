@@ -33,3 +33,29 @@ export async function previewLinkValid(storeId: string, expires: string | undefi
   if (!token || !Number.isInteger(at) || at * 1000 < now) return false;
   return safeEqual(token, await signature(storeId, at));
 }
+
+/* ------------------------------------------------------------- templates */
+
+function templateSignature(storeId: string, templateId: string, expires: number): Promise<string> {
+  return hmac(`template-preview:${storeId}:${templateId}:${expires}`);
+}
+
+/**
+ * A signed link to the store's own products in a template, before the
+ * template is applied. Valid for PREVIEW_HOURS, like a draft preview.
+ */
+export async function templatePreviewLink(store: Store, templateId: string, locale: Locale, origin: string, now = Date.now()) {
+  const expires = Math.floor(now / 1000) + PREVIEW_HOURS * 3600;
+  const token = await templateSignature(store.id, templateId, expires);
+  return {
+    url: `${origin}/template-preview/${store.id}/${templateId}/${locale}/${expires}/${token}`,
+    expiresAt: new Date(expires * 1000).toISOString(),
+  };
+}
+
+/** Whether a template preview link is genuine and still valid. */
+export async function templatePreviewValid(storeId: string, templateId: string, expires: string, token: string, now = Date.now()) {
+  const at = Number(expires);
+  if (!token || !Number.isInteger(at) || at * 1000 < now) return false;
+  return safeEqual(token, await templateSignature(storeId, templateId, at));
+}

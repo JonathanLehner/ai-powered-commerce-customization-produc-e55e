@@ -49,7 +49,8 @@
     "terms": "Terms of service",
     "privacy": "Privacy policy",
     "language": "Language",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Templates"
   },
   "notFound": {
     "body": "Check the address and try again."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Yes, archive it",
     "welcomeTitle": "Your {plan} plan is active",
     "welcomeTrialTitle": "Your {days}-day {plan} trial has started",
-    "welcomeBody": "Create your first store to get started."
+    "welcomeBody": "Create your first store to get started.",
+    "templateStep": "Start from a template",
+    "templateStepBody": "A template sets the design, pages and sample copy. You can change everything later.",
+    "blank": "Start blank",
+    "blankBody": "Pick a theme below",
+    "addStarterProducts": "Add the suggested products as drafts"
   },
   "billing": {
     "title": "Complete your subscription",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Enter an exchange rate for {currency} above 0.",
       "ratesUnavailable": "Exchange rates couldn't be updated. Try again later.",
       "ratesSaved": "Exchange rates saved",
-      "ratesRefreshed": "Exchange rates updated"
+      "ratesRefreshed": "Exchange rates updated",
+      "templateMissing": "That template is no longer available. Choose another one."
     },
     "team": {
       "emailInvalid": "Enter a valid email address.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {Translated # field.} other {Translated # fields.}} Review before publishing.",
       "translateFailed": "Translation failed. Try again.",
       "seoSaved": "SEO details saved.",
-      "designSaved": "Design saved."
+      "designSaved": "Design saved.",
+      "templateApplied": "Template applied to the draft. Publish when you are ready.",
+      "templateAppliedWithProducts": "Template applied to the draft and {count, plural, one {# product} other {# products}} added as drafts. Publish when you are ready.",
+      "templateMissing": "That template no longer exists."
     },
     "admin": {
       "supplierGone": "Supplier not found.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Large photo with thumbnails",
       "stacked": "Stacked photos",
       "tabs": "Tabs",
-      "accordion": "Accordion"
+      "accordion": "Accordion",
+      "simple": "Title and text",
+      "banner": "Banner with the collection photo"
     },
     "revert": "Revert draft to published",
     "noProductsTitle": "No published products yet",
@@ -3517,7 +3529,9 @@
       "link": "Link",
       "author": "Author",
       "role": "Role or company",
-      "quote": "Quote"
+      "quote": "Quote",
+      "collectionColumns": "Products per row on shop and collection pages",
+      "collectionHeader": "Shop and collection page header"
     },
     "repeat": {
       "slide": "Slide {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Made to order and shipped worldwide.",
       "samplePrimary": "Shop now",
       "sampleSecondary": "Learn more",
-      "sampleSurface": "Free shipping on orders over 75"
+      "sampleSurface": "Free shipping on orders over 75",
+      "draftNote": "This design is part of the draft. It goes live when you publish."
     },
     "productPage": {
       "blocks": "Product page blocks",
@@ -5746,5 +5761,81 @@
     "link": "Link product",
     "linking": "Linking…",
     "noCatalog": "No catalog products are available to link."
+  },
+  "templates": {
+    "demoBasket": "This is a demo store, so nothing is added to a basket.",
+    "demoTitle": "{name} template demo",
+    "demoNotice": "You are looking at the {name} template. Products and prices are examples.",
+    "useTemplate": "Use this template",
+    "allTemplates": "All templates",
+    "metaTitle": "Store templates",
+    "metaDescription": "Complete merch store designs for companies, startups, creators, bands and sports clubs. Preview each one live and start from it in minutes.",
+    "title": "Start from a finished store",
+    "lead": "{count} complete store designs with layouts, imagery, sample copy and suggested products. Preview any of them live, then make it yours.",
+    "all": "All",
+    "allStyles": "All styles",
+    "category": "Category",
+    "style": "Style",
+    "livePreview": "Live preview",
+    "details": "View template",
+    "none": "No templates match these filters.",
+    "categories": {
+      "company": "Company and employee stores",
+      "tech": "Tech and startups",
+      "creators": "Creators and podcasters",
+      "music": "Bands and musicians",
+      "sports": "Sports clubs and teams"
+    },
+    "styles": {
+      "minimal": "Minimal",
+      "bold": "Bold",
+      "playful": "Playful",
+      "editorial": "Editorial",
+      "retro": "Retro",
+      "luxury": "Luxury",
+      "technical": "Technical",
+      "dark": "Dark"
+    },
+    "templateMetaTitle": "{name} store template",
+    "startWithIt": "Start with this template",
+    "desktopPreview": "{name} on a desktop screen",
+    "mobilePreview": "{name} on a phone",
+    "design": "Colours and type",
+    "fonts": "{heading} for headings, {body} for text",
+    "included": "What you get",
+    "includedHome": "A home page with {count} sections",
+    "includedProductPage": "A product page layout",
+    "includedCollection": "Shop and collection page layouts",
+    "includedHeaderFooter": "Header, footer and announcement bar",
+    "includedImages": "Original photography",
+    "includedLanguages": "Copy in nine languages",
+    "sections": "Home page sections",
+    "starterTitle": "Suggested products",
+    "starterLead": "Added to your catalog as drafts when you start from this template. Add your artwork, then publish.",
+    "moreIn": "More in {category}",
+    "previewExpired": "This preview link has expired",
+    "previewExpiredBody": "Open the template again from the storefront editor to get a new link.",
+    "storePreviewNotice": "Preview of the {name} template with your products. Your store has not changed.",
+    "storePreviewSample": "Preview of the {name} template with sample products, because your store has no products with photos yet. Your store has not changed.",
+    "picker": {
+      "open": "Change template",
+      "title": "Change template",
+      "body": "Pick a template to preview it with your products. Applying one changes the draft only.",
+      "choose": "Choose",
+      "replaces": "Replaces the sections, product page, header, footer and design in your draft.",
+      "keeps": "Products, orders and settings are not changed.",
+      "history": "Your current draft is saved in version history, so you can restore it.",
+      "unsaved": "Unsaved changes in the editor are discarded.",
+      "addProducts": "Also add the suggested products to the catalog as drafts",
+      "apply": "Apply to draft",
+      "reapply": "Apply again",
+      "applying": "Applying…",
+      "preview": "Preview with my products",
+      "opening": "Opening…",
+      "back": "All templates",
+      "failed": "Something went wrong. Try again."
+    },
+    "demoNewsletter": "This is a demo store, so no email was sent.",
+    "demoMissing": "There is no template at this address"
   }
 }

@@ -49,7 +49,8 @@
     "terms": "Användarvillkor",
     "privacy": "Integritetspolicy",
     "language": "Språk",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Mallar"
   },
   "notFound": {
     "body": "Kontrollera adressen och försök igen."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Ja, arkivera",
     "welcomeTitle": "Din {plan}-plan är aktiv",
     "welcomeTrialTitle": "Din {days}-dagars provperiod för {plan} har startat",
-    "welcomeBody": "Skapa din första butik för att komma igång."
+    "welcomeBody": "Skapa din första butik för att komma igång.",
+    "templateStep": "Börja med en mall",
+    "templateStepBody": "En mall anger designen, sidorna och exempeltexten. Du kan ändra allt senare.",
+    "blank": "Börja från grunden",
+    "blankBody": "Välj ett tema nedan",
+    "addStarterProducts": "Lägg till de föreslagna produkterna som utkast"
   },
   "billing": {
     "title": "Slutför din prenumeration",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Ange en växelkurs för {currency} som är större än 0.",
       "ratesUnavailable": "Växelkurserna kunde inte uppdateras. Försök igen senare.",
       "ratesSaved": "Växelkurserna har sparats",
-      "ratesRefreshed": "Växelkurserna har uppdaterats"
+      "ratesRefreshed": "Växelkurserna har uppdaterats",
+      "templateMissing": "Den mallen är inte längre tillgänglig. Välj en annan."
     },
     "team": {
       "emailInvalid": "Ange en giltig e-postadress.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# fält översatt.} other {# fält översatta.}} Granska innan du publicerar.",
       "translateFailed": "Översättningen misslyckades. Försök igen.",
       "seoSaved": "SEO-uppgifter sparade.",
-      "designSaved": "Designen sparad."
+      "designSaved": "Designen sparad.",
+      "templateApplied": "Mallen har lagts till i utkastet. Publicera när du är redo.",
+      "templateAppliedWithProducts": "Mallen har lagts till i utkastet och {count, plural, one {# produkt} other {# produkter}} lagts till som utkast. Publicera när du är redo.",
+      "templateMissing": "Den mallen finns inte längre."
     },
     "admin": {
       "supplierGone": "Leverantören hittades inte.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Stor bild med miniatyrer",
       "stacked": "Staplade bilder",
       "tabs": "Flikar",
-      "accordion": "Dragspel"
+      "accordion": "Dragspel",
+      "simple": "Rubrik och text",
+      "banner": "Banner med samlingsbilden"
     },
     "revert": "Återställ utkastet till publicerad version",
     "noProductsTitle": "Inga publicerade produkter ännu",
@@ -3517,7 +3529,9 @@
       "link": "Länk",
       "author": "Författare",
       "role": "Roll eller företag",
-      "quote": "Citat"
+      "quote": "Citat",
+      "collectionColumns": "Produkter per rad på butiks- och samlingssidor",
+      "collectionHeader": "Rubrik för butiks- och samlingssida"
     },
     "repeat": {
       "slide": "Bild {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Tillverkas på beställning och skickas över hela världen.",
       "samplePrimary": "Handla nu",
       "sampleSecondary": "Läs mer",
-      "sampleSurface": "Fri frakt på beställningar över 75"
+      "sampleSurface": "Fri frakt på beställningar över 75",
+      "draftNote": "Denna design är en del av utkastet. Den blir synlig när du publicerar."
     },
     "productPage": {
       "blocks": "Block på produktsidan",
@@ -5746,5 +5761,81 @@
     "link": "Länka produkt",
     "linking": "Länkar…",
     "noCatalog": "Det finns inga katalogprodukter att länka."
+  },
+  "templates": {
+    "demoBasket": "Det här är en demobutik, så inget läggs till i varukorgen.",
+    "demoTitle": "Demo av mallen {name}",
+    "demoNotice": "Du tittar på mallen {name}. Produkter och priser är exempel.",
+    "useTemplate": "Använd denna mall",
+    "allTemplates": "Alla mallar",
+    "metaTitle": "Butiksmallar",
+    "metaDescription": "Kompletta butiksdesigner för merch till företag, startups, kreatörer, band och sportklubbar. Förhandsgranska varje live och börja använda den på några minuter.",
+    "title": "Börja med en färdig butik",
+    "lead": "{count} kompletta butiksdesigner med layouter, bilder, exempeltext och föreslagna produkter. Förhandsgranska valfri live och gör den sedan till din egen.",
+    "all": "Alla",
+    "allStyles": "Alla stilar",
+    "category": "Kategori",
+    "style": "Stil",
+    "livePreview": "Live-förhandsgranskning",
+    "details": "Visa mall",
+    "none": "Inga mallar matchar dessa filter.",
+    "categories": {
+      "company": "Företags- och personalbutiker",
+      "tech": "Teknik och startups",
+      "creators": "Kreatörer och poddare",
+      "music": "Band och musiker",
+      "sports": "Sportklubbar och lag"
+    },
+    "styles": {
+      "minimal": "Minimalistisk",
+      "bold": "Djörv",
+      "playful": "Lekfull",
+      "editorial": "Redaktionell",
+      "retro": "Retro",
+      "luxury": "Lyxig",
+      "technical": "Teknisk",
+      "dark": "Mörk"
+    },
+    "templateMetaTitle": "{name} butiksmall",
+    "startWithIt": "Börja med denna mall",
+    "desktopPreview": "{name} på en datorskärm",
+    "mobilePreview": "{name} på en telefon",
+    "design": "Färger och typsnitt",
+    "fonts": "{heading} för rubriker, {body} för brödtext",
+    "included": "Detta ingår",
+    "includedHome": "En startsida med {count} sektioner",
+    "includedProductPage": "En layout för produktsidor",
+    "includedCollection": "Layouter för butiks- och samlingssidor",
+    "includedHeaderFooter": "Rubrik, sidfot och meddelandefält",
+    "includedImages": "Originalbilder",
+    "includedLanguages": "Texter på nio språk",
+    "sections": "Startsidans sektioner",
+    "starterTitle": "Föreslagna produkter",
+    "starterLead": "Läggs till i din katalog som utkast när du börjar med denna mall. Lägg till ditt eget material och publicera sedan.",
+    "moreIn": "Mer i {category}",
+    "previewExpired": "Denna förhandsgranskningslänk har löpt ut",
+    "previewExpiredBody": "Öppna mallen igen från butiksredigeraren för att få en ny länk.",
+    "storePreviewNotice": "Förhandsgranskning av mallen {name} med dina produkter. Din butik har inte ändrats.",
+    "storePreviewSample": "Förhandsgranskning av mallen {name} med exempelprodukter, eftersom din butik ännu inte har några produkter med foton. Din butik har inte ändrats.",
+    "picker": {
+      "open": "Ändra mall",
+      "title": "Ändra mall",
+      "body": "Välj en mall för att förhandsgranska den med dina produkter. Att tillämpa en mall ändrar bara utkastet.",
+      "choose": "Välj",
+      "replaces": "Ersätter sektionerna, produktsidan, rubriken, sidfoten och designen i ditt utkast.",
+      "keeps": "Produkter, ordrar och inställningar ändras inte.",
+      "history": "Ditt nuvarande utkast sparas i versionshistoriken, så att du kan återställa det.",
+      "unsaved": "Osparade ändringar i redigeraren kommer att kasseras.",
+      "addProducts": "Lägg även till de föreslagna produkterna i katalogen som utkast",
+      "apply": "Tillämpa på utkast",
+      "reapply": "Tillämpa igen",
+      "applying": "Tillämpar…",
+      "preview": "Förhandsgranska med mina produkter",
+      "opening": "Öppnar…",
+      "back": "Alla mallar",
+      "failed": "Något gick fel. Försök igen."
+    },
+    "demoNewsletter": "Det här är en demobutik, så ingen e-post skickades.",
+    "demoMissing": "Det finns ingen mall på den här adressen"
   }
 }

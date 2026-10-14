@@ -12,6 +12,9 @@ import { accessibleStores, getAgencyForRender, requireUser } from "@/lib/session
 import { formatDate } from "@/lib/util";
 import { ArchiveStoreForm } from "./ArchiveStoreForm";
 import { NewStoreForm } from "./NewStoreForm";
+import { isLocale } from "@/i18n/locales";
+import { TEMPLATE_CATEGORIES, TEMPLATES } from "@/lib/templates/index";
+import { galleryTemplates } from "@/lib/templates/gallery";
 
 export default async function NewStorePage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const { welcome } = await searchParams;
@@ -33,7 +36,12 @@ export default async function NewStorePage({ searchParams }: { searchParams: Pro
         .filter((store) => store.agencyId === agency.id && store.status === "active")
     : [];
 
-  const [pages, t, locale] = await Promise.all([getTranslations("pages.store"), getTranslations("newStore"), getLocale()]);
+  const [pages, t, templateText, locale] = await Promise.all([
+    getTranslations("pages.store"),
+    getTranslations("newStore"),
+    getTranslations("templates"),
+    getLocale(),
+  ]);
   const usage = allowance ? await storeUsageText(allowance) : "";
   const limitText = allowance?.atLimit && agency ? await storeLimitText(allowance, agency.name) : "";
   const nextPlanStores = allowance?.nextPlan ? await planStoresText(allowance.nextPlan) : "";
@@ -151,6 +159,11 @@ export default async function NewStorePage({ searchParams }: { searchParams: Pro
           ) : (
             <NewStoreForm
               agencyId={agency.id}
+              templates={galleryTemplates(isLocale(locale) ? locale : "en")}
+              categories={TEMPLATE_CATEGORIES.filter((c) => TEMPLATES.some((tpl) => tpl.category === c)).map((key) => ({
+                key,
+                label: templateText(`categories.${key}`),
+              }))}
               allowanceNote={
                 allowance.limit === null
                   ? t("noLimitNote", { plan: allowance.plan.name })

@@ -46,12 +46,15 @@ export function DesignPanel({
   storeId,
   value,
   saved,
+  drafted = false,
   onChange,
   onSaved,
 }: {
   storeId: string;
   value: DesignState;
   saved: DesignState;
+  /** The design is part of the draft: it is saved with it and goes live when it is published. */
+  drafted?: boolean;
   onChange: (next: DesignState) => void;
   onSaved: (next: DesignState) => void;
 }) {
@@ -252,13 +255,15 @@ export function DesignPanel({
       </Card>
 
       <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
-        <Button type="button" onClick={save} disabled={busy || !dirty}>
-          {busy ? t("saving") : t("save")}
-        </Button>
+        {drafted ? null : (
+          <Button type="button" onClick={save} disabled={busy || !dirty}>
+            {busy ? t("saving") : t("save")}
+          </Button>
+        )}
         <Button type="button" variant="outline" disabled={busy || !dirty} onClick={() => onChange(saved)}>
           {t("discard")}
         </Button>
-        <p className="text-xs text-muted-foreground">{t("liveNote")}</p>
+        <p className="text-xs text-muted-foreground">{drafted ? t("draftNote") : t("liveNote")}</p>
         <FormStatus state={status} />
       </div>
     </div>

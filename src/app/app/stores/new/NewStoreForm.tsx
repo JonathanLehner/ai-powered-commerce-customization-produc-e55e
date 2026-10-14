@@ -1,6 +1,10 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
+import type { GalleryTemplate } from "@/components/TemplateGallery";
+import type { TemplateStyle } from "@/lib/templates/model";
+import { Checkbox } from "@/components/ui/checkbox";
 import { createStore } from "@/app/actions/stores";
 import { ActionForm } from "@/components/forms";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,13 +25,22 @@ import { CURRENCY_OPTIONS } from "@/lib/util";
 export function NewStoreForm({
   agencyId,
   allowanceNote,
+  templates,
+  categories,
 }: {
   agencyId: string;
   /** Where the agency stands against its plan's live-store limit. */
   allowanceNote?: string;
+  /** The templates a store can start from, as gallery cards. */
+  templates: GalleryTemplate[];
+  categories: { key: string; label: string }[];
 }) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
   const t = useTranslations("newStore");
+  const tt = useTranslations("templates");
+  const [templateId, setTemplateId] = useState("");
+  const [category, setCategory] = useState(categories[0]?.key ?? "");
+  const shown = templates.filter((tpl) => tpl.category === category);
   const labels = useTranslations("labels");
   const locale = useLocale();
 
@@ -101,7 +114,66 @@ export function NewStoreForm({
             </div>
           </div>
 
-          <fieldset className="mt-6">
+          <fieldset className="mt-8">
+            <legend className="text-sm leading-none font-medium text-foreground select-none">{t("templateStep")}</legend>
+            <p className="mt-2 text-sm text-muted-foreground">{t("templateStepBody")}</p>
+            <input type="hidden" name="templateId" value={templateId} />
+            <div role="group" aria-label={tt("category")} className="mt-4 flex flex-wrap gap-1.5">
+              {categories.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  aria-pressed={category === c.key}
+                  onClick={() => setCategory(c.key)}
+                  className={`h-8 rounded-full border px-3 text-xs font-medium ${category === c.key ? "border-foreground bg-foreground text-background" : "border-border text-foreground hover:border-foreground/40"}`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <button
+                type="button"
+                aria-pressed={templateId === ""}
+                onClick={() => setTemplateId("")}
+                className={`flex aspect-[4/3] flex-col items-center justify-center rounded-xl border p-3 text-center text-sm ${templateId === "" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/40"}`}
+              >
+                <span className="font-semibold text-foreground">{t("blank")}</span>
+                <span className="mt-1 text-xs text-muted-foreground">{t("blankBody")}</span>
+              </button>
+              {shown.map((tpl) => (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  aria-pressed={templateId === tpl.id}
+                  onClick={() => setTemplateId(tpl.id)}
+                  className={`overflow-hidden rounded-xl border text-left ${templateId === tpl.id ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/40"}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={tpl.image} srcSet={tpl.imageSrcSet} sizes="240px" alt="" loading="lazy" className="aspect-[16/10] w-full object-cover object-top" />
+                  <span className="block px-3 py-2">
+                    <span className="block text-sm font-semibold text-foreground">{tpl.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{tpl.styles.map((s) => tt(`styles.${s as TemplateStyle}`)).join(" · ")}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+            {templateId ? (
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <Checkbox id="addStarterProducts" name="addStarterProducts" defaultChecked />
+                  <Label htmlFor="addStarterProducts" className="leading-snug font-normal">
+                    {t("addStarterProducts")}
+                  </Label>
+                </div>
+                <a href={templates.find((tpl) => tpl.id === templateId)?.demoHref} target="_blank" rel="noreferrer" className="text-sm font-medium text-primary hover:underline">
+                  {tt("livePreview")}
+                </a>
+              </div>
+            ) : null}
+          </fieldset>
+
+          <fieldset className="mt-6" hidden={templateId !== ""}>
             <legend className="mb-3 text-sm leading-none font-medium text-foreground select-none">
               {t("theme")}
             </legend>

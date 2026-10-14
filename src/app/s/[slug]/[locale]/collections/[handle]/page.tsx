@@ -4,6 +4,8 @@ import Link from "next/link";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { ProductTile, ProductTileGrid } from "@/components/ProductTiles";
+import { CollectionBanner } from "@/components/storefront/CollectionBanner";
+import { layoutSettings } from "@/lib/storefront-layout";
 import { StorefrontNotFoundView } from "@/components/ShopperNotFoundViews";
 import { Badge, EmptyState } from "@/components/ui";
 import { JsonLd } from "@/components/JsonLd";
@@ -107,17 +109,28 @@ export default async function StorefrontCollectionPage({
     const search = params.toString();
     return search ? `${here}?${search}` : here;
   };
+  const { collectionColumns, collectionHeader } = layoutSettings(data.storefront?.published);
+  const banner = collectionHeader === "banner" && collection.imageUrl ? collection.imageUrl : null;
   const sortOptions = COLLECTION_SORTS.map((value) => ({ value, label: t(`shop.${SORT_KEYS[value]}`) }));
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
+    <>
+    {banner ? (
+      <CollectionBanner
+        title={collection.name}
+        description={collection.description}
+        count={t("shop.productCount", { count: products.length })}
+        imageUrl={banner}
+      />
+    ) : null}
+    <div className={`mx-auto w-full max-w-6xl px-4 sm:px-6 ${banner ? "pt-8 pb-12" : "py-12"}`}>
       <JsonLd
         data={breadcrumbJsonLd([
           { name: store.name, url: storeUrl(store, locale) },
           { name: collection.name, url: storeUrl(store, locale, collectionPath(collection.handle)) },
         ])}
       />
-      <header
+      {banner ? null : <header
         className={
           collection.imageUrl ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-center" : "max-w-2xl"
         }
@@ -146,7 +159,7 @@ export default async function StorefrontCollectionPage({
             />
           </div>
         ) : null}
-      </header>
+      </header>}
 
       <div className="mt-8 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
         {tags.length > 0 ? (
@@ -222,7 +235,7 @@ export default async function StorefrontCollectionPage({
           />
         </div>
       ) : (
-        <ProductTileGrid className="mt-8">
+        <ProductTileGrid className="mt-8" columns={collectionColumns}>
           {visible.map((product, index) => (
             <ProductTile
               key={product.id}
@@ -247,5 +260,6 @@ export default async function StorefrontCollectionPage({
         </ProductTileGrid>
       )}
     </div>
+    </>
   );
 }

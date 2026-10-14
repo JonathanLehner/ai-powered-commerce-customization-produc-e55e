@@ -394,7 +394,7 @@ html:has([data-sf-overlay-hero]) .sf-header[data-transparent="true"]:not([data-s
   --background: transparent;
   color: #fff;
 }
-[data-sf-overlay-hero] {
+html:has(.sf-header[data-transparent="true"]) [data-sf-overlay-hero] {
   padding-top: var(--sf-header-h);
 }
 
@@ -433,4 +433,10 @@ html:has([data-sf-overlay-hero]) .sf-header[data-transparent="true"]:not([data-s
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* A storefront heading wraps a word longer than its line (a German or Swedish
+   compound in a large display face) rather than widening the page. */
+[data-sf-mode] .font-heading {
+  overflow-wrap: break-word;
 }

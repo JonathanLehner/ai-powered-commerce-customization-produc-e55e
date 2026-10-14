@@ -1,4 +1,4 @@
-import { getFormatter, getMessages, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getMessages, getTranslations } from "next-intl/server";
 import { revertStorefront } from "@/app/actions/storefront";
 import { Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,13 @@ import { storefrontContext } from "@/lib/storefront-context";
 import { generatedHomeSections } from "@/lib/storefront-defaults";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { liveVersionId, summarizeSections, versionKind } from "@/lib/storefront-versions";
+import { TEMPLATE_CATEGORIES, TEMPLATE_STYLES, TEMPLATES } from "@/lib/templates/index";
+import { galleryTemplates } from "@/lib/templates/gallery";
+import { draftDesign, treeTemplateId } from "@/lib/templates/tree";
 import { productFields } from "@/lib/translations";
 import type { ShopTextData } from "./ShopTextSheet";
 import { StorefrontEditor } from "./StorefrontEditor";
+import { TemplatePicker } from "./TemplatePicker";
 
 export default async function StorefrontEditorPage({
   params,
@@ -97,9 +101,11 @@ export default async function StorefrontEditorPage({
           }),
         ) as unknown as Record<string, unknown>);
 
-  const [pages, t, untitled] = await Promise.all([
+  const [pages, t, templateText, uiLocale, untitled] = await Promise.all([
     getTranslations("pages.store"),
     getTranslations("editor"),
+    getTranslations("templates"),
+    getLocale().then((l) => (isLocale(l) ? l : "en")),
     // Older versions were saved under a placeholder name in whichever language
     // the editor was in; those are treated as unnamed and labelled for them.
     Promise.all(LOCALES.map((locale) => getTranslations({ locale, namespace: "editor" }).then((e) => e("untitled")))),
@@ -112,14 +118,27 @@ export default async function StorefrontEditorPage({
         title={pages("editorTitle")}
         description={pages("editorDescription")}
         actions={
-          storefront?.published ? (
-            <form action={revertStorefront}>
-              <input type="hidden" name="storeId" value={storeId} />
-              <Button type="submit" variant="outline">
-                {t("revert")}
-              </Button>
-            </form>
-          ) : null
+          <div className="flex flex-wrap gap-2">
+            <TemplatePicker
+              storeId={storeId}
+              locale={initialLocale}
+              templates={galleryTemplates(uiLocale)}
+              categories={TEMPLATE_CATEGORIES.filter((c) => TEMPLATES.some((tpl) => tpl.category === c)).map((key) => ({
+                key,
+                label: templateText(`categories.${key}`),
+              }))}
+              styles={TEMPLATE_STYLES.map((key) => ({ key, label: templateText(`styles.${key}`) }))}
+              currentTemplateId={treeTemplateId(tree)}
+            />
+            {storefront?.published ? (
+              <form action={revertStorefront}>
+                <input type="hidden" name="storeId" value={storeId} />
+                <Button type="submit" variant="outline">
+                  {t("revert")}
+                </Button>
+              </form>
+            ) : null}
+          </div>
         }
       />
 
@@ -176,7 +195,7 @@ export default async function StorefrontEditorPage({
         }))}
         liveVersionId={liveVersionId(history, storefront?.published)}
         liveSections={storefront?.published ? summarizeSections(storefront.published) : null}
-        design={{ theme: store.theme, design: store.design ?? {} }}
+        design={draftDesign(tree) ?? { theme: store.theme, design: store.design ?? {} }}
       />
     </div>
   );

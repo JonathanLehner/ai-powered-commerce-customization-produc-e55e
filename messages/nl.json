@@ -49,7 +49,8 @@
     "terms": "Servicevoorwaarden",
     "privacy": "Privacybeleid",
     "language": "Taal",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Sjablonen"
   },
   "notFound": {
     "body": "Controleer het adres en probeer het opnieuw."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Ja, archiveren",
     "welcomeTitle": "Je {plan}-abonnement is actief",
     "welcomeTrialTitle": "Je {plan}-proefperiode van {days} dagen is gestart",
-    "welcomeBody": "Maak je eerste winkel aan om te beginnen."
+    "welcomeBody": "Maak je eerste winkel aan om te beginnen.",
+    "templateStep": "Begin met een sjabloon",
+    "templateStepBody": "Een sjabloon bepaalt het ontwerp, de pagina's en voorbeeldteksten. Je kunt alles later wijzigen.",
+    "blank": "Blanco beginnen",
+    "blankBody": "Kies hieronder een thema",
+    "addStarterProducts": "Voeg de voorgestelde producten toe als concepten"
   },
   "billing": {
     "title": "Rond je abonnement af",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Vul voor {currency} een wisselkoers hoger dan 0 in.",
       "ratesUnavailable": "Wisselkoersen konden niet worden bijgewerkt. Probeer het later opnieuw.",
       "ratesSaved": "Wisselkoersen opgeslagen",
-      "ratesRefreshed": "Wisselkoersen bijgewerkt"
+      "ratesRefreshed": "Wisselkoersen bijgewerkt",
+      "templateMissing": "Dat sjabloon is niet langer beschikbaar. Kies een ander."
     },
     "team": {
       "emailInvalid": "Vul een geldig e-mailadres in.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# veld vertaald.} other {# velden vertaald.}} Controleer voor publicatie.",
       "translateFailed": "Vertalen mislukt. Probeer het opnieuw.",
       "seoSaved": "SEO-gegevens opgeslagen.",
-      "designSaved": "Ontwerp opgeslagen."
+      "designSaved": "Ontwerp opgeslagen.",
+      "templateApplied": "Sjabloon toegepast op het concept. Publiceer wanneer je er klaar voor bent.",
+      "templateAppliedWithProducts": "Sjabloon toegepast op het concept en {count, plural, one {# product} other {# producten}} toegevoegd als concepten. Publiceer wanneer je er klaar voor bent.",
+      "templateMissing": "Dat sjabloon bestaat niet meer."
     },
     "admin": {
       "supplierGone": "Leverancier niet gevonden.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Grote foto met miniaturen",
       "stacked": "Gestapelde foto's",
       "tabs": "Tabbladen",
-      "accordion": "Accordeon"
+      "accordion": "Accordeon",
+      "simple": "Titel en tekst",
+      "banner": "Banner met de collectiefoto"
     },
     "revert": "Concept terugzetten naar gepubliceerde versie",
     "noProductsTitle": "Nog geen gepubliceerde producten",
@@ -3517,7 +3529,9 @@
       "link": "Link",
       "author": "Auteur",
       "role": "Functie of bedrijf",
-      "quote": "Citaat"
+      "quote": "Citaat",
+      "collectionColumns": "Producten per rij op winkel- en collectiepagina's",
+      "collectionHeader": "Header voor winkel- en collectiepagina's"
     },
     "repeat": {
       "slide": "Dia {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Op bestelling gemaakt en wereldwijd verzonden.",
       "samplePrimary": "Shop nu",
       "sampleSecondary": "Meer informatie",
-      "sampleSurface": "Gratis verzending bij bestellingen boven 75"
+      "sampleSurface": "Gratis verzending bij bestellingen boven 75",
+      "draftNote": "Dit ontwerp maakt deel uit van het concept. Het wordt actief zodra je publiceert."
     },
     "productPage": {
       "blocks": "Blokken productpagina",
@@ -5746,5 +5761,81 @@
     "link": "Product koppelen",
     "linking": "Koppelen…",
     "noCatalog": "Er zijn geen catalogusproducten om te koppelen."
+  },
+  "templates": {
+    "demoBasket": "Dit is een demoshop, dus er wordt niets aan een winkelwagen toegevoegd.",
+    "demoTitle": "{name} templatedemo",
+    "demoNotice": "Je bekijkt het {name}-sjabloon. Producten en prijzen zijn voorbeelden.",
+    "useTemplate": "Gebruik dit sjabloon",
+    "allTemplates": "Alle sjablonen",
+    "metaTitle": "Winkelsjablonen",
+    "metaDescription": "Complete webshopontwerpen voor bedrijven, startups, makers, bands en sportclubs. Bekijk ze live en begin ermee binnen enkele minuten.",
+    "title": "Begin met een kant-en-klare shop",
+    "lead": "{count} complete shopontwerpen met indelingen, afbeeldingen, voorbeeldteksten en voorgestelde producten. Bekijk ze live en pas ze daarna aan.",
+    "all": "Alle",
+    "allStyles": "Alle stijlen",
+    "category": "Categorie",
+    "style": "Stijl",
+    "livePreview": "Live voorbeeld",
+    "details": "Bekijk sjabloon",
+    "none": "Geen sjablonen komen overeen met deze filters.",
+    "categories": {
+      "company": "Bedrijfs- en werknemershops",
+      "tech": "Tech en startups",
+      "creators": "Makers en podcasters",
+      "music": "Bands en muzikanten",
+      "sports": "Sportclubs en -teams"
+    },
+    "styles": {
+      "minimal": "Minimalistisch",
+      "bold": "Gedurfd",
+      "playful": "Speels",
+      "editorial": "Redactioneel",
+      "retro": "Retro",
+      "luxury": "Luxe",
+      "technical": "Technisch",
+      "dark": "Donker"
+    },
+    "templateMetaTitle": "{name} winkelsjabloon",
+    "startWithIt": "Begin met dit sjabloon",
+    "desktopPreview": "{name} op een desktopscherm",
+    "mobilePreview": "{name} op een telefoon",
+    "design": "Kleuren en typografie",
+    "fonts": "{heading} voor koppen, {body} voor tekst",
+    "included": "Wat je krijgt",
+    "includedHome": "Een startpagina met {count} secties",
+    "includedProductPage": "Een productpagina-indeling",
+    "includedCollection": "Indelingen voor winkel- en collectiepagina's",
+    "includedHeaderFooter": "Header, footer en aankondigingsbalk",
+    "includedImages": "Originele fotografie",
+    "includedLanguages": "Teksten in negen talen",
+    "sections": "Startpaginasecties",
+    "starterTitle": "Voorgestelde producten",
+    "starterLead": "Toegevoegd aan je catalogus als concepten wanneer je met dit sjabloon begint. Voeg je artwork toe en publiceer daarna.",
+    "moreIn": "Meer in {category}",
+    "previewExpired": "Deze voorbeeldlink is verlopen",
+    "previewExpiredBody": "Open het sjabloon opnieuw vanuit de shopeditor om een nieuwe link te krijgen.",
+    "storePreviewNotice": "Voorbeeld van het {name}-sjabloon met je producten. Je shop is niet gewijzigd.",
+    "storePreviewSample": "Voorbeeld van het {name}-sjabloon met voorbeeldproducten, omdat je shop nog geen producten met foto's heeft. Je shop is niet gewijzigd.",
+    "picker": {
+      "open": "Sjabloon wijzigen",
+      "title": "Sjabloon wijzigen",
+      "body": "Kies een sjabloon om een voorbeeld te zien met je producten. Door er één toe te passen, wijzig je alleen het concept.",
+      "choose": "Kiezen",
+      "replaces": "Vervangt de secties, productpagina, header, footer en het ontwerp in je concept.",
+      "keeps": "Producten, bestellingen en instellingen worden niet gewijzigd.",
+      "history": "Je huidige concept is opgeslagen in de versiegeschiedenis, zodat je het kunt herstellen.",
+      "unsaved": "Niet-opgeslagen wijzigingen in de editor worden genegeerd.",
+      "addProducts": "Voeg ook de voorgestelde producten toe aan de catalogus als concepten",
+      "apply": "Toepassen op concept",
+      "reapply": "Opnieuw toepassen",
+      "applying": "Bezig met toepassen…",
+      "preview": "Voorbeeld met mijn producten",
+      "opening": "Bezig met openen…",
+      "back": "Alle sjablonen",
+      "failed": "Er is iets misgegaan. Probeer het opnieuw."
+    },
+    "demoNewsletter": "Dit is een demowinkel, dus er is geen e-mail verzonden.",
+    "demoMissing": "Er is geen sjabloon op dit adres"
   }
 }

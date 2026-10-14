@@ -49,7 +49,8 @@
     "terms": "Termos de serviço",
     "privacy": "Política de privacidade",
     "language": "Idioma",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Modelos"
   },
   "notFound": {
     "body": "Verifique o endereço e tente novamente."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Sim, arquivar",
     "welcomeTitle": "Seu plano {plan} está ativo",
     "welcomeTrialTitle": "Seu teste de {days} dias do {plan} começou",
-    "welcomeBody": "Crie sua primeira loja para começar."
+    "welcomeBody": "Crie sua primeira loja para começar.",
+    "templateStep": "Começar de um modelo",
+    "templateStepBody": "Um modelo define o design, as páginas e o texto de exemplo. Podes mudar tudo mais tarde.",
+    "blank": "Começar do zero",
+    "blankBody": "Escolhe um tema abaixo",
+    "addStarterProducts": "Adicionar os produtos sugeridos como rascunhos"
   },
   "billing": {
     "title": "Conclua sua assinatura",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Introduza uma taxa de câmbio superior a 0 para {currency}.",
       "ratesUnavailable": "Não foi possível atualizar as taxas de câmbio. Tente novamente mais tarde.",
       "ratesSaved": "Taxas de câmbio guardadas",
-      "ratesRefreshed": "Taxas de câmbio atualizadas"
+      "ratesRefreshed": "Taxas de câmbio atualizadas",
+      "templateMissing": "Esse modelo já não está disponível. Escolhe outro."
     },
     "team": {
       "emailInvalid": "Introduza um email válido.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# campo traduzido.} other {# campos traduzidos.}} Reveja antes de publicar.",
       "translateFailed": "A tradução falhou. Tente novamente.",
       "seoSaved": "Dados de SEO guardados.",
-      "designSaved": "Design guardado."
+      "designSaved": "Design guardado.",
+      "templateApplied": "Modelo aplicado ao rascunho. Publica quando estiveres pronto.",
+      "templateAppliedWithProducts": "Modelo aplicado ao rascunho e {count, plural, one {# produto} other {# produtos}} adicionado(s) como rascunhos. Publica quando estiveres pronto.",
+      "templateMissing": "Esse modelo já não existe."
     },
     "admin": {
       "supplierGone": "Fornecedor não encontrado.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Foto grande com miniaturas",
       "stacked": "Fotos empilhadas",
       "tabs": "Separadores",
-      "accordion": "Acordeão"
+      "accordion": "Acordeão",
+      "simple": "Título e texto",
+      "banner": "Banner com a foto da coleção"
     },
     "revert": "Repor a versão publicada",
     "noProductsTitle": "Ainda não há produtos publicados",
@@ -3517,7 +3529,9 @@
       "link": "Link",
       "author": "Autor",
       "role": "Cargo ou empresa",
-      "quote": "Citação"
+      "quote": "Citação",
+      "collectionColumns": "Produtos por linha nas páginas de loja e de coleção",
+      "collectionHeader": "Cabeçalho da página de loja e de coleção"
     },
     "repeat": {
       "slide": "Slide {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Feito por encomenda e enviado para todo o mundo.",
       "samplePrimary": "Comprar agora",
       "sampleSecondary": "Saber mais",
-      "sampleSurface": "Portes grátis em encomendas superiores a 75"
+      "sampleSurface": "Portes grátis em encomendas superiores a 75",
+      "draftNote": "Este design faz parte do rascunho. Fica ativo quando publicares."
     },
     "productPage": {
       "blocks": "Blocos da página de produto",
@@ -5746,5 +5761,81 @@
     "link": "Vincular produto",
     "linking": "A vincular…",
     "noCatalog": "Não há produtos do catálogo disponíveis para vincular."
+  },
+  "templates": {
+    "demoBasket": "Esta é uma loja de demonstração, por isso nada é adicionado ao cesto.",
+    "demoTitle": "Demonstração do modelo {name}",
+    "demoNotice": "Estás a ver o modelo {name}. Produtos e preços são exemplos.",
+    "useTemplate": "Usar este modelo",
+    "allTemplates": "Todos os modelos",
+    "metaTitle": "Modelos de loja",
+    "metaDescription": "Designs completos de lojas de merchandising para empresas, startups, criadores, bandas e clubes desportivos. Pré-visualiza cada um ao vivo e começa a partir dele em minutos.",
+    "title": "Começa a partir de uma loja pronta",
+    "lead": "{count} designs completos de loja com layouts, imagens, texto de exemplo e produtos sugeridos. Pré-visualiza qualquer um deles ao vivo, depois torna-o teu.",
+    "all": "Todos",
+    "allStyles": "Todos os estilos",
+    "category": "Categoria",
+    "style": "Estilo",
+    "livePreview": "Pré-visualização ao vivo",
+    "details": "Ver modelo",
+    "none": "Nenhum modelo corresponde a estes filtros.",
+    "categories": {
+      "company": "Lojas de empresa e funcionários",
+      "tech": "Tecnologia e startups",
+      "creators": "Criadores e podcasters",
+      "music": "Bandas e músicos",
+      "sports": "Clubes e equipas desportivas"
+    },
+    "styles": {
+      "minimal": "Minimalista",
+      "bold": "Arrojado",
+      "playful": "Divertido",
+      "editorial": "Editorial",
+      "retro": "Retro",
+      "luxury": "Luxuoso",
+      "technical": "Técnico",
+      "dark": "Escuro"
+    },
+    "templateMetaTitle": "Modelo de loja {name}",
+    "startWithIt": "Começar com este modelo",
+    "desktopPreview": "{name} num ecrã de computador",
+    "mobilePreview": "{name} num telemóvel",
+    "design": "Cores e tipo",
+    "fonts": "{heading} para títulos, {body} para texto",
+    "included": "O que incluído",
+    "includedHome": "Uma página inicial com {count} secções",
+    "includedProductPage": "Um layout de página de produto",
+    "includedCollection": "Layouts de página de loja e de coleção",
+    "includedHeaderFooter": "Cabeçalho, rodapé e barra de avisos",
+    "includedImages": "Fotografia original",
+    "includedLanguages": "Texto em nove idiomas",
+    "sections": "Secções da página inicial",
+    "starterTitle": "Produtos sugeridos",
+    "starterLead": "Adicionados ao teu catálogo como rascunhos quando começas a partir deste modelo. Adiciona a tua arte, depois publica.",
+    "moreIn": "Mais em {category}",
+    "previewExpired": "Este link de pré-visualização expirou",
+    "previewExpiredBody": "Abre o modelo novamente a partir do editor da loja online para obteres um novo link.",
+    "storePreviewNotice": "Pré-visualização do modelo {name} com os teus produtos. A tua loja não foi alterada.",
+    "storePreviewSample": "Pré-visualização do modelo {name} com produtos de exemplo, porque a tua loja ainda não tem produtos com fotos. A tua loja não foi alterada.",
+    "picker": {
+      "open": "Alterar modelo",
+      "title": "Alterar modelo",
+      "body": "Escolhe um modelo para o pré-visualizares com os teus produtos. Aplicar um modelo altera apenas o rascunho.",
+      "choose": "Escolher",
+      "replaces": "Substitui as secções, a página de produto, o cabeçalho, o rodapé e o design no teu rascunho.",
+      "keeps": "Produtos, encomendas e definições não são alterados.",
+      "history": "O teu rascunho atual é guardado no histórico de versões, para que o possas restaurar.",
+      "unsaved": "Alterações não guardadas no editor serão descartadas.",
+      "addProducts": "Também adicionar os produtos sugeridos ao catálogo como rascunhos",
+      "apply": "Aplicar ao rascunho",
+      "reapply": "Aplicar novamente",
+      "applying": "A aplicar…",
+      "preview": "Pré-visualizar com os meus produtos",
+      "opening": "A abrir…",
+      "back": "Todos os modelos",
+      "failed": "Algo correu mal. Tenta novamente."
+    },
+    "demoNewsletter": "Esta é uma loja de demonstração, por isso não foi enviado nenhum e-mail.",
+    "demoMissing": "Não existe nenhum modelo neste endereço"
   }
 }

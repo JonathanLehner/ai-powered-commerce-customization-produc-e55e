@@ -15,6 +15,7 @@ import type { OperationContext } from "../../operations/context";
 import { STORE_ROLES } from "../../people";
 import { storeAllowance } from "../../plans";
 import { nextInvoice } from "../../stripe";
+import { TEMPLATE_IDS } from "../../templates/index";
 import { THEMES, type ThemeKey } from "../../types";
 import { CURRENCY_OPTIONS } from "../../util";
 import { define, notFound, type ApiOperation } from "../define";
@@ -67,7 +68,12 @@ export const agencyOperations: ApiOperation[] = [
       theme: z
         .enum(Object.keys(THEMES) as [ThemeKey, ...ThemeKey[]])
         .default("atelier")
-        .describe("The storefront theme."),
+        .describe("The storefront theme. A template sets its own."),
+      templateId: z
+        .enum(TEMPLATE_IDS as [string, ...string[]])
+        .optional()
+        .describe("Start from this store template (see listTemplates): its design and storefront draft, written for the new store."),
+      addStarterProducts: z.boolean().optional().describe("With a template, also add its suggested products as drafts."),
     }),
     run: async (ctx, input) => presentStore(await createStore(agencyOf(ctx), input)),
   }),

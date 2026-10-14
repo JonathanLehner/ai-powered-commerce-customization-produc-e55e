@@ -49,7 +49,8 @@
     "terms": "Conditions d’utilisation",
     "privacy": "Politique de confidentialité",
     "language": "Langue",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Thèmes"
   },
   "notFound": {
     "body": "Vérifiez l’adresse et réessayez."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Oui, archiver",
     "welcomeTitle": "Votre formule {plan} est active",
     "welcomeTrialTitle": "Votre essai {plan} de {days} jours a commencé",
-    "welcomeBody": "Créez votre première boutique pour commencer."
+    "welcomeBody": "Créez votre première boutique pour commencer.",
+    "templateStep": "Commencer avec un thème",
+    "templateStepBody": "Un thème définit le design, les pages et les exemples de texte. Vous pourrez tout modifier plus tard.",
+    "blank": "Commencer à zéro",
+    "blankBody": "Choisissez un thème ci-dessous",
+    "addStarterProducts": "Ajouter les produits suggérés en tant que brouillons"
   },
   "billing": {
     "title": "Finaliser votre abonnement",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Saisissez un taux de change supérieur à 0 pour {currency}.",
       "ratesUnavailable": "Impossible de mettre à jour les taux de change. Réessayez plus tard.",
       "ratesSaved": "Taux de change enregistrés",
-      "ratesRefreshed": "Taux de change mis à jour"
+      "ratesRefreshed": "Taux de change mis à jour",
+      "templateMissing": "Ce thème n'est plus disponible. Choisissez-en un autre."
     },
     "team": {
       "emailInvalid": "Saisissez une adresse e-mail valide.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# champ traduit.} other {# champs traduits.}} Vérifiez avant de publier.",
       "translateFailed": "La traduction a échoué. Réessayez.",
       "seoSaved": "Informations SEO enregistrées.",
-      "designSaved": "Mise en page enregistrée."
+      "designSaved": "Mise en page enregistrée.",
+      "templateApplied": "Thème appliqué au brouillon. Publiez lorsque vous êtes prêt.",
+      "templateAppliedWithProducts": "Thème appliqué au brouillon et {count, plural, one {# produit ajouté} other {# produits ajoutés}} en tant que brouillons. Publiez lorsque vous êtes prêt.",
+      "templateMissing": "Ce thème n'existe plus."
     },
     "admin": {
       "supplierGone": "Fournisseur introuvable.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Grande photo avec miniatures",
       "stacked": "Photos empilées",
       "tabs": "Onglets",
-      "accordion": "Accordéon"
+      "accordion": "Accordéon",
+      "simple": "Titre et texte",
+      "banner": "Bannière avec la photo de la collection"
     },
     "revert": "Rétablir la version publiée",
     "noProductsTitle": "Aucun produit publié",
@@ -3517,7 +3529,9 @@
       "link": "Lien",
       "author": "Auteur",
       "role": "Rôle ou entreprise",
-      "quote": "Citation"
+      "quote": "Citation",
+      "collectionColumns": "Produits par ligne sur les pages de boutique et de collection",
+      "collectionHeader": "En-tête des pages de boutique et de collection"
     },
     "repeat": {
       "slide": "Diapositive {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Fabriqué sur commande et expédié partout dans le monde.",
       "samplePrimary": "Acheter maintenant",
       "sampleSecondary": "En savoir plus",
-      "sampleSurface": "Livraison gratuite pour les commandes de plus de 75"
+      "sampleSurface": "Livraison gratuite pour les commandes de plus de 75",
+      "draftNote": "Ce design fait partie du brouillon. Il sera mis en ligne lorsque vous le publierez."
     },
     "productPage": {
       "blocks": "Blocs de la page produit",
@@ -5746,5 +5761,81 @@
     "link": "Associer le produit",
     "linking": "Association…",
     "noCatalog": "Aucun produit du catalogue n'est disponible."
+  },
+  "templates": {
+    "demoBasket": "Ceci est une boutique de démonstration, rien n'est donc ajouté au panier.",
+    "demoTitle": "Démo du thème {name}",
+    "demoNotice": "Vous consultez le thème {name}. Les produits et les prix sont des exemples.",
+    "useTemplate": "Utiliser ce thème",
+    "allTemplates": "Tous les thèmes",
+    "metaTitle": "Thèmes de boutique",
+    "metaDescription": "Designs complets de boutiques de merchandising pour entreprises, startups, créateurs, groupes de musique et clubs sportifs. Prévisualisez chacun en direct et lancez-vous en quelques minutes.",
+    "title": "Commencez avec une boutique prête à l'emploi",
+    "lead": "{count} {count, plural, one {design} other {designs}} de boutique complets avec des mises en page, des images, du texte d'exemple et des produits suggérés. Prévisualisez n'importe lequel en direct, puis personnalisez-le.",
+    "all": "Tous",
+    "allStyles": "Tous les styles",
+    "category": "Catégorie",
+    "style": "Style",
+    "livePreview": "Aperçu en direct",
+    "details": "Voir le thème",
+    "none": "Aucun thème ne correspond à ces filtres.",
+    "categories": {
+      "company": "Boutiques d'entreprise et pour employés",
+      "tech": "Tech et startups",
+      "creators": "Créateurs et podcasteurs",
+      "music": "Groupes de musique et musiciens",
+      "sports": "Clubs et équipes sportives"
+    },
+    "styles": {
+      "minimal": "Minimaliste",
+      "bold": "Audacieux",
+      "playful": "Ludique",
+      "editorial": "Éditorial",
+      "retro": "Rétro",
+      "luxury": "Luxe",
+      "technical": "Technique",
+      "dark": "Sombre"
+    },
+    "templateMetaTitle": "Thème de boutique {name}",
+    "startWithIt": "Commencer avec ce thème",
+    "desktopPreview": "{name} sur un écran d'ordinateur de bureau",
+    "mobilePreview": "{name} sur un téléphone",
+    "design": "Couleurs et typographie",
+    "fonts": "{heading} pour les titres, {body} pour le texte",
+    "included": "Ce qui est inclus",
+    "includedHome": "Une page d'accueil avec {count} {count, plural, one {section} other {sections}}",
+    "includedProductPage": "Une mise en page de page produit",
+    "includedCollection": "Mises en page des pages de boutique et de collection",
+    "includedHeaderFooter": "En-tête, pied de page et barre d'annonce",
+    "includedImages": "Photographies originales",
+    "includedLanguages": "Texte en neuf langues",
+    "sections": "Sections de la page d'accueil",
+    "starterTitle": "Produits suggérés",
+    "starterLead": "Ajoutés à votre catalogue en tant que brouillons lorsque vous commencez avec ce thème. Ajoutez vos créations, puis publiez.",
+    "moreIn": "Plus dans {category}",
+    "previewExpired": "Ce lien d'aperçu a expiré",
+    "previewExpiredBody": "Ouvrez à nouveau le thème depuis l'éditeur de vitrine pour obtenir un nouveau lien.",
+    "storePreviewNotice": "Aperçu du thème {name} avec vos produits. Votre boutique n'a pas été modifiée.",
+    "storePreviewSample": "Aperçu du thème {name} avec des exemples de produits, car votre boutique n'a pas encore de produits avec photos. Votre boutique n'a pas été modifiée.",
+    "picker": {
+      "open": "Changer de thème",
+      "title": "Changer de thème",
+      "body": "Choisissez un thème pour l'apercevoir avec vos produits. L'application d'un thème ne modifie que le brouillon.",
+      "choose": "Choisir",
+      "replaces": "Remplace les sections, la page produit, l'en-tête, le pied de page et le design de votre brouillon.",
+      "keeps": "Les produits, les commandes et les paramètres ne sont pas modifiés.",
+      "history": "Votre brouillon actuel est enregistré dans l'historique des versions, vous pouvez donc le restaurer.",
+      "unsaved": "Les modifications non enregistrées dans l'éditeur seront ignorées.",
+      "addProducts": "Ajouter également les produits suggérés au catalogue en tant que brouillons",
+      "apply": "Appliquer au brouillon",
+      "reapply": "Appliquer à nouveau",
+      "applying": "Application en cours…",
+      "preview": "Aperçu avec mes produits",
+      "opening": "Ouverture en cours…",
+      "back": "Tous les thèmes",
+      "failed": "Un problème est survenu. Veuillez réessayer."
+    },
+    "demoNewsletter": "C'est une boutique de démonstration, donc aucun e-mail n'a été envoyé.",
+    "demoMissing": "Il n'y a pas de modèle à cette adresse"
   }
 }

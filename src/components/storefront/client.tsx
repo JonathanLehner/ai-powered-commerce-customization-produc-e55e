@@ -627,25 +627,39 @@ export function NewsletterForm({
   source,
   labels,
   inert = false,
+  demoNote,
   className,
 }: {
   storeId: string;
   source: string;
   labels: { email: string; button: string; placeholder: string };
   inert?: boolean;
+  /** In a template's demo store: nothing is sent, and this is said instead. */
+  demoNote?: string;
   className?: string;
 }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(subscribeNewsletter, { status: "idle" });
+  const [demoSent, setDemoSent] = useState(false);
   const id = `newsletter-${source}`;
-  if (state.status === "success") {
+  if (state.status === "success" || demoSent) {
     return (
       <p role="status" className={cn("text-sm font-medium text-foreground", className)}>
-        {state.message}
+        {demoSent ? demoNote : state.message}
       </p>
     );
   }
   return (
-    <form action={action} className={cn("flex w-full max-w-md flex-col gap-2 sm:flex-row", className)}>
+    <form
+      action={demoNote ? undefined : action}
+      onSubmit={
+        demoNote
+          ? (event) => {
+              event.preventDefault();
+              setDemoSent(true);
+            }
+          : undefined
+      }
+      className={cn("flex w-full max-w-md flex-col gap-2 sm:flex-row", className)}>
       <input type="hidden" name="storeId" value={storeId} />
       <input type="hidden" name="source" value={source} />
       <label htmlFor={id} className="sr-only">

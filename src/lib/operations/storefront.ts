@@ -10,6 +10,7 @@ import {
   getStorefront,
   recordAudit,
   updateProductCollection,
+  updateStore,
   updateStorefront,
   updateStoreProduct,
 } from "../data";
@@ -17,7 +18,9 @@ import { db } from "../mongo";
 import { SEO_LIMITS } from "../seo";
 import { isShopTextKey } from "../shop-text";
 import { overrideProblem } from "../shop-text-validate";
+import { cleanDesign } from "../store-design";
 import { sectionsFromTree, type CraftTree } from "../storefront-schema";
+import { draftDesign } from "../templates/tree";
 import { emptyTree } from "../storefront-sections";
 import { capHistory, sameTree } from "../storefront-versions";
 import { productFields, withTranslation, type FieldTranslations } from "../translations";
@@ -140,6 +143,10 @@ export async function publishStorefront(ctx: OperationContext, input: { tree: un
     draftUpdatedAt: now,
     history,
   });
+  // A draft built from a template, or restored from one, carries its design:
+  // publishing is when that look goes live.
+  const drafted = draftDesign(tree);
+  if (drafted) await updateStore(store.id, { theme: drafted.theme, design: cleanDesign(drafted.theme, drafted.design) });
   audit(
     ctx,
     "storefront.published",

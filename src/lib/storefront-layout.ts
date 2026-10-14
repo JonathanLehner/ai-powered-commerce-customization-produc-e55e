@@ -29,6 +29,8 @@ export const LAYOUT_FIELDS: SectionField[] = [
   toggle("footerNewsletter", "Newsletter sign-up in the footer"),
   toggle("footerPayments", "Payment methods in the footer"),
   toggle("footerTrust", "Trust badges above the footer"),
+  select("collectionColumns", "Products per row on shop and collection pages", opts(["2", "2 across"], ["3", "3 across"], ["4", "4 across"])),
+  select("collectionHeader", "Shop and collection page header", opts(["simple", "Title and text"], ["banner", "Banner with the collection photo"])),
   ...SOCIAL_NETWORKS.map((network) => ({
     key: socialKey(network),
     label: `${network === "x" ? "X" : network[0].toUpperCase() + network.slice(1)} link`,
@@ -46,6 +48,8 @@ export const LAYOUT_DEFAULTS: Record<string, string | boolean> = {
   footerNewsletter: false,
   footerPayments: true,
   footerTrust: false,
+  collectionColumns: "3",
+  collectionHeader: "simple",
   ...Object.fromEntries(SOCIAL_NETWORKS.map((network) => [socialKey(network), ""])),
 };
 
@@ -59,6 +63,8 @@ export interface LayoutSettings {
   footerNewsletter: boolean;
   footerPayments: boolean;
   footerTrust: boolean;
+  collectionColumns: 2 | 3 | 4;
+  collectionHeader: "simple" | "banner";
   social: { network: SocialNetwork; url: string }[];
 }
 
@@ -92,6 +98,8 @@ export function layoutSettings(tree: unknown): LayoutSettings {
     footerNewsletter: values.footerNewsletter === true,
     footerPayments: values.footerPayments !== false,
     footerTrust: values.footerTrust === true,
+    collectionColumns: values.collectionColumns === "2" ? 2 : values.collectionColumns === "4" ? 4 : 3,
+    collectionHeader: values.collectionHeader === "banner" ? "banner" : "simple",
     social: SOCIAL_NETWORKS.map((network) => ({ network, url: String(values[socialKey(network)] ?? "") })).filter((s) =>
       /^https:\/\/\S+$/i.test(s.url),
     ),

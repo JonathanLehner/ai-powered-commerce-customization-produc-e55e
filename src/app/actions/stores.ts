@@ -64,6 +64,8 @@ export async function createStore(_prev: ActionState, formData: FormData): Promi
         defaultCurrency: String(formData.get("defaultCurrency") ?? "USD"),
         defaultLanguage: String(formData.get("defaultLanguage") ?? ""),
         theme: String(formData.get("theme") ?? "atelier"),
+        templateId: String(formData.get("templateId") ?? "") || null,
+        addStarterProducts: formData.get("addStarterProducts") === "on",
       },
     );
   } catch (error) {

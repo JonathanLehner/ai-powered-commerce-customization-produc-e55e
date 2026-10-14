@@ -37,6 +37,7 @@ export async function SiteHeader({
   const t = await getTranslations({ locale, namespace: "site" });
   const nav = [
     { href: getPathname({ href: "/how-it-works", locale }), label: t("howItWorks") },
+    { href: getPathname({ href: "/templates", locale }), label: t("templates") },
     { href: getPathname({ href: "/pricing", locale }), label: t("pricing") },
     { href: getPathname({ href: "/contact", locale }), label: t("contact") },
   ];
@@ -99,6 +100,7 @@ export async function SiteFooter({
           <h2 className={SECTION_TITLE}>{t("platform")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-inksoft">
             <li><Link href={getPathname({ href: "/how-it-works", locale })} className="hover:text-ink hover:underline">{t("howItWorks")}</Link></li>
+            <li><Link href={getPathname({ href: "/templates", locale })} className="hover:text-ink hover:underline">{t("templates")}</Link></li>
             <li><Link href={getPathname({ href: "/pricing", locale })} className="hover:text-ink hover:underline">{t("pricing")}</Link></li>
             <li><Link href={getPathname({ href: "/developers", locale })} className="hover:text-ink hover:underline">{t("developers")}</Link></li>
             <li><Link href={getPathname({ href: "/contact", locale })} className="hover:text-ink hover:underline">{t("contactSales")}</Link></li>

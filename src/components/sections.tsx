@@ -76,9 +76,9 @@ export function HeroSection({ props, ctx, index }: SectionProps) {
   return (
     <SectionShell props={{ ...props, align: centred ? "center" : "left" }} ctx={ctx} own={own}>
       <div className={cn("grid items-center gap-10 lg:gap-16", hasImage ? "lg:grid-cols-[1.05fr_1fr]" : "")}>
-        <div className={centred ? "mx-auto max-w-3xl" : "max-w-2xl"}>
+        <div className={centred ? "mx-auto min-w-0 max-w-3xl" : "min-w-0 max-w-2xl"}>
           {str(props, "eyebrow") ? <p className={EYEBROW}>{str(props, "eyebrow")}</p> : null}
-          <h1 className="font-heading mt-4 text-[clamp(2.4rem,5.6vw,4.5rem)] leading-[1.02] font-semibold tracking-tight text-balance text-foreground">
+          <h1 className="font-heading mt-4 text-[clamp(2.4rem,5.6vw,4.5rem)] leading-[1.02] font-semibold tracking-tight text-balance hyphens-auto break-words text-foreground">
             {str(props, "headline", ctx.t.welcome)}
           </h1>
           {str(props, "body") ? (
@@ -339,11 +339,12 @@ export function Countdown({ props, ctx }: SectionProps) {
 export function NewsletterSignup({ props, ctx }: SectionProps) {
   const hasImage = Boolean(str(props, "imageUrl"));
   const centred = !hasImage && str(props, "align") === "center";
-  const form = ctx.storeId ? (
+  const form = ctx.storeId || ctx.demoNote ? (
     <NewsletterForm
-      storeId={ctx.storeId}
+      storeId={ctx.storeId ?? ""}
       source="section"
       inert={ctx.preview}
+      demoNote={ctx.demoNote}
       className={cn("mt-6", centred ? "mx-auto" : "")}
       labels={{ email: ctx.t.newsletterEmail, placeholder: ctx.t.newsletterEmail, button: str(props, "buttonLabel", ctx.t.notifyMe) }}
     />
@@ -917,7 +918,7 @@ export function Gallery({ props, ctx }: SectionProps) {
         <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">{photos.map((n, i) => photo(n, i, "aspect-square"))}</ul>
       ) : (
         <ul className="grid auto-rows-[44vw] grid-cols-2 gap-3 sm:auto-rows-[30vw] sm:gap-4 lg:auto-rows-[17rem] lg:grid-cols-4">
-          {photos.map((n, i) => photo(n, i, i === 0 ? "col-span-2 row-span-2" : i === 3 && photos.length > 4 ? "lg:col-span-2" : ""))}
+          {photos.map((n, i) => photo(n, i, i === 0 ? "col-span-2 row-span-2" : i === 3 && photos.length === 4 ? "lg:col-span-2" : ""))}
         </ul>
       )}
     </SectionShell>

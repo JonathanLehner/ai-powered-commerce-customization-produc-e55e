@@ -12,6 +12,7 @@
 import assert from "node:assert/strict";
 import { LOCALES, MARKETING_PATHS } from "../src/i18n/locales.ts";
 import { matchesRoute } from "../src/lib/routes.ts";
+import { TEMPLATE_IDS } from "../src/lib/templates/index.ts";
 import {
   PRIVATE_PATHS,
   SITE_ORIGIN,
@@ -236,7 +237,8 @@ assert.equal(storeRobotsTxt({ ...northwind, status: "archived" }), "User-agent: 
 /* ------------------------------------------------------------ marketing */
 
 const marketing = marketingSitemap();
-assert.equal(marketing.length, MARKETING_PATHS.length * LOCALES.length, "every marketing page in every language");
+assert.equal(marketing.length, (MARKETING_PATHS.length + TEMPLATE_IDS.length) * LOCALES.length, "every marketing page and template page in every language");
+assert.ok(marketing.some((e) => e.url === `${SITE_ORIGIN}/de/templates/terminal`), "template pages are in the sitemap");
 checkSitemap(marketing, { host: new URL(SITE_ORIGIN).host, languages: [...LOCALES], toRoute: (url) => url.pathname });
 assert.ok(marketing.some((e) => e.url === `${SITE_ORIGIN}/`));
 assert.ok(marketing.some((e) => e.url === `${SITE_ORIGIN}/ja/pricing`));

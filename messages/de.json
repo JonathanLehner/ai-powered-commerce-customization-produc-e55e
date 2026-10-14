@@ -49,7 +49,8 @@
     "terms": "Nutzungsbedingungen",
     "privacy": "Datenschutzerklärung",
     "language": "Sprache",
-    "copyright": "© {year} Parcelith"
+    "copyright": "© {year} Parcelith",
+    "templates": "Vorlagen"
   },
   "notFound": {
     "body": "Prüfen Sie die Adresse und versuchen Sie es erneut."
@@ -1145,7 +1146,12 @@
     "archiveConfirm": "Ja, archivieren",
     "welcomeTitle": "Ihr Tarif {plan} ist aktiv",
     "welcomeTrialTitle": "Ihre {days}-tägige Testphase für {plan} hat begonnen",
-    "welcomeBody": "Erstellen Sie Ihren ersten Shop."
+    "welcomeBody": "Erstellen Sie Ihren ersten Shop.",
+    "templateStep": "Mit einer Vorlage starten",
+    "templateStepBody": "Eine Vorlage legt das Design, die Seiten und Beispieltexte fest. Du kannst später alles ändern.",
+    "blank": "Leer starten",
+    "blankBody": "Wähle unten ein Theme aus",
+    "addStarterProducts": "Füge die vorgeschlagenen Produkte als Entwürfe hinzu"
   },
   "billing": {
     "title": "Abonnement abschließen",
@@ -1269,7 +1275,8 @@
       "rateInvalid": "Geben Sie für {currency} einen Wechselkurs größer als 0 ein.",
       "ratesUnavailable": "Die Wechselkurse konnten nicht aktualisiert werden. Bitte versuchen Sie es später erneut.",
       "ratesSaved": "Wechselkurse gespeichert",
-      "ratesRefreshed": "Wechselkurse aktualisiert"
+      "ratesRefreshed": "Wechselkurse aktualisiert",
+      "templateMissing": "Diese Vorlage ist nicht mehr verfügbar. Wähle eine andere."
     },
     "team": {
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
@@ -1499,7 +1506,10 @@
       "translated": "{count, plural, one {# Feld übersetzt.} other {# Felder übersetzt.}} Vor dem Veröffentlichen prüfen.",
       "translateFailed": "Übersetzung fehlgeschlagen. Bitte erneut versuchen.",
       "seoSaved": "SEO-Angaben gespeichert.",
-      "designSaved": "Design gespeichert."
+      "designSaved": "Design gespeichert.",
+      "templateApplied": "Vorlage auf den Entwurf angewendet. Veröffentliche, wenn du bereit bist.",
+      "templateAppliedWithProducts": "Vorlage auf den Entwurf angewendet und {count, plural, one {ein Produkt} other {# Produkte}} als Entwürfe hinzugefügt. Veröffentliche, wenn du bereit bist.",
+      "templateMissing": "Diese Vorlage existiert nicht mehr."
     },
     "admin": {
       "supplierGone": "Lieferant nicht gefunden.",
@@ -3267,7 +3277,9 @@
       "thumbnails": "Großes Foto mit Miniaturansichten",
       "stacked": "Gestapelte Fotos",
       "tabs": "Tabs",
-      "accordion": "Akkordeon"
+      "accordion": "Akkordeon",
+      "simple": "Titel und Text",
+      "banner": "Banner mit dem Kategoriebild"
     },
     "revert": "Entwurf auf veröffentlichten Stand zurücksetzen",
     "noProductsTitle": "Noch keine veröffentlichten Produkte",
@@ -3517,7 +3529,9 @@
       "link": "Link",
       "author": "Autor",
       "role": "Rolle oder Unternehmen",
-      "quote": "Zitat"
+      "quote": "Zitat",
+      "collectionColumns": "Produkte pro Reihe auf Shop- und Kategorieseiten",
+      "collectionHeader": "Header für Shop- und Kategorieseiten"
     },
     "repeat": {
       "slide": "Folie {n}",
@@ -3690,7 +3704,8 @@
       "sampleBody": "Auf Bestellung gefertigt und weltweit versendet.",
       "samplePrimary": "Jetzt einkaufen",
       "sampleSecondary": "Mehr erfahren",
-      "sampleSurface": "Kostenloser Versand ab 75"
+      "sampleSurface": "Kostenloser Versand ab 75",
+      "draftNote": "Dieses Design ist Teil des Entwurfs. Es wird veröffentlicht, wenn du publizierst."
     },
     "productPage": {
       "blocks": "Produktseiten-Blöcke",
@@ -5746,5 +5761,81 @@
     "link": "Produkt verknüpfen",
     "linking": "Wird verknüpft…",
     "noCatalog": "Es sind keine Katalogprodukte zum Verknüpfen verfügbar."
+  },
+  "templates": {
+    "demoBasket": "Dies ist ein Demo-Shop, daher wird nichts zum Warenkorb hinzugefügt.",
+    "demoTitle": "Demo der {name}-Vorlage",
+    "demoNotice": "Du siehst die {name}-Vorlage. Produkte und Preise sind Beispiele.",
+    "useTemplate": "Diese Vorlage verwenden",
+    "allTemplates": "Alle Vorlagen",
+    "metaTitle": "Shop-Vorlagen",
+    "metaDescription": "Komplette Merch-Shop-Designs für Unternehmen, Start-ups, Creator, Bands und Sportvereine. Jedes live ansehen und in wenigen Minuten damit starten.",
+    "title": "Mit einem fertigen Shop starten",
+    "lead": "{count} vollständige Shop-Designs mit Layouts, Bildern, Beispieltexten und Produktvorschlägen. Jedes davon live ansehen und es dann zu deinem eigenen machen.",
+    "all": "Alle",
+    "allStyles": "Alle Stile",
+    "category": "Kategorie",
+    "style": "Stil",
+    "livePreview": "Live-Vorschau",
+    "details": "Vorlage ansehen",
+    "none": "Keine Vorlagen entsprechen diesen Filtern.",
+    "categories": {
+      "company": "Firmen- und Mitarbeiter-Shops",
+      "tech": "Technologie und Start-ups",
+      "creators": "Creator und Podcaster",
+      "music": "Bands und Musiker",
+      "sports": "Sportvereine und -teams"
+    },
+    "styles": {
+      "minimal": "Minimalistisch",
+      "bold": "Markant",
+      "playful": "Verspielt",
+      "editorial": "Redaktionell",
+      "retro": "Retro",
+      "luxury": "Luxuriös",
+      "technical": "Technisch",
+      "dark": "Dunkel"
+    },
+    "templateMetaTitle": "{name}-Shop-Vorlage",
+    "startWithIt": "Mit dieser Vorlage starten",
+    "desktopPreview": "{name} auf einem Desktop-Bildschirm",
+    "mobilePreview": "{name} auf einem Smartphone",
+    "design": "Farben und Schrift",
+    "fonts": "{heading} für Überschriften, {body} für Text",
+    "included": "Was du bekommst",
+    "includedHome": "Eine Startseite mit {count} Abschnitten",
+    "includedProductPage": "Ein Produktseiten-Layout",
+    "includedCollection": "Layouts für Shop- und Kategorieseiten",
+    "includedHeaderFooter": "Header, Footer und Ankündigungsleiste",
+    "includedImages": "Originalfotografie",
+    "includedLanguages": "Texte in neun Sprachen",
+    "sections": "Startseiten-Abschnitte",
+    "starterTitle": "Vorgeschlagene Produkte",
+    "starterLead": "Als Entwürfe zu deinem Katalog hinzugefügt, wenn du mit dieser Vorlage startest. Füge deine Designs hinzu, dann veröffentliche.",
+    "moreIn": "Mehr in {category}",
+    "previewExpired": "Dieser Vorschaulink ist abgelaufen",
+    "previewExpiredBody": "Öffne die Vorlage erneut aus dem Shop-Editor, um einen neuen Link zu erhalten.",
+    "storePreviewNotice": "Vorschau der {name}-Vorlage mit deinen Produkten. Dein Shop wurde nicht geändert.",
+    "storePreviewSample": "Vorschau der {name}-Vorlage mit Beispielprodukten, da dein Shop noch keine Produkte mit Fotos hat. Dein Shop wurde nicht geändert.",
+    "picker": {
+      "open": "Vorlage ändern",
+      "title": "Vorlage ändern",
+      "body": "Wähle eine Vorlage, um sie mit deinen Produkten in der Vorschau anzusehen. Das Anwenden einer Vorlage ändert nur den Entwurf.",
+      "choose": "Auswählen",
+      "replaces": "Ersetzt die Abschnitte, Produktseite, den Header, Footer und das Design in deinem Entwurf.",
+      "keeps": "Produkte, Bestellungen und Einstellungen werden nicht geändert.",
+      "history": "Dein aktueller Entwurf wird im Versionsverlauf gespeichert, damit du ihn wiederherstellen kannst.",
+      "unsaved": "Nicht gespeicherte Änderungen im Editor werden verworfen.",
+      "addProducts": "Füge auch die vorgeschlagenen Produkte als Entwürfe zum Katalog hinzu",
+      "apply": "Auf Entwurf anwenden",
+      "reapply": "Erneut anwenden",
+      "applying": "Wird angewendet…",
+      "preview": "Vorschau mit meinen Produkten",
+      "opening": "Wird geöffnet…",
+      "back": "Alle Vorlagen",
+      "failed": "Etwas ist schiefgelaufen. Versuche es erneut."
+    },
+    "demoNewsletter": "Dies ist ein Demoshop, daher wurde keine E-Mail versendet.",
+    "demoMissing": "Es gibt keine Vorlage unter dieser Adresse."
   }
 }

@@ -61,7 +61,9 @@ const localizeMarketing = createMiddleware(routing);
 function isMarketingAddress(pathname: string): boolean {
   const segments = segmentsOf(pathname);
   const rest = isLocale(segments[0]) ? segments.slice(1) : segments;
-  return (MARKETING_PATHS as readonly string[]).includes(`/${rest.join("/")}`);
+  const path = `/${rest.join("/")}`;
+  // A template's page in the gallery: `/templates/terminal`.
+  return (MARKETING_PATHS as readonly string[]).includes(path) || /^\/templates\/[a-z0-9-]+$/.test(path);
 }
 
 /** The pages that start a self-serve sign-up, and the copy served in their place while billing is not configured. */

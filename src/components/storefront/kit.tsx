@@ -77,6 +77,8 @@ export interface StorefrontContext {
   t: ShopperMessages["sections"];
   /** The shopper's language, for dates and numbers. */
   locale: string;
+  /** In a template's demo store: forms send nothing and say this instead. */
+  demoNote?: string;
 }
 
 export type SectionProps = { props: Record<string, unknown>; ctx: StorefrontContext; index?: number };
