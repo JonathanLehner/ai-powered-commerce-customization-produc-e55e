@@ -126,9 +126,11 @@ export const NONPROFIT_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "ecoHoodie", colour: "Navy", name: "Shoreline Hoodie", description: "Recycled fleece. $10 funds a beach clean-up.", price: 6500, isNew: true, tags: ["Hoodies"] },
       { starter: "organicTee", colour: "White", name: "Clean Seas Tee", description: "Organic cotton with the tide mark.", price: 3500, tags: ["Tees"] },
+      { starter: "tote", colour: "Natural", name: "Beach Clean Tote", description: "Sturdy canvas tote, made for litter picks.", price: 2400, tags: ["Home"] },
       { starter: "tee", colour: "Black", name: "Volunteer Tee", description: "For Saturday mornings on the shore.", price: 3000, tags: ["Volunteer"] },
-      { starter: "mug", colour: "White", name: "Refill Mug", description: "Skip the paper cup.", price: 1800, tags: ["Home"] },
-      { starter: "hoodie", colour: "Heather grey", name: "High Tide Hoodie", description: "Heavy grey fleece for windy beaches.", price: 6500, tags: ["Hoodies"] },
+      { starter: "enamelMug", colour: "White", name: "Refill Mug", description: "Enamel steel. Skip the paper cup.", price: 2000, tags: ["Home"] },
+      { starter: "beanie", colour: "Navy", name: "Tide Beanie", description: "Navy rib knit for winter beach cleans.", price: 2600, tags: ["Volunteer"] },
+      { starter: "sticker", colour: "White", name: "Tide Sticker", description: "Die-cut vinyl for water bottles.", price: 400, tags: ["Home"] },
     ],
     artwork: { word: "TIDEWATER", sub: "Clean seas", font: "Sora", weight: 800, inkLight: "#00507a", inkDark: "#c6f432", accent: "#c6f432", mark: "wave", uppercase: true, tracking: 2 },
     imagery: {
@@ -232,10 +234,12 @@ export const NONPROFIT_TEMPLATES: TemplateDef[] = [
     ],
     products: [
       { starter: "organicTee", colour: "White", name: "Every Child a Reader Tee", description: "Organic cotton. Buys a book for a child.", price: 3000, isNew: true, tags: ["Tees"] },
+      { starter: "tote", colour: "Natural", name: "Library Tote", description: "Canvas tote for library books. Buys a book for a child.", price: 2400, tags: ["Home"] },
       { starter: "mug", colour: "White", name: "Story Time Mug", description: "For tea and a chapter.", price: 1600, tags: ["Home"] },
       { starter: "hoodie", colour: "Navy", name: "Volunteer Reader Hoodie", description: "Navy fleece for the reading corner.", price: 5400, tags: ["Volunteers"] },
       { starter: "tee", colour: "Black", name: "Bookworm Tee", description: "Black tee with the open page mark.", price: 2800, tags: ["Tees"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Library Cart Hoodie", description: "Recycled fleece with the founder's cart.", price: 5400, tags: ["Volunteers"] },
+      { starter: "poster", colour: "White", name: "Reading Corner Poster", description: "An A2 print for classrooms and reading corners.", price: 2000, tags: ["Home"] },
+      { starter: "sticker", colour: "White", name: "Open Page Sticker", description: "Die-cut vinyl for notebooks and laptops.", price: 400, tags: ["Home"] },
     ],
     artwork: { word: "Open Page", sub: "Every child a reader", font: "Lora", weight: 700, inkLight: "#5b2a6e", inkDark: "#f4c95d", accent: "#d99a2b", mark: "none", uppercase: false, tracking: 0 },
     imagery: {
@@ -368,10 +372,11 @@ export const NONPROFIT_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "hoodie", colour: "Heather grey", name: "Winter Drop Hoodie", description: "Pays for a heated kennel this winter.", price: 5000, isNew: true, tags: ["Winter drop"] },
       { starter: "tee", colour: "White", name: "Good Dog Tee", description: "Add your dog's name under the paw.", price: 2500, personalise: true, tags: ["Tees"] },
+      { starter: "tote", colour: "Natural", name: "Walkies Tote", description: "Canvas tote for treats, toys and the lead.", price: 2000, tags: ["Home"] },
       { starter: "mug", colour: "White", name: "Walkies Mug", description: "For the coffee after the morning walk.", price: 1400, tags: ["Home"] },
       { starter: "tee", colour: "Black", name: "Cat Person Tee", description: "For the other half of the shelter.", price: 2500, personalise: true, tags: ["Tees"] },
+      { starter: "sticker", colour: "White", name: "Paw Sticker", description: "Die-cut paw for the car window.", price: 400, tags: ["Home"] },
       { starter: "ecoHoodie", colour: "Navy", name: "Volunteer Hoodie", description: "Navy fleece for shelter shifts.", price: 4600, tags: ["Volunteers"] },
-      { starter: "blackMug", colour: "Black", name: "Night Shift Mug", description: "For the volunteers on late feeds.", price: 1600, tags: ["Home"] },
     ],
     artwork: { word: "Second Paws", sub: "Rescue", font: "Nunito", weight: 900, inkLight: "#c2410c", inkDark: "#ffd9b8", accent: "#2a9d8f", mark: "heart", uppercase: false, tracking: -1 },
     imagery: {
@@ -494,7 +499,9 @@ export const NONPROFIT_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "organicTee", colour: "White", name: "Drop 04 Tee", description: "Organic cotton. Plants one street tree.", price: 3200, isNew: true, tags: ["Drop 04"] },
       { starter: "ecoHoodie", colour: "Heather grey", name: "Drop 04 Hoodie", description: "Recycled fleece. Plants one street tree.", price: 5800, isNew: true, tags: ["Drop 04"] },
+      { starter: "tote", colour: "Natural", name: "Drop 04 Tote", description: "Organic canvas. Plants one street tree.", price: 2600, tags: ["Drop 04"] },
       { starter: "tee", colour: "Black", name: "Planting Day Tee", description: "Black tee for the planting crew.", price: 2800, tags: ["Drop 04"] },
+      { starter: "cap", colour: "Natural", name: "Planting Day Cap", description: "Stone twill cap for long days with a spade.", price: 2600, tags: ["Drop 04"] },
       { starter: "mug", colour: "White", name: "Watering Can Mug", description: "For three summers of watering.", price: 1600, tags: ["Drop 04"] },
     ],
     artwork: { word: "CANOPY", sub: "Drop 04", font: "DM Sans", weight: 700, inkLight: "#1e5a32", inkDark: "#d9f99d", accent: "#6aa84f", mark: "leaf", uppercase: true, tracking: 10 },
@@ -604,10 +611,12 @@ export const NONPROFIT_TEMPLATES: TemplateDef[] = [
     ],
     products: [
       { starter: "tee", colour: "White", name: "Ridge Trail Tee", description: "The 1962 ridge poster on white cotton.", price: 3000, isNew: true, tags: ["Ridge Trail"] },
+      { starter: "poster", colour: "White", name: "Ridge Trail Poster", description: "The 1962 ridge poster, reprinted on A2 paper.", price: 3000, tags: ["Ridge Trail"] },
       { starter: "hoodie", colour: "Navy", name: "Trail Crew Hoodie", description: "Navy fleece for work days.", price: 5600, tags: ["Members"] },
+      { starter: "cap", colour: "Natural", name: "Trail Crew Cap", description: "Stone twill cap for work days in the sun.", price: 2800, tags: ["Members"] },
       { starter: "tee", colour: "Black", name: "Night Sky Tee", description: "Black tee with the stargazing meadow.", price: 3000, tags: ["Meadow Walk"] },
-      { starter: "mug", colour: "White", name: "Trailhead Mug", description: "For the thermos refill at the top.", price: 1600, tags: ["Camp"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Falls Loop Hoodie", description: "Recycled fleece with the falls.", price: 5400, tags: ["Falls Loop"] },
+      { starter: "enamelMug", colour: "White", name: "Trailhead Mug", description: "Enamel steel for the thermos refill at the top.", price: 2000, tags: ["Camp"] },
+      { starter: "beanie", colour: "Heather grey", name: "Falls Loop Beanie", description: "Grey rib knit for frosty mornings at the falls.", price: 2400, tags: ["Falls Loop"] },
     ],
     artwork: { word: "FERNHOLLOW", sub: "Trails Conservancy", font: "Bebas Neue", weight: 400, inkLight: "#2b4c6f", inkDark: "#f1e4c8", accent: "#e0923b", mark: "sun", uppercase: true, tracking: 6 },
     imagery: {

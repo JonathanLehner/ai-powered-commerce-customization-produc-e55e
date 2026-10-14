@@ -122,7 +122,7 @@ export default async function ProductEditorPage({
         description={
           <>
             <span className="font-mono">{sku}</span> ·{" "}
-            {product.category === "apparel" ? t("apparel") : t("drinkware")} ·{" "}
+            {t(product.category)} ·{" "}
             {t("enabledVariants", { count: product.variants.filter((v) => v.enabled).length })}
             {supplier ? t("producedBy", { supplier: supplier.name }) : path === "merchant" ? t("fulfilledByStore") : ""} ·{" "}
             {t("importedBy", { name: product.importedBy, date: formatDate(product.importedAt, locale) })}

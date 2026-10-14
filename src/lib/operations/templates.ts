@@ -22,7 +22,7 @@ import { emptyTree } from "../storefront-sections";
 import { capHistory } from "../storefront-versions";
 import { isDarkBlank, starterPrice, starterView } from "../templates/demo";
 import { getTemplate, STARTER_CATALOG, TEMPLATES, templateCopy, type StoreTemplate } from "../templates/index";
-import type { TemplatePrintFile } from "../templates/model";
+import { artworkPlacement, blankFamily, type TemplatePrintFile } from "../templates/model";
 import { DRAFT_DESIGN_PROP, draftDesign, templateTree, type DraftDesign } from "../templates/tree";
 import { I18N_PROP, SEO_FIELDS, type FieldTranslations } from "../translations";
 import type { CraftTree } from "../storefront-schema";
@@ -194,6 +194,8 @@ export async function addStarterProducts(ctx: OperationContext, template: StoreT
   for (const [index, item] of template.products.entries()) {
     const importKey = `${STARTER_KEY_PREFIX}${template.id}:${index}`;
     if (existing.some((p) => p.importKey === importKey)) continue;
+    // A blank the shared catalog does not carry yet is left out rather than failing the whole template.
+    if (!(await getCatalogProduct(STARTER_CATALOG[item.starter]))) continue;
     const { product } = await copyCatalogProductIntoStore(store, STARTER_CATALOG[item.starter], actor, importKey);
     const catalog = await getCatalogProduct(product.catalogProductId);
     const wanted = copy[`product:${index}:name`] ?? item.name;
@@ -206,8 +208,9 @@ export async function addStarterProducts(ctx: OperationContext, template: StoreT
     const inColour = product.variants.some((v) => v.colour === item.colour);
     const variants = product.variants.map((v) => ({ ...v, price, enabled: !inColour || v.colour === item.colour }));
     const area = catalog?.printAreas[starterView(template, index)] ?? catalog?.printAreas[0];
-    const file = template.assets.artwork?.[isDarkBlank(item.colour) ? "dark" : "light"];
-    const artworks = area && file && catalog ? [starterArtwork(template, item.starter, file, area, catalog.fileRequirements)] : [];
+    const poster = blankFamily(item.starter) === "poster";
+    const file = template.assets.artwork?.[poster ? "poster" : isDarkBlank(item.colour) ? "dark" : "light"];
+    const artworks = area && file && catalog ? [starterArtwork(template, item, file, area, catalog.fileRequirements)] : [];
     const shot = template.assets.products[index];
     const now = new Date().toISOString();
     const mockups: MockupImage[] = shot
@@ -264,26 +267,26 @@ export async function publishStarterProducts(ctx: OperationContext): Promise<Bul
   return outcome;
 }
 
-/** The template's print file on the area its product shot shows, as large as the shot draws it and the area's DPI allows. */
+/** The template's print file on the area its product shot shows, placed as the shot draws it and as large as the area's DPI allows. */
 function starterArtwork(
   template: StoreTemplate,
-  starter: StoreTemplate["products"][number]["starter"],
+  item: StoreTemplate["products"][number],
   file: TemplatePrintFile,
   area: PrintArea,
   requirements: FileRequirements,
 ): Artwork {
-  const mug = starter === "mug" || starter === "blackMug";
+  const family = blankFamily(item.starter);
+  const place = artworkPlacement(family, item.placement);
   const aspect = file.height / file.width;
   const scale =
     Math.floor(
       Math.min(
-        mug ? 0.9 : 0.86,
-        (0.8 * area.heightMm) / (area.widthMm * aspect),
+        place.width,
+        (place.height * area.heightMm) / (area.widthMm * aspect),
         (file.width * 25.4) / (requiredDpi(area, requirements) * area.widthMm),
       ) * 100,
     ) / 100;
   const height = (scale * area.widthMm * aspect) / area.heightMm;
-  const tee = starter === "tee" || starter === "organicTee";
   return {
     id: newId("art"),
     printAreaId: area.id,
@@ -294,9 +297,10 @@ function starterArtwork(
     sizeBytes: file.bytes,
     pixelWidth: file.width,
     pixelHeight: file.height,
-    hasAlpha: true,
-    x: 0.5,
-    y: tee ? Math.round((0.08 + height / 2) * 1000) / 1000 : 0.5,
+    // The poster design is printed edge to edge, background and all.
+    hasAlpha: family !== "poster",
+    x: place.x,
+    y: Math.round((place.top === null ? 0.5 : place.top + height / 2) * 1000) / 1000,
     scale,
     rotation: 0,
   };

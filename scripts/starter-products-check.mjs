@@ -5,8 +5,9 @@
 // the demo's rounded price, with the template's artwork placed inside the
 // print area and its product shot as the preview, that adding them twice adds
 // nothing, and that "Publish starter products" puts them all on sale in one
-// step once the store can ship and tax them. It refuses to run against
-// production.
+// step once the store can ship and tax them. The Wax template's poster, tote
+// and sticker check the newer blanks: the poster sheet printed edge to edge,
+// the rest passing pre-flight. It refuses to run against production.
 import assert from "node:assert/strict";
 import { PRODUCTION_DB } from "./mongo.mjs";
 
@@ -69,7 +70,7 @@ try {
   const products = await listStoreProducts(store.id);
   assert.deepEqual(
     template.products.map((item) => products.find((p) => p.name === item.name)?.price),
-    [1800, 2200, 3200, 5800, 3000],
+    [1800, 2400, 2200, 3200, 2800, 2200, 5800],
     "each product is priced like the demo",
   );
   for (const [index, item] of template.products.entries()) {
@@ -88,6 +89,9 @@ try {
     assert.equal(area.view, product.mockups[0].view, "the artwork is on the side the photo shows");
     assert.deepEqual(blockingIssues(validateArtwork(product.artworks[0], area, catalog.fileRequirements)), [], `${item.name} passes pre-flight`);
     assert.ok(product.costs.marginAmount > 0, `${item.name} sells above cost`);
+    if (item.placement === "left-chest") {
+      assert.ok(product.artworks[0].x > 0.7 && product.artworks[0].scale <= 0.3, `${item.name} carries a small left-chest print`);
+    }
   }
 
   // Publishing waits for what the store itself lacks, and says so.
@@ -123,10 +127,28 @@ try {
   const euroProducts = await listStoreProducts(euro.id);
   assert.deepEqual(
     template.products.map((_, i) => euroProducts.find((p) => p.importKey === `template:roastery:${i}`)?.price),
-    [1800, 2200, 3200, 5800, 3000],
+    [1800, 2400, 2200, 3200, 2800, 2200, 5800],
     "a German store sells at the German demo's euro prices",
   );
   assert.ok(euroProducts.every((p) => p.currency === "EUR"));
+
+  /* --------------------------- the newer blanks: poster, tote, sticker */
+  const wax = getTemplate("wax");
+  const waxStore = makeStore("wax", { defaultCurrency: "USD", currencies: ["USD"], defaultLanguage: "en", languages: ["en"] });
+  await db.insertOne(COLLECTIONS.stores, waxStore);
+  await addStarterProducts({ ...ctx, store: waxStore }, wax);
+  const waxProducts = await listStoreProducts(waxStore.id);
+  assert.equal(waxProducts.length, wax.products.length, "every Wax product is added");
+  for (const [index, item] of wax.products.entries()) {
+    const product = waxProducts.find((p) => p.importKey === `template:wax:${index}`);
+    const catalog = await getCatalogProduct(product.catalogProductId);
+    const area = catalog.printAreas.find((a) => a.id === product.artworks[0].printAreaId);
+    assert.deepEqual(blockingIssues(validateArtwork(product.artworks[0], area, catalog.fileRequirements)), [], `${item.name} passes pre-flight`);
+    if (item.starter === "poster") {
+      assert.equal(product.artworks[0].url, wax.assets.artwork.poster.url, "the poster prints the poster sheet");
+      assert.equal(product.artworks[0].scale, 1, "the poster sheet fills the paper");
+    }
+  }
 } finally {
   await Promise.all(
     stores.flatMap((store) => [

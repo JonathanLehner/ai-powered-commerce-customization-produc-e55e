@@ -35,7 +35,7 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "Run 27 is out",
           headline: "Two colours, slightly off",
-          body: "Riso artwork on tees, hoodies and mugs. Printed in small runs, a little misregistered on purpose.",
+          body: "Riso prints, tees, totes and hoodies. Printed in small runs, a little misregistered on purpose.",
           ctaLabel: "Shop run 27",
           ctaHref: "products",
           secondaryLabel: "",
@@ -100,12 +100,13 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
       { type: "RelatedProducts", props: { title: "Also in run 27" } },
     ],
     products: [
-      { starter: "organicTee", colour: "White", name: "Overlap Tee", description: "The pink and blue overlap print, run 27.", price: 3400, isNew: true, tags: ["Run 27"] },
-      { starter: "hoodie", colour: "Heather grey", name: "Misregister Hoodie", description: "Grey fleece with the misregistered moon.", price: 6200, isNew: true, tags: ["Run 27"] },
+      { starter: "poster", colour: "White", name: "Overlap Print", description: "The pink and blue overlap, run 27, on A2 paper.", price: 2800, isNew: true, tags: ["Run 27"] },
+      { starter: "organicTee", colour: "White", name: "Overlap Tee", description: "The pink and blue overlap print, run 27.", price: 3400, tags: ["Run 27"] },
+      { starter: "tote", colour: "Natural", name: "Misprint Tote", description: "Natural canvas with a misregistered moon.", price: 2200, tags: ["Home"] },
+      { starter: "hoodie", colour: "Heather grey", name: "Misregister Hoodie", description: "Grey fleece with the misregistered moon.", price: 6200, tags: ["Run 27"] },
+      { starter: "sticker", colour: "White", name: "Pink Ink Sticker", description: "Die-cut sticker in fluorescent pink.", price: 400, tags: ["Home"] },
+      { starter: "tee", colour: "Black", name: "Night Riso Tee", description: "Fluorescent pink on black.", price: 3400, tags: ["Archive"] },
       { starter: "mug", colour: "White", name: "Studio Mug", description: "The garage studio's tea mug.", price: 1800, tags: ["Home"] },
-      { starter: "tee", colour: "Black", name: "Night Riso Tee", description: "Fluorescent pink on black.", price: 3400, tags: ["Run 27"] },
-      { starter: "tee", colour: "White", name: "Blue Hour Tee", description: "Medium blue only, from run 25.", price: 3000, tags: ["Archive"] },
-      { starter: "blackMug", colour: "Black", name: "Pink Ink Mug", description: "Matte black with pink artwork.", price: 2000, tags: ["Home"] },
     ],
     artwork: { word: "pinkline", sub: "press", font: "Bricolage Grotesque", weight: 800, inkLight: "#d6247a", inkDark: "#ff7ab8", accent: "#2f6fd6", mark: "circle", uppercase: false, tracking: -2 },
     imagery: {
@@ -152,7 +153,7 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "Flash edition 09",
           headline: "Drawn once, worn forever",
-          body: "Hand-drawn flash on heavyweight tees and hoodies. Fifty numbered pieces per design.",
+          body: "Hand-drawn flash on prints, heavyweight tees and hoodies. Fifty numbered pieces per design.",
           ctaLabel: "Shop edition 09",
           ctaHref: "products",
           imageUrl: "@hero",
@@ -216,9 +217,11 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "tee", colour: "Black", name: "Swallow Flash Tee", description: "Black heavyweight tee. Edition of 50.", price: 4200, isNew: true, tags: ["Edition 09"] },
       { starter: "hoodie", colour: "Navy", name: "Dagger Rose Hoodie", description: "Navy fleece with the dagger and rose.", price: 7400, tags: ["Edition 09"] },
+      { starter: "poster", colour: "White", name: "Flash Sheet 09", description: "The Edition 09 flash sheet on A3 matte paper. 50 numbered.", price: 3500, tags: ["Edition 09"] },
       { starter: "tee", colour: "White", name: "Panther Flash Tee", description: "Bone-white tee with the panther.", price: 4200, tags: ["Edition 09"] },
+      { starter: "sticker", colour: "White", name: "Swallow Sticker", description: "Die-cut swallow from the Edition 09 sheet.", price: 500, tags: ["Studio"] },
+      { starter: "cap", colour: "Black", name: "Lantern Cap", description: "Black twill cap with the studio star.", price: 3200, tags: ["Studio"] },
       { starter: "blackMug", colour: "Black", name: "Lantern Mug", description: "Matte black with the studio lantern.", price: 2400, tags: ["Studio"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Sacred Heart Hoodie", description: "Grey fleece with the sacred heart.", price: 7000, tags: ["Edition 08"] },
     ],
     artwork: { word: "Black Lantern", sub: "Flash 09", font: "Playfair Display", weight: 900, inkLight: "#121010", inkDark: "#efe6d4", accent: "#d63a2f", mark: "star", uppercase: false, tracking: 0 },
     imagery: {
@@ -315,8 +318,10 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
       { type: "RelatedProducts", props: { title: "From the same series" } },
     ],
     products: [
+      { starter: "poster", colour: "White", name: "Afternoon Room Print", description: "The afternoon study as an A2 art print. Edition of 100.", price: 6500, tags: ["The Summer Rooms"] },
       { starter: "organicTee", colour: "White", name: "Afternoon Room Tee", description: "The afternoon study on organic cotton. Edition of 100.", price: 5800, tags: ["The Summer Rooms"] },
       { starter: "ecoHoodie", colour: "Navy", name: "Blue Shutter Hoodie", description: "Deep navy fleece with the shutter study.", price: 9800, tags: ["The Summer Rooms"] },
+      { starter: "tote", colour: "Natural", name: "Studio Tote", description: "Heavy natural canvas with the brushstroke mark.", price: 4200, tags: ["Ceramics"] },
       { starter: "mug", colour: "White", name: "Terrace Cup", description: "Fine white ceramic with the terrace study.", price: 3400, tags: ["Ceramics"] },
       { starter: "tee", colour: "Black", name: "Night Window Tee", description: "Black cotton with the night window.", price: 5800, tags: ["The Summer Rooms"] },
     ],
@@ -365,7 +370,7 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "Issue 42",
           headline: "Kapow! New merch.",
-          body: "Captain Fizz, Moxie and the gang on tees, hoodies and mugs.",
+          body: "Captain Fizz, Moxie and the gang on tees, hoodies, posters and stickers.",
           ctaLabel: "Shop issue 42",
           ctaHref: "products",
           secondaryLabel: "All characters",
@@ -439,10 +444,11 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "tee", colour: "White", name: "Captain Fizz Tee", description: "The captain mid-kapow, issue 42.", price: 2800, isNew: true, tags: ["Captain Fizz"] },
       { starter: "tee", colour: "Black", name: "Moxie Tee", description: "Moxie and her rocket skates on black.", price: 2800, tags: ["Moxie"] },
+      { starter: "poster", colour: "White", name: "Issue 42 Poster", description: "The issue 42 cover on A2 paper.", price: 2400, tags: ["Captain Fizz"] },
       { starter: "hoodie", colour: "Heather grey", name: "The Gang Hoodie", description: "All six characters, front and back.", price: 5600, tags: ["The Gang"] },
-      { starter: "mug", colour: "White", name: "Kapow Mug", description: "Halftone dots and a big kapow.", price: 1600, tags: ["Mugs"] },
+      { starter: "sticker", colour: "White", name: "Kapow Sticker", description: "Die-cut kapow for lunch boxes and laptops.", price: 400, tags: ["The Gang"] },
+      { starter: "mug", colour: "White", name: "Kapow Mug", description: "Halftone dots and a big kapow.", price: 1600, tags: ["The Gang"] },
       { starter: "ecoHoodie", colour: "Navy", name: "Night Patrol Hoodie", description: "Captain Fizz on night patrol.", price: 5400, tags: ["Captain Fizz"] },
-      { starter: "blackMug", colour: "Black", name: "Villain Mug", description: "For the bad guys' coffee.", price: 1800, tags: ["Mugs"] },
     ],
     artwork: { word: "FIZZWICK", sub: "Comics · Issue 42", font: "Archivo Black", weight: 400, inkLight: "#c8201c", inkDark: "#ffd23f", accent: "#2f5fd6", mark: "bolt", uppercase: true, tracking: 1 },
     imagery: {
@@ -487,7 +493,7 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "Plate 14 / Lisbon Stair",
           headline: "Buildings, drawn by hand",
-          body: "Architectural drawings on tees, hoodies and mugs. Each plate is a building I have measured and drawn.",
+          body: "Architectural drawings on paper, tees, hoodies and mugs. Each plate is a building I have measured and drawn.",
           ctaLabel: "Browse plates",
           ctaHref: "products",
           secondaryLabel: "",
@@ -555,9 +561,11 @@ export const ARTIST_TEMPLATES: TemplateDef[] = [
       { type: "RelatedProducts", props: { title: "Other plates" } },
     ],
     products: [
-      { starter: "organicTee", colour: "White", name: "Plate 14 Tee", description: "The Lisbon Stair in blueprint blue.", price: 3600, isNew: true, tags: ["Plate 14"] },
+      { starter: "poster", colour: "White", name: "Plate 14 Print", description: "The Lisbon Stair in blueprint blue, on A2 paper.", price: 4200, isNew: true, tags: ["Plate 14"] },
+      { starter: "organicTee", colour: "White", name: "Plate 14 Tee", description: "The Lisbon Stair in blueprint blue.", price: 3600, tags: ["Plate 14"] },
       { starter: "tee", colour: "Black", name: "Plate 12 Tee", description: "The water tower in white line on black.", price: 3600, tags: ["Plate 12"] },
       { starter: "ecoHoodie", colour: "Navy", name: "Plate 13 Hoodie", description: "The glasshouse section on navy fleece.", price: 6400, tags: ["Plate 13"] },
+      { starter: "tote", colour: "Natural", name: "Plan Tote", description: "Natural canvas with the Plan & Section mark.", price: 2600, tags: ["Desk"] },
       { starter: "mug", colour: "White", name: "Section Mug", description: "A building section wraps the cup.", price: 1900, tags: ["Desk"] },
       { starter: "hoodie", colour: "Heather grey", name: "Elevation Hoodie", description: "Grey fleece with a front elevation.", price: 6400, tags: ["Plate 12"] },
     ],

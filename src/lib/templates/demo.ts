@@ -8,7 +8,7 @@ import type { Locale } from "@/i18n/locales";
 import { convert } from "../pricing";
 import { slugify } from "../util";
 import { templateCopy } from "./index";
-import type { BlankColour, StoreTemplate } from "./model";
+import { blankFamily, ONE_SIZE, type BlankColour, type StoreTemplate } from "./model";
 
 /** The demo's currency per language, and how a USD demo price converts into it. */
 const CURRENCY: Record<Locale, { code: string; rate: number; step: number }> = {
@@ -40,9 +40,22 @@ const COLOURS: Record<BlankColour, { hex: string; names: Record<Locale, string> 
     hex: "#a3a3a3",
     names: { en: "Heather grey", de: "Grau meliert", fr: "Gris chiné", es: "Gris jaspeado", it: "Grigio melange", nl: "Gemêleerd grijs", pt: "Cinza mesclado", ja: "ヘザーグレー", sv: "Gråmelerad" },
   },
+  Natural: {
+    hex: "#e8dcc4",
+    names: { en: "Natural", de: "Natur", fr: "Naturel", es: "Natural", it: "Naturale", nl: "Naturel", pt: "Natural", ja: "ナチュラル", sv: "Natur" },
+  },
+  Red: {
+    hex: "#c8102e",
+    names: { en: "Red", de: "Rot", fr: "Rouge", es: "Rojo", it: "Rosso", nl: "Rood", pt: "Vermelho", ja: "レッド", sv: "Röd" },
+  },
+  "Forest green": {
+    hex: "#1f4d32",
+    names: { en: "Forest green", de: "Waldgrün", fr: "Vert forêt", es: "Verde bosque", it: "Verde bosco", nl: "Bosgroen", pt: "Verde floresta", ja: "フォレストグリーン", sv: "Skogsgrön" },
+  },
 };
 
 const APPAREL_SIZES = ["S", "M", "L", "XL", "2XL"];
+const POSTER_SIZES = ["A3", "A2"];
 
 export interface DemoProduct {
   card: StorefrontProductCard;
@@ -80,9 +93,9 @@ export function starterPrice(minor: number, currency: string, locale: Locale): n
   return Math.max(step, Math.round(converted / step) * step);
 }
 
-/** Black and navy blanks carry the light-ink artwork. */
+/** Black, navy, red and green blanks carry the light-ink artwork. */
 export function isDarkBlank(colour: BlankColour): boolean {
-  return colour === "Black" || colour === "Navy";
+  return colour === "Black" || colour === "Navy" || colour === "Red" || colour === "Forest green";
 }
 
 /**
@@ -91,11 +104,10 @@ export function isDarkBlank(colour: BlankColour): boolean {
  * so no two cards look alike.
  */
 export function starterView(template: StoreTemplate, index: number): 0 | 1 {
-  const family = (key: string) => (key === "organicTee" ? "tee" : key === "ecoHoodie" ? "hoodie" : key);
   const item = template.products[index];
   const before = template.products
     .slice(0, index)
-    .filter((p) => family(p.starter) === family(item.starter) && p.colour === item.colour).length;
+    .filter((p) => blankFamily(p.starter) === blankFamily(item.starter) && p.colour === item.colour).length;
   return before === 0 ? 0 : 1;
 }
 
@@ -113,7 +125,7 @@ export function demoProducts(template: StoreTemplate, locale: Locale, count = te
     const item = template.products[i];
     const name = `${copy[`product:${i}:name`] ?? item.name}${round > 0 ? ` ${round + 1}` : ""}`;
     const colour = { name: COLOURS[item.colour].names[locale], hex: COLOURS[item.colour].hex };
-    const mug = item.starter === "mug" || item.starter === "blackMug";
+    const family = blankFamily(item.starter);
     const image = template.assets.products[i] ?? "";
     const badges: StorefrontProductCard["badges"] = [];
     if (item.isNew && round === 0) badges.push("new");
@@ -134,7 +146,7 @@ export function demoProducts(template: StoreTemplate, locale: Locale, count = te
       },
       description: copy[`product:${i}:description`] ?? item.description,
       colour,
-      sizes: mug ? [] : APPAREL_SIZES,
+      sizes: family === "poster" ? POSTER_SIZES : ONE_SIZE.includes(family) ? [] : APPAREL_SIZES,
       personalise: Boolean(item.personalise),
       images: [image, template.assets.lifestyle].filter(Boolean),
     });

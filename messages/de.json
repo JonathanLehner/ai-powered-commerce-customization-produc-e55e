@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Gemeinsamer Lieferantenkatalog",
-        "body": "Bekleidung und Tassen von Lieferanten, mit Kosten, Druckbereichen und Lieferregionen. Übernehmen Sie, was Sie brauchen, in jeden Shop."
+        "body": "Bekleidung, Tassen, Taschen, Mützen und Drucke von Lieferanten, mit Kosten, Druckbereichen und Lieferregionen. Übernehmen Sie, was Sie brauchen, in jeden Shop."
       },
       "approval": {
         "title": "Freigabe vor der Veröffentlichung",
@@ -2653,6 +2653,8 @@
     "catalog": "Katalog",
     "apparel": "Bekleidung",
     "drinkware": "Trinkgefäße",
+    "accessories": "Accessoires",
+    "prints": "Drucke & Sticker",
     "enabledVariants": "{count, plural, one {# aktivierte Variante} other {# aktivierte Varianten}}",
     "producedBy": " · produziert von {supplier}",
     "importedBy": "importiert von {name} am {date}",
@@ -2942,6 +2944,8 @@
       "all": "Alle",
       "apparel": "Bekleidung",
       "drinkware": "Trinkgefäße",
+      "accessories": "Accessoires",
+      "prints": "Drucke & Sticker",
       "supplier": "Lieferant",
       "allApproved": "Alle freigegebenen",
       "fulfilsTo": "Liefert nach",
@@ -3866,6 +3870,8 @@
       "products": "Produkte",
       "apparel": "Bekleidung",
       "drinkware": "Trinkgefäße",
+      "accessories": "Accessoires",
+      "prints": "Drucke & Sticker",
       "bulkSourcing": "Großmengenbeschaffung",
       "pricedByQuote": "Preis auf Anfrage",
       "noProducts": "Noch keine Produkte",
@@ -3933,6 +3939,8 @@
       "category": "Kategorie",
       "apparel": "Bekleidung",
       "drinkware": "Trinkgefäße",
+      "accessories": "Accessoires",
+      "prints": "Drucke & Sticker",
       "currency": "Währung",
       "description": "Beschreibung",
       "costs": "Kosten ({currency})",

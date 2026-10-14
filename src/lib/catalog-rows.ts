@@ -6,7 +6,7 @@
  * records live here, away from the action, so they can be checked on their own:
  * `npm run catalog-rows-check`.
  */
-import type { CatalogVariant, FileRequirements, MockupView, PrintArea } from "./types";
+import type { CatalogVariant, FileRequirements, MockupView, PrintArea, ProductCategory } from "./types";
 import { newId, parseMoney } from "./util";
 
 /** What a parser returns: the rows it accepted, or the message the person sees. */
@@ -35,7 +35,7 @@ const STOCK: CatalogVariant["availability"][] = ["in_stock", "low_stock", "out_o
 /** Where a newly added print area sits on the supplier photography until it is measured. */
 const DEFAULT_RECT = { x: 0.32, y: 0.3, w: 0.36, h: 0.36 };
 
-export const FILE_REQUIREMENTS: Record<"apparel" | "drinkware", FileRequirements> = {
+export const FILE_REQUIREMENTS: Record<ProductCategory, FileRequirements> = {
   apparel: {
     formats: ["PNG", "SVG", "PDF"],
     maxFileMb: 25,
@@ -49,6 +49,20 @@ export const FILE_REQUIREMENTS: Record<"apparel" | "drinkware", FileRequirements
     minDpi: 300,
     transparentBackgroundRequired: false,
     maxPixels: 25_000_000,
+  },
+  accessories: {
+    formats: ["PNG", "SVG", "PDF"],
+    maxFileMb: 25,
+    minDpi: 150,
+    transparentBackgroundRequired: true,
+    maxPixels: 40_000_000,
+  },
+  prints: {
+    formats: ["PNG", "JPG", "PDF"],
+    maxFileMb: 50,
+    minDpi: 150,
+    transparentBackgroundRequired: false,
+    maxPixels: 80_000_000,
   },
 };
 

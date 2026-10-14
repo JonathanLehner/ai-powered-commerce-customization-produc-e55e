@@ -237,7 +237,13 @@ gifting, orders, team, guided setup, activity.
   a fictional brand (translated into all nine languages in
   `src/lib/templates/i18n.json`), original photography and product shots
   (`src/lib/templates/assets.json`) and a starter selection of shared-catalog
-  products. The marketing site has a gallery at `/templates` with a page per
+  products chosen for its category: kit shirts, scarves and caps for clubs,
+  posters, totes and stickers for bands and artists, totes and enamel mugs for
+  cafés, left-chest prints for company stores. Product shots are lifestyle
+  photographs of each blank (`scripts/blank-photos.json`) with the template's
+  artwork placed as the product calls for: a chest print, a left-chest crest, a
+  cap or beanie patch, a full poster sheet or a die-cut sticker. Dark templates
+  show them on a backdrop in the theme's colours. The marketing site has a gallery at `/templates` with a page per
   template and a prerendered demo store at `/demo/<template>/<lang>`. A new store
   can start from one, and the storefront editor's "Change template" previews the
   store's own products in a template (a signed link, `/template-preview/…`) and
@@ -486,7 +492,8 @@ node --env-file=.env.local scripts/seed.mjs   # clears and reseeds MONGODB_DB; r
 Template assets are built once and committed, never at request time:
 
 ```bash
-npm run template-assets         # photos (image model), product shots on the catalog's mockups, WebP widths
+node --env-file=.env.local scripts/generate-blank-photos.mjs   # lifestyle photos of each blank, once; print rectangles are then measured into blank-photos.json
+npm run template-assets         # photos (image model), product shots on the blank photos, theme backdrops for dark templates, print files, WebP widths
 npm run template-translations   # template copy into the eight other languages
 npm run build && npm start &
 npm run template-previews -- --base http://localhost:3000   # gallery thumbnails and full-page previews
@@ -523,6 +530,15 @@ every store, order and quote request alone. It replaces a listing that is
 already there rather than adding a second, so it is safe to re-run;
 `scripts/bulk-sourcing-catalog.mjs` holds the listings themselves and `seed.mjs`
 reads the same file, so a full rebuild and an upsert can never drift apart.
+
+`scripts/seed-starter-catalog.mjs` writes the template blanks (organic canvas
+tote, twill cap, cuffed beanie, matte art print, die-cut sticker, knit scarf,
+football shirt and enamel camp mug) into the shared catalog of a live database,
+leaving everything else alone. Run it once on each database, production
+included; until it has run, a template skips the blanks the catalog does not
+carry. It replaces a product that is already there rather than adding a
+second, so it is safe to re-run; `scripts/starter-catalog.mjs` holds the
+products and `seed.mjs` reads the same file.
 
 `scripts/backfill-product-identity.mjs` is a one-off migration for databases
 seeded before store products carried a SKU: it assigns one per product and

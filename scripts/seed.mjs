@@ -18,6 +18,7 @@ import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
 import { openDatabase } from "./mongo.mjs";
 import { seedCollections } from "./seed-collections.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
+import { STARTER_CATALOG_PRODUCTS } from "./starter-catalog.mjs";
 import { productContent, productFieldsFor, storeContent, withStoreContent } from "./store-content.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
@@ -1298,7 +1299,7 @@ async function main() {
   // The bulk-sourcing listings sit in the same collection as the
   // print-on-demand ones: they are compared side by side, and only the missing
   // unit price tells them apart.
-  await insertMany("catalog_products", [...catalog, ...BULK_SOURCING_PRODUCTS]);
+  await insertMany("catalog_products", [...catalog, ...STARTER_CATALOG_PRODUCTS, ...BULK_SOURCING_PRODUCTS]);
   await insertMany("stores", stores);
   await insertMany("memberships", memberships);
   await insertMany("store_products", storeProducts);

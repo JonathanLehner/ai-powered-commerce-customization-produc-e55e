@@ -25,7 +25,7 @@ import {
 } from "../data";
 import { db } from "../mongo";
 import { checkSupplierQuote, isQuoteOnly } from "../sourcing";
-import type { Agency, CatalogProduct, QuoteRequest, Supplier, SupplierQuote, TaxBracket } from "../types";
+import { PRODUCT_CATEGORIES, type Agency, type CatalogProduct, type QuoteRequest, type Supplier, type SupplierQuote, type TaxBracket } from "../types";
 import { CURRENCY_OPTIONS, formatMoney, newId, parseMoney, toMajorString } from "../util";
 import { OperationError, type Actor, type PlatformContext } from "./context";
 
@@ -274,7 +274,7 @@ export async function saveCatalogProduct(
     throw new OperationError("invalid", t("customisationRequired"), "customizationCost");
   }
   if (shippingEstimate === null) throw new OperationError("invalid", t("shippingRequired"), "shippingEstimate");
-  if (category !== "apparel" && category !== "drinkware") {
+  if (!PRODUCT_CATEGORIES.includes(category)) {
     throw new OperationError("invalid", t("categoryRequired"), "category");
   }
   if (!CURRENCY_OPTIONS.some((option) => option.code === currency)) {

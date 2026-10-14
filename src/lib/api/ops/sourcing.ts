@@ -10,7 +10,7 @@ import {
   withdrawEnquiry,
 } from "../../operations/sourcing";
 import { isQuoteOnly } from "../../sourcing";
-import type { QuoteRequest } from "../../types";
+import { PRODUCT_CATEGORIES, type QuoteRequest } from "../../types";
 import { toMajorString } from "../../util";
 import { decodeCursor, define, id, notFound, page, paging, type ApiOperation } from "../define";
 import { presentProduct } from "../present";
@@ -33,7 +33,7 @@ export const sourcingOperations: ApiOperation[] = [
     description:
       "Active catalog listings from approved suppliers that are priced per enquiry rather than per unit, with their minimum run, indicative unit cost band (minor units, never a promise), usual response time and delivery markets. Ask for a price with createQuoteRequest.",
     input: z.object({
-      category: z.enum(["apparel", "drinkware"]).optional(),
+      category: z.enum(PRODUCT_CATEGORIES).optional(),
       region: z.string().optional().describe("Only listings that deliver to this market, such as European Union."),
     }),
     run: async (_ctx, input) => {

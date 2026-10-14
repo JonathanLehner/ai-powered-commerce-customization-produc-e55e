@@ -31,7 +31,7 @@ import {
   taxBracketUsage,
   updateSupplierRegions,
 } from "../../operations/admin";
-import { AUDIT_CATEGORY_LABELS, type AuditCategory, type CatalogProduct, type PlanEnquiry, type QuoteRequest } from "../../types";
+import { AUDIT_CATEGORY_LABELS, PRODUCT_CATEGORIES, type AuditCategory, type CatalogProduct, type PlanEnquiry, type QuoteRequest } from "../../types";
 import { CURRENCY_OPTIONS, newId } from "../../util";
 import {
   dateRange,
@@ -171,7 +171,7 @@ const variantRow = z.object({
 const catalogFields = {
   supplierId: id("supplier").describe("The supplier that makes the product (listPlatformSuppliers)."),
   productType: z.string().describe("Such as “T-shirt, 180 gsm”; at least 3 characters."),
-  category: z.enum(["apparel", "drinkware"]),
+  category: z.enum(PRODUCT_CATEGORIES),
   name: z.string().describe("At least 3 characters, unique among the supplier's products."),
   description: z.string().describe("At least 20 characters."),
   baseCost: money("The supplier's base cost").refine((value) => value > 0, "Must be more than 0."),
@@ -203,7 +203,7 @@ const catalog = [
       "Every product in the shared catalog stores copy from, retired ones included, with costs in minor units, variants, print areas and file requirements. Quote-only (bulk sourcing) listings are priced per enquiry.",
     input: z.object({
       supplierId: z.string().optional().describe("Only this supplier's products."),
-      category: z.enum(["apparel", "drinkware"]).optional(),
+      category: z.enum(PRODUCT_CATEGORIES).optional(),
       status: z.enum(["active", "retired"]).optional(),
     }),
     run: async (_ctx, input) => {

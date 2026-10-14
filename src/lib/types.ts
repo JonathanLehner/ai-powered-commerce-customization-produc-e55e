@@ -513,12 +513,16 @@ export interface BulkSourcing {
   quoteNotes: string;
 }
 
+/** What a shared-catalog product is: garments, drinkware, bags and headwear, or paper and vinyl. */
+export const PRODUCT_CATEGORIES = ["apparel", "drinkware", "accessories", "prints"] as const;
+export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
+
 /** A supplier-backed product in the shared catalog managed by platform admins. */
 export interface CatalogProduct {
   id: string;
   supplierId: string;
   name: string;
-  category: "apparel" | "drinkware";
+  category: ProductCategory;
   productType: string;
   description: string;
   currency: string;
@@ -656,7 +660,7 @@ export interface StoreProduct {
   seoTitle?: string;
   seoDescription?: string;
   tags: string[];
-  category: "apparel" | "drinkware";
+  category: ProductCategory;
   status: "draft" | "in_review" | "published" | "archived";
   /** Set when the platform itself took the product off the storefront. */
   unpublishedReason?: "artwork_changed" | "preflight_failed" | null;

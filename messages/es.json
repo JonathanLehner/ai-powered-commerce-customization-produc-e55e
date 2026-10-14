@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Catálogo de proveedores compartido",
-        "body": "Ropa y tazas de proveedores, con costes, áreas de impresión y regiones de envío. Copia lo que necesites en cualquier tienda."
+        "body": "Ropa, tazas, bolsas, gorras y láminas de proveedores, con costes, áreas de impresión y regiones de envío. Copia lo que necesites en cualquier tienda."
       },
       "approval": {
         "title": "Aprobación antes de publicar",
@@ -2653,6 +2653,8 @@
     "catalog": "Catálogo",
     "apparel": "Ropa",
     "drinkware": "Menaje",
+    "accessories": "Accesorios",
+    "prints": "Láminas y pegatinas",
     "enabledVariants": "{count, plural, one {# variante activada} other {# variantes activadas}}",
     "producedBy": " · fabricado por {supplier}",
     "importedBy": "importado por {name} el {date}",
@@ -2942,6 +2944,8 @@
       "all": "Todas",
       "apparel": "Ropa",
       "drinkware": "Menaje",
+      "accessories": "Accesorios",
+      "prints": "Láminas y pegatinas",
       "supplier": "Proveedor",
       "allApproved": "Todos los aprobados",
       "fulfilsTo": "Envía a",
@@ -3866,6 +3870,8 @@
       "products": "Productos",
       "apparel": "Ropa",
       "drinkware": "Menaje",
+      "accessories": "Accesorios",
+      "prints": "Láminas y pegatinas",
       "bulkSourcing": "Abastecimiento por volumen",
       "pricedByQuote": "Precio bajo presupuesto",
       "noProducts": "Aún no hay productos",
@@ -3933,6 +3939,8 @@
       "category": "Categoría",
       "apparel": "Ropa",
       "drinkware": "Menaje",
+      "accessories": "Accesorios",
+      "prints": "Láminas y pegatinas",
       "currency": "Moneda",
       "description": "Descripción",
       "costs": "Costes ({currency})",

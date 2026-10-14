@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "共有サプライヤーカタログ",
-        "body": "サプライヤーのアパレルとマグカップを、原価、印刷範囲、配送地域とあわせて掲載。必要な商品をどのストアにもコピーできます。"
+        "body": "サプライヤーのアパレル、マグカップ、バッグ、帽子、ポスターを、原価、印刷範囲、配送地域とあわせて掲載。必要な商品をどのストアにもコピーできます。"
       },
       "approval": {
         "title": "公開前の承認",
@@ -2653,6 +2653,8 @@
     "catalog": "カタログ",
     "apparel": "アパレル",
     "drinkware": "ドリンクウェア",
+    "accessories": "アクセサリー",
+    "prints": "ポスター・ステッカー",
     "enabledVariants": "{count, plural, other {有効なバリエーション # 件}}",
     "producedBy": "・製造:{supplier}",
     "importedBy": "{date} に {name} が取り込み",
@@ -2942,6 +2944,8 @@
       "all": "すべて",
       "apparel": "アパレル",
       "drinkware": "ドリンクウェア",
+      "accessories": "アクセサリー",
+      "prints": "ポスター・ステッカー",
       "supplier": "サプライヤー",
       "allApproved": "承認済みすべて",
       "fulfilsTo": "配送地域",
@@ -3866,6 +3870,8 @@
       "products": "商品",
       "apparel": "アパレル",
       "drinkware": "ドリンクウェア",
+      "accessories": "アクセサリー",
+      "prints": "ポスター・ステッカー",
       "bulkSourcing": "大量調達",
       "pricedByQuote": "見積もり価格",
       "noProducts": "まだ商品はありません",
@@ -3933,6 +3939,8 @@
       "category": "カテゴリ",
       "apparel": "アパレル",
       "drinkware": "ドリンクウェア",
+      "accessories": "アクセサリー",
+      "prints": "ポスター・ステッカー",
       "currency": "通貨",
       "description": "説明",
       "costs": "原価({currency})",

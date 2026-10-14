@@ -118,6 +118,8 @@ export function SourcingFilters({
             options={[
               { value: "apparel", label: t("apparel") },
               { value: "drinkware", label: t("drinkware") },
+              { value: "accessories", label: t("accessories") },
+              { value: "prints", label: t("prints") },
             ]}
           />
           <Dropdown

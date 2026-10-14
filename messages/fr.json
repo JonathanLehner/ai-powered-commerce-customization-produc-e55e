@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Un catalogue fournisseurs partagé",
-        "body": "Textile et mugs de nos fournisseurs, avec coûts, zones d’impression et régions de livraison. Copiez ce dont vous avez besoin dans n’importe quelle boutique."
+        "body": "Textile, mugs, sacs, casquettes et affiches de nos fournisseurs, avec coûts, zones d’impression et régions de livraison. Copiez ce dont vous avez besoin dans n’importe quelle boutique."
       },
       "approval": {
         "title": "Validation avant publication",
@@ -2653,6 +2653,8 @@
     "catalog": "Catalogue",
     "apparel": "Textile",
     "drinkware": "Mugs et gourdes",
+    "accessories": "Accessoires",
+    "prints": "Affiches & stickers",
     "enabledVariants": "{count, plural, one {# variante activée} other {# variantes activées}}",
     "producedBy": " · produit par {supplier}",
     "importedBy": "importé par {name} le {date}",
@@ -2942,6 +2944,8 @@
       "all": "Toutes",
       "apparel": "Textile",
       "drinkware": "Mugs et gourdes",
+      "accessories": "Accessoires",
+      "prints": "Affiches & stickers",
       "supplier": "Fournisseur",
       "allApproved": "Tous les approuvés",
       "fulfilsTo": "Livre vers",
@@ -3866,6 +3870,8 @@
       "products": "Produits",
       "apparel": "Textile",
       "drinkware": "Mugs et gourdes",
+      "accessories": "Accessoires",
+      "prints": "Affiches & stickers",
       "bulkSourcing": "Sourcing en volume",
       "pricedByQuote": "Prix sur devis",
       "noProducts": "Aucun produit",
@@ -3933,6 +3939,8 @@
       "category": "Catégorie",
       "apparel": "Textile",
       "drinkware": "Mugs et gourdes",
+      "accessories": "Accessoires",
+      "prints": "Affiches & stickers",
       "currency": "Devise",
       "description": "Description",
       "costs": "Coûts ({currency})",

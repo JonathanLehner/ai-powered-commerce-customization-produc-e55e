@@ -97,9 +97,10 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
       { starter: "tee", colour: "Black", name: "World Tour Tee", description: "Black tee with every 2026 date on the back.", price: 3500, isNew: true, tags: ["Tour"] },
       { starter: "hoodie", colour: "Navy", name: "Static Hoodie", description: "Heavy fleece with the static heart logo.", price: 6500, tags: ["Tour"] },
       { starter: "tee", colour: "White", name: "Berlin Night Tee", description: "City edition tee for the Berlin show.", price: 3500, tags: ["City editions"] },
+      { starter: "poster", colour: "White", name: "World Tour Poster", description: "A2 tour poster in red and black.", price: 3000, tags: ["Extras"] },
+      { starter: "cap", colour: "Black", name: "Static Cap", description: "Black twill cap with the bolt.", price: 3000, tags: ["Tour"] },
+      { starter: "tote", colour: "Black", name: "Tour Tote", description: "Black canvas tote for the merch queue.", price: 2200, tags: ["Extras"] },
       { starter: "blackMug", colour: "Black", name: "Green Room Mug", description: "Matte black 15oz with a red heart.", price: 2000, tags: ["Extras"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Crew Hoodie", description: "As worn by the road crew.", price: 6000, tags: ["Tour"] },
-      { starter: "organicTee", colour: "Black", name: "Encore Tee", description: "Organic tee with the encore setlist.", price: 3500, tags: ["Tour"] },
     ],
     artwork: { word: "STATIC HEARTS", sub: "World tour 2026", font: "Anton", weight: 400, inkLight: "#0b0b0b", inkDark: "#e5162b", accent: "#e5162b", mark: "bolt", uppercase: true, tracking: 3 },
     imagery: {
@@ -161,7 +162,7 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
           slide3Image: "",
         },
       },
-      { type: "CollectionTiles", props: { title: "Shop by era", subtitle: "", ratio: "portrait", layout: "grid", tile1Label: "Midnight Garden", tile1Image: "@banner", tile2Label: "Paper Moons", tile2Image: "@lifestyle", tile3Label: "First Light", tile3Image: "@product1" } },
+      { type: "CollectionTiles", props: { title: "Shop by era", subtitle: "", ratio: "portrait", layout: "grid", tile1Label: "Midnight Garden", tile1Image: "@banner", tile2Label: "Paper Moons", tile2Image: "@lifestyle", tile3Label: "First Light", tile3Image: "@product6" } },
       { type: "ProductCarousel", props: { title: "New in Midnight Garden", subtitle: "", ctaLabel: "Shop all", source: "all", limit: 10, layout: "top" } },
       {
         type: "ImageWithText",
@@ -190,9 +191,11 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "hoodie", colour: "Heather grey", name: "Midnight Garden Hoodie", description: "Moonlight grey fleece with the album's rose.", price: 6500, isNew: true, tags: ["Midnight Garden"] },
       { starter: "organicTee", colour: "White", name: "Garden Tracklist Tee", description: "Organic cotton with the tracklist in script.", price: 3800, tags: ["Midnight Garden"] },
-      { starter: "mug", colour: "White", name: "Dusk Rose Mug", description: "White ceramic with a hand-drawn rose.", price: 2200, tags: ["Midnight Garden"] },
+      { starter: "poster", colour: "White", name: "Midnight Garden Poster", description: "The album artwork on A2 matte paper.", price: 2800, tags: ["Midnight Garden"] },
+      { starter: "tote", colour: "Natural", name: "Paper Moons Tote", description: "Natural canvas tote from the Paper Moons era.", price: 2400, tags: ["Paper Moons"] },
       { starter: "ecoHoodie", colour: "Navy", name: "Paper Moons Hoodie", description: "Ink blue fleece from the Paper Moons era.", price: 6200, tags: ["Paper Moons"] },
       { starter: "tee", colour: "Black", name: "First Light Tee", description: "From the debut era, reissued.", price: 3500, tags: ["First Light"] },
+      { starter: "mug", colour: "White", name: "Dusk Rose Mug", description: "White ceramic with a hand-drawn rose.", price: 2200, tags: ["Midnight Garden"] },
     ],
     artwork: { word: "Juniper Vale", sub: "Midnight Garden", font: "Playfair Display", weight: 600, inkLight: "#8c3f5f", inkDark: "#ead6df", accent: "#3a2430", mark: "star", uppercase: false, tracking: 0 },
     imagery: {
@@ -300,10 +303,12 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
     ],
     products: [
       { starter: "tee", colour: "White", name: "Sunday Static Tee", description: "Cream-white tee with the sunburst album art.", price: 3000, isNew: true, tags: ["Sunday Static"] },
+      { starter: "poster", colour: "White", name: "Sunday Static Poster", description: "The sunburst album art on A2 matte paper.", price: 2800, tags: ["Sunday Static"] },
+      { starter: "tote", colour: "Natural", name: "Record Bag Tote", description: "Natural canvas tote, sized for 12-inch records.", price: 2200, tags: ["Extras"] },
       { starter: "hoodie", colour: "Navy", name: "Side B Hoodie", description: "Navy fleece with the side B tracklist.", price: 5800, tags: ["Sunday Static"] },
       { starter: "mug", colour: "White", name: "Tape Deck Mug", description: "11oz ceramic with a cassette illustration.", price: 1800, tags: ["Extras"] },
       { starter: "tee", colour: "Black", name: "Velvet Hours Logo Tee", description: "The classic logo in mustard on black.", price: 3000, tags: ["Classics"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Rehearsal Hoodie", description: "Grey marl fleece with a small embroidered-look logo.", price: 5500, tags: ["Classics"] },
+      { starter: "sticker", colour: "White", name: "Sunburst Sticker", description: "Die-cut vinyl for record crates and laptops.", price: 400, tags: ["Extras"] },
     ],
     artwork: { word: "The Velvet Hours", sub: "Sunday Static", font: "DM Serif Display", weight: 400, inkLight: "#c2481a", inkDark: "#f2b632", accent: "#3b2412", mark: "circle", uppercase: false, tracking: 0 },
     imagery: {
@@ -343,7 +348,7 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "Riot Garden",
           headline: "TURN IT UP. THEN BUY A SHIRT.",
-          body: "Shirts, hoodies and mugs printed to order. Every sale pays for the van.",
+          body: "Shirts, hoodies, totes and stickers printed to order. Every sale pays for the van.",
           ctaLabel: "Shop merch",
           ctaHref: "products",
           secondaryLabel: "",
@@ -378,7 +383,9 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
       { starter: "tee", colour: "Black", name: "Basement Tee", description: "Black tee, acid green logo. Classic.", price: 2500, tags: ["Shirts"] },
       { starter: "tee", colour: "White", name: "Photocopy Tee", description: "White tee with a xeroxed flyer print.", price: 2500, tags: ["Shirts"] },
       { starter: "ecoHoodie", colour: "Heather grey", name: "Feedback Hoodie", description: "Grey fleece with a distorted logo.", price: 4800, tags: ["Hoodies"] },
-      { starter: "blackMug", colour: "Black", name: "Van Fund Mug", description: "Matte black 15oz. Pays for petrol.", price: 1700, tags: ["Other"] },
+      { starter: "tote", colour: "Black", name: "Merch Table Tote", description: "Black canvas tote. Fits records and zines.", price: 1800, tags: ["Other"] },
+      { starter: "sticker", colour: "White", name: "Riot Sticker", description: "Die-cut vinyl for amps, cases and laptops.", price: 300, tags: ["Other"] },
+      { starter: "beanie", colour: "Black", name: "Basement Beanie", description: "Black rib knit for the walk home.", price: 1800, tags: ["Other"] },
       { starter: "organicTee", colour: "Black", name: "7 Inch Tee", description: "Organic tee with the new single's cover.", price: 2800, isNew: true, tags: ["Shirts"] },
     ],
     artwork: { word: "RIOT GARDEN", sub: "", font: "Archivo Black", weight: 400, inkLight: "#0b0b0b", inkDark: "#c8f43a", accent: "#c8f43a", mark: "slash", uppercase: true, tracking: -1 },
@@ -478,6 +485,8 @@ export const MUSIC_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "hoodie", colour: "Navy", name: "Blue Hour Hoodie", description: "Midnight navy fleece with a gold moon.", price: 6800, isNew: true, tags: ["Blue Hour"] },
       { starter: "organicTee", colour: "Black", name: "Nocturne Tee", description: "Organic cotton with a score fragment from the title track.", price: 3600, tags: ["Blue Hour"] },
+      { starter: "poster", colour: "White", name: "Blue Hour Print", description: "The album cover as an A2 art print.", price: 3200, tags: ["Objects"] },
+      { starter: "tote", colour: "Natural", name: "Score Tote", description: "Natural canvas tote for sheet music and records.", price: 2400, tags: ["Objects"] },
       { starter: "blackMug", colour: "Black", name: "Late Set Mug", description: "Matte black with a gold-tone moon.", price: 2400, tags: ["Objects"] },
       { starter: "organicTee", colour: "White", name: "Quartet Tee", description: "Organic cotton with a line drawing of the quartet.", price: 3600, tags: ["Blue Hour"] },
     ],

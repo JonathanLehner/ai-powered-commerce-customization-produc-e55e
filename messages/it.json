@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Catalogo fornitori condiviso",
-        "body": "Abbigliamento e tazze dei fornitori, con costi, aree di stampa e regioni di spedizione. Copia ciò che ti serve in qualsiasi negozio."
+        "body": "Abbigliamento, tazze, borse, cappelli e stampe dei fornitori, con costi, aree di stampa e regioni di spedizione. Copia ciò che ti serve in qualsiasi negozio."
       },
       "approval": {
         "title": "Approvazione prima della pubblicazione",
@@ -2653,6 +2653,8 @@
     "catalog": "Catalogo",
     "apparel": "Abbigliamento",
     "drinkware": "Tazze e borracce",
+    "accessories": "Accessori",
+    "prints": "Stampe e adesivi",
     "enabledVariants": "{count, plural, one {# variante attiva} other {# varianti attive}}",
     "producedBy": " · prodotto da {supplier}",
     "importedBy": "importato da {name} il {date}",
@@ -2942,6 +2944,8 @@
       "all": "Tutte",
       "apparel": "Abbigliamento",
       "drinkware": "Tazze e borracce",
+      "accessories": "Accessori",
+      "prints": "Stampe e adesivi",
       "supplier": "Fornitore",
       "allApproved": "Tutti gli approvati",
       "fulfilsTo": "Consegna in",
@@ -3866,6 +3870,8 @@
       "products": "Prodotti",
       "apparel": "Abbigliamento",
       "drinkware": "Tazze e borracce",
+      "accessories": "Accessori",
+      "prints": "Stampe e adesivi",
       "bulkSourcing": "Approvvigionamento in quantità",
       "pricedByQuote": "Prezzo su preventivo",
       "noProducts": "Ancora nessun prodotto",
@@ -3933,6 +3939,8 @@
       "category": "Categoria",
       "apparel": "Abbigliamento",
       "drinkware": "Tazze e borracce",
+      "accessories": "Accessori",
+      "prints": "Stampe e adesivi",
       "currency": "Valuta",
       "description": "Descrizione",
       "costs": "Costi ({currency})",

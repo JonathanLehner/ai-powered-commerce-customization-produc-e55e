@@ -4,9 +4,14 @@
  * - hero, lifestyle, banner and extra photographs from the image model, prompted for
  *   the template's fictional brand with no text or logos in frame;
  * - product shots: the template's artwork, drawn in Chrome in the template's
- *   own typeface, composited onto the shared catalog's mockup photographs;
+ *   own typeface, composited onto the lifestyle photographs of the blanks in
+ *   scripts/blank-photos.json, placed as the product calls for (a full chest
+ *   print, a left-chest crest, a cap patch, a poster sheet, a die-cut sticker).
+ *   A dark template's shots are taken on the same photographs re-lit by the
+ *   image model on a backdrop in the theme's colours;
  * - print files: the same artwork as a transparent PNG at print resolution, one
- *   per ink the template's products use, placed on the starter products;
+ *   per ink the template's products use, and the poster sheet design when the
+ *   template sells a poster, placed on the starter products;
  * - responsive WebP widths of all of them, merged into image-variants.json.
  *
  * Everything is uploaded to the platform asset store and the URLs written to
@@ -14,13 +19,14 @@
  * kept, so a rerun only fills what is missing.
  *
  *   node --env-file=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs \
- *     scripts/generate-template-assets.mjs [--only id,id] [--redo-products]
+ *     scripts/generate-template-assets.mjs [--only id,id] [--redo-products] [--redo-art]
  */
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { chromium } from "playwright-core";
-import { TEMPLATE_DEFS, STARTER_CATALOG } from "../src/lib/templates/index.ts";
+import { artworkPlacement, blankFamily, STARTER_CATALOG, TEMPLATE_DEFS } from "../src/lib/templates/index.ts";
+import { isDarkBlank } from "../src/lib/templates/demo.ts";
 
 const KEY = process.env.CLAWCORP_API_KEY;
 if (!KEY) {
@@ -36,6 +42,8 @@ const CHROME = process.env.CHROME_PATH || "/usr/bin/google-chrome";
 const args = process.argv.slice(2);
 const only = args.includes("--only") ? args[args.indexOf("--only") + 1].split(",") : null;
 const redoProducts = args.includes("--redo-products");
+// Print files are kept unless asked for again, since stores may already use them.
+const redoArt = args.includes("--redo-art");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -55,14 +63,25 @@ async function upload(bytes, mimeType) {
 const RULES =
   "Original photograph for a fictional brand. There must be no text, letters, numbers, logos, brand marks, signage or watermarks anywhere in the image; all clothing is completely plain. Photorealistic, natural colour, high detail.";
 
-async function generateImage(prompt) {
+async function generateImage(prompt, source = null) {
+  const body = source
+    ? {
+        model: "gemini-3.1-flash-image",
+        contents: [
+          {
+            role: "user",
+            parts: [{ inlineData: { mimeType: "image/jpeg", data: source.toString("base64") } }, { text: prompt }],
+          },
+        ],
+      }
+    : { prompt: `${prompt}. ${RULES}`, model: "gemini-3.1-flash-image" };
   let last = "";
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
       const res = await fetch(`${BASE}/gemini`, {
         method: "POST",
         headers: { Authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-        body: JSON.stringify({ prompt: `${prompt}. ${RULES}`, model: "gemini-3.1-flash-image" }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`);
       const json = await res.json();
@@ -86,27 +105,38 @@ async function fetchBuffer(url) {
 
 /* ------------------------------------------------------------ the blanks */
 
-/** The catalog's mockup photographs (front and back view) and print rectangles, per blank and colour. */
-const PHOTOS = {
-  tee: {
-    White: ["0616d9895c58060ecc82bf1fcf4119cf", "e03cb432ec71e49cdb40c6d4295ff79a"],
-    Black: ["fc3e8c00a3f95ceff43c57c582dfdd25", "983926775285d9e8921585a333634818"],
-  },
-  hoodie: {
-    Navy: ["aebf26fbeb9c26e836aed08b1acbde31", "e52c132408bf28ce79aefcdea5a297e4"],
-    "Heather grey": ["cb4be78f6ec7aa1c2b4483907211ae8c", "2b7c50735ace5049b67c055616db8862"],
-  },
-  mug: { White: ["28a72e3e605df4cabf2562bbda584d7e", "4d258b890df1a135e39a5e40571fb33a"] },
-  blackMug: { Black: ["5b86fc6ea5adc2ae208f2a2dd5f282d7", "872d43ad992490916a371f1b332b960a"] },
+/** Lifestyle photographs of each blank per colour and view, with the print rectangle on each. */
+const PHOTOS = JSON.parse(await readFile(path.join(process.cwd(), "scripts/blank-photos.json"), "utf8"));
+
+function luminance(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255].map((c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+const contrast = (a, b) => {
+  const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
 };
-const photoUrl = (hash) => `https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/${hash}-0.jpg`;
-const RECTS = {
-  tee: [{ x: 0.33, y: 0.29, w: 0.34, h: 0.34 }, { x: 0.33, y: 0.27, w: 0.34, h: 0.38 }],
-  hoodie: [{ x: 0.34, y: 0.36, w: 0.32, h: 0.24 }, { x: 0.33, y: 0.3, w: 0.34, h: 0.34 }],
-  mug: [{ x: 0.3, y: 0.36, w: 0.33, h: 0.3 }, { x: 0.37, y: 0.36, w: 0.33, h: 0.3 }],
-};
-const FAMILY = { tee: "tee", organicTee: "tee", hoodie: "hoodie", ecoHoodie: "hoodie", mug: "mug", blackMug: "blackMug" };
-const DARK = new Set(["Black", "Navy"]);
+
+/** A template whose pages are dark gets its product shots on a backdrop in its own colours. */
+const isDarkTheme = (t) => luminance(t.design.colors?.background ?? "#ffffff") < 0.1;
+
+/** The theme's background in words the image model can light a scene with. */
+function backdropWords(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255].map((c) => c / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  if (max - min < 0.04) return "near-black charcoal";
+  const hue = max === r ? (60 * ((g - b) / (max - min)) + 360) % 360 : max === g ? 60 * ((b - r) / (max - min)) + 120 : 60 * ((r - g) / (max - min)) + 240;
+  if (hue < 40 || hue >= 330) return "very dark warm brown-black";
+  if (hue < 170) return "very dark green-black";
+  if (hue < 235) return "deep midnight navy";
+  return "very dark indigo-violet black";
+}
 
 /* --------------------------------------------------------------- artwork */
 
@@ -153,26 +183,154 @@ async function renderArtwork(page, art, dark) {
   return page.locator("#art").screenshot({ omitBackground: true });
 }
 
+/* ------------------------------------------------------- backdrop alignment */
+
+/** Gradient magnitude of a photograph at `size` pixels square: outlines survive a change of backdrop, flat colour does not. */
+async function edges(buffer, size) {
+  const { data } = await sharp(buffer).resize(size, size, { fit: "fill" }).greyscale().raw().toBuffer({ resolveWithObject: true });
+  const out = new Float32Array(size * size);
+  for (let y = 1; y < size - 1; y++) {
+    for (let x = 1; x < size - 1; x++) {
+      const i = y * size + x;
+      const gx = data[i + 1] - data[i - 1];
+      const gy = data[i + size] - data[i - size];
+      out[i] = Math.hypot(gx, gy);
+    }
+  }
+  return out;
+}
+
+/**
+ * Where the product in `edited` sits relative to `original`: the scale about
+ * the print rectangle's centre and the shift that best line up their outlines
+ * around it, with how well they match (normalised cross-correlation, 1 is
+ * identical). The image model is asked to keep the product where it is, and
+ * mostly does, but a few percent of drift would put the print off the blank.
+ */
+async function alignment(original, edited, rect) {
+  const N = 128;
+  const [a, b] = await Promise.all([edges(original, N), edges(edited, N)]);
+  const cx = (rect.x + rect.w / 2) * N;
+  const cy = (rect.y + rect.h / 2) * N;
+  const x0 = Math.max(1, Math.floor((rect.x - rect.w * 0.6) * N));
+  const x1 = Math.min(N - 2, Math.ceil((rect.x + rect.w * 1.6) * N));
+  const y0 = Math.max(1, Math.floor((rect.y - rect.h * 0.6) * N));
+  const y1 = Math.min(N - 2, Math.ceil((rect.y + rect.h * 1.6) * N));
+  const points = [];
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) points.push([x, y, a[y * N + x]]);
+  const meanA = points.reduce((t, p) => t + p[2], 0) / points.length;
+  const varA = points.reduce((t, p) => t + (p[2] - meanA) ** 2, 0);
+  const score = (s, dx, dy) => {
+    let sum = 0;
+    let sumB = 0;
+    let sumBB = 0;
+    for (const [x, y, va] of points) {
+      const bx = Math.round(cx + (x - cx) * s + dx);
+      const by = Math.round(cy + (y - cy) * s + dy);
+      const vb = bx >= 0 && bx < N && by >= 0 && by < N ? b[by * N + bx] : 0;
+      sum += (va - meanA) * vb;
+      sumB += vb;
+      sumBB += vb * vb;
+    }
+    const varB = sumBB - (sumB * sumB) / points.length;
+    return varA > 0 && varB > 0 ? sum / Math.sqrt(varA * varB) : 0;
+  };
+  let best = { s: 1, dx: 0, dy: 0, ncc: score(1, 0, 0) };
+  for (let s = 0.82; s <= 1.18; s += 0.03) {
+    for (let dx = -16; dx <= 16; dx += 2) {
+      for (let dy = -16; dy <= 16; dy += 2) {
+        const ncc = score(s, dx, dy);
+        if (ncc > best.ncc) best = { s, dx, dy, ncc };
+      }
+    }
+  }
+  const coarse = best;
+  for (let s = coarse.s - 0.03; s <= coarse.s + 0.03; s += 0.01) {
+    for (let dx = coarse.dx - 2; dx <= coarse.dx + 2; dx++) {
+      for (let dy = coarse.dy - 2; dy <= coarse.dy + 2; dy++) {
+        const ncc = score(s, dx, dy);
+        if (ncc > best.ncc) best = { s, dx, dy, ncc };
+      }
+    }
+  }
+  const w = rect.w * best.s;
+  const h = rect.h * best.s;
+  return {
+    ncc: best.ncc,
+    rect: { x: cx / N + best.dx / N - w / 2, y: cy / N + best.dy / N - h / 2, w, h },
+  };
+}
+
+/** The poster sheet: the artwork large on the theme's main colour, inside a white paper margin, at the poster photograph's proportions. */
+function posterHtml(t, art, aspect) {
+  const family = encodeURIComponent(art.font).replace(/%20/g, "+");
+  const bg = t.design.colors?.primary ?? art.accent;
+  const ink = contrast(art.inkDark, bg) >= contrast(art.inkLight, bg) ? art.inkDark : art.inkLight;
+  const accent = contrast(art.accent, bg) >= 2.2 ? art.accent : ink;
+  const word = art.uppercase ? art.word.toUpperCase() : art.word;
+  const sub = art.uppercase ? art.sub.toUpperCase() : art.sub;
+  const mark = MARKS[art.mark](accent).replace(/<svg width="(\d+)" height="(\d+)"/, (_, w, h) => `<svg width="${w * 2.2}" height="${h * 2.2}"`);
+  return `<!doctype html><html><head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${family}:wght@${art.weight}&display=block">
+<style>
+  html,body{margin:0;background:transparent}
+  #art{width:600px;height:${Math.round(600 / aspect)}px;box-sizing:border-box;padding:26px;background:#fbfaf7}
+  .sheet{height:100%;box-sizing:border-box;background:${bg};color:${ink};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:40px 30px;font-family:'${art.font}',sans-serif;text-align:center}
+  .word{font-size:120px;font-weight:${art.weight};letter-spacing:${art.tracking}px;line-height:1;white-space:nowrap}
+  .sub{font-size:30px;font-weight:${art.weight};letter-spacing:${Math.max(4, art.tracking + 4)}px;color:${accent};white-space:nowrap}
+  .rule{width:64px;height:4px;background:${accent}}
+</style></head><body><div id="art"><div class="sheet">${mark}<div class="word">${word}</div><div class="rule"></div>${sub ? `<div class="sub">${sub}</div>` : ""}</div></div>
+<script>
+  document.fonts.ready.then(() => {
+    for (const el of document.querySelectorAll(".word,.sub")) {
+      let size = parseFloat(getComputedStyle(el).fontSize);
+      while (el.scrollWidth > 500 && size > 12) el.style.fontSize = (size -= 2) + "px";
+    }
+  });
+</script></body></html>`;
+}
+
+async function renderPoster(page, t, aspect) {
+  await page.setContent(posterHtml(t, t.artwork, aspect), { waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(100);
+  return page.locator("#art").screenshot({ omitBackground: true });
+}
+
+/** The light-ink artwork as a die-cut sticker: a white border following a rounded outline, with a soft shadow. */
+async function renderSticker(page, art) {
+  const flat = await renderArtwork(page, art, false);
+  await page.setContent(
+    `<!doctype html><html><body style="margin:0;background:transparent"><div id="art" style="display:inline-block;padding:18px"><div style="background:#fff;border-radius:46px;padding:10px;box-shadow:0 5px 12px rgba(0,0,0,.35)"><img src="data:image/png;base64,${flat.toString("base64")}" style="display:block;width:${(await sharp(flat).metadata()).width / 2}px"></div></div></body></html>`,
+    { waitUntil: "load" },
+  );
+  return page.locator("#art").screenshot({ omitBackground: true });
+}
+
 const photoCache = new Map();
 async function photo(url) {
   if (!photoCache.has(url)) photoCache.set(url, await fetchBuffer(url));
   return photoCache.get(url);
 }
 
-async function compose(baseUrl, rect, artPng, family) {
-  const base = await photo(baseUrl);
+async function compose(base, rect, artPng, place, fill = false) {
   const { width: W, height: H } = await sharp(base).metadata();
   const area = { x: rect.x * W, y: rect.y * H, w: rect.w * W, h: rect.h * H };
   const meta = await sharp(artPng).metadata();
-  const scale = Math.min((area.w * (family === "mug" || family === "blackMug" ? 0.9 : 0.86)) / meta.width, (area.h * 0.8) / meta.height);
-  const w = Math.max(8, Math.round(meta.width * scale));
-  const h = Math.max(8, Math.round(meta.height * scale));
-  const art = await sharp(artPng).resize(w, h).png().toBuffer();
-  const left = Math.round(area.x + (area.w - w) / 2);
-  const top = Math.round(area.y + (family === "tee" ? area.h * 0.08 : (area.h - h) / 2));
-  // Multiply-like look: a touch of transparency lets the fabric texture through.
-  const layer = await sharp(art).ensureAlpha(0.92).toBuffer();
-  return sharp(base).composite([{ input: layer, left, top, blend: "over" }]).webp({ quality: 84 }).toBuffer();
+  let w;
+  let h;
+  if (fill) {
+    w = Math.round(area.w);
+    h = Math.round(area.h);
+  } else {
+    const scale = Math.min((area.w * place.width) / meta.width, (area.h * place.height) / meta.height);
+    w = Math.max(8, Math.round(meta.width * scale));
+    h = Math.max(8, Math.round(meta.height * scale));
+  }
+  const art = await sharp(artPng).resize(w, h, { fit: "fill" }).png().toBuffer();
+  const left = Math.round(area.x + area.w * place.x - w / 2);
+  const top = Math.round(area.y + (place.top === null ? (area.h - h) / 2 : area.h * place.top));
+  return sharp(base).composite([{ input: art, left, top, blend: "over" }]).webp({ quality: 84 }).toBuffer();
 }
 
 /* ------------------------------------------------------------- variants */
@@ -224,25 +382,65 @@ await Promise.all(
 // 2. Product shots.
 const browser = await chromium.launch({ executablePath: CHROME });
 const page = await browser.newPage({ deviceScaleFactor: 2 });
+const POSTER = PHOTOS.poster.White[0].rect;
+const POSTER_ASPECT = POSTER.w / POSTER.h;
 for (const t of templates) {
   const entry = (assets[t.id] ??= { hero: "", lifestyle: "", banner: "", products: [] });
   if (!redoProducts && entry.products?.length === t.products.length && entry.products.every(Boolean)) continue;
+  const dark = isDarkTheme(t);
   const artCache = new Map();
+  const art = async (kind) => {
+    if (!artCache.has(kind)) {
+      artCache.set(
+        kind,
+        kind === "poster"
+          ? await renderPoster(page, t, POSTER_ASPECT)
+          : kind === "sticker"
+            ? await renderSticker(page, t.artwork)
+            : await renderArtwork(page, t.artwork, kind === "dark"),
+      );
+    }
+    return artCache.get(kind);
+  };
   const used = new Map();
   const products = [];
   for (const product of t.products) {
     if (!(product.starter in STARTER_CATALOG)) throw new Error(`${t.id}: unknown starter ${product.starter}`);
-    const family = FAMILY[product.starter];
-    const photos = PHOTOS[family][product.colour];
+    const family = blankFamily(product.starter);
+    const photos = PHOTOS[family]?.[product.colour];
     if (!photos) throw new Error(`${t.id}: no ${product.colour} photo for ${product.starter}`);
-    // The second product on the same blank shows the back print, so no two cards look alike.
+    // The second product on the same blank shows the other photograph, so no two cards look alike.
     const key = `${family}:${product.colour}`;
-    const view = Math.min(used.get(key) ?? 0, 1);
+    const view = Math.min(used.get(key) ?? 0, photos.length - 1);
     used.set(key, (used.get(key) ?? 0) + 1);
-    const dark = DARK.has(product.colour);
-    if (!artCache.has(dark)) artCache.set(dark, await renderArtwork(page, t.artwork, dark));
-    const rects = RECTS[family === "blackMug" ? "mug" : family];
-    const webp = await compose(photoUrl(photos[view]), rects[view], artCache.get(dark), family);
+    const { url, rect } = photos[view];
+    let base = await photo(url);
+    let place = rect;
+    if (dark) {
+      const backdropKey = `${key}:${view}`;
+      entry.backdrops ??= {};
+      if (!entry.backdrops[backdropKey]) {
+        // The edit is retried until the product has stayed where it was, keeping the closest attempt.
+        let best = null;
+        for (let attempt = 1; attempt <= 4 && !(best && best.ncc >= 0.35); attempt++) {
+          const edited = await generateImage(
+            `Edit this photograph. Keep the ${family === "sticker" ? "laptop" : "product"} exactly as it is: the same shape, size, position in the frame, colour, folds and lighting on it, and keep the same camera framing. Replace only the wall, floor, table or surface around it with a ${backdropWords(t.design.colors.background)} setting in the colour ${t.design.colors.background}, softly lit and moody, so the product stands out against it. Do not add text, logos or any print.`,
+            base,
+          );
+          const fit = await alignment(base, await photo(edited), rect);
+          console.log(`    ${t.id} ${backdropKey} attempt ${attempt}: match ${fit.ncc.toFixed(2)}`);
+          if (!best || fit.ncc > best.ncc) best = { url: edited, ...fit };
+        }
+        entry.backdrops[backdropKey] = best.url;
+        console.log(`ok  ${t.id} backdrop ${backdropKey}`);
+        await save();
+      }
+      const edited = await photo(entry.backdrops[backdropKey]);
+      place = (await alignment(base, edited, rect)).rect;
+      base = edited;
+    }
+    const kind = family === "poster" ? "poster" : family === "sticker" ? "sticker" : isDarkBlank(product.colour) ? "dark" : "light";
+    const webp = await compose(base, place, await art(kind), artworkPlacement(family, product.placement), family === "poster");
     products.push(await upload(webp, "image/webp"));
   }
   entry.products = products;
@@ -250,19 +448,24 @@ for (const t of templates) {
   await save();
 }
 
-// 3. Print files, at four times the CSS size so they print sharp on a full chest or mug wrap.
+// 3. Print files, at four times the CSS size so they print sharp on a full chest, a mug wrap or an A3 sheet.
 const printPage = await browser.newPage({ deviceScaleFactor: 4 });
 for (const t of templates) {
   const entry = assets[t.id];
-  const inks = [...new Set(t.products.map((p) => (DARK.has(p.colour) ? "dark" : "light")))];
-  if (inks.every((ink) => entry.artwork?.[ink])) continue;
+  const inks = [
+    ...new Set(
+      t.products.map((p) => (blankFamily(p.starter) === "poster" ? "poster" : isDarkBlank(p.colour) ? "dark" : "light")),
+    ),
+  ];
   entry.artwork ??= {};
-  for (const ink of inks.filter((ink) => !entry.artwork[ink])) {
-    const png = await renderArtwork(printPage, t.artwork, ink === "dark");
+  const todo = inks.filter((ink) => redoArt || !entry.artwork[ink]);
+  if (todo.length === 0) continue;
+  for (const ink of todo) {
+    const png = ink === "poster" ? await renderPoster(printPage, t, POSTER_ASPECT) : await renderArtwork(printPage, t.artwork, ink === "dark");
     const { width, height } = await sharp(png).metadata();
     entry.artwork[ink] = { url: await upload(png, "image/png"), width, height, bytes: png.length };
   }
-  console.log(`ok  ${t.id} print files ${inks.join(", ")}`);
+  console.log(`ok  ${t.id} print files ${todo.join(", ")}`);
   await save();
 }
 await browser.close();

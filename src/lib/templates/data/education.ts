@@ -95,10 +95,11 @@ export const EDUCATION_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "hoodie", colour: "Navy", name: "College Crest Hoodie", description: "Navy fleece with the three-key crest.", price: 5800, tags: ["Students"] },
       { starter: "ecoHoodie", colour: "Heather grey", name: "Graduation Hoodie", description: "Your year and subject on the sleeve.", price: 6200, personalise: true, isNew: true, tags: ["Graduation"] },
-      { starter: "organicTee", colour: "White", name: "Crest Tee", description: "Organic cotton with the embroidered-look crest.", price: 3000, tags: ["Students"] },
+      { starter: "scarf", colour: "Navy", name: "College Scarf", description: "Navy knit scarf in the college colours.", price: 3400, tags: ["Students"] },
+      { starter: "organicTee", colour: "White", name: "Crest Tee", description: "Organic cotton with the embroidered-look crest.", price: 3000, placement: "left-chest", tags: ["Students"] },
       { starter: "mug", colour: "White", name: "Hall Mug", description: "Fine white ceramic with the college crest.", price: 1800, tags: ["Keepsakes"] },
       { starter: "tee", colour: "Black", name: "Boat Club Tee", description: "Black tee with crossed oars and the crest.", price: 3000, tags: ["Boat club"] },
-      { starter: "blackMug", colour: "Black", name: "Alumni Mug", description: "Matte black with your graduation year.", price: 2200, personalise: true, tags: ["Alumni"] },
+      { starter: "tote", colour: "Natural", name: "Library Tote", description: "Canvas tote with the three-key crest.", price: 2400, tags: ["Keepsakes"] },
     ],
     artwork: { word: "St Aldric's", sub: "College 1588", font: "Playfair Display", weight: 700, inkLight: "#233a5e", inkDark: "#fdfcf8", accent: "#b8975a", mark: "crest", uppercase: false, tracking: 1 },
     imagery: {
@@ -142,7 +143,7 @@ export const EDUCATION_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "School shop",
           headline: "Ready for a new term",
-          body: "PE kit, house hoodies and gifts for teachers, with your child's name printed free.",
+          body: "PE kit, house hoodies, book bags and gifts for teachers, with your child's name printed free.",
           ctaLabel: "Shop school kit",
           ctaHref: "products",
           secondaryLabel: "",
@@ -222,6 +223,8 @@ export const EDUCATION_TEMPLATES: TemplateDef[] = [
       { starter: "tee", colour: "White", name: "PE Tee", description: "White PE tee with your child's name in the collar.", price: 1200, personalise: true, tags: ["PE kit"] },
       { starter: "hoodie", colour: "Navy", name: "House Hoodie", description: "Navy hoodie with the house badge.", price: 2400, personalise: true, isNew: true, tags: ["Houses"] },
       { starter: "ecoHoodie", colour: "Heather grey", name: "Trip Hoodie", description: "Grey fleece for school trips.", price: 2200, personalise: true, tags: ["Trips"] },
+      { starter: "tote", colour: "Natural", name: "Book Bag", description: "Canvas book bag with your child's name.", price: 1200, personalise: true, tags: ["PE kit"] },
+      { starter: "beanie", colour: "Navy", name: "Playground Beanie", description: "Navy rib knit for winter playtimes.", price: 1000, tags: ["PE kit"] },
       { starter: "mug", colour: "White", name: "Teacher's Mug", description: "A thank-you for the end of term.", price: 1200, tags: ["Gifts"] },
       { starter: "tee", colour: "Black", name: "Leavers' Tee 2026", description: "Signed by the whole year on the last day.", price: 1500, tags: ["Leavers"] },
     ],
@@ -353,10 +356,11 @@ export const EDUCATION_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "ecoHoodie", colour: "Heather grey", name: "Class Year Hoodie", description: "Grey fleece with your class year on the sleeve.", price: 5500, personalise: true, isNew: true, tags: ["Class years"] },
       { starter: "tee", colour: "White", name: "Ridgebacks Vintage Tee", description: "1950s athletics lettering, faded just right.", price: 2800, tags: ["Vintage"] },
+      { starter: "jersey", colour: "Red", name: "Game Day Jersey", description: "Ridgebacks red with your name and number.", price: 6500, personalise: true, tags: ["Game day"] },
       { starter: "hoodie", colour: "Navy", name: "Game Day Hoodie", description: "Heavy fleece for night games.", price: 5800, tags: ["Game day"] },
-      { starter: "tee", colour: "Black", name: "Homecoming Tee", description: "Black tee for homecoming weekend.", price: 2800, tags: ["Game day"] },
+      { starter: "cap", colour: "Navy", name: "Ridgebacks Cap", description: "Navy twill cap with the star.", price: 2800, tags: ["Game day"] },
+      { starter: "sticker", colour: "White", name: "Car Window Sticker", description: "Die-cut Ridgeway star for the back window.", price: 500, tags: ["Alumni"] },
       { starter: "mug", colour: "White", name: "Homecoming Mug", description: "A new one every homecoming.", price: 1600, tags: ["Alumni"] },
-      { starter: "organicTee", colour: "White", name: "Alumni Tee", description: "Organic cotton with your graduation year.", price: 3000, personalise: true, tags: ["Alumni"] },
     ],
     artwork: { word: "RIDGEWAY", sub: "State · Est. 1921", font: "Anton", weight: 400, inkLight: "#7a1f2b", inkDark: "#e0b13c", accent: "#e0b13c", mark: "star", uppercase: true, tracking: 6 },
     imagery: {
@@ -451,6 +455,8 @@ export const EDUCATION_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "organicTee", colour: "White", name: "Alumni Tee", description: "Organic cotton with the school wordmark.", price: 3400, tags: ["Alumni"] },
       { starter: "ecoHoodie", colour: "Navy", name: "Reunion Hoodie", description: "Your graduation year on the back.", price: 6400, personalise: true, isNew: true, tags: ["Reunion"] },
+      { starter: "tote", colour: "Black", name: "Portfolio Tote", description: "Black canvas tote, big enough for an A3 sketchbook.", price: 3000, tags: ["Studio"] },
+      { starter: "poster", colour: "White", name: "Grid Poster", description: "The Halberd grid on A2 matte paper.", price: 2800, tags: ["Studio"] },
       { starter: "blackMug", colour: "Black", name: "Studio Mug", description: "Matte black, for long crits.", price: 2200, tags: ["Studio"] },
       { starter: "tee", colour: "Black", name: "Studio Tee", description: "Black tee with the grid mark.", price: 3200, tags: ["Studio"] },
     ],
@@ -582,9 +588,10 @@ export const EDUCATION_TEMPLATES: TemplateDef[] = [
       { starter: "hoodie", colour: "Navy", name: "Commencement Hoodie 2026", description: "Navy fleece with your degree and year.", price: 6000, personalise: true, isNew: true, tags: ["Commencement"] },
       { starter: "tee", colour: "Black", name: "RB-01 Robotics Tee", description: "Black tee with the robotics lab code.", price: 2600, tags: ["Lab-coded"] },
       { starter: "tee", colour: "White", name: "CS-03 Computing Tee", description: "White tee with the computing lab code.", price: 2600, tags: ["Lab-coded"] },
+      { starter: "sticker", colour: "White", name: "Lab Sticker", description: "Die-cut institute grid for laptops and lab kit.", price: 400, tags: ["Desk"] },
+      { starter: "beanie", colour: "Navy", name: "Campus Beanie", description: "Navy rib knit for the walk across campus.", price: 2200, tags: ["Commencement"] },
       { starter: "blackMug", colour: "Black", name: "Finals Mug", description: "Matte black, 15oz. Survived finals.", price: 1800, tags: ["Desk"] },
       { starter: "ecoHoodie", colour: "Heather grey", name: "Lab Hoodie", description: "Recycled fleece for cold labs.", price: 5400, personalise: true, tags: ["Lab-coded"] },
-      { starter: "mug", colour: "White", name: "Problem Set Mug", description: "White ceramic with the institute grid.", price: 1500, tags: ["Desk"] },
     ],
     artwork: { word: "NIT", sub: "Northgate Institute", font: "Space Grotesk", weight: 700, inkLight: "#0a2540", inkDark: "#eef1f5", accent: "#00c2a8", mark: "grid", uppercase: true, tracking: 12 },
     imagery: {

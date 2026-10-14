@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Gedeelde leverancierscatalogus",
-        "body": "Kleding en mokken van leveranciers, met kosten, printvlakken en leveringsregio’s. Kopieer wat je nodig hebt naar elke winkel."
+        "body": "Kleding, mokken, tassen, petten en prints van leveranciers, met kosten, printvlakken en leveringsregio’s. Kopieer wat je nodig hebt naar elke winkel."
       },
       "approval": {
         "title": "Goedkeuring vóór publicatie",
@@ -2653,6 +2653,8 @@
     "catalog": "Catalogus",
     "apparel": "Kleding",
     "drinkware": "Drinkwaren",
+    "accessories": "Accessoires",
+    "prints": "Prints & stickers",
     "enabledVariants": "{count, plural, one {# ingeschakelde variant} other {# ingeschakelde varianten}}",
     "producedBy": " · gemaakt door {supplier}",
     "importedBy": "geïmporteerd door {name} op {date}",
@@ -2942,6 +2944,8 @@
       "all": "Alle",
       "apparel": "Kleding",
       "drinkware": "Drinkwaren",
+      "accessories": "Accessoires",
+      "prints": "Prints & stickers",
       "supplier": "Leverancier",
       "allApproved": "Alle goedgekeurde",
       "fulfilsTo": "Levert aan",
@@ -3866,6 +3870,8 @@
       "products": "Producten",
       "apparel": "Kleding",
       "drinkware": "Drinkwaren",
+      "accessories": "Accessoires",
+      "prints": "Prints & stickers",
       "bulkSourcing": "Inkoop in grote aantallen",
       "pricedByQuote": "Prijs op offerte",
       "noProducts": "Nog geen producten",
@@ -3933,6 +3939,8 @@
       "category": "Categorie",
       "apparel": "Kleding",
       "drinkware": "Drinkwaren",
+      "accessories": "Accessoires",
+      "prints": "Prints & stickers",
       "currency": "Valuta",
       "description": "Beschrijving",
       "costs": "Kosten ({currency})",

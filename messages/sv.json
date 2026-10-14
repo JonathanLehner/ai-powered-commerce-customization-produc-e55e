@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Gemensam leverantörskatalog",
-        "body": "Kläder och muggar från leverantörer, med kostnader, tryckytor och leveransregioner. Kopiera det du behöver till valfri butik."
+        "body": "Kläder, muggar, väskor, mössor och tryck från leverantörer, med kostnader, tryckytor och leveransregioner. Kopiera det du behöver till valfri butik."
       },
       "approval": {
         "title": "Godkännande före publicering",
@@ -2653,6 +2653,8 @@
     "catalog": "Katalog",
     "apparel": "Kläder",
     "drinkware": "Muggar och flaskor",
+    "accessories": "Accessoarer",
+    "prints": "Tryck & klistermärken",
     "enabledVariants": "{count, plural, one {# aktiverad variant} other {# aktiverade varianter}}",
     "producedBy": " · tillverkad av {supplier}",
     "importedBy": "importerad av {name} {date}",
@@ -2942,6 +2944,8 @@
       "all": "Alla",
       "apparel": "Kläder",
       "drinkware": "Muggar och flaskor",
+      "accessories": "Accessoarer",
+      "prints": "Tryck & klistermärken",
       "supplier": "Leverantör",
       "allApproved": "Alla godkända",
       "fulfilsTo": "Levererar till",
@@ -3866,6 +3870,8 @@
       "products": "Produkter",
       "apparel": "Kläder",
       "drinkware": "Muggar och flaskor",
+      "accessories": "Accessoarer",
+      "prints": "Tryck & klistermärken",
       "bulkSourcing": "Inköp i större volymer",
       "pricedByQuote": "Pris enligt offert",
       "noProducts": "Inga produkter ännu",
@@ -3933,6 +3939,8 @@
       "category": "Kategori",
       "apparel": "Kläder",
       "drinkware": "Muggar och flaskor",
+      "accessories": "Accessoarer",
+      "prints": "Tryck & klistermärken",
       "currency": "Valuta",
       "description": "Beskrivning",
       "costs": "Kostnader ({currency})",

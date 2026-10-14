@@ -1,0 +1,344 @@
+{
+  "tee": {
+    "White": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/d7a64c22c9fa4d072c122a5097d5821b-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.31,
+          "w": 0.34,
+          "h": 0.34
+        }
+      },
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/f10227b9b8313b113d6ef1cc78ebacc0-0.jpg",
+        "rect": {
+          "x": 0.34,
+          "y": 0.22,
+          "w": 0.32,
+          "h": 0.36
+        }
+      }
+    ],
+    "Black": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/02b3d55a89402f7d8a23002e50e0b987-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.27,
+          "w": 0.34,
+          "h": 0.36
+        }
+      },
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/2d601e1e982e32d3c3bafefd10c64c69-0.jpg",
+        "rect": {
+          "x": 0.32,
+          "y": 0.24,
+          "w": 0.36,
+          "h": 0.38
+        }
+      }
+    ]
+  },
+  "hoodie": {
+    "Navy": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/25c6f5beca3c81359c300258790a1870-0.jpg",
+        "rect": {
+          "x": 0.32,
+          "y": 0.33,
+          "w": 0.36,
+          "h": 0.25
+        }
+      },
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/cee98b273bd32fa5832470d1ef6916f4-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.42,
+          "w": 0.34,
+          "h": 0.32
+        }
+      }
+    ],
+    "Heather grey": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/2d7047aeb96b8a37a852fce3f391f14f-0.jpg",
+        "rect": {
+          "x": 0.32,
+          "y": 0.24,
+          "w": 0.36,
+          "h": 0.3
+        }
+      },
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/ca6855d4b3627396c9d743bf09c54d88-0.jpg",
+        "rect": {
+          "x": 0.34,
+          "y": 0.45,
+          "w": 0.32,
+          "h": 0.3
+        }
+      }
+    ]
+  },
+  "mug": {
+    "White": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1e4e7fa61102a179f0ae67e3b33ddf8b-0.jpg",
+        "rect": {
+          "x": 0.31,
+          "y": 0.36,
+          "w": 0.32,
+          "h": 0.36
+        }
+      },
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1473d3bdb41e150c63448d7e1f267104-0.jpg",
+        "rect": {
+          "x": 0.37,
+          "y": 0.38,
+          "w": 0.32,
+          "h": 0.34
+        }
+      }
+    ]
+  },
+  "blackMug": {
+    "Black": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/c7136519492309173e82d962a0e3846c-0.jpg",
+        "rect": {
+          "x": 0.34,
+          "y": 0.37,
+          "w": 0.3,
+          "h": 0.34
+        }
+      },
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a6cc509250fcc345c4d6495a700bb6f3-0.jpg",
+        "rect": {
+          "x": 0.38,
+          "y": 0.32,
+          "w": 0.32,
+          "h": 0.36
+        }
+      }
+    ]
+  },
+  "enamelMug": {
+    "White": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/05d5f1ac24387f1fcdfdbba09576c383-0.jpg",
+        "rect": {
+          "x": 0.35,
+          "y": 0.42,
+          "w": 0.3,
+          "h": 0.3
+        }
+      }
+    ]
+  },
+  "tote": {
+    "Natural": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/3da0ce3f3717838de830103ceec31bc8-0.jpg",
+        "rect": {
+          "x": 0.32,
+          "y": 0.53,
+          "w": 0.36,
+          "h": 0.32
+        }
+      }
+    ],
+    "Black": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1ec8e5c1da7b9a79d993f50bca9ea6e0-0.jpg",
+        "rect": {
+          "x": 0.32,
+          "y": 0.48,
+          "w": 0.36,
+          "h": 0.34
+        }
+      }
+    ]
+  },
+  "cap": {
+    "Black": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/ce7a9f00234efeba9fbc40294c10d724-0.jpg",
+        "rect": {
+          "x": 0.38,
+          "y": 0.38,
+          "w": 0.24,
+          "h": 0.16
+        }
+      }
+    ],
+    "Natural": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/50d9244c16c6c2bb2f8699fedcc57502-0.jpg",
+        "rect": {
+          "x": 0.38,
+          "y": 0.32,
+          "w": 0.24,
+          "h": 0.18
+        }
+      }
+    ],
+    "Navy": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/b543cca0dab60746b1d9e8c5b3c2110b-0.jpg",
+        "rect": {
+          "x": 0.37,
+          "y": 0.37,
+          "w": 0.24,
+          "h": 0.18
+        }
+      }
+    ]
+  },
+  "beanie": {
+    "Black": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/297a55cda2e554b462a6792982f114eb-0.jpg",
+        "rect": {
+          "x": 0.38,
+          "y": 0.61,
+          "w": 0.24,
+          "h": 0.18
+        }
+      }
+    ],
+    "Navy": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/bd2712480274bb2045dd5cb49ff34dd1-0.jpg",
+        "rect": {
+          "x": 0.38,
+          "y": 0.57,
+          "w": 0.24,
+          "h": 0.18
+        }
+      }
+    ],
+    "Heather grey": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a59ef6f27ef194f547234d61a14f522f-0.jpg",
+        "rect": {
+          "x": 0.37,
+          "y": 0.59,
+          "w": 0.24,
+          "h": 0.2
+        }
+      }
+    ]
+  },
+  "poster": {
+    "White": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/1269b90057465195f501396221b82d32-0.jpg",
+        "rect": {
+          "x": 0.302,
+          "y": 0.165,
+          "w": 0.405,
+          "h": 0.557
+        }
+      }
+    ]
+  },
+  "sticker": {
+    "White": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/478c142f2abfc96409a43cc8e31653ef-0.jpg",
+        "rect": {
+          "x": 0.36,
+          "y": 0.36,
+          "w": 0.3,
+          "h": 0.28
+        }
+      }
+    ]
+  },
+  "jersey": {
+    "Navy": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/bbf64cf4340cbc8d4ea6b1bb660dc9db-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.34,
+          "w": 0.34,
+          "h": 0.34
+        }
+      }
+    ],
+    "Forest green": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/a1b61024c010cc1d2c89b8d6e8b21f0e-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.3,
+          "w": 0.36,
+          "h": 0.34
+        }
+      }
+    ],
+    "Red": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/070c6647ffdb942fa01baa813d921b3f-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.33,
+          "w": 0.34,
+          "h": 0.34
+        }
+      }
+    ],
+    "White": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/48a3c809a0b1a7b240a99630e001597f-0.jpg",
+        "rect": {
+          "x": 0.33,
+          "y": 0.32,
+          "w": 0.34,
+          "h": 0.34
+        }
+      }
+    ]
+  },
+  "scarf": {
+    "Forest green": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/ffa1a54b8d7ee0faa9e58448e881decb-0.jpg",
+        "rect": {
+          "x": 0.2,
+          "y": 0.39,
+          "w": 0.6,
+          "h": 0.2
+        }
+      }
+    ],
+    "Navy": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/2f894c92fe881bc3babba78b8739e7fa-0.jpg",
+        "rect": {
+          "x": 0.2,
+          "y": 0.415,
+          "w": 0.6,
+          "h": 0.17
+        }
+      }
+    ],
+    "Red": [
+      {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/gen/2bc8d5434b5ee5259713bbb7120f22eb-0.jpg",
+        "rect": {
+          "x": 0.2,
+          "y": 0.42,
+          "w": 0.6,
+          "h": 0.18
+        }
+      }
+    ]
+  }
+}

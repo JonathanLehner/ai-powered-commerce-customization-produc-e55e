@@ -77,7 +77,7 @@ import {
 import { POLICY_KEYS, storePolicyText } from "../policies";
 import { flattenShopText, shopTextEntries } from "../shop-text";
 import { shipBlock } from "../bulk-orders";
-import { THEMES, type Customer, type DiscountCode, type Order, type StoreProduct, type ThemeKey } from "../types";
+import { PRODUCT_CATEGORIES, THEMES, type Customer, type DiscountCode, type Order, type StoreProduct, type ThemeKey } from "../types";
 import { CURRENCY_OPTIONS } from "../util";
 import { takeOffFailingPreflight } from "../preflight-guard";
 import { ApiError } from "./auth";
@@ -310,7 +310,7 @@ const products = [
       "Supplier products the store can copy into its catalog with createProduct. Costs are in minor units. Quote-only listings are priced per enquiry and cannot be copied in directly.",
     input: z.object({
       search: z.string().optional().describe("Words to look for in the name, type or description."),
-      category: z.enum(["apparel", "drinkware"]).optional(),
+      category: z.enum(PRODUCT_CATEGORIES).optional(),
     }),
     run: async (_ctx, input) => {
       const words = (input.search ?? "").toLowerCase().split(/\s+/).filter(Boolean);

@@ -36,7 +36,7 @@ export const TECH_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "$ git checkout merch",
           headline: "Merch for people who ship",
-          body: "Hoodies, tees and mugs for the Commitly community. Made to order, shipped worldwide.",
+          body: "Hoodies, tees, stickers and mugs for the Commitly community. Made to order, shipped worldwide.",
           ctaLabel: "Shop the collection",
           ctaHref: "products",
           secondaryLabel: "New arrivals",
@@ -120,10 +120,11 @@ export const TECH_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "hoodie", colour: "Navy", name: "Merge Conflict Hoodie", description: "Heavy brushed fleece with the v3.0 changelog down the back.", price: 5900, isNew: true, tags: ["Hoodies"] },
       { starter: "tee", colour: "Black", name: "Ship It Tee", description: "Black heavyweight tee with a terminal prompt on the chest.", price: 2800, tags: ["Tees"] },
+      { starter: "sticker", colour: "White", name: "Commitly Sticker", description: "Die-cut vinyl for the back of your laptop.", price: 400, tags: ["Desk"] },
+      { starter: "beanie", colour: "Black", name: "Deploy Beanie", description: "Black rib knit for cold server rooms.", price: 2400, tags: ["Headwear"] },
       { starter: "blackMug", colour: "Black", name: "Long Build Mug", description: "15oz matte black. Holds one CI run of coffee.", price: 1900, tags: ["Desk"] },
       { starter: "tee", colour: "White", name: "Commit Graph Tee", description: "White tee with a green contribution graph.", price: 2800, tags: ["Tees"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Pair Programming Hoodie", description: "Recycled fleece with your handle on the sleeve.", price: 5400, personalise: true, tags: ["Hoodies"] },
-      { starter: "mug", colour: "White", name: "Hotfix Mug", description: "11oz white ceramic for emergency coffee.", price: 1600, tags: ["Desk"] },
+      { starter: "cap", colour: "Black", name: "Commitly Cap", description: "Black twill cap with the bracket mark.", price: 2800, tags: ["Headwear"] },
     ],
     artwork: { word: "commitly", sub: "$ git push --merch", font: "Space Mono", weight: 700, inkLight: "#0d1117", inkDark: "#3fb950", accent: "#3fb950", mark: "bracket", uppercase: false, tracking: 0 },
     imagery: {
@@ -221,9 +222,11 @@ export const TECH_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "tee", colour: "Black", name: "Liftoff Tee", description: "Black heavyweight tee with the 2.0 rocket print.", price: 3000, isNew: true, tags: ["Drop"] },
       { starter: "hoodie", colour: "Navy", name: "Orbit Hoodie", description: "Navy fleece with a glow-green orbit across the back.", price: 6200, isNew: true, tags: ["Drop"] },
+      { starter: "sticker", colour: "White", name: "Launch Sticker", description: "Die-cut orbit for your laptop.", price: 400, tags: ["Drop"] },
+      { starter: "cap", colour: "Black", name: "Orbit Cap", description: "Black twill cap with the orbit mark.", price: 2800, tags: ["Drop"] },
+      { starter: "tote", colour: "Natural", name: "Early User Tote", description: "For the first thousand teams.", price: 2400, tags: ["Drop"] },
       { starter: "mug", colour: "White", name: "Launch Day Mug", description: "For the 4am launch coffee.", price: 1800, tags: ["Drop"] },
       { starter: "organicTee", colour: "White", name: "Changelog Tee", description: "Organic cotton with the full 2.0 changelog.", price: 3200, tags: ["Drop"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Early User Hoodie", description: "For the first thousand teams.", price: 5600, tags: ["Drop"] },
     ],
     artwork: { word: "ORBITLY", sub: "2.0 Launch", font: "Syne", weight: 800, inkLight: "#5a35f0", inkDark: "#c8f53b", accent: "#c8f53b", mark: "circle", uppercase: true, tracking: 2 },
     imagery: {
@@ -320,10 +323,12 @@ export const TECH_TEMPLATES: TemplateDef[] = [
       { type: "RelatedProducts", props: { title: "More from Fieldnote" } },
     ],
     products: [
-      { starter: "organicTee", colour: "White", name: "Margin Tee", description: "Organic cotton tee with a small mark at the hem.", price: 3200, tags: ["Apparel"] },
-      { starter: "ecoHoodie", colour: "Heather grey", name: "Focus Hoodie", description: "Recycled fleece. One small mark on the chest.", price: 6400, tags: ["Apparel"] },
+      { starter: "organicTee", colour: "White", name: "Margin Tee", description: "Organic cotton tee with a small mark at the chest.", price: 3200, placement: "left-chest", tags: ["Apparel"] },
+      { starter: "ecoHoodie", colour: "Heather grey", name: "Focus Hoodie", description: "Recycled fleece. One small mark on the chest.", price: 6400, placement: "left-chest", tags: ["Apparel"] },
+      { starter: "tote", colour: "Natural", name: "Notebook Tote", description: "Natural canvas tote with a small Fieldnote mark.", price: 2400, tags: ["Accessories"] },
       { starter: "mug", colour: "White", name: "Daily Mug", description: "Plain white ceramic with a tiny Fieldnote mark.", price: 1800, tags: ["Desk"] },
-      { starter: "organicTee", colour: "Black", name: "Margin Tee, Black", description: "The Margin Tee in black.", price: 3200, tags: ["Apparel"] },
+      { starter: "organicTee", colour: "Black", name: "Margin Tee, Black", description: "The Margin Tee in black.", price: 3200, placement: "left-chest", tags: ["Apparel"] },
+      { starter: "cap", colour: "Natural", name: "Quiet Cap", description: "Stone twill cap with a small Fieldnote mark.", price: 2800, tags: ["Accessories"] },
     ],
     artwork: { word: "fieldnote", sub: "", font: "Geist", weight: 600, inkLight: "#18181b", inkDark: "#fafafa", accent: "#71717a", mark: "none", uppercase: false, tracking: -1 },
     imagery: {
@@ -365,7 +370,7 @@ export const TECH_TEMPLATES: TemplateDef[] = [
         props: {
           eyebrow: "Level 2 unlocked",
           headline: "Press start on the new arcade collection",
-          body: "Tees, hoodies and mugs from the Bytebarn universe. Made to order, no grinding required.",
+          body: "Tees, hoodies, posters and mugs from the Bytebarn universe. Made to order, no grinding required.",
           ctaLabel: "Insert coin",
           ctaHref: "products",
           secondaryLabel: "",
@@ -432,9 +437,10 @@ export const TECH_TEMPLATES: TemplateDef[] = [
       { starter: "tee", colour: "White", name: "Press Start Tee", description: "White tee with a pixel-art controller.", price: 2600, isNew: true, tags: ["Tees"] },
       { starter: "tee", colour: "Black", name: "Game Over Tee", description: "Black tee with a glowing game over screen.", price: 2600, tags: ["Tees"] },
       { starter: "hoodie", colour: "Navy", name: "Boss Level Hoodie", description: "Fleece hoodie with the boss sprite on the back.", price: 5400, tags: ["Hoodies"] },
+      { starter: "poster", colour: "White", name: "Boss Level Poster", description: "A2 print with the boss sprite.", price: 2400, tags: ["Prints"] },
+      { starter: "sticker", colour: "White", name: "Pixel Heart Sticker", description: "Die-cut vinyl for controllers and laptops.", price: 400, tags: ["Prints"] },
       { starter: "mug", colour: "White", name: "Extra Life Mug", description: "11oz ceramic with a pixel heart.", price: 1600, tags: ["Mugs"] },
       { starter: "ecoHoodie", colour: "Heather grey", name: "Player Two Hoodie", description: "Add your gamer tag to the sleeve.", price: 5200, personalise: true, tags: ["Hoodies"] },
-      { starter: "blackMug", colour: "Black", name: "Night Mode Mug", description: "Matte black 15oz for late-night sessions.", price: 1900, tags: ["Mugs"] },
     ],
     artwork: { word: "BYTEBARN", sub: "Press start", font: "Space Mono", weight: 700, inkLight: "#ff2e74", inkDark: "#ffd23f", accent: "#1d1a39", mark: "star", uppercase: true, tracking: 2 },
     imagery: {
@@ -498,7 +504,7 @@ export const TECH_TEMPLATES: TemplateDef[] = [
           background: "secondary",
         },
       },
-      { type: "CollectionTiles", props: { title: "Shop by pass", subtitle: "", ratio: "portrait", layout: "grid", tile1Label: "Attendees", tile1Image: "@lifestyle", tile2Label: "Speakers", tile2Image: "@banner", tile3Label: "Volunteers", tile3Image: "@product1" } },
+      { type: "CollectionTiles", props: { title: "Shop by pass", subtitle: "", ratio: "portrait", layout: "grid", tile1Label: "Attendees", tile1Image: "@lifestyle", tile2Label: "Speakers", tile2Image: "@banner", tile3Label: "Volunteers", tile3Image: "@product6" } },
       { type: "ProductGrid", props: { title: "All swag", subtitle: "", source: "all", columns: "3", limit: 6 } },
       {
         type: "Faq",
@@ -540,9 +546,11 @@ export const TECH_TEMPLATES: TemplateDef[] = [
     products: [
       { starter: "tee", colour: "Black", name: "Edgecase Speaker Tee", description: "Black tee with the speaker line-up on the back.", price: 2800, tags: ["Speakers"] },
       { starter: "organicTee", colour: "White", name: "Attendee Tee", description: "Organic cotton tee with the Edgecase mark.", price: 2600, tags: ["Attendees"] },
+      { starter: "tote", colour: "Natural", name: "Conference Tote", description: "Canvas tote for notebooks and the day's handouts.", price: 2000, tags: ["Attendees"] },
       { starter: "hoodie", colour: "Heather grey", name: "After Party Hoodie", description: "Grey fleece for the riverside after party.", price: 5600, tags: ["Attendees"] },
-      { starter: "mug", colour: "White", name: "Keynote Mug", description: "11oz ceramic with the conference schedule.", price: 1600, tags: ["Attendees"] },
+      { starter: "sticker", colour: "White", name: "Edgecase Sticker", description: "Die-cut vinyl for the laptop you brought.", price: 300, tags: ["Attendees"] },
       { starter: "tee", colour: "White", name: "Volunteer Tee", description: "Bright white tee for the crew.", price: 2200, personalise: true, tags: ["Volunteers"] },
+      { starter: "mug", colour: "White", name: "Keynote Mug", description: "11oz ceramic with the conference schedule.", price: 1600, tags: ["Attendees"] },
     ],
     artwork: { word: "EDGECASE", sub: "Lisbon 2026", font: "Syne", weight: 800, inkLight: "#0a0a0a", inkDark: "#d8ff3e", accent: "#d8ff3e", mark: "slash", uppercase: true, tracking: 1 },
     imagery: {

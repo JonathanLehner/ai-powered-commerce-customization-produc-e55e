@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Shared supplier catalog",
-        "body": "Supplier-backed apparel and mugs with costs, print areas and fulfilment regions. Copy what you need into any store."
+        "body": "Supplier-backed apparel, mugs, bags, headwear and prints with costs, print areas and fulfilment regions. Copy what you need into any store."
       },
       "approval": {
         "title": "Approval before publishing",
@@ -2653,6 +2653,8 @@
     "catalog": "Catalog",
     "apparel": "Apparel",
     "drinkware": "Drinkware",
+    "accessories": "Accessories",
+    "prints": "Prints & stickers",
     "enabledVariants": "{count, plural, one {# enabled variant} other {# enabled variants}}",
     "producedBy": " · produced by {supplier}",
     "importedBy": "imported by {name} on {date}",
@@ -2942,6 +2944,8 @@
       "all": "All",
       "apparel": "Apparel",
       "drinkware": "Drinkware",
+      "accessories": "Accessories",
+      "prints": "Prints & stickers",
       "supplier": "Supplier",
       "allApproved": "All approved",
       "fulfilsTo": "Fulfils to",
@@ -3866,6 +3870,8 @@
       "products": "Products",
       "apparel": "Apparel",
       "drinkware": "Drinkware",
+      "accessories": "Accessories",
+      "prints": "Prints & stickers",
       "bulkSourcing": "Bulk sourcing",
       "pricedByQuote": "Priced by quote",
       "noProducts": "No products yet",
@@ -3933,6 +3939,8 @@
       "category": "Category",
       "apparel": "Apparel",
       "drinkware": "Drinkware",
+      "accessories": "Accessories",
+      "prints": "Prints & stickers",
       "currency": "Currency",
       "description": "Description",
       "costs": "Costs ({currency})",

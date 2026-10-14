@@ -253,6 +253,8 @@ export function CatalogProductForm({
                     <SelectContent>
                       <SelectItem value="apparel">{t("apparel")}</SelectItem>
                       <SelectItem value="drinkware">{t("drinkware")}</SelectItem>
+                      <SelectItem value="accessories">{t("accessories")}</SelectItem>
+                      <SelectItem value="prints">{t("prints")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

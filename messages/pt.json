@@ -75,7 +75,7 @@
       },
       "catalog": {
         "title": "Catálogo de fornecedores partilhado",
-        "body": "Vestuário e canecas de fornecedores, com custos, áreas de impressão e regiões de entrega. Copie o que precisa para qualquer loja."
+        "body": "Vestuário, canecas, sacos, bonés e impressões de fornecedores, com custos, áreas de impressão e regiões de entrega. Copie o que precisa para qualquer loja."
       },
       "approval": {
         "title": "Aprovação antes de publicar",
@@ -2653,6 +2653,8 @@
     "catalog": "Catálogo",
     "apparel": "Vestuário",
     "drinkware": "Canecas e garrafas",
+    "accessories": "Acessórios",
+    "prints": "Impressões e autocolantes",
     "enabledVariants": "{count, plural, one {# variante ativa} other {# variantes ativas}}",
     "producedBy": " · produzido por {supplier}",
     "importedBy": "importado por {name} a {date}",
@@ -2942,6 +2944,8 @@
       "all": "Todas",
       "apparel": "Vestuário",
       "drinkware": "Canecas e garrafas",
+      "accessories": "Acessórios",
+      "prints": "Impressões e autocolantes",
       "supplier": "Fornecedor",
       "allApproved": "Todos os aprovados",
       "fulfilsTo": "Entrega em",
@@ -3866,6 +3870,8 @@
       "products": "Produtos",
       "apparel": "Vestuário",
       "drinkware": "Canecas e garrafas",
+      "accessories": "Acessórios",
+      "prints": "Impressões e autocolantes",
       "bulkSourcing": "Aprovisionamento em quantidade",
       "pricedByQuote": "Preço sob orçamento",
       "noProducts": "Ainda não há produtos",
@@ -3933,6 +3939,8 @@
       "category": "Categoria",
       "apparel": "Vestuário",
       "drinkware": "Canecas e garrafas",
+      "accessories": "Acessórios",
+      "prints": "Impressões e autocolantes",
       "currency": "Moeda",
       "description": "Descrição",
       "costs": "Custos ({currency})",

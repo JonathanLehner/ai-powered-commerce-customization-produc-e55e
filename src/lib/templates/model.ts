@@ -40,11 +40,54 @@ export const STARTER_CATALOG = {
   ecoHoodie: "cat_hoodie_eco",
   mug: "cat_mug_classic",
   blackMug: "cat_mug_matte",
+  enamelMug: "cat_mug_enamel",
+  tote: "cat_tote_canvas",
+  cap: "cat_cap_twill",
+  beanie: "cat_beanie_cuffed",
+  poster: "cat_poster_matte",
+  sticker: "cat_sticker_diecut",
+  scarf: "cat_scarf_knit",
+  jersey: "cat_jersey_sport",
 } as const;
 export type StarterKey = keyof typeof STARTER_CATALOG;
 
-/** The colour of the blank a product is shown in, matching the catalog's mockup photos. */
-export type BlankColour = "White" | "Black" | "Navy" | "Heather grey";
+/** The blank a starter is photographed as: the two tees share photographs, as do the two hoodies. */
+export type BlankFamily = Exclude<StarterKey, "organicTee" | "ecoHoodie">;
+
+export function blankFamily(starter: StarterKey): BlankFamily {
+  return starter === "organicTee" ? "tee" : starter === "ecoHoodie" ? "hoodie" : starter;
+}
+
+/** The colour of the blank a product is shown in, matching the blank photographs. */
+export type BlankColour = "White" | "Black" | "Navy" | "Heather grey" | "Natural" | "Red" | "Forest green";
+
+/** Blanks sold in one size. Posters come in paper sizes; garments in S to 2XL. */
+export const ONE_SIZE: readonly BlankFamily[] = ["mug", "blackMug", "enamelMug", "tote", "cap", "beanie", "sticker", "scarf"];
+
+/**
+ * Where the artwork sits inside the print area, as fractions of it: the most
+ * width and height it may take, the x of its centre, and its top edge (or
+ * centred when `top` is null).
+ */
+export interface ArtworkPlacement {
+  width: number;
+  height: number;
+  x: number;
+  top: number | null;
+}
+
+/**
+ * How a starter's artwork is placed: a full chest print on tees, a crest on
+ * the wearer's left chest for kit shirts and `left-chest` products, a patch on
+ * caps and beanies, edge to edge on posters.
+ */
+export function artworkPlacement(family: BlankFamily, placement?: TemplateProduct["placement"]): ArtworkPlacement {
+  if (placement === "left-chest" || family === "jersey") return { width: 0.3, height: 0.3, x: 0.78, top: 0.06 };
+  if (family === "poster") return { width: 1, height: 1, x: 0.5, top: 0 };
+  if (family === "tee") return { width: 0.86, height: 0.8, x: 0.5, top: 0.08 };
+  if (family === "hoodie") return { width: 0.86, height: 0.8, x: 0.5, top: null };
+  return { width: 0.9, height: 0.8, x: 0.5, top: null };
+}
 
 /** A product in the starter selection, and in the template's demo store. */
 export interface TemplateProduct {
@@ -59,6 +102,8 @@ export interface TemplateProduct {
   personalise?: boolean;
   /** Shown with a "New" badge in the demo. */
   isNew?: boolean;
+  /** A small print on the wearer's left chest instead of the full front. */
+  placement?: "left-chest";
 }
 
 /** How the artwork printed on the template's products is drawn. */
@@ -147,8 +192,17 @@ export interface TemplateAssets {
   extra?: string[];
   /** One mockup per product, in the order of `TemplateDef.products`. */
   products: string[];
-  /** The artwork as a print-resolution PNG, per ink: on light blanks and on black and navy ones. */
-  artwork?: Partial<Record<"light" | "dark", TemplatePrintFile>>;
+  /**
+   * The artwork as a print-resolution PNG, per ink: on light blanks and on dark
+   * ones, plus the full-sheet design posters are printed with.
+   */
+  artwork?: Partial<Record<"light" | "dark" | "poster", TemplatePrintFile>>;
+  /**
+   * Dark templates only: the blank photographs re-lit on a backdrop in the
+   * theme's colours, keyed `family:colour:view`, that the product shots were
+   * composited on.
+   */
+  backdrops?: Record<string, string>;
   previews?: { thumbnail: string; desktop: string; mobile: string };
 }
 
