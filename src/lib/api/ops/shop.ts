@@ -45,6 +45,7 @@ import {
   removeGiftCard,
   searchShop as search,
   submitReview as recordReview,
+  subscribeToNewsletter,
   updateCartLine as updateLine,
   type ShopRefusal,
   type ShopperCopy,
@@ -407,6 +408,26 @@ export const shopOperations: ApiOperation[] = [
           text: policies[key],
         })),
       };
+    },
+  }),
+  defineShop({
+    id: "subscribeToNewsletter",
+    method: "POST",
+    path: "/newsletter",
+    scope: "shop:write",
+    summary: "Sign up for the store's email",
+    description:
+      "Signs an email address up for the store's newsletter, as the storefront footer and Email capture section do. Only call it when the shopper asked to. Signing the same address up again changes nothing.",
+    actions: ["shop#subscribeNewsletter"],
+    input: z.object({
+      email: z.string().min(3).max(254).describe("The shopper's email address."),
+      locale: shopLocale,
+    }),
+    run: async (ctx, input) => {
+      const t = await shopperTranslator(ctx.store, ctx.locale);
+      const result = await subscribeToNewsletter(ctx.store, { t, locale: ctx.locale }, { email: input.email, source: "api" });
+      if (result.status === "error") fail(result);
+      return { message: result.message, subscribed: true };
     },
   }),
   defineShop({

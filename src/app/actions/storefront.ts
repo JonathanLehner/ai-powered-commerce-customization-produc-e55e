@@ -8,7 +8,10 @@ import {
   revertStorefront as revert,
   saveStorefrontDraft as saveDraft,
 } from "@/lib/operations/storefront";
+import { saveBranding } from "@/lib/operations/store-settings";
 import { assertStoreAccess, operationContext } from "@/lib/session";
+import type { StoreDesign } from "@/lib/store-design";
+import { THEMES, type ThemeKey } from "@/lib/types";
 import type { ActionState } from "./stores";
 
 export async function saveStorefrontDraft(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -53,4 +56,17 @@ export async function restoreVersion(formData: FormData): Promise<void> {
   const versionId = String(formData.get("versionId") ?? "");
   const access = await assertStoreAccess(storeId, "store.storefront");
   await restore(await operationContext(access), versionId);
+}
+
+/** The editor's Design panel: the preset and the tokens on top of it. They apply to the live storefront straight away. */
+export async function saveStoreDesign(input: { storeId: string; theme: string; design: StoreDesign }): Promise<ActionState> {
+  const access = await assertStoreAccess(input.storeId, "store.storefront");
+  const t = await getTranslations("actions.storefront");
+  const theme = (input.theme in THEMES ? input.theme : access.store.theme) as ThemeKey;
+  try {
+    await saveBranding(await operationContext(access), { theme, logoUrl: access.store.logoUrl, design: input.design ?? {} });
+  } catch (error) {
+    return refusal(error);
+  }
+  return { status: "success", message: t("designSaved") };
 }

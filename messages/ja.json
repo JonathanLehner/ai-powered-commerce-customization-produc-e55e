@@ -1498,7 +1498,8 @@
       "nothingToTranslate": "すべて翻訳済みです。",
       "translated": "{count, plural, other {# 件を翻訳しました。}}公開前に確認してください。",
       "translateFailed": "翻訳に失敗しました。もう一度お試しください。",
-      "seoSaved": "SEO 情報を保存しました。"
+      "seoSaved": "SEO 情報を保存しました。",
+      "designSaved": "デザインを保存しました。"
     },
     "admin": {
       "supplierGone": "サプライヤーが見つかりません。",
@@ -3064,15 +3065,15 @@
     "sections": {
       "HeroSection": {
         "name": "ヒーロー",
-        "description": "行動喚起とメイン画像を備えた全幅のオープニング。",
+        "description": "行動を促すメッセージと画像を並べた導入部。",
         "fields": {
           "eyebrow": "アイブロウ",
           "headline": "見出し",
           "body": "補足テキスト",
           "ctaLabel": "ボタンのラベル",
           "ctaHref": "ボタンのリンク先",
-          "imageUrl": "画像 URL",
-          "imageUrlHelp": "空欄の場合はストアのロゴを使用します。",
+          "imageUrl": "画像",
+          "imageUrlHelp": "テキストのみのヒーローにする場合は空欄にしてください。",
           "align": "配置",
           "tone": "トーン"
         }
@@ -3118,7 +3119,7 @@
         "fields": {
           "heading": "見出し",
           "body": "本文",
-          "imageUrl": "画像 URL",
+          "imageUrl": "画像",
           "imageSide": "画像の位置"
         }
       },
@@ -3148,6 +3149,72 @@
           "body": "本文",
           "buttonLabel": "ボタンのラベル"
         }
+      },
+      "ImageHero": {
+        "name": "画像または動画ヒーロー",
+        "description": "見出しを重ねて表示する全面画像または動画。"
+      },
+      "Slideshow": {
+        "name": "スライドショー",
+        "description": "新商品、キャンペーン、コレクションを紹介する回転バナー。"
+      },
+      "Countdown": {
+        "name": "カウントダウン",
+        "description": "特定の日付までカウントダウンする、新商品や発表告知バナー。"
+      },
+      "ProductCarousel": {
+        "name": "商品カルーセル",
+        "description": "新着商品や特定コレクションなど、スワイプできる商品一覧。",
+        "fields": {
+          "layout": "見出し位置"
+        }
+      },
+      "FeaturedProduct": {
+        "name": "おすすめ商品",
+        "description": "写真、オプション、カートに追加ボタン付きの商品を1つ紹介。"
+      },
+      "CollectionTiles": {
+        "name": "コレクションタイル",
+        "description": "カテゴリー別に探す。コレクションに繋がる大型写真タイル。",
+        "fields": {
+          "ratio": "タイル形状"
+        }
+      },
+      "MultiColumn": {
+        "name": "カラム",
+        "description": "それぞれアイコンや写真を表示する2〜4カラム。"
+      },
+      "Story": {
+        "name": "ストーリー",
+        "description": "会社概要やミッションなど。写真、重要な数字、締めくくりの言葉を含む長文。"
+      },
+      "Stats": {
+        "name": "実績データ",
+        "description": "最大4つの重要な数字を表示（影響、コミュニティ、出荷済み注文数など）。"
+      },
+      "Gallery": {
+        "name": "ギャラリー",
+        "description": "写真のルックブック。各写真にオプションでキャプションとリンクを設定可能。"
+      },
+      "VideoSection": {
+        "name": "動画",
+        "description": "アップロードされた動画、またはYouTube/Vimeoのリンク。クリックで再生。"
+      },
+      "LogoStrip": {
+        "name": "ロゴストリップ",
+        "description": "パートナー、メディア、クライアントのロゴを一列に表示。"
+      },
+      "TestimonialCarousel": {
+        "name": "お客様の声カルーセル",
+        "description": "スワイプして閲覧できる、複数のお客様の声。"
+      },
+      "Faq": {
+        "name": "よくある質問",
+        "description": "一つずつ開いて表示される質問と回答。"
+      },
+      "Contact": {
+        "name": "連絡先と所在地",
+        "description": "住所、営業時間、メール、電話番号、アクセス案内。"
       }
     },
     "options": {
@@ -3162,7 +3229,45 @@
       "light": "ライト",
       "dark": "ダーク",
       "right": "右",
-      "all": "すべての商品"
+      "all": "すべての商品",
+      "auto": "自動",
+      "surface": "基本色",
+      "primary": "メインカラー",
+      "secondary": "サブカラー",
+      "inverse": "反転",
+      "custom": "カスタムカラー",
+      "image": "画像",
+      "none": "なし",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "narrow": "狭い",
+      "normal": "通常",
+      "wide": "広い",
+      "full": "全幅",
+      "screen": "フルスクリーン",
+      "bottom-left": "左下",
+      "bottom-center": "中央下",
+      "top": "上",
+      "side": "横",
+      "square": "正方形",
+      "portrait": "縦長",
+      "landscape": "横長",
+      "grid": "グリッド",
+      "carousel": "カルーセル",
+      "icon": "アイコン",
+      "number": "数字",
+      "mosaic": "モザイク",
+      "16:9": "ワイド",
+      "4:3": "クラシック",
+      "1:1": "正方形",
+      "9:16": "縦長",
+      "columns": "カラム",
+      "centered": "中央揃え",
+      "thumbnails": "サムネイル付き大型写真",
+      "stacked": "積み重ね",
+      "tabs": "タブ",
+      "accordion": "アコーディオン"
     },
     "revert": "下書きを公開版に戻す",
     "noProductsTitle": "まだ公開中の商品はありません",
@@ -3228,7 +3333,9 @@
       "page": "ページ",
       "products": "商品",
       "portals": "ギフトポータル",
-      "collections": "コレクション"
+      "collections": "コレクション",
+      "productPage": "商品ページ",
+      "design": "デザイン"
     },
     "site": {
       "title": "ヘッダーとフッター",
@@ -3237,7 +3344,11 @@
         "announcement": "お知らせバー",
         "navShop": "ショップリンクのラベル",
         "navOrders": "注文状況リンクのラベル",
-        "footerNote": "フッターの注記"
+        "footerNote": "フッターの注記",
+        "announcement2": "2番目の告知",
+        "announcement3": "3番目の告知",
+        "newsletterHeading": "フッターのニュースレター見出し",
+        "newsletterBody": "フッターのニュースレター本文"
       },
       "shipDays": "発送までの日数(営業日)",
       "shipDaysHint": "すべての商品ページと、空欄のときはお知らせバーに表示されます。",
@@ -3306,6 +3417,303 @@
       "reset": "デフォルトに戻す",
       "noMatch": "検索に一致するテキストはありません。",
       "failed": "保存できませんでした。もう一度お試しください。"
+    },
+    "categories": {
+      "hero": "オープニング",
+      "products": "商品",
+      "content": "コンテンツ",
+      "media": "メディア",
+      "social": "ソーシャルプルーフ",
+      "conversion": "プロモーションと登録"
+    },
+    "style": "スタイル",
+    "fields": {
+      "secondaryLabel": "2番目のボタンラベル",
+      "secondaryHref": "2番目のボタンリンク先",
+      "background": "背景",
+      "backgroundColor": "背景色",
+      "backgroundImage": "背景画像",
+      "spacing": "間隔",
+      "width": "幅",
+      "eyebrow": "前見出し",
+      "headline": "見出し",
+      "body": "本文",
+      "ctaLabel": "ボタンラベル",
+      "ctaHref": "ボタンリンク先",
+      "imageUrl": "画像",
+      "videoUrl": "背景動画",
+      "height": "高さ",
+      "position": "テキスト位置",
+      "overlay": "画像の暗さ(%)",
+      "align": "配置",
+      "autoplay": "自動再生",
+      "image": "画像",
+      "scrolling": "メッセージをスクロール表示",
+      "heading": "見出し",
+      "endsAt": "終了日時",
+      "endedText": "期限経過後に表示",
+      "showBadges": "バッジを表示",
+      "showSwatches": "カラー見本を表示",
+      "quickAdd": "クイック追加",
+      "title": "タイトル",
+      "subtitle": "サブタイトル",
+      "source": "ソース",
+      "limit": "最大商品数",
+      "layout": "レイアウト",
+      "product": "商品",
+      "imageSide": "画像配置",
+      "ratio": "縦横比",
+      "collection": "コレクション",
+      "label": "ラベル",
+      "itemOneIcon": "項目1のアイコン",
+      "itemTwoIcon": "項目2のアイコン",
+      "itemThreeIcon": "項目3のアイコン",
+      "columns": "列数",
+      "media": "表示",
+      "icon": "アイコン",
+      "secondImageUrl": "2枚目の写真",
+      "statValue": "キー数値",
+      "statLabel": "数値ラベル",
+      "signature": "署名",
+      "value": "値",
+      "posterUrl": "カバー画像",
+      "monochrome": "ロゴを単色で表示",
+      "name": "スクリーンリーダー用の名前",
+      "rating": "星評価 (0で非表示)",
+      "address": "住所",
+      "hours": "営業時間",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "mapUrl": "地図リンク",
+      "announcementCountdown": "お知らせカウントダウン終了日時",
+      "headerLayout": "ヘッダーレイアウト",
+      "headerSticky": "スクロールしてもヘッダーを固定",
+      "headerTransparent": "フルブリードヒーローの上にヘッダーを表示",
+      "megaMenu": "コレクション写真付きメガメニュー",
+      "footerLayout": "フッターレイアウト",
+      "footerNewsletter": "フッターにニュースレター登録",
+      "footerPayments": "フッターの支払い方法",
+      "footerTrust": "フッターの上に信頼バッジ",
+      "socialInstagram": "Instagramリンク",
+      "socialTiktok": "TikTokリンク",
+      "socialX": "Xリンク",
+      "socialYoutube": "YouTubeリンク",
+      "socialFacebook": "Facebookリンク",
+      "socialPinterest": "Pinterestリンク",
+      "galleryLayout": "ギャラリー",
+      "gallerySide": "ギャラリーの位置",
+      "personalisation": "パーソナライゼーションを表示",
+      "showTags": "タグを表示",
+      "stickyBuyBox": "スクロールしても購入ボックスを固定",
+      "trustNote": "ボタン下のメッセージ",
+      "style": "スタイル",
+      "showDetails": "印刷・生産の詳細を表示",
+      "showShipping": "配送情報を表示",
+      "extraTitle": "追加タブのタイトル",
+      "extraBody": "追加タブの本文",
+      "intro": "導入文",
+      "table": "表",
+      "caption": "キャプション",
+      "link": "リンク",
+      "author": "著者",
+      "role": "役職または会社",
+      "quote": "引用文"
+    },
+    "repeat": {
+      "slide": "スライド {n}",
+      "tile": "タイル {n}",
+      "column": "列 {n}",
+      "stat": "数値 {n}",
+      "image": "写真 {n}",
+      "caption": "キャプション {n}",
+      "link": "リンク {n}",
+      "logo": "ロゴ {n}",
+      "quote": "引用文 {n}",
+      "author": "引用文 {n}: 著者",
+      "role": "引用文 {n}: 役職または会社",
+      "q": "質問 {n}",
+      "a": "回答 {n}",
+      "feature": "特徴 {n}"
+    },
+    "help": {
+      "videoUrl": "MP4またはWebM形式。ミュートでループ再生。再生まで画像を表示。",
+      "product": "最新商品を表示するには空欄のままにしてください。",
+      "tile1Collection": "空欄のタイルには、コレクションが順番に表示されます。",
+      "mapUrl": "Google マップまたはApple マップのリンク。",
+      "announcementCountdown": "指定した日時まで、お知らせバーにカウントダウンを表示します。",
+      "table": "1行に1つの行、セルは | で区切ります。最初の行はヘッダーです。"
+    },
+    "icons": {
+      "sparkles": "キラキラ",
+      "truck": "配送",
+      "shield": "盾",
+      "leaf": "葉",
+      "heart": "ハート",
+      "star": "星",
+      "gift": "ギフト",
+      "recycle": "リサイクル",
+      "globe": "地球",
+      "palette": "パレット",
+      "shirt": "シャツ",
+      "coffee": "コーヒー",
+      "package": "小包",
+      "clock": "時計",
+      "award": "アワード",
+      "smile": "スマイル",
+      "lock": "鍵",
+      "return": "返品",
+      "ruler": "定規",
+      "users": "人"
+    },
+    "blocks": {
+      "ProductMain": {
+        "name": "ギャラリーと購入ボックス",
+        "description": "写真、価格、オプション、パーソナライゼーション、カートに追加ボタン。"
+      },
+      "DescriptionTabs": {
+        "name": "説明タブ",
+        "description": "説明、印刷・生産の詳細、配送情報をタブ形式で表示します。"
+      },
+      "SizeGuide": {
+        "name": "サイズガイド",
+        "description": "商品ページから開く採寸表。",
+        "fields": {
+          "titleHelp": "デフォルトのタイトルを使用する場合は空欄にしてください。"
+        }
+      },
+      "ProductFeatures": {
+        "name": "特徴",
+        "description": "アイコン付きの購入理由3点。"
+      },
+      "ProductText": {
+        "name": "テキスト",
+        "description": "すべての商品ページに表示される見出しと段落。"
+      },
+      "Reviews": {
+        "name": "レビュー",
+        "description": "商品の承認済みレビューと評価。"
+      },
+      "RelatedProducts": {
+        "name": "関連商品",
+        "description": "同じコレクションまたは同じタグの商品。",
+        "fields": {
+          "titleHelp": "デフォルトのタイトルを使用する場合は空欄にしてください。"
+        }
+      },
+      "RecentlyViewed": {
+        "name": "最近見た商品",
+        "description": "この利用者が最後に見た商品。",
+        "fields": {
+          "titleHelp": "デフォルトのタイトルを使用する場合は空欄にしてください。"
+        }
+      }
+    },
+    "link": {
+      "automatic": "コレクションを順番に表示",
+      "newest": "最新商品",
+      "none": "リンクなし",
+      "products": "商品一覧",
+      "cart": "カート",
+      "collection": "{name}コレクション",
+      "product": "商品: {name}",
+      "custom": "ウェブアドレス",
+      "customUrl": "ウェブアドレス"
+    },
+    "image": {
+      "upload": "画像をアップロード",
+      "replace": "変更",
+      "remove": "削除",
+      "uploading": "アップロード中…",
+      "failed": "アップロードに失敗しました。もう一度お試しください。",
+      "url": "画像URL",
+      "urlPlaceholder": "または画像URLを貼り付け",
+      "focalPick": "写真をクリックしてフォーカルポイントを設定",
+      "focalX": "フォーカルポイント横 (%)",
+      "focalY": "フォーカルポイント縦 (%)",
+      "uploadVideo": "動画をアップロード",
+      "replaceVideo": "動画を変更",
+      "videoPlaceholder": "または動画、YouTube、VimeoのURLを貼り付け"
+    },
+    "design": {
+      "presets": "プリセット",
+      "presetsBody": "プリセットから始めて、独自のデザインにカスタマイズしましょう。",
+      "colours": "ブランドカラー",
+      "coloursBody": "テキストの色は読みやすさを保つため、ストアフロントで調整されます。",
+      "colourNames": {
+        "primary": "プライマリー",
+        "secondary": "セカンダリー",
+        "background": "背景",
+        "surface": "サーフェス",
+        "text": "テキスト"
+      },
+      "contrastOk": "{pair} のコントラスト {ratio}:1",
+      "contrastAdjusted": "{pair} のコントラスト {ratio}:1 (読みやすさを保つため調整済み)",
+      "type": "タイポグラフィ",
+      "headingFont": "見出しフォント",
+      "bodyFont": "本文フォント",
+      "pairings": "フォントの組み合わせ",
+      "categories": {
+        "sans": "サンセリフ",
+        "serif": "セリフ",
+        "display": "ディスプレイ",
+        "mono": "モノ"
+      },
+      "style": "スタイル",
+      "mode": "ライト/ダーク",
+      "radius": "角の丸み",
+      "buttons": "ボタン",
+      "density": "間隔",
+      "productImage": "商品写真",
+      "values": {
+        "light": "ライト",
+        "dark": "ダーク",
+        "none": "スクエア",
+        "small": "小",
+        "medium": "中",
+        "large": "大",
+        "solid": "塗りつぶし",
+        "outline": "アウトライン",
+        "pill": "ピル型",
+        "compact": "コンパクト",
+        "comfortable": "標準",
+        "airy": "広め",
+        "square": "正方形",
+        "portrait": "縦長",
+        "landscape": "横長"
+      },
+      "save": "デザインを保存",
+      "saving": "保存中…",
+      "discard": "変更を破棄",
+      "liveNote": "保存されたデザインはすぐに公開されます。",
+      "saveFailed": "デザインを保存できませんでした。もう一度お試しください。",
+      "sampleHeading": "今シーズンの必需品",
+      "sampleBody": "受注生産、世界中に発送",
+      "samplePrimary": "今すぐ購入",
+      "sampleSecondary": "詳細はこちら",
+      "sampleSurface": "75以上の注文で送料無料"
+    },
+    "productPage": {
+      "blocks": "商品ページブロック",
+      "blocksBody": "すべての商品ページは、これらのブロックを上から下へ配置して構成されます。",
+      "moveUp": "上に移動",
+      "moveDown": "下に移動",
+      "addBlock": "ブロックを追加",
+      "add": "追加",
+      "settings": "ブロック設定",
+      "remove": "削除",
+      "noSettings": "このブロックには設定がありません。",
+      "select": "設定を変更するにはブロックを選択してください。",
+      "sampleName": "商品名",
+      "personalisation": "パーソナライズ",
+      "tabDescription": "商品説明",
+      "tabDetails": "詳細",
+      "tabShipping": "配送",
+      "sizeGuide": "サイズガイド",
+      "reviews": "レビュー",
+      "reviewsBody": "承認済みのレビューと商品の評価がここに表示されます。",
+      "related": "こちらもおすすめ",
+      "recentlyViewed": "最近見た商品",
+      "sampleDescription": "ここに商品説明が表示されます。"
     }
   },
   "admin": {
@@ -3634,7 +4042,27 @@
       "supportEmailLabel": "メール",
       "supportPhoneLabel": "電話",
       "legal": "© {year} {client}",
-      "information": "情報"
+      "information": "情報",
+      "previousMessage": "前のメッセージ",
+      "nextMessage": "次のメッセージ",
+      "followUs": "フォローする",
+      "weAccept": "対応決済",
+      "newsletterTitle": "最新情報を受け取る",
+      "newsletterBody": "新着商品、再入荷、お得な情報をお届けします。いつでも購読解除可能です。",
+      "newsletterButton": "登録する",
+      "shopAllIn": "{name}の商品をすべて見る",
+      "trustSecure": "安全な決済",
+      "trustTracked": "追跡可能な配送",
+      "trustMadeToOrder": "受注生産",
+      "trustSupport": "丁寧なサポート",
+      "social": {
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "x": "X",
+        "youtube": "YouTube",
+        "facebook": "Facebook",
+        "pinterest": "Pinterest"
+      }
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3647,9 +4075,6 @@
     "home": {
       "closedTitle": "このストアは閉店しました",
       "closedBody": "ご注文済みの商品は引き続きお届けします。",
-      "comingSoonTitle": "{store} はまもなくオープンします",
-      "comingSoonNoProducts": "しばらくしてから再度ご確認ください。",
-      "browseProducts": "{count} 点の商品を見る",
       "pausedTitle": "このストアは現在ご利用いただけません",
       "previewBanner": "未公開の変更のプレビュー",
       "previewExpired": "このプレビューリンクは有効期限が切れています。"
@@ -3691,7 +4116,14 @@
       "leadDays": "{from}〜{to} 日",
       "leadUnknown": "数日",
       "printDetail": "{count, plural, other {印刷範囲}}",
-      "printDetailBody": "{area}、{width} × {height} mm"
+      "printDetailBody": "{area}、{width} × {height} mm",
+      "tabDescription": "商品説明",
+      "tabDetails": "詳細",
+      "tabShipping": "配送",
+      "shippingPolicy": "配送ポリシーを読む",
+      "sizeGuide": "サイズガイド",
+      "related": "こちらもおすすめ",
+      "recentlyViewed": "最近見た商品"
     },
     "purchase": {
       "addToBasket": "カートに入れる",
@@ -3969,10 +4401,65 @@
       "viewAll": "すべて見る",
       "noProducts": "商品はまだありません。",
       "previewSoon": "プレビューは近日公開",
-      "imagePlaceholder": "セクション設定で画像 URL を追加してください",
+      "imagePlaceholder": "セクション設定で画像を追加",
       "newsletterEmail": "メールアドレス",
       "notifyMe": "お知らせを受け取る",
-      "welcome": "ようこそ"
+      "welcome": "ようこそ",
+      "previous": "前へ",
+      "next": "次へ",
+      "pause": "一時停止",
+      "play": "再生",
+      "slide": "スライド {n}/{total}",
+      "days": "日",
+      "hours": "時間",
+      "minutes": "分",
+      "seconds": "秒",
+      "countdownHint": "セクション設定でカウントダウン日時を設定してください",
+      "quickAdd": "クイック追加",
+      "chooseOption": "オプションを選択",
+      "added": "カートに追加しました",
+      "addToBasket": "カートに追加",
+      "viewProduct": "詳細を見る",
+      "badgeNew": "新着",
+      "badgeSoldOut": "完売",
+      "badgeSale": "セール",
+      "badgeExclusive": "限定",
+      "badgeCustom": "カスタマイズ",
+      "badgeBestseller": "ベストセラー",
+      "noCollections": "コレクションを作成するとここに表示されます",
+      "videoPlaceholder": "セクション設定で動画を追加してください",
+      "ratingLabel": "5点満点中{rating}点",
+      "contactAddress": "住所",
+      "contactHours": "営業時間",
+      "contactEmail": "メール",
+      "contactPhone": "電話番号",
+      "directions": "道順を見る",
+      "newsletterThanks": "ご登録ありがとうございます。",
+      "newsletterInvalid": "有効なメールアドレスを入力してください。",
+      "newsletterClosed": "現在、登録は受け付けておりません。",
+      "generated": {
+        "heroHeadline": "新コレクション登場",
+        "heroBody": "{store}がデザイン。オーダーメイドでご自宅までお届けします。",
+        "heroCta": "今すぐ購入",
+        "soonHeadline": "近日オープン",
+        "soonBody": "最初のコレクションが間もなく登場。発売情報を受け取るにはご登録ください。",
+        "newArrivals": "新着商品",
+        "shopAll": "全ての商品を見る",
+        "collections": "コレクションから探す",
+        "allProducts": "全商品",
+        "value1Title": "受注生産",
+        "value1Body": "ご注文を受けてから一つ一つ製作するため、無駄がありません。",
+        "value2Title": "追跡付き配送",
+        "value2Body": "発送からお届けまで、荷物を追跡できます。",
+        "value3Title": "安心決済",
+        "value3Body": "主要なクレジットカードで安全にお支払いいただけます。",
+        "storyEyebrow": "製作過程",
+        "storyHeading": "ご注文ごとに、一枚ずつプリント",
+        "storyBody": "商品は倉庫に保管されません。ご注文後、一点ずつ手作業でプリント、検品、梱包し、お客様のもとへ発送します。",
+        "newsletterHeading": "次の新作情報をいち早くお届け",
+        "newsletterBody": "新商品情報、再入荷、特別オファーをお届けします。いつでも登録解除可能です。",
+        "newsletterButton": "登録"
+      }
     },
     "email": {
       "logoAlt": "{store}",

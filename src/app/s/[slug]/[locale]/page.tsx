@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { readCurrency } from "@/app/actions/shop";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
-import { RenderSection, type StorefrontContext } from "@/components/sections";
+import { RenderSection } from "@/components/sections";
 import { getTranslations } from "next-intl/server";
 import { JsonLd } from "@/components/JsonLd";
 import { shopperIntl, shopperLocale, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { presentmentPrice } from "@/lib/currency";
-import { sectionsFromTree } from "@/lib/storefront-schema";
+import { storefrontContext } from "@/lib/storefront-context";
+import { generatedHomeSections } from "@/lib/storefront-defaults";
+import { SECTION_DEFS, sectionsFromTree } from "@/lib/storefront-schema";
 import { organizationJsonLd, storeUrl } from "@/lib/seo";
 import { shopperPageMetadata, storeSeo, storeTagline } from "@/lib/storefront-meta";
 import { storeSupport } from "@/lib/support";
-import { localizeProduct, localizeSectionProps, siteContent } from "@/lib/translations";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { localizeSectionProps, siteContent } from "@/lib/translations";
 
 export async function generateMetadata({
   params,
@@ -51,32 +50,7 @@ export default async function StorefrontHome({
   const currency = await readCurrency(store.defaultCurrency, store.currencies);
   const { locale, t, money, base } = await shopperIntl(store, requested, `/s/${store.slug}`);
   const { defaultLocale } = storeLanguages(store);
-  // Section copy and product names in the shopper's language, falling back to
-  // the store's default language wherever a translation is missing.
-  const sections = sectionsFromTree(storefront?.published).map((section) => ({
-    ...section,
-    props: localizeSectionProps(section.type, section.props, locale, defaultLocale),
-  }));
   const messages = await shopperMessages(store, locale);
-
-  const ctx: StorefrontContext = {
-    storeName: store.name,
-    clientName: store.clientName,
-    base,
-    logoUrl: store.logoUrl,
-    theme: store.theme,
-    preview: false,
-    t: messages.storefront.sections,
-    products: products.map((product) => localizeProduct(product, locale, defaultLocale)).map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      price: money(presentmentPrice(store, p.price, p.currency, currency), currency),
-      imageUrl: p.mockups[0]?.url ?? null,
-      tagline: p.description.split("\n")[0],
-    })),
-    collections: collections.map(({ id, handle, productIds }) => ({ id, handle, productIds })),
-  };
 
   if (store.status === "archived") {
     return (
@@ -89,43 +63,48 @@ export default async function StorefrontHome({
     );
   }
 
+  const ctx = storefrontContext({
+    store,
+    products,
+    collections,
+    locale,
+    defaultLocale,
+    base,
+    preview: false,
+    t: messages.storefront.sections,
+    price: (p) => money(presentmentPrice(store, p.price, p.currency, currency), currency),
+  });
+  // Section copy in the shopper's language, falling back to the store's
+  // default language wherever a translation is missing. A store that has not
+  // published a page yet gets one built from its products and name.
+  const published = sectionsFromTree(storefront?.published);
+  const sections =
+    published.length > 0
+      ? published.map((section) => ({
+          ...section,
+          props: localizeSectionProps(section.type, section.props, locale, defaultLocale),
+        }))
+      : generatedHomeSections({
+          storeName: store.name,
+          products: ctx.products,
+          collections,
+          copy: messages.storefront.sections.generated,
+        }).map((section, i) => ({ id: `generated-${i}`, ...section, props: { ...SECTION_DEFS[section.type].defaults, ...section.props } }));
+
   const support = storeSupport(store);
-  const organization = (
-    <JsonLd
-      data={organizationJsonLd({
-        name: store.name,
-        url: storeUrl(store, locale),
-        logo: store.logoUrl,
-        email: support.email,
-        phone: support.phone,
-      })}
-    />
-  );
-
-  if (sections.length === 0) {
-    return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-24 text-center sm:px-6">
-        {organization}
-        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-          {t("home.comingSoonTitle", { store: store.name })}
-        </h1>
-        {products.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("home.comingSoonNoProducts")}</p>
-        ) : null}
-        {products.length> 0 ? (
-          <Link href={`${base}/products`} className={cn(buttonVariants({ size: "lg" }), "mt-6")}>
-            {t("home.browseProducts", { count: products.length })}
-          </Link>
-        ) : null}
-      </div>
-    );
-  }
-
   return (
     <>
-      {organization}
-      {sections.map((section) => (
-        <RenderSection key={section.id} type={section.type} props={section.props} ctx={ctx} />
+      <JsonLd
+        data={organizationJsonLd({
+          name: store.name,
+          url: storeUrl(store, locale),
+          logo: store.logoUrl,
+          email: support.email,
+          phone: support.phone,
+        })}
+      />
+      {sections.map((section, index) => (
+        <RenderSection key={section.id} type={section.type} props={section.props} ctx={ctx} index={index} />
       ))}
     </>
   );

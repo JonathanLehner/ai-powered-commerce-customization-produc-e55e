@@ -63,9 +63,13 @@ assert.equal(localizeSectionProps("HeroSection", tree[heroId].props, "en", "en")
 tree.ROOT.props = { announcement: "Free delivery", navShop: "", footerNote: "Made in Leeds", i18n: { de: { announcement: { value: "Kostenloser Versand" } } } };
 assert.deepEqual(siteContent(tree, "de", "en"), {
   announcement: "Kostenloser Versand",
+  announcement2: "",
+  announcement3: "",
   navShop: "",
   navOrders: "",
   footerNote: "Made in Leeds",
+  newsletterHeading: "",
+  newsletterBody: "",
   metaTitle: "",
   metaDescription: "",
 });

@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { readCurrency } from "@/app/actions/shop";
 import { UnknownStoreView } from "@/components/NotFoundViews";
-import { RenderSection, type StorefrontContext } from "@/components/sections";
+import { RenderSection } from "@/components/sections";
 import { shopperIntl, shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { presentmentPrice } from "@/lib/currency";
 import { getStorefront } from "@/lib/data";
 import { publishedProducts, storefrontBySlug } from "@/lib/storefront-data";
 import { previewLinkValid } from "@/lib/storefront-preview";
-import { sectionsFromTree } from "@/lib/storefront-schema";
-import { localizeProduct, localizeSectionProps } from "@/lib/translations";
+import { storefrontContext } from "@/lib/storefront-context";
+import { generatedHomeSections } from "@/lib/storefront-defaults";
+import { SECTION_DEFS, sectionsFromTree } from "@/lib/storefront-schema";
+import { localizeSectionProps } from "@/lib/translations";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -45,35 +47,30 @@ export default async function StorefrontPreview({
     shopperMessages(store, locale),
   ]);
   const { defaultLocale } = storeLanguages(store);
-  const sections = sectionsFromTree(storefront?.draft).map((section) => ({
-    ...section,
-    props: localizeSectionProps(section.type, section.props, locale, defaultLocale),
-  }));
-
-  const ctx: StorefrontContext = {
-    storeName: store.name,
-    clientName: store.clientName,
+  const ctx = storefrontContext({
+    store,
+    products,
+    collections,
+    locale,
+    defaultLocale,
     base,
-    logoUrl: store.logoUrl,
-    theme: store.theme,
     preview: false,
     t: messages.storefront.sections,
-    products: products.map((product) => localizeProduct(product, locale, defaultLocale)).map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      price: money(presentmentPrice(store, p.price, p.currency, currency), currency),
-      imageUrl: p.mockups[0]?.url ?? null,
-      tagline: p.description.split("\n")[0],
-    })),
-    collections: collections.map(({ id, handle, productIds }) => ({ id, handle, productIds })),
-  };
+    price: (p) => money(presentmentPrice(store, p.price, p.currency, currency), currency),
+  });
+  const drafted = sectionsFromTree(storefront?.draft);
+  const sections =
+    drafted.length > 0
+      ? drafted.map((section) => ({ ...section, props: localizeSectionProps(section.type, section.props, locale, defaultLocale) }))
+      : generatedHomeSections({ storeName: store.name, products: ctx.products, collections, copy: messages.storefront.sections.generated }).map(
+          (section, i) => ({ id: `generated-${i}`, ...section, props: { ...SECTION_DEFS[section.type].defaults, ...section.props } }),
+        );
 
   return (
     <>
       <p className="bg-muted px-4 py-2 text-center text-xs font-medium text-muted-foreground">{t("home.previewBanner")}</p>
-      {sections.map((section) => (
-        <RenderSection key={section.id} type={section.type} props={section.props} ctx={ctx} />
+      {sections.map((section, index) => (
+        <RenderSection key={section.id} type={section.type} props={section.props} ctx={ctx} index={index} />
       ))}
     </>
   );

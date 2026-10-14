@@ -1498,7 +1498,8 @@
       "nothingToTranslate": "Alles is al vertaald.",
       "translated": "{count, plural, one {# veld vertaald.} other {# velden vertaald.}} Controleer voor publicatie.",
       "translateFailed": "Vertalen mislukt. Probeer het opnieuw.",
-      "seoSaved": "SEO-gegevens opgeslagen."
+      "seoSaved": "SEO-gegevens opgeslagen.",
+      "designSaved": "Ontwerp opgeslagen."
     },
     "admin": {
       "supplierGone": "Leverancier niet gevonden.",
@@ -3064,15 +3065,15 @@
     "sections": {
       "HeroSection": {
         "name": "Hero",
-        "description": "Opening over de volle breedte met een call-to-action en afbeelding.",
+        "description": "Openingsbericht met een call-to-action en een afbeelding ernaast.",
         "fields": {
           "eyebrow": "Bovenkop",
           "headline": "Kop",
           "body": "Ondersteunende tekst",
           "ctaLabel": "Knoptekst",
           "ctaHref": "Knopbestemming",
-          "imageUrl": "Afbeeldings-URL",
-          "imageUrlHelp": "Laat leeg om het logo van de winkel te gebruiken.",
+          "imageUrl": "Afbeelding",
+          "imageUrlHelp": "Laat leeg voor een tekstbanner.",
           "align": "Uitlijning",
           "tone": "Toon"
         }
@@ -3118,7 +3119,7 @@
         "fields": {
           "heading": "Kop",
           "body": "Tekst",
-          "imageUrl": "Afbeeldings-URL",
+          "imageUrl": "Afbeelding",
           "imageSide": "Positie van de afbeelding"
         }
       },
@@ -3148,6 +3149,72 @@
           "body": "Tekst",
           "buttonLabel": "Knoptekst"
         }
+      },
+      "ImageHero": {
+        "name": "Afbeelding of video hero",
+        "description": "Pagina-brede foto of video met koptekst."
+      },
+      "Slideshow": {
+        "name": "Slideshow",
+        "description": "Roterende banners voor lanceringen, campagnes en collecties."
+      },
+      "Countdown": {
+        "name": "Aftelling",
+        "description": "Een lanceringsbanner die aftelt naar een datum."
+      },
+      "ProductCarousel": {
+        "name": "Productcarrousel",
+        "description": "Een veegbare rij producten, zoals nieuwe aanwinsten of een collectie.",
+        "fields": {
+          "layout": "Koppositie"
+        }
+      },
+      "FeaturedProduct": {
+        "name": "Uitgelicht product",
+        "description": "Eén product met foto's, opties en een knop 'Toevoegen aan winkelmandje'."
+      },
+      "CollectionTiles": {
+        "name": "Collectietegels",
+        "description": "Winkel per categorie: grote fototegels die een collectie openen.",
+        "fields": {
+          "ratio": "Tegelvorm"
+        }
+      },
+      "MultiColumn": {
+        "name": "Kolommen",
+        "description": "Twee tot vier kolommen met elk een icoon of foto."
+      },
+      "Story": {
+        "name": "Verhaal",
+        "description": "Over ons of missie: een lange tekst met foto's, een belangrijk getal en een afsluiting."
+      },
+      "Stats": {
+        "name": "Impactcijfers",
+        "description": "Tot vier grote cijfers: impact, community, verzonden bestellingen."
+      },
+      "Gallery": {
+        "name": "Galerij",
+        "description": "Een lookbook met foto's, elk met een optioneel onderschrift en link."
+      },
+      "VideoSection": {
+        "name": "Video",
+        "description": "Een geüploade video of een YouTube- of Vimeo-link, afgespeeld bij klik."
+      },
+      "LogoStrip": {
+        "name": "Logobalk",
+        "description": "Partner-, pers- of klantlogo's op een rij."
+      },
+      "TestimonialCarousel": {
+        "name": "Testimonialcarrousel",
+        "description": "Verschillende klantrecensies om doorheen te vegen."
+      },
+      "Faq": {
+        "name": "FAQ",
+        "description": "Vragen en antwoorden die één voor één openen."
+      },
+      "Contact": {
+        "name": "Contact en locaties",
+        "description": "Adres, openingstijden, e-mail en telefoon, met routebeschrijving."
       }
     },
     "options": {
@@ -3162,7 +3229,45 @@
       "light": "Licht",
       "dark": "Donker",
       "right": "Rechts",
-      "all": "Alle producten"
+      "all": "Alle producten",
+      "auto": "Automatisch",
+      "surface": "Oppervlak",
+      "primary": "Primaire kleur",
+      "secondary": "Secundaire kleur",
+      "inverse": "Omgekeerd",
+      "custom": "Aangepaste kleur",
+      "image": "Afbeelding",
+      "none": "Geen",
+      "small": "Klein",
+      "medium": "Middel",
+      "large": "Groot",
+      "narrow": "Smal",
+      "normal": "Normaal",
+      "wide": "Breed",
+      "full": "Volledige breedte",
+      "screen": "Volledig scherm",
+      "bottom-left": "Linksonder",
+      "bottom-center": "Middenonder",
+      "top": "Boven",
+      "side": "Naast",
+      "square": "Vierkant",
+      "portrait": "Staand",
+      "landscape": "Liggend",
+      "grid": "Raster",
+      "carousel": "Carrousel",
+      "icon": "Pictogrammen",
+      "number": "Getallen",
+      "mosaic": "Mozaïek",
+      "16:9": "Breedbeeld",
+      "4:3": "Klassiek",
+      "1:1": "Vierkant",
+      "9:16": "Verticaal",
+      "columns": "Kolommen",
+      "centered": "Gecentreerd",
+      "thumbnails": "Grote foto met miniaturen",
+      "stacked": "Gestapelde foto's",
+      "tabs": "Tabbladen",
+      "accordion": "Accordeon"
     },
     "revert": "Concept terugzetten naar gepubliceerde versie",
     "noProductsTitle": "Nog geen gepubliceerde producten",
@@ -3228,7 +3333,9 @@
       "page": "Pagina",
       "products": "Producten",
       "portals": "Cadeauportalen",
-      "collections": "Collecties"
+      "collections": "Collecties",
+      "productPage": "Productpagina",
+      "design": "Ontwerp"
     },
     "site": {
       "title": "Koptekst en voettekst",
@@ -3237,7 +3344,11 @@
         "announcement": "Aankondigingsbalk",
         "navShop": "Label winkellink",
         "navOrders": "Label bestelstatuslink",
-        "footerNote": "Voettekstnotitie"
+        "footerNote": "Voettekstnotitie",
+        "announcement2": "Tweede aankondiging",
+        "announcement3": "Derde aankondiging",
+        "newsletterHeading": "Nieuwsbriefkop footer",
+        "newsletterBody": "Nieuwsbrieftekst footer"
       },
       "shipDays": "Verzonden binnen (werkdagen)",
       "shipDaysHint": "Getoond op elke productpagina, en in de aankondigingsbalk als die leeg is.",
@@ -3306,6 +3417,303 @@
       "reset": "Standaard herstellen",
       "noMatch": "Geen tekst komt overeen met je zoekopdracht.",
       "failed": "Opslaan mislukt. Probeer het opnieuw."
+    },
+    "categories": {
+      "hero": "Openers",
+      "products": "Producten",
+      "content": "Inhoud",
+      "media": "Media",
+      "social": "Sociale bewijzen",
+      "conversion": "Promotie en aanmelden"
+    },
+    "style": "Stijl",
+    "fields": {
+      "secondaryLabel": "Label tweede knop",
+      "secondaryHref": "Doel tweede knop",
+      "background": "Achtergrond",
+      "backgroundColor": "Achtergrondkleur",
+      "backgroundImage": "Achtergrondafbeelding",
+      "spacing": "Afstand",
+      "width": "Breedte",
+      "eyebrow": "Bovenkop",
+      "headline": "Koptekst",
+      "body": "Tekst",
+      "ctaLabel": "Knoplabel",
+      "ctaHref": "Knopdoel",
+      "imageUrl": "Afbeelding",
+      "videoUrl": "Achtergrondvideo",
+      "height": "Hoogte",
+      "position": "Tekstpositie",
+      "overlay": "Afbeelding verduistering (%)",
+      "align": "Uitlijning",
+      "autoplay": "Automatisch afspelen",
+      "image": "Afbeelding",
+      "scrolling": "Bericht scrollen",
+      "heading": "Kop",
+      "endsAt": "Telt af naar",
+      "endedText": "Getoond nadat de tijd is verstreken",
+      "showBadges": "Badges tonen",
+      "showSwatches": "Kleurstalen tonen",
+      "quickAdd": "Snel toevoegen",
+      "title": "Titel",
+      "subtitle": "Subtitel",
+      "source": "Bron",
+      "limit": "Maximum producten",
+      "layout": "Lay-out",
+      "product": "Product",
+      "imageSide": "Afbeeldingpositie",
+      "ratio": "Verhouding",
+      "collection": "Collectie",
+      "label": "Label",
+      "itemOneIcon": "Item 1 icoon",
+      "itemTwoIcon": "Item 2 icoon",
+      "itemThreeIcon": "Item 3 icoon",
+      "columns": "Kolommen",
+      "media": "Tonen",
+      "icon": "Icoon",
+      "secondImageUrl": "Tweede foto",
+      "statValue": "Kerngetal",
+      "statLabel": "Label kerngetal",
+      "signature": "Gesigneerd",
+      "value": "Waarde",
+      "posterUrl": "Omslagafbeelding",
+      "monochrome": "Logo's monochroom",
+      "name": "Naam voor schermlezers",
+      "rating": "Sterren (0 verbergt ze)",
+      "address": "Adres",
+      "hours": "Openingstijden",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "mapUrl": "Route link",
+      "announcementCountdown": "Aftelklok tot aankondiging",
+      "headerLayout": "Headerindeling",
+      "headerSticky": "Header plakken bij scrollen",
+      "headerTransparent": "Header transparant over hero",
+      "megaMenu": "Mega menu met collectiefoto's",
+      "footerLayout": "Footerindeling",
+      "footerNewsletter": "Nieuwsbrief aanmelden in footer",
+      "footerPayments": "Betaalmethoden in footer",
+      "footerTrust": "Vertrouwensbadges boven de footer",
+      "socialInstagram": "Instagram link",
+      "socialTiktok": "TikTok link",
+      "socialX": "X link",
+      "socialYoutube": "YouTube link",
+      "socialFacebook": "Facebook link",
+      "socialPinterest": "Pinterest link",
+      "galleryLayout": "Galerij",
+      "gallerySide": "Galerijpositie",
+      "personalisation": "Personalisatie tonen",
+      "showTags": "Tags tonen",
+      "stickyBuyBox": "Koopblok plakken bij scrollen",
+      "trustNote": "Regel onder de knop",
+      "style": "Stijl",
+      "showDetails": "Print- en productiedetails tonen",
+      "showShipping": "Verzending tonen",
+      "extraTitle": "Titel extra tabblad",
+      "extraBody": "Tekst extra tabblad",
+      "intro": "Introductie",
+      "table": "Tabel",
+      "caption": "Bijschrift",
+      "link": "Link",
+      "author": "Auteur",
+      "role": "Functie of bedrijf",
+      "quote": "Citaat"
+    },
+    "repeat": {
+      "slide": "Dia {n}",
+      "tile": "Tegel {n}",
+      "column": "Kolom {n}",
+      "stat": "Getal {n}",
+      "image": "Foto {n}",
+      "caption": "Bijschrift {n}",
+      "link": "Link {n}",
+      "logo": "Logo {n}",
+      "quote": "Citaat {n}",
+      "author": "Citaat {n}: auteur",
+      "role": "Citaat {n}: functie of bedrijf",
+      "q": "Vraag {n}",
+      "a": "Antwoord {n}",
+      "feature": "Kenmerk {n}"
+    },
+    "help": {
+      "videoUrl": "MP4 of WebM, gedempt en herhaald. De afbeelding wordt getoond totdat de video afspeelt.",
+      "product": "Leeg laten voor het nieuwste product.",
+      "tile1Collection": "Leeg gelaten tegels tonen uw collecties op volgorde.",
+      "mapUrl": "Een Google Maps- of Apple Maps-link.",
+      "announcementCountdown": "Toont een aftelklok in de aankondigingsbalk tot dit tijdstip.",
+      "table": "Eén rij per lijn, cellen gescheiden door |. De eerste rij is de header."
+    },
+    "icons": {
+      "sparkles": "Schitteringen",
+      "truck": "Bezorging",
+      "shield": "Schild",
+      "leaf": "Blad",
+      "heart": "Hart",
+      "star": "Ster",
+      "gift": "Cadeau",
+      "recycle": "Recycling",
+      "globe": "Wereldbol",
+      "palette": "Palet",
+      "shirt": "Shirt",
+      "coffee": "Koffie",
+      "package": "Pakket",
+      "clock": "Klok",
+      "award": "Award",
+      "smile": "Lach",
+      "lock": "Slot",
+      "return": "Retouren",
+      "ruler": "Liniaal",
+      "users": "Mensen"
+    },
+    "blocks": {
+      "ProductMain": {
+        "name": "Galerij en koopblok",
+        "description": "Foto's, prijs, opties, personalisatie en de knop 'toevoegen aan winkelmand'."
+      },
+      "DescriptionTabs": {
+        "name": "Beschrijvingstabbladen",
+        "description": "De beschrijving, print- en productiedetails en verzending, in tabbladen."
+      },
+      "SizeGuide": {
+        "name": "Maattabel",
+        "description": "Een maattabel die opent vanaf de productpagina.",
+        "fields": {
+          "titleHelp": "Leeg laten voor de standaardtitel."
+        }
+      },
+      "ProductFeatures": {
+        "name": "Kenmerken",
+        "description": "Drie korte redenen om te kopen, met iconen."
+      },
+      "ProductText": {
+        "name": "Tekst",
+        "description": "Een kop en alinea getoond op elke productpagina."
+      },
+      "Reviews": {
+        "name": "Recensies",
+        "description": "De goedgekeurde recensies van het product en de beoordeling."
+      },
+      "RelatedProducts": {
+        "name": "Gerelateerde producten",
+        "description": "Producten uit dezelfde collecties of met dezelfde tags.",
+        "fields": {
+          "titleHelp": "Leeg laten voor de standaardtitel."
+        }
+      },
+      "RecentlyViewed": {
+        "name": "Recent bekeken",
+        "description": "De producten die deze shopper het laatst heeft bekeken.",
+        "fields": {
+          "titleHelp": "Leeg laten voor de standaardtitel."
+        }
+      }
+    },
+    "link": {
+      "automatic": "Uw collecties op volgorde",
+      "newest": "Nieuwste product",
+      "none": "Geen link",
+      "products": "Alle producten",
+      "cart": "Winkelwagen",
+      "collection": "Collectie: {name}",
+      "product": "Product: {name}",
+      "custom": "Webadres",
+      "customUrl": "Webadres"
+    },
+    "image": {
+      "upload": "Afbeelding uploaden",
+      "replace": "Vervangen",
+      "remove": "Verwijderen",
+      "uploading": "Uploaden…",
+      "failed": "Upload mislukt. Probeer opnieuw.",
+      "url": "Afbeeldingsadres",
+      "urlPlaceholder": "Of plak een afbeeldingsadres",
+      "focalPick": "Klik op de foto om het focuspunt in te stellen",
+      "focalX": "Focuspunt horizontaal (%)",
+      "focalY": "Focuspunt verticaal (%)",
+      "uploadVideo": "Video uploaden",
+      "replaceVideo": "Video vervangen",
+      "videoPlaceholder": "Of plak een video-, YouTube- of Vimeo-adres"
+    },
+    "design": {
+      "presets": "Voorinstellingen",
+      "presetsBody": "Begin met een voorinstelling en pas deze aan.",
+      "colours": "Merkkleuren",
+      "coloursBody": "Tekstkleuren worden in de etalage aangepast om leesbaar te blijven.",
+      "colourNames": {
+        "primary": "Primair",
+        "secondary": "Secundair",
+        "background": "Achtergrond",
+        "surface": "Oppervlak",
+        "text": "Tekst"
+      },
+      "contrastOk": "{pair} contrast {ratio}:1",
+      "contrastAdjusted": "{pair} contrast {ratio}:1, aangepast voor leesbaarheid",
+      "type": "Lettertype",
+      "headingFont": "Lettertype koptekst",
+      "bodyFont": "Tekstlettertype",
+      "pairings": "Combinaties",
+      "categories": {
+        "sans": "Schreefloos",
+        "serif": "Schreef",
+        "display": "Display",
+        "mono": "Mono"
+      },
+      "style": "Stijl",
+      "mode": "Licht of donker",
+      "radius": "Hoeken",
+      "buttons": "Knoppen",
+      "density": "Afstand",
+      "productImage": "Productfoto's",
+      "values": {
+        "light": "Licht",
+        "dark": "Donker",
+        "none": "Vierkant",
+        "small": "Klein",
+        "medium": "Middel",
+        "large": "Groot",
+        "solid": "Gevuld",
+        "outline": "Omrand",
+        "pill": "Pilvormig",
+        "compact": "Compact",
+        "comfortable": "Comfortabel",
+        "airy": "Luchtig",
+        "square": "Vierkant",
+        "portrait": "Staand",
+        "landscape": "Liggend"
+      },
+      "save": "Ontwerp opslaan",
+      "saving": "Opslaan…",
+      "discard": "Wijzigingen negeren",
+      "liveNote": "Een opgeslagen ontwerp gaat direct live.",
+      "saveFailed": "Het ontwerp kon niet worden opgeslagen. Probeer opnieuw.",
+      "sampleHeading": "Essentiële items nieuw seizoen",
+      "sampleBody": "Op bestelling gemaakt en wereldwijd verzonden.",
+      "samplePrimary": "Shop nu",
+      "sampleSecondary": "Meer informatie",
+      "sampleSurface": "Gratis verzending bij bestellingen boven 75"
+    },
+    "productPage": {
+      "blocks": "Blokken productpagina",
+      "blocksBody": "Elke productpagina is opgebouwd uit deze blokken, van boven naar beneden.",
+      "moveUp": "Omhoog verplaatsen",
+      "moveDown": "Omlaag verplaatsen",
+      "addBlock": "Blok toevoegen",
+      "add": "Toevoegen",
+      "settings": "Blokinstellingen",
+      "remove": "Verwijderen",
+      "noSettings": "Dit blok heeft geen instellingen.",
+      "select": "Selecteer een blok om de instellingen te wijzigen.",
+      "sampleName": "Productnaam",
+      "personalisation": "Personalisatie",
+      "tabDescription": "Beschrijving",
+      "tabDetails": "Details",
+      "tabShipping": "Verzending",
+      "sizeGuide": "Maattabel",
+      "reviews": "Recensies",
+      "reviewsBody": "Goedgekeurde recensies en de productbeoordeling verschijnen hier.",
+      "related": "Gerelateerde producten",
+      "recentlyViewed": "Recent bekeken",
+      "sampleDescription": "De productbeschrijving verschijnt hier."
     }
   },
   "admin": {
@@ -3634,7 +4042,27 @@
       "supportEmailLabel": "E-mail",
       "supportPhoneLabel": "Telefoon",
       "legal": "© {year} {client}",
-      "information": "Informatie"
+      "information": "Informatie",
+      "previousMessage": "Vorig bericht",
+      "nextMessage": "Volgend bericht",
+      "followUs": "Volg ons",
+      "weAccept": "Wij accepteren",
+      "newsletterTitle": "Blijf op de hoogte",
+      "newsletterBody": "Nieuwe collecties, aanvullingen en aanbiedingen. Uitschrijven kan op elk moment.",
+      "newsletterButton": "Aanmelden",
+      "shopAllIn": "Shop alle {name}",
+      "trustSecure": "Veilig afrekenen",
+      "trustTracked": "Verzending met tracking",
+      "trustMadeToOrder": "Op bestelling gemaakt",
+      "trustSupport": "Echte mensen, echte ondersteuning",
+      "social": {
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "x": "X",
+        "youtube": "YouTube",
+        "facebook": "Facebook",
+        "pinterest": "Pinterest"
+      }
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3647,9 +4075,6 @@
     "home": {
       "closedTitle": "Deze winkel is gesloten",
       "closedBody": "Bestellingen die al zijn geplaatst, worden nog geleverd.",
-      "comingSoonTitle": "{store} gaat binnenkort open",
-      "comingSoonNoProducts": "Kom binnenkort terug.",
-      "browseProducts": "Bekijk {count} producten",
       "pausedTitle": "Deze winkel is tijdelijk niet beschikbaar",
       "previewBanner": "Voorbeeld van niet-gepubliceerde wijzigingen",
       "previewExpired": "Deze voorbeeldlink is verlopen."
@@ -3691,7 +4116,14 @@
       "leadDays": "{from}–{to} dagen",
       "leadUnknown": "een paar dagen",
       "printDetail": "{count, plural, one {Printgebied} other {Printgebieden}}",
-      "printDetailBody": "{area}, {width} × {height} mm"
+      "printDetailBody": "{area}, {width} × {height} mm",
+      "tabDescription": "Beschrijving",
+      "tabDetails": "Details",
+      "tabShipping": "Verzending",
+      "shippingPolicy": "Lees het verzendbeleid",
+      "sizeGuide": "Maattabel",
+      "related": "Gerelateerde producten",
+      "recentlyViewed": "Recent bekeken"
     },
     "purchase": {
       "addToBasket": "In de winkelmand",
@@ -3969,10 +4401,65 @@
       "viewAll": "Alles bekijken",
       "noProducts": "Nog geen producten.",
       "previewSoon": "Voorbeeld volgt binnenkort",
-      "imagePlaceholder": "Voeg in de sectie-instellingen een afbeeldings-URL toe",
+      "imagePlaceholder": "Voeg een afbeelding toe in de sectie-instellingen",
       "newsletterEmail": "E-mailadres",
       "notifyMe": "Houd me op de hoogte",
-      "welcome": "Welkom"
+      "welcome": "Welkom",
+      "previous": "Vorige",
+      "next": "Volgende",
+      "pause": "Pauze",
+      "play": "Afspelen",
+      "slide": "Dia {n} van {total}",
+      "days": "Dagen",
+      "hours": "Uren",
+      "minutes": "Minuten",
+      "seconds": "Seconden",
+      "countdownHint": "Stel de datum en tijd voor de aftelling in via de sectie-instellingen",
+      "quickAdd": "Snel toevoegen",
+      "chooseOption": "Kies een optie",
+      "added": "Toegevoegd aan winkelmandje",
+      "addToBasket": "Toevoegen aan winkelmandje",
+      "viewProduct": "Bekijk details",
+      "badgeNew": "Nieuw",
+      "badgeSoldOut": "Uitverkocht",
+      "badgeSale": "Sale",
+      "badgeExclusive": "Exclusief",
+      "badgeCustom": "Personaliseer",
+      "badgeBestseller": "Bestseller",
+      "noCollections": "Je collecties verschijnen hier zodra je ze aanmaakt",
+      "videoPlaceholder": "Voeg een video toe via de sectie-instellingen",
+      "ratingLabel": "{rating} van de 5 sterren",
+      "contactAddress": "Adres",
+      "contactHours": "Openingstijden",
+      "contactEmail": "E-mail",
+      "contactPhone": "Telefoon",
+      "directions": "Routebeschrijving",
+      "newsletterThanks": "Bedankt voor je aanmelding",
+      "newsletterInvalid": "Voer een geldig e-mailadres in",
+      "newsletterClosed": "Aanmelden is momenteel niet mogelijk",
+      "generated": {
+        "heroHeadline": "De nieuwe collectie is er",
+        "heroBody": "Ontworpen door {store}, op bestelling gemaakt en aan je deur geleverd",
+        "heroCta": "Shop nu",
+        "soonHeadline": "Binnenkort geopend",
+        "soonBody": "De eerste collectie is onderweg. Meld je aan om te horen wanneer deze beschikbaar is",
+        "newArrivals": "Nieuw binnen",
+        "shopAll": "Bekijk alles",
+        "collections": "Shop op collectie",
+        "allProducts": "Alle producten",
+        "value1Title": "Op bestelling gemaakt",
+        "value1Body": "Elk stuk wordt voor jou gemaakt zodra je bestelt, zodat er niets verloren gaat",
+        "value2Title": "Traceerbare levering",
+        "value2Body": "Elk pakket wordt gevolgd van onze deur tot de jouwe",
+        "value3Title": "Veilig afrekenen",
+        "value3Body": "Betaal veilig met alle gangbare kaarten",
+        "storyEyebrow": "Zo wordt het gemaakt",
+        "storyHeading": "Voor jou geprint, één bestelling tegelijk",
+        "storyBody": "Niets ligt in een magazijn. Wanneer je bestelt, wordt je item met de hand geprint, gecontroleerd en verpakt, waarna het naar je wordt verzonden",
+        "newsletterHeading": "Wees als eerste op de hoogte van de volgende lancering",
+        "newsletterBody": "Nieuwe releases, aanvullingen en aanbiedingen. Uitschrijven kan op elk moment",
+        "newsletterButton": "Aanmelden"
+      }
     },
     "email": {
       "logoAlt": "{store}",

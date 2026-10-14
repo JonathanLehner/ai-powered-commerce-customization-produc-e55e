@@ -33,6 +33,11 @@ interface BasketContextValue {
 
 const BasketContext = createContext<BasketContextValue | null>(null);
 
+/** The basket, or null outside a storefront (the editor's preview). */
+export function useBasketIfAny() {
+  return use(BasketContext);
+}
+
 export function useBasket() {
   const value = use(BasketContext);
   if (!value) throw new Error("useBasket needs a BasketProvider");

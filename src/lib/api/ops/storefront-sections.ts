@@ -2,14 +2,28 @@ import "server-only";
 import { z } from "zod";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { getStorefront, listProductCollections } from "../../data";
+import { getStorefront, listProductCollections, listStoreProducts } from "../../data";
 import { siteOrigin } from "../../email";
 import type { OperationContext } from "../../operations/context";
 import { editStorefrontDraft, parseTree } from "../../operations/storefront";
 import { storefrontPreviewLink } from "../../storefront-preview";
 import { SECTION_ORDER, type CraftTree, type SectionType } from "../../storefront-schema";
+import { layoutValues, LAYOUT_DEFAULTS, LAYOUT_FIELDS } from "../../storefront-layout";
+import {
+  newBlockId,
+  PRODUCT_BLOCK_DEFS,
+  PRODUCT_BLOCK_LIMIT,
+  PRODUCT_BLOCK_ORDER,
+  PRODUCT_PAGE_PROP,
+  productBlocks,
+  translatableBlockFields,
+  type ProductBlock,
+  type ProductBlockType,
+} from "../../product-template";
 import {
   addSection,
+  checkFieldValue,
+  describeField,
   duplicateSection,
   emptyTree,
   listSections,
@@ -63,7 +77,8 @@ async function draftOf(ctx: OperationContext): Promise<CraftTree> {
 }
 
 async function fieldRules(ctx: OperationContext): Promise<FieldRules> {
-  return { collectionIds: (await listProductCollections(ctx.store.id)).map((c) => c.id) };
+  const [collections, products] = await Promise.all([listProductCollections(ctx.store.id), listStoreProducts(ctx.store.id)]);
+  return { collectionIds: collections.map((c) => c.id), productIds: products.map((p) => p.id) };
 }
 
 function checkLocale(ctx: OperationContext, locale: Locale | undefined, field = "locale") {
@@ -230,7 +245,7 @@ export const storefrontSectionOperations: ApiOperation[] = [
     tag: "Storefront",
     summary: "Get the header, footer and search copy",
     description:
-      "The draft's site-wide copy around the sections: announcement bar, the header's navigation labels, the footer note, and the search title and description, in the default language and in every enabled language. Empty means the built-in default, or hidden for the announcement. Changes nothing.",
+      "The draft's site-wide copy around the sections: up to three rotating announcement bar messages, the header's navigation labels, the footer note and newsletter copy, and the search title and description, in the default language and in every enabled language. Empty means the built-in default, or hidden for the announcement. Changes nothing. The header and footer layout is in getStorefrontLayout.",
     input: z.object({}),
     run: async (ctx) => {
       const tree = await draftOf(ctx);
@@ -251,9 +266,13 @@ export const storefrontSectionOperations: ApiOperation[] = [
     description: `Changes some of the draft's site-wide copy; the rest keeps its value. With a locale other than the default, the values are that language's translation and an empty string clears it. ${NEXT_STEPS}`,
     input: z.object({
       announcement: z.string().max(ROOT_LIMITS.text).optional().describe("The bar above the header. Empty hides it."),
+      announcement2: z.string().max(ROOT_LIMITS.text).optional().describe("A second announcement; the bar rotates through them."),
+      announcement3: z.string().max(ROOT_LIMITS.text).optional().describe("A third announcement."),
       navShop: z.string().max(ROOT_LIMITS.text).optional().describe("The header's link to all products. Empty uses the built-in label."),
       navOrders: z.string().max(ROOT_LIMITS.text).optional().describe("The header's link to order lookup. Empty uses the built-in label."),
       footerNote: z.string().max(ROOT_LIMITS.textarea).optional().describe("A line in the footer."),
+      newsletterHeading: z.string().max(ROOT_LIMITS.text).optional().describe("The footer newsletter's heading. Empty uses the built-in one."),
+      newsletterBody: z.string().max(ROOT_LIMITS.textarea).optional().describe("The footer newsletter's line under the heading. Empty uses the built-in one."),
       metaTitle: z.string().max(ROOT_LIMITS.text).optional().describe("The home page title in search results. Empty uses the store name."),
       metaDescription: z.string().max(ROOT_LIMITS.textarea).optional().describe("The description in search results and share previews."),
       locale: sectionLocale,
@@ -305,26 +324,179 @@ export const storefrontSectionOperations: ApiOperation[] = [
     tag: "Storefront",
     summary: "Upload an image",
     description:
-      "Stores an image and returns its hosted URL. Use the URL as logoUrl in updateTheme, or in any url field of a section (imageUrl) with updateStorefrontSection. Uploading changes nothing on the storefront by itself. Send the file base64-encoded.",
+      "Stores an image or video and returns its hosted URL. Use the URL as logoUrl in updateTheme, in any image or video field of a section with updateStorefrontSection, or in a product page block. Uploading changes nothing on the storefront by itself. Send the file base64-encoded.",
     status: 201,
     input: z.object({
       kind: z
-        .enum(["logo", "section"])
-        .describe("logo: PNG, JPG, WEBP or SVG up to 8 MB. section: a PNG, JPG or WEBP photo up to 8 MB for a section's image."),
+        .enum(["logo", "section", "video"])
+        .describe("logo: PNG, JPG, WEBP or SVG up to 8 MB. section: a PNG, JPG or WEBP photo up to 8 MB for a section's image. video: an MP4 or WebM up to 12 MB for a section's video (upload larger files in the editor)."),
       contentType: z.string().min(1).describe("The file's MIME type, such as image/png."),
       fileName: z.string().max(200).default("").describe("Optional. The original file name."),
       data: z
         .string()
         .min(1)
-        .max(Math.ceil((UPLOAD_SCOPES.logo.maxBytes * 4) / 3) + 4)
+        .max(Math.ceil((12 * 1024 * 1024 * 4) / 3) + 4)
         .describe("The file's bytes, base64-encoded."),
     }),
     run: async (_ctx, input) => {
       const bytes = new Uint8Array(Buffer.from(input.data, "base64"));
-      // A section photo follows the same rules as a collection's header image.
-      const result = await storeUpload(input.kind === "logo" ? "logo" : "collection", bytes, input.contentType, input.fileName);
+      const scope = input.kind === "logo" ? "logo" : input.kind === "video" ? "sectionVideo" : "section";
+      if (input.kind !== "video" && bytes.byteLength > UPLOAD_SCOPES[scope].maxBytes) {
+        throw new ApiError(422, "invalid_request", "The file is over 8 MB.", "data");
+      }
+      const result = await storeUpload(scope, bytes, input.contentType, input.fileName);
       if (!result.ok) throw new ApiError(422, "invalid_request", result.message, "data");
       return result.image;
+    },
+  }),
+  define({
+    id: "getStorefrontLayout",
+    method: "GET",
+    path: "/storefront/layout",
+    scope: "storefront:read",
+    tag: "Storefront",
+    summary: "Get the header and footer settings",
+    description:
+      "The draft's header and footer settings: the announcement countdown, header layout (logo left or centred), sticky header, header over a full-bleed hero, mega menu with collection photos, footer layout, footer newsletter, payment methods, trust badges and social links, with every field's allowed values. Changes nothing. The copy (announcement messages, labels, footer note) is in getStorefrontSiteContent.",
+    input: z.object({}),
+    run: async (ctx) => ({
+      settings: layoutValues(await draftOf(ctx)),
+      fields: LAYOUT_FIELDS.map((field) => describeField(field, LAYOUT_DEFAULTS[field.key])),
+    }),
+  }),
+  define({
+    id: "updateStorefrontLayout",
+    method: "PATCH",
+    path: "/storefront/layout",
+    scope: "storefront:write",
+    tag: "Storefront",
+    summary: "Change the header and footer settings",
+    description: `Changes some header and footer settings of the draft; the others keep their value. Keys and allowed values are in getStorefrontLayout; every bad value is returned under error.issues. ${NEXT_STEPS}`,
+    input: z.object({
+      settings: z
+        .record(z.string(), z.union([z.string(), z.boolean()]))
+        .describe("Settings by key, such as { \"headerLayout\": \"center\", \"megaMenu\": true }."),
+    }),
+    run: async (ctx, input) => {
+      const rules = await fieldRules(ctx);
+      const issues: { field: string; message: string }[] = [];
+      const values: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(input.settings)) {
+        const field = LAYOUT_FIELDS.find((f) => f.key === key);
+        if (!field) {
+          issues.push({ field: `settings.${key}`, message: `No such setting. The settings are: ${LAYOUT_FIELDS.map((f) => f.key).join(", ")}.` });
+          continue;
+        }
+        const checked = checkFieldValue(field, value, rules);
+        if ("message" in checked) issues.push({ field: `settings.${key}`, message: checked.message });
+        else values[key] = checked.value;
+      }
+      if (Object.keys(input.settings).length === 0) issues.push({ field: "settings", message: "Name at least one setting to change." });
+      if (issues.length > 0) throw new ApiError(422, "invalid_request", issues.map((i) => `\`${i.field}\`: ${i.message}`).join(" "), issues[0].field, { issues });
+      const tree = await editStorefrontDraft(ctx, `Changed the storefront's ${Object.keys(values).join(", ")}`, (base) => {
+        const next = structuredClone(base);
+        next.ROOT.props = { ...(next.ROOT.props ?? {}), ...values };
+        return next;
+      });
+      return { settings: layoutValues(tree) };
+    },
+  }),
+  define({
+    id: "getProductPageTemplate",
+    method: "GET",
+    path: "/storefront/product-page",
+    scope: "storefront:read",
+    tag: "Storefront",
+    summary: "Get the product page template",
+    description:
+      "The blocks every product page of the draft is built from, top to bottom (gallery and buy box, description tabs, size guide, features, text, reviews, related products, recently viewed), each with its id, type and settings, plus every block type with its fields. Changes nothing. Change it with updateProductPageTemplate.",
+    input: z.object({}),
+    run: async (ctx) => ({
+      blocks: productBlocks(await draftOf(ctx)),
+      blockTypes: PRODUCT_BLOCK_ORDER.map((type) => {
+        const def = PRODUCT_BLOCK_DEFS[type];
+        return {
+          type,
+          name: def.name,
+          description: def.description,
+          single: def.single,
+          fields: def.fields.map((field) => describeField(field, def.defaults[field.key])),
+        };
+      }),
+    }),
+  }),
+  define({
+    id: "updateProductPageTemplate",
+    method: "PUT",
+    path: "/storefront/product-page",
+    scope: "storefront:write",
+    tag: "Storefront",
+    summary: "Change the product page template",
+    description: `Replaces the draft's product page template with these blocks, in order. Send every block to keep: a block with an id from getProductPageTemplate keeps its translations, one without gets a new id. The gallery and buy box block is required, and blocks marked single may appear once. Settings left out take the block type's defaults; text settings are the default language's copy, and a locale writes that language's translation instead. ${NEXT_STEPS}`,
+    input: z.object({
+      blocks: z
+        .array(
+          z.object({
+            id: z.string().max(40).optional().describe("The block's id from getProductPageTemplate, to keep its translations."),
+            type: z.enum(PRODUCT_BLOCK_ORDER as [ProductBlockType, ...ProductBlockType[]]),
+            settings: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).default({}),
+          }),
+        )
+        .min(1)
+        .max(PRODUCT_BLOCK_LIMIT),
+      locale: sectionLocale,
+    }),
+    run: async (ctx, input) => {
+      checkLocale(ctx, input.locale);
+      const rules = await fieldRules(ctx);
+      const { defaultLocale } = storeLanguages(ctx.store);
+      const translating = Boolean(input.locale && input.locale !== defaultLocale);
+      const issues: { field: string; message: string }[] = [];
+      if (!input.blocks.some((b) => b.type === "ProductMain")) issues.push({ field: "blocks", message: "Keep the ProductMain block: shoppers buy from it." });
+      for (const type of PRODUCT_BLOCK_ORDER) {
+        if (PRODUCT_BLOCK_DEFS[type].single && input.blocks.filter((b) => b.type === type).length > 1) {
+          issues.push({ field: "blocks", message: `${type} can appear once.` });
+        }
+      }
+      const tree = await editStorefrontDraft(ctx, "Changed the product page template", (base) => {
+        const current = productBlocks(base);
+        const blocks: ProductBlock[] = input.blocks.map((block, index) => {
+          const def = PRODUCT_BLOCK_DEFS[block.type];
+          const before = current.find((b) => b.id === block.id && b.type === block.type);
+          const props: Record<string, unknown> = { ...(before?.props ?? def.defaults) };
+          for (const [key, value] of Object.entries(block.settings)) {
+            const field = def.fields.find((f) => f.key === key);
+            if (!field) {
+              issues.push({ field: `blocks.${index}.settings.${key}`, message: `${block.type} has no such setting. Its settings are: ${def.fields.map((f) => f.key).join(", ") || "none"}.` });
+              continue;
+            }
+            if (translating && !translatableBlockFields(block.type).includes(key)) {
+              issues.push({ field: `blocks.${index}.settings.${key}`, message: "Only text settings are translated. Change this one without a locale." });
+              continue;
+            }
+            const checked = checkFieldValue(field, value, rules);
+            if ("message" in checked) {
+              issues.push({ field: `blocks.${index}.settings.${key}`, message: checked.message });
+            } else if (translating) {
+              props[I18N_PROP] = withTranslation(props[I18N_PROP] as FieldTranslations | undefined, input.locale!, key, String(checked.value));
+            } else {
+              props[key] = checked.value;
+            }
+          }
+          return { id: before ? before.id : newBlockId(), type: block.type, props };
+        });
+        if (issues.length > 0) throw new SectionEditError(issues);
+        const next = structuredClone(base);
+        next.ROOT.props = { ...(next.ROOT.props ?? {}), [PRODUCT_PAGE_PROP]: blocks };
+        return next;
+      }).catch((error) => {
+        if (error instanceof SectionEditError) {
+          throw new ApiError(422, "invalid_request", error.message, error.issues[0]?.field, { issues: error.issues });
+        }
+        throw error;
+      });
+      if (issues.length > 0) throw new ApiError(422, "invalid_request", issues.map((i) => `\`${i.field}\`: ${i.message}`).join(" "), issues[0].field, { issues });
+      return { blocks: productBlocks(tree) };
     },
   }),
 ];

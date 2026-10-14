@@ -10,6 +10,7 @@ import type { StorePolicies } from "./policies";
 import type { ShopTextOverrides } from "./shop-text";
 import type { FieldTranslations } from "./translations";
 import type { CurrencyRateSetting, FxSnapshot } from "./currency";
+import type { StoreDesign } from "./store-design";
 
 export type StoreRole = "store_admin" | "catalog_manager" | "order_manager" | "viewer";
 export type PlatformRole = "platform_admin" | "agency_admin" | "agency_member";
@@ -168,6 +169,8 @@ export interface Store {
   status: "active" | "archived";
   logoUrl: string | null;
   theme: ThemeKey;
+  /** What the store changed on top of its theme preset; read it through `resolveDesign()`. */
+  design?: StoreDesign | null;
   defaultLanguage: string;
   /**
    * The languages the storefront and gift portals are available in. Absent on
@@ -549,7 +552,15 @@ export interface StoredImage {
 }
 
 /** Upload kinds, each with its own permission check and size/format rules. */
-export type UploadScope = "artwork" | "mockup" | "logo" | "collection" | "shopperArtwork" | "shopperPreview";
+export type UploadScope =
+  | "artwork"
+  | "mockup"
+  | "logo"
+  | "collection"
+  | "section"
+  | "sectionVideo"
+  | "shopperArtwork"
+  | "shopperPreview";
 
 /** Where artwork sits inside a print area, as fractions of the print area box. */
 export interface ArtworkPlacement {
@@ -1084,6 +1095,20 @@ export interface Customer {
   /** Set on customers brought over from another platform, by the import that last wrote them. */
   imported?: { platform: "shopify"; importId: string } | null;
   anonymisedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** An address that signed up for a store's email from the storefront or the Storefront API. */
+export interface NewsletterSubscriber {
+  id: string;
+  storeId: string;
+  /** Lower-cased and trimmed, one record per address and store. */
+  email: string;
+  locale: string;
+  subscribed: boolean;
+  /** Where it was given: footer, section or api. */
+  source: string;
   createdAt: string;
   updatedAt: string;
 }

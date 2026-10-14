@@ -34,6 +34,10 @@ export const UPLOAD_SCOPES: Record<UploadScope, UploadScopeRules> = {
   logo: { types: [...RASTER, "image/svg+xml"], maxBytes: 8 * 1024 * 1024, requireDimensions: false },
   // A collection's header image on the storefront.
   collection: { types: RASTER, maxBytes: 8 * 1024 * 1024, requireDimensions: true },
+  // A photo in a storefront section. The editor resizes it in the browser first.
+  section: { types: RASTER, maxBytes: 8 * 1024 * 1024, requireDimensions: true },
+  // A storefront section's background or feature video.
+  sectionVideo: { types: ["video/mp4", "video/webm"], maxBytes: 50 * 1024 * 1024, requireDimensions: false },
   // Artwork a shopper attaches to a personalised line on the storefront.
   shopperArtwork: { types: RASTER, maxBytes: 25 * 1024 * 1024, requireDimensions: true },
   shopperPreview: { types: RASTER, maxBytes: 8 * 1024 * 1024, requireDimensions: false },
@@ -82,7 +86,7 @@ export async function storeUpload(
     };
   }
 
-  const meta = inspectImage(bytes);
+  const meta = type.startsWith("video/") ? { width: 0, height: 0, hasAlpha: false } : inspectImage(bytes);
   if (rules.requireDimensions && (!meta.width || !meta.height)) {
     return { ok: false, status: 422, message: "That file could not be read as an image." };
   }

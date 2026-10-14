@@ -160,7 +160,8 @@ try {
   await db.insertOne(COLLECTIONS.productCollections, { id: `col_${suffix}`, storeId: store.id, name: "Summer", handle: "summer", productIds: [] });
 
   const types = await run("listStorefrontSectionTypes");
-  assert.equal(types.data.length, 8);
+  assert.equal(types.data.length, 23);
+  assert.ok(types.data.find((t) => t.type === "ImageHero").fields.some((f) => f.key === "imageUrlFocal" && f.type === "focal"), "image fields carry a focal point");
   assert.ok(types.data.find((t) => t.type === "ProductGrid").fields.find((f) => f.key === "limit").max === 12);
 
   let { sections } = await run("listStorefrontSections");
@@ -230,6 +231,35 @@ try {
   const previewDe = await run("previewStorefront", { locale: "de" });
   assert.match(new URL(previewDe.url).pathname, /\/de\/preview$/);
 
+  // Header and footer settings, checked like section fields.
+  const layout = await run("updateStorefrontLayout", { settings: { headerLayout: "center", megaMenu: true } });
+  assert.equal(layout.settings.headerLayout, "center");
+  assert.equal(layout.settings.headerSticky, true, "settings left out keep their value");
+  refusal = await refused("updateStorefrontLayout", { settings: { headerLayout: "middle", socialX: "http://x.com/a", nope: true } });
+  assert.deepEqual(refusal.details.issues.map((i) => i.field).sort(), ["settings.headerLayout", "settings.nope", "settings.socialX"]);
+
+  // The product page template: the gallery and buy box stays, blocks keep their ids.
+  const template = await run("getProductPageTemplate");
+  assert.equal(template.blocks[0].type, "ProductMain");
+  assert.ok(template.blockTypes.length >= 8);
+  const reordered = await run("updateProductPageTemplate", {
+    blocks: [
+      { id: template.blocks[0].id, type: "ProductMain", settings: { galleryLayout: "grid" } },
+      { type: "SizeGuide", settings: { title: "Fit" } },
+    ],
+  });
+  assert.equal(reordered.blocks[0].id, template.blocks[0].id);
+  assert.equal(reordered.blocks[0].props.galleryLayout, "grid");
+  assert.equal(reordered.blocks[1].props.title, "Fit");
+  refusal = await refused("updateProductPageTemplate", { blocks: [{ type: "Reviews" }] });
+  assert.equal(refusal.status, 422, "the gallery and buy box is required");
+  const translated = await run("updateProductPageTemplate", {
+    blocks: reordered.blocks.map((b) => ({ id: b.id, type: b.type, settings: b.type === "SizeGuide" ? { title: "Passform" } : {} })),
+    locale: "de",
+  });
+  assert.equal(translated.blocks[1].props.title, "Fit", "a translation leaves the source alone");
+  assert.equal(translated.blocks[1].props.i18n.de.title.value, "Passform");
+
   refusal = await refused("uploadStorefrontImage", { kind: "section", contentType: "text/plain", data: Buffer.from("hello").toString("base64") });
   assert.equal(refusal.field, "data");
 
@@ -237,6 +267,9 @@ try {
   assert.deepEqual(Object.keys(theme).slice(0, 2), ["theme", "logoUrl"], "every theme setting is read");
   assert.equal(operation("updateTheme").input.safeParse({}).success, true, "updateTheme is partial");
   assert.equal(operation("updateTheme").input.safeParse({ logoUrl: "https://evil.example/x.png" }).success, false, "logos come from the asset storage");
+  assert.equal(operation("updateTheme").input.safeParse({ colors: { primary: "red" } }).success, false, "colours are #rrggbb");
+  assert.ok(theme.fonts.length >= 20 && theme.pairings.length > 0, "the curated fonts and pairings are listed");
+  assert.ok(theme.contrast.text.ratio > 1);
 } finally {
   await db.deleteMany(COLLECTIONS.storefronts, { storeId: store.id });
   await db.deleteMany(COLLECTIONS.productCollections, { storeId: store.id });

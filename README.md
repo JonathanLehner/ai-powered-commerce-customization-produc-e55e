@@ -68,14 +68,29 @@ gifting, orders, team, guided setup, activity.
   alternates and a footer language switcher. Signed-in users pick their language
   in the user menu; otherwise the browser's language is used, then English.
   `npm run messages-check` fails on a missing or empty translation.
-- **Craft.js storefront editor.** Eight approved section types with generated
+- **Craft.js storefront editor.** Twenty-three section types (`SECTION_DEFS`:
+  heroes over photo or video, slideshow, countdown, product grid and carousel,
+  featured product, collection tiles, columns, story, impact numbers, gallery,
+  video, logo strip, testimonials, FAQ, contact and more), each with background,
+  spacing, alignment and width controls, image upload with a focal point (the
+  browser resizes photos before they go to the platform upload), generated
   settings panels, page reordering, desktop/tablet/phone preview, version history,
   publish, and revert-draft-to-published. The published tree is rendered
   server-side on the storefront. A language switcher edits the shop in any
   enabled language: fields without a translation show a "Not translated" badge,
   "Translate missing" fills them with the platform text model (marked machine
   translated until a person saves them, never overwriting a translation), and
-  the Products and Gift portals tabs translate those records. The "Shop text"
+  the Products and Gift portals tabs translate those records. The Design tab
+  sets the store's tokens on top of its preset (`src/lib/store-design.ts`):
+  brand colours with automatic 4.5:1 text contrast, heading and body fonts from
+  22 self-hosted web fonts with pairings, corners, button style, density, light
+  or dark, and product photo shape. The header and footer panel adds rotating
+  announcements with a countdown, logo left or centred, sticky or transparent
+  header, a mega menu, footer layouts, newsletter, social links, payment and
+  trust badges (`src/lib/storefront-layout.ts`). The Product page tab arranges
+  the blocks every product page is built from (`src/lib/product-template.ts`).
+  A store that has not published a page gets one generated from its products
+  and name (`src/lib/storefront-defaults.ts`). The "Shop text"
   panel overrides any built-in shopper string per store and language; overrides
   are merged over the next-intl messages at request time (`src/lib/shop-text.ts`,
   `npm run translation-check`).
@@ -205,8 +220,9 @@ gifting, orders, team, guided setup, activity.
   (`/api/v1/stores/{storeId}`, MCP at `/api/mcp`) covers every workspace edit,
   including section-by-section storefront editing of the draft
   (list/add/update/move/duplicate/remove sections, validated against
-  `SECTION_DEFS`), a signed draft preview link, theme settings and image
-  uploads, API and platform keys, notifications, workspace language, billing
+  `SECTION_DEFS`), header and footer settings, the product page template, a
+  signed draft preview link, design tokens (`updateTheme`), image and video
+  uploads, newsletter sign-ups, API and platform keys, notifications, workspace language, billing
   links and plan enquiries. The public Storefront API (`/api/v1/shop/{storeHandle}`,
   MCP for shopping agents at `/api/mcp/shop?store=…`) runs catalogue reads,
   carts, checkout, order lookup, reviews and shopper accounts, anonymously or

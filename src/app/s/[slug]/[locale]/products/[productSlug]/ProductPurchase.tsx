@@ -66,13 +66,26 @@ export interface PurchaseProduct {
   base: string;
 }
 
+/** How the store's product page template lays out the gallery and buy box. */
+export interface PurchaseLayout {
+  gallery: "thumbnails" | "grid" | "stacked";
+  side: "left" | "right";
+  sticky: boolean;
+  /** A line under the add to basket button, such as a returns promise. */
+  trustNote: string;
+}
+
+const DEFAULT_LAYOUT: PurchaseLayout = { gallery: "thumbnails", side: "left", sticky: false, trustNote: "" };
+
 export function ProductPurchase({
   product,
   heading,
+  layout = DEFAULT_LAYOUT,
 }: {
   product: PurchaseProduct;
   /** The product's name and tags, rendered beside the gallery. */
   heading?: React.ReactNode;
+  layout?: PurchaseLayout;
 }) {
   const t = useTranslations("storefront.purchase");
   const artworkCopy = useTranslations("storefront.artwork");
@@ -396,8 +409,8 @@ export function ProductPurchase({
 
   return (
     <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
-      <div>
-        <div className="overflow-hidden rounded-xl border border-border bg-muted">
+      <div className={layout.side === "right" ? "lg:order-2" : ""}>
+        <div className="overflow-hidden rounded-[var(--radius)] border border-border bg-muted">
           <div ref={canvasRef} className="@container relative" style={{ aspectRatio: "1 / 1" }}>
             {activeMockup ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -476,8 +489,8 @@ export function ProductPurchase({
           </div>
         </div>
 
-        {gallery.length > 1 ? (
-          <ul className="mt-3 flex gap-2.5">
+        {gallery.length > 1 && layout.gallery === "thumbnails" ? (
+          <ul className="mt-3 flex flex-wrap gap-2.5">
             {gallery.map((mockup) => (
               <li key={mockup.id}>
                 <button
@@ -485,7 +498,7 @@ export function ProductPurchase({
                   onClick={() => setActiveView(mockup.view)}
                   aria-pressed={activeMockup === mockup.url}
                   className={classNames(
-                    "overflow-hidden rounded-lg border transition-colors",
+                    "overflow-hidden rounded-[var(--radius)] border transition-colors",
                     activeMockup === mockup.url
                       ? "border-primary ring-1 ring-primary"
                       : "border-border hover:border-foreground/25",
@@ -503,6 +516,32 @@ export function ProductPurchase({
           </ul>
         ) : null}
 
+        {/* The grid and stacked layouts show every other photo at size; picking
+            one still puts it in the main frame, where personalisation is drawn. */}
+        {gallery.length > 1 && layout.gallery !== "thumbnails" ? (
+          <ul className={classNames("mt-3 grid gap-3", layout.gallery === "grid" ? "grid-cols-2" : "grid-cols-1")}>
+            {gallery
+              .filter((mockup) => mockup.url !== activeMockup)
+              .map((mockup) => (
+                <li key={mockup.id}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView(mockup.view)}
+                    className="block w-full overflow-hidden rounded-[var(--radius)] border border-border bg-muted hover:border-foreground/25"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={mockup.url}
+                      alt={t("viewAlt", { view: mockup.view })}
+                      loading="lazy"
+                      className="aspect-square w-full object-cover"
+                    />
+                  </button>
+                </li>
+              ))}
+          </ul>
+        ) : null}
+
         {artworkPreview || text ? (
           <p className="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
             {t("livePreview")}
@@ -510,6 +549,7 @@ export function ProductPurchase({
         ) : null}
       </div>
 
+      <div className={layout.sticky ? "lg:sticky lg:top-24 lg:self-start" : ""}>
       <ActionForm
         // Cleared here rather than in the action: state set inside the action is
         // held back until the save has finished.
@@ -832,6 +872,8 @@ export function ProductPurchase({
           </>
         )}
       </ActionForm>
+      {layout.trustNote ? <p className="mt-3 text-sm text-muted-foreground">{layout.trustNote}</p> : null}
+      </div>
       {added ? <AddedPanel line={added} base={product.base} onClose={() => setAdded(null)} /> : null}
     </div>
   );

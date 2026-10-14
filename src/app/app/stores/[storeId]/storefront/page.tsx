@@ -3,7 +3,7 @@ import { revertStorefront } from "@/app/actions/storefront";
 import { Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import type { StorefrontContext } from "@/components/sections";
-import { collectionFields, localizeCollection } from "@/lib/collections";
+import { collectionFields } from "@/lib/collections";
 import { getStorefront, listGiftCatalogues, listProductCollections, listStoreProducts } from "@/lib/data";
 import { formatMinorUnits } from "@/i18n/format";
 import { isLocale, LOCALES } from "@/i18n/locales";
@@ -11,9 +11,11 @@ import { shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { requireStoreAccess } from "@/lib/session";
 import { flattenShopText, shopTextEntries } from "@/lib/shop-text";
+import { storefrontContext } from "@/lib/storefront-context";
+import { generatedHomeSections } from "@/lib/storefront-defaults";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { liveVersionId, summarizeSections, versionKind } from "@/lib/storefront-versions";
-import { localizeProduct, productFields } from "@/lib/translations";
+import { productFields } from "@/lib/translations";
 import type { ShopTextData } from "./ShopTextSheet";
 import { StorefrontEditor } from "./StorefrontEditor";
 
@@ -46,31 +48,17 @@ export default async function StorefrontEditorPage({
         shopperMessages(store, locale),
         getFormatter({ locale }),
       ]);
-      const context: StorefrontContext = {
-        storeName: store.name,
-        clientName: store.clientName,
+      const context: StorefrontContext = storefrontContext({
+        store,
+        products: published,
+        collections,
+        locale,
+        defaultLocale,
         base: `/s/${store.slug}`,
-        logoUrl: store.logoUrl,
-        theme: store.theme,
         preview: true,
         t: merged.storefront.sections,
-        products: published
-          .map((product) => localizeProduct(product, locale, defaultLocale))
-          .map((p) => ({
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            price: formatMinorUnits(format, p.price, p.currency),
-            imageUrl: p.mockups[0]?.url ?? null,
-            tagline: p.description.split("\n")[0].slice(0, 110),
-          })),
-        collections: collections.map((c) => ({
-          id: c.id,
-          handle: c.handle,
-          productIds: c.productIds,
-          name: localizeCollection(c, locale, defaultLocale).name,
-        })),
-      };
+        price: (p) => formatMinorUnits(format, p.price, p.currency),
+      });
       const storefrontMessages = builtIn.storefront as unknown as Record<string, unknown>;
       return {
         locale,
@@ -94,10 +82,20 @@ export default async function StorefrontEditorPage({
     overrides: Object.fromEntries(locales.map((locale) => [locale, flattenShopText(store.shopText?.[locale])])),
   };
 
+  // A store with no page yet starts from the one its storefront shows: built
+  // from its products and name, in its default language.
+  const defaultContext = (perLocale.find((entry) => entry.locale === defaultLocale) ?? perLocale[0]).context;
   const tree =
     storefront?.draft && Object.keys(storefront.draft).length > 0
       ? (storefront.draft as Record<string, unknown>)
-      : (treeFromSections([{ type: "HeroSection" }, { type: "ProductGrid" }]) as unknown as Record<string, unknown>);
+      : (treeFromSections(
+          generatedHomeSections({
+            storeName: store.name,
+            products: defaultContext.products,
+            collections,
+            copy: defaultContext.t.generated,
+          }),
+        ) as unknown as Record<string, unknown>);
 
   const [pages, t, untitled] = await Promise.all([
     getTranslations("pages.store"),
@@ -178,6 +176,7 @@ export default async function StorefrontEditorPage({
         }))}
         liveVersionId={liveVersionId(history, storefront?.published)}
         liveSections={storefront?.published ? summarizeSections(storefront.published) : null}
+        design={{ theme: store.theme, design: store.design ?? {} }}
       />
     </div>
   );

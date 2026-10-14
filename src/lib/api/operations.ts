@@ -46,6 +46,24 @@ import {
   updateZone,
 } from "../operations/shipping";
 import { MAX_DELIVERY_DAYS, MAX_RATES_PER_ZONE, MAX_TAX_RATE, MAX_TIERS, RATE_KINDS } from "../shipping";
+import type { NewsletterSubscriber } from "../types";
+import {
+  BODY_FONT_KEYS,
+  BUTTON_STYLES,
+  COLOUR_KEYS,
+  contrastReport,
+  DENSITIES,
+  FONT_KEYS,
+  FONT_PAIRINGS,
+  FONTS,
+  MODES,
+  PRODUCT_IMAGES,
+  RADII,
+  resolveDesign,
+  type ColourKey,
+  type FontKey,
+  type StoreDesign,
+} from "../store-design";
 import { renameStore, saveBranding, saveCurrencies, saveLanguages, savePolicies, saveSupport } from "../operations/store-settings";
 import {
   publishStorefront,
@@ -1264,6 +1282,21 @@ const customers = [
       ),
   }),
   define({
+    id: "listNewsletterSubscribers",
+    method: "GET",
+    path: "/newsletter-subscribers",
+    scope: "customers:read",
+    tag: "Customers",
+    summary: "List newsletter sign-ups",
+    description: "Addresses that signed up for the store's email from the storefront footer, an Email capture section or the Storefront API, newest first, with the language they signed up in.",
+    input: z.object({ ...paging }),
+    run: async (ctx, input) =>
+      page(
+        await pageRecords<NewsletterSubscriber>(COLLECTIONS.newsletterSubscribers, { storeId: ctx.store.id }, "createdAt", input.limit, decodeCursor(input.cursor)),
+        ({ id, email, locale, source, createdAt, updatedAt }) => ({ id, email, locale, source, createdAt, updatedAt }),
+      ),
+  }),
+  define({
     id: "getCustomer",
     method: "GET",
     path: "/customers/{customerId}",
@@ -1431,17 +1464,48 @@ function versionSummary(version: { id: string; label: string; kind?: string; sav
  * updateTheme takes any of them, so a setting added here and to saveBranding
  * reaches the API and the MCP tools without another change.
  */
+const hex = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/, "Use a colour as #rrggbb.")
+  .nullable();
 const THEME_SETTINGS = {
-  theme: z.enum(Object.keys(THEMES) as [ThemeKey, ...ThemeKey[]]).describe("The storefront theme, from themes in getTheme."),
+  theme: z
+    .enum(Object.keys(THEMES) as [ThemeKey, ...ThemeKey[]])
+    .describe("The preset the design starts from, from presets in getTheme. Changing it drops the design changes made on top of the old one, unless design settings are sent in the same call."),
   logoUrl: assetUrl.nullable().describe("The logo: a URL from uploadStorefrontImage, or null to remove it."),
+  colors: z
+    .object(Object.fromEntries(COLOUR_KEYS.map((key) => [key, hex.optional()])) as Record<ColourKey, z.ZodOptional<typeof hex>>)
+    .partial()
+    .describe("Brand colours as #rrggbb: primary (buttons, links, accents), secondary (badges, highlights), background, surface (panels and alternate sections) and text. null puts one back to the preset's. Text colours are adjusted on the storefront until they reach 4.5:1 contrast."),
+  headingFont: z.enum(FONT_KEYS as [FontKey, ...FontKey[]]).describe("The heading font, from fonts in getTheme."),
+  bodyFont: z.enum(BODY_FONT_KEYS as [FontKey, ...FontKey[]]).describe("The body font, from fonts in getTheme (display fonts are for headings only)."),
+  radius: z.enum(RADII).describe("Corner rounding of buttons, cards and photos."),
+  buttonStyle: z.enum(BUTTON_STYLES).describe("solid, outline or pill buttons."),
+  density: z.enum(DENSITIES).describe("How much room sections have: compact, comfortable or airy."),
+  mode: z.enum(MODES).describe("A light or dark storefront. Dark swaps the preset's neutrals unless colours are set."),
+  productImage: z.enum(PRODUCT_IMAGES).describe("The shape product photos are cropped to on cards: square, portrait (4:5) or landscape (4:3)."),
 };
 
-function themeView(store: { theme: ThemeKey; logoUrl: string | null }) {
-  const settings = Object.fromEntries(Object.keys(THEME_SETTINGS).map((key) => [key, store[key as keyof typeof THEME_SETTINGS]]));
+function themeView(store: { theme: ThemeKey; logoUrl: string | null; design?: StoreDesign | null }) {
+  const design = resolveDesign(store);
+  const own = store.design ?? {};
   return {
-    ...settings,
-    current: THEMES[store.theme],
-    themes: Object.entries(THEMES).map(([key, theme]) => ({ key, name: theme.name, description: theme.description, accent: theme.accent })),
+    theme: store.theme,
+    logoUrl: store.logoUrl,
+    colors: design.colors,
+    headingFont: design.headingFont,
+    bodyFont: design.bodyFont,
+    radius: design.radius,
+    buttonStyle: design.buttonStyle,
+    density: design.density,
+    mode: design.mode,
+    productImage: design.productImage,
+    /** What differs from the preset. */
+    changed: own,
+    contrast: contrastReport(design),
+    presets: Object.entries(THEMES).map(([key, theme]) => ({ key, name: theme.name, description: theme.description, accent: theme.accent })),
+    fonts: FONT_KEYS.map((key) => ({ key, name: FONTS[key].name, category: FONTS[key].category, body: BODY_FONT_KEYS.includes(key) })),
+    pairings: FONT_PAIRINGS,
   };
 }
 
@@ -1512,7 +1576,7 @@ const storefront = [
     tag: "Storefront",
     summary: "Get the theme",
     description:
-      "Every theme setting of the storefront (the theme and the logo), the current theme's colours and type, and the themes it can use. Changes nothing. Change settings with updateTheme.",
+      "Every design setting of the storefront: the preset, logo, brand colours, heading and body fonts, corners, button style, density, light or dark, and product image shape, with what differs from the preset, a contrast check, and the presets, fonts and font pairings it can use. Changes nothing. Change settings with updateTheme.",
     input: z.object({}),
     run: async (ctx) => themeView(ctx.store),
   }),
@@ -1524,13 +1588,24 @@ const storefront = [
     tag: "Storefront",
     summary: "Change theme settings",
     description:
-      "Changes some theme settings; the others keep their value. The theme and logo apply to the live storefront straight away, without publishStorefront. Undo by sending the previous values from getTheme. Upload a logo first with uploadStorefrontImage.",
-    actions: ["stores#saveBranding"],
+      "Changes some design settings; the others keep their value. They apply to the live storefront straight away, without publishStorefront. Undo by sending the previous values from getTheme. Upload a logo first with uploadStorefrontImage.",
+    actions: ["stores#saveBranding", "storefront#saveStoreDesign"],
     input: z.object(THEME_SETTINGS).partial(),
-    run: async (ctx, input) => {
+    run: async (ctx, { theme, logoUrl, colors, ...tokens }) => {
+      const nextTheme = theme ?? ctx.store.theme;
+      const sentDesign = colors !== undefined || Object.values(tokens).some((v) => v !== undefined);
+      // A new preset without design settings starts clean from it.
+      const base: StoreDesign = nextTheme !== ctx.store.theme && !sentDesign ? {} : { ...(ctx.store.design ?? {}) };
+      const mergedColors = { ...(base.colors ?? {}) } as Record<string, string>;
+      for (const [key, value] of Object.entries(colors ?? {})) {
+        if (value === null) delete mergedColors[key];
+        else if (value !== undefined) mergedColors[key] = value;
+      }
+      const defined = Object.fromEntries(Object.entries(tokens).filter(([, v]) => v !== undefined));
       const saved = await saveBranding(ctx, {
-        theme: input.theme ?? ctx.store.theme,
-        logoUrl: input.logoUrl === undefined ? ctx.store.logoUrl : input.logoUrl,
+        theme: nextTheme,
+        logoUrl: logoUrl === undefined ? ctx.store.logoUrl : logoUrl,
+        design: { ...base, ...defined, colors: mergedColors },
       });
       return themeView(saved);
     },

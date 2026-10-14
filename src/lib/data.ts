@@ -52,6 +52,7 @@ export const COLLECTIONS = {
   quoteRequests: "quote_requests",
   discounts: "discount_codes",
   customers: "customers",
+  newsletterSubscribers: "newsletter_subscribers",
   productCollections: "product_collections",
   notifications: "notifications",
   notificationDigests: "notification_digests",

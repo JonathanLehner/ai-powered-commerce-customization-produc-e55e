@@ -46,6 +46,8 @@ export const siteMetadata: Metadata = {
 export function Document({
   lang = "en",
   style,
+  className = "",
+  attributes,
   children,
 }: {
   /** BCP-47 tag announced to browsers and screen readers. */
@@ -57,15 +59,21 @@ export function Document({
    * colours, type and hairlines without a per-component override.
    */
   style?: React.CSSProperties;
+  /** Extra classes for `<html>`: a storefront adds its web fonts' variables. */
+  className?: string;
+  /** `data-*` attributes for `<html>`, such as a storefront's button style. */
+  attributes?: Record<`data-${string}`, string>;
   children: React.ReactNode;
 }) {
   return (
     <html
       lang={lang}
       style={style}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      {...attributes}
+      className={`${geistSans.variable} ${geistMono.variable} ${className} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-ink">
+      {/* A themed document paints its own background, so a dark storefront has no white overscroll. */}
+      <body className={`min-h-full flex flex-col text-ink ${style ? "bg-background" : "bg-white"}`}>
         <BaseIntlProvider messages={{ common: en.common }}>{children}</BaseIntlProvider>
       </body>
     </html>

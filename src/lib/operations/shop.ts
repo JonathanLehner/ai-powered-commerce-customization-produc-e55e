@@ -57,6 +57,7 @@ import {
   type StoreProduct,
   type StoredImage,
 } from "../types";
+import { customerKey } from "../customers";
 import { formatMoney, newId, orderCode } from "../util";
 import type { OperationErrorCode } from "./context";
 
@@ -1041,4 +1042,40 @@ export async function submitReview(
   await recordReview(store, order, item, review, locale);
   revalidatePath(`/s/${store.slug}`, "layout");
   return { status: "success", message: t("reviews.thanks") };
+}
+
+/* ---------------------------------------------------------------- newsletter */
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * Signs an address up for the store's email. Signing up again keeps the one
+ * record and only refreshes it, so a double click or a resubmitted form never
+ * makes two. A customer already on file gets the same choice on their record.
+ */
+export async function subscribeToNewsletter(
+  store: Store | null,
+  copy: Pick<ShopperCopy, "t" | "locale">,
+  input: { email: string; source: string },
+): Promise<ShopRefusal | ShopDone> {
+  const { t, locale } = copy;
+  if (!store || store.status !== "active") return refuse(t("sections.newsletterClosed"), undefined, "conflict");
+  const email = customerKey(input.email);
+  if (email.length > 254 || !EMAIL.test(email)) return refuse(t("sections.newsletterInvalid"), "email");
+  const now = new Date().toISOString();
+  try {
+    await db.upsertOne(
+      COLLECTIONS.newsletterSubscribers,
+      { storeId: store.id, email },
+      {
+        $set: { locale, subscribed: true, updatedAt: now },
+        $setOnInsert: { id: newId("nws"), storeId: store.id, email, source: input.source.slice(0, 40), createdAt: now },
+      },
+    );
+  } catch (error) {
+    // Two sign-ups of one address at the same instant: the unique index keeps one.
+    if ((error as { code?: number }).code !== 11000) throw error;
+  }
+  await db.updateOne(COLLECTIONS.customers, { storeId: store.id, email }, { $set: { marketing: { subscribed: true, updatedAt: now } } });
+  return { status: "success", message: t("sections.newsletterThanks") };
 }

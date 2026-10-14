@@ -1498,7 +1498,8 @@
       "nothingToTranslate": "Allt är redan översatt.",
       "translated": "{count, plural, one {# fält översatt.} other {# fält översatta.}} Granska innan du publicerar.",
       "translateFailed": "Översättningen misslyckades. Försök igen.",
-      "seoSaved": "SEO-uppgifter sparade."
+      "seoSaved": "SEO-uppgifter sparade.",
+      "designSaved": "Designen sparad."
     },
     "admin": {
       "supplierGone": "Leverantören hittades inte.",
@@ -3064,15 +3065,15 @@
     "sections": {
       "HeroSection": {
         "name": "Hero",
-        "description": "Inledning i full bredd med uppmaning och huvudbild.",
+        "description": "Inledande text med uppmaning till handling och en bild intill.",
         "fields": {
           "eyebrow": "Överrubrik",
           "headline": "Rubrik",
           "body": "Stödtext",
           "ctaLabel": "Knapptext",
           "ctaHref": "Knappens mål",
-          "imageUrl": "Bild-URL",
-          "imageUrlHelp": "Lämna tomt för att använda butikens logotyp.",
+          "imageUrl": "Bild",
+          "imageUrlHelp": "Lämna tom för en textbaserad hero.",
           "align": "Justering",
           "tone": "Ton"
         }
@@ -3118,7 +3119,7 @@
         "fields": {
           "heading": "Rubrik",
           "body": "Brödtext",
-          "imageUrl": "Bild-URL",
+          "imageUrl": "Bild",
           "imageSide": "Bildens placering"
         }
       },
@@ -3148,6 +3149,72 @@
           "body": "Brödtext",
           "buttonLabel": "Knapptext"
         }
+      },
+      "ImageHero": {
+        "name": "Bild- eller videohero",
+        "description": "Helbild eller video med rubrik över."
+      },
+      "Slideshow": {
+        "name": "Bildspel",
+        "description": "Roterande banners för lanseringar, kampanjer och kollektioner."
+      },
+      "Countdown": {
+        "name": "Nedräkning",
+        "description": "En banner som räknar ner till en lansering eller händelse."
+      },
+      "ProductCarousel": {
+        "name": "Produktkarusell",
+        "description": "En svepbar rad med produkter, som nyheter eller en kollektion.",
+        "fields": {
+          "layout": "Rubrikposition"
+        }
+      },
+      "FeaturedProduct": {
+        "name": "Utvald produkt",
+        "description": "En produkt med bilder, alternativ och en lägg i kundkorg-knapp."
+      },
+      "CollectionTiles": {
+        "name": "Kollektionsbrickor",
+        "description": "Handla efter kategori: stora bildbrickor som öppnar en kollektion.",
+        "fields": {
+          "ratio": "Brickform"
+        }
+      },
+      "MultiColumn": {
+        "name": "Kolumner",
+        "description": "Två till fyra kolumner med en ikon eller bild vardera."
+      },
+      "Story": {
+        "name": "Berättelse",
+        "description": "Om oss eller vår vision: en längre text med bilder, en viktig siffra och en avslutning."
+      },
+      "Stats": {
+        "name": "Nyckeltal",
+        "description": "Upp till fyra viktiga siffror: påverkan, gemenskap, levererade ordrar."
+      },
+      "Gallery": {
+        "name": "Galleri",
+        "description": "En bildsamling med foton, vart och ett med valfri bildtext och länk."
+      },
+      "VideoSection": {
+        "name": "Video",
+        "description": "En uppladdad video eller en länk till YouTube eller Vimeo, spelas upp vid klick."
+      },
+      "LogoStrip": {
+        "name": "Logotypremsa",
+        "description": "Logotyper för partner, press eller kunder i en rad."
+      },
+      "TestimonialCarousel": {
+        "name": "Referenskarusell",
+        "description": "Flera kundcitat att svepa igenom."
+      },
+      "Faq": {
+        "name": "FAQ",
+        "description": "Frågor och svar som öppnas en i taget."
+      },
+      "Contact": {
+        "name": "Kontakt och platser",
+        "description": "Adress, öppettider, e-post och telefon, med vägbeskrivning."
       }
     },
     "options": {
@@ -3162,7 +3229,45 @@
       "light": "Ljus",
       "dark": "Mörk",
       "right": "Höger",
-      "all": "Alla produkter"
+      "all": "Alla produkter",
+      "auto": "Automatisk",
+      "surface": "Yta",
+      "primary": "Primärfärg",
+      "secondary": "Sekundärfärg",
+      "inverse": "Inverterad",
+      "custom": "Anpassad färg",
+      "image": "Bild",
+      "none": "Ingen",
+      "small": "Liten",
+      "medium": "Medium",
+      "large": "Stor",
+      "narrow": "Smal",
+      "normal": "Normal",
+      "wide": "Bred",
+      "full": "Full bredd",
+      "screen": "Helskärm",
+      "bottom-left": "Nedre vänster",
+      "bottom-center": "Nedre mitten",
+      "top": "Ovanför",
+      "side": "Bredvid",
+      "square": "Kvadratisk",
+      "portrait": "Stående",
+      "landscape": "Liggande",
+      "grid": "Rutnät",
+      "carousel": "Karusell",
+      "icon": "Ikoner",
+      "number": "Siffror",
+      "mosaic": "Mosaik",
+      "16:9": "Bredformat",
+      "4:3": "Klassisk",
+      "1:1": "Kvadratisk",
+      "9:16": "Vertikal",
+      "columns": "Kolumner",
+      "centered": "Centrerad",
+      "thumbnails": "Stor bild med miniatyrer",
+      "stacked": "Staplade bilder",
+      "tabs": "Flikar",
+      "accordion": "Dragspel"
     },
     "revert": "Återställ utkastet till publicerad version",
     "noProductsTitle": "Inga publicerade produkter ännu",
@@ -3228,7 +3333,9 @@
       "page": "Sida",
       "products": "Produkter",
       "portals": "Presentportaler",
-      "collections": "Kollektioner"
+      "collections": "Kollektioner",
+      "productPage": "Produktsida",
+      "design": "Design"
     },
     "site": {
       "title": "Sidhuvud och sidfot",
@@ -3237,7 +3344,11 @@
         "announcement": "Meddelandefält",
         "navShop": "Etikett för butikslänk",
         "navOrders": "Etikett för orderstatuslänk",
-        "footerNote": "Notis i sidfoten"
+        "footerNote": "Notis i sidfoten",
+        "announcement2": "Andra meddelandet",
+        "announcement3": "Tredje meddelandet",
+        "newsletterHeading": "Rubrik nyhetsbrev (sidfot)",
+        "newsletterBody": "Text nyhetsbrev (sidfot)"
       },
       "shipDays": "Skickas inom (arbetsdagar)",
       "shipDaysHint": "Visas på varje produktsida och i meddelandefältet när det är tomt.",
@@ -3306,6 +3417,303 @@
       "reset": "Återställ standard",
       "noMatch": "Ingen text matchar din sökning.",
       "failed": "Det gick inte att spara. Försök igen."
+    },
+    "categories": {
+      "hero": "Startsektioner",
+      "products": "Produkter",
+      "content": "Innehåll",
+      "media": "Media",
+      "social": "Sociala bevis",
+      "conversion": "Kampanjer och anmälan"
+    },
+    "style": "Stil",
+    "fields": {
+      "secondaryLabel": "Andra knapptext",
+      "secondaryHref": "Andra knappens länk",
+      "background": "Bakgrund",
+      "backgroundColor": "Bakgrundsfärg",
+      "backgroundImage": "Bakgrundsbild",
+      "spacing": "Avstånd",
+      "width": "Bredd",
+      "eyebrow": "Överrubrik",
+      "headline": "Rubrik",
+      "body": "Text",
+      "ctaLabel": "Knapptext",
+      "ctaHref": "Knapplänk",
+      "imageUrl": "Bild",
+      "videoUrl": "Bakgrundsvideo",
+      "height": "Höjd",
+      "position": "Textposition",
+      "overlay": "Bildmörkning (%)",
+      "align": "Justering",
+      "autoplay": "Spela upp automatiskt",
+      "image": "Bild",
+      "scrolling": "Rullande meddelande",
+      "heading": "Rubrik",
+      "endsAt": "Räknar ner till",
+      "endedText": "Visas när tiden har passerat",
+      "showBadges": "Visa märken",
+      "showSwatches": "Visa färgprover",
+      "quickAdd": "Snabbval",
+      "title": "Titel",
+      "subtitle": "Underrubrik",
+      "source": "Källa",
+      "limit": "Max antal produkter",
+      "layout": "Layout",
+      "product": "Produkt",
+      "imageSide": "Bildposition",
+      "ratio": "Format",
+      "collection": "Kollektion",
+      "label": "Etikett",
+      "itemOneIcon": "Ikon för objekt 1",
+      "itemTwoIcon": "Ikon för objekt 2",
+      "itemThreeIcon": "Ikon för objekt 3",
+      "columns": "Kolumner",
+      "media": "Visa",
+      "icon": "Ikon",
+      "secondImageUrl": "Andra bilden",
+      "statValue": "Nyckeltal",
+      "statLabel": "Etikett för nyckeltal",
+      "signature": "Signerad",
+      "value": "Värde",
+      "posterUrl": "Omslagsbild",
+      "monochrome": "Visa logotyper i en färg",
+      "name": "Namn för skärmläsare",
+      "rating": "Stjärnor (0 döljer dem)",
+      "address": "Adress",
+      "hours": "Öppettider",
+      "email": "E-post",
+      "phone": "Telefon",
+      "mapUrl": "Länk till vägbeskrivning",
+      "announcementCountdown": "Nedräkning till",
+      "headerLayout": "Sidhuvudlayout",
+      "headerSticky": "Fäst sidhuvudet vid rullning",
+      "headerTransparent": "Visa sidhuvudet över helsidesbild",
+      "megaMenu": "Megameny med kollektionsbilder",
+      "footerLayout": "Sidfotslayout",
+      "footerNewsletter": "Nyhetsbrevregistrering i sidfoten",
+      "footerPayments": "Betalningsmetoder i sidfoten",
+      "footerTrust": "Förtroendeikoner ovanför sidfoten",
+      "socialInstagram": "Instagram-länk",
+      "socialTiktok": "TikTok-länk",
+      "socialX": "X-länk",
+      "socialYoutube": "YouTube-länk",
+      "socialFacebook": "Facebook-länk",
+      "socialPinterest": "Pinterest-länk",
+      "galleryLayout": "Galleri",
+      "gallerySide": "Galleriposition",
+      "personalisation": "Visa personalisering",
+      "showTags": "Visa taggar",
+      "stickyBuyBox": "Fäst köprutan vid rullning",
+      "trustNote": "Text under knappen",
+      "style": "Stil",
+      "showDetails": "Visa tryck- och produktionsdetaljer",
+      "showShipping": "Visa frakt",
+      "extraTitle": "Titel för extra flik",
+      "extraBody": "Text för extra flik",
+      "intro": "Introduktion",
+      "table": "Tabell",
+      "caption": "Rubrik",
+      "link": "Länk",
+      "author": "Författare",
+      "role": "Roll eller företag",
+      "quote": "Citat"
+    },
+    "repeat": {
+      "slide": "Bild {n}",
+      "tile": "Ruta {n}",
+      "column": "Kolumn {n}",
+      "stat": "Nummer {n}",
+      "image": "Foto {n}",
+      "caption": "Bildtext {n}",
+      "link": "Länk {n}",
+      "logo": "Logotyp {n}",
+      "quote": "Citat {n}",
+      "author": "Citat {n}: författare",
+      "role": "Citat {n}: roll eller företag",
+      "q": "Fråga {n}",
+      "a": "Svar {n}",
+      "feature": "Funktion {n}"
+    },
+    "help": {
+      "videoUrl": "MP4 eller WebM, tyst och upprepad. Bilden visas tills den spelas upp.",
+      "product": "Lämna tomt för den senaste produkten.",
+      "tile1Collection": "Tomma rutor visar dina kollektioner i ordning.",
+      "mapUrl": "En Google Maps- eller Apple Maps-länk.",
+      "announcementCountdown": "Visar en nedräkning i meddelandefältet fram till denna tid.",
+      "table": "En rad per linje, celler separerade med |. Första raden är rubriken."
+    },
+    "icons": {
+      "sparkles": "Glitter",
+      "truck": "Leverans",
+      "shield": "Sköld",
+      "leaf": "Blad",
+      "heart": "Hjärta",
+      "star": "Stjärna",
+      "gift": "Gåva",
+      "recycle": "Återvinning",
+      "globe": "Jordglob",
+      "palette": "Palett",
+      "shirt": "Skjorta",
+      "coffee": "Kaffe",
+      "package": "Paket",
+      "clock": "Klocka",
+      "award": "Utmärkelse",
+      "smile": "Leende",
+      "lock": "Lås",
+      "return": "Returer",
+      "ruler": "Linjal",
+      "users": "Personer"
+    },
+    "blocks": {
+      "ProductMain": {
+        "name": "Galleri och köpruta",
+        "description": "Foton, pris, alternativ, personalisering och knappen ”lägg i varukorgen”."
+      },
+      "DescriptionTabs": {
+        "name": "Beskrivningsflikar",
+        "description": "Beskrivning, tryck- och produktionsdetaljer samt frakt, i flikar."
+      },
+      "SizeGuide": {
+        "name": "Storleksguide",
+        "description": "En måttabell som öppnas från produktsidan.",
+        "fields": {
+          "titleHelp": "Lämna tomt för standardtitel."
+        }
+      },
+      "ProductFeatures": {
+        "name": "Funktioner",
+        "description": "Tre korta köpskäl, med ikoner."
+      },
+      "ProductText": {
+        "name": "Text",
+        "description": "En rubrik och ett stycke som visas på varje produktsida."
+      },
+      "Reviews": {
+        "name": "Recensioner",
+        "description": "Produktens godkända recensioner och dess betyg."
+      },
+      "RelatedProducts": {
+        "name": "Relaterade produkter",
+        "description": "Produkter från samma kollektioner eller med samma taggar.",
+        "fields": {
+          "titleHelp": "Lämna tomt för standardtitel."
+        }
+      },
+      "RecentlyViewed": {
+        "name": "Nyligen visade",
+        "description": "Produkterna som denna besökare tittade på senast.",
+        "fields": {
+          "titleHelp": "Lämna tomt för standardtitel."
+        }
+      }
+    },
+    "link": {
+      "automatic": "Dina kollektioner i ordning",
+      "newest": "Nyaste produkt",
+      "none": "Ingen länk",
+      "products": "Alla produkter",
+      "cart": "Varukorg",
+      "collection": "Kollektion: {name}",
+      "product": "Produkt: {name}",
+      "custom": "Webbadress",
+      "customUrl": "Webbadress"
+    },
+    "image": {
+      "upload": "Ladda upp bild",
+      "replace": "Ersätt",
+      "remove": "Ta bort",
+      "uploading": "Laddar upp…",
+      "failed": "Uppladdning misslyckades. Försök igen.",
+      "url": "Bildadress",
+      "urlPlaceholder": "Eller klistra in en bildadress",
+      "focalPick": "Klicka på bilden för att ställa in fokuspunkt",
+      "focalX": "Fokuspunkt horisontellt (%)",
+      "focalY": "Fokuspunkt vertikalt (%)",
+      "uploadVideo": "Ladda upp video",
+      "replaceVideo": "Ersätt video",
+      "videoPlaceholder": "Eller klistra in en video-, YouTube- eller Vimeo-adress"
+    },
+    "design": {
+      "presets": "Förinställningar",
+      "presetsBody": "Börja med en förinställning och anpassa den sedan.",
+      "colours": "Varumärkesfärger",
+      "coloursBody": "Textfärger justeras i butiksfasaden för att förbli läsbara.",
+      "colourNames": {
+        "primary": "Primär",
+        "secondary": "Sekundär",
+        "background": "Bakgrund",
+        "surface": "Yta",
+        "text": "Text"
+      },
+      "contrastOk": "{pair} kontrast {ratio}:1",
+      "contrastAdjusted": "{pair} kontrast {ratio}:1, justerad för att förbli läsbar",
+      "type": "Typografi",
+      "headingFont": "Rubriktypsnitt",
+      "bodyFont": "Brödtexttypsnitt",
+      "pairings": "Typsnittspar",
+      "categories": {
+        "sans": "Sans-serif",
+        "serif": "Serif",
+        "display": "Display",
+        "mono": "Mono"
+      },
+      "style": "Stil",
+      "mode": "Ljus eller mörk",
+      "radius": "Hörnrundning",
+      "buttons": "Knappar",
+      "density": "Avstånd",
+      "productImage": "Produktfoton",
+      "values": {
+        "light": "Ljus",
+        "dark": "Mörk",
+        "none": "Fyrkantig",
+        "small": "Liten",
+        "medium": "Medel",
+        "large": "Stor",
+        "solid": "Fylld",
+        "outline": "Konturlinje",
+        "pill": "Pillerformad",
+        "compact": "Kompakt",
+        "comfortable": "Bekväm",
+        "airy": "Luftig",
+        "square": "Fyrkantig",
+        "portrait": "Stående",
+        "landscape": "Liggande"
+      },
+      "save": "Spara design",
+      "saving": "Sparar…",
+      "discard": "Kassera ändringar",
+      "liveNote": "En sparad design publiceras direkt.",
+      "saveFailed": "Designen kunde inte sparas. Försök igen.",
+      "sampleHeading": "Nya säsongens måsten",
+      "sampleBody": "Tillverkas på beställning och skickas över hela världen.",
+      "samplePrimary": "Handla nu",
+      "sampleSecondary": "Läs mer",
+      "sampleSurface": "Fri frakt på beställningar över 75"
+    },
+    "productPage": {
+      "blocks": "Block på produktsidan",
+      "blocksBody": "Varje produktsida byggs upp av dessa block, uppifrån och ner.",
+      "moveUp": "Flytta upp",
+      "moveDown": "Flytta ner",
+      "addBlock": "Lägg till block",
+      "add": "Lägg till",
+      "settings": "Blockinställningar",
+      "remove": "Ta bort",
+      "noSettings": "Detta block har inga inställningar.",
+      "select": "Välj ett block för att ändra dess inställningar.",
+      "sampleName": "Produktnamn",
+      "personalisation": "Personalisering",
+      "tabDescription": "Beskrivning",
+      "tabDetails": "Detaljer",
+      "tabShipping": "Frakt",
+      "sizeGuide": "Storleksguide",
+      "reviews": "Recensioner",
+      "reviewsBody": "Godkända recensioner och produktens betyg visas här.",
+      "related": "Du kanske också gillar",
+      "recentlyViewed": "Nyligen visade",
+      "sampleDescription": "Produktbeskrivningen visas här."
     }
   },
   "admin": {
@@ -3634,7 +4042,27 @@
       "supportEmailLabel": "E-post",
       "supportPhoneLabel": "Telefon",
       "legal": "© {year} {client}",
-      "information": "Information"
+      "information": "Information",
+      "previousMessage": "Föregående meddelande",
+      "nextMessage": "Nästa meddelande",
+      "followUs": "Följ oss",
+      "weAccept": "Vi accepterar",
+      "newsletterTitle": "Håll dig uppdaterad",
+      "newsletterBody": "Nya produkter, påfyllningar och erbjudanden. Avregistrera dig när som helst.",
+      "newsletterButton": "Prenumerera",
+      "shopAllIn": "Handla alla {name}",
+      "trustSecure": "Säker utcheckning",
+      "trustTracked": "Spårbar leverans",
+      "trustMadeToOrder": "Tillverkad på beställning",
+      "trustSupport": "Äkta människor, äkta support",
+      "social": {
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "x": "X",
+        "youtube": "YouTube",
+        "facebook": "Facebook",
+        "pinterest": "Pinterest"
+      }
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3647,9 +4075,6 @@
     "home": {
       "closedTitle": "Den här butiken är stängd",
       "closedBody": "Redan lagda beställningar levereras som vanligt.",
-      "comingSoonTitle": "{store} öppnar snart",
-      "comingSoonNoProducts": "Titta in igen snart.",
-      "browseProducts": "Se {count} produkter",
       "pausedTitle": "Den här butiken är tillfälligt otillgänglig",
       "previewBanner": "Förhandsvisning av opublicerade ändringar",
       "previewExpired": "Den här förhandsvisningslänken har gått ut."
@@ -3691,7 +4116,14 @@
       "leadDays": "{from}–{to} dagar",
       "leadUnknown": "några dagar",
       "printDetail": "{count, plural, one {Tryckyta} other {Tryckytor}}",
-      "printDetailBody": "{area}, {width} × {height} mm"
+      "printDetailBody": "{area}, {width} × {height} mm",
+      "tabDescription": "Beskrivning",
+      "tabDetails": "Detaljer",
+      "tabShipping": "Frakt",
+      "shippingPolicy": "Läs fraktpolicyn",
+      "sizeGuide": "Storleksguide",
+      "related": "Du kanske också gillar",
+      "recentlyViewed": "Nyligen visade"
     },
     "purchase": {
       "addToBasket": "Lägg i varukorgen",
@@ -3969,10 +4401,65 @@
       "viewAll": "Visa alla",
       "noProducts": "Inga produkter än.",
       "previewSoon": "Förhandsvisning kommer snart",
-      "imagePlaceholder": "Lägg till en bild-URL i sektionens inställningar",
+      "imagePlaceholder": "Lägg till en bild i sektionsinställningarna",
       "newsletterEmail": "E-postadress",
       "notifyMe": "Meddela mig",
-      "welcome": "Välkommen"
+      "welcome": "Välkommen",
+      "previous": "Föregående",
+      "next": "Nästa",
+      "pause": "Pausa",
+      "play": "Spela",
+      "slide": "Bild {n} av {total}",
+      "days": "Dagar",
+      "hours": "Timmar",
+      "minutes": "Minuter",
+      "seconds": "Sekunder",
+      "countdownHint": "Ställ in datum och tid för nedräkningen i sektionsinställningarna",
+      "quickAdd": "Snabblägg till",
+      "chooseOption": "Välj alternativ",
+      "added": "Lagt i varukorgen",
+      "addToBasket": "Lägg i varukorg",
+      "viewProduct": "Visa detaljer",
+      "badgeNew": "Nyhet",
+      "badgeSoldOut": "Slutsåld",
+      "badgeSale": "Rea",
+      "badgeExclusive": "Exklusiv",
+      "badgeCustom": "Anpassa",
+      "badgeBestseller": "Bästsäljare",
+      "noCollections": "Dina kollektioner visas här när du skapar dem",
+      "videoPlaceholder": "Lägg till en video i sektionsinställningarna",
+      "ratingLabel": "{rating} av 5 stjärnor",
+      "contactAddress": "Adress",
+      "contactHours": "Öppettider",
+      "contactEmail": "E-post",
+      "contactPhone": "Telefon",
+      "directions": "Hitta hit",
+      "newsletterThanks": "Tack för din anmälan.",
+      "newsletterInvalid": "Ange en giltig e-postadress.",
+      "newsletterClosed": "Anmälan är inte tillgänglig just nu.",
+      "generated": {
+        "heroHeadline": "Den nya kollektionen är här",
+        "heroBody": "Designad av {store}, tillverkad på beställning och skickad direkt till din dörr.",
+        "heroCta": "Handla nu",
+        "soonHeadline": "Öppnar snart",
+        "soonBody": "Den första kollektionen är på väg. Anmäl dig för att få veta när den släpps.",
+        "newArrivals": "Nyheter",
+        "shopAll": "Handla alla",
+        "collections": "Handla efter kollektion",
+        "allProducts": "Hela sortimentet",
+        "value1Title": "Tillverkas på beställning",
+        "value1Body": "Varje produkt tillverkas åt dig när du beställer den, så inget går till spillo.",
+        "value2Title": "Spårbar leverans",
+        "value2Body": "Alla paket spåras från oss hela vägen hem till dig.",
+        "value3Title": "Säker betalning",
+        "value3Body": "Betala tryggt med alla större kort.",
+        "storyEyebrow": "Så tillverkas det",
+        "storyHeading": "Tryckt för dig, en beställning i taget",
+        "storyBody": "Inget ligger på lager. När du beställer trycks, kontrolleras och packas din produkt för hand, och skickas sedan iväg.",
+        "newsletterHeading": "Var först med nästa släpp",
+        "newsletterBody": "Nya släpp, påfyllningar och erbjudanden. Avregistrera dig när som helst.",
+        "newsletterButton": "Anmäl dig"
+      }
     },
     "email": {
       "logoAlt": "{store}",

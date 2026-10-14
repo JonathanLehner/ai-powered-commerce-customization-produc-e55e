@@ -27,6 +27,10 @@ async function authorise(scope: UploadScope, params: URLSearchParams): Promise<s
     await assertStoreAccess(storeId, "store.catalog");
     return null;
   }
+  if (scope === "section" || scope === "sectionVideo") {
+    await assertStoreAccess(storeId, "store.storefront");
+    return null;
+  }
   if (scope === "logo") {
     await assertStoreAccess(storeId, "store.settings");
     return null;

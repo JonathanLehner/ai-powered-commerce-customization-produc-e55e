@@ -8,6 +8,7 @@
  * never sees an empty heading. Kept free of server imports: the editor, the
  * live pages and the check scripts all read it.
  */
+import { PRODUCT_BLOCK_DEFS, PRODUCT_PAGE_PROP, translatableBlockFields, type ProductBlockType } from "./product-template";
 import { SECTION_DEFS, type SectionType } from "./storefront-schema";
 
 /** One translated field. `machine` is set by "Translate missing" until a person saves it. */
@@ -100,6 +101,22 @@ export function localizeSectionProps(
   return out;
 }
 
+/** A product page block's props with its copy in `locale`, falling back to the source. */
+export function localizeBlockProps(
+  type: ProductBlockType,
+  props: Record<string, unknown>,
+  locale: string,
+  defaultLocale: string,
+): Record<string, unknown> {
+  if (locale === defaultLocale) return props;
+  const translations = props[I18N_PROP] as FieldTranslations | undefined;
+  const out = { ...props };
+  for (const key of translatableBlockFields(type)) {
+    out[key] = localized(String(props[key] ?? ""), translations, locale, defaultLocale, key);
+  }
+  return out;
+}
+
 /* ------------------------------------------------------- header and footer */
 
 /**
@@ -109,9 +126,13 @@ export function localizeSectionProps(
  */
 export const SITE_FIELDS = [
   { key: "announcement", type: "text" },
+  { key: "announcement2", type: "text" },
+  { key: "announcement3", type: "text" },
   { key: "navShop", type: "text" },
   { key: "navOrders", type: "text" },
   { key: "footerNote", type: "textarea" },
+  { key: "newsletterHeading", type: "text" },
+  { key: "newsletterBody", type: "textarea" },
 ] as const;
 
 /**
@@ -239,7 +260,8 @@ type TreeNode = { type?: { resolvedName?: string }; props?: Record<string, unkno
 
 /**
  * The copy in a page tree that has a source but no translation in `locale`,
- * keyed `section:<node id>:<field>` and `site:<field>`.
+ * keyed `section:<node id>:<field>`, `site:<field>` and, for the product page
+ * template, `block:<block id>:<field>`.
  */
 export function missingTreeFields(tree: unknown, locale: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -259,6 +281,12 @@ export function missingTreeFields(tree: unknown, locale: string): Record<string,
       visit(`section:${id}:`, nodes[id].props ?? {}, translatableSectionFields(type as SectionType));
     }
   }
+  const blocks = nodes.ROOT?.props?.[PRODUCT_PAGE_PROP];
+  for (const block of Array.isArray(blocks) ? blocks : []) {
+    if (block && typeof block.id === "string" && block.type in PRODUCT_BLOCK_DEFS) {
+      visit(`block:${block.id}:`, block.props ?? {}, translatableBlockFields(block.type));
+    }
+  }
   return out;
 }
 
@@ -275,6 +303,19 @@ export function applyTreeTranslations(
   const next: Record<string, unknown> = { ...tree };
   for (const [path, value] of Object.entries(values)) {
     const parts = path.split(":");
+    if (parts[0] === "block") {
+      const root = next.ROOT as TreeNode | undefined;
+      const blocks = root?.props?.[PRODUCT_PAGE_PROP];
+      if (!root || !Array.isArray(blocks)) continue;
+      const updated = blocks.map((block: { id: string; props?: Record<string, unknown> }) => {
+        if (block?.id !== parts[1]) return block;
+        const translations = block.props?.[I18N_PROP] as FieldTranslations | undefined;
+        if (translationOf(translations, locale, parts[2])) return block;
+        return { ...block, props: { ...(block.props ?? {}), [I18N_PROP]: withTranslation(translations, locale, parts[2], value, machine) } };
+      });
+      next.ROOT = { ...root, props: { ...(root.props ?? {}), [PRODUCT_PAGE_PROP]: updated } };
+      continue;
+    }
     const [id, key] = parts[0] === "site" ? ["ROOT", parts[1]] : [parts[1], parts[2]];
     const node = next[id] as TreeNode | undefined;
     if (!node || !key) continue;

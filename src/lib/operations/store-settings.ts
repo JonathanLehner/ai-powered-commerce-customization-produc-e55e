@@ -21,6 +21,7 @@ import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type PolicyKey, type S
 import { forgetStorePolicies } from "../storefront-data";
 import { createExpressAccount, onboardingLink } from "../stripe";
 import { isSupportEmail, isSupportPhone } from "../support";
+import { cleanDesign, type StoreDesign } from "../store-design";
 import type { CarrierAccount, Store, ThemeKey } from "../types";
 import { STRIPE_COUNTRIES } from "../util";
 import { OperationError, type OperationContext } from "./context";
@@ -66,17 +67,31 @@ export async function renameStore(ctx: OperationContext, input: { name: string; 
   return { ...store, name, clientName };
 }
 
-export async function saveBranding(ctx: OperationContext, input: { theme: ThemeKey; logoUrl: string | null }): Promise<Store> {
+/**
+ * The store's preset, logo and design tokens. Picking another preset starts
+ * from it: the tokens changed on top of the old one are dropped, unless new
+ * ones come with it. A design is kept as what differs from the preset.
+ */
+export async function saveBranding(
+  ctx: OperationContext,
+  input: { theme: ThemeKey; logoUrl: string | null; design?: StoreDesign },
+): Promise<Store> {
   const { store } = ctx;
   const { theme, logoUrl } = input;
+  const design = input.design ? cleanDesign(theme, input.design) : theme === store.theme ? (store.design ?? {}) : {};
   const setup = { ...store.setup, branding: Boolean(logoUrl) };
-  await updateStore(store.id, { theme, logoUrl, setup });
-  audit(ctx, "store.branding_updated", `Updated branding: theme “${theme}”${logoUrl !== store.logoUrl ? " and a new logo" : ""}`, {
-    theme,
-  });
+  await updateStore(store.id, { theme, logoUrl, setup, design });
+  const changed = JSON.stringify(design) !== JSON.stringify(store.design ?? {});
+  audit(
+    ctx,
+    "store.branding_updated",
+    `Updated branding: theme “${theme}”${logoUrl !== store.logoUrl ? " and a new logo" : ""}${changed ? ", with design changes" : ""}`,
+    { theme },
+  );
   revalidatePath(`/app/stores/${store.id}/setup`);
-  revalidatePath(`/s/${store.slug}`);
-  return { ...store, theme, logoUrl, setup };
+  revalidatePath(`/app/stores/${store.id}/storefront`);
+  revalidatePath(`/s/${store.slug}`, "layout");
+  return { ...store, theme, logoUrl, setup, design };
 }
 
 /** "German" for "de". The audit history is written in English. */

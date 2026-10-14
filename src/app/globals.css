@@ -102,7 +102,8 @@
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
+  /* A storefront sets its own heading face; everywhere else headings use the body face. */
+  --font-heading: var(--font-heading-face, var(--font-sans));
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -278,4 +279,158 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+/* ------------------------------------------------------------ storefront ---
+ * The few rules the storefront's design tokens need beyond the shadcn
+ * variables: the store's button style, section spacing from its density, the
+ * header laid over a full-bleed hero, and motion that stops when a shopper
+ * asks for less of it. Everything else is utilities in the components.
+ */
+
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.5rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-align: center;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.sf-btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.sf-btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.sf-btn-primary:hover {
+  background: color-mix(in oklab, var(--primary) 86%, var(--foreground));
+}
+.sf-btn-secondary {
+  background: transparent;
+  color: inherit;
+  border-color: currentColor;
+}
+.sf-btn-secondary:hover {
+  background: color-mix(in oklab, currentColor 10%, transparent);
+}
+/* On a photo or video: white, whatever the store's colours are. */
+.sf-btn-media {
+  background: #fff;
+  color: #0b0b0c;
+}
+.sf-btn-media:hover {
+  background: #ececec;
+}
+
+[data-buttons="pill"] .sf-btn,
+[data-buttons="pill"] [data-slot="button"] {
+  border-radius: 9999px;
+}
+[data-buttons="outline"] .sf-btn-primary,
+[data-buttons="outline"] [data-slot="button"][data-variant="default"] {
+  background: transparent;
+  color: var(--sf-primary-text);
+  border-color: currentColor;
+}
+[data-buttons="outline"] .sf-btn-primary:hover,
+[data-buttons="outline"] [data-slot="button"][data-variant="default"]:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+[data-buttons="outline"] .sf-btn-media {
+  background: transparent;
+  color: #fff;
+  border-color: #fff;
+}
+
+.sf-section {
+  padding-block: var(--sf-section-y, 4rem);
+}
+.sf-section[data-space="none"] {
+  padding-block: 0;
+}
+.sf-section[data-space="small"] {
+  padding-block: calc(var(--sf-section-y, 4rem) * 0.5);
+}
+.sf-section[data-space="large"] {
+  padding-block: calc(var(--sf-section-y, 4rem) * 1.5);
+}
+
+/* The header over a full-bleed hero, when the store turned that on and the
+   page opens with one. It keeps its height in the flow by pulling the page up
+   under it, so it can stay sticky. */
+:root {
+  --sf-header-h: 4rem;
+}
+html:has([data-sf-overlay-hero]) .sf-header[data-transparent="true"] {
+  margin-bottom: calc(-1 * var(--sf-header-h));
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+html:has([data-sf-overlay-hero]) .sf-header[data-transparent="true"]:not([data-scrolled="true"]):not(:hover):not(:focus-within) {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  --foreground: #fff;
+  --muted-foreground: rgb(255 255 255 / 0.82);
+  --muted: rgb(255 255 255 / 0.14);
+  --border: rgb(255 255 255 / 0.35);
+  --input: rgb(255 255 255 / 0.35);
+  --background: transparent;
+  color: #fff;
+}
+[data-sf-overlay-hero] {
+  padding-top: var(--sf-header-h);
+}
+
+@keyframes sf-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.sf-marquee {
+  animation: sf-marquee 40s linear infinite;
+}
+.sf-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-motion,
+  .sf-motion * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sf-smooth {
+    scroll-behavior: smooth;
+  }
+}
+
+/* A horizontally scrolling row whose own controls replace the scrollbar. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -11,7 +11,8 @@ import { storeLanguages } from "@/i18n/storefront-routing";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { POLICY_KEYS, policyPath } from "@/lib/policies";
 import { giftPortalMetadata } from "@/lib/storefront-meta";
-import { storeThemeStyle } from "@/lib/store-theme";
+import { STORE_FONT_CLASSES } from "@/lib/store-fonts";
+import { storeThemeAttributes, storeThemeStyle } from "@/lib/store-theme";
 import { storeSupport, supportMailto, supportTel } from "@/lib/support";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -73,7 +74,7 @@ export default async function GiftPortalLayout({
   const support = storeSupport(store);
 
   return (
-    <Document lang={locale} style={storeThemeStyle(store.theme)}>
+    <Document lang={locale} style={storeThemeStyle(store)} attributes={storeThemeAttributes(store)} className={STORE_FONT_CLASSES}>
       <NextIntlClientProvider
         locale={locale}
         messages={{ common: messages.common, storefront: messages.storefront }}

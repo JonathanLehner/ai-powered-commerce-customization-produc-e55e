@@ -1498,7 +1498,8 @@
       "nothingToTranslate": "Já está tudo traduzido.",
       "translated": "{count, plural, one {# campo traduzido.} other {# campos traduzidos.}} Reveja antes de publicar.",
       "translateFailed": "A tradução falhou. Tente novamente.",
-      "seoSaved": "Dados de SEO guardados."
+      "seoSaved": "Dados de SEO guardados.",
+      "designSaved": "Design guardado."
     },
     "admin": {
       "supplierGone": "Fornecedor não encontrado.",
@@ -3064,15 +3065,15 @@
     "sections": {
       "HeroSection": {
         "name": "Destaque",
-        "description": "Abertura a toda a largura com apelo à ação e imagem.",
+        "description": "Mensagem de abertura com chamada para ação e imagem lateral.",
         "fields": {
           "eyebrow": "Antetítulo",
           "headline": "Título",
           "body": "Texto de apoio",
           "ctaLabel": "Texto do botão",
           "ctaHref": "Destino do botão",
-          "imageUrl": "URL da imagem",
-          "imageUrlHelp": "Deixe vazio para usar o logótipo da loja.",
+          "imageUrl": "Imagem",
+          "imageUrlHelp": "Deixe em branco para um destaque só com texto.",
           "align": "Alinhamento",
           "tone": "Tom"
         }
@@ -3118,7 +3119,7 @@
         "fields": {
           "heading": "Título",
           "body": "Texto",
-          "imageUrl": "URL da imagem",
+          "imageUrl": "Imagem",
           "imageSide": "Posição da imagem"
         }
       },
@@ -3148,6 +3149,72 @@
           "body": "Texto",
           "buttonLabel": "Texto do botão"
         }
+      },
+      "ImageHero": {
+        "name": "Destaque de imagem ou vídeo",
+        "description": "Foto ou vídeo em ecrã inteiro com o título sobreposto."
+      },
+      "Slideshow": {
+        "name": "Apresentação de slides",
+        "description": "Banners rotativos para lançamentos, campanhas e coleções."
+      },
+      "Countdown": {
+        "name": "Contagem decrescente",
+        "description": "Um banner de lançamento ou campanha com contagem decrescente para uma data."
+      },
+      "ProductCarousel": {
+        "name": "Carrossel de produtos",
+        "description": "Uma fila de produtos deslizável, como novidades ou uma coleção.",
+        "fields": {
+          "layout": "Posição do título"
+        }
+      },
+      "FeaturedProduct": {
+        "name": "Produto em destaque",
+        "description": "Um produto com fotos, opções e um botão de adicionar ao carrinho."
+      },
+      "CollectionTiles": {
+        "name": "Mosaico de coleções",
+        "description": "Compre por categoria: grandes blocos de fotos que abrem uma coleção.",
+        "fields": {
+          "ratio": "Formato do bloco"
+        }
+      },
+      "MultiColumn": {
+        "name": "Colunas",
+        "description": "Duas a quatro colunas, cada uma com um ícone ou foto."
+      },
+      "Story": {
+        "name": "História",
+        "description": "Sobre nós ou missão: um texto longo com fotos, um número chave e uma assinatura."
+      },
+      "Stats": {
+        "name": "Números de impacto",
+        "description": "Até quatro grandes números: impacto, comunidade, encomendas enviadas."
+      },
+      "Gallery": {
+        "name": "Galeria",
+        "description": "Um lookbook de fotos, cada uma com legenda e link opcionais."
+      },
+      "VideoSection": {
+        "name": "Vídeo",
+        "description": "Um vídeo carregado ou um link do YouTube ou Vimeo, reproduzido ao clicar."
+      },
+      "LogoStrip": {
+        "name": "Faixa de logótipos",
+        "description": "Logótipos de parceiros, imprensa ou clientes em fila."
+      },
+      "TestimonialCarousel": {
+        "name": "Carrossel de testemunhos",
+        "description": "Várias citações de clientes para deslizar."
+      },
+      "Faq": {
+        "name": "FAQ",
+        "description": "Perguntas e respostas que abrem uma de cada vez."
+      },
+      "Contact": {
+        "name": "Contactos e localizações",
+        "description": "Morada, horário, e-mail e telefone, com indicações."
       }
     },
     "options": {
@@ -3162,7 +3229,45 @@
       "light": "Claro",
       "dark": "Escuro",
       "right": "Direita",
-      "all": "Todos os produtos"
+      "all": "Todos os produtos",
+      "auto": "Automático",
+      "surface": "Superfície",
+      "primary": "Cor primária",
+      "secondary": "Cor secundária",
+      "inverse": "Invertido",
+      "custom": "Cor personalizada",
+      "image": "Imagem",
+      "none": "Nenhum",
+      "small": "Pequeno",
+      "medium": "Médio",
+      "large": "Grande",
+      "narrow": "Estreito",
+      "normal": "Normal",
+      "wide": "Largo",
+      "full": "Largura total",
+      "screen": "Ecrã inteiro",
+      "bottom-left": "Inferior esquerdo",
+      "bottom-center": "Inferior central",
+      "top": "Topo",
+      "side": "Lateral",
+      "square": "Quadrado",
+      "portrait": "Retrato",
+      "landscape": "Paisagem",
+      "grid": "Grelha",
+      "carousel": "Carrossel",
+      "icon": "Ícones",
+      "number": "Números",
+      "mosaic": "Mosaico",
+      "16:9": "Panorâmico",
+      "4:3": "Clássico",
+      "1:1": "Quadrado",
+      "9:16": "Vertical",
+      "columns": "Colunas",
+      "centered": "Centrado",
+      "thumbnails": "Foto grande com miniaturas",
+      "stacked": "Fotos empilhadas",
+      "tabs": "Separadores",
+      "accordion": "Acordeão"
     },
     "revert": "Repor a versão publicada",
     "noProductsTitle": "Ainda não há produtos publicados",
@@ -3228,7 +3333,9 @@
       "page": "Página",
       "products": "Produtos",
       "portals": "Portais de presentes",
-      "collections": "Coleções"
+      "collections": "Coleções",
+      "productPage": "Página de produto",
+      "design": "Design"
     },
     "site": {
       "title": "Cabeçalho e rodapé",
@@ -3237,7 +3344,11 @@
         "announcement": "Barra de anúncios",
         "navShop": "Etiqueta da ligação Loja",
         "navOrders": "Etiqueta da ligação Estado da encomenda",
-        "footerNote": "Nota de rodapé"
+        "footerNote": "Nota de rodapé",
+        "announcement2": "Segundo anúncio",
+        "announcement3": "Terceiro anúncio",
+        "newsletterHeading": "Título da newsletter no rodapé",
+        "newsletterBody": "Texto da newsletter no rodapé"
       },
       "shipDays": "Envio em (dias úteis)",
       "shipDaysHint": "Mostrado em cada página de produto e na barra de anúncios quando está vazia.",
@@ -3306,6 +3417,303 @@
       "reset": "Repor predefinição",
       "noMatch": "Nenhum texto corresponde à pesquisa.",
       "failed": "Não foi possível guardar. Tente novamente."
+    },
+    "categories": {
+      "hero": "Destaques",
+      "products": "Produtos",
+      "content": "Conteúdo",
+      "media": "Multimédia",
+      "social": "Prova social",
+      "conversion": "Promoção e subscrição"
+    },
+    "style": "Estilo",
+    "fields": {
+      "secondaryLabel": "Etiqueta do segundo botão",
+      "secondaryHref": "Destino do segundo botão",
+      "background": "Fundo",
+      "backgroundColor": "Cor de fundo",
+      "backgroundImage": "Imagem de fundo",
+      "spacing": "Espaçamento",
+      "width": "Largura",
+      "eyebrow": "Pré-título",
+      "headline": "Título",
+      "body": "Texto",
+      "ctaLabel": "Etiqueta do botão",
+      "ctaHref": "Destino do botão",
+      "imageUrl": "Imagem",
+      "videoUrl": "Vídeo de fundo",
+      "height": "Altura",
+      "position": "Posição do texto",
+      "overlay": "Escurecimento da imagem (%)",
+      "align": "Alinhamento",
+      "autoplay": "Avançar automaticamente",
+      "image": "Imagem",
+      "scrolling": "Mensagem deslizante",
+      "heading": "Título",
+      "endsAt": "Termina em",
+      "endedText": "Texto após o término",
+      "showBadges": "Mostrar selos",
+      "showSwatches": "Mostrar amostras de cor",
+      "quickAdd": "Adição rápida",
+      "title": "Título",
+      "subtitle": "Subtítulo",
+      "source": "Origem",
+      "limit": "Limite de produtos",
+      "layout": "Layout",
+      "product": "Produto",
+      "imageSide": "Posição da imagem",
+      "ratio": "Formato",
+      "collection": "Coleção",
+      "label": "Etiqueta",
+      "itemOneIcon": "Ícone do item 1",
+      "itemTwoIcon": "Ícone do item 2",
+      "itemThreeIcon": "Ícone do item 3",
+      "columns": "Colunas",
+      "media": "Mostrar",
+      "icon": "Ícone",
+      "secondImageUrl": "Segunda foto",
+      "statValue": "Número chave",
+      "statLabel": "Etiqueta do número chave",
+      "signature": "Assinado",
+      "value": "Valor",
+      "posterUrl": "Imagem de capa",
+      "monochrome": "Mostrar logótipos a uma cor",
+      "name": "Nome para leitores de ecrã",
+      "rating": "Estrelas (0 para ocultar)",
+      "address": "Morada",
+      "hours": "Horário de funcionamento",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "mapUrl": "Link para direções",
+      "announcementCountdown": "Contagem decrescente do anúncio até",
+      "headerLayout": "Layout do cabeçalho",
+      "headerSticky": "Manter o cabeçalho visível ao deslizar",
+      "headerTransparent": "Mostrar o cabeçalho sobre a imagem de destaque de largura total",
+      "megaMenu": "Mega menu com fotos das coleções",
+      "footerLayout": "Layout do rodapé",
+      "footerNewsletter": "Subscrição da newsletter no rodapé",
+      "footerPayments": "Métodos de pagamento no rodapé",
+      "footerTrust": "Selos de confiança acima do rodapé",
+      "socialInstagram": "Link do Instagram",
+      "socialTiktok": "Link do TikTok",
+      "socialX": "Link do X",
+      "socialYoutube": "Link do YouTube",
+      "socialFacebook": "Link do Facebook",
+      "socialPinterest": "Link do Pinterest",
+      "galleryLayout": "Galeria",
+      "gallerySide": "Posição da galeria",
+      "personalisation": "Mostrar personalização",
+      "showTags": "Mostrar etiquetas",
+      "stickyBuyBox": "Manter a caixa de compra visível ao deslizar",
+      "trustNote": "Linha abaixo do botão",
+      "style": "Estilo",
+      "showDetails": "Mostrar detalhes de impressão e produção",
+      "showShipping": "Mostrar informações de envio",
+      "extraTitle": "Título do separador extra",
+      "extraBody": "Texto do separador extra",
+      "intro": "Introdução",
+      "table": "Tabela",
+      "caption": "Legenda",
+      "link": "Link",
+      "author": "Autor",
+      "role": "Cargo ou empresa",
+      "quote": "Citação"
+    },
+    "repeat": {
+      "slide": "Slide {n}",
+      "tile": "Mosaico {n}",
+      "column": "Coluna {n}",
+      "stat": "Número {n}",
+      "image": "Foto {n}",
+      "caption": "Legenda {n}",
+      "link": "Link {n}",
+      "logo": "Logótipo {n}",
+      "quote": "Citação {n}",
+      "author": "Citação {n}: autor",
+      "role": "Citação {n}: cargo ou empresa",
+      "q": "Pergunta {n}",
+      "a": "Resposta {n}",
+      "feature": "Funcionalidade {n}"
+    },
+    "help": {
+      "videoUrl": "MP4 ou WebM, sem som e em loop. A imagem é mostrada até reproduzir.",
+      "product": "Deixe vazio para o produto mais recente.",
+      "tile1Collection": "Os mosaicos vazios mostram as suas coleções por ordem.",
+      "mapUrl": "Um link do Google Maps ou Apple Maps.",
+      "announcementCountdown": "Mostra uma contagem decrescente na barra de anúncios até esta hora.",
+      "table": "Uma linha por cada, células separadas por |. A primeira linha é o cabeçalho."
+    },
+    "icons": {
+      "sparkles": "Brilhos",
+      "truck": "Entrega",
+      "shield": "Escudo",
+      "leaf": "Folha",
+      "heart": "Coração",
+      "star": "Estrela",
+      "gift": "Presente",
+      "recycle": "Reciclagem",
+      "globe": "Globo",
+      "palette": "Paleta",
+      "shirt": "T-shirt",
+      "coffee": "Café",
+      "package": "Embalagem",
+      "clock": "Relógio",
+      "award": "Prémio",
+      "smile": "Sorriso",
+      "lock": "Cadeado",
+      "return": "Devoluções",
+      "ruler": "Régua",
+      "users": "Pessoas"
+    },
+    "blocks": {
+      "ProductMain": {
+        "name": "Galeria e caixa de compra",
+        "description": "Fotos, preço, opções, personalização e o botão adicionar ao cesto."
+      },
+      "DescriptionTabs": {
+        "name": "Separadores de descrição",
+        "description": "A descrição, detalhes de impressão e produção, e envio, em separadores."
+      },
+      "SizeGuide": {
+        "name": "Guia de tamanhos",
+        "description": "Uma tabela de medidas que abre a partir da página do produto.",
+        "fields": {
+          "titleHelp": "Deixe vazio para o título padrão."
+        }
+      },
+      "ProductFeatures": {
+        "name": "Funcionalidades",
+        "description": "Três motivos curtos para comprar, com ícones."
+      },
+      "ProductText": {
+        "name": "Texto",
+        "description": "Um título e parágrafo mostrados em cada página de produto."
+      },
+      "Reviews": {
+        "name": "Avaliações",
+        "description": "As avaliações aprovadas do produto e a sua classificação."
+      },
+      "RelatedProducts": {
+        "name": "Produtos relacionados",
+        "description": "Produtos das mesmas coleções ou com as mesmas etiquetas.",
+        "fields": {
+          "titleHelp": "Deixe vazio para o título padrão."
+        }
+      },
+      "RecentlyViewed": {
+        "name": "Vistos recentemente",
+        "description": "Os produtos que este comprador viu por último.",
+        "fields": {
+          "titleHelp": "Deixe vazio para o título padrão."
+        }
+      }
+    },
+    "link": {
+      "automatic": "As suas coleções por ordem",
+      "newest": "Produto mais recente",
+      "none": "Sem link",
+      "products": "Todos os produtos",
+      "cart": "Carrinho",
+      "collection": "Coleção: {name}",
+      "product": "Produto: {name}",
+      "custom": "Endereço web",
+      "customUrl": "Endereço web"
+    },
+    "image": {
+      "upload": "Carregar imagem",
+      "replace": "Substituir",
+      "remove": "Remover",
+      "uploading": "A carregar…",
+      "failed": "O carregamento falhou. Tente novamente.",
+      "url": "Endereço da imagem",
+      "urlPlaceholder": "Ou cole um endereço de imagem",
+      "focalPick": "Clique na foto para definir o seu ponto focal",
+      "focalX": "Ponto focal horizontal (%)",
+      "focalY": "Ponto focal vertical (%)",
+      "uploadVideo": "Carregar vídeo",
+      "replaceVideo": "Substituir vídeo",
+      "videoPlaceholder": "Ou cole um endereço de vídeo, YouTube ou Vimeo"
+    },
+    "design": {
+      "presets": "Predefinições",
+      "presetsBody": "Comece por uma predefinição e personalize-a.",
+      "colours": "Cores da marca",
+      "coloursBody": "As cores do texto são ajustadas na loja para manter a legibilidade.",
+      "colourNames": {
+        "primary": "Primária",
+        "secondary": "Secundária",
+        "background": "Fundo",
+        "surface": "Superfície",
+        "text": "Texto"
+      },
+      "contrastOk": "Contraste {pair} {ratio}:1",
+      "contrastAdjusted": "Contraste {pair} {ratio}:1, ajustado para manter a legibilidade",
+      "type": "Tipografia",
+      "headingFont": "Tipo de letra dos títulos",
+      "bodyFont": "Tipo de letra do corpo",
+      "pairings": "Combinações",
+      "categories": {
+        "sans": "Sem serifa",
+        "serif": "Com serifa",
+        "display": "Display",
+        "mono": "Monoespaçada"
+      },
+      "style": "Estilo",
+      "mode": "Claro ou escuro",
+      "radius": "Cantos",
+      "buttons": "Botões",
+      "density": "Espaçamento",
+      "productImage": "Fotos de produtos",
+      "values": {
+        "light": "Claro",
+        "dark": "Escuro",
+        "none": "Quadrado",
+        "small": "Pequeno",
+        "medium": "Médio",
+        "large": "Grande",
+        "solid": "Sólido",
+        "outline": "Contorno",
+        "pill": "Cápsula",
+        "compact": "Compacto",
+        "comfortable": "Confortável",
+        "airy": "Arejado",
+        "square": "Quadrado",
+        "portrait": "Retrato",
+        "landscape": "Paisagem"
+      },
+      "save": "Guardar design",
+      "saving": "A guardar…",
+      "discard": "Descartar alterações",
+      "liveNote": "Um design guardado fica ativo de imediato.",
+      "saveFailed": "Não foi possível guardar o design. Tente novamente.",
+      "sampleHeading": "Essenciais da nova estação",
+      "sampleBody": "Feito por encomenda e enviado para todo o mundo.",
+      "samplePrimary": "Comprar agora",
+      "sampleSecondary": "Saber mais",
+      "sampleSurface": "Portes grátis em encomendas superiores a 75"
+    },
+    "productPage": {
+      "blocks": "Blocos da página de produto",
+      "blocksBody": "Cada página de produto é construída com estes blocos, de cima para baixo.",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "addBlock": "Adicionar um bloco",
+      "add": "Adicionar",
+      "settings": "Definições do bloco",
+      "remove": "Remover",
+      "noSettings": "Este bloco não tem definições.",
+      "select": "Selecione um bloco para alterar as suas definições.",
+      "sampleName": "Nome do produto",
+      "personalisation": "Personalização",
+      "tabDescription": "Descrição",
+      "tabDetails": "Detalhes",
+      "tabShipping": "Envio",
+      "sizeGuide": "Guia de tamanhos",
+      "reviews": "Avaliações",
+      "reviewsBody": "As avaliações aprovadas e a classificação do produto aparecem aqui.",
+      "related": "Também poderá gostar",
+      "recentlyViewed": "Vistos recentemente",
+      "sampleDescription": "A descrição do produto aparece aqui."
     }
   },
   "admin": {
@@ -3634,7 +4042,27 @@
       "supportEmailLabel": "E-mail",
       "supportPhoneLabel": "Telefone",
       "legal": "© {year} {client}",
-      "information": "Informação"
+      "information": "Informação",
+      "previousMessage": "Mensagem anterior",
+      "nextMessage": "Próxima mensagem",
+      "followUs": "Siga-nos",
+      "weAccept": "Aceitamos",
+      "newsletterTitle": "Mantenha-se atualizado",
+      "newsletterBody": "Novidades, reposições e ofertas. Cancele a subscrição a qualquer momento.",
+      "newsletterButton": "Subscrever",
+      "shopAllIn": "Comprar tudo em {name}",
+      "trustSecure": "Pagamento seguro",
+      "trustTracked": "Entrega com seguimento",
+      "trustMadeToOrder": "Feito por encomenda",
+      "trustSupport": "Pessoas reais, apoio real",
+      "social": {
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "x": "X",
+        "youtube": "YouTube",
+        "facebook": "Facebook",
+        "pinterest": "Pinterest"
+      }
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3647,9 +4075,6 @@
     "home": {
       "closedTitle": "Esta loja está encerrada",
       "closedBody": "As encomendas já feitas continuam a ser entregues.",
-      "comingSoonTitle": "{store} abre em breve",
-      "comingSoonNoProducts": "Volte em breve.",
-      "browseProducts": "Ver {count} produtos",
       "pausedTitle": "Esta loja está temporariamente indisponível",
       "previewBanner": "Pré-visualização de alterações não publicadas",
       "previewExpired": "Este link de pré-visualização expirou."
@@ -3691,7 +4116,14 @@
       "leadDays": "{from}–{to} dias",
       "leadUnknown": "poucos dias",
       "printDetail": "{count, plural, one {Área de impressão} other {Áreas de impressão}}",
-      "printDetailBody": "{area}, {width} × {height} mm"
+      "printDetailBody": "{area}, {width} × {height} mm",
+      "tabDescription": "Descrição",
+      "tabDetails": "Detalhes",
+      "tabShipping": "Envio",
+      "shippingPolicy": "Ler a política de envio",
+      "sizeGuide": "Guia de tamanhos",
+      "related": "Também poderá gostar",
+      "recentlyViewed": "Vistos recentemente"
     },
     "purchase": {
       "addToBasket": "Adicionar ao cesto",
@@ -3969,10 +4401,65 @@
       "viewAll": "Ver tudo",
       "noProducts": "Ainda sem produtos.",
       "previewSoon": "Pré-visualização em breve",
-      "imagePlaceholder": "Adicione o URL de uma imagem nas definições da secção",
+      "imagePlaceholder": "Adicione uma imagem nas definições da secção",
       "newsletterEmail": "Endereço de e-mail",
       "notifyMe": "Avisem-me",
-      "welcome": "Bem-vindo"
+      "welcome": "Bem-vindo",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "pause": "Pausa",
+      "play": "Reproduzir",
+      "slide": "Slide {n} de {total}",
+      "days": "Dias",
+      "hours": "Horas",
+      "minutes": "Minutos",
+      "seconds": "Segundos",
+      "countdownHint": "Defina a data e hora para a contagem decrescente nas definições da secção",
+      "quickAdd": "Adicionar rápido",
+      "chooseOption": "Escolha uma opção",
+      "added": "Adicionado ao carrinho",
+      "addToBasket": "Adicionar ao carrinho",
+      "viewProduct": "Ver detalhes",
+      "badgeNew": "Novo",
+      "badgeSoldOut": "Esgotado",
+      "badgeSale": "Promoção",
+      "badgeExclusive": "Exclusivo",
+      "badgeCustom": "Personalizar",
+      "badgeBestseller": "Mais vendido",
+      "noCollections": "As suas coleções aparecerão aqui depois de as criar",
+      "videoPlaceholder": "Adicione um vídeo nas definições da secção",
+      "ratingLabel": "{rating} de 5 estrelas",
+      "contactAddress": "Morada",
+      "contactHours": "Horário de funcionamento",
+      "contactEmail": "Email",
+      "contactPhone": "Telefone",
+      "directions": "Obter direções",
+      "newsletterThanks": "Obrigado por subscrever.",
+      "newsletterInvalid": "Introduza um endereço de email válido.",
+      "newsletterClosed": "A subscrição não está disponível neste momento.",
+      "generated": {
+        "heroHeadline": "A nova coleção chegou",
+        "heroBody": "Desenhado por {store}, feito por encomenda e entregue à sua porta.",
+        "heroCta": "Comprar agora",
+        "soonHeadline": "Em breve",
+        "soonBody": "A primeira coleção está a caminho. Subscreva para saber quando será lançada.",
+        "newArrivals": "Novidades",
+        "shopAll": "Ver tudo",
+        "collections": "Comprar por coleção",
+        "allProducts": "Gama completa",
+        "value1Title": "Feito por encomenda",
+        "value1Body": "Cada peça é feita para si quando a encomenda, para que nada seja desperdiçado.",
+        "value2Title": "Entrega com seguimento",
+        "value2Body": "Cada encomenda é seguida desde a nossa porta até à sua.",
+        "value3Title": "Pagamento seguro",
+        "value3Body": "Pague em segurança com todos os principais cartões.",
+        "storyEyebrow": "Como é feito",
+        "storyHeading": "Impresso para si, uma encomenda de cada vez",
+        "storyBody": "Nada fica parado num armazém. Quando encomenda, a sua peça é impressa, verificada e embalada à mão, e depois enviada para si.",
+        "newsletterHeading": "Seja o primeiro a saber do próximo lançamento",
+        "newsletterBody": "Novos lançamentos, reposições e ofertas. Cancele a subscrição a qualquer momento.",
+        "newsletterButton": "Subscrever"
+      }
     },
     "email": {
       "logoAlt": "{store}",

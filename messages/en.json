@@ -1498,7 +1498,8 @@
       "nothingToTranslate": "Everything is already translated.",
       "translated": "{count, plural, one {Translated # field.} other {Translated # fields.}} Review before publishing.",
       "translateFailed": "Translation failed. Try again.",
-      "seoSaved": "SEO details saved."
+      "seoSaved": "SEO details saved.",
+      "designSaved": "Design saved."
     },
     "admin": {
       "supplierGone": "Supplier not found.",
@@ -3064,15 +3065,15 @@
     "sections": {
       "HeroSection": {
         "name": "Hero",
-        "description": "Full-width opening statement with a call to action and hero image.",
+        "description": "Opening statement with a call to action and an image beside it.",
         "fields": {
           "eyebrow": "Eyebrow",
           "headline": "Headline",
           "body": "Supporting copy",
           "ctaLabel": "Button label",
           "ctaHref": "Button target",
-          "imageUrl": "Image URL",
-          "imageUrlHelp": "Leave empty to use the store logo lockup.",
+          "imageUrl": "Image",
+          "imageUrlHelp": "Leave empty for a text-only hero.",
           "align": "Alignment",
           "tone": "Tone"
         }
@@ -3118,7 +3119,7 @@
         "fields": {
           "heading": "Heading",
           "body": "Body copy",
-          "imageUrl": "Image URL",
+          "imageUrl": "Image",
           "imageSide": "Image position"
         }
       },
@@ -3148,6 +3149,72 @@
           "body": "Body copy",
           "buttonLabel": "Button label"
         }
+      },
+      "ImageHero": {
+        "name": "Image or video hero",
+        "description": "Full-bleed photo or video with the headline over it."
+      },
+      "Slideshow": {
+        "name": "Slideshow",
+        "description": "Rotating banners for drops, campaigns and collections."
+      },
+      "Countdown": {
+        "name": "Countdown",
+        "description": "A drop or launch banner counting down to a date."
+      },
+      "ProductCarousel": {
+        "name": "Product carousel",
+        "description": "A swipeable row of products, such as new arrivals or one collection.",
+        "fields": {
+          "layout": "Heading position"
+        }
+      },
+      "FeaturedProduct": {
+        "name": "Featured product",
+        "description": "One product with its photos, options and an add to basket button."
+      },
+      "CollectionTiles": {
+        "name": "Collection tiles",
+        "description": "Shop by category: large photo tiles that open a collection.",
+        "fields": {
+          "ratio": "Tile shape"
+        }
+      },
+      "MultiColumn": {
+        "name": "Columns",
+        "description": "Two to four columns with an icon or photo each."
+      },
+      "Story": {
+        "name": "Story",
+        "description": "About us or mission: a long read with photos, a key number and a sign-off."
+      },
+      "Stats": {
+        "name": "Impact numbers",
+        "description": "Up to four big numbers: impact, community, orders shipped."
+      },
+      "Gallery": {
+        "name": "Gallery",
+        "description": "A lookbook of photos, each with an optional caption and link."
+      },
+      "VideoSection": {
+        "name": "Video",
+        "description": "An uploaded video or a YouTube or Vimeo link, played on click."
+      },
+      "LogoStrip": {
+        "name": "Logo strip",
+        "description": "Partner, press or client logos in a row."
+      },
+      "TestimonialCarousel": {
+        "name": "Testimonials carousel",
+        "description": "Several customer quotes to swipe through."
+      },
+      "Faq": {
+        "name": "FAQ",
+        "description": "Questions and answers that open one at a time."
+      },
+      "Contact": {
+        "name": "Contact and locations",
+        "description": "Address, opening hours, email and phone, with directions."
       }
     },
     "options": {
@@ -3162,7 +3229,45 @@
       "light": "Light",
       "dark": "Dark",
       "right": "Right",
-      "all": "All products"
+      "all": "All products",
+      "auto": "Automatic",
+      "surface": "Surface",
+      "primary": "Primary colour",
+      "secondary": "Secondary colour",
+      "inverse": "Inverted",
+      "custom": "Custom colour",
+      "image": "Image",
+      "none": "None",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "narrow": "Narrow",
+      "normal": "Normal",
+      "wide": "Wide",
+      "full": "Full width",
+      "screen": "Full screen",
+      "bottom-left": "Bottom left",
+      "bottom-center": "Bottom centre",
+      "top": "Above",
+      "side": "Beside",
+      "square": "Square",
+      "portrait": "Portrait",
+      "landscape": "Landscape",
+      "grid": "Grid",
+      "carousel": "Carousel",
+      "icon": "Icons",
+      "number": "Numbers",
+      "mosaic": "Mosaic",
+      "16:9": "Wide",
+      "4:3": "Classic",
+      "1:1": "Square",
+      "9:16": "Vertical",
+      "columns": "Columns",
+      "centered": "Centred",
+      "thumbnails": "Large photo with thumbnails",
+      "stacked": "Stacked photos",
+      "tabs": "Tabs",
+      "accordion": "Accordion"
     },
     "revert": "Revert draft to published",
     "noProductsTitle": "No published products yet",
@@ -3228,7 +3333,9 @@
       "page": "Page",
       "products": "Products",
       "portals": "Gift portals",
-      "collections": "Collections"
+      "collections": "Collections",
+      "productPage": "Product page",
+      "design": "Design"
     },
     "site": {
       "title": "Header and footer",
@@ -3237,7 +3344,11 @@
         "announcement": "Announcement bar",
         "navShop": "Shop link label",
         "navOrders": "Order status link label",
-        "footerNote": "Footer note"
+        "footerNote": "Footer note",
+        "announcement2": "Second announcement",
+        "announcement3": "Third announcement",
+        "newsletterHeading": "Footer newsletter heading",
+        "newsletterBody": "Footer newsletter text"
       },
       "shipDays": "Ships within (business days)",
       "shipDaysHint": "Shown on every product page, and in the announcement bar when it is empty.",
@@ -3306,6 +3417,303 @@
       "reset": "Reset to default",
       "noMatch": "No text matches your search.",
       "failed": "Could not save. Try again."
+    },
+    "categories": {
+      "hero": "Openers",
+      "products": "Products",
+      "content": "Content",
+      "media": "Media",
+      "social": "Social proof",
+      "conversion": "Promotion and sign-up"
+    },
+    "style": "Style",
+    "fields": {
+      "secondaryLabel": "Second button label",
+      "secondaryHref": "Second button target",
+      "background": "Background",
+      "backgroundColor": "Background colour",
+      "backgroundImage": "Background image",
+      "spacing": "Spacing",
+      "width": "Width",
+      "eyebrow": "Eyebrow",
+      "headline": "Headline",
+      "body": "Copy",
+      "ctaLabel": "Button label",
+      "ctaHref": "Button target",
+      "imageUrl": "Image",
+      "videoUrl": "Background video",
+      "height": "Height",
+      "position": "Text position",
+      "overlay": "Image darkening (%)",
+      "align": "Alignment",
+      "autoplay": "Advance automatically",
+      "image": "Image",
+      "scrolling": "Scroll the message across",
+      "heading": "Heading",
+      "endsAt": "Counts down to",
+      "endedText": "Shown once the time has passed",
+      "showBadges": "Show badges",
+      "showSwatches": "Show colour swatches",
+      "quickAdd": "Quick add",
+      "title": "Title",
+      "subtitle": "Subtitle",
+      "source": "Source",
+      "limit": "Maximum products",
+      "layout": "Layout",
+      "product": "Product",
+      "imageSide": "Image position",
+      "ratio": "Shape",
+      "collection": "Collection",
+      "label": "Label",
+      "itemOneIcon": "Item 1 icon",
+      "itemTwoIcon": "Item 2 icon",
+      "itemThreeIcon": "Item 3 icon",
+      "columns": "Columns",
+      "media": "Show",
+      "icon": "Icon",
+      "secondImageUrl": "Second photo",
+      "statValue": "Key number",
+      "statLabel": "Key number label",
+      "signature": "Signed",
+      "value": "Value",
+      "posterUrl": "Cover image",
+      "monochrome": "Show logos in one colour",
+      "name": "Name for screen readers",
+      "rating": "Stars (0 hides them)",
+      "address": "Address",
+      "hours": "Opening hours",
+      "email": "Email",
+      "phone": "Phone",
+      "mapUrl": "Directions link",
+      "announcementCountdown": "Announcement countdown to",
+      "headerLayout": "Header layout",
+      "headerSticky": "Keep the header in view while scrolling",
+      "headerTransparent": "Show the header over a full-bleed hero",
+      "megaMenu": "Mega menu with collection photos",
+      "footerLayout": "Footer layout",
+      "footerNewsletter": "Newsletter sign-up in the footer",
+      "footerPayments": "Payment methods in the footer",
+      "footerTrust": "Trust badges above the footer",
+      "socialInstagram": "Instagram link",
+      "socialTiktok": "TikTok link",
+      "socialX": "X link",
+      "socialYoutube": "YouTube link",
+      "socialFacebook": "Facebook link",
+      "socialPinterest": "Pinterest link",
+      "galleryLayout": "Gallery",
+      "gallerySide": "Gallery position",
+      "personalisation": "Show personalisation",
+      "showTags": "Show tags",
+      "stickyBuyBox": "Keep the buy box in view while scrolling",
+      "trustNote": "Line under the button",
+      "style": "Style",
+      "showDetails": "Show print and production details",
+      "showShipping": "Show shipping",
+      "extraTitle": "Extra tab title",
+      "extraBody": "Extra tab copy",
+      "intro": "Introduction",
+      "table": "Table",
+      "caption": "Caption",
+      "link": "Link",
+      "author": "Author",
+      "role": "Role or company",
+      "quote": "Quote"
+    },
+    "repeat": {
+      "slide": "Slide {n}",
+      "tile": "Tile {n}",
+      "column": "Column {n}",
+      "stat": "Number {n}",
+      "image": "Photo {n}",
+      "caption": "Caption {n}",
+      "link": "Link {n}",
+      "logo": "Logo {n}",
+      "quote": "Quote {n}",
+      "author": "Quote {n}: author",
+      "role": "Quote {n}: role or company",
+      "q": "Question {n}",
+      "a": "Answer {n}",
+      "feature": "Feature {n}"
+    },
+    "help": {
+      "videoUrl": "MP4 or WebM, muted and looped. The image shows until it plays.",
+      "product": "Leave empty for the newest product.",
+      "tile1Collection": "Tiles left empty show your collections in order.",
+      "mapUrl": "A Google Maps or Apple Maps link.",
+      "announcementCountdown": "Shows a countdown in the announcement bar until this time.",
+      "table": "One row per line, cells separated by |. The first row is the header."
+    },
+    "icons": {
+      "sparkles": "Sparkles",
+      "truck": "Delivery",
+      "shield": "Shield",
+      "leaf": "Leaf",
+      "heart": "Heart",
+      "star": "Star",
+      "gift": "Gift",
+      "recycle": "Recycling",
+      "globe": "Globe",
+      "palette": "Palette",
+      "shirt": "Shirt",
+      "coffee": "Coffee",
+      "package": "Parcel",
+      "clock": "Clock",
+      "award": "Award",
+      "smile": "Smile",
+      "lock": "Lock",
+      "return": "Returns",
+      "ruler": "Ruler",
+      "users": "People"
+    },
+    "blocks": {
+      "ProductMain": {
+        "name": "Gallery and buy box",
+        "description": "Photos, price, options, personalisation and the add to basket button."
+      },
+      "DescriptionTabs": {
+        "name": "Description tabs",
+        "description": "The description, print and production details, and shipping, in tabs."
+      },
+      "SizeGuide": {
+        "name": "Size guide",
+        "description": "A measurement table that opens from the product page.",
+        "fields": {
+          "titleHelp": "Leave empty for the default title."
+        }
+      },
+      "ProductFeatures": {
+        "name": "Features",
+        "description": "Three short reasons to buy, with icons."
+      },
+      "ProductText": {
+        "name": "Text",
+        "description": "A heading and paragraph shown on every product page."
+      },
+      "Reviews": {
+        "name": "Reviews",
+        "description": "The product's approved reviews and its rating."
+      },
+      "RelatedProducts": {
+        "name": "Related products",
+        "description": "Products from the same collections or with the same tags.",
+        "fields": {
+          "titleHelp": "Leave empty for the default title."
+        }
+      },
+      "RecentlyViewed": {
+        "name": "Recently viewed",
+        "description": "The products this shopper looked at last.",
+        "fields": {
+          "titleHelp": "Leave empty for the default title."
+        }
+      }
+    },
+    "link": {
+      "automatic": "Your collections in order",
+      "newest": "Newest product",
+      "none": "No link",
+      "products": "All products",
+      "cart": "Basket",
+      "collection": "Collection: {name}",
+      "product": "Product: {name}",
+      "custom": "Web address",
+      "customUrl": "Web address"
+    },
+    "image": {
+      "upload": "Upload image",
+      "replace": "Replace",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "failed": "Upload failed. Try again.",
+      "url": "Image address",
+      "urlPlaceholder": "Or paste an image address",
+      "focalPick": "Click the photo to set its focal point",
+      "focalX": "Focal point across (%)",
+      "focalY": "Focal point down (%)",
+      "uploadVideo": "Upload video",
+      "replaceVideo": "Replace video",
+      "videoPlaceholder": "Or paste a video, YouTube or Vimeo address"
+    },
+    "design": {
+      "presets": "Presets",
+      "presetsBody": "Start from a preset, then make it your own.",
+      "colours": "Brand colours",
+      "coloursBody": "Text colours are adjusted on the storefront to stay readable.",
+      "colourNames": {
+        "primary": "Primary",
+        "secondary": "Secondary",
+        "background": "Background",
+        "surface": "Surface",
+        "text": "Text"
+      },
+      "contrastOk": "{pair} contrast {ratio}:1",
+      "contrastAdjusted": "{pair} contrast {ratio}:1, adjusted to stay readable",
+      "type": "Type",
+      "headingFont": "Heading font",
+      "bodyFont": "Body font",
+      "pairings": "Pairings",
+      "categories": {
+        "sans": "Sans serif",
+        "serif": "Serif",
+        "display": "Display",
+        "mono": "Mono"
+      },
+      "style": "Style",
+      "mode": "Light or dark",
+      "radius": "Corners",
+      "buttons": "Buttons",
+      "density": "Spacing",
+      "productImage": "Product photos",
+      "values": {
+        "light": "Light",
+        "dark": "Dark",
+        "none": "Square",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "solid": "Solid",
+        "outline": "Outline",
+        "pill": "Pill",
+        "compact": "Compact",
+        "comfortable": "Comfortable",
+        "airy": "Airy",
+        "square": "Square",
+        "portrait": "Portrait",
+        "landscape": "Landscape"
+      },
+      "save": "Save design",
+      "saving": "Saving…",
+      "discard": "Discard changes",
+      "liveNote": "A saved design goes live straight away.",
+      "saveFailed": "The design could not be saved. Try again.",
+      "sampleHeading": "New season essentials",
+      "sampleBody": "Made to order and shipped worldwide.",
+      "samplePrimary": "Shop now",
+      "sampleSecondary": "Learn more",
+      "sampleSurface": "Free shipping on orders over 75"
+    },
+    "productPage": {
+      "blocks": "Product page blocks",
+      "blocksBody": "Every product page is built from these blocks, top to bottom.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "addBlock": "Add a block",
+      "add": "Add",
+      "settings": "Block settings",
+      "remove": "Remove",
+      "noSettings": "This block has no settings.",
+      "select": "Select a block to change its settings.",
+      "sampleName": "Product name",
+      "personalisation": "Personalisation",
+      "tabDescription": "Description",
+      "tabDetails": "Details",
+      "tabShipping": "Shipping",
+      "sizeGuide": "Size guide",
+      "reviews": "Reviews",
+      "reviewsBody": "Approved reviews and the product's rating appear here.",
+      "related": "You may also like",
+      "recentlyViewed": "Recently viewed",
+      "sampleDescription": "The product description appears here."
     }
   },
   "admin": {
@@ -3634,7 +4042,27 @@
       "supportEmailLabel": "Email",
       "supportPhoneLabel": "Phone",
       "legal": "© {year} {client}",
-      "information": "Information"
+      "information": "Information",
+      "previousMessage": "Previous message",
+      "nextMessage": "Next message",
+      "followUs": "Follow us",
+      "weAccept": "We accept",
+      "newsletterTitle": "Stay in the loop",
+      "newsletterBody": "New drops, restocks and offers. Unsubscribe any time.",
+      "newsletterButton": "Sign up",
+      "shopAllIn": "Shop all {name}",
+      "trustSecure": "Secure checkout",
+      "trustTracked": "Tracked delivery",
+      "trustMadeToOrder": "Made to order",
+      "trustSupport": "Real people, real support",
+      "social": {
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "x": "X",
+        "youtube": "YouTube",
+        "facebook": "Facebook",
+        "pinterest": "Pinterest"
+      }
     },
     "meta": {
       "homeTitle": "{store}",
@@ -3647,9 +4075,6 @@
     "home": {
       "closedTitle": "This store is closed",
       "closedBody": "Orders already placed will still be delivered.",
-      "comingSoonTitle": "{store} is opening soon",
-      "comingSoonNoProducts": "Check back soon.",
-      "browseProducts": "Browse {count} products",
       "pausedTitle": "This store is temporarily unavailable",
       "previewBanner": "Preview of unpublished changes",
       "previewExpired": "This preview link has expired."
@@ -3691,7 +4116,14 @@
       "leadDays": "{from}–{to} days",
       "leadUnknown": "a few days",
       "printDetail": "{count, plural, one {Print area} other {Print areas}}",
-      "printDetailBody": "{area}, {width} × {height} mm"
+      "printDetailBody": "{area}, {width} × {height} mm",
+      "tabDescription": "Description",
+      "tabDetails": "Details",
+      "tabShipping": "Shipping",
+      "shippingPolicy": "Read the shipping policy",
+      "sizeGuide": "Size guide",
+      "related": "You may also like",
+      "recentlyViewed": "Recently viewed"
     },
     "purchase": {
       "addToBasket": "Add to basket",
@@ -3969,10 +4401,65 @@
       "viewAll": "View all",
       "noProducts": "No products yet.",
       "previewSoon": "Preview coming soon",
-      "imagePlaceholder": "Add an image URL in the section settings",
+      "imagePlaceholder": "Add an image in the section settings",
       "newsletterEmail": "Email address",
       "notifyMe": "Notify me",
-      "welcome": "Welcome"
+      "welcome": "Welcome",
+      "previous": "Previous",
+      "next": "Next",
+      "pause": "Pause",
+      "play": "Play",
+      "slide": "Slide {n} of {total}",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds",
+      "countdownHint": "Set the date and time to count down to in the section settings",
+      "quickAdd": "Quick add",
+      "chooseOption": "Choose an option",
+      "added": "Added to basket",
+      "addToBasket": "Add to basket",
+      "viewProduct": "View details",
+      "badgeNew": "New",
+      "badgeSoldOut": "Sold out",
+      "badgeSale": "Sale",
+      "badgeExclusive": "Exclusive",
+      "badgeCustom": "Personalise",
+      "badgeBestseller": "Most wanted",
+      "noCollections": "Your collections appear here once you create them",
+      "videoPlaceholder": "Add a video in the section settings",
+      "ratingLabel": "{rating} out of 5 stars",
+      "contactAddress": "Address",
+      "contactHours": "Opening hours",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "directions": "Get directions",
+      "newsletterThanks": "Thanks for signing up.",
+      "newsletterInvalid": "Enter a valid email address.",
+      "newsletterClosed": "Sign-up is not available right now.",
+      "generated": {
+        "heroHeadline": "The new collection is here",
+        "heroBody": "Designed by {store}, made to order and shipped to your door.",
+        "heroCta": "Shop now",
+        "soonHeadline": "Opening soon",
+        "soonBody": "The first collection is on its way. Sign up to hear when it drops.",
+        "newArrivals": "New arrivals",
+        "shopAll": "Shop all",
+        "collections": "Shop by collection",
+        "allProducts": "The full range",
+        "value1Title": "Made to order",
+        "value1Body": "Every piece is made for you when you order it, so nothing goes to waste.",
+        "value2Title": "Tracked delivery",
+        "value2Body": "Every parcel is tracked from our door to yours.",
+        "value3Title": "Secure checkout",
+        "value3Body": "Pay safely with all major cards.",
+        "storyEyebrow": "How it's made",
+        "storyHeading": "Printed for you, one order at a time",
+        "storyBody": "Nothing sits in a warehouse. When you order, your piece is printed, checked and packed by hand, then sent your way.",
+        "newsletterHeading": "Be first to the next drop",
+        "newsletterBody": "New releases, restocks and offers. Unsubscribe any time.",
+        "newsletterButton": "Sign up"
+      }
     },
     "email": {
       "logoAlt": "{store}",

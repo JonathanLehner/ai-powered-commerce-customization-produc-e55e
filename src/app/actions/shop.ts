@@ -22,6 +22,7 @@ import {
   removeCartLine,
   removeDiscount as removeCartDiscount,
   removeGiftCard as removeCartGiftCard,
+  subscribeToNewsletter,
   updateCartLine,
   type ShopRefusal,
   type ShopperSession,
@@ -277,4 +278,17 @@ export async function lookupOrder(_prev: ActionState, formData: FormData): Promi
   );
   if (result.status === "error") return refusal(result);
   redirect(result.to);
+}
+
+/* -------------------------------------------------------------- newsletter */
+
+/** The footer's and the Email capture section's sign-up form. */
+export async function subscribeNewsletter(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const store = await getStore(String(formData.get("storeId") ?? ""));
+  const copy = await shopperCopy(store);
+  const result = await subscribeToNewsletter(store, copy, {
+    email: String(formData.get("email") ?? ""),
+    source: String(formData.get("source") ?? "storefront"),
+  });
+  return result.status === "error" ? refusal(result) : { status: "success", message: result.message };
 }

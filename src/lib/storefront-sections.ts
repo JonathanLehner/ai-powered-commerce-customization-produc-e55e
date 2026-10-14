@@ -5,7 +5,7 @@
  * new tree and leaves the one it was given alone. Kept free of server imports,
  * so the check scripts run it directly.
  */
-import { SECTION_DEFS, SECTION_ORDER, treeFromSections, type CraftTree, type SectionField, type SectionType } from "./storefront-schema";
+import { ICONS, SECTION_DEFS, SECTION_ORDER, treeFromSections, type CraftTree, type SectionField, type SectionType } from "./storefront-schema";
 import { I18N_PROP, translatableSectionFields, withTranslation, type FieldTranslations } from "./translations";
 
 export const SECTION_LIMIT = 40;
@@ -54,27 +54,40 @@ export function sectionTypes() {
       type,
       name: def.name,
       description: def.description,
-      fields: def.fields.map((field) => ({
-        key: field.key,
-        label: field.label,
-        type: field.type,
-        translatable: field.type === "text" || field.type === "textarea",
-        ...(field.options
-          ? {
-              options:
-                field.key === "source"
-                  ? [...field.options.map((o) => o.value), "<collection id>"]
-                  : field.options.map((o) => o.value),
-            }
-          : {}),
-        ...(field.min !== undefined ? { min: field.min } : {}),
-        ...(field.max !== undefined ? { max: field.max } : {}),
-        ...(field.help ? { help: field.help } : {}),
-        default: def.defaults[field.key],
-      })),
+      category: def.category,
+      fields: def.fields.map((field) => describeField(field, def.defaults[field.key])),
     };
   });
 }
+
+/** What a field accepts, for a caller filling it in. */
+export function describeField(field: SectionField, fallback: unknown) {
+  return {
+    key: field.key,
+    label: field.label,
+    type: field.type,
+    group: field.group ?? "content",
+    translatable: field.type === "text" || field.type === "textarea",
+    ...(field.options ? { options: field.options.map((o) => o.value) } : {}),
+    ...(field.type === "collection" ? { options: ["all", "<collection id>"] } : {}),
+    ...(field.type === "icon" ? { options: [...ICONS] } : {}),
+    ...(field.min !== undefined ? { min: field.min } : {}),
+    ...(field.max !== undefined ? { max: field.max } : {}),
+    ...(FORMATS[field.type] ? { format: FORMATS[field.type] } : {}),
+    ...(field.help ? { help: field.help } : {}),
+    default: fallback,
+  };
+}
+
+const FORMATS: Partial<Record<SectionField["type"], string>> = {
+  image: "An https URL from uploadStorefrontImage, or empty.",
+  video: "An https URL: an MP4 or WebM from uploadStorefrontImage (kind video), a YouTube or Vimeo link, or empty.",
+  focal: "\"x y\": where the subject is, as percentages from the top left, such as \"50 30\".",
+  color: "#rrggbb, or empty for the theme's.",
+  datetime: "An ISO 8601 date and time, such as 2026-11-01T18:00:00Z, or empty.",
+  link: "products, cart, collection:<collection id>, product:<product id>, #<anchor>, an https URL, or empty.",
+  product: "A product id from listProducts, or empty for the newest.",
+};
 
 export function isSectionType(value: unknown): value is SectionType {
   return typeof value === "string" && value in SECTION_DEFS;
@@ -141,11 +154,16 @@ function newSectionId(): string {
 /* ---------------------------------------------------------------- fields */
 
 export interface FieldRules {
-  /** The store's collection ids, which a Product grid's `source` may name. */
+  /** The store's collection ids, which a collection field or link may name. */
   collectionIds: string[];
+  /** The store's product ids, which a product field or link may name. Absent skips the check. */
+  productIds?: string[];
 }
 
-function checkField(type: SectionType, field: SectionField, value: unknown, rules: FieldRules): { value: FieldValue } | { message: string } {
+const HTTPS = /^https:\/\/\S+$/i;
+
+/** Checks one value against its field's rule. */
+export function checkFieldValue(field: SectionField, value: unknown, rules: FieldRules): { value: FieldValue } | { message: string } {
   switch (field.type) {
     case "text":
     case "textarea": {
@@ -165,24 +183,70 @@ function checkField(type: SectionType, field: SectionField, value: unknown, rule
       }
       return { value: number };
     }
-    case "url": {
+    case "url":
+    case "image":
+    case "video": {
       if (typeof value !== "string") return { message: "Must be a string: a URL, or empty." };
       const trimmed = value.trim();
       if (trimmed.length > URL_LIMIT) return { message: `At most ${URL_LIMIT} characters.` };
-      if (trimmed !== "" && !/^https:\/\/\S+$/i.test(trimmed)) {
+      if (trimmed !== "" && !HTTPS.test(trimmed)) {
         return { message: "Use an https:// URL, such as one returned by uploadStorefrontImage, or an empty string." };
       }
       return { value: trimmed };
+    }
+    case "focal": {
+      const match = typeof value === "string" ? /^\s*(\d{1,3})\s+(\d{1,3})\s*$/.exec(value) : null;
+      if (!match || Number(match[1]) > 100 || Number(match[2]) > 100) {
+        return { message: "Must be two percentages from 0 to 100, such as \"50 30\"." };
+      }
+      return { value: `${Number(match[1])} ${Number(match[2])}` };
+    }
+    case "color": {
+      if (typeof value !== "string" || (value !== "" && !/^#[0-9a-f]{6}$/i.test(value))) {
+        return { message: "Must be a colour as #rrggbb, or empty." };
+      }
+      return { value: value.toLowerCase() };
+    }
+    case "datetime": {
+      if (typeof value !== "string") return { message: "Must be an ISO 8601 date and time, or empty." };
+      if (value === "") return { value };
+      const time = Date.parse(value);
+      if (!Number.isFinite(time)) return { message: "Must be an ISO 8601 date and time, such as 2026-11-01T18:00:00Z, or empty." };
+      return { value: new Date(time).toISOString() };
+    }
+    case "icon": {
+      if (typeof value !== "string" || !(ICONS as readonly string[]).includes(value)) {
+        return { message: `Must be one of: ${ICONS.join(", ")}.` };
+      }
+      return { value };
+    }
+    case "collection": {
+      if (typeof value !== "string") return { message: "Must be all, or a collection id from listCollections." };
+      if (value === "" || value === "all" || rules.collectionIds.includes(value)) return { value };
+      return { message: `Must be one of: all, ${rules.collectionIds.join(", ") || "(no collections yet)"} (a collection id from listCollections).` };
+    }
+    case "product": {
+      if (typeof value !== "string") return { message: "Must be a product id from listProducts, or empty." };
+      if (value === "" || !rules.productIds || rules.productIds.includes(value)) return { value };
+      return { message: "No product with this id in the store. Use a product id from listProducts, or empty." };
+    }
+    case "link": {
+      if (typeof value !== "string") return { message: "Must be a string." };
+      const trimmed = value.trim();
+      if (trimmed.length > URL_LIMIT) return { message: `At most ${URL_LIMIT} characters.` };
+      if (trimmed === "" || trimmed === "products" || trimmed === "cart" || HTTPS.test(trimmed) || /^#[\w-]{1,60}$/.test(trimmed)) {
+        return { value: trimmed };
+      }
+      const [kind, id] = trimmed.split(":");
+      if (kind === "collection" && rules.collectionIds.includes(id)) return { value: trimmed };
+      if (kind === "product" && id && (!rules.productIds || rules.productIds.includes(id))) return { value: trimmed };
+      return { message: "Must be products, cart, collection:<collection id>, product:<product id>, #<anchor>, an https:// URL, or empty." };
     }
     case "select": {
       if (typeof value !== "string" && typeof value !== "number") return { message: "Must be one of the options." };
       const text = String(value);
       const allowed = (field.options ?? []).map((o) => o.value);
-      if (type === "ProductGrid" && field.key === "source") allowed.push(...rules.collectionIds);
-      if (!allowed.includes(text)) {
-        const extra = field.key === "source" ? " (a collection id from listCollections)" : "";
-        return { message: `Must be one of: ${allowed.join(", ")}${extra}.` };
-      }
+      if (!allowed.includes(text)) return { message: `Must be one of: ${allowed.join(", ")}.` };
       return { value: text };
     }
   }
@@ -203,7 +267,7 @@ export function checkFields(type: SectionType, values: Record<string, unknown>, 
       issues.push({ field: `fields.${key}`, message: `${type} has no such field. Its fields are: ${def.fields.map((f) => f.key).join(", ")}.` });
       continue;
     }
-    const checked = checkField(type, field, value, rules);
+    const checked = checkFieldValue(field, value, rules);
     if ("message" in checked) issues.push({ field: `fields.${key}`, message: checked.message });
     else out[key] = checked.value;
   }

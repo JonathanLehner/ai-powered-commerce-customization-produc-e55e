@@ -63,6 +63,7 @@ export const INDEXES: Record<string, IndexSpec[]> = {
     { key: { storeId: 1, lastOrderAt: -1 } },
     { key: { storeId: 1, createdAt: -1, id: -1 } },
   ],
+  newsletter_subscribers: [byId, { key: { storeId: 1, email: 1 }, unique: true }, { key: { storeId: 1, createdAt: -1 } }],
   product_collections: [
     byId,
     { key: { storeId: 1, handle: 1 }, unique: true },

@@ -108,6 +108,22 @@ const IMAGES = [
     prompt:
       "Lifestyle photograph of folded blank pastel apparel and a plain white mug arranged on a linen surface beside dried flowers, warm morning light, soft shadows, creator-brand aesthetic. No readable text, no logos.",
   },
+  // The generated home page of a store that has no photos of its own yet.
+  {
+    key: "storefront-default-hero",
+    prompt:
+      "Wide editorial lifestyle photograph for a merch shop homepage: a person in a plain heather grey hoodie and a plain white t-shirt layered, standing in warm late-afternoon city light, shot from the shoulders down so the face is not visible, a plain canvas tote bag on one shoulder. Rich warm tones, soft film grain, generous empty space on the left for a headline, 16:9 composition. No readable text, no logos, no printed graphics.",
+  },
+  {
+    key: "storefront-default-story",
+    prompt:
+      "Photograph of a small print studio: a screen-printing press with a blank white t-shirt on the platen, squeegee resting beside it, stacks of folded blank tees on a wooden table, soft daylight from a large window. Calm warm palette, portrait 4:5 composition. No people's faces, no readable text, no logos.",
+  },
+  {
+    key: "storefront-default-flatlay",
+    prompt:
+      "Overhead flat-lay photograph of blank merchandise on a warm off-white paper backdrop: a folded black t-shirt, a cream crewneck sweatshirt, a plain white ceramic mug, a plain canvas tote and a cap, neatly arranged with generous spacing, soft natural shadows. Square composition. No readable text, no logos, no printed graphics.",
+  },
   // Collection headers on the demo storefronts, landscape 3:2.
   {
     key: "collection-northwind-apparel",
