@@ -78,7 +78,7 @@ export function HeroSection({ props, ctx, index }: SectionProps) {
       <div className={cn("grid items-center gap-10 lg:gap-16", hasImage ? "lg:grid-cols-[1.05fr_1fr]" : "")}>
         <div className={centred ? "mx-auto min-w-0 max-w-3xl" : "min-w-0 max-w-2xl"}>
           {str(props, "eyebrow") ? <p className={EYEBROW}>{str(props, "eyebrow")}</p> : null}
-          <h1 className="font-heading mt-4 text-[clamp(2.4rem,5.6vw,4.5rem)] leading-[1.02] font-semibold tracking-tight text-balance hyphens-auto break-words text-foreground">
+          <h1 className="font-heading mt-4 text-[clamp(2.4rem,5.6vw,4.5rem)] leading-[1.02] font-semibold tracking-tight text-balance hyphens-auto sm:hyphens-manual break-words text-foreground">
             {str(props, "headline", ctx.t.welcome)}
           </h1>
           {str(props, "body") ? (
