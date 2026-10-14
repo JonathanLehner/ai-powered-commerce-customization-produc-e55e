@@ -12,6 +12,13 @@
 //   emails, prices) wait for a confirmation showing their exact arguments, run
 //   only when that confirmation is given, with those arguments, and are
 //   declined by cancelling or by writing something new;
+// - the confirmation says what a call does in the person's words ("15% off any
+//   order with code WELCOME15, until the end of November 30, 2026", "Add German
+//   to the storefront"), labels every other argument, and offers a preview and
+//   a comparison before publishing;
+// - API keys, webhooks, billing and the agency are refused as not available in
+//   chat, with a link to where they are done, never blamed on the person's role;
+// - each turn's checkpoint is named after the request that made it;
 // - storefront draft edits run straight away after one checkpoint per turn,
 //   and undo restores that checkpoint through the restore operation;
 // - a change to the store is read again before the next call of the turn, so a
@@ -29,6 +36,10 @@ const { assistantScopes, confirmReasons, scopeGranted, redactSecrets } = await i
 const { currentVia } = await import("../src/lib/assistant/via.ts");
 const engine = await import("../src/lib/assistant/engine.ts");
 const { OperationError } = await import("../src/lib/operations/context.ts");
+const { describeCall } = await import("../src/lib/assistant/describe.ts");
+const { FIELD_LABELS } = await import("../src/lib/assistant/field-labels.ts");
+const { createTranslator } = await import("use-intl/core");
+const enMessages = (await import("../messages/en.json", { with: { type: "json" } })).default;
 
 /* ------------------------------------------------------------ fake registry */
 
@@ -65,6 +76,7 @@ const OPERATIONS = [
   op("createProduct", "POST", "products:write", "Products", { input: z.object({ catalogProductId: z.string() }) }),
   op("listProducts", "GET", "products:read", "Products"),
   op("createApiKey", "POST", "keys:write", "API keys", { result: { secret: "plk_live_should_never_show" } }),
+  op("createBillingCheckoutLink", "POST", "agency:write", "Agency", { input: z.object({ plan: z.string() }) }),
   op("getWebhookEndpoint", "GET", "webhooks:read", "Webhooks"),
   op("getPayments", "GET", "store:read", "Store", { result: { account: "acct_1", webhookSecret: "whsec_123", apiKey: "sk_live_x", nested: [{ token: "t" }] } }),
 ];
@@ -267,7 +279,22 @@ function harness(role, replies, options = {}) {
     assert.equal(ran.length, 0, `${role} cannot run ${name}`);
     assert.equal(h.state.pending, null, `${role} is not even asked to confirm ${name}`);
     const result = h.state.messages.find((m) => m.role === "tool");
-    assert.match(result.content, /Not allowed|no tool called/, `${role} ${name} is refused`);
+    assert.match(result.content, /Not allowed|Not available in chat|no tool called/, `${role} ${name} is refused`);
+  }
+
+  // API keys and the plan are not available in chat for anyone: the refusal links to them and leaves roles out.
+  for (const [name, link] of [
+    ["create_api_key", "[API keys](/app/stores/st_test/setup/api-keys)"],
+    ["create_billing_checkout_link", "[Billing](/app/billing)"],
+  ]) {
+    ran.length = 0;
+    const h = harness("store_admin", [calls(call(name, { plan: "growth" })), say("That isn't available in chat.")]);
+    await engine.sendMessage(h.state, h.deps, { text: "do it" });
+    assert.equal(ran.length, 0);
+    const result = JSON.parse(h.state.messages.find((m) => m.role === "tool").content).error;
+    assert.match(result, /^Not available in chat/, name);
+    assert.ok(result.includes(link), `${name} links to ${link}`);
+    assert.ok(!/store administrator can|change their role/.test(result), `${name} is not blamed on the role`);
   }
 }
 
@@ -321,7 +348,7 @@ function harness(role, replies, options = {}) {
   assert.equal(confirm.pending.actions.length, 1);
   assert.equal(confirm.pending.actions[0].operationId, "refundOrder");
   assert.equal(confirm.pending.actions[0].title, "Do refundOrder");
-  assert.deepEqual(confirm.pending.actions[0].params, [{ key: "orderId", value: "ord_1" }, { key: "amount", value: "1200" }], "the exact arguments are shown");
+  assert.deepEqual(confirm.pending.actions[0].details, [{ label: "orderId", value: "ord_1" }, { label: "amount", value: "1200" }], "the exact arguments are shown");
   assert.ok(confirm.pending.actions[0].reasons.includes("payment") && confirm.pending.actions[0].reasons.includes("irreversible"));
 
   assert.equal(await engine.confirmPending(h.state, h.deps, "acn_wrong"), false, "only the confirmation shown can be confirmed");
@@ -396,6 +423,90 @@ function harness(role, replies, options = {}) {
   await engine.sendMessage(h.state, h.deps, { text: "payments?" });
   const result = h.stub.seen[1].messages.find((m) => m.role === "tool").content;
   assert.ok(!result.includes("whsec_123") && !result.includes("sk_live_x"), "secrets never reach the model");
+}
+
+/* ------------------------------------------------- what the card says */
+
+{
+  const t = createTranslator({ locale: "en", messages: enMessages, namespace: "assistantDescribe" });
+  const store = { id: "st_test", defaultCurrency: "EUR", currencies: ["EUR"], languages: ["en"], defaultLanguage: "en" };
+  const describe = (id, args, extra = {}) => describeCall(id, args, { locale: "en", store, t, ...extra });
+
+  const discount = describe("createDiscount", { code: "welcome15", kind: "percentage", value: 15, minimumSubtotal: 0, expiresAt: "2026-11-30", usageLimit: null, active: true });
+  assert.deepEqual(discount.summary, ["15% off any order with code WELCOME15, until the end of November 30, 2026"]);
+  assert.deepEqual(discount.details, [], "every term is in the sentence");
+  assert.deepEqual(
+    describe("createDiscount", { code: "SAVE10", kind: "fixed", value: 1000, minimumSubtotal: 5000, expiresAt: null, usageLimit: 100, active: false }).summary,
+    ["€10.00 off orders of €50.00 or more with code SAVE10", "Can be used 100 times", "Switched off"],
+  );
+  const current = { code: "WELCOME15", kind: "percentage", value: 15, currency: "EUR", minimumSubtotal: 0, expiresAt: "2026-11-30T23:59:59.999Z", usageLimit: null, active: true };
+  assert.deepEqual(describe("updateDiscount", { discountId: "dsc_1", value: 20 }, { discount: current, names: { dsc_1: "WELCOME15" } }).summary, [
+    "Change discount code WELCOME15 to:",
+    "20% off any order with code WELCOME15, until the end of November 30, 2026",
+  ]);
+
+  assert.deepEqual(describe("updateLanguages", { languages: ["en", "de"], defaultLanguage: "en" }).summary, ["Add German to the storefront"]);
+  assert.deepEqual(
+    describe("updateLanguages", { languages: ["de"], defaultLanguage: "de" }, { store: { ...store, languages: ["en", "fr"] } }).summary,
+    ["Add German to the storefront", "Remove English and French from the storefront", "Make German the default language"],
+  );
+  assert.deepEqual(describe("updateCurrencies", { currencies: ["EUR", "USD"], defaultCurrency: "EUR" }).summary, ["Start selling in US Dollar"]);
+
+  const publish = describe("publishStorefront", { label: "" }, { previewUrl: "https://shop.example/preview?t=1" });
+  assert.deepEqual(publish.summary, ["Put the current draft live on the storefront"]);
+  assert.deepEqual(publish.links, [
+    { label: "Preview draft", href: "https://shop.example/preview?t=1", external: true },
+    { label: "Compare with live", href: "/app/stores/st_test/storefront#compare" },
+  ]);
+
+  const refund = describe("refundOrder", { orderId: "ord_1", amount: 1200, reason: "Damaged", cancel: false, notifyCustomer: true }, { names: { ord_1: "PC-1042" }, orderCurrency: "GBP" });
+  assert.deepEqual(refund.summary, ["Refund £12.00 on order PC-1042"]);
+  assert.deepEqual(refund.details, [
+    { label: "Reason", value: "Damaged" },
+    { label: "Cancel order", value: "No" },
+    { label: "Email the customer", value: "Yes" },
+  ]);
+  assert.deepEqual(describe("updateProductStatus", { productId: "prd_1", status: "in_review" }, { names: { prd_1: "Linen tote" } }).summary, ["Set Linen tote to In review"]);
+  assert.deepEqual(describe("deleteProduct", { productId: "prd_1" }, { names: { prd_1: "Linen tote" } }).summary, ["Delete Linen tote"]);
+
+  // Any other call lists its arguments under their labels, never the raw names.
+  const zone = describe("createShippingZone", { name: "Europe", countries: ["DE", "FR"], idempotencyKey: "k1" });
+  assert.deepEqual(zone.details, [
+    { label: "Name", value: "Europe" },
+    { label: "Countries", value: "Germany and France" },
+  ]);
+  const gift = describe("payGiftCampaign", { campaignId: "gc_1", cardNumber: "4242 4242 4242 4242", expiry: "12/30", cvc: "123" });
+  assert.ok(gift.details.some((d) => d.value === "Card ending 4242") && !JSON.stringify(gift).includes("123\""), "card details are masked");
+
+  // Every argument of a confirmed call has a label in every workspace language.
+  const { collect } = await import("./assistant-field-labels.mjs");
+  const { fields, values } = collect();
+  for (const locale of LOCALES) {
+    for (const key of fields.keys()) assert.ok(FIELD_LABELS[locale]?.fields[key], `${key} has a label in ${locale} (npm run assistant-field-labels)`);
+    for (const key of values.keys()) assert.ok(FIELD_LABELS[locale]?.values[key], `${key} has a label in ${locale} (npm run assistant-field-labels)`);
+  }
+
+  // The engine keeps the description it was given, so a reloaded chat shows the same card.
+  const h = harness("store_admin", [calls(call("refund_order", { orderId: "ord_1", amount: 1200 }))]);
+  h.deps.describe = async (operationId, args) => describe(operationId, args, { names: { ord_1: "PC-1042" } });
+  await engine.sendMessage(h.state, h.deps, { text: "refund order 1042" });
+  assert.deepEqual(h.state.pending.calls[0].description.summary, ["Refund €12.00 on order PC-1042"]);
+  const view = engine.pendingView(h.state.pending, h.deps);
+  assert.deepEqual(view.actions[0].summary, ["Refund €12.00 on order PC-1042"]);
+  assert.deepEqual(h.events.find((e) => e.type === "confirm").pending, view);
+}
+
+/* ------------------------------------------- checkpoints name the request */
+
+{
+  const state = engine.emptyState([]);
+  state.messages.push({ role: "user", content: "Make the hero darker and swap the photo for the one I attached, then tighten the copy\n\nAttached images (already uploaded, use these URLs in image fields):\nhttps://assets.clawcorp.ai/a.jpg" });
+  assert.equal(engine.requestSummary(state), "Make the hero darker and swap the photo for the one I…");
+  state.messages.push({ role: "user", content: "(I used the Undo button)", ui: { note: "undo" } });
+  assert.equal(engine.requestSummary(state), "Make the hero darker and swap the photo for the one I…", "the chat's own notes are not requests");
+  state.messages.push({ role: "user", content: "Add a FAQ" });
+  assert.equal(engine.requestSummary(state), "Add a FAQ");
+  assert.equal(createTranslator({ locale: "en", messages: enMessages, namespace: "assistantChat" })("checkpointLabel", { request: "Add a FAQ" }), "Before: Add a FAQ");
 }
 
 /* --------------------------------------------------------- the real registry */

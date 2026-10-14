@@ -39,6 +39,32 @@ export const RESOURCE_CAPABILITIES: Partial<Record<ApiResource, { read: Capabili
   activity: { read: "store.view", write: null },
 };
 
+/**
+ * Areas that are not offered in chat to anyone, whatever their role, and the
+ * workspace page where each is done instead. The assistant links there rather
+ * than blaming the person's role.
+ */
+export function elsewhereInWorkspace(storeId: string): { areas: string; links: { name: string; href: string }[] }[] {
+  return [
+    { areas: "API keys", links: [{ name: "API keys", href: `/app/stores/${storeId}/setup/api-keys` }] },
+    { areas: "webhooks", links: [{ name: "Webhooks", href: `/app/stores/${storeId}/setup/webhooks` }] },
+    { areas: "billing, the plan and upgrades", links: [{ name: "Billing", href: "/app/billing" }] },
+    { areas: "the agency's other stores and people", links: [{ name: "People", href: "/app/people" }] },
+    { areas: "the person's own account and notifications", links: [] },
+  ];
+}
+
+/** The area outside chat a scope belongs to, as `elsewhereInWorkspace` names it, or null when chat covers it. */
+export function elsewhereFor(scope: string, storeId: string) {
+  const resource = scope.split(":")[0];
+  if (resource in RESOURCE_CAPABILITIES) return null;
+  const all = elsewhereInWorkspace(storeId);
+  if (resource === "keys") return all[0];
+  if (resource === "webhooks") return all[1];
+  if (resource === "agency") return { areas: `${all[2].areas}, ${all[3].areas}`, links: [...all[2].links, ...all[3].links] };
+  return all[4];
+}
+
 export interface AssistantGrant {
   role: StoreRole;
   /** The agency's trial has ended: the store opens read-only. */

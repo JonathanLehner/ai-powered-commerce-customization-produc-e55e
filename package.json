@@ -9,6 +9,7 @@
     "template-translations": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/translate-templates.mjs",
     "template-previews": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/template-previews.mjs",
     "assistant-labels": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/assistant-labels.mjs",
+    "assistant-field-labels": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/assistant-field-labels.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

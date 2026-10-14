@@ -640,6 +640,10 @@
    "Applying a template",
    "Apply a template"
   ],
+  "publishStarterProducts": [
+   "Publishing a template's suggested products",
+   "Publish a template's suggested products"
+  ],
   "listApiKeys": [
    "Listing API keys",
    "List API keys"
@@ -1581,6 +1585,10 @@
   "applyTemplate": [
    "Vorlage wird angewendet",
    "Vorlage anwenden"
+  ],
+  "publishStarterProducts": [
+   "Veröffentlicht die empfohlenen Produkte einer Vorlage",
+   "Empfohlene Produkte einer Vorlage veröffentlichen"
   ],
   "listApiKeys": [
    "API-Schlüssel werden aufgelistet",
@@ -2524,6 +2532,10 @@
    "Application d'un modèle",
    "Appliquer un modèle"
   ],
+  "publishStarterProducts": [
+   "Publication des produits suggérés d'un modèle",
+   "Publier les produits suggérés d'un modèle"
+  ],
   "listApiKeys": [
    "Consultation des clés API",
    "Lister les clés API"
@@ -3465,6 +3477,10 @@
   "applyTemplate": [
    "Aplicando una plantilla",
    "Aplicar una plantilla"
+  ],
+  "publishStarterProducts": [
+   "Publicando los productos sugeridos de una plantilla",
+   "Publicar los productos sugeridos de una plantilla"
   ],
   "listApiKeys": [
    "Listando claves API",
@@ -4408,6 +4424,10 @@
    "Applicazione di un modello",
    "Applica un modello"
   ],
+  "publishStarterProducts": [
+   "Pubblicazione dei prodotti suggeriti dal modello",
+   "Pubblica i prodotti suggeriti dal modello"
+  ],
   "listApiKeys": [
    "Elencando chiavi API",
    "Elenca chiavi API"
@@ -5349,6 +5369,10 @@
   "applyTemplate": [
    "Een sjabloon toepassen",
    "Sjabloon toepassen"
+  ],
+  "publishStarterProducts": [
+   "Sjabloon-starterproducten publiceren",
+   "Sjabloon-starterproducten publiceren"
   ],
   "listApiKeys": [
    "API-sleutels weergeven",
@@ -6292,6 +6316,10 @@
    "A aplicar um modelo",
    "Aplicar um modelo"
   ],
+  "publishStarterProducts": [
+   "A publicar os produtos sugeridos de um modelo",
+   "Publicar os produtos sugeridos de um modelo"
+  ],
   "listApiKeys": [
    "A listar chaves de API",
    "Listar chaves de API"
@@ -7234,6 +7262,10 @@
    "テンプレートを適用中",
    "テンプレートを適用"
   ],
+  "publishStarterProducts": [
+   "テンプレートの提案商品を公開中",
+   "テンプレートの提案商品を公開"
+  ],
   "listApiKeys": [
    "APIキーリストを取得中",
    "APIキーリストを取得"
@@ -8175,6 +8207,10 @@
   "applyTemplate": [
    "Tillämpar en mall",
    "Tillämpa en mall"
+  ],
+  "publishStarterProducts": [
+   "Publicerar mallens föreslagna produkter",
+   "Publicera mallens föreslagna produkter"
   ],
   "listApiKeys": [
    "Listar API-nycklar",

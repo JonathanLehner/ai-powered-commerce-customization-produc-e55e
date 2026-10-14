@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { restoreVersion } from "@/app/actions/storefront";
 import { SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui";
@@ -53,6 +53,20 @@ export function VersionHistory({
   const [publishedOnly, setPublishedOnly] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
 
+  // The assistant's "Compare with live" link lands here with the draft's changes open.
+  useEffect(() => {
+    const show = () => {
+      if (window.location.hash !== "#compare") return;
+      setPublishedOnly(false);
+      setOpen(DRAFT_ROW);
+      document.getElementById("compare")?.scrollIntoView({ block: "start" });
+      window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+    };
+    show();
+    window.addEventListener("hashchange", show);
+    return () => window.removeEventListener("hashchange", show);
+  }, []);
+
   const live = liveSections ?? [];
   const draftDiffers = liveSections === null || !sameSections(canvasSections, liveSections);
   const unsaved = !sameSections(canvasSections, savedSections);
@@ -72,7 +86,7 @@ export function VersionHistory({
   const toggle = (id: string) => setOpen((current) => (current === id ? null : id));
 
   return (
-    <Card size="sm">
+    <Card size="sm" id="compare" className="scroll-mt-24">
       <CardHeader>
         <CardTitle asChild className="text-sm font-semibold">
           <h2>{t("history")}</h2>

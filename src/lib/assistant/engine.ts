@@ -5,8 +5,9 @@ import { toolName } from "../api/define";
 import { refusalOf } from "../api/http";
 import type { OperationContext } from "../operations/context";
 import { newId } from "../util";
+import type { CallDescription } from "./describe";
 import type { ModelCall, ModelMessage, ToolCall, ToolDefinition } from "./model";
-import { confirmReasons, DRAFT_OPERATIONS, EXCLUDED_OPERATIONS, redactSecrets, scopeGranted, type ConfirmReason } from "./policy";
+import { confirmReasons, DRAFT_OPERATIONS, elsewhereFor, EXCLUDED_OPERATIONS, redactSecrets, scopeGranted, type ConfirmReason } from "./policy";
 import { runViaAssistant } from "./via";
 
 /**
@@ -54,6 +55,8 @@ export interface PendingCall {
   operationId: string;
   args: Record<string, unknown>;
   reasons: ConfirmReason[];
+  /** What the card says about the call, worked out when it was asked for. */
+  description?: CallDescription;
 }
 
 export interface PendingConfirmation {
@@ -80,7 +83,7 @@ export interface ConversationState {
 
 export interface PendingView {
   id: string;
-  actions: { toolCallId: string; operationId: string; title: string; reasons: ConfirmReason[]; params: { key: string; value: string }[] }[];
+  actions: ({ toolCallId: string; operationId: string; title: string; reasons: ConfirmReason[] } & CallDescription)[];
 }
 
 export type AssistantEvent =
@@ -109,6 +112,8 @@ export interface EngineDeps {
    * no page yet to keep).
    */
   checkpoint(): Promise<string | null>;
+  /** Says what a call waiting for confirmation will do, in the person's words. Without it the card lists the arguments. */
+  describe?(operationId: string, args: Record<string, unknown>): Promise<CallDescription>;
   /**
    * Reads the store again after a call changed it, so the rest of the turn
    * sees the change (a language enabled, then translated into).
@@ -219,6 +224,11 @@ function pushTool(
 /** Why the person may not run this operation, in words for the model to pass on; null when they may. */
 function refusal(deps: EngineDeps, operation: ApiOperation | null, name: string): string | null {
   if (!operation) return `There is no tool called ${name}.`;
+  const elsewhere = elsewhereFor(operation.scope, deps.ctx.store.id);
+  if (elsewhere) {
+    const links = elsewhere.links.map((link) => `[${link.name}](${link.href})`).join(", ");
+    return `Not available in chat for anyone, whatever their role: ${elsewhere.areas}. Do not mention roles or permissions. Tell them this isn't available in chat${links ? ` and link them to ${links}, where they can do it` : ""}.`;
+  }
   if (!scopeGranted(deps.scopes, operation.scope)) {
     const [resource, access] = operation.scope.split(":");
     return `Not allowed: ${deps.ctx.actor.name}'s role in this store does not let them ${access === "write" ? "change" : "see"} ${resource.replace("_", " ")}. Tell them a store administrator can do it or change their role.`;
@@ -275,12 +285,16 @@ export function pendingView(pending: PendingConfirmation, deps: Pick<EngineDeps,
       operationId: call.operationId,
       title: deps.label(call.operationId).action,
       reasons: call.reasons,
-      params: Object.entries(call.args)
-        .filter(([key]) => key !== "idempotencyKey")
-        .map(([key, value]) => {
-          const text = typeof value === "string" ? value : JSON.stringify(value);
-          return { key, value: text.length > 600 ? `${text.slice(0, 600)}…` : text };
-        }),
+      ...(call.description ?? {
+        summary: [],
+        details: Object.entries(call.args)
+          .filter(([key]) => key !== "idempotencyKey")
+          .map(([key, value]) => {
+            const text = typeof value === "string" ? value : JSON.stringify(value);
+            return { label: key, value: text.length > 600 ? `${text.slice(0, 600)}…` : text };
+          }),
+        links: [],
+      }),
     })),
   };
 }
@@ -349,6 +363,14 @@ async function loop(state: ConversationState, deps: EngineDeps): Promise<void> {
     }
 
     if (waiting.length > 0) {
+      if (deps.describe) {
+        for (const call of waiting) {
+          call.description = await deps.describe(call.operationId, call.args).catch((error) => {
+            console.error(`Assistant could not describe ${call.operationId}`, error);
+            return undefined;
+          });
+        }
+      }
       state.pending = { id: newId("acn"), calls: waiting };
       deps.emit({ type: "confirm", pending: pendingView(state.pending, deps) });
       return;
@@ -413,6 +435,16 @@ export async function confirmPending(state: ConversationState, deps: EngineDeps,
   await loop(state, deps);
   trim(state);
   return true;
+}
+
+/** The person's latest request, shortened for a version name: "Make the hero darker…". */
+export function requestSummary(state: ConversationState): string {
+  const message = [...state.messages].reverse().find((entry) => entry.role === "user" && !entry.ui?.note);
+  const text = (message?.content ?? "").split("\n\nAttached images (already uploaded")[0].replace(/\s+/g, " ").trim();
+  if (text.length <= 60) return text || "…";
+  const cut = text.slice(0, 60);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > 30 ? cut.slice(0, space) : cut).replace(/[\s.,;:!?-]+$/, "")}…`;
 }
 
 /** Declines the waiting calls without asking the model again. */

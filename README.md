@@ -126,17 +126,22 @@ gifting, orders, team, guided setup, activity.
   and beside the canvas in the storefront editor). It acts only by calling the
   Admin API's store operations (`src/lib/api/operations.ts`), in-process, as the
   signed-in person with the scopes their role gives them (`src/lib/assistant/policy.ts`);
-  API keys, webhooks, the agency and the person's account are never offered.
-  Storefront edits go to the draft and redraw the editor; publishing, deletions,
-  refunds, emails, price changes and other live changes wait for a Confirm button
-  showing the exact call. Every change is in the activity log as made by the
-  person via the assistant, and the chat can undo its last storefront changes
-  from the version history. Conversations are kept per person and store. Product
+  API keys, webhooks, billing, the agency and the person's account are never
+  offered; asked for one, the assistant says it isn't available in chat and links
+  to the page where it is done. Storefront edits go to the draft and redraw the
+  editor; publishing, deletions, refunds, emails, price changes and other live
+  changes wait for a Confirm button that says what will happen in plain words
+  (`src/lib/assistant/describe.ts`), with links to preview the draft and compare
+  it with the live storefront before publishing. Every change is in the activity
+  log as made by the person via the assistant, and the chat can undo its last
+  storefront changes; each turn's checkpoint in the version history is named
+  after the request that made it ("Before: Make the hero darker…"). Conversations are kept per person and store. Product
   ideas, supplier recommendations, descriptions, tags and prices are asked for in
   the chat and stored as pending suggestions; applying one is a separate,
   confirmed and audited step. `npm run assistant-chat-check` runs the tool loop
   against a stubbed model; `npm run assistant-labels` refreshes the per-operation
-  progress and confirmation labels in every workspace language.
+  progress and confirmation labels in every workspace language, and
+  `npm run assistant-field-labels` the labels of their fields and options.
 - **Corporate gifting.** A store runs a private gift catalogue per company:
   link- or invite-gated, drawn from that store's own published products, with a
   spend limit per recipient. A buyer pastes or uploads a recipient list — names,

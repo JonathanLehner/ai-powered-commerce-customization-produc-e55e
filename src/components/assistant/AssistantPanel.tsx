@@ -3,6 +3,7 @@
 import {
   CheckIcon,
   CircleAlertIcon,
+  ExternalLinkIcon,
   HistoryIcon,
   ImagePlusIcon,
   LoaderCircleIcon,
@@ -40,13 +41,20 @@ const REASON_TONES: Record<ConfirmReason, "amber" | "rose" | "iris" | "brand" | 
   live: "slate",
 };
 
-/** **bold** and `code` inside a line. */
+const WORKSPACE_LINK = /^\[([^\]]+)\]\((\/app\/[^)\s]*)\)$/;
+
+/** **bold**, `code` and [links](/app/...) to workspace pages inside a line. */
 function Inline({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\(\/app\/[^)\s]*\))/g);
   return (
     <>
-      {parts.map((part, i) =>
-        part.startsWith("**") && part.endsWith("**") ? (
+      {parts.map((part, i) => {
+        const link = WORKSPACE_LINK.exec(part);
+        return link ? (
+          <a key={i} href={link[2]} className="font-medium text-primary underline underline-offset-2 hover:no-underline">
+            {link[1]}
+          </a>
+        ) : part.startsWith("**") && part.endsWith("**") ? (
           <strong key={i}>{part.slice(2, -2)}</strong>
         ) : part.startsWith("`") && part.endsWith("`") && part.length > 1 ? (
           <code key={i} className="rounded bg-muted px-1 font-mono text-[0.85em]">
@@ -54,8 +62,8 @@ function Inline({ text }: { text: string }) {
           </code>
         ) : (
           <Fragment key={i}>{part}</Fragment>
-        ),
-      )}
+        );
+      })}
     </>
   );
 }
@@ -159,15 +167,37 @@ function ConfirmCard() {
                 </Badge>
               ))}
             </div>
-            {action.params.length > 0 ? (
+            {action.summary.length > 0 ? (
+              <div className="mt-2 space-y-0.5 text-foreground">
+                {action.summary.map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
+            ) : null}
+            {action.details.length > 0 ? (
               <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 rounded-md bg-background p-2 text-xs">
-                {action.params.map((param) => (
-                  <Fragment key={param.key}>
-                    <dt className="font-mono text-muted-foreground">{param.key}</dt>
-                    <dd className="break-words text-foreground">{param.value}</dd>
+                {action.details.map((detail, i) => (
+                  <Fragment key={i}>
+                    <dt className="text-muted-foreground">{detail.label}</dt>
+                    <dd className="break-words whitespace-pre-line text-foreground">{detail.value}</dd>
                   </Fragment>
                 ))}
               </dl>
+            ) : null}
+            {action.links.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                {action.links.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    {...(link.external ? { target: "_blank", rel: "noopener" } : {})}
+                    className="inline-flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:no-underline"
+                  >
+                    {link.label}
+                    {link.external ? <ExternalLinkIcon className="size-3" aria-hidden /> : null}
+                  </a>
+                ))}
+              </div>
             ) : null}
           </li>
         ))}

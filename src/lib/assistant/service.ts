@@ -3,10 +3,22 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { isLocale, LOCALE_NAMES, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { API_OPERATIONS } from "../api/operations";
-import { COLLECTIONS, getAgency, getStore, getStorefront } from "../data";
+import { getCustomer } from "../customer-data";
+import {
+  COLLECTIONS,
+  getAgency,
+  getDiscountCode,
+  getProductCollection,
+  getStore,
+  getStoreOrders,
+  getStoreProduct,
+  getStorefront,
+} from "../data";
+import { siteOrigin } from "../email";
 import { db } from "../mongo";
 import { parseTree } from "../operations/storefront";
 import { assertStoreAccess, type StoreAccess } from "../session";
+import { storefrontPreviewLink } from "../storefront-preview";
 import { billingPending } from "../trial";
 import { STORE_ROLE_LABELS } from "../types";
 import { isStoredAsset } from "../uploads";
@@ -18,6 +30,7 @@ import {
   emptyState,
   LOAD_TOOLS,
   pendingView,
+  requestSummary,
   sendMessage,
   undoLast,
   type AssistantEvent,
@@ -26,9 +39,10 @@ import {
   type PendingView,
   type StoredMessage,
 } from "./engine";
+import { describeCall, type CallDescription, type DescribeContext } from "./describe";
 import labels from "./labels.json";
 import { platformModel, type ModelCall } from "./model";
-import { assistantScopes } from "./policy";
+import { assistantScopes, elsewhereInWorkspace } from "./policy";
 
 /**
  * The chat assistant for one person in one store: who they are and what they
@@ -131,14 +145,19 @@ function systemPrompt(session: AssistantSession, page: string, state: Conversati
   const areas: string[] = [...new Set(allowed.map((operation) => operation.tag))];
   const writes = session.scopes.filter((scope) => scope.endsWith(":write")).map((scope) => scope.split(":")[0]);
   const reads = session.scopes.filter((scope) => scope.endsWith(":read")).map((scope) => scope.split(":")[0]);
+  const agencyAdmin = user.platformRole === "agency_admin" && user.agencyId === store.agencyId;
+  const elsewhere = elsewhereInWorkspace(store.id)
+    .map(({ areas, links }) => `${areas}${links.length ? ` (${links.map((link) => `[${link.name}](${link.href})`).join(", ")})` : ""}`)
+    .join("; ");
   return [
-    `You are the Parcelith assistant in the workspace of the store "${store.name}" for ${store.clientName}. You are talking with ${user.name}, whose role here is ${STORE_ROLE_LABELS[role]}.`,
+    `You are the Parcelith assistant in the workspace of the store "${store.name}" for ${store.clientName}. You are talking with ${user.name}, whose role here is ${STORE_ROLE_LABELS[role]}${agencyAdmin ? ", and who is also the administrator of the agency that owns the store" : ""}.`,
     `Always reply in ${LOCALE_NAMES[session.locale]} (${session.locale}), the language ${user.name} uses the workspace in.`,
     `The store sells in ${store.defaultCurrency}${store.currencies.length > 1 ? ` (also ${store.currencies.filter((c) => c !== store.defaultCurrency).join(", ")})` : ""}. Its storefront languages are ${languages.locales.join(", ")}; the default is ${languages.defaultLocale}. Status: ${store.status}.`,
     `${user.name} is on the workspace page ${page || `/app/stores/${store.id}`}.`,
     "",
     "How you work:",
-    `- You act only by calling the tools. They are the store's own operations and run as ${user.name}, with exactly their permissions: they may change ${writes.join(", ") || "nothing"}${reads.length ? ` and only read ${reads.join(", ")}` : ""}. When something is outside that, say their role in this store does not allow it and that a store administrator can do it or change their role; do not look for a way around it.`,
+    `- You act only by calling the tools. They are the store's own operations and run as ${user.name}, with exactly their permissions: they may change ${writes.join(", ") || "nothing"}${reads.length ? ` and only read ${reads.join(", ")}` : ""}. When a store area is outside that, say their role in this store does not allow it and that a store administrator can do it or change their role; do not look for a way around it.`,
+    `- Some things are not available in chat for anyone, whatever their role: ${elsewhere}. When asked for one of these, do not mention roles or permissions or who could do it: say it isn't available in chat and give the link where they can do it themselves, written exactly as above.`,
     "- Talk about the store, not about tools, operations, APIs or scopes.",
     `- Tools are grouped in areas. Loaded now: ${state.groups.filter((g) => areas.includes(g)).join(", ")}. Call ${LOAD_TOOLS} to add another (${areas.filter((a) => !state.groups.includes(a)).join(", ") || "none left"}).`,
     "- Storefront page edits (sections, header and footer, site copy, product page, templates) change the draft only and show in the editor straight away. Publishing is a separate step: offer it when the work looks done, never publish unasked.",
@@ -271,6 +290,55 @@ async function save(record: ConversationRecord) {
   );
 }
 
+const ID_LIMIT = 20;
+
+/** What a call waiting for confirmation will do, with the names of the records it touches read from the store. */
+async function describePending(session: AssistantSession, operationId: string, args: Record<string, unknown>): Promise<CallDescription> {
+  const { store } = session.access;
+  const t = await getTranslations("assistantDescribe");
+  const ids = (...keys: string[]) =>
+    [...new Set(keys.flatMap((key) => [args[key]].flat()).filter((value): value is string => typeof value === "string" && value !== ""))].slice(0, ID_LIMIT);
+  const names: Record<string, string> = {};
+  const context: Partial<DescribeContext> = {};
+  await Promise.all([
+    ...ids("productId", "productIds", "defaultProductId").map(async (id) => {
+      const product = await getStoreProduct(id);
+      if (product?.storeId === store.id) names[id] = product.name;
+    }),
+    ...ids("collectionId").map(async (id) => {
+      const collection = await getProductCollection(id);
+      if (collection?.storeId === store.id) names[id] = collection.name;
+    }),
+    ...ids("customerId").map(async (id) => {
+      const customer = await getCustomer(store.id, id);
+      if (customer) names[id] = customer.name || customer.email;
+    }),
+    (async () => {
+      const orders = await getStoreOrders(store.id, ids("orderId", "orderIds"));
+      for (const order of orders) names[order.id] = order.code;
+      if (orders.length > 0 && typeof args.orderId === "string") context.orderCurrency = orders.find((o) => o.id === args.orderId)?.currency;
+    })(),
+    ...ids("discountId").map(async (id) => {
+      const discount = await getDiscountCode(id);
+      if (discount?.storeId !== store.id) return;
+      names[id] = discount.code;
+      context.discount = discount;
+    }),
+    (async () => {
+      if (operationId !== "publishStorefront") return;
+      context.previewUrl = (await storefrontPreviewLink(store, storeLanguages(store).defaultLocale, await siteOrigin())).url;
+    })(),
+  ]);
+  const { locales, defaultLocale } = storeLanguages(store);
+  return describeCall(operationId, args, {
+    ...context,
+    locale: session.locale,
+    store: { id: store.id, defaultCurrency: store.defaultCurrency, currencies: store.currencies, languages: locales, defaultLanguage: defaultLocale },
+    t: (key, values) => t(key as never, values as never),
+    names,
+  });
+}
+
 /** Saves the draft as it stands into the version history, for the chat's undo. */
 async function checkpoint(deps: Pick<EngineDeps, "ctx">, label: string): Promise<string | null> {
   const storefront = await getStorefront(deps.ctx.store.id);
@@ -332,7 +400,8 @@ export async function runAssistantRequest(
     system: "",
     emit,
     label: (operationId) => operationLabel(session.locale, operationId),
-    checkpoint: () => checkpoint({ ctx }, t("checkpointLabel")),
+    checkpoint: () => checkpoint({ ctx }, t("checkpointLabel", { request: requestSummary(conversation) })),
+    describe: (operationId, args) => describePending(session, operationId, args),
     refreshStore: async () => {
       const fresh = await getStore(store.id);
       if (!fresh) return;
