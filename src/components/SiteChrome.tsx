@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Document } from "@/components/Document";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SignedInLink } from "@/components/SignedInLink";
 import { SiteMenu } from "@/components/SiteMenu";
 import { Logo } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
@@ -63,12 +64,13 @@ export async function SiteHeader({
               </Link>
             ))}
           </nav>
-          <Link
+          <SignedInLink
             href="/login"
+            label={t("signIn")}
+            signedInHref="/app"
+            signedInLabel={t("dashboard")}
             className={cn(buttonVariants({ size: "sm" }), "whitespace-nowrap md:ml-2 md:px-4 md:py-2 md:text-sm")}
-          >
-            {t("signIn")}
-          </Link>
+          />
           <SiteMenu
             labels={{ menu: t("menu"), close: t("closeMenu"), language: t("language") }}
             links={nav}

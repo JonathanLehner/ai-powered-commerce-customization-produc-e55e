@@ -13,6 +13,7 @@ import { db } from "@/lib/mongo";
 import { checkoutLink, startPayment } from "@/lib/operations/billing";
 import { getSessionUser } from "@/lib/session";
 import { PLANS } from "@/lib/plans";
+import { getTemplate } from "@/lib/templates/index";
 import { checkSignup } from "@/lib/signup";
 import type { Agency, AgencyBilling, User } from "@/lib/types";
 import { newId, slugify } from "@/lib/util";
@@ -128,7 +129,9 @@ export async function createAccount(_prev: ActionState, formData: FormData): Pro
 
   // A card-first sign-up from before the trial still finishes its checkout.
   if (billingPending(agency)) redirect(await checkoutAddress(agency as BillingAgency, input.email, locale));
-  redirect("/app/stores/new?welcome=1");
+  // A template chosen in the gallery before signing up is preselected for the first store.
+  const template = getTemplate(String(formData.get("template") ?? ""));
+  redirect(`/app/stores/new?welcome=1${template ? `&template=${template.id}` : ""}`);
 }
 
 /**

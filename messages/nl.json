@@ -40,6 +40,7 @@
     "developers": "Ontwikkelaars",
     "contact": "Contact",
     "signIn": "Inloggen",
+    "dashboard": "Naar dashboard",
     "menu": "Menu",
     "closeMenu": "Menu sluiten",
     "tagline": "Merchandisewinkels voor bureaus en hun klanten.",
@@ -5901,7 +5902,8 @@
       "preview": "Voorbeeld met mijn producten",
       "opening": "Bezig met openen…",
       "back": "Alle sjablonen",
-      "failed": "Er is iets misgegaan. Probeer het opnieuw."
+      "failed": "Er is iets misgegaan. Probeer het opnieuw.",
+      "current": "Huidig"
     },
     "demoNewsletter": "Dit is een demowinkel, dus er is geen e-mail verzonden.",
     "demoMissing": "Er is geen sjabloon op dit adres"

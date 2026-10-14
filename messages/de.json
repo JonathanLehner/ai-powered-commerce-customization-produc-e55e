@@ -40,6 +40,7 @@
     "developers": "Entwickler",
     "contact": "Kontakt",
     "signIn": "Anmelden",
+    "dashboard": "Zum Dashboard",
     "menu": "Menü",
     "closeMenu": "Menü schließen",
     "tagline": "Merchandise-Shops für Agenturen und ihre Kunden.",
@@ -5901,7 +5902,8 @@
       "preview": "Vorschau mit meinen Produkten",
       "opening": "Wird geöffnet…",
       "back": "Alle Vorlagen",
-      "failed": "Etwas ist schiefgelaufen. Versuche es erneut."
+      "failed": "Etwas ist schiefgelaufen. Versuche es erneut.",
+      "current": "Aktuell"
     },
     "demoNewsletter": "Dies ist ein Demoshop, daher wurde keine E-Mail versendet.",
     "demoMissing": "Es gibt keine Vorlage unter dieser Adresse."

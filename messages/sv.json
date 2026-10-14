@@ -40,6 +40,7 @@
     "developers": "Utvecklare",
     "contact": "Kontakt",
     "signIn": "Logga in",
+    "dashboard": "Till översikten",
     "menu": "Meny",
     "closeMenu": "Stäng meny",
     "tagline": "Profilbutiker för byråer och deras kunder.",
@@ -5901,7 +5902,8 @@
       "preview": "Förhandsgranska med mina produkter",
       "opening": "Öppnar…",
       "back": "Alla mallar",
-      "failed": "Något gick fel. Försök igen."
+      "failed": "Något gick fel. Försök igen.",
+      "current": "Nuvarande"
     },
     "demoNewsletter": "Det här är en demobutik, så ingen e-post skickades.",
     "demoMissing": "Det finns ingen mall på den här adressen"

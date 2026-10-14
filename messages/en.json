@@ -40,6 +40,7 @@
     "developers": "Developers",
     "contact": "Contact",
     "signIn": "Sign in",
+    "dashboard": "Go to dashboard",
     "menu": "Menu",
     "closeMenu": "Close menu",
     "tagline": "Branded merchandise stores for agencies and their clients.",
@@ -5901,7 +5902,8 @@
       "preview": "Preview with my products",
       "opening": "Opening…",
       "back": "All templates",
-      "failed": "Something went wrong. Try again."
+      "failed": "Something went wrong. Try again.",
+      "current": "Current"
     },
     "demoNewsletter": "This is a demo store, so no email was sent.",
     "demoMissing": "There is no template at this address"

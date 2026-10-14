@@ -40,6 +40,7 @@
     "developers": "Desarrolladores",
     "contact": "Contacto",
     "signIn": "Iniciar sesión",
+    "dashboard": "Ir al panel",
     "menu": "Menú",
     "closeMenu": "Cerrar menú",
     "tagline": "Tiendas de productos de marca para agencias y sus clientes.",
@@ -5901,7 +5902,8 @@
       "preview": "Previsualizar con mis productos",
       "opening": "Abriendo…",
       "back": "Todas las plantillas",
-      "failed": "Algo salió mal. Inténtalo de nuevo."
+      "failed": "Algo salió mal. Inténtalo de nuevo.",
+      "current": "Actual"
     },
     "demoNewsletter": "Esta es una tienda de demostración, así que no se envió ningún correo electrónico.",
     "demoMissing": "No hay ninguna plantilla en esta dirección"

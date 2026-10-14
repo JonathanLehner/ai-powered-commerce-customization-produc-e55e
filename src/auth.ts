@@ -1,9 +1,11 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { cookies } from "next/headers";
 import { hasUsablePassword, isDemoPersona } from "@/lib/demo-personas";
 import { getUserByEmail, getUserById } from "@/lib/data";
 import { readSignInTicket } from "@/lib/sign-in-token";
+import { SIGNED_IN_HINT_COOKIE } from "@/lib/signed-in-hint";
 
 /**
  * Staff authentication.
@@ -38,6 +40,8 @@ function authSecret(): string {
   return secret;
 }
 
+const SESSION_MAX_AGE = 60 * 60 * 24 * 14;
+
 function normaliseEmail(value: unknown): string {
   return String(value ?? "")
     .trim()
@@ -53,7 +57,7 @@ function normaliseEmail(value: unknown): string {
 export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   secret: authSecret(),
   trustHost: true,
-  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 14 },
+  session: { strategy: "jwt", maxAge: SESSION_MAX_AGE },
   pages: { signIn: "/login" },
   providers: [
     Credentials({
@@ -104,6 +108,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
       },
     }),
   ],
+  // The marketing pages' "Go to dashboard" link reads this; see `@/lib/signed-in-hint`.
+  events: {
+    async signIn() {
+      (await cookies()).set(SIGNED_IN_HINT_COOKIE, "1", { path: "/", maxAge: SESSION_MAX_AGE, sameSite: "lax" });
+    },
+    async signOut() {
+      (await cookies()).delete(SIGNED_IN_HINT_COOKIE);
+    },
+  },
   callbacks: {
     jwt({ token, user }) {
       if (user?.id) token.sub = user.id;

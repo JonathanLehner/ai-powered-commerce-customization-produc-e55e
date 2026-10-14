@@ -146,6 +146,7 @@ export function TemplatePicker({
             }}
             onPick={(id) => setChosen(templates.find((tpl) => tpl.id === id) ?? null)}
             pickLabel={t("choose")}
+            current={currentTemplateId ? { id: currentTemplateId, label: t("current") } : null}
           />
         )}
       </DialogContent>

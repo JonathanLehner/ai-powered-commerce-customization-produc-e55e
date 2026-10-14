@@ -17,9 +17,11 @@ interface Requested {
   plan: SelfServePlan;
   cycle: BillingCycle;
   currency: PlanCurrency | null;
+  /** The template the visitor chose in the gallery, to preselect for their first store. */
+  template: string;
 }
 
-const DEFAULT_REQUEST: Requested = { plan: "studio", cycle: "monthly", currency: null };
+const DEFAULT_REQUEST: Requested = { plan: "studio", cycle: "monthly", currency: null, template: "" };
 
 function subscribeToAddress(onChange: () => void) {
   window.addEventListener("popstate", onChange);
@@ -29,7 +31,7 @@ function subscribeToAddress(onChange: () => void) {
 let lastSearch = "";
 let lastRequest = DEFAULT_REQUEST;
 
-/** `?plan=studio&cycle=yearly&currency=EUR`, as the pricing page's buttons send it. */
+/** `?plan=studio&cycle=yearly&currency=EUR`, as the pricing page's buttons send it, or `?template=roastery` from a template's page. */
 function requestedFromAddress(): Requested {
   const search = window.location.search;
   if (search === lastSearch) return lastRequest;
@@ -42,6 +44,7 @@ function requestedFromAddress(): Requested {
     plan: isSelfServePlan(plan) ? plan : DEFAULT_REQUEST.plan,
     cycle: isBillingCycle(cycle) ? cycle : DEFAULT_REQUEST.cycle,
     currency: isPlanCurrency(currency) ? currency : null,
+    template: query.get("template") ?? "",
   };
   return lastRequest;
 }
@@ -76,7 +79,7 @@ export function SignupForm() {
         <CardContent>
           <ActionForm
             action={createAccount}
-            hidden={{ locale, plan: planKey, cycle, currency }}
+            hidden={{ locale, plan: planKey, cycle, currency, template: requested.template }}
             submitLabel={t("submit")}
             pendingLabel={t("pending")}
             submitSize="lg"

@@ -27,6 +27,7 @@ export function NewStoreForm({
   allowanceNote,
   templates,
   categories,
+  initialTemplate,
 }: {
   agencyId: string;
   /** Where the agency stands against its plan's live-store limit. */
@@ -34,12 +35,14 @@ export function NewStoreForm({
   /** The templates a store can start from, as gallery cards. */
   templates: GalleryTemplate[];
   categories: { key: string; label: string }[];
+  /** The template chosen on its page before the visitor got here, selected to start with. */
+  initialTemplate?: { id: string; category: string } | null;
 }) {
   const themeKeys = Object.keys(THEMES) as ThemeKey[];
   const t = useTranslations("newStore");
   const tt = useTranslations("templates");
-  const [templateId, setTemplateId] = useState("");
-  const [category, setCategory] = useState(categories[0]?.key ?? "");
+  const [templateId, setTemplateId] = useState(initialTemplate?.id ?? "");
+  const [category, setCategory] = useState(initialTemplate?.category ?? categories[0]?.key ?? "");
   const shown = templates.filter((tpl) => tpl.category === category);
   const labels = useTranslations("labels");
   const locale = useLocale();

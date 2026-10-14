@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { SignedInLink } from "@/components/SignedInLink";
 import { buttonVariants } from "@/components/ui/button";
 import { getPathname } from "@/i18n/navigation";
 import { asLocale } from "@/i18n/metadata";
@@ -80,9 +81,12 @@ export default async function TemplatePage({ params }: PageProps<"/[locale]/temp
               <a href={demo} target="_blank" rel="noreferrer" className={buttonVariants({ size: "lg" })}>
                 {t("livePreview")}
               </a>
-              <a href={getPathname({ href: "/signup", locale })} className={buttonVariants({ size: "lg", variant: "outline" })}>
-                {t("startWithIt")}
-              </a>
+              <SignedInLink
+                href={`${getPathname({ href: "/signup", locale })}?template=${template.id}`}
+                signedInHref={`/app/stores/new?template=${template.id}`}
+                label={t("startWithIt")}
+                className={buttonVariants({ size: "lg", variant: "outline" })}
+              />
             </div>
           </div>
           <div className="relative">

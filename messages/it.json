@@ -40,6 +40,7 @@
     "developers": "Sviluppatori",
     "contact": "Contatti",
     "signIn": "Accedi",
+    "dashboard": "Vai alla dashboard",
     "menu": "Menu",
     "closeMenu": "Chiudi menu",
     "tagline": "Negozi di merchandising personalizzato per agenzie e i loro clienti.",
@@ -5901,7 +5902,8 @@
       "preview": "Anteprima con i miei prodotti",
       "opening": "Apertura in corso…",
       "back": "Tutti i template",
-      "failed": "Qualcosa è andato storto. Riprova."
+      "failed": "Qualcosa è andato storto. Riprova.",
+      "current": "Attuale"
     },
     "demoNewsletter": "Questo è un negozio di prova, quindi nessuna email è stata inviata.",
     "demoMissing": "Non c'è nessun modello a questo indirizzo"

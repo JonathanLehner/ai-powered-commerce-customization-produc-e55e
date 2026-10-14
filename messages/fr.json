@@ -40,6 +40,7 @@
     "developers": "Développeurs",
     "contact": "Contact",
     "signIn": "Se connecter",
+    "dashboard": "Accéder au tableau de bord",
     "menu": "Menu",
     "closeMenu": "Fermer le menu",
     "tagline": "Des boutiques de produits personnalisés pour les agences et leurs clients.",
@@ -5901,7 +5902,8 @@
       "preview": "Aperçu avec mes produits",
       "opening": "Ouverture en cours…",
       "back": "Tous les thèmes",
-      "failed": "Un problème est survenu. Veuillez réessayer."
+      "failed": "Un problème est survenu. Veuillez réessayer.",
+      "current": "Actuel"
     },
     "demoNewsletter": "C'est une boutique de démonstration, donc aucun e-mail n'a été envoyé.",
     "demoMissing": "Il n'y a pas de modèle à cette adresse"

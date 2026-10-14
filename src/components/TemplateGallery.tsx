@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export interface GalleryTemplate {
@@ -31,6 +32,7 @@ export function TemplateGallery({
   initialCategory = "all",
   onPick,
   pickLabel,
+  current,
 }: {
   templates: GalleryTemplate[];
   categories: { key: string; label: string }[];
@@ -40,6 +42,8 @@ export function TemplateGallery({
   /** In the workspace: choose the template instead of opening its page. */
   onPick?: (id: string) => void;
   pickLabel?: string;
+  /** In the editor: the template the store's draft was built from, marked on its card. */
+  current?: { id: string; label: string } | null;
 }) {
   const [category, setCategory] = useState(initialCategory);
   const [style, setStyle] = useState("all");
@@ -94,7 +98,7 @@ export function TemplateGallery({
                 href={onPick ? t.demoHref : t.href}
                 target={onPick ? "_blank" : undefined}
                 rel={onPick ? "noreferrer" : undefined}
-                className="block overflow-hidden rounded-xl border border-border bg-muted"
+                className={cn("block overflow-hidden rounded-xl border border-border bg-muted", current?.id === t.id && "border-primary ring-1 ring-primary")}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -111,7 +115,10 @@ export function TemplateGallery({
               <div className="mt-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{categoryName[t.category]}</p>
-                  <h3 className="mt-1 text-lg font-semibold tracking-tight text-foreground">{t.name}</h3>
+                  <h3 className="mt-1 flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+                    {t.name}
+                    {current?.id === t.id ? <Badge tone="brand">{current.label}</Badge> : null}
+                  </h3>
                 </div>
                 <span className="mt-1 flex shrink-0 -space-x-1" aria-hidden>
                   {t.colors.map((c) => (

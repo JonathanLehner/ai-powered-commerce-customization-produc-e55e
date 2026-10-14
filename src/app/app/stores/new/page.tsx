@@ -13,11 +13,17 @@ import { formatDate } from "@/lib/util";
 import { ArchiveStoreForm } from "./ArchiveStoreForm";
 import { NewStoreForm } from "./NewStoreForm";
 import { isLocale } from "@/i18n/locales";
-import { TEMPLATE_CATEGORIES, TEMPLATES } from "@/lib/templates/index";
+import { getTemplate, TEMPLATE_CATEGORIES, TEMPLATES } from "@/lib/templates/index";
 import { galleryTemplates } from "@/lib/templates/gallery";
 
-export default async function NewStorePage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
-  const { welcome } = await searchParams;
+export default async function NewStorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string; template?: string }>;
+}) {
+  const { welcome, template: templateParam } = await searchParams;
+  // `?template=roastery` from a template's page, or from sign-up after one.
+  const template = typeof templateParam === "string" ? getTemplate(templateParam) : null;
   const user = await requireUser();
   if (user.platformRole === "agency_member") redirect("/app?denied=1");
 
@@ -159,6 +165,7 @@ export default async function NewStorePage({ searchParams }: { searchParams: Pro
           ) : (
             <NewStoreForm
               agencyId={agency.id}
+              initialTemplate={template ? { id: template.id, category: template.category } : null}
               templates={galleryTemplates(isLocale(locale) ? locale : "en")}
               categories={TEMPLATE_CATEGORIES.filter((c) => TEMPLATES.some((tpl) => tpl.category === c)).map((key) => ({
                 key,

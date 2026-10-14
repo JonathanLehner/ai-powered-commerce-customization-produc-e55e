@@ -40,6 +40,7 @@
     "developers": "Desenvolvedores",
     "contact": "Contacto",
     "signIn": "Iniciar sessão",
+    "dashboard": "Ir para o painel",
     "menu": "Menu",
     "closeMenu": "Fechar menu",
     "tagline": "Lojas de merchandising para agências e os seus clientes.",
@@ -5901,7 +5902,8 @@
       "preview": "Pré-visualizar com os meus produtos",
       "opening": "A abrir…",
       "back": "Todos os modelos",
-      "failed": "Algo correu mal. Tenta novamente."
+      "failed": "Algo correu mal. Tenta novamente.",
+      "current": "Atual"
     },
     "demoNewsletter": "Esta é uma loja de demonstração, por isso não foi enviado nenhum e-mail.",
     "demoMissing": "Não existe nenhum modelo neste endereço"
