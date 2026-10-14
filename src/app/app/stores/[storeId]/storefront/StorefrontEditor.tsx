@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
+import { useOptionalAssistant } from "@/components/assistant/context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EditorCanvasProps } from "./EditorCanvas";
@@ -31,5 +32,7 @@ const EditorCanvas = dynamic(() => import("./EditorCanvas"), {
 });
 
 export function StorefrontEditor(props: EditorCanvasProps) {
-  return <EditorCanvas {...props} />;
+  // Drawn again from the refreshed draft each time the assistant changes it.
+  const revision = useOptionalAssistant()?.revision ?? 0;
+  return <EditorCanvas key={revision} {...props} />;
 }

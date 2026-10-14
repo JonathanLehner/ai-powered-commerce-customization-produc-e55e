@@ -125,6 +125,7 @@ export default async function AdminAuditPage({ searchParams }: { searchParams: P
                       </TableCell>
                       <TableCell className="px-4 py-3 whitespace-normal text-muted-foreground">
                         {entry.actorName}
+                        {entry.via === "assistant" ? <p className="text-xs">{t("viaAssistant")}</p> : null}
                       </TableCell>
                     </TableRow>
                   );

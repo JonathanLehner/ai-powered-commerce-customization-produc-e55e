@@ -1,17 +1,17 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { applySuggestion, dismissOlderSuggestions, dismissSuggestion } from "@/app/actions/ai";
+import { AssistantEmbed } from "@/components/assistant/AssistantPanel";
 import { SubmitButton } from "@/components/forms";
 import { Badge, EmptyState, PageHeader } from "@/components/ui";
 import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
-import { listCatalogProducts, listStoreProducts, listSuggestions, listSuppliers } from "@/lib/data";
+import { listStoreProducts, listSuggestions } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import { groupPendingSuggestions, type PendingEntry } from "@/lib/suggestions";
 import type { AiSuggestion, StoreProduct } from "@/lib/types";
 import { formatAgo } from "@/i18n/format";
-import { formatDate, formatDateTime } from "@/lib/util";
-import { CopyForm, IdeaForm, PriceForm, SupplierForm } from "./AssistantForms";
+import { formatDateTime } from "@/lib/util";
 
 async function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
   const t = await getTranslations("assistant");
@@ -153,35 +153,18 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
   const { storeId } = await params;
   const { store } = await requireStoreAccess(storeId, "store.catalog");
 
-  const [suggestions, products, catalog, suppliers] = await Promise.all([
-    listSuggestions(storeId),
-    listStoreProducts(storeId),
-    listCatalogProducts(),
-    listSuppliers(),
-  ]);
+  const [suggestions, products] = await Promise.all([listSuggestions(storeId), listStoreProducts(storeId)]);
 
-  const approved = new Set(suppliers.filter((s) => s.status === "approved").map((s) => s.id));
-  const availableCatalog = catalog.filter((c) => c.status === "active" && approved.has(c.supplierId));
   const pending = suggestions.filter((s) => s.status === "pending");
   const decided = suggestions.filter((s) => s.status !== "pending");
   const groups = groupPendingSuggestions(pending);
   const productById = new Map(products.map((p) => [p.id, p]));
-  // A store can hold two copies of the same supplier product, so a name on its
-  // own is not enough to choose between them — the SKU and import date are.
   const [pages, t, locale] = await Promise.all([
     getTranslations("pages.store"),
     getTranslations("assistant"),
     getLocale(),
   ]);
   const now = new Date();
-  const productOptions = products.map((p) => ({
-    id: p.id,
-    label: t("productOption", {
-      name: p.name,
-      sku: storeSku(p, store.channelCode),
-      date: formatDate(p.importedAt, locale),
-    }),
-  }));
 
   return (
     <div className="space-y-6">
@@ -189,6 +172,9 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
         title={pages("assistantTitle")}
         description={pages("assistantDescription")}
       />
+
+      {/* Product ideas, copy, prices and supplier recommendations are asked for in the chat. */}
+      <AssistantEmbed always className="h-[min(40rem,75dvh)] overflow-hidden rounded-xl border border-border" />
 
       <section>
         <h2 className="text-base font-semibold text-foreground">
@@ -289,13 +275,6 @@ export default async function AssistantPage({ params }: { params: Promise<{ stor
             })}
           </div>
         )}
-      </section>
-
-      <section className="grid gap-5 lg:grid-cols-2">
-        <IdeaForm storeId={storeId} />
-        <SupplierForm storeId={storeId} catalog={availableCatalog.map((c) => ({ id: c.id, name: c.name }))} />
-        <CopyForm storeId={storeId} products={productOptions} />
-        <PriceForm storeId={storeId} products={productOptions} />
       </section>
 
       {decided.length > 0 ? (

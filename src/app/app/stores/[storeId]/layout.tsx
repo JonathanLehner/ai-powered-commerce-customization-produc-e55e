@@ -1,6 +1,7 @@
 import type { Messages } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/AppHeader";
+import { AssistantFrame, AssistantProvider } from "@/components/assistant/AssistantProvider";
 import { ClientMessages } from "@/components/ClientMessages";
 import { StoreNav } from "@/components/StoreNav";
 import { Badge } from "@/components/ui";
@@ -16,7 +17,7 @@ export default async function StoreLayout({
   params: Promise<{ storeId: string }>;
 }) {
   const { storeId } = await params;
-  const { user, store, grantedRole, readOnly, viaPlatform } = await requireStoreAccess(storeId);
+  const { user, store, role, grantedRole, readOnly, viaPlatform } = await requireStoreAccess(storeId);
   kickScheduler();
   const [stores, t, roles] = await Promise.all([
     accessibleStores(user),
@@ -53,9 +54,8 @@ export default async function StoreLayout({
     { href: `${base}/activity`, section: "activity", group: "settings", capability: "store.view" },
   ];
 
-  return (
+  const page = (
     <>
-      <AppHeader user={user} stores={stores} currentStoreId={store.id} />
       <div className="border-b border-border bg-background">
         <div className="mx-auto flex w-full max-w-[92rem] flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-4 sm:px-6">
           <h1 className="text-lg font-semibold tracking-tight text-foreground">{store.name}</h1>
@@ -90,5 +90,26 @@ export default async function StoreLayout({
         <ClientMessages section="overview">{children}</ClientMessages>
       </div>
     </>
+  );
+
+  // Platform oversight reads the store's status only, so it has no assistant.
+  if (viaPlatform) {
+    return (
+      <>
+        <AppHeader user={user} stores={stores} currentStoreId={store.id} />
+        {page}
+      </>
+    );
+  }
+  return (
+    <AssistantProvider
+      storeId={store.id}
+      canAttach={roleCan(role, "store.storefront")}
+      canStorefront={roleCan(role, "store.storefront")}
+      canCatalog={roleCan(role, "store.catalog")}
+    >
+      <AppHeader user={user} stores={stores} currentStoreId={store.id} />
+      <AssistantFrame>{page}</AssistantFrame>
+    </AssistantProvider>
   );
 }

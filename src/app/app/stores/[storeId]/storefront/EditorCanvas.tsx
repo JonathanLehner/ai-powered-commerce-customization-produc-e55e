@@ -2,10 +2,12 @@
 
 import { Editor, Frame, useEditor, useNode } from "@craftjs/core";
 import { createTranslator, useLocale, useTranslations } from "next-intl";
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { publishStorefront, saveStorefrontDraft } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
 import { translateMissing } from "@/app/actions/translations";
+import { AssistantEmbed } from "@/components/assistant/AssistantPanel";
+import { useOptionalAssistant } from "@/components/assistant/context";
 import { FormStatus } from "@/components/forms";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { ProductCard } from "@/components/storefront/ProductCard";
@@ -633,6 +635,23 @@ function EditorShell(props: ShellProps) {
   const uiLocale = useLocale();
   const locale = props.locale;
   const isDefault = locale === props.defaultLocale;
+
+  // The canvas as it was loaded or last saved, so the assistant knows whether
+  // drawing its changes would throw away edits made here.
+  const baseline = useRef<string | null>(null);
+  const loaded = Boolean(pageTree.ROOT);
+  useEffect(() => {
+    if (loaded && baseline.current === null) baseline.current = query.serialize();
+  }, [loaded, query]);
+  const registerDirtyCheck = useOptionalAssistant()?.registerDirtyCheck;
+  useEffect(() => {
+    if (!registerDirtyCheck) return;
+    return registerDirtyCheck(
+      () =>
+        (baseline.current !== null && query.serialize() !== baseline.current) ||
+        JSON.stringify(design) !== JSON.stringify(savedDesign),
+    );
+  }, [registerDirtyCheck, query, design, savedDesign]);
   const languageLabel = (code: string) => languageName(uiLocale, code);
 
   const missingElsewhere = isDefault
@@ -662,6 +681,7 @@ function EditorShell(props: ShellProps) {
           ? await saveStorefrontDraft({ status: "idle" }, data)
           : await publishStorefront({ status: "idle" }, data);
       setStatus(result);
+      if (result.status === "success") baseline.current = data.get("tree") as string;
     } catch {
       setStatus({ status: "error", message: t("saveFailed") });
     } finally {
@@ -693,6 +713,7 @@ function EditorShell(props: ShellProps) {
         setPortals((list) => list.map((p) => (updated[p.id] ? { ...p, translations: updated[p.id] } : p)));
       }
       setStatus({ status: result.status, message: result.message });
+      if (result.status === "success" && result.tree) baseline.current = query.serialize();
     } catch {
       setStatus({ status: "error", message: t("translateFailed") });
     } finally {
@@ -866,6 +887,7 @@ function EditorShell(props: ShellProps) {
             </div>
 
             <div className="space-y-4">
+              <AssistantEmbed />
               <SettingsPanel />
               <VersionHistory
                 storeId={props.storeId}

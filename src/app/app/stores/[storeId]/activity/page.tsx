@@ -132,6 +132,7 @@ export default async function ActivityPage({
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm text-inksoft">{entry.actorName}</p>
+                    {entry.via === "assistant" ? <p className="text-xs text-muted-foreground">{t("viaAssistant")}</p> : null}
                     <p className="text-xs text-muted-foreground">{formatDateTime(entry.at, locale)}</p>
                   </div>
                 </li>

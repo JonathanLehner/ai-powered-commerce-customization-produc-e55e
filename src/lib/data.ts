@@ -1,6 +1,7 @@
 import "server-only";
 import { after } from "next/server";
 import { hasApprovedPreviews } from "./artwork";
+import { currentVia } from "./assistant/via";
 import type { AuditReadWindow } from "./audit-log";
 import { db } from "./mongo";
 import type { NotifyInput } from "./notifications";
@@ -45,6 +46,7 @@ export const COLLECTIONS = {
   storefronts: "storefronts",
   audit: "audit_logs",
   suggestions: "ai_suggestions",
+  assistantConversations: "assistant_conversations",
   carts: "carts",
   giftCatalogues: "gift_catalogues",
   giftCampaigns: "gift_campaigns",
@@ -798,14 +800,16 @@ export function recordAudit(input: AuditInput): void {
   // The links in a notification email need this deployment's address, which is
   // read from the request while it is still in scope.
   const origin = input.notify ? import("./email").then(({ siteOrigin }) => siteOrigin()) : Promise.resolve("");
+  // Read now: the deferred write runs outside the assistant call that made the change.
+  const via = currentVia();
   try {
-    after(() => writeAudit(input, origin));
+    after(() => writeAudit(input, origin, via));
   } catch {
-    void writeAudit(input, origin);
+    void writeAudit(input, origin, via);
   }
 }
 
-async function writeAudit(input: AuditInput, origin: Promise<string>): Promise<void> {
+async function writeAudit(input: AuditInput, origin: Promise<string>, via: AuditLog["via"] | null): Promise<void> {
   const entry: AuditLog = {
     id: newId("aud"),
     category: input.category,
@@ -819,6 +823,7 @@ async function writeAudit(input: AuditInput, origin: Promise<string>): Promise<v
     entityId: input.entityId ?? null,
     meta: input.meta ?? {},
     at: new Date().toISOString(),
+    ...(via ? { via } : {}),
   };
   try {
     await db.insertOne(COLLECTIONS.audit, entry as unknown as Record<string, unknown>);

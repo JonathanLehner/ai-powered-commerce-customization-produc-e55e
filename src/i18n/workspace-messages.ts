@@ -12,7 +12,7 @@ import type { AbstractIntlMessages } from "next-intl";
  * `npm run client-messages-check` fails when a client component asks for a
  * namespace its section does not send.
  */
-export const SHELL_NAMESPACES = ["common", "fallback", "notifications", "roles", "shell"];
+export const SHELL_NAMESPACES = ["assistantChat", "common", "fallback", "notifications", "roles", "shell"];
 
 export const SECTION_NAMESPACES = {
   dashboard: ["analytics", "dashboard"],
@@ -21,7 +21,7 @@ export const SECTION_NAMESPACES = {
   overview: ["analytics"],
   activity: ["audit", "labels", "pager"],
   analytics: ["analytics"],
-  assistant: ["assistant", "labels"],
+  assistant: [],
   catalog: ["artworkIssues", "catalog", "collections", "configurator", "importedFulfilment", "inventory", "labels", "productForms"],
   content: ["content"],
   customers: ["customers"],

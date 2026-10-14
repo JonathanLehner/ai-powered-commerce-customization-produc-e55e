@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { signOut } from "@/app/actions/auth";
 import { setUiLanguage } from "@/app/actions/preferences";
+import { AssistantToggle } from "@/components/assistant/AssistantPanel";
 import { NotificationBell } from "@/components/NotificationBell";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { Badge, Logo } from "@/components/ui";
@@ -184,6 +185,7 @@ export function AppHeaderBar({
               <Link href="/admin">{t("platformAdmin")}</Link>
             </Button>
           ) : null}
+          <AssistantToggle />
           {user.platformRole === "platform_admin" ? null : <NotificationBell />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

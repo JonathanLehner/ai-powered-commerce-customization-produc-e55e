@@ -9,5 +9,9 @@ export async function auditCsvLabels() {
     columns: [t("timestamp"), t("person"), t("category"), t("action"), t("summary"), t("detail")],
     storeColumn: t("store"),
     categoryLabel: (entry: AuditLog) => labels(`auditCategory.${entry.category}`),
+    personLabel: (entry: AuditLog) => {
+      const name = entry.actorName || entry.actorId;
+      return entry.via === "assistant" ? t("personViaAssistant", { name }) : name;
+    },
   };
 }

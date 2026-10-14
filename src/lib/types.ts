@@ -1395,6 +1395,8 @@ export interface AuditLog {
   entityId: string | null;
   meta: Record<string, string | number | boolean | null>;
   at: string;
+  /** Set when the person made the change through the chat assistant. */
+  via?: "assistant";
 }
 
 export type SuggestionKind = "product_idea" | "supplier" | "description" | "tags" | "price";

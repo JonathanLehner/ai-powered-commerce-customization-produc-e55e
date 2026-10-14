@@ -696,6 +696,8 @@ export function auditCsv(
     columns?: string[];
     storeColumn?: string;
     categoryLabel?: (entry: AuditLog) => string;
+    /** The person column; by default their name, marked when they used the assistant. */
+    personLabel?: (entry: AuditLog) => string;
   } = {},
 ): string {
   const withStore = typeof options.storeName === "function";
@@ -704,10 +706,13 @@ export function auditCsv(
     ? [columns[0], options.storeColumn ?? "Store", ...columns.slice(1)]
     : columns;
   const category = options.categoryLabel ?? auditCategoryLabel;
+  const person =
+    options.personLabel ??
+    ((entry: AuditLog) => `${entry.actorName || entry.actorId}${entry.via === "assistant" ? " (via assistant)" : ""}`);
   const rows = entries.map((entry) => {
     const cells = [
       entry.at,
-      entry.actorName || entry.actorId,
+      person(entry),
       category(entry),
       entry.action,
       entry.summary,

@@ -8,6 +8,7 @@
     "template-assets": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/generate-template-assets.mjs",
     "template-translations": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/translate-templates.mjs",
     "template-previews": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/template-previews.mjs",
+    "assistant-labels": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/assistant-labels.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -76,7 +77,8 @@
     "client-messages-check": "node --experimental-strip-types scripts/client-messages-check.mjs",
     "payload-check": "node scripts/payload-check.mjs",
     "metrics-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/metrics-check.mjs",
-    "storefront-sections-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/storefront-sections-check.mjs"
+    "storefront-sections-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/storefront-sections-check.mjs",
+    "assistant-chat-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/assistant-chat-check.mjs"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.3",

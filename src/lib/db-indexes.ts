@@ -51,6 +51,7 @@ export const INDEXES: Record<string, IndexSpec[]> = {
   storefronts: [byId, { key: { storeId: 1 }, unique: true }],
   audit_logs: [byId, { key: { at: -1 } }, { key: { storeId: 1, at: -1 } }, { key: { agencyId: 1, at: -1 } }],
   ai_suggestions: [byId, { key: { storeId: 1, status: 1, createdAt: -1 } }],
+  assistant_conversations: [byId, { key: { storeId: 1, userId: 1, updatedAt: -1 } }],
   carts: [byId, { key: { storeId: 1, sessionId: 1 } }],
   gift_catalogues: [byId, { key: { slug: 1 }, unique: true }, { key: { storeId: 1, createdAt: -1 } }],
   gift_campaigns: [byId, { key: { code: 1 } }, { key: { storeId: 1, createdAt: -1 } }],

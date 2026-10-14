@@ -121,9 +121,22 @@ gifting, orders, team, guided setup, activity.
 - **Cost to margin.** Supplier cost, customisation per print area, estimated
   shipping, tax bracket and rate, selling price, margin amount and margin
   percentage, all shown before publication and recomputed on every change.
-- **Commerce assistant.** Product ideas, supplier recommendations, descriptions,
-  tags and prices are stored as pending suggestions. Applying one is a separate,
-  audited step.
+- **Commerce assistant.** A chat on every store page (the Assistant button in
+  the header: docked beside the page on desktop, a full-screen sheet on a phone,
+  and beside the canvas in the storefront editor). It acts only by calling the
+  Admin API's store operations (`src/lib/api/operations.ts`), in-process, as the
+  signed-in person with the scopes their role gives them (`src/lib/assistant/policy.ts`);
+  API keys, webhooks, the agency and the person's account are never offered.
+  Storefront edits go to the draft and redraw the editor; publishing, deletions,
+  refunds, emails, price changes and other live changes wait for a Confirm button
+  showing the exact call. Every change is in the activity log as made by the
+  person via the assistant, and the chat can undo its last storefront changes
+  from the version history. Conversations are kept per person and store. Product
+  ideas, supplier recommendations, descriptions, tags and prices are asked for in
+  the chat and stored as pending suggestions; applying one is a separate,
+  confirmed and audited step. `npm run assistant-chat-check` runs the tool loop
+  against a stubbed model; `npm run assistant-labels` refreshes the per-operation
+  progress and confirmation labels in every workspace language.
 - **Corporate gifting.** A store runs a private gift catalogue per company:
   link- or invite-gated, drawn from that store's own published products, with a
   spend limit per recipient. A buyer pastes or uploads a recipient list — names,
@@ -285,8 +298,14 @@ between requests). The indexes in `src/lib/db-indexes.ts` are created with
 since they were last put in place (the version is recorded in `app_state`).
 
 `CLAWCORP_API_KEY` authenticates the ClawCorp platform services used from server
-code only: text generation, and the asset upload endpoint that stores logos,
-artwork and rendered mockups.
+code only: text generation, the chat assistant's model, and the asset upload
+endpoint that stores logos, artwork and rendered mockups.
+
+`ASSISTANT_MODEL` (optional) names the platform OpenAI deployment the chat
+assistant calls through `/api/platform/openai`; it must support tool calling.
+Unset, it is `gpt-5.6-sol`.
+
+Every variable is listed in `.env.example`.
 
 `AUTH_SECRET` is the key Auth.js signs and encrypts the staff session cookie
 with (`npx auth secret` generates one; it is a Worker secret in the deployment).
