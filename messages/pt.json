@@ -348,13 +348,24 @@
       "Domains": "Domínios",
       "Currencies": "Moedas",
       "Import": "Importação",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "Chaves de API",
+      "Account": "Conta",
+      "Storefront API": "API Storefront"
     },
     "ctaTitle": "Crie a sua primeira chave",
     "ctaBody": "Inicie sessão, abra as Definições de uma loja e escolha Chaves de API.",
     "cta": "Iniciar sessão",
     "platformTitle": "Chaves de plataforma",
-    "platformBody": "Os administradores da plataforma criam chaves de plataforma em Admin → Chaves de API. Uma chave de plataforma tem o escopo {scope}, que nenhuma chave de loja pode ter, e executa as operações de Administração da plataforma."
+    "platformBody": "Os administradores da plataforma criam chaves de plataforma em Admin → Chaves de API. Uma chave de plataforma tem o escopo {scope}, que nenhuma chave de loja pode ter, e executa as operações de Administração da plataforma.",
+    "shop": {
+      "title": "API Storefront",
+      "body": "Crie uma loja headless ou um agente de compras: produtos, coleções, páginas e pesquisa, carrinhos, checkout, consulta de pedidos, avaliações e contas de clientes. Não é preciso chave.",
+      "mcp": "Servidor MCP para agentes de compras",
+      "handle": "Substitua STORE_HANDLE pelo nome de endereço da loja, como em /s/STORE_HANDLE.",
+      "limits": "Sem chave, cada visitante pode fazer {anonymous} pedidos por minuto numa loja. Uma chave publicável enviada em X-Storefront-Key aumenta isso para {keyed}.",
+      "keys": "Crie uma chave publicável com a operação createPublishableKey. Nunca envie uma chave da API Admin para a API Storefront."
+    }
   },
   "pricing": {
     "metaTitle": "Preços",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} abre em breve",
       "comingSoonNoProducts": "Volte em breve.",
       "browseProducts": "Ver {count} produtos",
-      "pausedTitle": "Esta loja está temporariamente indisponível"
+      "pausedTitle": "Esta loja está temporariamente indisponível",
+      "previewBanner": "Pré-visualização de alterações não publicadas",
+      "previewExpired": "Este link de pré-visualização expirou."
     },
     "shop": {
       "title": "Todos os produtos",
@@ -4537,7 +4550,9 @@
       "activity": "Atividade",
       "agency": "Agência: pessoas, plano e lojas",
       "domains": "Domínios",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "Chaves de API",
+      "account": "Suas notificações e idioma"
     },
     "none": "Sem acesso",
     "read": "Leitura",

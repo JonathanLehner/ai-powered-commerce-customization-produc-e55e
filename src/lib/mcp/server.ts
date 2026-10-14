@@ -2,9 +2,9 @@ import "server-only";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { scopeAllows } from "../api-scopes";
-import { ApiError, adminContext, keyContext, type ApiCaller } from "../api/auth";
+import { ApiError, adminContext, keyContext, type ApiCaller, type ShopCaller } from "../api/auth";
 import type { ApiOperation } from "../api/define";
-import { authorize, refusalOf, runOperation } from "../api/http";
+import { authorize, authorizeShop, refusalOf, runOperation, runShopOperation } from "../api/http";
 import { openApiDocument } from "../api/openapi";
 import { API_OPERATIONS, toolName } from "../api/operations";
 import { presentStore } from "../api/present";
@@ -62,9 +62,18 @@ async function storeSummary(caller: ApiCaller & { store: NonNullable<ApiCaller["
   };
 }
 
-/** The operations a key's MCP server offers as tools: platform ones for a platform key, store ones otherwise. */
+/**
+ * The operations a key's MCP server offers as tools: platform ones for a
+ * platform key, store ones otherwise. Storefront API operations are the shop
+ * server's alone.
+ */
 export function mcpOperations(platform: boolean): ApiOperation[] {
-  return API_OPERATIONS.filter((operation) => Boolean(operation.admin) === platform);
+  return API_OPERATIONS.filter((operation) => !operation.shop && Boolean(operation.admin) === platform);
+}
+
+/** The tools of the shop MCP server: the Storefront API operations. */
+export function shopMcpOperations(): ApiOperation[] {
+  return API_OPERATIONS.filter((operation) => operation.shop);
 }
 
 function registerTools(server: McpServer, caller: ApiCaller) {
@@ -176,5 +185,68 @@ export function storeMcpServer(caller: ApiCaller): McpServer {
   );
 
   registerOpenApi(server);
+  return server;
+}
+
+/* ------------------------------------------------------- the shop server */
+
+/**
+ * The MCP server for shopping agents, at `/api/mcp/shop?store=<slug>`: one
+ * tool per Storefront API operation, run through the same schema, checks and
+ * shared shop code as the REST endpoint. Anyone may connect; a publishable key
+ * only raises the rate limit. `caller` is what `authenticateShop` returns.
+ */
+export function shopMcpServer(caller: ShopCaller): McpServer {
+  const { store } = caller;
+  const server = new McpServer(
+    { name: "parcelith-shop", title: `${store.name} shop`, version: "1.0.0" },
+    {
+      instructions: [
+        `You are shopping in “${store.name}” (${store.slug}), a store on Parcelith, on behalf of a shopper.`,
+        "Start with get_shop: it gives the languages and currencies to pass as locale and currency, where the store ships, how it takes payment and its policies. Answer questions about returns or delivery from those policies.",
+        "Find products with search_shop, list_shop_products or get_shop_collection; call get_shop_product before adding one, for its variants, stock and personalisation options.",
+        "To buy: create_cart once and keep its cartId private, add_cart_line for each item, then get_cart with the shopper's country to show the shipping options, tax and total. Apply a code with apply_cart_discount or a gift card with apply_cart_gift_card when the shopper gives one.",
+        "Before start_checkout, read the cart back to the shopper (items, delivery address, shipping rate, total) and get their explicit confirmation. On a live store it returns a Stripe Checkout link: give it to the shopper to pay; never enter card details yourself. On a demo store payment is simulated with a test card.",
+        "Money is always in minor units of the currency: 2500 is 25.00. Refusals come back in the shopper's language with the field to fix; fix it and try again rather than guessing.",
+        "Only use the account tools (addresses, marketing choice) with a customerAccessToken the shopper gave you, and only change marketing consent when the shopper asks.",
+        caller.paused ? "This store is not taking orders at the moment: browsing works, carts and checkout are refused." : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    },
+  );
+
+  for (const operation of shopMcpOperations()) {
+    const reads = operation.method === "GET";
+    server.registerTool(
+      toolName(operation),
+      {
+        title: operation.summary,
+        description: operation.description,
+        inputSchema: operation.input,
+        annotations: {
+          title: operation.summary,
+          readOnlyHint: reads,
+          destructiveHint: !reads && Boolean(operation.destructive),
+          idempotentHint: operation.method !== "POST",
+          // Checkout hands the shopper to a payment page; everything else stays in the store.
+          openWorldHint: operation.id === "startCheckout",
+        },
+      },
+      async (args: unknown): Promise<CallToolResult> => {
+        try {
+          const denied = authorizeShop(caller, operation);
+          if (denied) return failure(denied.message);
+          const result = await runShopOperation(operation, caller, args ?? {});
+          return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        } catch (error) {
+          const refusal = refusalOf(error);
+          if (refusal) return failure(refusalText(refusal));
+          console.error(`Shop MCP tool ${toolName(operation)} failed`, error);
+          return failure("Something went wrong. Try again.");
+        }
+      },
+    );
+  }
   return server;
 }

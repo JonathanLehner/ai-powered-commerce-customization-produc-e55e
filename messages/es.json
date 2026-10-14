@@ -348,13 +348,24 @@
       "Domains": "Dominios",
       "Currencies": "Monedas",
       "Import": "Importación",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "Claves de API",
+      "Account": "Cuenta",
+      "Storefront API": "API de Storefront"
     },
     "ctaTitle": "Crea tu primera clave",
     "ctaBody": "Inicia sesión, abre los Ajustes de una tienda y elige Claves de API.",
     "cta": "Iniciar sesión",
     "platformTitle": "Claves de plataforma",
-    "platformBody": "Los administradores de la plataforma crean claves de plataforma en Admin → Claves de API. Una clave de plataforma tiene el ámbito {scope}, que ninguna clave de tienda puede tener, y ejecuta las operaciones de Administración de la plataforma."
+    "platformBody": "Los administradores de la plataforma crean claves de plataforma en Admin → Claves de API. Una clave de plataforma tiene el ámbito {scope}, que ninguna clave de tienda puede tener, y ejecuta las operaciones de Administración de la plataforma.",
+    "shop": {
+      "title": "API de Storefront",
+      "body": "Crea una tienda headless o un agente de compras: productos, colecciones, páginas y búsqueda, carritos, pago, consulta de pedidos, reseñas y cuentas de cliente. No se necesita clave.",
+      "mcp": "Servidor MCP para agentes de compras",
+      "handle": "Sustituye STORE_HANDLE por el nombre de dirección de la tienda, como en /s/STORE_HANDLE.",
+      "limits": "Sin clave, cada visitante puede hacer {anonymous} solicitudes por minuto en una tienda. Una clave publicable enviada en X-Storefront-Key lo aumenta a {keyed}.",
+      "keys": "Crea una clave publicable con la operación createPublishableKey. Nunca envíes una clave de la API de administración a la API de Storefront."
+    }
   },
   "pricing": {
     "metaTitle": "Precios",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} abre pronto",
       "comingSoonNoProducts": "Vuelve pronto.",
       "browseProducts": "Ver {count} productos",
-      "pausedTitle": "Esta tienda no está disponible temporalmente"
+      "pausedTitle": "Esta tienda no está disponible temporalmente",
+      "previewBanner": "Vista previa de cambios sin publicar",
+      "previewExpired": "Este enlace de vista previa ha caducado."
     },
     "shop": {
       "title": "Todos los productos",
@@ -4537,7 +4550,9 @@
       "activity": "Actividad",
       "agency": "Agencia: personas, plan y tiendas",
       "domains": "Dominios",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "Claves de API",
+      "account": "Tus notificaciones e idioma"
     },
     "none": "Sin acceso",
     "read": "Lectura",

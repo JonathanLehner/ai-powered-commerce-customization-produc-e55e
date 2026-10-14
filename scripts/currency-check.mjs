@@ -115,7 +115,9 @@ assert.equal(giftCardCover({ balance: 1000, currency: "USD" }, 4000, "EUR", { fx
 /* ---------------------------------------------------------------- checkout */
 
 const shop = readFileSync(new URL("../src/app/actions/shop.ts", import.meta.url), "utf8");
-const placeOrder = shop.slice(shop.indexOf("export async function placeOrder"), shop.indexOf("async function closeOpenCheckouts"));
+// The storefront's checkout and the Storefront API's run the same shared operation.
+const shared = readFileSync(new URL("../src/lib/operations/shop.ts", import.meta.url), "utf8");
+const placeOrder = shared.slice(shared.indexOf("export async function placeOrder"), shared.indexOf("async function closeOpenCheckouts"));
 assert.match(placeOrder, /createConnectedCheckout\(\{[\s\S]*?\n\s+currency,\n/, "Stripe Checkout is opened in the presentment currency");
 assert.match(placeOrder, /shopCurrency: store\.defaultCurrency/, "the order records the shop currency");
 assert.match(placeOrder, /shopTotal: toShopAmount\(store, total, currency\)/, "and its total in it");

@@ -348,13 +348,24 @@
       "Domains": "Domaines",
       "Currencies": "Devises",
       "Import": "Importation",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "Clés API",
+      "Account": "Compte",
+      "Storefront API": "API Storefront"
     },
     "ctaTitle": "Créez votre première clé",
     "ctaBody": "Connectez-vous, ouvrez les Réglages d'une boutique et choisissez Clés API.",
     "cta": "Se connecter",
     "platformTitle": "Clés de plateforme",
-    "platformBody": "Les administrateurs de la plateforme créent les clés de plateforme dans Admin → Clés API. Une clé de plateforme porte le scope {scope}, qu'aucune clé de boutique ne peut porter, et exécute les opérations listées sous Administration de la plateforme."
+    "platformBody": "Les administrateurs de la plateforme créent les clés de plateforme dans Admin → Clés API. Une clé de plateforme porte le scope {scope}, qu'aucune clé de boutique ne peut porter, et exécute les opérations listées sous Administration de la plateforme.",
+    "shop": {
+      "title": "API Storefront",
+      "body": "Créez une boutique headless ou un agent d’achat : produits, collections, pages et recherche, paniers, paiement, suivi de commande, avis et comptes clients. Aucune clé n’est nécessaire.",
+      "mcp": "Serveur MCP pour agents d’achat",
+      "handle": "Remplacez STORE_HANDLE par le nom d’adresse de la boutique, comme dans /s/STORE_HANDLE.",
+      "limits": "Sans clé, chaque visiteur peut envoyer {anonymous} requêtes par minute dans une boutique. Une clé publique envoyée dans X-Storefront-Key porte ce nombre à {keyed}.",
+      "keys": "Créez une clé publique avec l’opération createPublishableKey. N’envoyez jamais de clé de l’API Admin à l’API Storefront."
+    }
   },
   "pricing": {
     "metaTitle": "Tarifs",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} ouvre bientôt",
       "comingSoonNoProducts": "Revenez bientôt.",
       "browseProducts": "Voir les {count} produits",
-      "pausedTitle": "Cette boutique est temporairement indisponible"
+      "pausedTitle": "Cette boutique est temporairement indisponible",
+      "previewBanner": "Aperçu des modifications non publiées",
+      "previewExpired": "Ce lien d’aperçu a expiré."
     },
     "shop": {
       "title": "Tous les produits",
@@ -4537,7 +4550,9 @@
       "activity": "Activité",
       "agency": "Agence : personnes, forfait et boutiques",
       "domains": "Domaines",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "Clés API",
+      "account": "Vos notifications et votre langue"
     },
     "none": "Aucun accès",
     "read": "Lecture",

@@ -227,7 +227,7 @@ try {
   }
   const present = readFileSync(new URL("../src/lib/api/present.ts", import.meta.url), "utf8");
   assert.match(present, /code: _code/, "the API never lists a card's full code");
-  const shop = readFileSync(new URL("../src/app/actions/shop.ts", import.meta.url), "utf8");
+  const shop = readFileSync(new URL("../src/lib/operations/shop.ts", import.meta.url), "utf8");
   assert.match(shop, /holdGiftCard\(storeId, card\.id, orderId, cover\.cardAmount\)/, "checkout holds the card before payment");
 } finally {
   await Promise.all([

@@ -199,6 +199,21 @@ gifting, orders, team, guided setup, activity.
   store or the dashboard. Every surface has a matching error page with a retry,
   so a failure mid-flow is explained rather than blank (`npm run fallback-check`).
 
+- **API and MCP for everything.** Every operation is defined once in
+  `src/lib/api/operations.ts` (modules under `src/lib/api/ops`) and served as a
+  REST endpoint, an OpenAPI operation and an MCP tool. The Admin API
+  (`/api/v1/stores/{storeId}`, MCP at `/api/mcp`) covers every workspace edit,
+  including section-by-section storefront editing of the draft
+  (list/add/update/move/duplicate/remove sections, validated against
+  `SECTION_DEFS`), a signed draft preview link, theme settings and image
+  uploads, API and platform keys, notifications, workspace language, billing
+  links and plan enquiries. The public Storefront API (`/api/v1/shop/{storeHandle}`,
+  MCP for shopping agents at `/api/mcp/shop?store=…`) runs catalogue reads,
+  carts, checkout, order lookup, reviews and shopper accounts, anonymously or
+  with a publishable key. Only browser sign-in/out and accepting invitations
+  stay UI-only (`npm run api-coverage-check`, `npm run storefront-sections-check`,
+  `npm run shop-api-check`).
+
 ## Running it
 
 ```bash

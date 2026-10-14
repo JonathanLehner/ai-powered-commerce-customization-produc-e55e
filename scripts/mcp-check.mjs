@@ -18,7 +18,11 @@
 //   answers the same key the same way;
 // - a platform key runs the /admin operations and nothing in a store, a store
 //   key never runs a platform operation, and a platform key whose maker is no
-//   longer a platform administrator is refused.
+//   longer a platform administrator is refused;
+// - the Storefront API (/shop/{storeHandle}) is served by shopHandler route
+//   files, answers anonymous callers with CORS headers and a lower rate limit,
+//   takes a publishable key and refuses an Admin key, the Admin API refuses a
+//   publishable key, and the shop MCP server offers exactly the shop tools.
 //
 // The keys it creates are deleted at the end. It needs MONGODB_URI and
 // MONGODB_DB from `.env.local`, and refuses to run against production.
@@ -40,7 +44,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const { API_OPERATIONS, toolName } = await import("../src/lib/api/operations.ts");
 const { openApiDocument } = await import("../src/lib/api/openapi.ts");
 const { API_RESOURCES } = await import("../src/lib/api-scopes.ts");
-const { createApiKey, createPlatformApiKey } = await import("../src/lib/api-keys.ts");
+const { createApiKey, createPlatformApiKey, createPublishableKey } = await import("../src/lib/api-keys.ts");
 const { db } = await import("../src/lib/mongo.ts");
 
 /* ------------------------------------------------- the registry, statically */
@@ -49,8 +53,15 @@ const spec = openApiDocument();
 const allSpecOperations = Object.entries(spec.paths).flatMap(([path, methods]) =>
   Object.entries(methods).map(([method, operation]) => ({ path, method: method.toUpperCase(), id: operation.operationId })),
 );
-const specOperations = allSpecOperations.filter((operation) => !operation.path.startsWith("/admin"));
+const specOperations = allSpecOperations.filter((operation) => operation.path.startsWith("/stores/"));
 const adminSpecOperations = allSpecOperations.filter((operation) => operation.path.startsWith("/admin"));
+const shopSpecOperations = allSpecOperations.filter((operation) => operation.path.startsWith("/shop/"));
+assert.equal(
+  specOperations.length + adminSpecOperations.length + shopSpecOperations.length,
+  allSpecOperations.length,
+  "every operation is a store, platform or Storefront API operation",
+);
+assert.equal(shopSpecOperations.length, API_OPERATIONS.filter((o) => o.shop).length, "Storefront API operations live under /shop");
 assert.equal(allSpecOperations.length, API_OPERATIONS.length, "the OpenAPI document has one operation per registry entry");
 assert.equal(new Set(allSpecOperations.map((o) => o.id)).size, allSpecOperations.length, "operationIds are unique");
 assert.equal(adminSpecOperations.length, API_OPERATIONS.filter((o) => o.admin).length, "platform operations live under /admin");
@@ -61,29 +72,36 @@ const ROUTES = join(ROOT, "src/app/api/v1");
 const routeFile = (operation) =>
   join(
     ROUTES,
-    operation.admin ? "admin" : "stores/[storeId]",
+    operation.shop ? "shop/[storeHandle]" : operation.admin ? "admin" : "stores/[storeId]",
     ...operation.path.split("/").filter(Boolean).map((s) => s.replace(/^\{(\w+)\}$/, "[$1]")),
     "route.ts",
   );
+const handlerOf = (operation) => (operation.shop ? "shopHandler" : "restHandler");
 for (const operation of API_OPERATIONS) {
   const file = routeFile(operation);
   assert.ok(existsSync(file), `${operation.id}: no route file at ${file}`);
   assert.match(
     readFileSync(file, "utf8"),
-    new RegExp(`export const ${operation.method} = restHandler\\("${operation.id}"\\);`),
+    new RegExp(`export const ${operation.method} = ${handlerOf(operation)}\\("${operation.id}"\\);`),
     `${operation.id}: ${file} does not export ${operation.method} through the registry`,
   );
 }
-const served = [];
+const served = { restHandler: [], shopHandler: [] };
 (function walk(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) walk(join(dir, entry.name));
     else if (entry.name === "route.ts") {
-      for (const match of readFileSync(join(dir, entry.name), "utf8").matchAll(/restHandler\("(\w+)"\)/g)) served.push(match[1]);
+      for (const match of readFileSync(join(dir, entry.name), "utf8").matchAll(/(restHandler|shopHandler)\("(\w+)"\)/g)) {
+        served[match[1]].push(match[2]);
+      }
     }
   }
 })(ROUTES);
-assert.deepEqual(served.sort(), API_OPERATIONS.map((o) => o.id).sort(), "the route files serve exactly the registry");
+assert.deepEqual(served.restHandler.sort(), API_OPERATIONS.filter((o) => !o.shop).map((o) => o.id).sort(), "the Admin API route files serve exactly the registry");
+assert.deepEqual(served.shopHandler.sort(), API_OPERATIONS.filter((o) => o.shop).map((o) => o.id).sort(), "the Storefront API route files serve exactly its operations");
+for (const file of readdirSync(join(ROUTES, "shop"), { recursive: true }).filter((name) => name.endsWith("route.ts"))) {
+  assert.match(readFileSync(join(ROUTES, "shop", file), "utf8"), /export const OPTIONS = shopPreflight;/, `${file} answers the CORS preflight`);
+}
 
 /* ------------------------------------------------------------------ server */
 
@@ -138,7 +156,10 @@ const orphanKey = await createPlatformApiKey(person, { name: `${RUN} orphan`, su
 // A store key asked for the admin scope never gets it.
 const sneaky = await createApiKey(store, person, { name: `${RUN} sneaky`, scopes: ["platform:admin", "products:read"], submissionKey: null });
 assert.deepEqual(sneaky.key.scopes, ["products:read"], "a store key cannot hold the admin scope");
-const keyIds = [full.key.id, readOnly.key.id, platformKey.key.id, orphanKey.key.id, sneaky.key.id];
+const publishable = await createPublishableKey(store, person, { name: `${RUN} publishable`, submissionKey: null });
+assert.match(publishable.secret, /^plk_pub_/, "a publishable key has its own prefix");
+assert.deepEqual(publishable.key.scopes, [], "a publishable key holds no scope");
+const keyIds = [full.key.id, readOnly.key.id, platformKey.key.id, orphanKey.key.id, sneaky.key.id, publishable.key.id];
 
 async function connect(secret) {
   const client = new Client({ name: "mcp-check", version: "1.0.0" });
@@ -286,12 +307,60 @@ try {
   const orphan = await fetch(adminUrl, { headers: { authorization: `Bearer ${orphanKey.secret}` } });
   assert.equal(orphan.status, 403, "a platform key stops working when its maker is not a platform administrator");
 
+  /* --------------------------------------------------------- Storefront API */
+
+  const shopUrl = `${base}/api/v1/shop/${store.slug}`;
+  const anonymousShop = await fetch(shopUrl);
+  assert.equal(anonymousShop.status, 200, "the Storefront API answers without a key");
+  assert.equal((await anonymousShop.json()).id, store.id, "for the store its handle names");
+  assert.equal(anonymousShop.headers.get("access-control-allow-origin"), "*", "with CORS headers");
+  assert.equal(anonymousShop.headers.get("x-ratelimit-limit"), "60", "at the anonymous rate limit");
+  assert.equal((await fetch(`${base}/api/v1/shop/${store.id}`)).status, 200, "the store id works as its handle");
+  assert.equal((await fetch(`${base}/api/v1/shop/no-such-store-${RUN.replace(/\W/g, "")}`)).status, 404, "an unknown store is a 404");
+  const preflight = await fetch(`${shopUrl}/carts`, { method: "OPTIONS", headers: { origin: "https://example.com", "access-control-request-method": "POST" } });
+  assert.equal(preflight.status, 204, "the CORS preflight is answered");
+  assert.match(preflight.headers.get("access-control-allow-headers") ?? "", /X-Storefront-Key/);
+  const keyed = await fetch(shopUrl, { headers: { "x-storefront-key": publishable.secret } });
+  assert.equal(keyed.status, 200, "a publishable key opens its store's Storefront API");
+  assert.equal(keyed.headers.get("x-ratelimit-limit"), "120", "at the key's rate limit");
+  const adminKeyOnShop = await fetch(shopUrl, { headers: { authorization: `Bearer ${full.secret}` } });
+  assert.equal(adminKeyOnShop.status, 401, "an Admin key is refused by the Storefront API");
+  const publishableOnAdmin = await fetch(`${base}/api/v1/stores/${store.id}`, { headers: { authorization: `Bearer ${publishable.secret}` } });
+  assert.equal(publishableOnAdmin.status, 401, "a publishable key is refused by the Admin API");
+  const publishableOnMcp = await fetch(`${base}/api/mcp`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${publishable.secret}`, "content-type": "application/json", accept: "application/json, text/event-stream" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+  });
+  assert.equal(publishableOnMcp.status, 401, "and by the Admin MCP server");
+  const created = await fetch(`${shopUrl}/carts`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+  assert.equal(created.status, 201, "anyone may start a cart");
+  const cart = await created.json();
+  assert.match(cart.cartId, /^shp_[a-z0-9]{12}$/);
+  assert.equal((await fetch(`${shopUrl}/carts/${cart.cartId}`)).status, 200, "and read it back with its cartId");
+  assert.equal((await fetch(`${shopUrl}/carts/shp_000000000000`)).status, 404, "an unknown cartId is a 404");
+  await db.deleteMany("carts", { storeId: store.id, sessionId: cart.cartId });
+
+  const shopper = new Client({ name: "mcp-check shop", version: "1.0.0" });
+  await shopper.connect(new StreamableHTTPClientTransport(new URL(`${base}/api/mcp/shop?store=${store.slug}`)));
+  const shopTools = (await shopper.listTools()).tools;
+  assert.deepEqual(
+    shopTools.map((tool) => tool.name).sort(),
+    shopSpecOperations.map((operation) => toolName(operation)).sort(),
+    "the shop MCP server offers exactly the Storefront API operations",
+  );
+  assert.ok(shopTools.every((tool) => !byName.has(tool.name)), "and no store key is offered a shop tool");
+  assert.ok(shopTools.every((tool) => tool.description.length > 40 && tool.annotations?.readOnlyHint === (shopSpecOperations.find((o) => toolName(o) === tool.name).method === "GET")));
+  assert.equal(json(await shopper.callTool({ name: "get_shop", arguments: {} })).id, store.id, "get_shop reads the store");
+  await shopper.close();
+
   console.log(
-    `mcp-check ok: ${tools.length} store tools match ${specOperations.length} OpenAPI operations and ${adminTools.length} platform tools match ${adminSpecOperations.length}; read and write tools work with real keys`,
+    `mcp-check ok: ${tools.length} store tools match ${specOperations.length} OpenAPI operations, ${adminTools.length} platform tools match ${adminSpecOperations.length} and ${shopTools.length} shop tools match ${shopSpecOperations.length}; read and write tools work with real keys; the Storefront API is public, CORS-open and keeps Admin and publishable keys apart`,
   );
 } finally {
   await db.deleteMany("api_keys", { id: { $in: keyIds } });
   await db.deleteMany("api_rate_limits", { keyId: { $in: keyIds } });
+  await db.deleteMany("api_rate_limits", { keyId: { $regex: `^anon:${store.id}:` } });
   await db.deleteMany("audit_logs", { actorId: { $in: [...keyIds, person.id] } });
   server?.kill();
 }

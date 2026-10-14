@@ -24,6 +24,11 @@ import { newId } from "./util";
  * A platform key is made by a platform administrator under Admin → API keys.
  * It belongs to no store and holds the admin scope alone, which no store key
  * can hold.
+ *
+ * A publishable key belongs to one store and opens only that store's public
+ * Storefront API, with a higher rate limit than an anonymous caller. It holds
+ * no scope and is meant to sit in a browser or an agent's configuration, so
+ * its secret starts with its own prefix and the Admin API refuses it.
  */
 
 export interface ApiKey {
@@ -33,6 +38,8 @@ export interface ApiKey {
   agencyId: string | null;
   /** True for a platform key, which holds the admin scope and no store. */
   platform?: boolean;
+  /** True for a publishable key: the store's Storefront API only, no scopes. */
+  publishable?: true;
   name: string;
   scopes: (ApiScope | AdminScope)[];
   /** SHA-256 of the whole secret, hex. */
@@ -125,6 +132,66 @@ export async function createApiKey(
     meta: { scopes: key.scopes.join(",") },
   });
   return { status: "created", key: summary(key), secret };
+}
+
+/** The prefix of a publishable key's secret, told apart from an Admin key's at a glance. */
+export const PUBLISHABLE_KEY_PREFIX = "plk_pub_";
+
+/**
+ * Creates a publishable key for the store's Storefront API and returns its
+ * secret once. `actor` is the person or Admin API key that made it.
+ */
+export async function createPublishableKey(
+  store: Store,
+  actor: Pick<User, "id" | "name">,
+  input: { name: string; submissionKey: string | null },
+): Promise<CreateApiKeyResult> {
+  if (input.submissionKey) {
+    const existing = await db.findOne<ApiKey>(COLLECTIONS.apiKeys, {
+      storeId: store.id,
+      submissionKey: input.submissionKey,
+    });
+    if (existing) return { status: "duplicate", key: summary(existing) };
+  }
+  const secret = `${PUBLISHABLE_KEY_PREFIX}${randomBytes(24).toString("base64url")}`;
+  const key: ApiKey = {
+    id: newId("key"),
+    storeId: store.id,
+    agencyId: store.agencyId,
+    publishable: true,
+    name: input.name,
+    scopes: [],
+    hash: hashApiKey(secret),
+    last4: secret.slice(-4),
+    createdAt: new Date().toISOString(),
+    createdById: actor.id,
+    createdByName: actor.name,
+    lastUsedAt: null,
+    revokedAt: null,
+    revokedByName: null,
+    submissionKey: input.submissionKey,
+  };
+  await db.insertOne(COLLECTIONS.apiKeys, key as unknown as Record<string, unknown>);
+  recordAudit({
+    category: "administration",
+    action: "api_key.created",
+    summary: `Created the publishable Storefront API key “${key.name}” (…${key.last4})`,
+    storeId: store.id,
+    agencyId: store.agencyId,
+    actorId: actor.id,
+    actorName: actor.name,
+    entity: "api_key",
+    entityId: key.id,
+    meta: { publishable: "true" },
+  });
+  return { status: "created", key: summary(key), secret };
+}
+
+/** The live publishable key a secret belongs to, or null for any other secret. */
+export async function findPublishableKey(secret: string): Promise<ApiKey | null> {
+  if (!secret.startsWith(PUBLISHABLE_KEY_PREFIX)) return null;
+  const key = await db.findOne<ApiKey>(COLLECTIONS.apiKeys, { hash: hashApiKey(secret) });
+  return key && key.publishable && !key.revokedAt ? key : null;
 }
 
 /** Revokes a key of this store. Revoking it again changes nothing. */
@@ -233,7 +300,8 @@ export async function revokePlatformApiKey(user: Pick<User, "id" | "name">, keyI
 export async function findApiKey(secret: string): Promise<ApiKey | null> {
   if (!secret.startsWith(API_KEY_PREFIX)) return null;
   const key = await db.findOne<ApiKey>(COLLECTIONS.apiKeys, { hash: hashApiKey(secret) });
-  return key && !key.revokedAt ? key : null;
+  // A publishable key never opens the Admin API, whatever its secret looks like.
+  return key && !key.revokedAt && !key.publishable ? key : null;
 }
 
 /**
@@ -263,12 +331,16 @@ export interface RateLimitState {
   resetSeconds: number;
 }
 
+/** Requests an anonymous Storefront API caller may make per window, per store and IP address. */
+export const SHOP_ANONYMOUS_RATE_LIMIT = 60;
+
 /**
  * Counts one request against the key's fixed one-minute window. The counter
  * lives in the database, so every server instance shares it, and expires on
- * its own once the window has passed.
+ * its own once the window has passed. `keyId` is any stable name for the
+ * caller, such as `anon:<storeId>:<ip>` for an anonymous Storefront API client.
  */
-export async function consumeRateLimit(keyId: string, now = Date.now()): Promise<RateLimitState> {
+export async function consumeRateLimit(keyId: string, now = Date.now(), limit = API_RATE_LIMIT): Promise<RateLimitState> {
   const windowMs = API_RATE_WINDOW_SECONDS * 1000;
   const window = Math.floor(now / windowMs);
   const resetAt = (window + 1) * windowMs;
@@ -287,9 +359,9 @@ export async function consumeRateLimit(keyId: string, now = Date.now()): Promise
   }
   const count = counter?.count ?? 1;
   return {
-    allowed: count <= API_RATE_LIMIT,
-    limit: API_RATE_LIMIT,
-    remaining: Math.max(0, API_RATE_LIMIT - count),
+    allowed: count <= limit,
+    limit,
+    remaining: Math.max(0, limit - count),
     resetSeconds: Math.max(1, Math.ceil((resetAt - now) / 1000)),
   };
 }

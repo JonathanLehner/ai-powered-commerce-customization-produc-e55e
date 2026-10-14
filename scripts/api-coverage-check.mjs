@@ -2,9 +2,12 @@
 //
 // It reads every exported server action (each file under src that starts with
 // "use server") and asserts that:
-// - each one is named in the `actions` list of at least one Admin API
-//   operation, or is on the UI-only list in src/lib/api/ui-only-actions.ts with
-//   a reason, and never both;
+// - each one is named in the `actions` list of at least one API operation, or
+//   is on the UI-only list in src/lib/api/ui-only-actions.ts with a reason, and
+//   never both;
+// - the UI-only list holds nothing but signing in or out of a browser session
+//   and accepting an invitation: exactly the actions in UI_ONLY_ALLOWED below.
+//   Anything else a person can do in the workspace must be an operation;
 // - no operation and no UI-only entry names an action that does not exist, so
 //   a renamed or deleted action cannot leave a stale claim behind;
 // - each covering operation is served by the route file its path names, is in
@@ -28,9 +31,28 @@ const ACTIONS = join(SRC, "app/actions");
 const { API_OPERATIONS, toolName } = await import("../src/lib/api/operations.ts");
 const { fullPath } = await import("../src/lib/api/define.ts");
 const { openApiDocument } = await import("../src/lib/api/openapi.ts");
-const { storeMcpServer } = await import("../src/lib/mcp/server.ts");
+const { shopMcpServer, storeMcpServer } = await import("../src/lib/mcp/server.ts");
 const { ADMIN_SCOPE, API_RESOURCES } = await import("../src/lib/api-scopes.ts");
-const { UI_ONLY_ACTIONS } = await import("../src/lib/api/ui-only-actions.ts");
+const { UI_ONLY_ACTIONS, UI_ONLY_KINDS } = await import("../src/lib/api/ui-only-actions.ts");
+
+/**
+ * The only actions that may stay without an operation: browser sign-in and
+ * sign-out (staff and shoppers, sign-up and password reset included, since each
+ * ends in a signed-in session) and accepting an invitation. Growing this list
+ * is a product decision, not a way to skip writing an operation.
+ */
+const UI_ONLY_ALLOWED = {
+  "auth#signOut": "session",
+  "auth#signInUser": "session",
+  "auth#signInAs": "session",
+  "auth#signInWithPassword": "session",
+  "auth#requestPasswordReset": "session",
+  "auth#resetPassword": "session",
+  "signup#createAccount": "session",
+  "account#signOutShopper": "session",
+  "team#acceptInvitation": "invitation",
+  "gifting#unlockGiftCatalogue": "invitation",
+};
 
 const failures = [];
 const fail = (message) => failures.push(message);
@@ -81,9 +103,14 @@ for (const operation of API_OPERATIONS) {
   }
 }
 
-for (const [action, reason] of Object.entries(UI_ONLY_ACTIONS)) {
+for (const [action, entry] of Object.entries(UI_ONLY_ACTIONS)) {
   if (!exported.has(action)) fail(`the UI-only list names ${action}, which is not an exported server action`);
-  if (typeof reason !== "string" || reason.trim().length < 20) fail(`the UI-only entry for ${action} needs a reason`);
+  if (!(action in UI_ONLY_ALLOWED)) {
+    fail(`${action} is on the UI-only list, which may only hold session sign-in/out and invitation actions: give it an operation`);
+  } else if (entry?.kind !== UI_ONLY_ALLOWED[action] || !(entry.kind in UI_ONLY_KINDS)) {
+    fail(`the UI-only entry for ${action} must be of kind "${UI_ONLY_ALLOWED[action]}"`);
+  }
+  if (typeof entry?.reason !== "string" || entry.reason.trim().length < 20) fail(`the UI-only entry for ${action} needs a reason`);
   if (coveredBy.has(action)) {
     fail(`${action} is on the UI-only list but ${coveredBy.get(action).map((o) => o.id).join(", ")} covers it; pick one`);
   }
@@ -100,7 +127,7 @@ const API = join(SRC, "app/api/v1");
 const routeFile = (operation) =>
   join(
     API,
-    operation.admin ? "admin" : "stores/[storeId]",
+    operation.admin ? "admin" : operation.shop ? "shop/[storeHandle]" : "stores/[storeId]",
     ...operation.path.split("/").filter(Boolean).map((segment) => segment.replace(/^\{(\w+)\}$/, "[$1]")),
     "route.ts",
   );
@@ -117,14 +144,22 @@ for (const operation of API_OPERATIONS) {
   const file = routeFile(operation);
   if (!existsSync(file)) {
     fail(`${operation.id}: no route file at ${relative(ROOT, file)}`);
-  } else if (!new RegExp(`export const ${operation.method} = restHandler\\("${operation.id}"\\);`).test(readFileSync(file, "utf8"))) {
-    fail(`${operation.id}: ${relative(ROOT, file)} does not export ${operation.method} through restHandler("${operation.id}")`);
+  } else {
+    const handler = operation.shop ? "shopHandler" : "restHandler";
+    const source = readFileSync(file, "utf8");
+    if (!new RegExp(`export const ${operation.method} = ${handler}\\("${operation.id}"\\);`).test(source)) {
+      fail(`${operation.id}: ${relative(ROOT, file)} does not export ${operation.method} through ${handler}("${operation.id}")`);
+    }
+    if (operation.shop && !/export const OPTIONS = shopPreflight;/.test(source)) fail(`${relative(ROOT, file)} answers no browser preflight`);
   }
   if (!specIds.has(operation.id)) fail(`${operation.id} is missing from the OpenAPI document`);
   const path = spec.paths[fullPath(operation)];
   if (!path?.[operation.method.toLowerCase()]) fail(`${operation.id}: OpenAPI has no ${operation.method} ${fullPath(operation)}`);
 
-  if (operation.admin) {
+  if (operation.shop) {
+    if (!["shop:read", "shop:write"].includes(operation.scope)) fail(`${operation.id} is a Storefront API operation without a shop scope`);
+    if (operation.tag !== "Storefront API") fail(`${operation.id} is a Storefront API operation outside the "Storefront API" tag`);
+  } else if (operation.admin) {
     if (operation.scope !== ADMIN_SCOPE) fail(`${operation.id} is a platform operation without the ${ADMIN_SCOPE} scope`);
   } else {
     const [resource, access] = operation.scope.split(":");
@@ -137,8 +172,8 @@ for (const operation of API_OPERATIONS) {
 
 /* ----------------------------------------------------------- the MCP servers */
 
-async function toolsOf(caller) {
-  const server = storeMcpServer(caller);
+async function toolsOf(callerOrServer) {
+  const server = typeof callerOrServer.connect === "function" ? callerOrServer : storeMcpServer(callerOrServer);
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await server.connect(serverTransport);
   const client = new Client({ name: "api-coverage-check", version: "1.0.0" });
@@ -178,11 +213,16 @@ const platformTools = await toolsOf({
   headers: {},
 });
 
+const shopTools = await toolsOf(shopMcpServer({ store: { id: "str_check", name: "Check store", slug: "check-store" }, keyId: null, ip: "127.0.0.1", paused: false, headers: {} }));
+
+const servers = { store: storeTools, platform: platformTools, shop: shopTools };
 for (const operation of API_OPERATIONS) {
   const tool = toolName(operation);
-  const [own, other] = operation.admin ? [platformTools, storeTools] : [storeTools, platformTools];
-  if (!own.has(tool)) fail(`${operation.id}: no MCP tool ${tool} for ${operation.admin ? "platform" : "store"} keys`);
-  if (other.has(tool)) fail(`${operation.id}: the MCP tool ${tool} is offered to ${operation.admin ? "store" : "platform"} keys too`);
+  const own = operation.admin ? "platform" : operation.shop ? "shop" : "store";
+  if (!servers[own].has(tool)) fail(`${operation.id}: no MCP tool ${tool} on the ${own} MCP server`);
+  for (const [name, tools] of Object.entries(servers)) {
+    if (name !== own && tools.has(tool)) fail(`${operation.id}: the MCP tool ${tool} is offered on the ${name} MCP server too`);
+  }
 }
 
 /* ------------------------------------------------------------------- result */
@@ -195,7 +235,7 @@ if (failures.length) {
 const covered = [...exported].filter((action) => coveredBy.has(action)).length;
 console.log(
   `api-coverage-check passed: ${exported.size} server actions, ${covered} covered by ${API_OPERATIONS.length} operations ` +
-    `(${API_OPERATIONS.filter((o) => o.admin).length} platform), ${Object.keys(UI_ONLY_ACTIONS).length} UI-only with reasons; ` +
-    `${storeTools.size} store tools, ${platformTools.size} platform tools.`,
+    `(${API_OPERATIONS.filter((o) => o.admin).length} platform, ${API_OPERATIONS.filter((o) => o.shop).length} Storefront API), ${Object.keys(UI_ONLY_ACTIONS).length} UI-only with reasons; ` +
+    `${storeTools.size} store tools, ${platformTools.size} platform tools, ${shopTools.size} Storefront API tools.`,
 );
 process.exit(0);

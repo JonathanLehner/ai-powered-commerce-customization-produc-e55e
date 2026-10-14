@@ -348,13 +348,24 @@
       "Domains": "Domains",
       "Currencies": "Währungen",
       "Import": "Import",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "API-Schlüssel",
+      "Account": "Konto",
+      "Storefront API": "Storefront API"
     },
     "ctaTitle": "Erstellen Sie Ihren ersten Schlüssel",
     "ctaBody": "Melden Sie sich an, öffnen Sie die Einstellungen eines Shops und wählen Sie API-Schlüssel.",
     "cta": "Anmelden",
     "platformTitle": "Plattformschlüssel",
-    "platformBody": "Plattformadministratoren erstellen Plattformschlüssel unter Admin → API-Schlüssel. Ein Plattformschlüssel hat den Scope {scope}, den kein Shopschlüssel haben kann, und führt die Operationen unter Plattformverwaltung aus."
+    "platformBody": "Plattformadministratoren erstellen Plattformschlüssel unter Admin → API-Schlüssel. Ein Plattformschlüssel hat den Scope {scope}, den kein Shopschlüssel haben kann, und führt die Operationen unter Plattformverwaltung aus.",
+    "shop": {
+      "title": "Storefront API",
+      "body": "Bauen Sie einen Headless-Shop oder einen Shopping-Agenten: Produkte, Kollektionen, Seiten und Suche, Warenkörbe, Checkout, Bestellsuche, Bewertungen und Kundenkonten. Ein Schlüssel ist nicht nötig.",
+      "mcp": "MCP-Server für Shopping-Agenten",
+      "handle": "Ersetzen Sie STORE_HANDLE durch den Adressnamen des Shops, wie in /s/STORE_HANDLE.",
+      "limits": "Ohne Schlüssel kann jeder Besucher {anonymous} Anfragen pro Minute in einem Shop senden. Ein öffentlicher Schlüssel im Header X-Storefront-Key erhöht das auf {keyed}.",
+      "keys": "Erstellen Sie einen öffentlichen Schlüssel mit der Operation createPublishableKey. Senden Sie nie einen Admin-API-Schlüssel an die Storefront API."
+    }
   },
   "pricing": {
     "metaTitle": "Preise",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} öffnet bald",
       "comingSoonNoProducts": "Schauen Sie bald wieder vorbei.",
       "browseProducts": "{count} Produkte ansehen",
-      "pausedTitle": "Dieser Shop ist vorübergehend nicht verfügbar"
+      "pausedTitle": "Dieser Shop ist vorübergehend nicht verfügbar",
+      "previewBanner": "Vorschau unveröffentlichter Änderungen",
+      "previewExpired": "Dieser Vorschaulink ist abgelaufen."
     },
     "shop": {
       "title": "Alle Produkte",
@@ -4537,7 +4550,9 @@
       "activity": "Aktivität",
       "agency": "Agentur: Personen, Tarif und Shops",
       "domains": "Domains",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "API-Schlüssel",
+      "account": "Ihre Benachrichtigungen und Sprache"
     },
     "none": "Kein Zugriff",
     "read": "Lesen",

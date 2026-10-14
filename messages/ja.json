@@ -348,13 +348,24 @@
       "Domains": "ドメイン",
       "Currencies": "通貨",
       "Import": "インポート",
-      "Webhooks": "Webhook"
+      "Webhooks": "Webhook",
+      "API keys": "APIキー",
+      "Account": "アカウント",
+      "Storefront API": "ストアフロントAPI"
     },
     "ctaTitle": "最初のキーを作成",
     "ctaBody": "サインインし、ストアの設定を開いて API キーを選びます。",
     "cta": "サインイン",
     "platformTitle": "プラットフォームキー",
-    "platformBody": "プラットフォーム管理者は 管理 → APIキー でプラットフォームキーを作成します。プラットフォームキーはストアキーが持てない {scope} スコープを持ち、プラットフォーム管理の操作を実行します。"
+    "platformBody": "プラットフォーム管理者は 管理 → APIキー でプラットフォームキーを作成します。プラットフォームキーはストアキーが持てない {scope} スコープを持ち、プラットフォーム管理の操作を実行します。",
+    "shop": {
+      "title": "ストアフロントAPI",
+      "body": "ヘッドレスストアやショッピングエージェントを構築できます。商品、コレクション、ページと検索、カート、チェックアウト、注文照会、レビュー、顧客アカウントに対応。キーは不要です。",
+      "mcp": "ショッピングエージェント用MCPサーバー",
+      "handle": "STORE_HANDLEは、/s/STORE_HANDLEのようにストアのアドレス名に置き換えてください。",
+      "limits": "キーなしの場合、各訪問者は1ストアにつき毎分{anonymous}回までリクエストできます。X-Storefront-Keyで公開キーを送ると{keyed}回に増えます。",
+      "keys": "公開キーはcreatePublishableKeyオペレーションで作成します。管理APIキーをストアフロントAPIに送らないでください。"
+    }
   },
   "pricing": {
     "metaTitle": "料金",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} はまもなくオープンします",
       "comingSoonNoProducts": "しばらくしてから再度ご確認ください。",
       "browseProducts": "{count} 点の商品を見る",
-      "pausedTitle": "このストアは現在ご利用いただけません"
+      "pausedTitle": "このストアは現在ご利用いただけません",
+      "previewBanner": "未公開の変更のプレビュー",
+      "previewExpired": "このプレビューリンクは有効期限が切れています。"
     },
     "shop": {
       "title": "すべての商品",
@@ -4537,7 +4550,9 @@
       "activity": "アクティビティ",
       "agency": "エージェンシーのメンバー、プラン、ストア",
       "domains": "ドメイン",
-      "webhooks": "Webhook"
+      "webhooks": "Webhook",
+      "keys": "APIキー",
+      "account": "通知と言語"
     },
     "none": "アクセスなし",
     "read": "読み取り",

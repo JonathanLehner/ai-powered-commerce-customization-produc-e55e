@@ -3,6 +3,7 @@ import { z } from "zod";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import type { AdminScope, ApiScope } from "../api-scopes";
 import type { RecordPage } from "../data";
+import type { Store } from "../types";
 import type { Actor, OperationContext } from "../operations/context";
 import { isStoredAsset } from "../uploads";
 import { ApiError } from "./auth";
@@ -45,7 +46,10 @@ export const API_TAGS = [
   "Analytics",
   "Activity",
   "Agency",
+  "API keys",
+  "Account",
   "Platform administration",
+  "Storefront API",
 ] as const;
 
 export type ApiTag = (typeof API_TAGS)[number];
@@ -56,18 +60,44 @@ export interface AdminContext {
   locale: Locale;
 }
 
+/** The Storefront API's access levels. Not a key scope: anyone may read, and change their own cart. */
+export type ShopScope = "shop:read" | "shop:write";
+
+/** Who is calling the Storefront API: a publishable key, or nobody in particular from an address. */
+export interface ShopCallerInfo {
+  /** The publishable key's id; null for an anonymous caller. */
+  keyId: string | null;
+  /** The client's IP address, as the edge reported it. */
+  ip: string;
+}
+
+/**
+ * What a Storefront API operation is given: the store named in the path, the
+ * shopper's language and display currency (from the `locale` and `currency`
+ * inputs, held to what the store offers), and who is calling.
+ */
+export interface ShopContext {
+  store: Store;
+  locale: Locale;
+  currency: string;
+  caller: ShopCallerInfo;
+}
+
 export interface ApiOperation {
   /** The OpenAPI operationId. The MCP tool is the same name in snake_case. */
   id: string;
   method: HttpMethod;
   /**
-   * Under `/api/v1/stores/{storeId}`, or under `/api/v1/admin` for a platform
+   * Under `/api/v1/stores/{storeId}`, under `/api/v1/admin` for a platform
+   * operation, or under `/api/v1/shop/{storeHandle}` for a Storefront API
    * operation; `{name}` segments are path parameters.
    */
   path: string;
-  scope: ApiScope | AdminScope;
+  scope: ApiScope | AdminScope | ShopScope;
   /** A platform operation: run with a platform key, outside any store. */
   admin?: true;
+  /** A Storefront API operation: public, run for a shopper, never with an Admin key. */
+  shop?: true;
   tag: ApiTag;
   summary: string;
   description: string;
@@ -83,12 +113,12 @@ export interface ApiOperation {
    * names and that is not on the UI-only list.
    */
   actions?: string[];
-  run(ctx: OperationContext | AdminContext, input: never): Promise<unknown>;
+  run(ctx: OperationContext | AdminContext | ShopContext, input: never): Promise<unknown>;
 }
 
 /** A store operation, run with a store key. */
 export function define<S extends z.ZodObject>(
-  operation: Omit<ApiOperation, "input" | "run" | "admin" | "scope"> & {
+  operation: Omit<ApiOperation, "input" | "run" | "admin" | "shop" | "scope"> & {
     scope: ApiScope;
     input: S;
     run(ctx: OperationContext, input: z.output<S>): Promise<unknown>;
@@ -99,12 +129,27 @@ export function define<S extends z.ZodObject>(
 
 /** A platform operation, run with a platform key under `/api/v1/admin`. */
 export function defineAdmin<S extends z.ZodObject>(
-  operation: Omit<ApiOperation, "input" | "run" | "admin" | "scope" | "tag"> & {
+  operation: Omit<ApiOperation, "input" | "run" | "admin" | "shop" | "scope" | "tag"> & {
     input: S;
     run(ctx: AdminContext, input: z.output<S>): Promise<unknown>;
   },
 ): ApiOperation {
   return { ...operation, admin: true, scope: "platform:admin", tag: "Platform administration" } as unknown as ApiOperation;
+}
+
+/**
+ * A Storefront API operation, under `/api/v1/shop/{storeHandle}` and a tool of
+ * the shop MCP server. `shop:read` for what anyone may read, `shop:write` for
+ * changes to the caller's own cart, order or account.
+ */
+export function defineShop<S extends z.ZodObject>(
+  operation: Omit<ApiOperation, "input" | "run" | "admin" | "shop" | "scope" | "tag"> & {
+    scope: ShopScope;
+    input: S;
+    run(ctx: ShopContext, input: z.output<S>): Promise<unknown>;
+  },
+): ApiOperation {
+  return { ...operation, shop: true, tag: "Storefront API" } as unknown as ApiOperation;
 }
 
 /** The MCP tool for an operation: `listProducts` → `list_products`. */
@@ -118,8 +163,9 @@ export function pathParams(operation: Pick<ApiOperation, "path">): string[] {
 }
 
 /** The full path under `/api/v1`, as OpenAPI and the reference print it. */
-export function fullPath(operation: Pick<ApiOperation, "path" | "admin">): string {
+export function fullPath(operation: Pick<ApiOperation, "path" | "admin" | "shop">): string {
   const rest = operation.path === "/" ? "" : operation.path;
+  if (operation.shop) return `/shop/{storeHandle}${rest}`;
   return operation.admin ? `/admin${rest}` : `/stores/{storeId}${rest}`;
 }
 

@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { SHOP_ANONYMOUS_RATE_LIMIT } from "../api-keys";
 import { ADMIN_SCOPE, API_RATE_LIMIT, API_RATE_WINDOW_SECONDS, API_RESOURCES, resourceWrites } from "../api-scopes";
 import { SITE_ORIGIN } from "../seo";
 import { fullPath } from "./define";
@@ -79,7 +80,9 @@ export function openApiDocument() {
     const parameters = [
       ...(operation.admin
         ? []
-        : [{ name: "storeId", in: "path", required: true, schema: { type: "string" }, description: "The store id. A key works for its own store only." }]),
+        : operation.shop
+          ? [{ name: "storeHandle", in: "path", required: true, schema: { type: "string" }, description: "The store's handle (the slug in its storefront address) or its id." }]
+          : [{ name: "storeId", in: "path", required: true, schema: { type: "string" }, description: "The store id. A key works for its own store only." }]),
       ...named.map((name) => ({
         name,
         in: "path",
@@ -103,9 +106,12 @@ export function openApiDocument() {
     paths[path][operation.method.toLowerCase()] = {
       operationId: operation.id,
       summary: operation.summary,
-      description: `${operation.description}\n\nScope: \`${operation.scope}\`. MCP tool: \`${toolName(operation)}\`.`,
+      description: operation.shop
+        ? `${operation.description}\n\nPublic: no key needed; a publishable key raises the rate limit. Shop MCP tool: \`${toolName(operation)}\`.`
+        : `${operation.description}\n\nScope: \`${operation.scope}\`. MCP tool: \`${toolName(operation)}\`.`,
       tags: [operation.tag],
-      security: [{ apiKey: [operation.scope] }],
+      // A Storefront API call may be anonymous ({}) or carry a publishable key.
+      security: operation.shop ? [{}, { storefrontKey: [] }] : [{ apiKey: [operation.scope] }],
       parameters,
       ...(!inQuery
         ? {
@@ -140,6 +146,11 @@ export function openApiDocument() {
         `Money is in minor units of the currency (2500 is 25.00). Lists return \`{ data, nextCursor }\`; pass \`nextCursor\` back as \`cursor\` for the next page. Each key may make ${API_RATE_LIMIT} requests per ${API_RATE_WINDOW_SECONDS} seconds; every answer carries X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset.`,
         "",
         `The same operations are available to Claude and other AI assistants through the MCP server at ${SITE_ORIGIN}/api/mcp, with the same keys.`,
+        "",
+        "**Storefront API.** Everything a shopper does in a store, for headless storefronts and AI shopping agents, under `/shop/{storeHandle}` (the store's slug or id): the shop's languages, currencies and policies, products, collections, pages and search, carts with discount codes and gift cards, checkout, order lookup, reviews and the shopper's own account. It is public and answers any origin (CORS). Anonymous callers may make " +
+          `${SHOP_ANONYMOUS_RATE_LIMIT} requests per ${API_RATE_WINDOW_SECONDS} seconds per IP address and store; a publishable key (\`plk_pub_…\`, created with createPublishableKey and sent as \`X-Storefront-Key\`) raises that to ${API_RATE_LIMIT} and works for its own store only. Never send an Admin API key there: it is refused. Pass \`locale\` and \`currency\` to get names, messages and prices in the shopper's language and currency; refusals carry the shopper-facing message and the \`field\` to fix. A cart is identified by the private \`cartId\` createCart returns. A live store takes payment on Stripe Checkout: startCheckout returns its URL for the shopper.`,
+        "",
+        `Shopping agents can use the same operations as tools of the shop MCP server at ${SITE_ORIGIN}/api/mcp/shop?store={storeHandle}, with no key or a publishable key.`,
       ].join("\n"),
     },
     servers: [{ url: API_BASE }],
@@ -153,6 +164,12 @@ export function openApiDocument() {
           description: `A store API key, or a platform key for the /admin operations. Store scopes: ${API_RESOURCES.flatMap((resource) =>
             resourceWrites(resource) ? [`${resource}:read`, `${resource}:write`] : [`${resource}:read`],
           ).join(", ")}. Platform scope: ${ADMIN_SCOPE}.`,
+        },
+        storefrontKey: {
+          type: "apiKey",
+          in: "header",
+          name: "X-Storefront-Key",
+          description: "Optional, Storefront API only: a store's publishable key (plk_pub_…). Raises the rate limit; the API works without it.",
         },
       },
       schemas: { Error: errorSchema },

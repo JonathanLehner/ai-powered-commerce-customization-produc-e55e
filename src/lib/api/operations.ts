@@ -1426,6 +1426,25 @@ function versionSummary(version: { id: string; label: string; kind?: string; sav
   return { id: version.id, label: version.label, kind: version.kind ?? "published", savedAt: version.savedAt, savedBy: version.savedBy };
 }
 
+/**
+ * Every theme setting a store has, once. getTheme reads these keys and
+ * updateTheme takes any of them, so a setting added here and to saveBranding
+ * reaches the API and the MCP tools without another change.
+ */
+const THEME_SETTINGS = {
+  theme: z.enum(Object.keys(THEMES) as [ThemeKey, ...ThemeKey[]]).describe("The storefront theme, from themes in getTheme."),
+  logoUrl: assetUrl.nullable().describe("The logo: a URL from uploadStorefrontImage, or null to remove it."),
+};
+
+function themeView(store: { theme: ThemeKey; logoUrl: string | null }) {
+  const settings = Object.fromEntries(Object.keys(THEME_SETTINGS).map((key) => [key, store[key as keyof typeof THEME_SETTINGS]]));
+  return {
+    ...settings,
+    current: THEMES[store.theme],
+    themes: Object.entries(THEMES).map(([key, theme]) => ({ key, name: theme.name, description: theme.description, accent: theme.accent })),
+  };
+}
+
 const storefront = [
   define({
     id: "getStorefront",
@@ -1492,13 +1511,10 @@ const storefront = [
     scope: "storefront:read",
     tag: "Storefront",
     summary: "Get the theme",
-    description: "The storefront's theme and logo, and the themes it can use.",
+    description:
+      "Every theme setting of the storefront (the theme and the logo), the current theme's colours and type, and the themes it can use. Changes nothing. Change settings with updateTheme.",
     input: z.object({}),
-    run: async (ctx) => ({
-      theme: ctx.store.theme,
-      logoUrl: ctx.store.logoUrl,
-      themes: Object.entries(THEMES).map(([key, theme]) => ({ key, name: theme.name, description: theme.description, accent: theme.accent })),
-    }),
+    run: async (ctx) => themeView(ctx.store),
   }),
   define({
     id: "updateTheme",
@@ -1506,19 +1522,17 @@ const storefront = [
     path: "/theme",
     scope: "storefront:write",
     tag: "Storefront",
-    summary: "Set the theme and logo",
-    description: "Changes the storefront theme and logo. Fields left out keep their value.",
+    summary: "Change theme settings",
+    description:
+      "Changes some theme settings; the others keep their value. The theme and logo apply to the live storefront straight away, without publishStorefront. Undo by sending the previous values from getTheme. Upload a logo first with uploadStorefrontImage.",
     actions: ["stores#saveBranding"],
-    input: z.object({
-      theme: z.enum(Object.keys(THEMES) as [ThemeKey, ...ThemeKey[]]).optional(),
-      logoUrl: assetUrl.nullable().optional().describe("An uploaded image, or null to remove the logo."),
-    }),
+    input: z.object(THEME_SETTINGS).partial(),
     run: async (ctx, input) => {
       const saved = await saveBranding(ctx, {
         theme: input.theme ?? ctx.store.theme,
         logoUrl: input.logoUrl === undefined ? ctx.store.logoUrl : input.logoUrl,
       });
-      return { theme: saved.theme, logoUrl: saved.logoUrl };
+      return themeView(saved);
     },
   }),
 ];

@@ -188,7 +188,7 @@ assert.equal(requests.length, sent, "verification never calls Stripe");
 const source = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const webhook = source("src/lib/stripe-webhook.ts");
 assert.match(webhook, /const event = await verifyWebhookEvent\(payload, signature\);\n\s+if \(!event\) return \{ status: 400/, "the webhook verifies before reading");
-const shop = source("src/app/actions/shop.ts");
+const shop = source("src/lib/operations/shop.ts");
 assert.match(shop, /status: "awaiting_payment",/, "a live order starts awaiting payment");
 assert.doesNotMatch(shop.slice(shop.indexOf("const checkout = await createConnectedCheckout")), /confirmOrderPayment/, "only the webhook marks a live order paid");
 const checkoutForm = source("src/app/s/[slug]/[locale]/checkout/CheckoutForm.tsx");

@@ -11,8 +11,11 @@ import { giftingOperations } from "./gifting";
 import { orderOperations } from "./orders";
 import { reportOperations } from "./reports";
 import { settingsOperations } from "./settings";
+import { shopOperations } from "./shop";
 import { sourcingOperations } from "./sourcing";
 import { storeContentOperations } from "./store-content";
+import { storefrontSectionOperations } from "./storefront-sections";
+import { workspaceOperations } from "./workspace";
 import { teamOperations } from "./team";
 import { webhookOperations } from "./webhooks";
 
@@ -28,6 +31,8 @@ export const OPS_MODULES: ApiOperation[] = [
   ...importOperations,
   ...catalogOperations,
   ...storeContentOperations,
+  ...storefrontSectionOperations,
+  ...workspaceOperations,
   ...orderOperations,
   ...giftingOperations,
   ...sourcingOperations,
@@ -36,4 +41,5 @@ export const OPS_MODULES: ApiOperation[] = [
   ...agencyOperations,
   ...reportOperations,
   ...adminOperations,
+  ...shopOperations,
 ];

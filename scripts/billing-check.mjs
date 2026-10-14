@@ -178,7 +178,7 @@ const billingPage = source("src/app/app/billing/page.tsx");
 assert.match(billingPage, /t\("firstCharge", \{ price, date:/);
 assert.match(billingPage, /name="plan" options=\{trial\.plans\}/, "the owner picks the plan before Checkout");
 assert.match(billingPage, /name="cycle" options=\{trial\.cycles\}/, "the owner picks the billing period before Checkout");
-assert.match(signup, /onTrial\(agency\) && isSelfServePlan\(plan\)/, "a plan switch is saved during the trial");
+assert.match(source("src/lib/operations/billing.ts"), /onTrial\(agency\) && isSelfServePlan\(input\.plan\)/, "a plan switch is saved during the trial");
 assert.match(signup, /-day \$\{PLANS\[input\.plan\]\.name\} trial/, "the activity feed names the plan");
 assert.equal(JSON.parse(source("messages/en.json")).newStore.welcomeTrialTitle, "Your {days}-day {plan} trial has started");
 
@@ -233,7 +233,7 @@ assert.match(sessionSource, /role: "viewer", readOnly: true/, "store pages rende
 assert.match(sessionSource, /capability !== "store\.view" && billingPending\(/, "store changes are refused after the trial");
 assert.match(source("src/lib/api/http.ts"), /access === "write" && billingPending\(/, "API writes are refused after the trial");
 assert.match(source("src/app/s/[slug]/[locale]/layout.tsx"), /data\.paused \?/);
-const shop = source("src/app/actions/shop.ts");
+const shop = source("src/lib/operations/shop.ts");
 assert.equal((shop.match(/await storefrontPaused\(store\)/g) ?? []).length, 2, "adding to the basket and checkout refuse once paused");
 assert.match(source("src/lib/scheduler.ts"), /sendDueTrialReminders\(/);
 assert.match(source("src/lib/trial-reminders.ts"), /\$addToSet: \{ "billing\.trialReminders": reminder \}/, "each reminder is claimed once");

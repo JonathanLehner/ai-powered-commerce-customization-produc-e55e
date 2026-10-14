@@ -23,6 +23,8 @@ export const API_RESOURCES = [
   "analytics",
   "activity",
   "agency",
+  "keys",
+  "account",
 ] as const;
 
 export type ApiResource = (typeof API_RESOURCES)[number];
@@ -44,7 +46,7 @@ export const AGENCY_RESOURCES: readonly ApiResource[] = ["agency"];
  * A key on one works only while the person who made it still administers the
  * store.
  */
-export const STORE_ADMIN_RESOURCES: readonly ApiResource[] = ["domains", "webhooks"];
+export const STORE_ADMIN_RESOURCES: readonly ApiResource[] = ["domains", "webhooks", "keys"];
 
 /**
  * The scope of a platform key: the platform administration screens (suppliers,

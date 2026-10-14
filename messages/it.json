@@ -348,13 +348,24 @@
       "Domains": "Domini",
       "Currencies": "Valute",
       "Import": "Importazione",
-      "Webhooks": "Webhook"
+      "Webhooks": "Webhook",
+      "API keys": "Chiavi API",
+      "Account": "Account",
+      "Storefront API": "API Storefront"
     },
     "ctaTitle": "Crea la tua prima chiave",
     "ctaBody": "Accedi, apri le Impostazioni di un negozio e scegli Chiavi API.",
     "cta": "Accedi",
     "platformTitle": "Chiavi di piattaforma",
-    "platformBody": "Gli amministratori della piattaforma creano le chiavi di piattaforma in Admin → Chiavi API. Una chiave di piattaforma ha lo scope {scope}, che nessuna chiave di negozio può avere, ed esegue le operazioni elencate in Amministrazione della piattaforma."
+    "platformBody": "Gli amministratori della piattaforma creano le chiavi di piattaforma in Admin → Chiavi API. Una chiave di piattaforma ha lo scope {scope}, che nessuna chiave di negozio può avere, ed esegue le operazioni elencate in Amministrazione della piattaforma.",
+    "shop": {
+      "title": "API Storefront",
+      "body": "Crea un negozio headless o un agente di acquisto: prodotti, collezioni, pagine e ricerca, carrelli, checkout, ricerca ordini, recensioni e account clienti. Non serve una chiave.",
+      "mcp": "Server MCP per agenti di acquisto",
+      "handle": "Sostituisci STORE_HANDLE con il nome dell’indirizzo del negozio, come in /s/STORE_HANDLE.",
+      "limits": "Senza chiave, ogni visitatore può inviare {anonymous} richieste al minuto in un negozio. Una chiave pubblicabile inviata in X-Storefront-Key porta il limite a {keyed}.",
+      "keys": "Crea una chiave pubblicabile con l’operazione createPublishableKey. Non inviare mai una chiave dell’API Admin all’API Storefront."
+    }
   },
   "pricing": {
     "metaTitle": "Prezzi",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} apre a breve",
       "comingSoonNoProducts": "Torna presto.",
       "browseProducts": "Sfoglia {count} prodotti",
-      "pausedTitle": "Questo negozio non è temporaneamente disponibile"
+      "pausedTitle": "Questo negozio non è temporaneamente disponibile",
+      "previewBanner": "Anteprima delle modifiche non pubblicate",
+      "previewExpired": "Questo link di anteprima è scaduto."
     },
     "shop": {
       "title": "Tutti i prodotti",
@@ -4537,7 +4550,9 @@
       "activity": "Attività",
       "agency": "Agenzia: persone, piano e negozi",
       "domains": "Domini",
-      "webhooks": "Webhook"
+      "webhooks": "Webhook",
+      "keys": "Chiavi API",
+      "account": "Le tue notifiche e la tua lingua"
     },
     "none": "Nessun accesso",
     "read": "Lettura",

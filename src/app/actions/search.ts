@@ -5,9 +5,8 @@ import { formatMinorUnits } from "@/i18n/format";
 import { publicStoreRoot, shopperLocale } from "@/i18n/storefront";
 import { localeBase, storeLanguages } from "@/i18n/storefront-routing";
 import { getStore } from "@/lib/data";
-import { presentmentPrice } from "@/lib/currency";
-import { cleanQuery, SEARCH_LIMITS, searchStore, type SearchKind } from "@/lib/search";
-import { storeSearchDocuments } from "@/lib/search-data";
+import { searchShop } from "@/lib/operations/shop";
+import { cleanQuery, SEARCH_LIMITS, type SearchKind } from "@/lib/search";
 import { readCurrency } from "./shop";
 
 export interface InstantResult {
@@ -30,20 +29,14 @@ export async function instantSearch(storeId: string, language: string, query: st
   if (!store || store.status !== "active") return [];
   const locale = shopperLocale(store, language);
   const base = localeBase(await publicStoreRoot(store.slug), locale, storeLanguages(store).defaultLocale);
-  const [documents, currency, format] = await Promise.all([
-    storeSearchDocuments(store, locale),
-    readCurrency(store.defaultCurrency, store.currencies),
-    getFormatter({ locale }),
-  ]);
-  return searchStore(documents, q, SEARCH_LIMITS.instant).map((doc) => ({
+  const [currency, format] = await Promise.all([readCurrency(store.defaultCurrency, store.currencies), getFormatter({ locale })]);
+  const results = await searchShop(store, locale, q, currency, SEARCH_LIMITS.instant);
+  return results.map((doc) => ({
     kind: doc.kind,
     id: doc.id,
     title: doc.title,
     href: `${base}${doc.path}`,
     imageUrl: doc.imageUrl,
-    price:
-      doc.price !== null && doc.currency
-        ? formatMinorUnits(format, presentmentPrice(store, doc.price, doc.currency, currency), currency)
-        : null,
+    price: doc.displayPrice !== null ? formatMinorUnits(format, doc.displayPrice, currency) : null,
   }));
 }

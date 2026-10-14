@@ -348,13 +348,24 @@
       "Domains": "Domäner",
       "Currencies": "Valutor",
       "Import": "Import",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "API-nycklar",
+      "Account": "Konto",
+      "Storefront API": "Storefront-API"
     },
     "ctaTitle": "Skapa din första nyckel",
     "ctaBody": "Logga in, öppna en butiks Inställningar och välj API-nycklar.",
     "cta": "Logga in",
     "platformTitle": "Plattformsnycklar",
-    "platformBody": "Plattformsadministratörer skapar plattformsnycklar under Admin → API-nycklar. En plattformsnyckel har scopet {scope}, som ingen butiksnyckel kan ha, och kör åtgärderna under Plattformsadministration."
+    "platformBody": "Plattformsadministratörer skapar plattformsnycklar under Admin → API-nycklar. En plattformsnyckel har scopet {scope}, som ingen butiksnyckel kan ha, och kör åtgärderna under Plattformsadministration.",
+    "shop": {
+      "title": "Storefront-API",
+      "body": "Bygg en headless butik eller en shoppingagent: produkter, kollektioner, sidor och sök, varukorgar, kassa, orderuppslag, recensioner och kundkonton. Ingen nyckel behövs.",
+      "mcp": "MCP-server för shoppingagenter",
+      "handle": "Ersätt STORE_HANDLE med butikens adressnamn, som i /s/STORE_HANDLE.",
+      "limits": "Utan nyckel kan varje besökare göra {anonymous} anrop per minut i en butik. En publicerbar nyckel i X-Storefront-Key höjer det till {keyed}.",
+      "keys": "Skapa en publicerbar nyckel med åtgärden createPublishableKey. Skicka aldrig en Admin API-nyckel till Storefront-API:t."
+    }
   },
   "pricing": {
     "metaTitle": "Priser",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} öppnar snart",
       "comingSoonNoProducts": "Titta in igen snart.",
       "browseProducts": "Se {count} produkter",
-      "pausedTitle": "Den här butiken är tillfälligt otillgänglig"
+      "pausedTitle": "Den här butiken är tillfälligt otillgänglig",
+      "previewBanner": "Förhandsvisning av opublicerade ändringar",
+      "previewExpired": "Den här förhandsvisningslänken har gått ut."
     },
     "shop": {
       "title": "Alla produkter",
@@ -4537,7 +4550,9 @@
       "activity": "Aktivitet",
       "agency": "Byrå: personer, abonnemang och butiker",
       "domains": "Domäner",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "API-nycklar",
+      "account": "Dina aviseringar och ditt språk"
     },
     "none": "Ingen åtkomst",
     "read": "Läsa",

@@ -56,6 +56,7 @@
     "inventory-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/inventory-check.mjs",
     "mcp-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs scripts/mcp-check.mjs",
     "api-coverage-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/api-coverage-check.mjs",
+    "shop-api-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/shop-api-check.mjs",
     "content-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/content-check.mjs",
     "search-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/search-check.mjs",
     "accounts-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/accounts-check.mjs",
@@ -70,7 +71,8 @@
     "store-list-check": "node --experimental-strip-types scripts/store-list-check.mjs",
     "client-messages-check": "node --experimental-strip-types scripts/client-messages-check.mjs",
     "payload-check": "node scripts/payload-check.mjs",
-    "metrics-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/metrics-check.mjs"
+    "metrics-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/metrics-check.mjs",
+    "storefront-sections-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/storefront-sections-check.mjs"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.3",

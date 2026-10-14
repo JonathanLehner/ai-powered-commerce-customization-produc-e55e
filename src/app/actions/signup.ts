@@ -6,13 +6,14 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { asLocale } from "@/i18n/metadata";
-import { TRIAL_DAYS, billingConfigured, billingPending, canStartCheckout, onTrial, startPlanCheckout } from "@/lib/billing";
-import { COLLECTIONS, countActiveStoresForAgency, getAgency, getUserByEmail, recordAudit } from "@/lib/data";
+import { TRIAL_DAYS, billingConfigured, billingPending } from "@/lib/billing";
+import { COLLECTIONS, getAgency, getUserByEmail, recordAudit } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
 import { db } from "@/lib/mongo";
+import { checkoutLink, startPayment } from "@/lib/operations/billing";
 import { getSessionUser } from "@/lib/session";
-import { PLANS, storeAllowance } from "@/lib/plans";
-import { checkSignup, isBillingCycle, isSelfServePlan } from "@/lib/signup";
+import { PLANS } from "@/lib/plans";
+import { checkSignup } from "@/lib/signup";
 import type { Agency, AgencyBilling, User } from "@/lib/types";
 import { newId, slugify } from "@/lib/util";
 import type { ActionState } from "./stores";
@@ -24,10 +25,7 @@ type BillingAgency = Agency & { billing: AgencyBilling };
  * billing page with a notice when Checkout cannot be opened.
  */
 async function checkoutAddress(agency: BillingAgency, email: string, locale: string): Promise<string> {
-  const session = await startPlanCheckout({ agency, email, origin: await siteOrigin(), locale });
-  if (!session?.url) return "/app/billing?error=unavailable";
-  await db.updateOne(COLLECTIONS.agencies, { id: agency.id }, { $set: { "billing.checkoutSessionId": session.id } });
-  return session.url;
+  return (await checkoutLink(agency, email, await siteOrigin(), locale)) ?? "/app/billing?error=unavailable";
 }
 
 /**
@@ -143,26 +141,14 @@ export async function continueToPayment(formData: FormData): Promise<void> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
   const agency = user.agencyId ? await getAgency(user.agencyId) : null;
-  if (user.platformRole !== "agency_admin" || !agency?.billing || !canStartCheckout(agency)) redirect("/app");
-
-  const cycle = String(formData.get("cycle") ?? "");
-  const plan = String(formData.get("plan") ?? "");
-  let billing = agency.billing;
-  let agencyPlan = agency.plan;
-  const changes: Record<string, string> = {};
-  if (isBillingCycle(cycle) && cycle !== billing.cycle) {
-    billing = { ...billing, cycle };
-    changes["billing.cycle"] = cycle;
-  }
-  if (onTrial(agency) && isSelfServePlan(plan) && plan !== billing.plan) {
-    const allowance = storeAllowance(plan, await countActiveStoresForAgency(agency.id));
-    if (allowance.limit === null || allowance.used <= allowance.limit) {
-      billing = { ...billing, plan };
-      agencyPlan = plan;
-      changes["billing.plan"] = plan;
-      changes.plan = plan;
-    }
-  }
-  if (Object.keys(changes).length > 0) await db.updateOne(COLLECTIONS.agencies, { id: agency.id }, { $set: changes });
-  redirect(await checkoutAddress({ ...agency, plan: agencyPlan, billing }, user.email, user.uiLanguage ?? (await getLocale())));
+  if (user.platformRole !== "agency_admin" || !agency) redirect("/app");
+  const result = await startPayment(
+    agency,
+    user,
+    { cycle: String(formData.get("cycle") ?? ""), plan: String(formData.get("plan") ?? "") },
+    await siteOrigin(),
+    user.uiLanguage ?? (await getLocale()),
+  );
+  if (result.status === "not_needed") redirect("/app");
+  redirect(result.status === "ready" ? result.url : "/app/billing?error=unavailable");
 }

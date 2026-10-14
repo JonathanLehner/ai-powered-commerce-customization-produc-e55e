@@ -6,10 +6,11 @@ import { McpConnect } from "@/components/McpConnect";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { asLocale, pageMetadata } from "@/i18n/metadata";
+import { SHOP_ANONYMOUS_RATE_LIMIT } from "@/lib/api-keys";
 import { ADMIN_SCOPE, API_RATE_LIMIT } from "@/lib/api-scopes";
 import { fullPath } from "@/lib/api/define";
 import { API_OPERATIONS, API_TAGS, toolName } from "@/lib/api/operations";
-import { API_BASE_URL, OPENAPI_URL, restExample } from "@/lib/mcp/connect";
+import { API_BASE_URL, OPENAPI_URL, restExample, shopMcpUrl, shopRestExample } from "@/lib/mcp/connect";
 import { CheckList, Section, SectionHeading } from "../kit";
 
 export const dynamic = "force-static";
@@ -89,7 +90,28 @@ export default async function DevelopersPage({ params }: PageProps<"/[locale]/de
         </Card>
       </Section>
 
-      <Section tone="muted" id="reference">
+      <Section tone="muted" width="prose" id="storefront-api">
+        <SectionHeading lead={t("shop.body")}>{t("shop.title")}</SectionHeading>
+        <Card className="mt-6">
+          <CardContent className="space-y-5">
+            <div className="space-y-1.5">
+              <h3 className="text-sm font-medium text-foreground">{t("example")}</h3>
+              <CopyCode value={shopRestExample("STORE_HANDLE")} label={t("example")} />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-sm font-medium text-foreground">{t("shop.mcp")}</h3>
+              <CopyCode value={shopMcpUrl("STORE_HANDLE")} label={t("shop.mcp")} />
+            </div>
+            <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
+              <li>{t("shop.handle")}</li>
+              <li>{t("shop.limits", { anonymous: SHOP_ANONYMOUS_RATE_LIMIT, keyed: API_RATE_LIMIT })}</li>
+              <li>{t("shop.keys")}</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Section id="reference">
         <SectionHeading lead={t("referenceBody")}>{t("referenceTitle")}</SectionHeading>
         <div className="mt-6 space-y-8">
           {API_TAGS.map((tag) => (
@@ -123,7 +145,7 @@ export default async function DevelopersPage({ params }: PageProps<"/[locale]/de
         </div>
       </Section>
 
-      <Section width="prose">
+      <Section tone="muted" width="prose">
         <Card>
           <CardContent className="py-2">
             <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">{t("ctaTitle")}</h2>

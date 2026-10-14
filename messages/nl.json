@@ -348,13 +348,24 @@
       "Domains": "Domeinen",
       "Currencies": "Valuta",
       "Import": "Importeren",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "API-sleutels",
+      "Account": "Account",
+      "Storefront API": "Storefront-API"
     },
     "ctaTitle": "Maak je eerste sleutel",
     "ctaBody": "Log in, open de Instellingen van een winkel en kies API-sleutels.",
     "cta": "Inloggen",
     "platformTitle": "Platformsleutels",
-    "platformBody": "Platformbeheerders maken platformsleutels aan onder Admin → API-sleutels. Een platformsleutel heeft de scope {scope}, die geen winkelsleutel kan hebben, en voert de bewerkingen onder Platformbeheer uit."
+    "platformBody": "Platformbeheerders maken platformsleutels aan onder Admin → API-sleutels. Een platformsleutel heeft de scope {scope}, die geen winkelsleutel kan hebben, en voert de bewerkingen onder Platformbeheer uit.",
+    "shop": {
+      "title": "Storefront-API",
+      "body": "Bouw een headless winkel of een shopping-agent: producten, collecties, pagina’s en zoeken, winkelwagens, afrekenen, bestellingen opzoeken, reviews en klantaccounts. Er is geen sleutel nodig.",
+      "mcp": "MCP-server voor shopping-agents",
+      "handle": "Vervang STORE_HANDLE door de adresnaam van de winkel, zoals in /s/STORE_HANDLE.",
+      "limits": "Zonder sleutel kan elke bezoeker {anonymous} verzoeken per minuut in een winkel doen. Een publiceerbare sleutel in X-Storefront-Key verhoogt dit tot {keyed}.",
+      "keys": "Maak een publiceerbare sleutel met de bewerking createPublishableKey. Stuur nooit een Admin API-sleutel naar de Storefront-API."
+    }
   },
   "pricing": {
     "metaTitle": "Prijzen",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} gaat binnenkort open",
       "comingSoonNoProducts": "Kom binnenkort terug.",
       "browseProducts": "Bekijk {count} producten",
-      "pausedTitle": "Deze winkel is tijdelijk niet beschikbaar"
+      "pausedTitle": "Deze winkel is tijdelijk niet beschikbaar",
+      "previewBanner": "Voorbeeld van niet-gepubliceerde wijzigingen",
+      "previewExpired": "Deze voorbeeldlink is verlopen."
     },
     "shop": {
       "title": "Alle producten",
@@ -4537,7 +4550,9 @@
       "activity": "Activiteit",
       "agency": "Bureau: mensen, abonnement en winkels",
       "domains": "Domeinen",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "API-sleutels",
+      "account": "Je meldingen en taal"
     },
     "none": "Geen toegang",
     "read": "Lezen",

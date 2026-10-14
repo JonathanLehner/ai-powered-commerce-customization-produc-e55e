@@ -348,13 +348,24 @@
       "Domains": "Domains",
       "Currencies": "Currencies",
       "Import": "Import",
-      "Webhooks": "Webhooks"
+      "Webhooks": "Webhooks",
+      "API keys": "API keys",
+      "Account": "Account",
+      "Storefront API": "Storefront API"
     },
     "ctaTitle": "Create your first key",
     "ctaBody": "Sign in, open a store's Settings and choose API keys.",
     "cta": "Sign in",
     "platformTitle": "Platform keys",
-    "platformBody": "Platform administrators create platform keys under Admin → API keys. A platform key holds the {scope} scope, which no store key can hold, and runs the operations listed under Platform administration."
+    "platformBody": "Platform administrators create platform keys under Admin → API keys. A platform key holds the {scope} scope, which no store key can hold, and runs the operations listed under Platform administration.",
+    "shop": {
+      "title": "Storefront API",
+      "body": "Build a headless storefront or a shopping agent: products, collections, pages and search, carts, checkout, order lookup, reviews and shopper accounts. No key is needed.",
+      "mcp": "MCP server for shopping agents",
+      "handle": "Replace STORE_HANDLE with the store's address name, as in /s/STORE_HANDLE.",
+      "limits": "Without a key, each visitor can make {anonymous} requests per minute in a store. A publishable key sent as X-Storefront-Key raises this to {keyed}.",
+      "keys": "Create a publishable key with the createPublishableKey operation. Never send an Admin API key to the Storefront API."
+    }
   },
   "pricing": {
     "metaTitle": "Pricing",
@@ -3639,7 +3650,9 @@
       "comingSoonTitle": "{store} is opening soon",
       "comingSoonNoProducts": "Check back soon.",
       "browseProducts": "Browse {count} products",
-      "pausedTitle": "This store is temporarily unavailable"
+      "pausedTitle": "This store is temporarily unavailable",
+      "previewBanner": "Preview of unpublished changes",
+      "previewExpired": "This preview link has expired."
     },
     "shop": {
       "title": "All products",
@@ -4537,7 +4550,9 @@
       "activity": "Activity",
       "agency": "Agency people, plan and stores",
       "domains": "Domains",
-      "webhooks": "Webhooks"
+      "webhooks": "Webhooks",
+      "keys": "API keys",
+      "account": "Your notifications and language"
     },
     "none": "No access",
     "read": "Read",

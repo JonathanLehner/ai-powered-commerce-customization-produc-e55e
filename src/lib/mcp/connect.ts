@@ -30,3 +30,12 @@ export function mcpSnippets(key = KEY_PLACEHOLDER) {
 export function restExample(storeId: string, key = KEY_PLACEHOLDER) {
   return `curl ${API_BASE_URL}/stores/${storeId}/products \\\n  -H "Authorization: Bearer ${key}"`;
 }
+
+/** The MCP server for shopping agents, one store per connection. */
+export function shopMcpUrl(storeHandle: string) {
+  return `${SITE_ORIGIN}/api/mcp/shop?store=${storeHandle}`;
+}
+
+export function shopRestExample(storeHandle: string) {
+  return `curl ${API_BASE_URL}/shop/${storeHandle}/products?locale=en`;
+}

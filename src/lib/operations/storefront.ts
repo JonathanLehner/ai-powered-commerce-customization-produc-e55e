@@ -17,7 +17,8 @@ import { db } from "../mongo";
 import { SEO_LIMITS } from "../seo";
 import { isShopTextKey } from "../shop-text";
 import { overrideProblem } from "../shop-text-validate";
-import { sectionsFromTree } from "../storefront-schema";
+import { sectionsFromTree, type CraftTree } from "../storefront-schema";
+import { emptyTree } from "../storefront-sections";
 import { capHistory, sameTree } from "../storefront-versions";
 import { productFields, withTranslation, type FieldTranslations } from "../translations";
 import type { ProductCollection, Store, StorefrontVersion, StoreProduct } from "../types";
@@ -191,6 +192,52 @@ export async function restoreStorefrontVersion(ctx: OperationContext, versionId:
   );
   revalidatePath(`/app/stores/${store.id}/storefront`);
   return version;
+}
+
+/**
+ * Applies one section edit to the draft: the saved draft, else the published
+ * page, else an empty page. The write only lands on the draft it was worked
+ * out from, so two edits made at once cannot overwrite each other; the loser
+ * is worked out again on the winner's draft. Granular edits do not add a
+ * version to the history; saveStorefrontDraft with a label keeps one.
+ */
+export async function editStorefrontDraft(
+  ctx: OperationContext,
+  summary: string,
+  edit: (tree: CraftTree) => CraftTree,
+): Promise<CraftTree> {
+  const { store } = ctx;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const storefront = await getStorefront(store.id);
+    const base = (parseTree(storefront?.draft) ?? parseTree(storefront?.published) ?? emptyTree()) as CraftTree;
+    const tree = edit(base);
+    const now = new Date().toISOString();
+    const result = storefront
+      ? await db.updateOne(
+          COLLECTIONS.storefronts,
+          { storeId: store.id, draftUpdatedAt: storefront.draftUpdatedAt },
+          { $set: { draft: tree, draftUpdatedAt: now } },
+        )
+      : null;
+    if (!storefront) {
+      await db.insertOne(COLLECTIONS.storefronts, {
+        id: newId("sfr"),
+        storeId: store.id,
+        draft: tree,
+        published: null,
+        publishedAt: null,
+        publishedBy: null,
+        draftUpdatedAt: now,
+        history: [],
+      });
+    } else if (result?.matchedCount === 0) {
+      continue;
+    }
+    audit(ctx, "storefront.draft_edited", summary, "storefront", store.id, {});
+    revalidatePath(`/app/stores/${store.id}/storefront`);
+    return tree;
+  }
+  throw new OperationError("conflict", "The draft is being changed by someone else. Try again.");
 }
 
 /* --------------------------------------------------------------- shop text */
