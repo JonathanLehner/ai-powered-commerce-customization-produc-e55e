@@ -26,6 +26,8 @@ import { AssistantContext, useOptionalAssistant, type AssistantContextValue, typ
 
 const LAST_KEY = (storeId: string) => `assistant:last:${storeId}`;
 const OPEN_KEY = "assistant:open";
+/** A turn that sends nothing for this long is given up on, so the chat never stays locked. */
+const IDLE_MS = 180_000;
 
 function subscribeWide(callback: () => void) {
   const query = window.matchMedia("(min-width: 1024px)");
@@ -99,16 +101,28 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
 
   const run = useCallback(
     async (body: Record<string, unknown>, optimistic?: ChatItem) => {
-      if (inFlight.current) return;
+      if (inFlight.current) {
+        setError(t("busy"));
+        return;
+      }
       inFlight.current = true;
       setBusy(true);
       setError(null);
       if (optimistic) setItems((list) => [...list, optimistic]);
+      const abort = new AbortController();
+      let idle: ReturnType<typeof setTimeout> | undefined;
+      const wait = () => {
+        clearTimeout(idle);
+        idle = setTimeout(() => abort.abort(), IDLE_MS);
+      };
+      let finished = false;
       try {
+        wait();
         const response = await fetch("/api/assistant", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ storeId, conversationId, page: pathname, ...body }),
+          signal: abort.signal,
         });
         if (!response.ok || !response.body) {
           const data = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -119,6 +133,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
         for (;;) {
           const { value, done } = await reader.read();
           if (done) break;
+          wait();
           buffer += value;
           const lines = buffer.split("\n");
           buffer = lines.pop() ?? "";
@@ -126,9 +141,11 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
             if (line.trim()) handle(JSON.parse(line) as StreamEvent);
           }
         }
+        if (!finished) setError((current) => current ?? t("interrupted"));
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : t("failed"));
+        setError(abort.signal.aborted || cause instanceof TypeError ? t("interrupted") : cause instanceof Error ? cause.message : t("failed"));
       } finally {
+        clearTimeout(idle);
         inFlight.current = false;
         setBusy(false);
       }
@@ -155,6 +172,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
                 operationId: event.operationId,
                 text: event.label,
                 status: event.status === "running" ? undefined : event.status,
+                message: event.status === "error" ? event.message : undefined,
               };
               const at = list.findIndex((entry) => entry.id === item.id);
               return at >= 0 ? list.map((entry, i) => (i === at ? item : entry)) : [...list, item];
@@ -176,6 +194,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
             setError(event.message);
             break;
           case "done":
+            finished = true;
             break;
         }
       }
@@ -193,11 +212,16 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
     busy,
     error,
     send(text, attachments = []) {
+      if (!loaded || inFlight.current) {
+        setError(loaded ? t("busy") : t("notReady"));
+        return false;
+      }
       setPending(null);
       void run(
         { action: "message", text, attachments },
         { id: `live_${++localId}`, kind: "user", text, attachments },
       );
+      return true;
     },
     confirm() {
       if (!pending) return;

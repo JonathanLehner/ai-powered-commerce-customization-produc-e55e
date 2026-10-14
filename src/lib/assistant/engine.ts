@@ -41,6 +41,8 @@ export interface MessageUi {
   /** The operation a tool message reports on. */
   operationId?: string;
   status?: "done" | "error" | "declined";
+  /** Why a step failed, in words for the person. */
+  message?: string;
   /** A message the chat wrote rather than the person or the model. */
   note?: "undo" | "cancelled" | "stopped";
 }
@@ -107,6 +109,11 @@ export interface EngineDeps {
    * no page yet to keep).
    */
   checkpoint(): Promise<string | null>;
+  /**
+   * Reads the store again after a call changed it, so the rest of the turn
+   * sees the change (a language enabled, then translated into).
+   */
+  refreshStore?(): Promise<void>;
 }
 
 /* ------------------------------------------------------------------ tools */
@@ -198,8 +205,15 @@ function findOperation(deps: EngineDeps, name: string): ApiOperation | null {
   return assistantOperations(deps.operations).find((operation) => toolName(operation) === name) ?? null;
 }
 
-function pushTool(state: ConversationState, call: { id: string }, operationId: string, content: string, status: MessageUi["status"]) {
-  state.messages.push({ role: "tool", tool_call_id: call.id, content, ui: { at: now(), operationId, status } });
+function pushTool(
+  state: ConversationState,
+  call: { id: string },
+  operationId: string,
+  content: string,
+  status: MessageUi["status"],
+  message?: string,
+) {
+  state.messages.push({ role: "tool", tool_call_id: call.id, content, ui: { at: now(), operationId, status, ...(message ? { message } : {}) } });
 }
 
 /** Why the person may not run this operation, in words for the model to pass on; null when they may. */
@@ -222,6 +236,7 @@ async function execute(
 ) {
   const label = deps.label(operation.id).step;
   deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "running" });
+  let changed = false;
   try {
     const input = operation.input.parse(args);
     const changes = operation.method !== "GET" && !operation.scope.endsWith(":read");
@@ -232,6 +247,7 @@ async function execute(
       }
     }
     const result = await runViaAssistant(() => operation.run(deps.ctx, input as never));
+    changed = changes;
     pushTool(state, call, operation.id, resultText(result), "done");
     deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "done" });
     if (changes) {
@@ -242,8 +258,12 @@ async function execute(
     const refused = refusalOf(error);
     if (!refused) console.error(`Assistant tool ${operation.id} failed`, error);
     const message = refused ? `${refused.message}${refused.details ? ` ${JSON.stringify(refused.details)}` : ""}` : "Something went wrong. Try again.";
-    pushTool(state, call, operation.id, JSON.stringify({ error: message }), "error");
-    deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "error", message: refused?.message });
+    const shown = refused?.message ?? "Something went wrong. Try again.";
+    pushTool(state, call, operation.id, JSON.stringify({ error: message }), "error", shown);
+    deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "error", message: shown });
+  }
+  if (changed && !DRAFT_OPERATIONS.has(operation.id) && deps.refreshStore) {
+    await deps.refreshStore().catch((error) => console.error("Assistant could not read the store again", error));
   }
 }
 

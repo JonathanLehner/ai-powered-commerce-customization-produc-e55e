@@ -14,6 +14,9 @@
 //   declined by cancelling or by writing something new;
 // - storefront draft edits run straight away after one checkpoint per turn,
 //   and undo restores that checkpoint through the restore operation;
+// - a change to the store is read again before the next call of the turn, so a
+//   language enabled can be translated into straight away, and a failed
+//   step keeps the reason the chat shows;
 // - secrets in results never reach the model, and every real store operation
 //   becomes a well-formed tool with labels in every workspace language.
 import assert from "node:assert/strict";
@@ -153,6 +156,47 @@ function harness(role, replies, options = {}) {
   const refusedResult = failing.state.messages.find((m) => m.role === "tool");
   assert.ok(refusedResult.content.includes("That section changed meanwhile."));
   assert.equal(refusedResult.ui.status, "error");
+  assert.equal(refusedResult.ui.message, "That section changed meanwhile.", "the reason is kept for the chat to show");
+  assert.ok(
+    failing.events.some((e) => e.type === "step" && e.status === "error" && e.message === "That section changed meanwhile."),
+    "the reason is shown as the step fails",
+  );
+
+  // A change to the store (a language enabled) is seen by the next call of the same turn.
+  ran.length = 0;
+  const languages = harness("store_admin", [
+    calls(call("update_languages", { languages: ["en", "de"] })),
+    calls(call("update_storefront_section", { sectionId: "hero1", fields: { headline: "Hallo" } })),
+    say("Done."),
+  ]);
+  let storeLocales = ["en"];
+  languages.deps.operations = [
+    ...OPERATIONS.map((o) =>
+      o.id === "updateStorefrontSection"
+        ? {
+            ...o,
+            run: async (ctx) => {
+              if (!ctx.store.locales.includes("de")) throw new OperationError("invalid", "The store does not have de enabled.");
+              return { ok: true };
+            },
+          }
+        : o,
+    ),
+    op("updateLanguages", "PUT", "store:write", "Store", { input: z.object({ languages: z.array(z.string()) }) }),
+  ];
+  languages.deps.ctx = { ...languages.deps.ctx, store: { ...STORE, locales: storeLocales } };
+  let refreshed = 0;
+  languages.deps.refreshStore = async () => {
+    refreshed += 1;
+    storeLocales = ["en", "de"];
+    languages.deps.ctx.store = { ...STORE, locales: storeLocales };
+  };
+  await engine.sendMessage(languages.state, languages.deps, { text: "translate into German" });
+  assert.ok(languages.state.pending, "enabling a language waits for confirmation");
+  await engine.confirmPending(languages.state, languages.deps, languages.state.pending.id);
+  assert.equal(refreshed, 1, "the store is read again once after the change, not after draft edits");
+  const translated = languages.state.messages.filter((m) => m.role === "tool").at(-1);
+  assert.equal(translated.ui.status, "done", "the translation runs in the same turn that enabled the language");
 
   // Bad arguments never reach the operation.
   ran.length = 0;

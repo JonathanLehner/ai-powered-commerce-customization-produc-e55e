@@ -41,7 +41,8 @@ export interface ChatState {
   undo: boolean;
   busy: boolean;
   error: string | null;
-  send(text: string, attachments?: string[]): void;
+  /** Posts the message, or shows why it cannot and returns false. */
+  send(text: string, attachments?: string[]): boolean;
   confirm(): void;
   cancel(): void;
   undoLast(): void;

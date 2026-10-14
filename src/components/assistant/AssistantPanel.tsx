@@ -117,19 +117,20 @@ function Item({ item }: { item: ChatItem }) {
   if (item.kind === "step") {
     const running = !item.status;
     return (
-      <p className="flex items-center gap-2 text-xs text-muted-foreground">
+      <p className="flex items-start gap-2 text-xs text-muted-foreground">
         {running ? (
-          <LoaderCircleIcon className="size-3.5 animate-spin" aria-hidden />
+          <LoaderCircleIcon className="mt-px size-3.5 shrink-0 animate-spin" aria-hidden />
         ) : item.status === "done" ? (
-          <CheckIcon className="size-3.5 text-green-600" aria-hidden />
+          <CheckIcon className="mt-px size-3.5 shrink-0 text-green-600" aria-hidden />
         ) : item.status === "declined" ? (
-          <MinusIcon className="size-3.5" aria-hidden />
+          <MinusIcon className="mt-px size-3.5 shrink-0" aria-hidden />
         ) : (
-          <CircleAlertIcon className="size-3.5 text-rose-600" aria-hidden />
+          <CircleAlertIcon className="mt-px size-3.5 shrink-0 text-rose-600" aria-hidden />
         )}
         <span className={item.status === "declined" ? "line-through" : undefined}>
           {item.text}
           {running ? "…" : null}
+          {item.status === "error" && item.message ? <span className="block text-rose-700">{item.message}</span> : null}
         </span>
         {item.status === "error" ? <span className="sr-only">{t("stepFailed")}</span> : null}
       </p>
@@ -266,10 +267,14 @@ export function AssistantPanel({ onClose, closeLabel }: { onClose?: () => void; 
   if (!assistant || !chat) return null;
 
   function submit() {
-    if (!chat || !chat.loaded || chat.busy || uploading) return;
+    if (!chat) return;
     const message = text.trim();
     if (!message && attachments.length === 0) return;
-    chat.send(message, attachments);
+    if (uploading) {
+      setUploadError(t("waitForUpload"));
+      return;
+    }
+    if (!chat.send(message, attachments)) return;
     setText("");
     setAttachments([]);
   }
@@ -426,7 +431,7 @@ export function AssistantPanel({ onClose, closeLabel }: { onClose?: () => void; 
           ) : (
             <span />
           )}
-          <Button type="submit" size="sm" disabled={!chat.loaded || chat.busy || uploading || (!text.trim() && attachments.length === 0)}>
+          <Button type="submit" size="sm" disabled={!text.trim() && attachments.length === 0}>
             <SendHorizontalIcon />
             {t("send")}
           </Button>

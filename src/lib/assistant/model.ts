@@ -41,13 +41,24 @@ export const platformModel: ModelCall = async ({ messages, tools }) => {
   if (!key) throw new ModelError("CLAWCORP_API_KEY is not configured");
   const model = process.env.ASSISTANT_MODEL?.trim() || DEFAULT_MODEL;
 
-  const response = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({ model, messages, ...(tools.length > 0 ? { tools, tool_choice: "auto" } : {}) }),
-    cache: "no-store",
-    signal: AbortSignal.timeout(120_000),
+  const body = JSON.stringify({ model, messages, ...(tools.length > 0 ? { tools, tool_choice: "auto" } : {}) });
+  const post = () =>
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(120_000),
+    });
+  // One more try when the proxy or the network drops a request; a timeout is not retried.
+  let response = await post().catch((error: unknown) => {
+    if (error instanceof Error && error.name === "TimeoutError") throw error;
+    return null;
   });
+  if (!response || response.status === 429 || response.status >= 500) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    response = await post();
+  }
   if (!response.ok) throw new ModelError(`Assistant model failed: ${response.status} ${(await response.text()).slice(0, 300)}`);
   const json = (await response.json()) as {
     text?: string;
