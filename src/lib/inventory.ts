@@ -79,6 +79,19 @@ export type ReserveResult =
   | { ok: true; inventory: OrderInventory | null }
   | { ok: false; productId: string; variantId: string; available: number };
 
+/** The first basket line that cannot be sold in full, read without holding anything; null when all can. */
+export async function stockShortfall(
+  items: { storeProductId: string; variantId: string; quantity: number }[],
+): Promise<{ productId: string; variantId: string; available: number } | null> {
+  for (const line of stockLines(items)) {
+    const level = await db.findOne<InventoryLevel>(COLLECTIONS.inventoryLevels, { id: levelId(line.productId, line.variantId) });
+    if (!canSell(level, line.quantity) && level) {
+      return { productId: line.productId, variantId: line.variantId, available: Math.max(0, availableOf(level)) };
+    }
+  }
+  return null;
+}
+
 /**
  * Holds the basket's units on its tracked variants for one order. Either every
  * line is held or none is: a line that cannot be gives back the ones before it.

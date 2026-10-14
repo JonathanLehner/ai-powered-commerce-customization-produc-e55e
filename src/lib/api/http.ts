@@ -54,9 +54,11 @@ export function refusalOf(error: unknown): ApiError | null {
     return new ApiError(status, code, error.message, error.field);
   }
   if (error instanceof z.ZodError) {
-    const issue = error.issues[0];
-    const field = issue?.path.join(".") || undefined;
-    return new ApiError(422, "invalid_request", field ? `\`${field}\`: ${issue.message}` : (issue?.message ?? "Invalid input."), field);
+    // Every problem at once, so a caller can fix them in one go.
+    const issues = error.issues.map((issue) => ({ field: issue.path.join("."), message: issue.message }));
+    const field = issues[0]?.field || undefined;
+    const message = issues.map((issue) => (issue.field ? `\`${issue.field}\`: ${issue.message}` : issue.message)).join(" ");
+    return new ApiError(422, "invalid_request", message || "Invalid input.", field, issues.length > 0 ? { issues } : undefined);
   }
   return null;
 }

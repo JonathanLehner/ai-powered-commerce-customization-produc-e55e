@@ -3,7 +3,7 @@
 // Runs the Storefront API operations in-process, through the same pipeline the
 // REST routes and the shop MCP server use (schema, store context, shared shop
 // code), against a demo store in the development database. Stripe is never
-// called: no checkout is started.
+// called: checkout only runs as a dry run.
 //
 // It asserts that:
 // - Storefront API operations are served by shopHandler only and Admin API
@@ -12,6 +12,9 @@
 // - createCart → addCartLine on a published product → getCart prices the
 //   line, and the totals add up;
 // - a bad discount code is refused with field `code` and the shopper copy;
+// - no shipping rate reads 0 to 0 days;
+// - startCheckout refuses every missing field together in `issues`, and its
+//   dry run prices the order without placing one or changing the cart;
 // - removeCartLine empties the cart, and another cartId never opens it;
 // - lookupOrder answers an unknown code and a wrong email identically.
 //
@@ -145,6 +148,59 @@ try {
   assert.equal(badCode.code, "invalid_request");
   assert.equal(badCode.field, "code", "a bad discount code is a field error on code");
   assert.equal(badCode.message, en.discount.unknown, "in the shopper copy");
+
+  for (const option of priced.shipping.options) {
+    assert.ok(option.maxDays === null || option.maxDays > 0 || option.rateId === "email", `rate ${option.rateId} never reads 0 to 0 days`);
+  }
+
+  /* ------------------------------------------------------- checkout dry run */
+
+  const ordersBefore = await db.count("orders", { storeId: store.id });
+  const idempotency = `check-${Date.now()}`;
+  const incomplete = await refusal("startCheckout", {
+    cartId,
+    email: "nope",
+    name: "",
+    line1: "",
+    city: "",
+    postalCode: "",
+    country: priced.shipping.country,
+    idempotencyKey: idempotency,
+    dryRun: true,
+  });
+  assert.equal(incomplete.status, 422);
+  const fields = incomplete.details?.issues?.map((issue) => issue.field) ?? [];
+  for (const name of ["name", "email", "line1", "city", "postalCode"]) {
+    assert.ok(fields.includes(name), `checkout names ${name} in the same refusal`);
+  }
+  assert.equal(incomplete.field, fields[0], "field is the first issue");
+
+  const missing = await refusal("startCheckout", { cartId, idempotencyKey: idempotency, dryRun: true });
+  assert.ok((missing.details?.issues?.length ?? 0) >= 5, "fields left out of the body are listed together too");
+
+  const preview = await run("startCheckout", {
+    cartId,
+    email: "dry-run@example.com",
+    name: "Dry Run",
+    line1: "1 Test Street",
+    city: "Testville",
+    region: "CA",
+    postalCode: "90210",
+    country: priced.shipping.country,
+    idempotencyKey: idempotency,
+    cardNumber: "4242 4242 4242 4242",
+    expiry: "12/34",
+    cvc: "123",
+    dryRun: true,
+  });
+  assert.equal(preview.status, "dry_run");
+  assert.equal(preview.orderCode, null, "a dry run has no order code");
+  assert.match(preview.paymentUrl, /\/checkout$/, "and links the store's checkout page");
+  assert.equal(preview.order.total, priced.total, "priced as getCart priced it");
+  assert.equal(preview.order.lines.length, 1);
+  assert.equal(await db.count("orders", { storeId: store.id }), ordersBefore, "a dry run places no order");
+  assert.equal(await db.findOne("orders", { storeId: store.id, idempotencyKey: idempotency }), null);
+  assert.equal((await run("getCart", { cartId })).lines.length, 1, "and leaves the cart as it was");
 
   const elsewhere = await refusal("getCart", { cartId: "shp_000000000000" });
   assert.equal(elsewhere.status, 404, "another cartId never opens this cart");

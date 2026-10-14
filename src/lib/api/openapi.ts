@@ -47,6 +47,14 @@ const errorSchema: JsonSchema = {
         },
         message: { type: "string" },
         field: { type: "string", description: "The input the error is about." },
+        issues: {
+          type: "array",
+          description: "Every input to fix, when the request was checked against more than one rule. The first is `field`.",
+          items: {
+            type: "object",
+            properties: { field: { type: "string" }, message: { type: "string" } },
+          },
+        },
       },
     },
   },
@@ -60,7 +68,7 @@ const errorResponses = Object.fromEntries(
     ["403", "The key belongs to another store, lacks the scope, or its maker no longer holds the role it needs."],
     ["404", "The record is not in this store."],
     ["409", "The record's state does not allow it."],
-    ["422", "The input breaks a rule; `field` names it."],
+    ["422", "The input breaks a rule; `field` names it, and `issues` lists every one."],
     ["429", "Rate limit reached; see Retry-After."],
   ].map(([status, description]) => [
     status,
@@ -148,7 +156,7 @@ export function openApiDocument() {
         `The same operations are available to Claude and other AI assistants through the MCP server at ${SITE_ORIGIN}/api/mcp, with the same keys.`,
         "",
         "**Storefront API.** Everything a shopper does in a store, for headless storefronts and AI shopping agents, under `/shop/{storeHandle}` (the store's slug or id): the shop's languages, currencies and policies, products, collections, pages and search, carts with discount codes and gift cards, checkout, order lookup, reviews and the shopper's own account. It is public and answers any origin (CORS). Anonymous callers may make " +
-          `${SHOP_ANONYMOUS_RATE_LIMIT} requests per ${API_RATE_WINDOW_SECONDS} seconds per IP address and store; a publishable key (\`plk_pub_…\`, created with createPublishableKey and sent as \`X-Storefront-Key\`) raises that to ${API_RATE_LIMIT} and works for its own store only. Never send an Admin API key there: it is refused. Pass \`locale\` and \`currency\` to get names, messages and prices in the shopper's language and currency; refusals carry the shopper-facing message and the \`field\` to fix. A cart is identified by the private \`cartId\` createCart returns. A live store takes payment on Stripe Checkout: startCheckout returns its URL for the shopper.`,
+          `${SHOP_ANONYMOUS_RATE_LIMIT} requests per ${API_RATE_WINDOW_SECONDS} seconds per IP address and store; a publishable key (\`plk_pub_…\`, created with createPublishableKey and sent as \`X-Storefront-Key\`) raises that to ${API_RATE_LIMIT} and works for its own store only. Never send an Admin API key there: it is refused. Pass \`locale\` and \`currency\` to get names, messages and prices in the shopper's language and currency; refusals carry the shopper-facing message and the \`field\` to fix. A cart is identified by the private \`cartId\` createCart returns. A live store takes payment on Stripe Checkout: startCheckout returns its URL for the shopper. Pass \`dryRun: true\` to startCheckout to test checkout on any store: it prices the order and runs every check, but places nothing.`,
         "",
         `Shopping agents can use the same operations as tools of the shop MCP server at ${SITE_ORIGIN}/api/mcp/shop?store={storeHandle}, with no key or a publishable key.`,
       ].join("\n"),

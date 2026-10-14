@@ -275,7 +275,9 @@ gifting, orders, team, guided setup, activity.
   links and plan enquiries. The public Storefront API (`/api/v1/shop/{storeHandle}`,
   MCP for shopping agents at `/api/mcp/shop?store=…`) runs catalogue reads,
   carts, checkout, order lookup, reviews and shopper accounts, anonymously or
-  with a publishable key. Only browser sign-in/out and accepting invitations
+  with a publishable key. `startCheckout` takes `dryRun: true` to price and
+  check an order without placing it, holding stock or charging, and refuses
+  every missing or invalid field together in `error.issues`. Only browser sign-in/out and accepting invitations
   stay UI-only (`npm run api-coverage-check`, `npm run storefront-sections-check`,
   `npm run shop-api-check`).
 

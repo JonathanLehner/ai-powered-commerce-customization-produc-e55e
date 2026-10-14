@@ -26,12 +26,12 @@ import {
   storefrontPaused,
   updateOrder,
 } from "../data";
-import { chargeCard } from "../demo-payment";
+import { chargeCard, expiryValid, luhnValid } from "../demo-payment";
 import { checkDiscount, normalizeDiscountCode } from "../discounts";
 import { siteOrigin } from "../email";
 import { getGiftCardByCode, holdGiftCard, releaseGiftCardHold } from "../gift-card-data";
 import { basketGiftCardCover, giftCardRefusal, looksLikeGiftCode } from "../gift-cards";
-import { getLevel, releaseLines, reserveStock } from "../inventory";
+import { getLevel, releaseLines, reserveStock, stockShortfall } from "../inventory";
 import { availableOf, canSell } from "../inventory-rules";
 import { personalisationTextColour, variantPhoto } from "../line-preview";
 import { db } from "../mongo";
@@ -104,6 +104,8 @@ export interface ShopRefusal {
   message: string;
   field?: string;
   code?: Exclude<OperationErrorCode, "invalid">;
+  /** Every field that needs fixing, the first of them being `field`. Checkout's form checks only. */
+  issues?: { field: string; message: string }[];
 }
 
 /** Where the storefront sends the shopper next. */
@@ -532,6 +534,33 @@ export interface CheckoutInput {
   cardNumber: string;
   expiry: string;
   cvc: string;
+  /** Run every check and price the order, but place nothing, hold nothing and charge nothing. */
+  dryRun?: boolean;
+}
+
+/** What a dry run of checkout would have placed. */
+export interface CheckoutPreview {
+  status: "preview";
+  /** The storefront's checkout page: no order exists yet to pay. */
+  to: string;
+  /** How the order would be paid: on Stripe Checkout, with the demo card, or wholly by the gift card. */
+  payment: "stripe" | "demo" | "gift_card";
+  order: Pick<
+    Order,
+    "currency" | "customer" | "subtotal" | "shipping" | "shippingRate" | "discount" | "taxAmount" | "taxLines" | "total"
+  > & {
+    lines: { productId: string; variantId: string; productName: string; variantName: string; quantity: number; unitPrice: number; text: string | null }[];
+    giftCard: { last4: string; amount: number } | null;
+    amountDue: number;
+  };
+}
+
+/** The checkout form field a demo card refusal is about. */
+function cardField(code: string | undefined): string {
+  if (code === "invalid_expiry") return "expiry";
+  if (code === "invalid_cvc") return "cvc";
+  if (code === "currency_unsupported") return "currency";
+  return "cardNumber";
 }
 
 /** A path on this site, or an address already absolute, made absolute. */
@@ -539,12 +568,15 @@ function absolute(origin: string, path: string): string {
   return /^https?:\/\//.test(path) ? path : `${origin}${path}`;
 }
 
-export async function placeOrder(session: ShopperSession, input: CheckoutInput): Promise<ShopRefusal | ShopRedirect> {
-  const { storeId, idempotencyKey } = input;
+export async function placeOrder(
+  session: ShopperSession,
+  input: CheckoutInput,
+): Promise<ShopRefusal | ShopRedirect | CheckoutPreview> {
+  const { storeId, idempotencyKey, dryRun } = input;
   const [store, replayed, cart, zones] = await Promise.all([
     getStore(storeId),
     // A retried submission must not create a second order.
-    idempotencyKey ? getOrderByIdempotencyKey(storeId, idempotencyKey) : Promise.resolve(null),
+    idempotencyKey && !dryRun ? getOrderByIdempotencyKey(storeId, idempotencyKey) : Promise.resolve(null),
     session.cart(storeId, false),
     listShippingZones(storeId),
   ]);
@@ -583,29 +615,33 @@ export async function placeOrder(session: ShopperSession, input: CheckoutInput):
   const currency = input.currency ?? store.defaultCurrency;
   const rateId = input.shippingRate;
 
-  if (name.length < 2) return refuse(t("actions.enterName"), "name");
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return refuse(t("actions.enterEmail"), "email");
-  }
-  if (line1.length < 4) return refuse(t("actions.enterStreet"), "line1");
-  if (city.length < 2) return refuse(t("actions.enterCity"), "city");
-  if (postalCode.length < 3) {
-    return refuse(t("actions.enterPostalCode"), "postalCode");
-  }
+  // Every form check runs before any is answered, so one reply names all the
+  // fields to fix.
+  const issues: { field: string; message: string }[] = [];
+  const check = (ok: boolean, field: string, message: string) => {
+    if (!ok) issues.push({ field, message });
+  };
+  check(name.length >= 2, "name", t("actions.enterName"));
+  check(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email), "email", t("actions.enterEmail"));
+  check(line1.length >= 4, "line1", t("actions.enterStreet"));
+  check(city.length >= 2, "city", t("actions.enterCity"));
+  check(postalCode.length >= 3, "postalCode", t("actions.enterPostalCode"));
   // The checkout picker always submits a valid code; this backstops a form
   // posted without it.
-  if (!/^[A-Z]{2}$/.test(country)) {
-    return refuse(t("actions.chooseCountry"), "country");
+  const validCountry = /^[A-Z]{2}$/.test(country);
+  check(validCountry, "country", t("actions.chooseCountry"));
+  check(!validCountry || !addressRegionKind(country) || region.length >= 2, "region", t("actions.enterRegion"));
+  check(!phone || /^\+?[\d\s().-]{6,20}$/.test(phone), "phone", t("actions.enterPhone"));
+  check(store.currencies.includes(currency), "currency", t("actions.currencyNotSold", { currency }));
+  // Without a gift card, a demo store always takes the test card, so its form
+  // is checked here too. With one, it is only needed if the card falls short.
+  if (mode === "demo" && !cart.giftCardCode) {
+    const digits = input.cardNumber.replace(/\D/g, "");
+    check(luhnValid(digits), "cardNumber", t("payment.invalidNumber"));
+    check(expiryValid(input.expiry), "expiry", t("payment.invalidExpiry"));
+    check(/^\d{3,4}$/.test(input.cvc.trim()), "cvc", t("payment.invalidCvc"));
   }
-  if (addressRegionKind(country) && region.length < 2) {
-    return refuse(t("actions.enterRegion"), "region");
-  }
-  if (phone && !/^\+?[\d\s().-]{6,20}$/.test(phone)) {
-    return refuse(t("actions.enterPhone"), "phone");
-  }
-  if (!store.currencies.includes(currency)) {
-    return refuse(t("actions.currencyNotSold", { currency }), "currency");
-  }
+  if (issues.length > 0) return { ...refuse(issues[0].message, issues[0].field), issues };
 
   // The code is re-read and re-judged here, whatever the basket page showed: a
   // code that expired, was switched off or ran out while the shopper was filling
@@ -639,9 +675,94 @@ export async function placeOrder(session: ShopperSession, input: CheckoutInput):
     return refuse(t("actions.noTaxFor", { country: localCountryName(country, locale) }), "country");
   }
   if (discountCode && discountRefusal) {
+    if (dryRun) return refuse(t("discount.dropped", { code: discountCode.code }), undefined, "conflict");
     await saveCartDiscount(cart, null);
     session.basketChanged(store);
     return refuse(t("discount.dropped", { code: discountCode.code }), undefined, "conflict");
+  }
+
+  if (dryRun) {
+    const card = cart.giftCardCode ? await getGiftCardByCode(storeId, cart.giftCardCode) : null;
+    const cover =
+      card && !giftCardRefusal(card)
+        ? basketGiftCardCover(card, { total, shipping, stripeTax }, currency, mode === "stripe" ? "stripe" : "demo", storeFxTable(store))
+        : null;
+    if (cart.giftCardCode && (!card || !cover || cover.amount <= 0)) {
+      return refuse(t("giftCard.dropped"), undefined, "conflict");
+    }
+    const short = await stockShortfall(cart.items);
+    if (short) {
+      const line = cart.items.find((i) => i.variantId === short.variantId);
+      const variant = line ? `${line.productName} (${line.variantName})` : "";
+      return refuse(
+        short.available > 0 ? t("actions.onlyLeft", { count: short.available, variant }) : t("actions.soldOut", { variant }),
+        undefined,
+        "conflict",
+      );
+    }
+    const coversAll = cover?.coversAll ?? false;
+    if (mode === "demo" && !coversAll) {
+      // The demo card check moves no money, so a dry run runs it as placing would.
+      const simulated = await chargeCard({
+        store,
+        amount: total - (cover?.amount ?? 0),
+        currency,
+        cardNumber: input.cardNumber,
+        expiry: input.expiry,
+        cvc: input.cvc,
+        name,
+        idempotencyKey: idempotencyKey || newId("idem"),
+        t: (key, values) => t(`payment.${key}`, values),
+      });
+      if (!simulated.ok) return refuse(simulated.message, cardField(simulated.code), "payment_failed");
+    }
+    return {
+      status: "preview",
+      to: `${base}/checkout`,
+      payment: coversAll ? "gift_card" : mode === "stripe" ? "stripe" : "demo",
+      order: {
+        currency,
+        customer: {
+          name,
+          email,
+          line1,
+          ...(line2 ? { line2 } : {}),
+          city,
+          ...(region ? { region } : {}),
+          postalCode,
+          country,
+          ...(phone ? { phone } : {}),
+        },
+        lines: lines.map(({ item, unit }) => ({
+          productId: item.storeProductId,
+          variantId: item.variantId,
+          productName: item.productName,
+          variantName: item.variantName,
+          quantity: item.quantity,
+          unitPrice: unit,
+          text: item.text,
+        })),
+        subtotal,
+        shipping,
+        shippingRate: {
+          zoneId: shippingOption.zoneId,
+          zoneName: shippingOption.zoneName,
+          rateId: shippingOption.rateId,
+          name:
+            shippingOption.name ||
+            (shippingOption.rateId === EMAIL_DELIVERY_RATE_ID ? t("checkout.emailDelivery") : t("checkout.standardShipping")),
+          minDays: shippingOption.minDays,
+          maxDays: shippingOption.maxDays,
+          amount: shippingOption.amount,
+        },
+        discount,
+        giftCard: cover && card ? { last4: card.last4, amount: cover.amount } : null,
+        taxAmount,
+        taxLines: taxRows,
+        total,
+        amountDue: total - (cover?.amount ?? 0),
+      },
+    };
   }
 
   // One use is taken before payment, with a write guarded on the count that
@@ -721,17 +842,7 @@ export async function placeOrder(session: ShopperSession, input: CheckoutInput):
       if (claimed && discount) await releaseDiscountUse(discount.codeId);
       if (held) await releaseLines(held.lines);
       await releaseGift();
-      return refuse(
-        simulated.message,
-        simulated.code === "invalid_expiry"
-          ? "expiry"
-          : simulated.code === "invalid_cvc"
-            ? "cvc"
-            : simulated.code === "currency_unsupported"
-              ? "currency"
-              : "cardNumber",
-        "payment_failed",
-      );
+      return refuse(simulated.message, cardField(simulated.code), "payment_failed");
     }
   }
 

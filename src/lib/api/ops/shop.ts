@@ -18,6 +18,7 @@ import {
   getCatalogProduct,
   getStoreProduct,
   getStoreProductBySlug,
+  getStorefront,
   listProductCollections,
   listPublishedProducts,
   listShippingZones,
@@ -67,6 +68,7 @@ import { REVIEW_LIMITS } from "../../reviews";
 import { SEARCH_KINDS, SEARCH_LIMITS } from "../../search";
 import { SITE_ORIGIN, storeLinkBase, storeUrl } from "../../seo";
 import { EMAIL_DELIVERY_RATE_ID, shippingCountries } from "../../shipping";
+import { shipDays } from "../../shipping-promise";
 import { storePolicies } from "../../storefront-data";
 import { storeSupport } from "../../support";
 import { localizeProduct } from "../../translations";
@@ -144,9 +146,33 @@ function session(ctx: ShopContext, token: string): ShopperSession {
   };
 }
 
-/** A refusal from the shared operations, thrown the way the API reports it. */
+/** A refusal from the shared operations, thrown the way the API reports it, with every field to fix when there are several. */
 function fail(result: ShopRefusal): never {
+  if (result.issues) {
+    throw new ApiError(
+      422,
+      "invalid_request",
+      result.issues.map((issue) => `\`${issue.field}\`: ${issue.message}`).join(" "),
+      result.field,
+      { issues: result.issues },
+    );
+  }
   throw new OperationError(result.code ?? "invalid", result.message, result.field);
+}
+
+/**
+ * A rate's delivery estimate in business days. A rate with none set takes the
+ * store's "Ships within" days, and with that unset too the estimate is null
+ * rather than 0 to 0. Email delivery is immediate, so 0 is its real estimate.
+ */
+function deliveryDays(rate: { rateId: string; minDays: number; maxDays: number }, shipsWithin: number | null) {
+  if (rate.maxDays > 0 || rate.rateId === EMAIL_DELIVERY_RATE_ID) return { minDays: rate.minDays, maxDays: rate.maxDays };
+  return shipsWithin ? { minDays: 1, maxDays: shipsWithin } : { minDays: null, maxDays: null };
+}
+
+/** The business days the store's published storefront says an order ships within. */
+async function storeShipDays(storeId: string): Promise<number | null> {
+  return shipDays((await getStorefront(storeId))?.published);
 }
 
 async function cartOf(ctx: ShopContext, token: string): Promise<Cart> {
@@ -206,11 +232,12 @@ function presentEntry(ctx: ShopContext, stored: ContentEntry, withBody: boolean)
  */
 async function presentCart(ctx: ShopContext, cart: Cart, country?: string, rateId?: string, message?: string) {
   const { store, currency: shown } = ctx;
-  const [zones, discountCode, card, copy] = await Promise.all([
+  const [zones, discountCode, card, copy, shipsWithin] = await Promise.all([
     listShippingZones(store.id),
     cartDiscountCode(store.id, cart),
     cart.giftCardCode ? getGiftCardByCode(store.id, cart.giftCardCode) : null,
     copyOf(ctx),
+    storeShipDays(store.id),
   ]);
   const { t, format } = copy;
   const money = (minor: number) => formatMinorUnits(format, minor, shown);
@@ -267,8 +294,7 @@ async function presentCart(ctx: ShopContext, cart: Cart, country?: string, rateI
         rateId: option.rateId,
         name: optionName(option),
         amount: option.amount,
-        minDays: option.minDays,
-        maxDays: option.maxDays,
+        ...deliveryDays(option, shipsWithin),
       })),
       selectedRateId: totals.shippingOption?.rateId ?? null,
       amount: totals.shipping,
@@ -285,7 +311,7 @@ async function presentCart(ctx: ShopContext, cart: Cart, country?: string, rateI
 }
 
 /** An order as the shopper who placed it may see it. */
-function presentShopperOrder(order: Order, statusUrl: string) {
+function presentShopperOrder(order: Order, statusUrl: string, shipsWithin: number | null) {
   return {
     code: order.code,
     status: order.status,
@@ -303,7 +329,7 @@ function presentShopperOrder(order: Order, statusUrl: string) {
     discount: order.discount ? { code: order.discount.code, amount: order.discount.amount } : null,
     giftCard: order.giftCard ? { last4: order.giftCard.last4, amount: order.giftCard.amount } : null,
     shipping: order.shipping,
-    shippingRate: order.shippingRate ? { name: order.shippingRate.name, minDays: order.shippingRate.minDays, maxDays: order.shippingRate.maxDays } : null,
+    shippingRate: order.shippingRate ? { name: order.shippingRate.name, ...deliveryDays(order.shippingRate, shipsWithin) } : null,
     taxAmount: order.taxAmount,
     total: order.total,
     refunded: order.refunds.reduce((sum, refund) => sum + refund.amount, 0),
@@ -874,7 +900,7 @@ export const shopOperations: ApiOperation[] = [
     scope: "shop:write",
     summary: "Place the order and start payment",
     description:
-      "Places the cart as an order for the given address and shipping rate (see getCart's shipping.options for that country), holding the stock, one use of the discount code and the gift card's share. Returns orderCode and paymentUrl. On a live store (getShop payment stripe) the order waits for payment: hand paymentUrl, a Stripe Checkout page, to the shopper; never pay it yourself. When the gift card covers everything, or on a demo store (payment demo, pass test card 4242 4242 4242 4242, any future expiry such as 12/34, any CVC), the order is paid at once and paymentUrl is the signed order status page. Not reversible through this API: an unpaid order releases its holds when the Checkout session expires; a paid one is cancelled or refunded by the store. Send the same idempotencyKey to retry safely: a repeat returns the first order. Ask the shopper to confirm before calling.",
+      "Places the cart as an order for the given address and shipping rate (see getCart's shipping.options for that country), holding the stock, one use of the discount code and the gift card's share. Returns orderCode and paymentUrl. On a live store (getShop payment stripe) the order waits for payment: hand paymentUrl, a Stripe Checkout page, to the shopper; never pay it yourself. When the gift card covers everything, or on a demo store (payment demo, pass test card 4242 4242 4242 4242, any future expiry such as 12/34, any CVC), the order is paid at once and paymentUrl is the signed order status page. Not reversible through this API: an unpaid order releases its holds when the Checkout session expires; a paid one is cancelled or refunded by the store. Send the same idempotencyKey to retry safely: a repeat returns the first order. Ask the shopper to confirm before calling. To test checkout, pass dryRun true: every check runs and the order is priced, but nothing is placed, held or charged, on any store. It answers status dry_run with orderCode null, payment (stripe, demo or gift_card: how the order would be paid), the order summary, and paymentUrl, the store's checkout page. Every missing or invalid field is refused together: field names the first, error.issues lists each field with its message.",
     status: 201,
     actions: ["shop#placeOrder"],
     input: z.object({
@@ -887,6 +913,7 @@ export const shopOperations: ApiOperation[] = [
       cardNumber: z.string().max(30).optional().describe("Demo stores only: a test card number such as 4242 4242 4242 4242. Ignored by live stores, which take payment on Stripe Checkout."),
       expiry: z.string().max(10).optional().describe("Demo stores only: the test card's expiry, MM/YY."),
       cvc: z.string().max(4).optional().describe("Demo stores only: the test card's CVC."),
+      dryRun: z.boolean().default(false).describe("Check and price the order without placing it: no order, no stock or code held, no payment. For testing checkout."),
       locale: shopLocale,
       currency,
     }),
@@ -910,8 +937,27 @@ export const shopOperations: ApiOperation[] = [
         cardNumber: input.cardNumber ?? "",
         expiry: input.expiry ?? "",
         cvc: input.cvc ?? "",
+        dryRun: input.dryRun,
       });
       if (result.status === "error") fail(result);
+      if (result.status === "preview") {
+        const shipsWithin = await storeShipDays(ctx.store.id);
+        const { shippingRate, ...order } = result.order;
+        return {
+          dryRun: true,
+          orderCode: null,
+          status: "dry_run",
+          payment: result.payment,
+          paymentUrl: result.to,
+          paid: false,
+          order: {
+            ...order,
+            shippingRate: shippingRate
+              ? { rateId: shippingRate.rateId, name: shippingRate.name, amount: shippingRate.amount, ...deliveryDays(shippingRate, shipsWithin) }
+              : null,
+          },
+        };
+      }
       const placed = await db.findOne<Order>(COLLECTIONS.orders, { storeId: ctx.store.id, code: result.orderCode });
       return {
         orderCode: result.orderCode,
@@ -938,7 +984,7 @@ export const shopOperations: ApiOperation[] = [
     run: async (ctx, input) => {
       const result = await findOrder(ctx.store, await copyOf(ctx), input.code, input.email);
       if (result.status === "error") fail(result);
-      return presentShopperOrder(result.order, result.to);
+      return presentShopperOrder(result.order, result.to, await storeShipDays(ctx.store.id));
     },
   }),
   defineShop({
