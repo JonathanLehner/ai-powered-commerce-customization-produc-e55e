@@ -22,6 +22,7 @@ import { STORE_FONT_CLASSES } from "@/lib/store-fonts";
 import { localizeBlockProps } from "@/lib/translations";
 import { classNames } from "@/lib/util";
 import { FieldList, type PropTarget } from "./fields";
+import { PreviewFrame, type PreviewWidth } from "./PreviewFrame";
 
 /**
  * The product page template: every product page is drawn from these blocks,
@@ -34,14 +35,14 @@ export function ProductPageEditor({
   defaultLocale,
   canvasStyle,
   canvasAttributes,
-  width,
+  device,
 }: {
   ctx: StorefrontContext;
   locale: string;
   defaultLocale: string;
   canvasStyle: CSSProperties;
   canvasAttributes: Record<string, string>;
-  width: string;
+  device: PreviewWidth;
 }) {
   const t = useTranslations("editor.productPage");
   const names = useTranslations("editor.blocks");
@@ -160,15 +161,17 @@ export function ProductPageEditor({
         </Card>
       </div>
 
-      <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
-        <div
-          lang={locale}
-          {...canvasAttributes}
-          className={`${STORE_FONT_CLASSES} mx-auto overflow-hidden rounded-lg border border-border bg-background font-sans text-base text-foreground`}
-          style={{ maxWidth: width, ...canvasStyle }}
-        >
-          <TemplatePreview ctx={ctx} blocks={blocks} locale={locale} defaultLocale={defaultLocale} selected={selected} onSelect={setSelected} />
-        </div>
+      <div className="relative min-w-0 rounded-xl border border-border bg-canvas p-3">
+        <PreviewFrame device={device}>
+          <div
+            lang={locale}
+            {...canvasAttributes}
+            className={`${STORE_FONT_CLASSES} overflow-hidden rounded-lg border border-border bg-background font-sans text-base text-foreground`}
+            style={canvasStyle}
+          >
+            <TemplatePreview ctx={ctx} blocks={blocks} locale={locale} defaultLocale={defaultLocale} selected={selected} onSelect={setSelected} />
+          </div>
+        </PreviewFrame>
       </div>
 
       <div className="space-y-4">

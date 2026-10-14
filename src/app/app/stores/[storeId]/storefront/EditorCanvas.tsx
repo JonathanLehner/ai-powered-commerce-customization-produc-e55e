@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { languageName } from "@/i18n/display";
@@ -51,6 +52,7 @@ import { classNames, formatDateTime } from "@/lib/util";
 import { ContentTranslations, StateBadge, type ItemUpdate, type TranslatableItem } from "./ContentTranslations";
 import { DesignPanel, type DesignState } from "./DesignPanel";
 import { CopyField, FieldEnvContext, FieldList, type PropTarget } from "./fields";
+import { PREVIEW_WIDTHS, PreviewFrame } from "./PreviewFrame";
 import { ProductPageEditor } from "./ProductPageEditor";
 import { ShopTextSheet, type ShopTextData } from "./ShopTextSheet";
 import { VersionHistory, type HistoryEntry } from "./VersionHistory";
@@ -129,7 +131,7 @@ const RESOLVER = { PageCanvas, ...SECTION_COMPONENTS };
 
 /* ------------------------------------------------------------- toolbox */
 
-function Toolbox() {
+function Toolbox({ onAdd, className }: { onAdd?: () => void; className?: string }) {
   const { connectors, actions, query } = useEditor();
   const t = useTranslations("editor");
 
@@ -137,10 +139,11 @@ function Toolbox() {
     const element = React.createElement(SECTION_COMPONENTS[type], { ...SECTION_DEFS[type].defaults });
     const nodeTree = query.parseReactElement(element).toNodeTree();
     actions.addNodeTree(nodeTree, "ROOT");
+    onAdd?.();
   }
 
   return (
-    <Card size="sm">
+    <Card size="sm" className={className}>
       <CardHeader>
         <CardTitle asChild className="text-sm font-semibold">
           <h2>{t("approvedSections")}</h2>
@@ -180,6 +183,25 @@ function Toolbox() {
         ))}
       </CardContent>
     </Card>
+  );
+}
+
+/** The section library for a single-column layout, opened from the page order. */
+function AddSectionSheet() {
+  const t = useTranslations("editor");
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button type="button" size="sm">
+          {t("addSection")}
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-full gap-0 overflow-y-auto data-[side=right]:sm:max-w-md">
+        <SheetTitle className="sr-only">{t("approvedSections")}</SheetTitle>
+        <Toolbox onAdd={() => setOpen(false)} className="rounded-none ring-0" />
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -448,6 +470,9 @@ function LayerList() {
         <CardTitle asChild className="text-sm font-semibold">
           <h2>{t("pageOrder")}</h2>
         </CardTitle>
+        <CardAction className="xl:hidden">
+          <AddSectionSheet />
+        </CardAction>
         {nodes.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("emptyPage")}</p>
         ) : null}
@@ -485,12 +510,6 @@ function LayerList() {
 }
 
 /* -------------------------------------------------------------- toolbar */
-
-const WIDTHS = [
-  { key: "desktop", label: "desktop", width: "100%" },
-  { key: "tablet", label: "tablet", width: "820px" },
-  { key: "mobile", label: "phone", width: "390px" },
-] as const;
 
 export interface EditorCanvasProps {
   storeId: string;
@@ -613,7 +632,7 @@ function EditorShell(props: ShellProps) {
   // How much of the page has no translation in the selected language.
   const missingOnPage =
     props.locale === props.defaultLocale ? 0 : Object.keys(missingTreeFields(pageTree, props.locale)).length;
-  const [device, setDevice] = useState<(typeof WIDTHS)[number]["key"]>("desktop");
+  const [device, setDevice] = useState<(typeof PREVIEW_WIDTHS)[number]["key"]>("desktop");
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
   const [busy, setBusy] = useState<"save" | "publish" | "translate" | null>(null);
   const [label, setLabel] = useState("");
@@ -721,7 +740,7 @@ function EditorShell(props: ShellProps) {
     }
   }
 
-  const width = WIDTHS.find((w) => w.key === device)?.width ?? "100%";
+  const preview = PREVIEW_WIDTHS.find((w) => w.key === device) ?? PREVIEW_WIDTHS[0];
   const resolved = resolveDesign(design);
   const context = { ...(props.contexts[locale] ?? props.contexts[props.defaultLocale]), design: resolved };
   const canvasStyle = storeThemeStyle(resolved);
@@ -764,9 +783,9 @@ function EditorShell(props: ShellProps) {
                 value={device}
                 // One width is always being previewed, so an empty value is
                 // ignored rather than leaving the canvas unconstrained.
-                onValueChange={(next) => next && setDevice(next as (typeof WIDTHS)[number]["key"])}
+                onValueChange={(next) => next && setDevice(next as (typeof PREVIEW_WIDTHS)[number]["key"])}
               >
-                {WIDTHS.map((option) => (
+                {PREVIEW_WIDTHS.map((option) => (
                   <ToggleGroupItem key={option.key} value={option.key}>
                     {t(option.label)}
                   </ToggleGroupItem>
@@ -815,23 +834,24 @@ function EditorShell(props: ShellProps) {
 
       <Tabs defaultValue="page" className="gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <TabsList>
-            <TabsTrigger value="page" className="px-3">
+          {/* Wraps onto a second row on narrow screens rather than widening the page. */}
+          <TabsList className="h-auto flex-wrap justify-start group-data-horizontal/tabs:h-auto">
+            <TabsTrigger value="page" className="h-7 flex-none px-3">
               {t("tabs.page")}
             </TabsTrigger>
-            <TabsTrigger value="productPage" className="px-3">
+            <TabsTrigger value="productPage" className="h-7 flex-none px-3">
               {t("tabs.productPage")}
             </TabsTrigger>
-            <TabsTrigger value="design" className="px-3">
+            <TabsTrigger value="design" className="h-7 flex-none px-3">
               {t("tabs.design")}
             </TabsTrigger>
-            <TabsTrigger value="products" className="px-3">
+            <TabsTrigger value="products" className="h-7 flex-none px-3">
               {t("tabs.products")}
             </TabsTrigger>
-            <TabsTrigger value="collections" className="px-3">
+            <TabsTrigger value="collections" className="h-7 flex-none px-3">
               {t("tabs.collections")}
             </TabsTrigger>
-            <TabsTrigger value="portals" className="px-3">
+            <TabsTrigger value="portals" className="h-7 flex-none px-3">
               {t("tabs.portals")}
             </TabsTrigger>
           </TabsList>
@@ -860,33 +880,41 @@ function EditorShell(props: ShellProps) {
         {/* The page stays mounted while another tab is open: the canvas holds
             the unsaved draft, and unmounting it would throw that away. */}
         <TabsContent value="page" forceMount className="data-[state=inactive]:hidden">
+          {/* In one column the page order and preview come first, and the
+              section library opens from a button. */}
           <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)_20rem]">
-            <div className="space-y-4">
-              <Toolbox />
+            <div className="contents xl:block xl:space-y-4">
+              <div className="hidden xl:block">
+                <Toolbox />
+              </div>
               <LayerList />
-              <SiteContentPanel />
-              <SeoPanel />
+              <div className="order-3 space-y-4 xl:order-none">
+                <SiteContentPanel />
+                <SeoPanel />
+              </div>
             </div>
 
-            <div className="relative overflow-x-auto rounded-xl border border-border bg-canvas p-3">
+            <div className="relative order-2 min-w-0 rounded-xl border border-border bg-canvas p-3 xl:order-none">
               {/* The canvas carries the store's own theme, mapped onto the same
                   shadcn variables the live storefront maps them onto, so what is
                   arranged here is drawn in the client's brand rather than in
                   Parcelith's. The base font size is reset too: the workspace reads
                   at 14px and a storefront at the browser's 16px. */}
-              <div
-                lang={locale}
-                {...canvasAttributes}
-                className={`${STORE_FONT_CLASSES} font-sans mx-auto overflow-hidden rounded-lg border border-border bg-background text-base text-foreground transition-all`}
-                style={{ maxWidth: width, ...canvasStyle }}
-              >
-                <SitePreview storeName={props.storeName} chrome={props.chrome[locale] ?? props.chrome[props.defaultLocale]}>
-                  <Frame data={props.data} />
-                </SitePreview>
-              </div>
+              <PreviewFrame device={preview}>
+                <div
+                  lang={locale}
+                  {...canvasAttributes}
+                  className={`${STORE_FONT_CLASSES} font-sans overflow-hidden rounded-lg border border-border bg-background text-base text-foreground`}
+                  style={canvasStyle}
+                >
+                  <SitePreview storeName={props.storeName} chrome={props.chrome[locale] ?? props.chrome[props.defaultLocale]}>
+                    <Frame data={props.data} />
+                  </SitePreview>
+                </div>
+              </PreviewFrame>
             </div>
 
-            <div className="space-y-4">
+            <div className="order-4 space-y-4 xl:order-none">
               <AssistantEmbed />
               <SettingsPanel />
               <VersionHistory
@@ -908,7 +936,7 @@ function EditorShell(props: ShellProps) {
             defaultLocale={props.defaultLocale}
             canvasStyle={canvasStyle}
             canvasAttributes={canvasAttributes}
-            width={width}
+            device={preview}
           />
         </TabsContent>
         <TabsContent value="design" className="space-y-4">

@@ -3337,6 +3337,7 @@
     "approvedSections": "Goedgekeurde secties",
     "dragHint": "Sleep een sectie naar het canvas of kies Toevoegen.",
     "add": "Toevoegen",
+    "addSection": "Sectie toevoegen",
     "sectionSettings": "Sectie-instellingen",
     "selectSection": "Selecteer een sectie om die te bewerken.",
     "moveUp": "Sectie omhoog",

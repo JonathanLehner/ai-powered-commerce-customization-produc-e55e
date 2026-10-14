@@ -3337,6 +3337,7 @@
     "approvedSections": "Freigegebene Abschnitte",
     "dragHint": "Ziehen Sie einen Abschnitt auf die Arbeitsfläche oder wählen Sie Hinzufügen.",
     "add": "Hinzufügen",
+    "addSection": "Abschnitt hinzufügen",
     "sectionSettings": "Abschnittseinstellungen",
     "selectSection": "Wählen Sie einen Abschnitt zum Bearbeiten aus.",
     "moveUp": "Abschnitt nach oben",
