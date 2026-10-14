@@ -5769,7 +5769,7 @@
     "useTemplate": "Använd denna mall",
     "allTemplates": "Alla mallar",
     "metaTitle": "Butiksmallar",
-    "metaDescription": "Kompletta butiksdesigner för merch till företag, startups, kreatörer, band och sportklubbar. Förhandsgranska varje live och börja använda den på några minuter.",
+    "metaDescription": "Kompletta butiksdesigner för merch till företag, startups, kreatörer, band, sportklubbar, evenemang, mat- och dryckesmärken, ideella organisationer, skolor och konstnärer. Förhandsgranska varje live och börja använda den på några minuter.",
     "title": "Börja med en färdig butik",
     "lead": "{count} kompletta butiksdesigner med layouter, bilder, exempeltext och föreslagna produkter. Förhandsgranska valfri live och gör den sedan till din egen.",
     "all": "Alla",
@@ -5784,7 +5784,12 @@
       "tech": "Teknik och startups",
       "creators": "Kreatörer och poddare",
       "music": "Band och musiker",
-      "sports": "Sportklubbar och lag"
+      "sports": "Sportklubbar och lag",
+      "events": "Evenemang och festivaler",
+      "food": "Mat och dryck",
+      "nonprofit": "Ideella organisationer",
+      "education": "Skolor och universitet",
+      "artists": "Konstnärer och illustratörer"
     },
     "styles": {
       "minimal": "Minimalistisk",

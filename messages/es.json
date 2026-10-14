@@ -5769,7 +5769,7 @@
     "useTemplate": "Usar esta plantilla",
     "allTemplates": "Todas las plantillas",
     "metaTitle": "Plantillas de tienda",
-    "metaDescription": "Diseños completos de tiendas de merchandising para empresas, startups, creadores, bandas y clubes deportivos. Previsualízalas en vivo y empieza con una en minutos.",
+    "metaDescription": "Diseños completos de tiendas de merchandising para empresas, startups, creadores, bandas, clubes deportivos, eventos, marcas de comida y bebida, ONG, colegios y artistas. Previsualízalas en vivo y empieza con una en minutos.",
     "title": "Empieza con una tienda terminada",
     "lead": "{count} diseños de tiendas completos con diseños, imágenes, textos de ejemplo y productos sugeridos. Previsualiza cualquiera en vivo y luego hazla tuya.",
     "all": "Todo",
@@ -5784,7 +5784,12 @@
       "tech": "Tecnología y startups",
       "creators": "Creadores y podcasters",
       "music": "Bandas y músicos",
-      "sports": "Clubes y equipos deportivos"
+      "sports": "Clubes y equipos deportivos",
+      "events": "Eventos y festivales",
+      "food": "Comida y bebida",
+      "nonprofit": "ONG y causas",
+      "education": "Colegios y universidades",
+      "artists": "Artistas e ilustradores"
     },
     "styles": {
       "minimal": "Minimalista",

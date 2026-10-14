@@ -39,6 +39,8 @@ export function templateImage(template: StoreTemplate, value: string): string {
   if (value === "@hero") return assets.hero;
   if (value === "@lifestyle") return assets.lifestyle;
   if (value === "@banner") return assets.banner;
+  const extra = /^@extra(\d)$/.exec(value);
+  if (extra) return assets.extra?.[Number(extra[1]) - 1] ?? "";
   const product = /^@product(\d)$/.exec(value);
   return product ? (assets.products[Number(product[1]) - 1] ?? "") : "";
 }

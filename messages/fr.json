@@ -5769,7 +5769,7 @@
     "useTemplate": "Utiliser ce thème",
     "allTemplates": "Tous les thèmes",
     "metaTitle": "Thèmes de boutique",
-    "metaDescription": "Designs complets de boutiques de merchandising pour entreprises, startups, créateurs, groupes de musique et clubs sportifs. Prévisualisez chacun en direct et lancez-vous en quelques minutes.",
+    "metaDescription": "Designs complets de boutiques de merchandising pour entreprises, startups, créateurs, groupes de musique, clubs sportifs, événements, marques food et boissons, associations, écoles et artistes. Prévisualisez chacun en direct et lancez-vous en quelques minutes.",
     "title": "Commencez avec une boutique prête à l'emploi",
     "lead": "{count} {count, plural, one {design} other {designs}} de boutique complets avec des mises en page, des images, du texte d'exemple et des produits suggérés. Prévisualisez n'importe lequel en direct, puis personnalisez-le.",
     "all": "Tous",
@@ -5784,7 +5784,12 @@
       "tech": "Tech et startups",
       "creators": "Créateurs et podcasteurs",
       "music": "Groupes de musique et musiciens",
-      "sports": "Clubs et équipes sportives"
+      "sports": "Clubs et équipes sportives",
+      "events": "Événements et festivals",
+      "food": "Food et boissons",
+      "nonprofit": "Associations et causes",
+      "education": "Écoles et universités",
+      "artists": "Artistes et illustrateurs"
     },
     "styles": {
       "minimal": "Minimaliste",

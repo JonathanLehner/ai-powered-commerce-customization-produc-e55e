@@ -330,7 +330,7 @@ export const CREATOR_TEMPLATES: TemplateDef[] = [
     theme: "bloom",
     design: {
       colors: { primary: "#7a35e6", secondary: "#ffd84d", background: "#fff6fb", surface: "#fde7f3", text: "#2a1446" },
-      headingFont: "bricolage",
+      headingFont: "nunito",
       bodyFont: "nunito",
       radius: "large",
       buttonStyle: "pill",
@@ -338,7 +338,7 @@ export const CREATOR_TEMPLATES: TemplateDef[] = [
       mode: "light",
       productImage: "square",
     },
-    layout: { headerLayout: "center", headerSticky: true, footerLayout: "centered", footerPayments: true, footerTrust: true, footerNewsletter: true },
+    layout: { headerLayout: "left", headerSticky: true, footerLayout: "columns", footerPayments: true, footerTrust: true, footerNewsletter: true },
     site: {
       announcement: "New: the Pip & Pals season two collection",
       announcement2: "Free stickers in every parcel",
@@ -365,7 +365,6 @@ export const CREATOR_TEMPLATES: TemplateDef[] = [
           background: "secondary",
         },
       },
-      { type: "PromoBanner", props: { text: "Free stickers in every parcel", ctaLabel: "", tone: "accent", scrolling: true } },
       { type: "CollectionTiles", props: { title: "Shop by Pal", subtitle: "", ratio: "square", layout: "carousel" } },
       { type: "ProductCarousel", props: { title: "Fan favourites", subtitle: "", ctaLabel: "Shop all", source: "all", limit: 10, layout: "top" } },
       {

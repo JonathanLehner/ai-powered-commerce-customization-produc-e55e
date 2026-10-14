@@ -85,6 +85,7 @@ for (const t of templates) {
 
   // Imagery.
   for (const kind of ["hero", "lifestyle", "banner"]) if (!t.assets[kind]) fail(t.id, `no ${kind} image`);
+  (t.imagery.extra ?? []).forEach((_, i) => !t.assets.extra?.[i] && fail(t.id, `no extra image ${i + 1}`));
   if (t.assets.products.length !== t.products.length || t.assets.products.some((u) => !u)) fail(t.id, "product shots missing");
   if (t.products.length < 4) fail(t.id, "fewer than four starter products");
 
@@ -129,6 +130,68 @@ for (const t of templates) {
   }
 }
 console.log(`data: ${templates.length} templates checked`);
+
+/* --------------------------------------------------------------- library */
+
+// The whole library, whatever --only says: five templates in every category,
+// each led by a different style, and no two templates that look alike.
+for (const category of TEMPLATE_CATEGORIES) {
+  const inCategory = TEMPLATES.filter((t) => t.category === category);
+  if (inCategory.length !== 5) fail(category, `has ${inCategory.length} templates, needs 5`);
+  const leads = inCategory.map((t) => t.styles[0]);
+  for (const style of new Set(leads)) {
+    if (leads.filter((s) => s === style).length > 1) fail(category, `more than one template leads with the ${style} style`);
+  }
+}
+
+const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const distance = (a, b) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]));
+/** Longest common subsequence of two section lists, as a share of the longer one. */
+const sequenceLikeness = (a, b) => {
+  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+  }
+  return dp[a.length][b.length] / Math.max(a.length, b.length);
+};
+/**
+ * How alike two templates look, from what a shopper sees first: palette,
+ * type, shape, header and footer, and the order of the home page. Each trait
+ * adds to the score; 7 or more reads as the same template in another colour.
+ */
+function likeness(a, b) {
+  const da = resolveDesign({ theme: a.theme, design: a.design });
+  const db = resolveDesign({ theme: b.theme, design: b.design });
+  const traits = [];
+  const add = (points, label) => traits.push([points, label]);
+  if (da.mode === db.mode && distance(da.colors.background, db.colors.background) < 30) add(1.5, "background");
+  if (distance(da.colors.primary, db.colors.primary) < 70) add(1.5, "primary colour");
+  if (distance(da.colors.secondary, db.colors.secondary) < 70) add(0.5, "secondary colour");
+  if (da.headingFont === db.headingFont) add(2, "heading font");
+  if (da.bodyFont === db.bodyFont) add(1, "body font");
+  for (const key of ["radius", "buttonStyle", "density", "productImage"]) if (da[key] === db[key]) add(0.25, key);
+  for (const key of ["headerLayout", "footerLayout"]) if ((a.layout[key] ?? "") === (b.layout[key] ?? "")) add(0.25, key);
+  if (a.sections[0].type === b.sections[0].type) add(0.5, "hero");
+  const order = sequenceLikeness(
+    a.sections.map((s) => s.type),
+    b.sections.map((s) => s.type),
+  );
+  if (order >= 0.6) add(2 * order, "section order");
+  if (a.artwork.mark === b.artwork.mark && a.artwork.font === b.artwork.font) add(1, "artwork");
+  return { score: traits.reduce((sum, [p]) => sum + p, 0), traits: traits.map(([, label]) => label) };
+}
+const pairs = [];
+for (const [i, a] of TEMPLATES.entries()) {
+  for (const b of TEMPLATES.slice(i + 1)) pairs.push({ a, b, ...likeness(a, b) });
+}
+pairs.sort((x, y) => y.score - x.score);
+for (const { a, b, score, traits } of pairs) {
+  if (score >= 7) fail(`${a.id}/${b.id}`, `look alike (${score.toFixed(1)}): same ${traits.join(", ")}`);
+}
+if (flag("--likeness")) {
+  for (const { a, b, score, traits } of pairs.slice(0, 15)) console.log(`  ${score.toFixed(2)}  ${a.id} / ${b.id}: ${traits.join(", ")}`);
+}
+console.log(`library: ${TEMPLATES.length} templates in ${TEMPLATE_CATEGORIES.length} categories, ${pairs.length} pairs compared`);
 
 /* ---------------------------------------------------------------- render */
 

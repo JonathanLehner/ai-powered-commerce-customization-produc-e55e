@@ -214,9 +214,11 @@ gifting, orders, team, guided setup, activity.
   store or the dashboard. Every surface has a matching error page with a retry,
   so a failure mid-flow is explained rather than blank (`npm run fallback-check`).
 
-- **Store templates.** 25 complete starting points in five categories (company
+- **Store templates.** 50 complete starting points in ten categories (company
   and employee stores, tech and startups, creators and podcasters, bands and
-  musicians, sports clubs), five style directions each. A template is plain data
+  musicians, sports clubs, events and festivals, food and drink, nonprofits and
+  causes, schools and universities, artists and illustrators), five style
+  directions each. A template is plain data
   in `src/lib/templates/data/*`: design tokens, header and footer settings, home
   page sections, product page blocks, shop and collection layout, sample copy for
   a fictional brand (translated into all nine languages in
@@ -233,7 +235,10 @@ gifting, orders, team, guided setup, activity.
   `templateId`. `npm run template-check` checks every template's sections,
   images, contrast and translations, and with `--base <url> --browser` renders
   every demo store at 1440px and 390px and fails on broken sections, missing
-  images, overflow or text below WCAG AA.
+  images, overflow or text below WCAG AA. It also checks the library as a whole:
+  five templates per category, each led by a different style, and no two
+  templates whose palette, type, shape and page order make them look alike
+  (`--likeness` prints the closest pairs).
 - **API and MCP for everything.** Every operation is defined once in
   `src/lib/api/operations.ts` (modules under `src/lib/api/ops`) and served as a
   REST endpoint, an OpenAPI operation and an MCP tool. The Admin API

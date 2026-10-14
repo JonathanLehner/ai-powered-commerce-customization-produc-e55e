@@ -5769,7 +5769,7 @@
     "useTemplate": "Gebruik dit sjabloon",
     "allTemplates": "Alle sjablonen",
     "metaTitle": "Winkelsjablonen",
-    "metaDescription": "Complete webshopontwerpen voor bedrijven, startups, makers, bands en sportclubs. Bekijk ze live en begin ermee binnen enkele minuten.",
+    "metaDescription": "Complete webshopontwerpen voor bedrijven, startups, makers, bands, sportclubs, evenementen, food- en drankmerken, goede doelen, scholen en kunstenaars. Bekijk ze live en begin ermee binnen enkele minuten.",
     "title": "Begin met een kant-en-klare shop",
     "lead": "{count} complete shopontwerpen met indelingen, afbeeldingen, voorbeeldteksten en voorgestelde producten. Bekijk ze live en pas ze daarna aan.",
     "all": "Alle",
@@ -5784,7 +5784,12 @@
       "tech": "Tech en startups",
       "creators": "Makers en podcasters",
       "music": "Bands en muzikanten",
-      "sports": "Sportclubs en -teams"
+      "sports": "Sportclubs en -teams",
+      "events": "Evenementen en festivals",
+      "food": "Eten en drinken",
+      "nonprofit": "Goede doelen",
+      "education": "Scholen en universiteiten",
+      "artists": "Kunstenaars en illustratoren"
     },
     "styles": {
       "minimal": "Minimalistisch",

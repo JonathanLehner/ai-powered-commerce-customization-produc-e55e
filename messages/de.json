@@ -5769,7 +5769,7 @@
     "useTemplate": "Diese Vorlage verwenden",
     "allTemplates": "Alle Vorlagen",
     "metaTitle": "Shop-Vorlagen",
-    "metaDescription": "Komplette Merch-Shop-Designs für Unternehmen, Start-ups, Creator, Bands und Sportvereine. Jedes live ansehen und in wenigen Minuten damit starten.",
+    "metaDescription": "Komplette Merch-Shop-Designs für Unternehmen, Start-ups, Creator, Bands, Sportvereine, Events, Gastronomie, gemeinnützige Organisationen, Schulen und Künstler. Jedes live ansehen und in wenigen Minuten damit starten.",
     "title": "Mit einem fertigen Shop starten",
     "lead": "{count} vollständige Shop-Designs mit Layouts, Bildern, Beispieltexten und Produktvorschlägen. Jedes davon live ansehen und es dann zu deinem eigenen machen.",
     "all": "Alle",
@@ -5784,7 +5784,12 @@
       "tech": "Technologie und Start-ups",
       "creators": "Creator und Podcaster",
       "music": "Bands und Musiker",
-      "sports": "Sportvereine und -teams"
+      "sports": "Sportvereine und -teams",
+      "events": "Events und Festivals",
+      "food": "Essen und Trinken",
+      "nonprofit": "Gemeinnützige Organisationen",
+      "education": "Schulen und Hochschulen",
+      "artists": "Künstler und Illustratoren"
     },
     "styles": {
       "minimal": "Minimalistisch",

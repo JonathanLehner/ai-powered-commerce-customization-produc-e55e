@@ -5769,7 +5769,7 @@
     "useTemplate": "Usa questo template",
     "allTemplates": "Tutti i template",
     "metaTitle": "Template per negozi",
-    "metaDescription": "Design completi per negozi di merchandising per aziende, startup, creator, band e club sportivi. Visualizza in anteprima dal vivo ciascuno e inizia in pochi minuti.",
+    "metaDescription": "Design completi per negozi di merchandising per aziende, startup, creator, band, club sportivi, eventi, marchi food e beverage, non profit, scuole e artisti. Visualizza in anteprima dal vivo ciascuno e inizia in pochi minuti.",
     "title": "Parti da un negozio pronto",
     "lead": "{count} design completi per negozi con layout, immagini, testo di esempio e prodotti suggeriti. Visualizzane in anteprima uno qualsiasi dal vivo, quindi rendilo tuo.",
     "all": "Tutti",
@@ -5784,7 +5784,12 @@
       "tech": "Tech e startup",
       "creators": "Creator e podcaster",
       "music": "Band e musicisti",
-      "sports": "Club e squadre sportive"
+      "sports": "Club e squadre sportive",
+      "events": "Eventi e festival",
+      "food": "Cibo e bevande",
+      "nonprofit": "Non profit e cause",
+      "education": "Scuole e università",
+      "artists": "Artisti e illustratori"
     },
     "styles": {
       "minimal": "Minimal",

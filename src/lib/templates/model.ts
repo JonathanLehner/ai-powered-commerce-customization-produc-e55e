@@ -14,8 +14,19 @@ import type { SectionType } from "../storefront-schema";
 import type { ProductBlockType } from "../product-template";
 import type { ThemeKey } from "../types";
 
-/** The ten template categories. The first five have templates so far. */
-export const TEMPLATE_CATEGORIES = ["company", "tech", "creators", "music", "sports"] as const;
+/** The ten template categories. */
+export const TEMPLATE_CATEGORIES = [
+  "company",
+  "tech",
+  "creators",
+  "music",
+  "sports",
+  "events",
+  "food",
+  "nonprofit",
+  "education",
+  "artists",
+] as const;
 export type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number];
 
 export const TEMPLATE_STYLES = ["minimal", "bold", "playful", "editorial", "retro", "luxury", "technical", "dark"] as const;
@@ -64,14 +75,31 @@ export interface TemplateArtwork {
   inkDark: string;
   accent: string;
   /** A small mark drawn above the word. */
-  mark: "none" | "circle" | "bracket" | "star" | "bolt" | "crest" | "wave" | "dot" | "slash";
+  mark:
+    | "none"
+    | "circle"
+    | "bracket"
+    | "star"
+    | "bolt"
+    | "crest"
+    | "wave"
+    | "dot"
+    | "slash"
+    | "sun"
+    | "cup"
+    | "leaf"
+    | "heart"
+    | "laurel"
+    | "ticket"
+    | "brush"
+    | "grid";
   uppercase: boolean;
   tracking: number;
 }
 
 /**
  * A section in a template. Image props may hold a token instead of a URL:
- * `@hero`, `@lifestyle`, `@banner` or `@product1` to `@product8`, resolved
+ * `@hero`, `@lifestyle`, `@banner`, `@extra1` to `@extra4` or `@product1` to `@product8`, resolved
  * against the template's generated assets. `endsAt: "@soon"` becomes a date
  * twelve days out.
  */
@@ -106,8 +134,8 @@ export interface TemplateDef {
   productPage: TemplateBlock[];
   products: TemplateProduct[];
   artwork: TemplateArtwork;
-  /** Prompts for the original images generated for the template. */
-  imagery: { hero: string; lifestyle: string; banner: string };
+  /** Prompts for the original images generated for the template, plus up to four extra photographs. */
+  imagery: { hero: string; lifestyle: string; banner: string; extra?: string[] };
 }
 
 /** What the asset script generated for a template: images, product shots and previews. */
@@ -115,6 +143,8 @@ export interface TemplateAssets {
   hero: string;
   lifestyle: string;
   banner: string;
+  /** One per `imagery.extra` prompt, in order. */
+  extra?: string[];
   /** One mockup per product, in the order of `TemplateDef.products`. */
   products: string[];
   previews?: { thumbnail: string; desktop: string; mobile: string };

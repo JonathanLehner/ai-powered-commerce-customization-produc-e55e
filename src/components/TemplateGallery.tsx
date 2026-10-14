@@ -49,14 +49,18 @@ export function TemplateGallery({
 
   const pill = (active: boolean) =>
     cn(
-      "inline-flex h-9 items-center rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors",
+      "inline-flex h-9 shrink-0 items-center rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors",
       active ? "border-foreground bg-foreground text-background" : "border-border bg-background text-foreground hover:border-foreground/40",
     );
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="group" aria-label={labels.category} className="flex flex-wrap gap-2">
+        <div
+          role="group"
+          aria-label={labels.category}
+          className="flex w-full gap-2 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0"
+        >
           {[{ key: "all", label: labels.all }, ...categories].map((c) => (
             <button key={c.key} type="button" aria-pressed={category === c.key} onClick={() => setCategory(c.key)} className={pill(category === c.key)}>
               {c.label}

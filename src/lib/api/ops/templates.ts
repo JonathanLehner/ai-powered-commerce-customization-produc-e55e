@@ -67,7 +67,7 @@ export const templateOperations: ApiOperation[] = [
         collection: template.collection,
         sections: template.sections.map((s) => ({ type: s.type, name: SECTION_DEFS[s.type].name })),
         productPage: template.productPage.map((b) => ({ type: b.type, name: PRODUCT_BLOCK_DEFS[b.type].name })),
-        images: { hero: template.assets.hero, lifestyle: template.assets.lifestyle, banner: template.assets.banner },
+        images: { hero: template.assets.hero, lifestyle: template.assets.lifestyle, banner: template.assets.banner, extra: template.assets.extra ?? [] },
         starterProducts: template.products.map((p, i) => ({
           catalogProductId: STARTER_CATALOG[p.starter],
           name: copy[`product:${i}:name`],

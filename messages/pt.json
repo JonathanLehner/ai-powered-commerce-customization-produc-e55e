@@ -5769,7 +5769,7 @@
     "useTemplate": "Usar este modelo",
     "allTemplates": "Todos os modelos",
     "metaTitle": "Modelos de loja",
-    "metaDescription": "Designs completos de lojas de merchandising para empresas, startups, criadores, bandas e clubes desportivos. Pré-visualiza cada um ao vivo e começa a partir dele em minutos.",
+    "metaDescription": "Designs completos de lojas de merchandising para empresas, startups, criadores, bandas, clubes desportivos, eventos, marcas de comida e bebida, organizações sem fins lucrativos, escolas e artistas. Pré-visualiza cada um ao vivo e começa a partir dele em minutos.",
     "title": "Começa a partir de uma loja pronta",
     "lead": "{count} designs completos de loja com layouts, imagens, texto de exemplo e produtos sugeridos. Pré-visualiza qualquer um deles ao vivo, depois torna-o teu.",
     "all": "Todos",
@@ -5784,7 +5784,12 @@
       "tech": "Tecnologia e startups",
       "creators": "Criadores e podcasters",
       "music": "Bandas e músicos",
-      "sports": "Clubes e equipas desportivas"
+      "sports": "Clubes e equipas desportivas",
+      "events": "Eventos e festivais",
+      "food": "Comida e bebida",
+      "nonprofit": "Organizações sem fins lucrativos",
+      "education": "Escolas e universidades",
+      "artists": "Artistas e ilustradores"
     },
     "styles": {
       "minimal": "Minimalista",

@@ -5769,7 +5769,7 @@
     "useTemplate": "Use this template",
     "allTemplates": "All templates",
     "metaTitle": "Store templates",
-    "metaDescription": "Complete merch store designs for companies, startups, creators, bands and sports clubs. Preview each one live and start from it in minutes.",
+    "metaDescription": "Complete merch store designs for companies, startups, creators, bands, sports clubs, events, food and drink brands, nonprofits, schools and artists. Preview each one live and start from it in minutes.",
     "title": "Start from a finished store",
     "lead": "{count} complete store designs with layouts, imagery, sample copy and suggested products. Preview any of them live, then make it yours.",
     "all": "All",
@@ -5784,7 +5784,12 @@
       "tech": "Tech and startups",
       "creators": "Creators and podcasters",
       "music": "Bands and musicians",
-      "sports": "Sports clubs and teams"
+      "sports": "Sports clubs and teams",
+      "events": "Events and festivals",
+      "food": "Food and drink",
+      "nonprofit": "Nonprofits and causes",
+      "education": "Schools and universities",
+      "artists": "Artists and illustrators"
     },
     "styles": {
       "minimal": "Minimal",

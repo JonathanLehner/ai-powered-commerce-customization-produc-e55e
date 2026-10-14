@@ -1,7 +1,7 @@
 /**
  * Builds every store template's original assets, once, at build time:
  *
- * - hero, lifestyle and banner photographs from the image model, prompted for
+ * - hero, lifestyle, banner and extra photographs from the image model, prompted for
  *   the template's fictional brand with no text or logos in frame;
  * - product shots: the template's artwork, drawn in Chrome in the template's
  *   own typeface, composited onto the shared catalog's mockup photographs;
@@ -118,6 +118,14 @@ const MARKS = {
   crest: (c) => `<svg width="90" height="104" viewBox="0 0 90 104"><path d="M45 4 L84 16 L84 52 C84 76 66 92 45 100 C24 92 6 76 6 52 L6 16 Z" fill="none" stroke="${c}" stroke-width="7"/><path d="M45 28 L54 46 L74 48 L58 60 L63 80 L45 69 L27 80 L32 60 L16 48 L36 46 Z" fill="${c}"/></svg>`,
   wave: (c) => `<svg width="140" height="60" viewBox="0 0 140 60"><path d="M4 50 L40 12 L62 34 L82 18 L136 50" fill="none" stroke="${c}" stroke-width="9" stroke-linejoin="round"/></svg>`,
   slash: (c) => `<svg width="80" height="80" viewBox="0 0 80 80"><path d="M10 74 L70 6" stroke="${c}" stroke-width="14"/></svg>`,
+  sun: (c) => `<svg width="130" height="70" viewBox="0 0 130 70"><path d="M20 66 A45 45 0 0 1 110 66 Z" fill="${c}"/>${[0, 1, 2, 3, 4, 5, 6].map((i) => { const a = Math.PI * (i / 6); return `<line x1="${65 - Math.cos(a) * 52}" y1="${66 - Math.sin(a) * 52}" x2="${65 - Math.cos(a) * 62}" y2="${66 - Math.sin(a) * 62}" stroke="${c}" stroke-width="5"/>`; }).join("")}</svg>`,
+  cup: (c) => `<svg width="90" height="90" viewBox="0 0 90 90"><path d="M14 30 H66 V54 C66 70 54 80 40 80 C26 80 14 70 14 54 Z" fill="${c}"/><path d="M66 38 C80 38 80 60 64 60" fill="none" stroke="${c}" stroke-width="7"/><path d="M30 6 C24 14 36 16 30 24 M46 6 C40 14 52 16 46 24" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"/></svg>`,
+  leaf: (c) => `<svg width="80" height="90" viewBox="0 0 80 90"><path d="M40 86 C40 60 40 40 40 30 M40 50 C14 46 6 24 10 6 C34 8 46 26 40 50 Z M40 50 C66 46 74 24 70 6 C46 8 34 26 40 50 Z" fill="${c}" stroke="${c}" stroke-width="5"/></svg>`,
+  heart: (c) => `<svg width="90" height="82" viewBox="0 0 90 82"><path d="M45 78 C18 58 4 44 4 26 C4 13 14 4 26 4 C35 4 41 9 45 16 C49 9 55 4 64 4 C76 4 86 13 86 26 C86 44 72 58 45 78 Z" fill="${c}"/></svg>`,
+  laurel: (c) => `<svg width="130" height="80" viewBox="0 0 130 80">${[0, 1, 2, 3, 4].map((i) => `<ellipse cx="${30 - i * 3}" cy="${12 + i * 13}" rx="11" ry="5" transform="rotate(${-40 + i * 12} ${30 - i * 3} ${12 + i * 13})" fill="${c}"/><ellipse cx="${100 + i * 3}" cy="${12 + i * 13}" rx="11" ry="5" transform="rotate(${40 - i * 12} ${100 + i * 3} ${12 + i * 13})" fill="${c}"/>`).join("")}<circle cx="65" cy="40" r="10" fill="${c}"/></svg>`,
+  ticket: (c) => `<svg width="130" height="66" viewBox="0 0 130 66"><path d="M4 4 H126 V22 A11 11 0 0 0 126 44 V62 H4 V44 A11 11 0 0 0 4 22 Z" fill="none" stroke="${c}" stroke-width="6"/><path d="M90 10 V56" stroke="${c}" stroke-width="4" stroke-dasharray="6 5"/><path d="M48 18 L52 28 L63 29 L55 36 L57 47 L48 41 L39 47 L41 36 L33 29 L44 28 Z" fill="${c}"/></svg>`,
+  brush: (c) => `<svg width="130" height="60" viewBox="0 0 130 60"><path d="M6 44 C30 10 54 50 78 22 C92 6 110 14 124 8" fill="none" stroke="${c}" stroke-width="12" stroke-linecap="round"/></svg>`,
+  grid: (c) => `<svg width="80" height="80" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="${c}" stroke-width="5"/><path d="M4 28 H76 M4 52 H76 M28 4 V76 M52 4 V76" stroke="${c}" stroke-width="3"/><rect x="28" y="28" width="24" height="24" fill="${c}"/></svg>`,
 };
 
 function artworkHtml(art, ink, accent) {
@@ -191,16 +199,21 @@ const save = () =>
 const templates = TEMPLATE_DEFS.filter((t) => !only || only.includes(t.id));
 
 // 1. Photographs, three at a time.
-const jobs = templates.flatMap((t) => ["hero", "lifestyle", "banner"].map((kind) => ({ t, kind })));
-const queue = jobs.filter(({ t, kind }) => !assets[t.id]?.[kind]);
+const jobs = templates.flatMap((t) => [
+  ...["hero", "lifestyle", "banner"].map((kind) => ({ t, kind, prompt: t.imagery[kind] })),
+  ...(t.imagery.extra ?? []).map((prompt, i) => ({ t, kind: "extra", i, prompt })),
+]);
+const queue = jobs.filter(({ t, kind, i }) => (kind === "extra" ? !assets[t.id]?.extra?.[i] : !assets[t.id]?.[kind]));
 console.log(`${queue.length} photographs to generate`);
 await Promise.all(
   Array.from({ length: 3 }, async () => {
     while (queue.length) {
-      const { t, kind } = queue.shift();
-      const url = await generateImage(t.imagery[kind]);
-      assets[t.id] = { hero: "", lifestyle: "", banner: "", products: [], ...(assets[t.id] ?? {}), [kind]: url };
-      console.log(`ok  ${t.id} ${kind} ${url}`);
+      const { t, kind, i, prompt } = queue.shift();
+      const url = await generateImage(prompt);
+      assets[t.id] = { hero: "", lifestyle: "", banner: "", products: [], ...(assets[t.id] ?? {}) };
+      if (kind === "extra") (assets[t.id].extra ??= [])[i] = url;
+      else assets[t.id][kind] = url;
+      console.log(`ok  ${t.id} ${kind}${kind === "extra" ? i + 1 : ""} ${url}`);
       await save();
     }
   }),
@@ -239,7 +252,7 @@ await browser.close();
 // 3. Responsive widths.
 for (const t of templates) {
   const entry = assets[t.id];
-  for (const url of [entry.hero, entry.lifestyle, entry.banner, ...entry.products].filter(Boolean)) {
+  for (const url of [entry.hero, entry.lifestyle, entry.banner, ...(entry.extra ?? []), ...entry.products].filter(Boolean)) {
     await buildVariants(url, variants);
   }
   console.log(`ok  ${t.id} variants`);

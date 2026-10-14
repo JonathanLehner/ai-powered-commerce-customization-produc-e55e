@@ -15,6 +15,11 @@ import { CREATOR_TEMPLATES } from "./data/creators";
 import { MUSIC_TEMPLATES } from "./data/music";
 import { SPORTS_TEMPLATES } from "./data/sports";
 import { TECH_TEMPLATES } from "./data/tech";
+import { EVENT_TEMPLATES } from "./data/events";
+import { FOOD_TEMPLATES } from "./data/food";
+import { NONPROFIT_TEMPLATES } from "./data/nonprofit";
+import { EDUCATION_TEMPLATES } from "./data/education";
+import { ARTIST_TEMPLATES } from "./data/artists";
 import {
   TEMPLATE_CATEGORIES,
   TEMPLATE_STYLES,
@@ -38,6 +43,11 @@ export const TEMPLATE_DEFS: TemplateDef[] = [
   ...CREATOR_TEMPLATES,
   ...MUSIC_TEMPLATES,
   ...SPORTS_TEMPLATES,
+  ...EVENT_TEMPLATES,
+  ...FOOD_TEMPLATES,
+  ...NONPROFIT_TEMPLATES,
+  ...EDUCATION_TEMPLATES,
+  ...ARTIST_TEMPLATES,
 ];
 
 export const TEMPLATES: StoreTemplate[] = TEMPLATE_DEFS.map((def) => ({ ...def, assets: assets[def.id] ?? EMPTY_ASSETS }));
