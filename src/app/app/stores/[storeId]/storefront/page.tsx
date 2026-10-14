@@ -9,7 +9,8 @@ import { formatMinorUnits } from "@/i18n/format";
 import { isLocale, LOCALES } from "@/i18n/locales";
 import { shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { requireStoreAccess } from "@/lib/session";
+import { isUnpublishedStarter } from "@/lib/operations/templates";
+import { requireStoreAccess, roleCan } from "@/lib/session";
 import { flattenShopText, shopTextEntries } from "@/lib/shop-text";
 import { storefrontContext } from "@/lib/storefront-context";
 import { generatedHomeSections } from "@/lib/storefront-defaults";
@@ -20,6 +21,7 @@ import { galleryTemplates } from "@/lib/templates/gallery";
 import { draftDesign, treeTemplateId } from "@/lib/templates/tree";
 import { productFields } from "@/lib/translations";
 import type { ShopTextData } from "./ShopTextSheet";
+import { PublishStartersButton } from "./PublishStartersButton";
 import { StorefrontEditor } from "./StorefrontEditor";
 import { TemplatePicker } from "./TemplatePicker";
 
@@ -31,7 +33,7 @@ export default async function StorefrontEditorPage({
   searchParams: Promise<{ lang?: string }>;
 }) {
   const [{ storeId }, { lang }] = await Promise.all([params, searchParams]);
-  const { store } = await requireStoreAccess(storeId, "store.storefront");
+  const { store, role } = await requireStoreAccess(storeId, "store.storefront");
   const [storefront, products, catalogues, collections] = await Promise.all([
     getStorefront(storeId),
     listStoreProducts(storeId),
@@ -40,6 +42,10 @@ export default async function StorefrontEditorPage({
   ]);
 
   const published = products.filter((p) => p.status === "published");
+  const starters = products.filter(isUnpublishedStarter);
+  // Until something is on sale, the preview shows the drafts that have photos,
+  // so a store started from a template looks like the template's demo.
+  const shown = published.length > 0 ? published : products.filter((p) => p.status !== "archived" && p.mockups.length > 0);
   // The preview reads the same messages, Shop text and formatting the live
   // storefront does, once per enabled language, so switching language in the
   // editor redraws the page without a round trip.
@@ -54,7 +60,7 @@ export default async function StorefrontEditorPage({
       ]);
       const context: StorefrontContext = storefrontContext({
         store,
-        products: published,
+        products: shown,
         collections,
         locale,
         defaultLocale,
@@ -142,7 +148,12 @@ export default async function StorefrontEditorPage({
         }
       />
 
-      {published.length === 0 ? (
+      {starters.length > 0 ? (
+        <Callout tone="amber" title={t("starters.title", { count: starters.length })}>
+          {published.length === 0 ? t("starters.bodyPreview") : t("starters.body")}
+          {roleCan(role, "store.catalog") ? <PublishStartersButton storeId={storeId} /> : null}
+        </Callout>
+      ) : published.length === 0 ? (
         <Callout tone="amber" title={t("noProductsTitle")}>
           {t("noProductsBody")}
         </Callout>

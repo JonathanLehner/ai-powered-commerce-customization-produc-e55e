@@ -147,7 +147,16 @@ export interface TemplateAssets {
   extra?: string[];
   /** One mockup per product, in the order of `TemplateDef.products`. */
   products: string[];
+  /** The artwork as a print-resolution PNG, per ink: on light blanks and on black and navy ones. */
+  artwork?: Partial<Record<"light" | "dark", TemplatePrintFile>>;
   previews?: { thumbnail: string; desktop: string; mobile: string };
+}
+
+export interface TemplatePrintFile {
+  url: string;
+  width: number;
+  height: number;
+  bytes: number;
 }
 
 /** The template as the gallery, the API and the editor read it. */

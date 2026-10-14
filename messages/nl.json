@@ -3772,6 +3772,17 @@
       "related": "Gerelateerde producten",
       "recentlyViewed": "Recent bekeken",
       "sampleDescription": "De productbeschrijving verschijnt hier."
+    },
+    "starters": {
+      "title": "{count, plural, one {# startproduct is een concept} other {# startproducten zijn concepten}}",
+      "bodyPreview": "De preview toont ze al. Publiceer ze om ze te verkopen.",
+      "body": "Publiceer ze om ze te verkopen.",
+      "publish": "Startproducten publiceren",
+      "publishing": "Publiceren…",
+      "published": "{count, plural, one {# product gepubliceerd.} other {# producten gepubliceerd.}}",
+      "notPublished": "Sommige producten zijn niet gepubliceerd:",
+      "review": "Bekijken in catalogus",
+      "failed": "De producten konden niet worden gepubliceerd. Probeer het opnieuw."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Teksten in negen talen",
     "sections": "Startpaginasecties",
     "starterTitle": "Voorgestelde producten",
-    "starterLead": "Toegevoegd aan je catalogus als concepten wanneer je met dit sjabloon begint. Voeg je artwork toe en publiceer daarna.",
+    "starterLead": "Met foto’s en prijzen aan je catalogus toegevoegd wanneer je met dit sjabloon begint, klaar om te publiceren.",
     "moreIn": "Meer in {category}",
     "previewExpired": "Deze voorbeeldlink is verlopen",
     "previewExpiredBody": "Open het sjabloon opnieuw vanuit de shopeditor om een nieuwe link te krijgen.",

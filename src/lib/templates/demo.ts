@@ -5,6 +5,7 @@
  */
 import type { StorefrontCollection, StorefrontProductCard } from "@/components/storefront/kit";
 import type { Locale } from "@/i18n/locales";
+import { convert } from "../pricing";
 import { slugify } from "../util";
 import { templateCopy } from "./index";
 import type { BlankColour, StoreTemplate } from "./model";
@@ -52,11 +53,50 @@ export interface DemoProduct {
   images: string[];
 }
 
+/** Minor units in USD as whole units of the language's demo currency. */
+function demoMajor(minor: number, locale: Locale): number {
+  const { code, rate, step } = CURRENCY[locale];
+  return code === "JPY" ? Math.round((minor * rate) / step) * step : Math.round((minor / 100) * rate);
+}
+
 /** Minor units in USD as a price in the language's demo currency. */
 export function demoPrice(minor: number, locale: Locale): string {
-  const { code, rate, step } = CURRENCY[locale];
-  const major = code === "JPY" ? Math.round((minor * rate) / step) * step : Math.round((minor / 100) * rate);
-  return new Intl.NumberFormat(locale, { style: "currency", currency: code, maximumFractionDigits: 0 }).format(major);
+  return new Intl.NumberFormat(locale, { style: "currency", currency: CURRENCY[locale].code, maximumFractionDigits: 0 }).format(
+    demoMajor(minor, locale),
+  );
+}
+
+/**
+ * A demo price as a store price in `currency`, minor units: the demo's own
+ * figure when the store sells in the currency the demo shows for its
+ * language, else converted and rounded to a whole unit.
+ */
+export function starterPrice(minor: number, currency: string, locale: Locale): number {
+  const code = currency.toUpperCase();
+  const decimals = code === "JPY" ? 0 : 2;
+  if (CURRENCY[locale].code === code) return demoMajor(minor, locale) * 10 ** decimals;
+  const converted = convert(minor, "USD", code);
+  const step = code === "JPY" ? 100 : 10 ** decimals;
+  return Math.max(step, Math.round(converted / step) * step);
+}
+
+/** Black and navy blanks carry the light-ink artwork. */
+export function isDarkBlank(colour: BlankColour): boolean {
+  return colour === "Black" || colour === "Navy";
+}
+
+/**
+ * Which of the blank's two views the template's product shot shows: the
+ * second product on the same blank and colour is photographed from the back,
+ * so no two cards look alike.
+ */
+export function starterView(template: StoreTemplate, index: number): 0 | 1 {
+  const family = (key: string) => (key === "organicTee" ? "tee" : key === "ecoHoodie" ? "hoodie" : key);
+  const item = template.products[index];
+  const before = template.products
+    .slice(0, index)
+    .filter((p) => family(p.starter) === family(item.starter) && p.colour === item.colour).length;
+  return before === 0 ? 0 : 1;
 }
 
 /**

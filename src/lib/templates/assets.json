@@ -14,6 +14,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c63bda9282ad640da797727e68479221.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d379167c6326a1e564c6291a52c0bea2.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/64d4e893eb83b261fad6ecaecfda288e.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6dd0eab715d844ba829ce0f30272a2ed.png",
+        "width": 3416,
+        "height": 1104,
+        "bytes": 62269
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f0dd24e066d6b4079f4a13ab366fd7fe.png",
+        "width": 3416,
+        "height": 1104,
+        "bytes": 78948
+      }
     }
   },
   "field-day": {
@@ -32,6 +46,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/48dd9e4b29536c1029d918cc517f7461.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/25a3fad54f0aa9d30d0d86123843cedd.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b809366b23fa31a5ef521e23d361a759.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8c4d2b395cf15d619b009f79e978425c.png",
+        "width": 3184,
+        "height": 1516,
+        "bytes": 120192
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b1045fd966e9a9327768da9a312311f3.png",
+        "width": 3184,
+        "height": 1516,
+        "bytes": 114083
+      }
     }
   },
   "ledger": {
@@ -48,6 +76,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/efc7cf3582e5fee60fed826d31e240de.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fa5b6b8d24965099684ffeac75854fcd.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e608aa2115d5a067f260c707453b4d82.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5dec17cde6cc8ba1775135fab7585f29.png",
+        "width": 4052,
+        "height": 1576,
+        "bytes": 161147
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b679a8c9b44c80a1e84fff9a42450056.png",
+        "width": 4052,
+        "height": 1576,
+        "bytes": 161454
+      }
     }
   },
   "basecamp": {
@@ -65,6 +107,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/528a242694f00e4875b1b30927475804.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/55962e29c6e657ade89383b01dbabf41.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e6997dbef4295dbcc259905b5c35b9c9.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/53fff819ad070fc02c07a19e1c292fff.png",
+        "width": 3036,
+        "height": 1448,
+        "bytes": 75610
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/82731a4a4af823fa97d13e5228e08260.png",
+        "width": 3036,
+        "height": 1448,
+        "bytes": 75229
+      }
     }
   },
   "gridline": {
@@ -83,6 +139,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b71c11134dd873584bb36b7b927fce2f.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/18bb63dd012dd4fb177e3c29d58f0dff.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/35492e2e03b180c6ddb4eeb006975379.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8fad890834cf881aa813c9d321a4a7ff.png",
+        "width": 2788,
+        "height": 1488,
+        "bytes": 83212
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/78e0a5de5ce514d21c4c9ebc2797494a.png",
+        "width": 2788,
+        "height": 1488,
+        "bytes": 74753
+      }
     }
   },
   "terminal": {
@@ -101,6 +171,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2212b8654506f598ff891d5c6bf071c7.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7205fcc20bdbceabc19562624419e519.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/856ed1fd8d5d30294807fc0f0ecfc011.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1e99e9658542d6019fe34eb309043c18.png",
+        "width": 3196,
+        "height": 1492,
+        "bytes": 95051
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7f4678585bf0dd9aab4917fa5d58c07f.png",
+        "width": 3196,
+        "height": 1492,
+        "bytes": 93251
+      }
     }
   },
   "launchpad": {
@@ -118,6 +202,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d8421e97be1a7a6e2e81c0cda48a8cf6.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4c0915d4cfec2ba531b8ce7c53dd3aa4.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1a81b2809d95d423d063dde4ec14a9eb.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/cfaecdca99528e290868e38bd92030bf.png",
+        "width": 4564,
+        "height": 1520,
+        "bytes": 108306
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1dbda30c0ece88bdc2bc46dd8196787a.png",
+        "width": 4564,
+        "height": 1520,
+        "bytes": 109637
+      }
     }
   },
   "stack": {
@@ -134,6 +232,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/88057de848efac09eac8b251a9d27e4e.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1fb44b3e7f747ab552ef4ec721387e7e.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/74ca40557345fa94603c86921fbccea8.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/78c2694e4ecabb678c5810c8a93cbba6.png",
+        "width": 2820,
+        "height": 792,
+        "bytes": 57862
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3e6a7eec92f45a7a022e174bd4cb8ce2.png",
+        "width": 2820,
+        "height": 792,
+        "bytes": 52994
+      }
     }
   },
   "pixel": {
@@ -152,6 +264,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c6bb4689f2150ab4e2ca9c22ca13372c.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c8016d5be77b6c638246dae7a31aa9cf.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/654177e4ac92ba46e55d7f0f4f65b75b.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e8c66ff93c1a89f03bb7f8de382c31f4.png",
+        "width": 3260,
+        "height": 1572,
+        "bytes": 88747
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8b57c7ba42d569889b9ab3892cb95e3a.png",
+        "width": 3260,
+        "height": 1572,
+        "bytes": 88220
+      }
     }
   },
   "keynote": {
@@ -169,6 +295,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4beda1c65a0d276756ad7a346f821ff8.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7c728c90118671743740b5c6cfc1b1c9.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a6108600712ac3958127198ccf9093bf.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/89072537d33365fe4d97d7089042cb04.png",
+        "width": 5980,
+        "height": 1480,
+        "bytes": 139555
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fb51925e36d088a881c1970b6caa3ba3.png",
+        "width": 5980,
+        "height": 1480,
+        "bytes": 131183
+      }
     }
   },
   "drop-studio": {
@@ -187,6 +327,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e51e6c358e885d34de465ae1d039f67c.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3c301e487b49136fa14f52e795949663.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7c4e759f339d4b5864f9f030794c480a.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2938db7a98d8747a785c4e2ff80262f4.png",
+        "width": 2480,
+        "height": 1556,
+        "bytes": 65535
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/78e14ba9019a36cb25c44be1facdbcc9.png",
+        "width": 2480,
+        "height": 1556,
+        "bytes": 65750
+      }
     }
   },
   "airwaves": {
@@ -204,6 +358,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5c995cddf59832d10fcb34f7c7ea91c5.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/79562f98890fbfa2206913bcb5ac8d59.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/63ec7bf6a14fdd2e273e59f31d6a8f04.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/de50274cc1162481bd87e75f39f27655.png",
+        "width": 5020,
+        "height": 1404,
+        "bytes": 157034
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/edd37b87e42e3a0c27efee4eae0d0166.png",
+        "width": 5020,
+        "height": 1404,
+        "bytes": 155870
+      }
     }
   },
   "inner-circle": {
@@ -220,6 +388,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e3c36bad7669e8ed143c14f41da5491c.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/76ae9861559c5b214b0ee1ffb3de1aae.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2bcbae7e94c38a06ab445a0aa7e1accf.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6c745c1c1d1989484a5bab907be4de34.png",
+        "width": 3400,
+        "height": 1576,
+        "bytes": 151574
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1df75975e16f78b95cc71fe0139a65dd.png",
+        "width": 3400,
+        "height": 1576,
+        "bytes": 150730
+      }
     }
   },
   "sticker-club": {
@@ -238,6 +420,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/72f75a9c5f8e1d406e888e406e88ec8e.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5130a6c60656a1006d55fefe2f330845.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/47e306fdc46de642d457662d1e1b0ff1.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/bb9436e3385782891c7422ee2bfcafe7.png",
+        "width": 3132,
+        "height": 1516,
+        "bytes": 124392
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/cb4118d78d879726f7aa645b41e3254f.png",
+        "width": 3132,
+        "height": 1516,
+        "bytes": 117790
+      }
     }
   },
   "notebook": {
@@ -254,6 +450,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/aaff6a1bece939f61cf36fd35f7603e2.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b7dc51b10dd47dc80e94b622697adeee.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/542048ef794e589de8eb08acfad88f14.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0cd7572e29a4cf867e08561d8102ed28.png",
+        "width": 1920,
+        "height": 1104,
+        "bytes": 96261
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7ce239991952c821ac591d71e7297404.png",
+        "width": 1920,
+        "height": 1104,
+        "bytes": 98371
+      }
     }
   },
   "headliner": {
@@ -272,6 +482,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e2d837143e381afe1367249de1e3687a.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/709e35290841807ef296fbb2f7b15eb3.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/cd568c00fa3e5c71bf6db7ed410daa21.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c8650af397c103b66973fa8086504b1a.png",
+        "width": 3640,
+        "height": 1612,
+        "bytes": 108923
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a3471256fddc3306f955b4a2da63f785.png",
+        "width": 3640,
+        "height": 1612,
+        "bytes": 99105
+      }
     }
   },
   "era": {
@@ -289,6 +513,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/127d73cfa3bc6cbd139cc21472e41e99.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5893f01904f582e5c63287a06844f9b3.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/eb6133180ff1f6a1015a8bbb427d929c.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/094c54b0853472adb6becbd489a6041c.png",
+        "width": 3548,
+        "height": 1544,
+        "bytes": 154359
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/667d6cf8827ad6f3e801b8211ab767cd.png",
+        "width": 3548,
+        "height": 1544,
+        "bytes": 151977
+      }
     }
   },
   "wax": {
@@ -306,6 +544,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d12b1ead5c45c6877744ded0b0e28b11.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f63da45b4e8ae4b715447c0d91cdf1cb.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/491832f56097a647a6a0bea6ebaa775d.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c23ecd2c566f29431c8331f0c29fb704.png",
+        "width": 4728,
+        "height": 1548,
+        "bytes": 178567
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/39064d8b4667197cfa057339401a3174.png",
+        "width": 4728,
+        "height": 1548,
+        "bytes": 177905
+      }
     }
   },
   "noise": {
@@ -323,6 +575,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/06d77be2bc82f579f1aa59a75f909e8e.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fde8157f90bf85c663d513b0f4e0b6ce.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b14f0ad558cce45a918e119b074aa1ab.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/73c7b4467011e935b0c1e63d48d42cf9.png",
+        "width": 4864,
+        "height": 1184,
+        "bytes": 88663
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4f6f1d930dae7408b5382ea8582a3e5d.png",
+        "width": 4864,
+        "height": 1184,
+        "bytes": 82628
+      }
     }
   },
   "nocturne": {
@@ -339,6 +605,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/dc4f817dd85ff965e0664bdacdac24b1.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c6388d02ee6212dca0436c5105681f49.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/923019b58266893cf4bf19d24df09568.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/46ab858325e7428639d65998c0ac3eea.png",
+        "width": 2764,
+        "height": 1520,
+        "bytes": 129348
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3b1ae96827cf70e05ee7b70795839518.png",
+        "width": 2764,
+        "height": 1520,
+        "bytes": 128975
+      }
     }
   },
   "matchday": {
@@ -358,6 +638,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5444b3835c4f6ede7f3627e024b74f1f.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a66058da51ee5bb9190feca3f53eb445.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ab70a87a899fc5f29fa053d5264dffab.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/806cbd06efdda85e63c68394fa2b5dc1.png",
+        "width": 3232,
+        "height": 1624,
+        "bytes": 109617
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9dff4c94dc5e0163cf6be5e86e0e4c3a.png",
+        "width": 3232,
+        "height": 1624,
+        "bytes": 94170
+      }
     }
   },
   "terrace": {
@@ -375,6 +669,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ca5ef22ccbdac793091799ee1aa8642c.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c4d6c07e20e6d5636dfa8cc772a15739.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9a82ea1d5e2046e6e50db362a0bbbbaa.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/192e19cf0c8e4c76d52e0917925ea641.png",
+        "width": 2656,
+        "height": 1572,
+        "bytes": 92283
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/26be4c51a5f941fe9ff44ec9bf1f14e0.png",
+        "width": 2656,
+        "height": 1572,
+        "bytes": 92268
+      }
     }
   },
   "academy": {
@@ -392,6 +700,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0f1cbfbe343604626a3828d1630b4d1b.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9cc890faa259b741c011fb7979cadae4.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/60454f1a87995f9275601b6bf942d2d0.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f0f493f01b37056f9df138562f584de8.png",
+        "width": 2836,
+        "height": 1528,
+        "bytes": 103331
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1629cefc9b6f92cd9c4a6df488b2c7e4.png",
+        "width": 2836,
+        "height": 1528,
+        "bytes": 95680
+      }
     }
   },
   "clubhouse": {
@@ -408,6 +730,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/728f36e026db5ae451d9ea6a9c2f2026.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/be3ca4abd676e9dc882a381bd38c84d2.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1451e328a9938bc57c10018150046405.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a0656c0347a68ebfbef1a2e2a2a74fc2.png",
+        "width": 3212,
+        "height": 1604,
+        "bytes": 156912
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b7308cd39041537e2bb7d370b2524b8d.png",
+        "width": 3212,
+        "height": 1604,
+        "bytes": 159337
+      }
     }
   },
   "pace": {
@@ -426,6 +762,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/94da9bc2a010b50c44aa8a5496f012f5.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c843e47c645db142d4c1abb91685598c.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5644ad87deb256e2bd95a8131633a522.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/92b51839c66673a476148479e6eefbe1.png",
+        "width": 4084,
+        "height": 1488,
+        "bytes": 92398
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5052c3a361fa8ec45f57ab78ee94b72c.png",
+        "width": 4084,
+        "height": 1488,
+        "bytes": 82431
+      }
     }
   },
   "lineup": {
@@ -449,6 +799,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/de32d3a4aedac6f5fe417663b53794d5.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5ea18a6d79334cce1757846631ab609b.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/753ad4d0afc77fee58119f2aba77b98d.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f3f3ce5d19821816bbe2a4156020ae30.png",
+        "width": 2992,
+        "height": 1492,
+        "bytes": 104080
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/58dd884f2b2d0f50e6d29caf0bd3dd59.png",
+        "width": 2992,
+        "height": 1492,
+        "bytes": 88312
+      }
     }
   },
   "summit": {
@@ -472,6 +836,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/73560b544e6c9d2d0707365ee8830012.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2e4e8f3605f5702da82632a5bbe31640.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/56918079d7392a1dec51d03a42a112a1.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b3ae6caf691c1e90877f37d626b4301d.png",
+        "width": 3052,
+        "height": 1488,
+        "bytes": 91331
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5893bc8720c8e67aae237f3ebd54afcc.png",
+        "width": 3052,
+        "height": 1488,
+        "bytes": 93471
+      }
     }
   },
   "premiere": {
@@ -493,6 +871,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c0477fb0a82e190ccafcfd3c73f7441b.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/91c2526bea6458930ef7ea6de74a49b1.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f815b73fd1336db98cc6b7350c9ccab9.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4cbd6ce47e4673d17d9f1e3afc51248d.png",
+        "width": 2572,
+        "height": 1428,
+        "bytes": 120048
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e00a658fdb10a6ca80ef6818cdc83b2c.png",
+        "width": 2572,
+        "height": 1428,
+        "bytes": 120614
+      }
     }
   },
   "kite-day": {
@@ -514,6 +906,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/db40b0928db19b096d8ce9efb02e9488.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e61a76fb76b26b05c96a779ddbe743b1.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9d94dd55d0e799f8df569664e5f5d1ee.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3f838590fdc3009fd7a002a83fe579e1.png",
+        "width": 3160,
+        "height": 1408,
+        "bytes": 94203
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/64894fb50318967ba9d1899353d0a901.png",
+        "width": 3160,
+        "height": 1408,
+        "bytes": 94745
+      }
     }
   },
   "revival": {
@@ -535,6 +941,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b5c846f0b6d00ded609abfabb55661aa.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/92d4640f63daa338ceace991a77e7484.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/bd35be24d5285742803d0fd8cba9dc30.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2007c95d1a773c54cb2e5cac96a7327f.png",
+        "width": 3512,
+        "height": 1528,
+        "bytes": 110286
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/078705df3bc1d16fb0d0870e07e48b0f.png",
+        "width": 3512,
+        "height": 1528,
+        "bytes": 109675
+      }
     }
   },
   "roastery": {
@@ -556,6 +976,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/79fcd63174848c7292072998dcc55153.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/bf86d9535324635bd8ec7b0fffe6fe5b.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ddded1f5f29a2dff875489779420e00a.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/009ec75aa362dcbc7d0f6bc1b9fb9daa.png",
+        "width": 2292,
+        "height": 1528,
+        "bytes": 104246
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0db7b854ea1b60cd081e19b23f9b74aa.png",
+        "width": 2292,
+        "height": 1528,
+        "bytes": 103305
+      }
     }
   },
   "taproom": {
@@ -578,6 +1012,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9f1c1e381c99207228ffa8a09cad3742.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/395683cde4166b3b0853914f0fcf799c.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/72f9b4bb6b56d75f0738ec066320c706.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7e6958925475c990c0ad32143436286f.png",
+        "width": 1884,
+        "height": 1396,
+        "bytes": 50853
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f951fa25557762886c15a1a807f1fddd.png",
+        "width": 1884,
+        "height": 1396,
+        "bytes": 57206
+      }
     }
   },
   "trattoria": {
@@ -599,6 +1047,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/38a03746c9a47291453d356176c599a4.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4f1816a2cc42eca6bf350b7fe0307792.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8179ca4eb42bdf9051586b9e9f973a1d.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/dabb95da6a8c978a8a04c0046486e02e.png",
+        "width": 3456,
+        "height": 1512,
+        "bytes": 135040
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2cfb88324c54ee64b4eb05d892b954b6.png",
+        "width": 3456,
+        "height": 1512,
+        "bytes": 130717
+      }
     }
   },
   "crumb": {
@@ -621,6 +1083,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/307c7832ca89881da30cacde054fc4ac.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/92645ab2ebfd3ec4c28d13c65c062e3c.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/83568bfa6c359aac1226031ea1c6b870.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5f5cc8d080f143280e7bf95a89f57851.png",
+        "width": 3996,
+        "height": 1492,
+        "bytes": 143465
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/dd84ac36422ed79b4badc1f1a2155eff.png",
+        "width": 3996,
+        "height": 1492,
+        "bytes": 135066
+      }
     }
   },
   "kumo": {
@@ -641,6 +1117,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/867ce0812ec2c79e3cb1db0e6d5a736c.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d44214d4c6b16b6cdd868424fe44c0ff.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6511a97b996be82ba20efbcd81b0fc8d.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f6d103eba29fc4255fe69aab43c053cd.png",
+        "width": 1512,
+        "height": 1536,
+        "bytes": 74538
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/35daf7e0160bf83fae518e9b9813fc8b.png",
+        "width": 1512,
+        "height": 1536,
+        "bytes": 74851
+      }
     }
   },
   "tidewater": {
@@ -658,6 +1148,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5e5e351f28ba43fa87d19521e2919cd8.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/89992ad3e30fcbdcef78f608c6c6e776.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/0822ae32fe3ac11ed2f13d0fb4e0043e.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/975fc4a9f90c6ce162c6ba5404c18cb2.png",
+        "width": 3964,
+        "height": 1408,
+        "bytes": 93745
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/13a20004c6a57efd73681ec27f954c32.png",
+        "width": 3964,
+        "height": 1408,
+        "bytes": 86798
+      }
     }
   },
   "open-page": {
@@ -678,6 +1182,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5982f5581dc1d283d0accab50e17f066.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b2a8f8b977100388491cea73c97566ab.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8f13b9d736d4e084caa20740ef882d56.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/accd2282f7db601dcbb87427bc9bb335.png",
+        "width": 3288,
+        "height": 1100,
+        "bytes": 140223
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d749b50d8580f6f5d9fbe9483043f104.png",
+        "width": 3288,
+        "height": 1100,
+        "bytes": 138566
+      }
     }
   },
   "second-paws": {
@@ -700,6 +1218,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/66ba4ba2adb71fbd3277a281cfb01b20.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3c29ec371159cd5d10ff47b86b823148.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/785ae4d0d552e3040709641410ff1404.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6ede6b06a29b7084946f12426bf979d5.png",
+        "width": 4032,
+        "height": 1516,
+        "bytes": 142923
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7e59a8c2cc3a329ee44ae2cafa08e8fd.png",
+        "width": 4032,
+        "height": 1516,
+        "bytes": 135351
+      }
     }
   },
   "canopy": {
@@ -716,6 +1248,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/bc3b82306c5af7408d0599e0b708ef57.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/50d6efd3ec11c92ac4b63e37e574815f.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9de11808857981df427183876b73abbf.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/fa716e7e53266f18f0af15826db35946.png",
+        "width": 3016,
+        "height": 1536,
+        "bytes": 105073
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a8dfcf02b027911e5eff31a89f2d81c3.png",
+        "width": 3016,
+        "height": 1536,
+        "bytes": 103976
+      }
     }
   },
   "trailmark": {
@@ -737,6 +1283,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/75409607c1837e2377ece042b13f322f.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a74751133945c52efc22390037ff248f.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b3614aa624cbb041a235292dd9ca418e.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a12d1eecbb786bf6e9ae2efb5c360134.png",
+        "width": 2896,
+        "height": 1436,
+        "bytes": 90112
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/92cb0561bed40f69dcd273a3167555a1.png",
+        "width": 2896,
+        "height": 1436,
+        "bytes": 89917
+      }
     }
   },
   "quad": {
@@ -759,6 +1319,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/75c30bed75fdd3df25168bb21c824e55.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d58910fa5dc70dfd0de79fcb083c31b1.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/f3db4138158ded40b904c12adc207cf5.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c68912ff89bd60050f619983fdbdf9bd.png",
+        "width": 3076,
+        "height": 1600,
+        "bytes": 145580
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a3541ad53e7924761d7d645a4556e908.png",
+        "width": 3076,
+        "height": 1600,
+        "bytes": 153121
+      }
     }
   },
   "little-oaks": {
@@ -782,6 +1356,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2806b70ca0f30cf9b5adeea43a9f025e.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b5831dce7d9c1fd72765de5482aa3008.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/60b3ee0a4d87f46bb190ca751b00be78.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a7c122abd443ee666804c9e18ad70a34.png",
+        "width": 3268,
+        "height": 1528,
+        "bytes": 106323
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9eb869ba469780aaaa97d6a22cc09805.png",
+        "width": 3268,
+        "height": 1528,
+        "bytes": 96825
+      }
     }
   },
   "varsity": {
@@ -804,6 +1392,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9907830b3adaa3176b5ca58089aff5a0.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/70721f8d9aa84831326cf8424ecb7ad1.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7c7abfc78caa55a595dcd142c3ae7ef5.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/d6b2cf9eca0adcb5063eec3d78026040.png",
+        "width": 2668,
+        "height": 1572,
+        "bytes": 92166
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1d6509fae9a3281c95e469ae3b0fe968.png",
+        "width": 2668,
+        "height": 1572,
+        "bytes": 92463
+      }
     }
   },
   "alumni": {
@@ -823,6 +1425,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7d308e35c435b1c3e9fa4916b89fd89d.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9129ad0e90e397f9da22c70df2cbe967.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8e5ac96e6add2cfa3bbc4803855b2647.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c1e6f05f10fa99c5433245a04d67ef2c.png",
+        "width": 2440,
+        "height": 1116,
+        "bytes": 66325
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/1ad426ab16377c99afbf6cda8acffeb7.png",
+        "width": 2440,
+        "height": 1116,
+        "bytes": 52788
+      }
     }
   },
   "institute": {
@@ -841,6 +1457,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/a253f79d72b73ea16f40a22e5b722cf7.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/dccf38c76e6c4e9edb4f59e73ad34f42.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3754f05afbdb858a3488c9f2fb7880db.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/def3d7c6eb58f8bb068072e39bf74dad.png",
+        "width": 3428,
+        "height": 1488,
+        "bytes": 47377
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9c94f5fc8f002986b945da6e129dc5c7.png",
+        "width": 3428,
+        "height": 1488,
+        "bytes": 47476
+      }
     }
   },
   "riso": {
@@ -864,6 +1494,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/268a0a3b7245afac7a4e9192a8036a6e.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/54c605fd17a0f7b83a5b5e008e46b86d.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ced3027af7683296096dae0db61985ae.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/eb8b59137d3615677dd45b7f867b5849.png",
+        "width": 2584,
+        "height": 1516,
+        "bytes": 90071
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/ef6db03715545cd44e5720ca229f5218.png",
+        "width": 2584,
+        "height": 1516,
+        "bytes": 86356
+      }
     }
   },
   "flash": {
@@ -886,6 +1530,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/e7a68ce35a7a6e21f8cbd58e3a991922.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/767e98ad6681a3165461c9c7a0341ffd.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/4e0364bc40b2629a36af839c260ee752.webp"
+    },
+    "artwork": {
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/8e5c897170122f1c07e5fff29b5d5224.png",
+        "width": 4228,
+        "height": 1544,
+        "bytes": 148120
+      },
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/9372559f394dd729dff7fedf716eda16.png",
+        "width": 4228,
+        "height": 1544,
+        "bytes": 142543
+      }
     }
   },
   "salon": {
@@ -907,6 +1565,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/3ec2fc3fbe2e0a9d2966a54e599250cd.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6c76074a9f743e28ffed30460f05b1f5.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c902300df7400cb427d4dcb39ad7e44b.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/adb8d36a79d888b87dd3b63f49c595fc.png",
+        "width": 2256,
+        "height": 1400,
+        "bytes": 103149
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/552a2465da62daaf1156cddc0b099365.png",
+        "width": 2256,
+        "height": 1400,
+        "bytes": 101563
+      }
     }
   },
   "comic": {
@@ -930,6 +1602,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/5b741fa8cf643c5307b10bd03403c1d8.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/31934157801b076d06f0ddf1b2c2b168.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b60578fa06f5bf434ab7eae980595907.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/61d2c5cdaab835b5001fd8ac81da2f23.png",
+        "width": 3592,
+        "height": 1536,
+        "bytes": 108674
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/c80ebd52af71d7498a0c4098ad4343c0.png",
+        "width": 3592,
+        "height": 1536,
+        "bytes": 104473
+      }
     }
   },
   "linework": {
@@ -951,6 +1637,20 @@
       "thumbnail": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/b3ddc7dc8207cca37ab75aea22bb4307.webp",
       "desktop": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/943c93c6b58906f4005f88db5be51b66.webp",
       "mobile": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/2d85e27ae8997a412f9271e3b5c347fa.webp"
+    },
+    "artwork": {
+      "light": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/645209758595721957d56f18443faf8d.png",
+        "width": 5624,
+        "height": 1532,
+        "bytes": 109946
+      },
+      "dark": {
+        "url": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/6b280c0b8c554120b01a6e9e8babc798.png",
+        "width": 5624,
+        "height": 1532,
+        "bytes": 108482
+      }
     }
   }
 }

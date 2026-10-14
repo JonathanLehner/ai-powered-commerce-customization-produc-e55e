@@ -24,7 +24,7 @@ import { LAYOUT_FIELDS } from "../src/lib/storefront-layout.ts";
 import { SECTION_DEFS } from "../src/lib/storefront-schema.ts";
 import { SITE_FIELDS } from "../src/lib/translations.ts";
 import { TEMPLATE_CATEGORIES, TEMPLATE_STYLES, TEMPLATES, templateSourceCopy, templateTranslated } from "../src/lib/templates/index.ts";
-import { demoCollections, demoProducts } from "../src/lib/templates/demo.ts";
+import { demoCollections, demoProducts, isDarkBlank, starterPrice } from "../src/lib/templates/demo.ts";
 import { draftDesign, templateImage, templateTree, treeTemplateId } from "../src/lib/templates/tree.ts";
 import { sectionsFromTree } from "../src/lib/storefront-schema.ts";
 import { productBlocks } from "../src/lib/product-template.ts";
@@ -88,6 +88,13 @@ for (const t of templates) {
   (t.imagery.extra ?? []).forEach((_, i) => !t.assets.extra?.[i] && fail(t.id, `no extra image ${i + 1}`));
   if (t.assets.products.length !== t.products.length || t.assets.products.some((u) => !u)) fail(t.id, "product shots missing");
   if (t.products.length < 4) fail(t.id, "fewer than four starter products");
+  for (const ink of new Set(t.products.map((p) => (isDarkBlank(p.colour) ? "dark" : "light")))) {
+    if (!t.assets.artwork?.[ink]?.url) fail(t.id, `no ${ink} print file for the starter products`);
+  }
+  for (const [i, p] of t.products.entries()) {
+    const usd = starterPrice(p.price, "USD", "en");
+    if (usd !== Math.round(p.price / 100) * 100) fail(t.id, `starter product ${i + 1} is not priced like the demo`);
+  }
 
   // Contrast of the tokens as the designer picked them, before the storefront's automatic nudging.
   const design = resolveDesign({ theme: t.theme, design: t.design });

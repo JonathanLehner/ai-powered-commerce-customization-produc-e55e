@@ -5,6 +5,8 @@
  *   the template's fictional brand with no text or logos in frame;
  * - product shots: the template's artwork, drawn in Chrome in the template's
  *   own typeface, composited onto the shared catalog's mockup photographs;
+ * - print files: the same artwork as a transparent PNG at print resolution, one
+ *   per ink the template's products use, placed on the starter products;
  * - responsive WebP widths of all of them, merged into image-variants.json.
  *
  * Everything is uploaded to the platform asset store and the URLs written to
@@ -247,9 +249,25 @@ for (const t of templates) {
   console.log(`ok  ${t.id} ${products.length} product shots`);
   await save();
 }
+
+// 3. Print files, at four times the CSS size so they print sharp on a full chest or mug wrap.
+const printPage = await browser.newPage({ deviceScaleFactor: 4 });
+for (const t of templates) {
+  const entry = assets[t.id];
+  const inks = [...new Set(t.products.map((p) => (DARK.has(p.colour) ? "dark" : "light")))];
+  if (inks.every((ink) => entry.artwork?.[ink])) continue;
+  entry.artwork ??= {};
+  for (const ink of inks.filter((ink) => !entry.artwork[ink])) {
+    const png = await renderArtwork(printPage, t.artwork, ink === "dark");
+    const { width, height } = await sharp(png).metadata();
+    entry.artwork[ink] = { url: await upload(png, "image/png"), width, height, bytes: png.length };
+  }
+  console.log(`ok  ${t.id} print files ${inks.join(", ")}`);
+  await save();
+}
 await browser.close();
 
-// 3. Responsive widths.
+// 4. Responsive widths.
 for (const t of templates) {
   const entry = assets[t.id];
   for (const url of [entry.hero, entry.lifestyle, entry.banner, ...(entry.extra ?? []), ...entry.products].filter(Boolean)) {

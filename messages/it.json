@@ -3772,6 +3772,17 @@
       "related": "Potrebbe interessarti anche",
       "recentlyViewed": "Visti di recente",
       "sampleDescription": "La descrizione del prodotto appare qui."
+    },
+    "starters": {
+      "title": "{count, plural, one {# prodotto iniziale è una bozza} other {# prodotti iniziali sono bozze}}",
+      "bodyPreview": "L’anteprima li mostra già. Pubblicali per metterli in vendita.",
+      "body": "Pubblicali per metterli in vendita.",
+      "publish": "Pubblica i prodotti iniziali",
+      "publishing": "Pubblicazione…",
+      "published": "{count, plural, one {# prodotto pubblicato.} other {# prodotti pubblicati.}}",
+      "notPublished": "Alcuni prodotti non sono stati pubblicati:",
+      "review": "Controlla nel catalogo",
+      "failed": "Impossibile pubblicare i prodotti. Riprova."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Contenuti in nove lingue",
     "sections": "Sezioni della home page",
     "starterTitle": "Prodotti suggeriti",
-    "starterLead": "Aggiunti al tuo catalogo come bozze quando inizi da questo template. Aggiungi la tua grafica, quindi pubblica.",
+    "starterLead": "Aggiunti al tuo catalogo con foto e prezzi quando inizi da questo template, pronti da pubblicare.",
     "moreIn": "Altro in {category}",
     "previewExpired": "Questo link di anteprima è scaduto",
     "previewExpiredBody": "Apri nuovamente il template dall'editor del negozio per ottenere un nuovo link.",

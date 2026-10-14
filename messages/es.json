@@ -3772,6 +3772,17 @@
       "related": "También te puede interesar",
       "recentlyViewed": "Vistos recientemente",
       "sampleDescription": "La descripción del producto aparece aquí."
+    },
+    "starters": {
+      "title": "{count, plural, one {# producto inicial es un borrador} other {# productos iniciales son borradores}}",
+      "bodyPreview": "La vista previa ya los muestra. Publícalos para ponerlos a la venta.",
+      "body": "Publícalos para ponerlos a la venta.",
+      "publish": "Publicar productos iniciales",
+      "publishing": "Publicando…",
+      "published": "{count, plural, one {# producto publicado.} other {# productos publicados.}}",
+      "notPublished": "Algunos productos no se publicaron:",
+      "review": "Revisar en el catálogo",
+      "failed": "No se pudieron publicar los productos. Inténtalo de nuevo."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Textos en nueve idiomas",
     "sections": "Secciones de página de inicio",
     "starterTitle": "Productos sugeridos",
-    "starterLead": "Se añaden a tu catálogo como borradores cuando empieces con esta plantilla. Añade tu diseño y luego publica.",
+    "starterLead": "Se añaden a tu catálogo con sus fotos y precios cuando empiezas con esta plantilla, listos para publicar.",
     "moreIn": "Más en {category}",
     "previewExpired": "Este enlace de vista previa ha caducado",
     "previewExpiredBody": "Abre la plantilla de nuevo desde el editor de la tienda para obtener un nuevo enlace.",

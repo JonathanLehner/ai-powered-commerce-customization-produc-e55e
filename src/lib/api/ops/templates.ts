@@ -3,7 +3,7 @@ import { z } from "zod";
 import { LOCALES } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { siteOrigin } from "../../email";
-import { applyTemplate, requireTemplate } from "../../operations/templates";
+import { applyTemplate, publishStarterProducts, requireTemplate } from "../../operations/templates";
 import { PRODUCT_BLOCK_DEFS } from "../../product-template";
 import { SECTION_DEFS } from "../../storefront-schema";
 import { templatePreviewLink } from "../../storefront-preview";
@@ -103,12 +103,25 @@ export const templateOperations: ApiOperation[] = [
     tag: "Storefront",
     summary: "Apply a template to the draft",
     description:
-      "Makes the template the storefront draft: its sections, product page, header and footer, collection layout and design, with its copy in the store's languages. Products, orders and settings are not changed, and shoppers see nothing until publishStorefront is called. The draft it replaces is kept in the version history (previousVersionId); restore it with restoreStorefrontVersion. With addStarterProducts, the template's suggested shared-catalog products are added as draft products, once per template.",
+      "Makes the template the storefront draft: its sections, product page, header and footer, collection layout and design, with its copy in the store's languages. Products, orders and settings are not changed, and shoppers see nothing until publishStorefront is called. The draft it replaces is kept in the version history (previousVersionId); restore it with restoreStorefrontVersion. With addStarterProducts, the template's suggested shared-catalog products are added as draft products, once per template, each with the template's artwork, product photo and demo price; publish them with publishStarterProducts.",
     input: z.object({
       templateId,
       addStarterProducts: z.boolean().optional().describe("Also add the template's suggested products as drafts. Off unless set."),
     }),
     run: async (ctx, input) => applyTemplate(ctx, { templateId: input.templateId, addStarterProducts: input.addStarterProducts }),
     actions: ["storefront#applyStoreTemplate"],
+  }),
+  define({
+    id: "publishStarterProducts",
+    method: "POST",
+    path: "/starter-products/publish",
+    scope: "products:write",
+    tag: "Products",
+    summary: "Publish a template's suggested products",
+    description:
+      "Publishes every product a template added that is not on sale yet. Their template product photos are approved, then each is published with the same checks as updateProductStatus; a product that cannot go live is listed in failed with the reason, and nothing is written for it.",
+    input: z.object({}),
+    run: async (ctx) => publishStarterProducts(ctx),
+    actions: ["storefront#publishStarterProducts"],
   }),
 ];

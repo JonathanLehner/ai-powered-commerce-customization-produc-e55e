@@ -3772,6 +3772,17 @@
       "related": "You may also like",
       "recentlyViewed": "Recently viewed",
       "sampleDescription": "The product description appears here."
+    },
+    "starters": {
+      "title": "{count, plural, one {# starter product is a draft} other {# starter products are drafts}}",
+      "bodyPreview": "The preview shows them. Publish them to put them on sale.",
+      "body": "Publish them to put them on sale.",
+      "publish": "Publish starter products",
+      "publishing": "Publishing…",
+      "published": "{count, plural, one {# product published.} other {# products published.}}",
+      "notPublished": "Some products were not published:",
+      "review": "Review in catalog",
+      "failed": "Products could not be published. Try again."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Copy in nine languages",
     "sections": "Home page sections",
     "starterTitle": "Suggested products",
-    "starterLead": "Added to your catalog as drafts when you start from this template. Add your artwork, then publish.",
+    "starterLead": "Added to your catalog with their photos and prices when you start from this template, ready to publish.",
     "moreIn": "More in {category}",
     "previewExpired": "This preview link has expired",
     "previewExpiredBody": "Open the template again from the storefront editor to get a new link.",

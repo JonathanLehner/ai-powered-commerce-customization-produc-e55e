@@ -3772,6 +3772,17 @@
       "related": "こちらもおすすめ",
       "recentlyViewed": "最近見た商品",
       "sampleDescription": "ここに商品説明が表示されます。"
+    },
+    "starters": {
+      "title": "{count, plural, other {#件のスターター商品が下書きです}}",
+      "bodyPreview": "プレビューには表示されています。公開すると販売を開始できます。",
+      "body": "公開すると販売を開始できます。",
+      "publish": "スターター商品を公開",
+      "publishing": "公開しています…",
+      "published": "{count, plural, other {#件の商品を公開しました。}}",
+      "notPublished": "一部の商品は公開されませんでした：",
+      "review": "カタログで確認",
+      "failed": "商品を公開できませんでした。もう一度お試しください。"
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "9言語対応のテキスト",
     "sections": "ホームページセクション",
     "starterTitle": "おすすめ商品",
-    "starterLead": "このテンプレートから始める際に、下書きとしてカタログに追加されます。アートワークを追加して公開してください。",
+    "starterLead": "このテンプレートから始めると、写真と価格付きでカタログに追加され、すぐに公開できます。",
     "moreIn": "{category} のその他",
     "previewExpired": "このプレビューリンクは有効期限が切れました",
     "previewExpiredBody": "ストアフロントエディターからテンプレートを再度開くと、新しいリンクが取得できます。",

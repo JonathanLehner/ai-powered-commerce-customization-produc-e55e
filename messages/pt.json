@@ -3772,6 +3772,17 @@
       "related": "Também poderá gostar",
       "recentlyViewed": "Vistos recentemente",
       "sampleDescription": "A descrição do produto aparece aqui."
+    },
+    "starters": {
+      "title": "{count, plural, one {# produto inicial é um rascunho} other {# produtos iniciais são rascunhos}}",
+      "bodyPreview": "A pré-visualização já os mostra. Publica-os para os pôr à venda.",
+      "body": "Publica-os para os pôr à venda.",
+      "publish": "Publicar produtos iniciais",
+      "publishing": "A publicar…",
+      "published": "{count, plural, one {# produto publicado.} other {# produtos publicados.}}",
+      "notPublished": "Alguns produtos não foram publicados:",
+      "review": "Rever no catálogo",
+      "failed": "Não foi possível publicar os produtos. Tenta novamente."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Texto em nove idiomas",
     "sections": "Secções da página inicial",
     "starterTitle": "Produtos sugeridos",
-    "starterLead": "Adicionados ao teu catálogo como rascunhos quando começas a partir deste modelo. Adiciona a tua arte, depois publica.",
+    "starterLead": "Adicionados ao teu catálogo com fotos e preços quando começas a partir deste modelo, prontos a publicar.",
     "moreIn": "Mais em {category}",
     "previewExpired": "Este link de pré-visualização expirou",
     "previewExpiredBody": "Abre o modelo novamente a partir do editor da loja online para obteres um novo link.",

@@ -3772,6 +3772,17 @@
       "related": "Du kanske också gillar",
       "recentlyViewed": "Nyligen visade",
       "sampleDescription": "Produktbeskrivningen visas här."
+    },
+    "starters": {
+      "title": "{count, plural, one {# startprodukt är ett utkast} other {# startprodukter är utkast}}",
+      "bodyPreview": "Förhandsvisningen visar dem redan. Publicera dem för att börja sälja.",
+      "body": "Publicera dem för att börja sälja.",
+      "publish": "Publicera startprodukter",
+      "publishing": "Publicerar…",
+      "published": "{count, plural, one {# produkt publicerad.} other {# produkter publicerade.}}",
+      "notPublished": "Vissa produkter publicerades inte:",
+      "review": "Granska i katalogen",
+      "failed": "Produkterna kunde inte publiceras. Försök igen."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Texter på nio språk",
     "sections": "Startsidans sektioner",
     "starterTitle": "Föreslagna produkter",
-    "starterLead": "Läggs till i din katalog som utkast när du börjar med denna mall. Lägg till ditt eget material och publicera sedan.",
+    "starterLead": "Läggs till i din katalog med foton och priser när du börjar med denna mall, redo att publiceras.",
     "moreIn": "Mer i {category}",
     "previewExpired": "Denna förhandsgranskningslänk har löpt ut",
     "previewExpiredBody": "Öppna mallen igen från butiksredigeraren för att få en ny länk.",

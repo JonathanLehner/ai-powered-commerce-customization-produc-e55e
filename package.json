@@ -66,6 +66,7 @@
     "search-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/search-check.mjs",
     "accounts-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/accounts-check.mjs",
     "gift-cards-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/gift-cards-check.mjs",
+    "starter-products-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/starter-products-check.mjs",
     "reviews-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/reviews-check.mjs",
     "domains-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/domains-check.mjs",
     "currency-check": "node --env-file-if-exists=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs --import ./scripts/server-only-stub.mjs --import ./scripts/next-stubs.mjs scripts/currency-check.mjs",

@@ -3772,6 +3772,17 @@
       "related": "Das könnte Ihnen auch gefallen",
       "recentlyViewed": "Zuletzt angesehen",
       "sampleDescription": "Die Produktbeschreibung erscheint hier."
+    },
+    "starters": {
+      "title": "{count, plural, one {# Startprodukt ist ein Entwurf} other {# Startprodukte sind Entwürfe}}",
+      "bodyPreview": "Die Vorschau zeigt sie bereits. Veröffentliche sie, um sie zu verkaufen.",
+      "body": "Veröffentliche sie, um sie zu verkaufen.",
+      "publish": "Startprodukte veröffentlichen",
+      "publishing": "Wird veröffentlicht…",
+      "published": "{count, plural, one {# Produkt veröffentlicht.} other {# Produkte veröffentlicht.}}",
+      "notPublished": "Einige Produkte wurden nicht veröffentlicht:",
+      "review": "Im Katalog prüfen",
+      "failed": "Die Produkte konnten nicht veröffentlicht werden. Versuche es erneut."
     }
   },
   "admin": {
@@ -5859,7 +5870,7 @@
     "includedLanguages": "Texte in neun Sprachen",
     "sections": "Startseiten-Abschnitte",
     "starterTitle": "Vorgeschlagene Produkte",
-    "starterLead": "Als Entwürfe zu deinem Katalog hinzugefügt, wenn du mit dieser Vorlage startest. Füge deine Designs hinzu, dann veröffentliche.",
+    "starterLead": "Werden mit Fotos und Preisen zu deinem Katalog hinzugefügt, wenn du mit dieser Vorlage startest, bereit zum Veröffentlichen.",
     "moreIn": "Mehr in {category}",
     "previewExpired": "Dieser Vorschaulink ist abgelaufen",
     "previewExpiredBody": "Öffne die Vorlage erneut aus dem Shop-Editor, um einen neuen Link zu erhalten.",
