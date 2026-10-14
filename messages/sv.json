@@ -978,7 +978,7 @@
       "inventory": "Lager"
     },
     "setupStep": {
-      "branding": "Logotyp och tema",
+      "branding": "Mall och logotyp",
       "languages": "Språk",
       "localisation": "Försäljningsvalutor",
       "support": "Supportkontakter",
@@ -996,6 +996,7 @@
       "bloom": "Varm och vänlig."
     },
     "themeName": "Temat {name}",
+    "templateName": "Mallen {name}",
     "supplierKind": {
       "print_on_demand": "Print on demand",
       "manufacturer": "Tillverkare",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Ange vilken kund butiken gäller.",
       "nameNotAddress": "Namnet kan inte göras om till en webbadress. Använd bokstäver eller siffror.",
       "renamed": "Butiksnamnet har uppdaterats.",
-      "logoAndTheme": "Logotypen har laddats upp och temat har sparats.",
-      "themeSaved": "Temat har sparats.",
+      "logoSaved": "Logotypen har sparats.",
       "currencyRequired": "Välj minst en försäljningsvaluta.",
       "defaultCurrencyRequired": "Standardvalutan måste vara en av de valda försäljningsvalutorna.",
       "localisationSaved": "Valutorna har sparats.",
@@ -1729,7 +1729,7 @@
     "canSell": "Din butik kan redan sälja.",
     "stillToFinish": "Kvar att göra: {steps}.",
     "nextStep": {
-      "branding": "Lägg till logotyp och tema för att ge butiken din profil.",
+      "branding": "Välj en mall eller lägg till en logotyp för att ge butiken din profil.",
       "languages": "Välj vilka språk butiken visas på.",
       "localisation": "Välj vilka valutor kunderna kan betala i.",
       "support": "Lägg till supportkontakter så att kunder kan nå dig.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP eller SVG på upp till {max} MB.",
     "uploading": "Laddar upp…",
     "branding": "Varumärke",
-    "brandingDescription": "Logotyp och tema för butiksfronten.",
-    "saveBranding": "Spara varumärke",
-    "theme": "Tema för butiksfronten",
+    "brandingDescription": "Mall för butiksfronten och logotyp.",
+    "storefrontTemplate": "Mall för butiksfronten",
+    "noTemplate": "Ingen mall används",
+    "changeTemplate": "Ändra mall",
+    "chooseTemplate": "Välj en mall",
+    "saveLogo": "Spara logotyp",
     "localisation": "Försäljningsvalutor",
     "localisationDescription": "Valutorna som kunder kan betala i.",
     "saveLocalisation": "Spara valutor",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Förinställningar",
       "presetsBody": "Börja med en förinställning och anpassa den sedan.",
+      "template": "Mall",
+      "templateBody": "Din design utgår från den här mallen.",
+      "resetTemplate": "Återställ mallens design",
       "colours": "Varumärkesfärger",
       "coloursBody": "Textfärger justeras i butiksfasaden för att förbli läsbara.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Kassera ändringar",
       "liveNote": "En sparad design publiceras direkt.",
       "saveFailed": "Designen kunde inte sparas. Försök igen.",
-      "sampleHeading": "Nya säsongens måsten",
-      "sampleBody": "Tillverkas på beställning och skickas över hela världen.",
-      "samplePrimary": "Handla nu",
-      "sampleSecondary": "Läs mer",
-      "sampleSurface": "Fri frakt på beställningar över 75",
       "draftNote": "Denna design är en del av utkastet. Den blir synlig när du publicerar."
     },
     "productPage": {

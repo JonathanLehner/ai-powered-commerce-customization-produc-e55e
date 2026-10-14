@@ -11,6 +11,7 @@ import {
   getTaxBracket,
   listStoreProducts,
   recordAudit,
+  updateStore,
   updateStorefront,
   updateStoreProduct,
 } from "../data";
@@ -157,6 +158,9 @@ export async function applyTemplate(
     });
   }
 
+  // A template brands the storefront, which completes the branding setup step.
+  if (!store.setup.branding) await updateStore(store.id, { setup: { ...store.setup, branding: true } });
+
   const productsAdded = input.addStarterProducts ? await addStarterProducts(ctx, template) : [];
 
   recordAudit({
@@ -172,6 +176,7 @@ export async function applyTemplate(
     meta: { templateId: template.id, previousVersionId: previous.id, productsAdded: productsAdded.length },
   });
   revalidatePath(`/app/stores/${store.id}/storefront`);
+  revalidatePath(`/app/stores/${store.id}/setup`);
   return { templateId: template.id, sections: template.sections.length, previousVersionId: previous.id, productsAdded };
 }
 

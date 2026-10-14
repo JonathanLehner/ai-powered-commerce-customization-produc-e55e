@@ -16,7 +16,7 @@ import { storefrontContext } from "@/lib/storefront-context";
 import { generatedHomeSections } from "@/lib/storefront-defaults";
 import { treeFromSections } from "@/lib/storefront-schema";
 import { liveVersionId, summarizeSections, versionKind } from "@/lib/storefront-versions";
-import { TEMPLATE_CATEGORIES, TEMPLATE_STYLES, TEMPLATES } from "@/lib/templates/index";
+import { getTemplate, TEMPLATE_CATEGORIES, TEMPLATE_STYLES, TEMPLATES } from "@/lib/templates/index";
 import { galleryTemplates } from "@/lib/templates/gallery";
 import { draftDesign, treeTemplateId } from "@/lib/templates/tree";
 import { productFields } from "@/lib/translations";
@@ -30,9 +30,9 @@ export default async function StorefrontEditorPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; templates?: string }>;
 }) {
-  const [{ storeId }, { lang }] = await Promise.all([params, searchParams]);
+  const [{ storeId }, { lang, templates: openTemplates }] = await Promise.all([params, searchParams]);
   const { store, role } = await requireStoreAccess(storeId, "store.storefront");
   const [storefront, products, catalogues, collections] = await Promise.all([
     getStorefront(storeId),
@@ -117,6 +117,10 @@ export default async function StorefrontEditorPage({
     Promise.all(LOCALES.map((locale) => getTranslations({ locale, namespace: "editor" }).then((e) => e("untitled")))),
   ]);
   const placeholders = new Set(["Untitled version", ...untitled]);
+  const gallery = galleryTemplates(uiLocale);
+  const currentTemplateId = treeTemplateId(tree);
+  const currentTemplate = getTemplate(currentTemplateId ?? "");
+  const currentCard = gallery.find((tpl) => tpl.id === currentTemplateId);
   const history = storefront?.history ?? [];
   return (
     <div className="space-y-6">
@@ -128,13 +132,14 @@ export default async function StorefrontEditorPage({
             <TemplatePicker
               storeId={storeId}
               locale={initialLocale}
-              templates={galleryTemplates(uiLocale)}
+              templates={gallery}
               categories={TEMPLATE_CATEGORIES.filter((c) => TEMPLATES.some((tpl) => tpl.category === c)).map((key) => ({
                 key,
                 label: templateText(`categories.${key}`),
               }))}
               styles={TEMPLATE_STYLES.map((key) => ({ key, label: templateText(`styles.${key}`) }))}
-              currentTemplateId={treeTemplateId(tree)}
+              currentTemplateId={currentTemplateId}
+              defaultOpen={openTemplates === "1"}
             />
             {storefront?.published ? (
               <form action={revertStorefront}>
@@ -207,6 +212,17 @@ export default async function StorefrontEditorPage({
         liveVersionId={liveVersionId(history, storefront?.published)}
         liveSections={storefront?.published ? summarizeSections(storefront.published) : null}
         design={draftDesign(tree) ?? { theme: store.theme, design: store.design ?? {} }}
+        template={
+          currentTemplate && currentCard
+            ? {
+                name: currentCard.name,
+                description: currentCard.description,
+                image: currentCard.image,
+                imageSrcSet: currentCard.imageSrcSet,
+                start: { theme: currentTemplate.theme, design: currentTemplate.design },
+              }
+            : null
+        }
       />
     </div>
   );

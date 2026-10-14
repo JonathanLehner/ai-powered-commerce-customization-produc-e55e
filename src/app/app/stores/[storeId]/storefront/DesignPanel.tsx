@@ -37,8 +37,18 @@ export interface DesignState {
   design: StoreDesign;
 }
 
+/** The template the storefront is built from, and the design it starts with. */
+export interface DesignTemplate {
+  name: string;
+  description: string;
+  image: string;
+  imageSrcSet?: string;
+  start: DesignState;
+}
+
 /**
- * The store's look: a preset to start from, then brand colours, type, corners,
+ * The store's look: its template (or, for a store without one, a preset) to
+ * start from, then brand colours, type, corners,
  * buttons, density, light or dark, and product photo shape. Changes show on
  * the canvas straight away and go live when saved.
  */
@@ -46,6 +56,7 @@ export function DesignPanel({
   storeId,
   value,
   saved,
+  template = null,
   drafted = false,
   onChange,
   onSaved,
@@ -53,6 +64,7 @@ export function DesignPanel({
   storeId: string;
   value: DesignState;
   saved: DesignState;
+  template?: DesignTemplate | null;
   /** The design is part of the draft: it is saved with it and goes live when it is published. */
   drafted?: boolean;
   onChange: (next: DesignState) => void;
@@ -65,6 +77,7 @@ export function DesignPanel({
   const resolved = resolveDesign({ theme: value.theme, design: value.design });
   const contrast = contrastReport(resolved);
   const dirty = JSON.stringify(value) !== JSON.stringify(saved);
+  const atTemplate = template !== null && JSON.stringify(resolved) === JSON.stringify(resolveDesign(template.start));
 
   const patch = (next: Partial<StoreDesign>) => onChange({ ...value, design: { ...value.design, ...next } });
   const colour = (key: (typeof COLOUR_KEYS)[number], hex: string) =>
@@ -132,38 +145,73 @@ export function DesignPanel({
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card size="sm">
-        <CardHeader>
-          <CardTitle asChild className="text-sm font-semibold">
-            <h2>{t("presets")}</h2>
-          </CardTitle>
-          <p className="text-xs text-muted-foreground">{t("presetsBody")}</p>
-        </CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-2">
-          {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
-            const preset = PRESET_DESIGNS[key];
-            return (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={value.theme === key}
-                onClick={() => onChange({ theme: key, design: {} })}
-                className="rounded-lg border border-border p-3 text-left hover:border-primary/40 aria-pressed:border-primary aria-pressed:bg-primary/5"
-              >
-                <span className="flex gap-1" aria-hidden>
-                  {COLOUR_KEYS.map((c) => (
-                    <span key={c} className="size-4 rounded-full border border-border" style={{ background: preset.colors[c] }} />
-                  ))}
-                </span>
-                <span className="mt-2 block text-sm font-semibold text-foreground" style={{ fontFamily: fontStack(preset.headingFont) }}>
-                  {THEMES[key].name}
-                </span>
-                <span className="mt-0.5 block text-xs text-muted-foreground">{labels(`theme.${key}`)}</span>
-              </button>
-            );
-          })}
-        </CardContent>
-      </Card>
+      {template ? (
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle asChild className="text-sm font-semibold">
+              <h2>{t("template")}</h2>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">{t("templateBody")}</p>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={template.image}
+                srcSet={template.imageSrcSet}
+                sizes="128px"
+                alt=""
+                width={128}
+                height={96}
+                loading="lazy"
+                className="aspect-[4/3] w-32 shrink-0 rounded-md border border-border object-cover object-top"
+              />
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-foreground">{template.name}</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">{template.description}</span>
+              </span>
+            </div>
+            <div>
+              <Button type="button" variant="outline" size="sm" disabled={busy || atTemplate} onClick={() => onChange(template.start)}>
+                {t("resetTemplate")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle asChild className="text-sm font-semibold">
+              <h2>{t("presets")}</h2>
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">{t("presetsBody")}</p>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2">
+            {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
+              const preset = PRESET_DESIGNS[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={value.theme === key}
+                  onClick={() => onChange({ theme: key, design: {} })}
+                  className="rounded-lg border border-border p-3 text-left hover:border-primary/40 aria-pressed:border-primary aria-pressed:bg-primary/5"
+                >
+                  <span className="flex gap-1" aria-hidden>
+                    {COLOUR_KEYS.map((c) => (
+                      <span key={c} className="size-4 rounded-full border border-border" style={{ background: preset.colors[c] }} />
+                    ))}
+                  </span>
+                  <span className="mt-2 block text-sm font-semibold text-foreground" style={{ fontFamily: fontStack(preset.headingFont) }}>
+                    {THEMES[key].name}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">{labels(`theme.${key}`)}</span>
+                </button>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       <Card size="sm">
         <CardHeader>

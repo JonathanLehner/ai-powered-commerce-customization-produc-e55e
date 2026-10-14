@@ -15,6 +15,7 @@ import {
   saveTaxSettings,
 } from "@/app/actions/stores";
 import { ActionForm } from "@/components/forms";
+import type { GalleryTemplate } from "@/components/TemplateGallery";
 import { Badge } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +46,7 @@ import { POLICY_KEYS, POLICY_MAX_LENGTH, storePolicyText, type PolicyKey } from 
 import { storeUrl } from "@/lib/seo";
 import { uploadImage } from "@/lib/upload-client";
 import type { SetupStatus } from "@/lib/metrics";
-import { SETUP_STEPS, THEMES, type SetupStep, type Store, type StoredImage, type TaxBracket, type ThemeKey } from "@/lib/types";
+import { SETUP_STEPS, type SetupStep, type Store, type StoredImage, type TaxBracket } from "@/lib/types";
 import { CARRIER_LABELS, CURRENCY_OPTIONS } from "@/lib/util";
 import { StripeStep } from "./ConnectStripe";
 import { CurrencyRates } from "./CurrencyRates";
@@ -186,6 +187,41 @@ function LogoField({ store, invalid }: { store: Store; invalid: boolean }) {
   );
 }
 
+/** The template the storefront is built from, with a way to change it in the storefront editor. */
+function TemplateField({ storeId, template, canChange }: { storeId: string; template: GalleryTemplate | null; canChange: boolean }) {
+  const t = useTranslations("settings");
+  return (
+    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border p-3.5">
+      {template ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={template.image}
+          srcSet={template.imageSrcSet}
+          sizes="128px"
+          alt=""
+          width={128}
+          height={96}
+          loading="lazy"
+          className="aspect-[4/3] w-32 shrink-0 rounded-md border border-border object-cover object-top"
+        />
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-muted-foreground">{t("storefrontTemplate")}</p>
+        <p className="mt-0.5 text-sm font-semibold text-foreground">{template ? template.name : t("noTemplate")}</p>
+        {template ? <p className="mt-0.5 text-xs text-muted-foreground">{template.description}</p> : null}
+      </div>
+      {canChange ? (
+        <Link
+          href={`/app/stores/${storeId}/storefront?templates=1`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          {template ? t("changeTemplate") : t("chooseTemplate")}
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
 /** Mirrors `readStoredImage` on the server. */
 function StoredImageFields({ prefix, image }: { prefix: string; image: StoredImage }) {
   const fields: [string, string][] = [
@@ -211,14 +247,18 @@ export function SetupSections({
   status,
   brackets,
   policyDefaults,
+  template,
+  canEditStorefront,
 }: {
   store: Store;
   status: SetupStatus;
   brackets: TaxBracket[];
   /** The built-in policy text per store language. */
   policyDefaults: Record<string, Record<PolicyKey, string>>;
+  /** The template the storefront is built from, if any. */
+  template: GalleryTemplate | null;
+  canEditStorefront: boolean;
 }) {
-  const themeKeys = Object.keys(THEMES) as ThemeKey[];
   const [languages, setLanguages] = useState<string[]>(() => storeLanguages(store).locales);
   const [defaultLanguage, setDefaultLanguage] = useState<string>(() => storeLanguages(store).defaultLocale);
   const [currencies, setCurrencies] = useState<string[]>(store.currencies);
@@ -253,47 +293,9 @@ export function SetupSections({
         description={t("brandingDescription")}
         status={status}
       >
-        <ActionForm action={saveBranding} submitLabel={t("saveBranding")} hidden={hidden}>
-          {(state) => (
-            <>
-              <LogoField store={store} invalid={state.field === "logo"} />
-
-              <fieldset className="mt-6">
-                <legend className="text-sm leading-none font-medium text-foreground select-none">
-                  {t("theme")}
-                </legend>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {themeKeys.map((key) => (
-                    <Label
-                      key={key}
-                      className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3.5 font-normal hover:border-primary/40 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-                    >
-                      <input
-                        type="radio"
-                        name="theme"
-                        value={key}
-                        defaultChecked={store.theme === key}
-                        className="mt-1 size-4 accent-primary"
-                      />
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-2">
-                          <span
-                            aria-hidden
-                            className="h-4 w-4 shrink-0 rounded border border-border"
-                            style={{ background: THEMES[key].accent }}
-                          />
-                          <span className="text-sm font-semibold text-foreground">{THEMES[key].name}</span>
-                        </span>
-                        <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                          {labels(`theme.${key}`)}
-                        </span>
-                      </span>
-                    </Label>
-                  ))}
-                </div>
-              </fieldset>
-            </>
-          )}
+        <TemplateField storeId={store.id} template={template} canChange={canEditStorefront} />
+        <ActionForm action={saveBranding} submitLabel={t("saveLogo")} hidden={hidden} className="mt-6">
+          {(state) => <LogoField store={store} invalid={state.field === "logo"} />}
         </ActionForm>
       </Step>
 

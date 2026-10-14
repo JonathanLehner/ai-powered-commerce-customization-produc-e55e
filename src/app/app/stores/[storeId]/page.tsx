@@ -27,6 +27,7 @@ import {
   listRecentOrders,
   listStoreProducts,
   storesWithShippingRates,
+  storeTemplateIds,
 } from "@/lib/data";
 import { setupProgress, setupStatus, type StoreMetrics } from "@/lib/metrics";
 import { loadOrderMetrics, loadTopProducts } from "@/lib/metrics-data";
@@ -36,6 +37,8 @@ import { attentionSummary } from "@/i18n/attention-copy";
 import { formatAgo } from "@/i18n/format";
 import { storeLimitText } from "@/i18n/plan-copy";
 import { isOpenEnquiry, QUOTE_STATUS_TONES } from "@/lib/sourcing";
+import { resolveDesign } from "@/lib/store-design";
+import { getTemplate } from "@/lib/templates/index";
 import { SETUP_STEPS, THEMES } from "@/lib/types";
 import { formatMoney, formatDate } from "@/lib/util";
 
@@ -63,7 +66,7 @@ export default async function StoreOverviewPage({
   const canSource = roleCan(role, "store.catalog");
   const can = (capability: Capability) => roleCan(role, capability);
   // The figures are added up in the database; only the six newest orders are read.
-  const [orderMetrics, topProducts, recentOrders, products, storefront, audit, enquiries, report, shipsWithRates] = await Promise.all([
+  const [orderMetrics, topProducts, recentOrders, products, storefront, audit, enquiries, report, shipsWithRates, templateIds] = await Promise.all([
     loadOrderMetrics([store.id]).then((byStore) => byStore.get(store.id)!),
     loadTopProducts(store.id),
     listRecentOrders(store.id, 6),
@@ -73,6 +76,7 @@ export default async function StoreOverviewPage({
     canSource ? listQuoteRequests(store.id) : Promise.resolve([]),
     loadStoreAnalytics(store, range),
     storesWithShippingRates([store.id]),
+    storeTemplateIds([store.id]),
   ]);
   const openEnquiries = enquiries.filter(isOpenEnquiry);
 
@@ -92,7 +96,8 @@ export default async function StoreOverviewPage({
     draftProducts: products.filter((p) => p.status === "draft" || p.status === "in_review").length,
     topProducts,
   };
-  const status = setupStatus(store.setup, shipsWithRates.has(store.id));
+  const template = getTemplate(templateIds.get(store.id) ?? "");
+  const status = setupStatus(store.setup, shipsWithRates.has(store.id), Boolean(template));
   const progress = setupProgress(status);
   const theme = THEMES[store.theme];
 
@@ -422,9 +427,11 @@ export default async function StoreOverviewPage({
                 <span
                   aria-hidden
                   className="h-5 w-5 rounded border border-border"
-                  style={{ background: theme.accent }}
+                  style={{ background: resolveDesign(store).colors.primary }}
                 />
-                <span className="text-sm text-inksoft">{labels("themeName", { name: theme.name })}</span>
+                <span className="text-sm text-inksoft">
+                  {template ? labels("templateName", { name: template.name }) : labels("themeName", { name: theme.name })}
+                </span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {roleCan(role, "store.storefront") ? (

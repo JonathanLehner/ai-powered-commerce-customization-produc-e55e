@@ -978,7 +978,7 @@
       "inventory": "Stock"
     },
     "setupStep": {
-      "branding": "Logo et thème",
+      "branding": "Thème et logo",
       "languages": "Langues",
       "localisation": "Devises de vente",
       "support": "Contacts d’assistance",
@@ -996,6 +996,7 @@
       "bloom": "Chaleureux et convivial."
     },
     "themeName": "Thème {name}",
+    "templateName": "Thème {name}",
     "supplierKind": {
       "print_on_demand": "Impression à la demande",
       "manufacturer": "Fabricant",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Indiquez le client de cette boutique.",
       "nameNotAddress": "Ce nom ne peut pas servir d’adresse web. Utilisez des lettres ou des chiffres.",
       "renamed": "Nom de la boutique mis à jour.",
-      "logoAndTheme": "Logo importé et thème enregistré.",
-      "themeSaved": "Thème enregistré.",
+      "logoSaved": "Logo enregistré.",
       "currencyRequired": "Sélectionnez au moins une devise de vente.",
       "defaultCurrencyRequired": "La devise par défaut doit faire partie des devises de vente sélectionnées.",
       "localisationSaved": "Devises enregistrées.",
@@ -1729,7 +1729,7 @@
     "canSell": "Votre boutique peut déjà vendre.",
     "stillToFinish": "Reste à faire : {steps}.",
     "nextStep": {
-      "branding": "Ajoutez un logo et un thème pour personnaliser votre boutique.",
+      "branding": "Choisissez un thème ou ajoutez un logo pour personnaliser votre boutique.",
       "languages": "Choisissez les langues de votre boutique.",
       "localisation": "Choisissez les devises dans lesquelles les clients peuvent payer.",
       "support": "Ajoutez des contacts d'assistance pour que les clients puissent vous joindre.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP ou SVG, jusqu’à {max} Mo.",
     "uploading": "Import en cours…",
     "branding": "Image de marque",
-    "brandingDescription": "Logo et thème de la vitrine.",
-    "saveBranding": "Enregistrer l’image de marque",
-    "theme": "Thème de la vitrine",
+    "brandingDescription": "Thème de la vitrine et logo.",
+    "storefrontTemplate": "Thème de la vitrine",
+    "noTemplate": "Aucun thème appliqué",
+    "changeTemplate": "Changer de thème",
+    "chooseTemplate": "Choisir un thème",
+    "saveLogo": "Enregistrer le logo",
     "localisation": "Devises de vente",
     "localisationDescription": "Les devises dans lesquelles les clients peuvent payer.",
     "saveLocalisation": "Enregistrer les devises",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Préréglages",
       "presetsBody": "Commencez par un préréglage, puis personnalisez-le.",
+      "template": "Thème",
+      "templateBody": "Votre design part de ce thème.",
+      "resetTemplate": "Rétablir le design du thème",
       "colours": "Couleurs de la marque",
       "coloursBody": "Les couleurs du texte sont ajustées sur la vitrine pour rester lisibles.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Annuler les modifications",
       "liveNote": "Un design enregistré est mis en ligne immédiatement.",
       "saveFailed": "Le design n'a pas pu être enregistré. Veuillez réessayer.",
-      "sampleHeading": "Nouveautés de saison",
-      "sampleBody": "Fabriqué sur commande et expédié partout dans le monde.",
-      "samplePrimary": "Acheter maintenant",
-      "sampleSecondary": "En savoir plus",
-      "sampleSurface": "Livraison gratuite pour les commandes de plus de 75",
       "draftNote": "Ce design fait partie du brouillon. Il sera mis en ligne lorsque vous le publierez."
     },
     "productPage": {

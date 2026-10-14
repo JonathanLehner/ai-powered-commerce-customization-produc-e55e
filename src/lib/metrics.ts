@@ -217,10 +217,12 @@ export type SetupStatus = Record<SetupStep, boolean>;
  * Whether each guided setup step is done. A store always has a language and the
  * built-in policies, so those two start complete. `shipsWithRates` is whether a
  * shipping zone has at least one rate: without one checkout has nothing to offer.
+ * A storefront built from a template is branded, so `fromTemplate` completes
+ * branding too.
  */
-export function setupStatus(setup: Partial<StoreSetupState>, shipsWithRates: boolean): SetupStatus {
+export function setupStatus(setup: Partial<StoreSetupState>, shipsWithRates: boolean, fromTemplate = false): SetupStatus {
   return {
-    branding: Boolean(setup.branding),
+    branding: Boolean(setup.branding) || fromTemplate,
     languages: true,
     localisation: Boolean(setup.localisation),
     support: Boolean(setup.support),

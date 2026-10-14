@@ -978,7 +978,7 @@
       "inventory": "Inventory"
     },
     "setupStep": {
-      "branding": "Logo and theme",
+      "branding": "Template and logo",
       "languages": "Languages",
       "localisation": "Selling currencies",
       "support": "Support contacts",
@@ -996,6 +996,7 @@
       "bloom": "Warm and friendly."
     },
     "themeName": "{name} theme",
+    "templateName": "{name} template",
     "supplierKind": {
       "print_on_demand": "Print on demand",
       "manufacturer": "Manufacturer",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Enter the client this store is for.",
       "nameNotAddress": "That name cannot be turned into a web address. Use letters or numbers.",
       "renamed": "Store name updated.",
-      "logoAndTheme": "Logo uploaded and theme saved.",
-      "themeSaved": "Theme saved.",
+      "logoSaved": "Logo saved.",
       "currencyRequired": "Select at least one selling currency.",
       "defaultCurrencyRequired": "The default currency must be one of the selected selling currencies.",
       "localisationSaved": "Currencies saved.",
@@ -1729,7 +1729,7 @@
     "canSell": "Your store can already sell.",
     "stillToFinish": "Still to finish: {steps}.",
     "nextStep": {
-      "branding": "Add a logo and theme to brand your storefront.",
+      "branding": "Choose a template or add a logo to brand your storefront.",
       "languages": "Choose the languages your storefront is shown in.",
       "localisation": "Choose the currencies shoppers can pay in.",
       "support": "Add support contacts so shoppers can reach you.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP or SVG up to {max} MB.",
     "uploading": "Uploading…",
     "branding": "Branding",
-    "brandingDescription": "Logo and storefront theme.",
-    "saveBranding": "Save branding",
-    "theme": "Storefront theme",
+    "brandingDescription": "Storefront template and logo.",
+    "storefrontTemplate": "Storefront template",
+    "noTemplate": "No template applied",
+    "changeTemplate": "Change template",
+    "chooseTemplate": "Choose a template",
+    "saveLogo": "Save logo",
     "localisation": "Selling currencies",
     "localisationDescription": "The currencies shoppers can pay in.",
     "saveLocalisation": "Save currencies",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Presets",
       "presetsBody": "Start from a preset, then make it your own.",
+      "template": "Template",
+      "templateBody": "Your design starts from this template.",
+      "resetTemplate": "Reset to template design",
       "colours": "Brand colours",
       "coloursBody": "Text colours are adjusted on the storefront to stay readable.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Discard changes",
       "liveNote": "A saved design goes live straight away.",
       "saveFailed": "The design could not be saved. Try again.",
-      "sampleHeading": "New season essentials",
-      "sampleBody": "Made to order and shipped worldwide.",
-      "samplePrimary": "Shop now",
-      "sampleSecondary": "Learn more",
-      "sampleSurface": "Free shipping on orders over 75",
       "draftNote": "This design is part of the draft. It goes live when you publish."
     },
     "productPage": {

@@ -81,15 +81,19 @@ export async function saveBranding(
   const { store } = ctx;
   const { theme, logoUrl } = input;
   const design = input.design ? cleanDesign(theme, input.design) : theme === store.theme ? (store.design ?? {}) : {};
-  const setup = { ...store.setup, branding: Boolean(logoUrl) };
+  // A store branded by its template stays branded when only the logo changes.
+  const setup = { ...store.setup, branding: Boolean(logoUrl) || Boolean(store.setup.branding) };
   await updateStore(store.id, { theme, logoUrl, setup, design });
   // A draft that carries its own design (one built from a template) follows
-  // the saved look, so publishing it later does not undo this change.
-  await db.updateOne(
-    COLLECTIONS.storefronts,
-    { storeId: store.id, [`draft.ROOT.props.${DRAFT_DESIGN_PROP}`]: { $exists: true } },
-    { $set: { [`draft.ROOT.props.${DRAFT_DESIGN_PROP}`]: { theme, design } } },
-  );
+  // the saved look, so publishing it later does not undo this change. A logo
+  // on its own leaves the drafted design alone.
+  if (input.design || theme !== store.theme) {
+    await db.updateOne(
+      COLLECTIONS.storefronts,
+      { storeId: store.id, [`draft.ROOT.props.${DRAFT_DESIGN_PROP}`]: { $exists: true } },
+      { $set: { [`draft.ROOT.props.${DRAFT_DESIGN_PROP}`]: { theme, design } } },
+    );
+  }
   const changed = JSON.stringify(design) !== JSON.stringify(store.design ?? {});
   audit(
     ctx,

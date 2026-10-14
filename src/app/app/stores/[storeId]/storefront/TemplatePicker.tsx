@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { applyStoreTemplate, previewStoreTemplate } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
 import { FormStatus } from "@/components/forms";
@@ -24,6 +24,7 @@ export function TemplatePicker({
   categories,
   styles,
   currentTemplateId,
+  defaultOpen = false,
 }: {
   storeId: string;
   /** The language the store's own preview is drawn in. */
@@ -32,14 +33,24 @@ export function TemplatePicker({
   categories: { key: string; label: string }[];
   styles: { key: string; label: string }[];
   currentTemplateId: string | null;
+  /** Opened from Guided setup's "Change template" link. */
+  defaultOpen?: boolean;
 }) {
   const t = useTranslations("templates.picker");
   const g = useTranslations("templates");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [chosen, setChosen] = useState<GalleryTemplate | null>(null);
   const [addProducts, setAddProducts] = useState(false);
   const [busy, setBusy] = useState<"preview" | "apply" | null>(null);
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
+
+  // The link's flag is dropped from the address, so a reload after applying does not open the picker again.
+  useEffect(() => {
+    if (!defaultOpen) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("templates");
+    window.history.replaceState(window.history.state, "", url);
+  }, [defaultOpen]);
 
   async function preview() {
     if (!chosen || busy) return;

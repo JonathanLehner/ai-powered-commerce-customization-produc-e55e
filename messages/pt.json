@@ -978,7 +978,7 @@
       "inventory": "Estoque"
     },
     "setupStep": {
-      "branding": "Logótipo e tema",
+      "branding": "Modelo e logótipo",
       "languages": "Idiomas",
       "localisation": "Moedas de venda",
       "support": "Contactos de apoio",
@@ -996,6 +996,7 @@
       "bloom": "Caloroso e acolhedor."
     },
     "themeName": "Tema {name}",
+    "templateName": "Modelo {name}",
     "supplierKind": {
       "print_on_demand": "Impressão a pedido",
       "manufacturer": "Fabricante",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Indique o cliente desta loja.",
       "nameNotAddress": "Esse nome não pode ser usado como endereço web. Use letras ou números.",
       "renamed": "Nome da loja atualizado.",
-      "logoAndTheme": "Logótipo carregado e tema guardado.",
-      "themeSaved": "Tema guardado.",
+      "logoSaved": "Logótipo guardado.",
       "currencyRequired": "Selecione pelo menos uma moeda de venda.",
       "defaultCurrencyRequired": "A moeda predefinida tem de ser uma das moedas de venda selecionadas.",
       "localisationSaved": "Moedas guardadas.",
@@ -1729,7 +1729,7 @@
     "canSell": "A sua loja já pode vender.",
     "stillToFinish": "Por concluir: {steps}.",
     "nextStep": {
-      "branding": "Adicione um logótipo e um tema para personalizar a sua loja.",
+      "branding": "Escolha um modelo ou adicione um logótipo para personalizar a sua loja.",
       "languages": "Escolha os idiomas em que a sua loja é apresentada.",
       "localisation": "Escolha as moedas em que os clientes podem pagar.",
       "support": "Adicione contactos de apoio para que os clientes o possam contactar.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP ou SVG até {max} MB.",
     "uploading": "A carregar…",
     "branding": "Marca",
-    "brandingDescription": "Logótipo e tema da montra.",
-    "saveBranding": "Guardar marca",
-    "theme": "Tema da montra",
+    "brandingDescription": "Modelo da montra e logótipo.",
+    "storefrontTemplate": "Modelo da montra",
+    "noTemplate": "Nenhum modelo aplicado",
+    "changeTemplate": "Alterar modelo",
+    "chooseTemplate": "Escolher um modelo",
+    "saveLogo": "Guardar logótipo",
     "localisation": "Moedas de venda",
     "localisationDescription": "As moedas em que os clientes podem pagar.",
     "saveLocalisation": "Guardar moedas",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Predefinições",
       "presetsBody": "Comece por uma predefinição e personalize-a.",
+      "template": "Modelo",
+      "templateBody": "O seu design parte deste modelo.",
+      "resetTemplate": "Repor o design do modelo",
       "colours": "Cores da marca",
       "coloursBody": "As cores do texto são ajustadas na loja para manter a legibilidade.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Descartar alterações",
       "liveNote": "Um design guardado fica ativo de imediato.",
       "saveFailed": "Não foi possível guardar o design. Tente novamente.",
-      "sampleHeading": "Essenciais da nova estação",
-      "sampleBody": "Feito por encomenda e enviado para todo o mundo.",
-      "samplePrimary": "Comprar agora",
-      "sampleSecondary": "Saber mais",
-      "sampleSurface": "Portes grátis em encomendas superiores a 75",
       "draftNote": "Este design faz parte do rascunho. Fica ativo quando publicares."
     },
     "productPage": {

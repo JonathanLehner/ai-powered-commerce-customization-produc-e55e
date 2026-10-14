@@ -126,7 +126,7 @@ export async function createStore(actx: AgencyContext, input: CreateStoreInput):
     defaultTaxBracketId: null,
     pricesIncludeTax: false,
     setup: {
-      branding: false,
+      branding: Boolean(template),
       localisation: true,
       support: false,
       domain: false,

@@ -978,7 +978,7 @@
       "inventory": "Lagerbestand"
     },
     "setupStep": {
-      "branding": "Logo und Design",
+      "branding": "Vorlage und Logo",
       "languages": "Sprachen",
       "localisation": "Verkaufswährungen",
       "support": "Support-Kontakte",
@@ -996,6 +996,7 @@
       "bloom": "Warm und freundlich."
     },
     "themeName": "Design {name}",
+    "templateName": "Vorlage {name}",
     "supplierKind": {
       "print_on_demand": "Print-on-Demand",
       "manufacturer": "Hersteller",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Geben Sie den Kunden für diesen Shop ein.",
       "nameNotAddress": "Aus diesem Namen lässt sich keine Webadresse bilden. Verwenden Sie Buchstaben oder Ziffern.",
       "renamed": "Shop-Name aktualisiert.",
-      "logoAndTheme": "Logo hochgeladen und Design gespeichert.",
-      "themeSaved": "Design gespeichert.",
+      "logoSaved": "Logo gespeichert.",
       "currencyRequired": "Wählen Sie mindestens eine Verkaufswährung.",
       "defaultCurrencyRequired": "Die Standardwährung muss eine der gewählten Verkaufswährungen sein.",
       "localisationSaved": "Währungen gespeichert.",
@@ -1729,7 +1729,7 @@
     "canSell": "Ihr Shop kann bereits verkaufen.",
     "stillToFinish": "Noch offen: {steps}.",
     "nextStep": {
-      "branding": "Fügen Sie Logo und Design hinzu, um Ihren Shop zu gestalten.",
+      "branding": "Wählen Sie eine Vorlage oder fügen Sie ein Logo hinzu, um Ihren Shop zu gestalten.",
       "languages": "Wählen Sie die Sprachen Ihres Shops.",
       "localisation": "Wählen Sie die Währungen, in denen Kunden bezahlen können.",
       "support": "Fügen Sie Supportkontakte hinzu, damit Kunden Sie erreichen.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP oder SVG bis {max} MB.",
     "uploading": "Wird hochgeladen…",
     "branding": "Branding",
-    "brandingDescription": "Logo und Storefront-Design.",
-    "saveBranding": "Branding speichern",
-    "theme": "Storefront-Design",
+    "brandingDescription": "Storefront-Vorlage und Logo.",
+    "storefrontTemplate": "Storefront-Vorlage",
+    "noTemplate": "Keine Vorlage angewendet",
+    "changeTemplate": "Vorlage ändern",
+    "chooseTemplate": "Vorlage auswählen",
+    "saveLogo": "Logo speichern",
     "localisation": "Verkaufswährungen",
     "localisationDescription": "Die Währungen, in denen Käufer bezahlen können.",
     "saveLocalisation": "Währungen speichern",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Voreinstellungen",
       "presetsBody": "Wählen Sie eine Voreinstellung und gestalten Sie sie individuell.",
+      "template": "Vorlage",
+      "templateBody": "Ihr Design basiert auf dieser Vorlage.",
+      "resetTemplate": "Auf Vorlagendesign zurücksetzen",
       "colours": "Markenfarben",
       "coloursBody": "Die Lesbarkeit von Textfarben wird im Shop automatisch angepasst.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Änderungen verwerfen",
       "liveNote": "Ein gespeichertes Design ist sofort aktiv.",
       "saveFailed": "Das Design konnte nicht gespeichert werden. Bitte erneut versuchen.",
-      "sampleHeading": "Must-haves der neuen Saison",
-      "sampleBody": "Auf Bestellung gefertigt und weltweit versendet.",
-      "samplePrimary": "Jetzt einkaufen",
-      "sampleSecondary": "Mehr erfahren",
-      "sampleSurface": "Kostenloser Versand ab 75",
       "draftNote": "Dieses Design ist Teil des Entwurfs. Es wird veröffentlicht, wenn du publizierst."
     },
     "productPage": {

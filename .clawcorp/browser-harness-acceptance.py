@@ -440,9 +440,10 @@ try:
     sections = [s for s in ["Branding", "Languages", "Selling currencies", "Custom domain",
                             "Stripe", "carrier", "Tax"] if s.lower() in t.lower()]
     has_logo = bool(J("!!document.querySelector('input[type=file]')"))
-    # each section saves on its own; reload between them so the form re-renders
-    J("""(()=>{const r=[...document.querySelectorAll('input[name=theme]')][1]; if(r) r.click();})()""")
-    click_text("button", "Save branding"); time.sleep(3); wait_for_load()
+    # each section saves on its own; reload between them so the form re-renders.
+    # Branding shows the store's template with a Change template link, not a theme picker.
+    has_template = "Storefront template" in t and not J("!!document.querySelector('input[name=theme]')")
+    click_text("button", "Save logo"); time.sleep(3); wait_for_load()
 
     # Languages: enable German beside the default, then make it the default.
     # The language checkboxes are controlled, so the shadcn Checkbox button is
@@ -498,9 +499,9 @@ try:
     progress = m.group(0) if m else "progress unknown"
     if not carrier_crash:
         shot(3)
-    if carriers_saved and len(sections) >= 7 and has_logo:
+    if carriers_saved and len(sections) >= 7 and has_logo and has_template:
         record(3, "pass",
-               "guided setup walks logo upload, theme, default language, selling currencies, custom domain, Stripe account, shipping carriers and tax; each section saves on its own (%s)" % progress)
+               "guided setup walks the storefront template and logo upload, default language, selling currencies, custom domain, Stripe account, shipping carriers and tax; each section saves on its own (%s)" % progress)
     else:
         record(3, "fail",
                "BUG — the shipping-carrier step is unusable: clicking the DHL/FedEx/UPS 'enabled' checkbox throws a client-side error and replaces the whole Settings page with the 'Something went wrong at our end' boundary, so no carrier can be enabled or saved (reproduced on a brand-new store and on the seeded Northwind store). Everything else in the guided setup works: logo upload, theme, default language, selling currencies, custom domain and Stripe all save individually (%s)" % progress)

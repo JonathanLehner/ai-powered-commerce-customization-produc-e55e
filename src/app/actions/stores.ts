@@ -24,7 +24,7 @@ import { POLICY_KEYS } from "@/lib/policies";
 import { assertAgencyAdmin, assertStoreAccess, getSessionUser, operationContext } from "@/lib/session";
 import { readStoredImage } from "@/lib/uploads";
 import type { RoundingRule } from "@/lib/currency";
-import type { Store, ThemeKey } from "@/lib/types";
+import type { Store } from "@/lib/types";
 
 export interface ActionState {
   status: "idle" | "error" | "success";
@@ -121,11 +121,9 @@ export async function saveBranding(_prev: ActionState, formData: FormData): Prom
   // The logo goes to /api/uploads before the form is submitted: a file posted
   // through the action itself would exceed the 1 MB Server Action body limit.
   const stored = readStoredImage(formData, "logo", "logo");
-  const saved = await brand(await operationContext(access), {
-    theme: String(formData.get("theme") ?? store.theme) as ThemeKey,
-    logoUrl: stored ? stored.url : store.logoUrl,
-  });
-  return ok(saved.logoUrl !== store.logoUrl ? t("logoAndTheme") : t("themeSaved"));
+  // The look comes from the store's template; this form only changes the logo.
+  await brand(await operationContext(access), { theme: store.theme, logoUrl: stored ? stored.url : store.logoUrl });
+  return ok(t("logoSaved"));
 }
 
 export async function saveLanguages(_prev: ActionState, formData: FormData): Promise<ActionState> {

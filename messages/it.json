@@ -978,7 +978,7 @@
       "inventory": "Inventario"
     },
     "setupStep": {
-      "branding": "Logo e tema",
+      "branding": "Template e logo",
       "languages": "Lingue",
       "localisation": "Valute di vendita",
       "support": "Contatti di assistenza",
@@ -996,6 +996,7 @@
       "bloom": "Caldo e accogliente."
     },
     "themeName": "Tema {name}",
+    "templateName": "Template {name}",
     "supplierKind": {
       "print_on_demand": "Stampa su richiesta",
       "manufacturer": "Produttore",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Indica il cliente di questo negozio.",
       "nameNotAddress": "Questo nome non può diventare un indirizzo web. Usa lettere o numeri.",
       "renamed": "Nome del negozio aggiornato.",
-      "logoAndTheme": "Logo caricato e tema salvato.",
-      "themeSaved": "Tema salvato.",
+      "logoSaved": "Logo salvato.",
       "currencyRequired": "Seleziona almeno una valuta di vendita.",
       "defaultCurrencyRequired": "La valuta predefinita deve essere una delle valute di vendita selezionate.",
       "localisationSaved": "Valute salvate.",
@@ -1729,7 +1729,7 @@
     "canSell": "Il tuo negozio può già vendere.",
     "stillToFinish": "Da completare: {steps}.",
     "nextStep": {
-      "branding": "Aggiungi un logo e un tema per personalizzare il negozio.",
+      "branding": "Scegli un template o aggiungi un logo per personalizzare il negozio.",
       "languages": "Scegli le lingue in cui viene mostrato il tuo negozio.",
       "localisation": "Scegli le valute con cui i clienti possono pagare.",
       "support": "Aggiungi i contatti di assistenza per farti raggiungere dai clienti.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP o SVG fino a {max} MB.",
     "uploading": "Caricamento…",
     "branding": "Brand",
-    "brandingDescription": "Logo e tema della vetrina.",
-    "saveBranding": "Salva il brand",
-    "theme": "Tema della vetrina",
+    "brandingDescription": "Template della vetrina e logo.",
+    "storefrontTemplate": "Template della vetrina",
+    "noTemplate": "Nessun template applicato",
+    "changeTemplate": "Cambia template",
+    "chooseTemplate": "Scegli un template",
+    "saveLogo": "Salva logo",
     "localisation": "Valute di vendita",
     "localisationDescription": "Le valute in cui gli acquirenti possono pagare.",
     "saveLocalisation": "Salva le valute",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Predefiniti",
       "presetsBody": "Parti da un modello predefinito, poi personalizzalo.",
+      "template": "Template",
+      "templateBody": "Il tuo design parte da questo template.",
+      "resetTemplate": "Ripristina il design del template",
       "colours": "Colori del brand",
       "coloursBody": "I colori del testo vengono regolati sulla vetrina per mantenere la leggibilità.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Annulla modifiche",
       "liveNote": "Un design salvato diventa subito visibile.",
       "saveFailed": "Impossibile salvare il design. Riprova.",
-      "sampleHeading": "Essenziali per la nuova stagione",
-      "sampleBody": "Realizzato su ordinazione e spedito in tutto il mondo.",
-      "samplePrimary": "Acquista ora",
-      "sampleSecondary": "Scopri di più",
-      "sampleSurface": "Spedizione gratuita per ordini superiori a 75",
       "draftNote": "Questo design fa parte della bozza. Andrà online quando pubblicherai."
     },
     "productPage": {

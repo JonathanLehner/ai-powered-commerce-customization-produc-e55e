@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAgo } from "@/i18n/format";
 import { platformAuditEntries, recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
-import { listAgencies, listAudit, storesWithShippingRates } from "@/lib/data";
+import { listAgencies, listAudit, storesWithShippingRates, storeTemplateIds } from "@/lib/data";
 import { setupProgress, setupStatus, type StoreMetrics } from "@/lib/metrics";
 import { loadStoreMetrics } from "@/lib/metrics-data";
 import { planFor } from "@/lib/plans";
@@ -63,9 +63,10 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
   // Every store's figures added up in the database, as on the agency
   // dashboard: platform oversight lists every store on the platform, so reading
   // their orders into the Worker made this the slowest page in the app.
-  const [metricsByStore, shipsWithRates] = await Promise.all([
+  const [metricsByStore, shipsWithRates, templateIds] = await Promise.all([
     loadStoreMetrics(stores.map(({ store }) => store)),
     storesWithShippingRates(stores.map(({ store }) => store.id)),
+    storeTemplateIds(stores.map(({ store }) => store.id)),
   ]);
 
   const rows: Row[] = stores.map(({ store }) => ({
@@ -153,7 +154,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
             {group.active.length > 0 ? (
               <ul className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
                 {group.active.map(({ store, metrics }) => {
-                  const progress = setupProgress(setupStatus(store.setup, shipsWithRates.has(store.id)));
+                  const progress = setupProgress(setupStatus(store.setup, shipsWithRates.has(store.id), templateIds.has(store.id)));
                   const theme = THEMES[store.theme];
                   return (
                     <li key={store.id} className="flex">

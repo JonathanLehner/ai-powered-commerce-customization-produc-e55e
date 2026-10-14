@@ -102,4 +102,9 @@ assert.deepEqual(setupRemaining(setupStatus({ ...complete, shipping: false, doma
 assert.deepEqual(setupRemaining({}).toSell, ["payments", "shipping", "zones"]);
 assert.deepEqual(setupRemaining(setupStatus(complete, true)), { toSell: [], optional: [] });
 
+// A storefront built from a template is branded, logo or not.
+assert.equal(setupStatus(fresh, false).branding, false);
+assert.equal(setupStatus(fresh, false, true).branding, true);
+assert.equal(setupProgress(setupStatus(fresh, false, true)).done, 4);
+
 console.log("support-check ok");

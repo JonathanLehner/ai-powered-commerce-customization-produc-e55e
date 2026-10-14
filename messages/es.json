@@ -978,7 +978,7 @@
       "inventory": "Inventario"
     },
     "setupStep": {
-      "branding": "Logotipo y tema",
+      "branding": "Plantilla y logotipo",
       "languages": "Idiomas",
       "localisation": "Monedas de venta",
       "support": "Contactos de soporte",
@@ -996,6 +996,7 @@
       "bloom": "Cálido y cercano."
     },
     "themeName": "Tema {name}",
+    "templateName": "Plantilla {name}",
     "supplierKind": {
       "print_on_demand": "Impresión bajo demanda",
       "manufacturer": "Fabricante",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Indica el cliente de esta tienda.",
       "nameNotAddress": "Ese nombre no se puede convertir en una dirección web. Usa letras o números.",
       "renamed": "Nombre de la tienda actualizado.",
-      "logoAndTheme": "Logotipo subido y tema guardado.",
-      "themeSaved": "Tema guardado.",
+      "logoSaved": "Logotipo guardado.",
       "currencyRequired": "Selecciona al menos una moneda de venta.",
       "defaultCurrencyRequired": "La moneda predeterminada debe ser una de las monedas de venta seleccionadas.",
       "localisationSaved": "Monedas guardadas.",
@@ -1729,7 +1729,7 @@
     "canSell": "Tu tienda ya puede vender.",
     "stillToFinish": "Pendiente: {steps}.",
     "nextStep": {
-      "branding": "Añade un logotipo y un tema para personalizar tu tienda.",
+      "branding": "Elige una plantilla o añade un logotipo para personalizar tu tienda.",
       "languages": "Elige los idiomas en los que se muestra tu tienda.",
       "localisation": "Elige las monedas en las que pueden pagar los clientes.",
       "support": "Añade contactos de soporte para que los clientes puedan escribirte.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP o SVG de hasta {max} MB.",
     "uploading": "Subiendo…",
     "branding": "Marca",
-    "brandingDescription": "Logotipo y tema del escaparate.",
-    "saveBranding": "Guardar marca",
-    "theme": "Tema del escaparate",
+    "brandingDescription": "Plantilla del escaparate y logotipo.",
+    "storefrontTemplate": "Plantilla del escaparate",
+    "noTemplate": "Sin plantilla aplicada",
+    "changeTemplate": "Cambiar plantilla",
+    "chooseTemplate": "Elegir una plantilla",
+    "saveLogo": "Guardar logotipo",
     "localisation": "Monedas de venta",
     "localisationDescription": "Las monedas en las que pueden pagar los compradores.",
     "saveLocalisation": "Guardar monedas",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Preajustes",
       "presetsBody": "Empieza con un preajuste y personalízalo.",
+      "template": "Plantilla",
+      "templateBody": "Tu diseño parte de esta plantilla.",
+      "resetTemplate": "Restablecer el diseño de la plantilla",
       "colours": "Colores de marca",
       "coloursBody": "Los colores del texto se ajustan en la tienda para mantener la legibilidad.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Descartar cambios",
       "liveNote": "Un diseño guardado se activa de inmediato.",
       "saveFailed": "No se pudo guardar el diseño. Inténtalo de nuevo.",
-      "sampleHeading": "Imprescindibles de la nueva temporada",
-      "sampleBody": "Hecho bajo pedido y enviado a todo el mundo.",
-      "samplePrimary": "Comprar ahora",
-      "sampleSecondary": "Más información",
-      "sampleSurface": "Envío gratis en pedidos superiores a 75",
       "draftNote": "Este diseño forma parte del borrador. Se activará cuando lo publiques."
     },
     "productPage": {

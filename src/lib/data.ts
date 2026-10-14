@@ -7,6 +7,7 @@ import { db } from "./mongo";
 import type { NotifyInput } from "./notifications";
 import { storeAllowance, type StoreAllowance } from "./plans";
 import { quoteCode } from "./sourcing";
+import { treeTemplateId } from "./templates/tree";
 import { storefrontsClosed } from "./trial";
 import { newId } from "./util";
 import type {
@@ -357,6 +358,22 @@ export async function storesWithShippingRates(storeIds: string[]): Promise<Set<s
     { projection: { storeId: 1 } },
   );
   return new Set(zones.map((zone) => zone.storeId));
+}
+
+/** The template each store's storefront was built from: the draft's, else the live page's. */
+export async function storeTemplateIds(storeIds: string[]): Promise<Map<string, string>> {
+  if (storeIds.length === 0) return new Map();
+  const rows = await db.find<Pick<Storefront, "storeId" | "draft" | "published">>(
+    COLLECTIONS.storefronts,
+    { storeId: { $in: storeIds } },
+    { projection: { storeId: 1, "draft.ROOT.props.templateId": 1, "published.ROOT.props.templateId": 1 } },
+  );
+  const ids = new Map<string, string>();
+  for (const row of rows) {
+    const id = treeTemplateId(row.draft) ?? treeTemplateId(row.published);
+    if (id) ids.set(row.storeId, id);
+  }
+  return ids;
 }
 
 export function getProductCollection(id: string) {

@@ -978,7 +978,7 @@
       "inventory": "在庫"
     },
     "setupStep": {
-      "branding": "ロゴとテーマ",
+      "branding": "テンプレートとロゴ",
       "languages": "言語",
       "localisation": "販売通貨",
       "support": "サポート連絡先",
@@ -996,6 +996,7 @@
       "bloom": "温かく親しみやすいデザイン。"
     },
     "themeName": "{name} テーマ",
+    "templateName": "{name} テンプレート",
     "supplierKind": {
       "print_on_demand": "オンデマンド印刷",
       "manufacturer": "メーカー",
@@ -1247,8 +1248,7 @@
       "clientRequired": "このストアのクライアントを入力してください。",
       "nameNotAddress": "この名前はウェブアドレスに変換できません。英数字を使ってください。",
       "renamed": "ストア名を更新しました。",
-      "logoAndTheme": "ロゴをアップロードし、テーマを保存しました。",
-      "themeSaved": "テーマを保存しました。",
+      "logoSaved": "ロゴを保存しました。",
       "currencyRequired": "販売通貨を 1 つ以上選択してください。",
       "defaultCurrencyRequired": "デフォルトの通貨は、選択した販売通貨のいずれかにしてください。",
       "localisationSaved": "通貨を保存しました。",
@@ -1729,7 +1729,7 @@
     "canSell": "ストアはすでに販売できます。",
     "stillToFinish": "残りのステップ: {steps}。",
     "nextStep": {
-      "branding": "ロゴとテーマを追加してストアをブランド化しましょう。",
+      "branding": "テンプレートを選ぶかロゴを追加して、ストアをブランド化しましょう。",
       "languages": "ストアを表示する言語を選択してください。",
       "localisation": "お客様が支払いに使える通貨を選択してください。",
       "support": "お客様が連絡できるようサポート窓口を追加してください。",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG、JPG、WEBP、SVG(最大 {max} MB)。",
     "uploading": "アップロード中…",
     "branding": "ブランディング",
-    "brandingDescription": "ロゴとストアフロントのテーマ。",
-    "saveBranding": "ブランディングを保存",
-    "theme": "ストアフロントのテーマ",
+    "brandingDescription": "ストアフロントのテンプレートとロゴ。",
+    "storefrontTemplate": "ストアフロントのテンプレート",
+    "noTemplate": "テンプレート未適用",
+    "changeTemplate": "テンプレートを変更",
+    "chooseTemplate": "テンプレートを選ぶ",
+    "saveLogo": "ロゴを保存",
     "localisation": "販売通貨",
     "localisationDescription": "購入者が支払いに使える通貨。",
     "saveLocalisation": "通貨を保存",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "プリセット",
       "presetsBody": "プリセットから始めて、独自のデザインにカスタマイズしましょう。",
+      "template": "テンプレート",
+      "templateBody": "このテンプレートをもとにデザインできます。",
+      "resetTemplate": "テンプレートのデザインに戻す",
       "colours": "ブランドカラー",
       "coloursBody": "テキストの色は読みやすさを保つため、ストアフロントで調整されます。",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "変更を破棄",
       "liveNote": "保存されたデザインはすぐに公開されます。",
       "saveFailed": "デザインを保存できませんでした。もう一度お試しください。",
-      "sampleHeading": "今シーズンの必需品",
-      "sampleBody": "受注生産、世界中に発送",
-      "samplePrimary": "今すぐ購入",
-      "sampleSecondary": "詳細はこちら",
-      "sampleSurface": "75以上の注文で送料無料",
       "draftNote": "このデザインは下書きです。公開時にストアに適用されます。"
     },
     "productPage": {

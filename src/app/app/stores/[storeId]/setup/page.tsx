@@ -1,13 +1,15 @@
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { Callout, PageHeader, ProgressBar } from "@/components/ui";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { storeLanguages } from "@/i18n/storefront-routing";
-import { listTaxBrackets, storesWithShippingRates } from "@/lib/data";
+import { isLocale } from "@/i18n/locales";
+import { listTaxBrackets, storesWithShippingRates, storeTemplateIds } from "@/lib/data";
 import { POLICY_KEYS } from "@/lib/policies";
 import { setupProgress, setupRemaining, setupStatus } from "@/lib/metrics";
-import { requireStoreAccess } from "@/lib/session";
+import { requireStoreAccess, roleCan } from "@/lib/session";
+import { galleryTemplates } from "@/lib/templates/gallery";
 import { SetupSections } from "./SetupSections";
 import { StoreAdminPanel } from "./StoreAdminPanel";
 
@@ -20,9 +22,16 @@ export default async function StoreSetupPage({
 }) {
   const { storeId } = await params;
   const { created } = await searchParams;
-  const { store } = await requireStoreAccess(storeId, "store.settings");
-  const [brackets, shipsWithRates] = await Promise.all([listTaxBrackets(), storesWithShippingRates([store.id])]);
-  const status = setupStatus(store.setup, shipsWithRates.has(store.id));
+  const { store, role } = await requireStoreAccess(storeId, "store.settings");
+  const [brackets, shipsWithRates, templateIds, uiLocale] = await Promise.all([
+    listTaxBrackets(),
+    storesWithShippingRates([store.id]),
+    storeTemplateIds([store.id]),
+    getLocale(),
+  ]);
+  const templateId = templateIds.get(store.id);
+  const template = templateId ? (galleryTemplates(isLocale(uiLocale) ? uiLocale : "en").find((tpl) => tpl.id === templateId) ?? null) : null;
+  const status = setupStatus(store.setup, shipsWithRates.has(store.id), Boolean(template));
   const progress = setupProgress(status);
   const remaining = setupRemaining(status);
   // The built-in policy text in each of the store's languages, so the editor
@@ -126,7 +135,14 @@ export default async function StoreSetupPage({
           </CardContent>
         </Card>
 
-        <SetupSections store={store} status={status} brackets={brackets} policyDefaults={policyDefaults} />
+        <SetupSections
+          store={store}
+          status={status}
+          brackets={brackets}
+          policyDefaults={policyDefaults}
+          template={template}
+          canEditStorefront={roleCan(role, "store.storefront")}
+        />
       </section>
     </div>
   );

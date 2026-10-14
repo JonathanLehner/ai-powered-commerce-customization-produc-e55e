@@ -978,7 +978,7 @@
       "inventory": "Voorraad"
     },
     "setupStep": {
-      "branding": "Logo en thema",
+      "branding": "Sjabloon en logo",
       "languages": "Talen",
       "localisation": "Verkoopvaluta",
       "support": "Supportcontacten",
@@ -996,6 +996,7 @@
       "bloom": "Warm en vriendelijk."
     },
     "themeName": "Thema {name}",
+    "templateName": "Sjabloon {name}",
     "supplierKind": {
       "print_on_demand": "Print-on-demand",
       "manufacturer": "Fabrikant",
@@ -1247,8 +1248,7 @@
       "clientRequired": "Vul de klant van deze winkel in.",
       "nameNotAddress": "Van die naam kan geen webadres worden gemaakt. Gebruik letters of cijfers.",
       "renamed": "Winkelnaam bijgewerkt.",
-      "logoAndTheme": "Logo geüpload en thema opgeslagen.",
-      "themeSaved": "Thema opgeslagen.",
+      "logoSaved": "Logo opgeslagen.",
       "currencyRequired": "Selecteer minstens één verkoopvaluta.",
       "defaultCurrencyRequired": "De standaardvaluta moet een van de geselecteerde verkoopvaluta zijn.",
       "localisationSaved": "Valuta opgeslagen.",
@@ -1729,7 +1729,7 @@
     "canSell": "Je winkel kan al verkopen.",
     "stillToFinish": "Nog te doen: {steps}.",
     "nextStep": {
-      "branding": "Voeg een logo en thema toe om je winkel vorm te geven.",
+      "branding": "Kies een sjabloon of voeg een logo toe om je winkel vorm te geven.",
       "languages": "Kies de talen waarin je winkel wordt getoond.",
       "localisation": "Kies de valuta waarin klanten kunnen betalen.",
       "support": "Voeg supportcontacten toe zodat klanten je kunnen bereiken.",
@@ -1761,9 +1761,12 @@
     "logoHint": "PNG, JPG, WEBP of SVG tot {max} MB.",
     "uploading": "Uploaden…",
     "branding": "Huisstijl",
-    "brandingDescription": "Logo en etalagethema.",
-    "saveBranding": "Huisstijl opslaan",
-    "theme": "Etalagethema",
+    "brandingDescription": "Etalagesjabloon en logo.",
+    "storefrontTemplate": "Etalagesjabloon",
+    "noTemplate": "Geen sjabloon toegepast",
+    "changeTemplate": "Sjabloon wijzigen",
+    "chooseTemplate": "Kies een sjabloon",
+    "saveLogo": "Logo opslaan",
     "localisation": "Verkoopvaluta",
     "localisationDescription": "De valuta waarin klanten kunnen betalen.",
     "saveLocalisation": "Valuta opslaan",
@@ -3700,6 +3703,9 @@
     "design": {
       "presets": "Voorinstellingen",
       "presetsBody": "Begin met een voorinstelling en pas deze aan.",
+      "template": "Sjabloon",
+      "templateBody": "Je ontwerp begint bij dit sjabloon.",
+      "resetTemplate": "Ontwerp van sjabloon herstellen",
       "colours": "Merkkleuren",
       "coloursBody": "Tekstkleuren worden in de etalage aangepast om leesbaar te blijven.",
       "colourNames": {
@@ -3749,11 +3755,6 @@
       "discard": "Wijzigingen negeren",
       "liveNote": "Een opgeslagen ontwerp gaat direct live.",
       "saveFailed": "Het ontwerp kon niet worden opgeslagen. Probeer opnieuw.",
-      "sampleHeading": "Essentiële items nieuw seizoen",
-      "sampleBody": "Op bestelling gemaakt en wereldwijd verzonden.",
-      "samplePrimary": "Shop nu",
-      "sampleSecondary": "Meer informatie",
-      "sampleSurface": "Gratis verzending bij bestellingen boven 75",
       "draftNote": "Dit ontwerp maakt deel uit van het concept. Het wordt actief zodra je publiceert."
     },
     "productPage": {

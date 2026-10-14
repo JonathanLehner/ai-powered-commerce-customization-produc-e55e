@@ -10,7 +10,6 @@ import { AssistantEmbed } from "@/components/assistant/AssistantPanel";
 import { useOptionalAssistant } from "@/components/assistant/context";
 import { FormStatus } from "@/components/forms";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
-import { ProductCard } from "@/components/storefront/ProductCard";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +49,7 @@ import {
 } from "@/lib/translations";
 import { classNames, formatDateTime } from "@/lib/util";
 import { ContentTranslations, StateBadge, type ItemUpdate, type TranslatableItem } from "./ContentTranslations";
-import { DesignPanel, type DesignState } from "./DesignPanel";
+import { DesignPanel, type DesignState, type DesignTemplate } from "./DesignPanel";
 import { CopyField, FieldEnvContext, FieldList, type PropTarget } from "./fields";
 import { PREVIEW_WIDTHS, PreviewFrame } from "./PreviewFrame";
 import { ProductPageEditor } from "./ProductPageEditor";
@@ -536,6 +535,8 @@ export interface EditorCanvasProps {
   liveSections: SectionSummary[] | null;
   /** The store's preset and design tokens as saved. */
   design: DesignState;
+  /** The template the draft is built from, shown as the design's starting point. */
+  template: DesignTemplate | null;
 }
 
 type ShellProps = EditorCanvasProps & {
@@ -596,27 +597,34 @@ function SitePreview({ storeName, chrome, children }: { storeName: string; chrom
   );
 }
 
-/** A strip of storefront in the design being tried: type, buttons, colours and product cards. */
+/** The store's own hero and products, drawn in the design being tried. */
 function DesignSample({ ctx }: { ctx: StorefrontContext }) {
-  const t = useTranslations("editor.design");
+  const { locale, defaultLocale } = useEditLocale();
+  // The first visible hero and product grid on the page as it is in the editor.
+  const { hero, grid } = useEditor((state) => {
+    const sections = (state.nodes.ROOT?.data.nodes ?? [])
+      .map((id) => state.nodes[id])
+      .filter((node) => node && !node.data.hidden && node.data.name in SECTION_DEFS)
+      .map((node) => ({ type: node.data.name as SectionType, props: node.data.props as Record<string, unknown> }));
+    return {
+      hero: sections.find((section) => SECTION_DEFS[section.type].category === "hero") ?? null,
+      grid: sections.find((section) => section.type === "ProductGrid") ?? null,
+    };
+  });
+  const heroProps = hero
+    ? localizeSectionProps(hero.type, hero.props, locale, defaultLocale)
+    : { eyebrow: ctx.storeName, headline: ctx.t.generated.heroHeadline, ctaLabel: ctx.t.generated.heroCta, ctaHref: "products" };
+  const gridProps = grid
+    ? localizeSectionProps("ProductGrid", grid.props, locale, defaultLocale)
+    : { ...SECTION_DEFS.ProductGrid.defaults, title: "", subtitle: "" };
   return (
-    <div className="grid gap-6 p-6 md:grid-cols-[1fr_1.4fr] md:p-8">
-      <div>
-        <p className="text-xs font-semibold tracking-[0.16em] text-[var(--sf-primary-text)] uppercase">{ctx.storeName}</p>
-        <p className="font-heading mt-3 text-4xl leading-[1.05] font-semibold tracking-tight">{t("sampleHeading")}</p>
-        <p className="mt-3 text-base text-inksoft">{t("sampleBody")}</p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <span className="sf-btn sf-btn-primary">{t("samplePrimary")}</span>
-          <span className="sf-btn sf-btn-secondary">{t("sampleSecondary")}</span>
-        </div>
-        <div className="mt-5 rounded-[var(--radius)] bg-muted p-4 text-sm text-foreground">{t("sampleSurface")}</div>
-      </div>
-      <ul className="grid grid-cols-3 gap-3">
-        {ctx.products.slice(0, 3).map((product) => (
-          <ProductCard key={product.id} product={product} ctx={ctx} columns={3} quickAdd={false} />
-        ))}
-      </ul>
-    </div>
+    <>
+      {/* A full-height hero is drawn at its shortest so the settings below stay in reach. */}
+      <RenderSection type={hero?.type ?? "HeroSection"} props={"height" in heroProps ? { ...heroProps, height: "medium" } : heroProps} ctx={ctx} index={0} />
+      {ctx.products.length > 0 ? (
+        <RenderSection type="ProductGrid" props={{ ...gridProps, source: "all", columns: "4", limit: 4, quickAdd: false }} ctx={ctx} />
+      ) : null}
+    </>
   );
 }
 
@@ -952,6 +960,7 @@ function EditorShell(props: ShellProps) {
             storeId={props.storeId}
             value={design}
             saved={savedDesign}
+            template={props.template}
             drafted={drafted}
             onChange={changeDesign}
             onSaved={(next) => {

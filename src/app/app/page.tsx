@@ -18,7 +18,7 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from
 import { parseRange, rangeQuery } from "@/lib/analytics";
 import { loadSparklines } from "@/lib/analytics-data";
 import { recentAuditReadSize, recentAuditRuns } from "@/lib/audit-log";
-import { listAudit, storesWithShippingRates } from "@/lib/data";
+import { listAudit, storesWithShippingRates, storeTemplateIds } from "@/lib/data";
 import { addBreakdowns } from "@/lib/attention";
 import { setupProgress, setupStatus } from "@/lib/metrics";
 import { loadStoreMetrics } from "@/lib/metrics-data";
@@ -94,13 +94,14 @@ export default async function AgencyDashboard({
   // read each rather than read order by order into the Worker. The sparklines
   // come from the same aggregation as each store's Analytics page, for every
   // live store in one read.
-  const [metricsByStore, sparklines, shipsWithRates] = await Promise.all([
+  const [metricsByStore, sparklines, shipsWithRates, templateIds] = await Promise.all([
     loadStoreMetrics(stores.map(({ store }) => store)),
     loadSparklines(
       stores.filter(({ store }) => store.status === "active").map(({ store }) => store),
       range,
     ),
     storesWithShippingRates(stores.map(({ store }) => store.id)),
+    storeTemplateIds(stores.map(({ store }) => store.id)),
   ]);
 
   const rows = stores.map(({ store, role, viaPlatform }) => ({
@@ -222,7 +223,7 @@ export default async function AgencyDashboard({
           ) : (
             <ul className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {active.map(({ store, role, viaPlatform, metrics }) => {
-                const progress = setupProgress(setupStatus(store.setup, shipsWithRates.has(store.id)));
+                const progress = setupProgress(setupStatus(store.setup, shipsWithRates.has(store.id), templateIds.has(store.id)));
                 const revenue = sparklines.get(store.id) ?? [];
                 const theme = THEMES[store.theme];
                 return (
