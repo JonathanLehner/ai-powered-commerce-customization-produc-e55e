@@ -16,6 +16,8 @@ export interface CampaignPayment {
   /** The Stripe account and session, on a live store. Null on a demo store. */
   stripeAccountId: string | null;
   checkoutSessionId: string | null;
+  /** Paid in test mode: the orders are marked as test orders. */
+  test?: boolean;
   /** The campaign timeline note, for the store team. */
   note: string;
 }
@@ -50,6 +52,7 @@ export async function raiseCampaignOrders(
       storeId: store.id,
       code: orderCode(),
       status: "paid",
+      ...(payment.test ? { test: true } : {}),
       currency: campaign.currency,
       customer: {
         name: recipient.name,
@@ -226,7 +229,13 @@ export async function raiseCampaignOrders(
     notify: {
       type: "order_paid",
       href: `/app/stores/${store.id}/orders/campaigns/${campaign.id}`,
-      params: { code: campaign.code, count: orders.length, amount: quote.total, currency: campaign.currency },
+      params: {
+        code: campaign.code,
+        count: orders.length,
+        amount: quote.total,
+        currency: campaign.currency,
+        ...(payment.test ? { test: true } : {}),
+      },
     },
   });
 

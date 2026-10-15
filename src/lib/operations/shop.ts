@@ -44,6 +44,7 @@ import { cleanQuery, searchStore, type SearchDocument } from "../search";
 import { storeSearchDocuments } from "../search-data";
 import { EMAIL_DELIVERY_RATE_ID, stripeAllowedCountries, zoneFor } from "../shipping";
 import { createConnectedCheckout, expireConnectedCheckout } from "../stripe";
+import { reportStripeFailure } from "../stripe-alerts";
 import { localizeProduct } from "../translations";
 import {
   DEFAULT_PLACEMENT,
@@ -853,6 +854,7 @@ export async function placeOrder(
     storeId,
     code,
     status: "awaiting_payment",
+    ...(mode === "demo" && store.testMode ? { test: true } : {}),
     currency,
     // What the order comes to in the store's own currency, at the rate it was priced at.
     shopCurrency: store.defaultCurrency,
@@ -945,7 +947,9 @@ export async function placeOrder(
         note: giftCoversAll
           ? `Paid with the gift card ending ${giftCard?.last4}.`
           : mode === "demo"
-            ? "Demo store: payment is simulated."
+            ? store.testMode
+              ? "Test mode: payment is simulated."
+              : "Demo store: payment is simulated."
             : "Awaiting payment on Stripe Checkout.",
         actor: "Shopper",
       },
@@ -970,7 +974,7 @@ export async function placeOrder(
     await confirmOrderPayment(order, store, {
       paymentIntentId: simulated.paymentIntentId,
       last4: simulated.last4,
-      note: `${formatMoney(due, currency)} paid on a demo store${giftCard ? ` and ${formatMoney(giftCard.amount, currency)} with the gift card ending ${giftCard.last4}` : ""}. No money moved.`,
+      note: `${formatMoney(due, currency)} paid ${store.testMode ? "in test mode" : "on a demo store"}${giftCard ? ` and ${formatMoney(giftCard.amount, currency)} with the gift card ending ${giftCard.last4}` : ""}. No money moved.`,
     });
     return { status: "redirect", to: orderStatusUrl(base, code, token, "&new=1"), orderCode: code };
   }
@@ -1027,15 +1031,21 @@ export async function placeOrder(
     successUrl: absolute(origin, orderStatusUrl(base, code, token, "&paid=1")),
     cancelUrl: absolute(origin, `${base}/cart`),
   });
-  if (!checkout) {
-    await abandonOrderPayment(order, store, "failed");
-    return refuse(t("payment.startFailed"), undefined, "payment_failed");
+  if (!checkout.ok) {
+    const { failure } = checkout;
+    await reportStripeFailure(failure, { operation: "checkout", store });
+    await abandonOrderPayment(order, store, "failed", { note: `Stripe could not open Checkout: ${failure.message}` });
+    const message =
+      failure.kind === "invalid"
+        ? failure.message
+        : t(failure.kind === "platform" ? "payment.accountNotReady" : "payment.startFailed");
+    return refuse(message, undefined, "payment_failed");
   }
   await updateOrder(order.id, {
-    payment: { ...order.payment, checkoutSessionId: checkout.id, checkoutUrl: checkout.url },
+    payment: { ...order.payment, checkoutSessionId: checkout.value.id, checkoutUrl: checkout.value.url },
   });
   revalidatePath(`/app/stores/${storeId}/orders`);
-  return { status: "redirect", to: checkout.url, orderCode: code };
+  return { status: "redirect", to: checkout.value.url, orderCode: code };
 }
 
 /**

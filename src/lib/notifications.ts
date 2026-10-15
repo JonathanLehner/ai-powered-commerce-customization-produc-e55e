@@ -59,6 +59,8 @@ export interface NotificationParams {
   currency?: string;
   /** Orders raised by a paid gift campaign. */
   count?: number;
+  /** A test-mode order: its title is marked as a test. */
+  test?: boolean;
 }
 
 export type EmailStatus = "none" | "pending" | "sent" | "skipped";

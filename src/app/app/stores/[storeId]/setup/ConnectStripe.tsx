@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { connectStripe, disconnectStripe } from "@/app/actions/stores";
+import { connectStripe, disconnectStripe, setTestMode } from "@/app/actions/stores";
 import { ActionForm, SubmitButton } from "@/components/forms";
 import { Badge, Callout, DataList } from "@/components/ui";
 import { Label } from "@/components/ui/label";
@@ -65,6 +65,30 @@ export function ConnectStripeForm({ store, label }: { store: Store; label?: stri
   );
 }
 
+/** Test payments: checkout takes test cards and nobody is charged, until it is turned off. */
+export function TestModeCard({ store }: { store: Store }) {
+  const t = useTranslations("settings");
+  const on = Boolean(store.testMode);
+  const live = Boolean(store.stripe.express && store.stripe.accountId && store.stripe.chargesEnabled);
+  return (
+    <div className="space-y-3 rounded-lg border border-border p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-medium text-foreground">{t("testModeTitle")}</p>
+        <Badge tone={on ? "amber" : "neutral"}>{on ? t("testModeOn") : t("testModeOff")}</Badge>
+      </div>
+      <p className="text-sm text-muted-foreground">{t("testModeBody")}</p>
+      {on && live ? <Callout tone="amber">{t("testModeBlocksLive")}</Callout> : null}
+      <form action={setTestMode}>
+        <input type="hidden" name="storeId" value={store.id} />
+        <input type="hidden" name="enabled" value={on ? "off" : "on"} />
+        <SubmitButton variant="outline" size="sm" pendingLabel={t("testModeSaving")}>
+          {on ? t("testModeTurnOff") : t("testModeTurnOn")}
+        </SubmitButton>
+      </form>
+    </div>
+  );
+}
+
 /** The guided setup step: status, onboarding and reconnecting. */
 export function StripeStep({ store }: { store: Store }) {
   const t = useTranslations("settings");
@@ -93,6 +117,8 @@ export function StripeStep({ store }: { store: Store }) {
       ) : (
         <ConnectStripeForm store={store} />
       )}
+
+      <TestModeCard store={store} />
 
       {store.stripe.connected ? (
         <form action={disconnectStripe}>

@@ -904,7 +904,8 @@
       "archivedLabel": "· arkiverad",
       "historicOrders": "{count, plural, one {# tidigare order} other {# tidigare ordrar}}",
       "recentActivity": "Senaste aktivitet på plattformen"
-    }
+    },
+    "testMode": "Testläge"
   },
   "pager": {
     "orders": "{first}–{last} av {total} ordrar",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "Växelkurserna kunde inte uppdateras. Försök igen senare.",
       "ratesSaved": "Växelkurserna har sparats",
       "ratesRefreshed": "Växelkurserna har uppdaterats",
-      "templateMissing": "Den mallen är inte längre tillgänglig. Välj en annan."
+      "templateMissing": "Den mallen är inte längre tillgänglig. Välj en annan.",
+      "stripePlatformAttention": "Betalningar kan inte konfigureras ännu eftersom plattformens Stripe-konto behöver åtgärdas."
     },
     "team": {
       "emailInvalid": "Ange en giltig e-postadress.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Skicka händelser om ordrar, produkter, kunder och lager till dina egna system.",
-    "webhooksLink": "Hantera webhooks"
+    "webhooksLink": "Hantera webhooks",
+    "testModeTitle": "Testbetalningar",
+    "testModeOn": "På",
+    "testModeOff": "Av",
+    "testModeBody": "Kassan tar emot testkort och ingen debiteras. Beställningar markeras som testbeställningar och räknas inte med i analysen.",
+    "testModeBlocksLive": "Stripe är klart. Stäng av testläget för att ta emot riktiga betalningar.",
+    "testModeTurnOn": "Slå på testläge",
+    "testModeTurnOff": "Stäng av testläge",
+    "testModeSaving": "Sparar…"
   },
   "team": {
     "agencyAdmins": "Byråadministratörer",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Ordrar med avvikelser",
     "csvExceptionRate": "Andel avvikelser (%)",
     "fileName": "{store} daglig försäljning",
-    "accessDenied": "Du har inte åtkomst till den här butiken."
+    "accessDenied": "Du har inte åtkomst till den här butiken.",
+    "includeTestOrders": "Ta med testbeställningar",
+    "excludeTestOrders": "Utelämna testbeställningar"
   },
   "orders": {
     "recipients": "{count, plural, one {# mottagare} other {# mottagare}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {Inga ordrar skickade till leverantörer.} one {# order skickad till en leverantör.} other {# ordrar skickade till leverantörer.}}",
         "failed": "{count, plural, one {# order misslyckades:} other {# ordrar misslyckades:}}"
       }
-    }
+    },
+    "testBadge": "TEST"
   },
   "orderDetail": {
     "orders": "Ordrar",
@@ -3863,7 +3876,8 @@
       "undecided": "Inte bestämt",
       "planLabel": "Planen {plan}",
       "recentActivity": "Senaste aktivitet på plattformen",
-      "fullAudit": "Hela granskningsloggen"
+      "fullAudit": "Hela granskningsloggen",
+      "testMode": "Testläge"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Meddelande",
       "noMessage": "Inget meddelande.",
       "reply": "Svara via e-post"
+    },
+    "stripeAlert": {
+      "title": "Stripe behöver åtgärdas",
+      "body": "Butiker kan inte konfigurera eller ta emot betalningar förrän detta har åtgärdats i Stripe Dashboard.",
+      "seen": "Senast: {when}",
+      "seenWithStore": "Senast: {when} i {store}",
+      "openDashboard": "Öppna Stripe Dashboard",
+      "emailSubject": "Åtgärd krävs i din Stripe Dashboard",
+      "emailBody": "Stripe nekade en begäran från plattformskontot. Butiker kan inte konfigurera eller ta emot betalningar förrän detta har åtgärdats:",
+      "storeLabel": "Butik"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Testläge – inga riktiga betalningar"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Försändelser",
       "shipmentNumber": "Paket {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Spåra paket"
+      "trackParcel": "Spåra paket",
+      "testBadge": "TEST"
     },
     "status": {
       "awaitingPayment": "Väntar på betalning",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "Vi har återbetalat {amount} till ditt ursprungliga betalsätt.",
       "deliveredSubject": "Din order {code} hos {store} har levererats",
       "deliveredHeading": "Din order har levererats",
-      "deliveredBody": "Order {code} har levererats. Kontakta oss om något saknas eller inte blev som väntat."
+      "deliveredBody": "Order {code} har levererats. Kontakta oss om något saknas eller inte blev som väntat.",
+      "testSubjectPrefix": "[TEST]",
+      "testNotice": "Det här är en testbeställning. Ingen betalning har dragits."
     },
     "gift": {
       "chromeSubtitle": "Gåvokatalog · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# ny order} other {# nya ordrar}} i {store}",
       "digestHeading": "{count, plural, one {# ny order} other {# nya ordrar}}",
       "digestCta": "Visa ordrar"
-    }
+    },
+    "testPrefix": "[TEST]"
   },
   "storePolicies": {
     "refunds": "## Personliga och specialtillverkade varor\nVarje vara från {store} tillverkas på beställning, och många bär ditt namn, din text eller ditt motiv. Eftersom de tillverkas åt dig kan vi inte ta emot returer eller byten om du ångrar dig, eller för en storlek eller färg du själv valt. Kontrollera design, stavning och storlek innan du beställer.\n\n## Skadade, felaktiga eller fel varor\nOm din beställning kommer fram skadad, felaktig eller inte stämmer med det du beställde, kontakta oss inom 30 dagar från leverans med ditt ordernummer och ett foto. Vi skickar en ersättningsvara eller återbetalar hela beloppet utan kostnad för dig.\n\n## Varor utan personlig utformning\nOanvända varor utan personlig utformning kan returneras inom 14 dagar från leverans. Kontakta oss innan du skickar tillbaka något. Returfrakten betalar du, om inte varan är felaktig.\n\n## Avbeställning\nDu kan avbeställa kostnadsfritt tills din beställning går i produktion. Kontakta oss så snart som möjligt med ditt ordernummer.\n\n## Återbetalningar\nGodkända återbetalningar sätts in på den ursprungliga betalningsmetoden inom 10 arbetsdagar.\n\n## Dina lagstadgade rättigheter\nDenna policy påverkar inte dina lagstadgade rättigheter som konsument.",

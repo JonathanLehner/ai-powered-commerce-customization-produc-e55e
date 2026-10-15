@@ -198,7 +198,8 @@ function messageValues(params: NotificationParams, format: Awaited<ReturnType<ty
 
 async function emailOne(user: User, store: Store, notification: Notification, origin: string): Promise<void> {
   const { t, format, frame } = await notificationCopy(languageFor(user, store));
-  const title = t(`titles.${notificationTitleKey(notification.type, notification.params)}`, messageValues(notification.params, format));
+  const text = t(`titles.${notificationTitleKey(notification.type, notification.params)}`, messageValues(notification.params, format));
+  const title = notification.params.test ? `${t("testPrefix")} ${text}` : text;
   sendEmail({
     to: user.email,
     message: notificationEmail(teamBrand(store), frame, {
@@ -225,7 +226,10 @@ async function emailDigest(user: User, store: Store, rows: Notification[], origi
       heading: t("email.digestHeading", { count }),
       name: user.name,
       paragraphs: [],
-      rows: rows.map((n) => ({ label: n.params.code ?? "", value: messageValues(n.params, format).amount })),
+      rows: rows.map((n) => ({
+        label: n.params.test ? `${t("testPrefix")} ${n.params.code ?? ""}` : (n.params.code ?? ""),
+        value: messageValues(n.params, format).amount,
+      })),
       action: { label: t("email.digestCta"), url: `${origin}/app/stores/${store.id}/orders` },
     }),
     kind: "new order digest",

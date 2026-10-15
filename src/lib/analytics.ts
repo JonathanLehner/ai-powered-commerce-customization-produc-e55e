@@ -50,6 +50,8 @@ export interface AnalyticsRange {
   bucketDays: number;
   /** The same number of days immediately before `from`. */
   previous: { from: string; to: string };
+  /** Counts orders placed in test mode too; they are left out unless asked for. */
+  includeTest: boolean;
 }
 
 export function addDays(day: string, count: number): string {
@@ -76,6 +78,7 @@ function rangeOf(key: RangeKey, from: string, to: string): AnalyticsRange {
     days,
     bucketDays: days <= DAILY_LIMIT ? 1 : 7,
     previous: { from: addDays(from, -days), to: addDays(from, -1) },
+    includeTest: false,
   };
 }
 
@@ -84,9 +87,13 @@ function rangeOf(key: RangeKey, from: string, to: string): AnalyticsRange {
  * last 30 days; a custom range is clipped to today and to MAX_RANGE_DAYS.
  */
 export function parseRange(
-  params: { range?: string; from?: string; to?: string },
+  params: { range?: string; from?: string; to?: string; test?: string },
   now: Date,
 ): AnalyticsRange {
+  return { ...presetOrCustom(params, now), includeTest: params.test === "1" };
+}
+
+function presetOrCustom(params: { range?: string; from?: string; to?: string }, now: Date): AnalyticsRange {
   const today = now.toISOString().slice(0, 10);
   switch (params.range) {
     case "7d":
@@ -117,6 +124,7 @@ export function rangeQuery(range: AnalyticsRange): string {
     params.set("from", range.from);
     params.set("to", range.to);
   }
+  if (range.includeTest) params.set("test", "1");
   return `?${params}`;
 }
 
@@ -161,7 +169,14 @@ function usdPerMinorExpr(currency: unknown) {
  * read. `target` is what one minor unit of the reporting currency is worth in
  * USD: a number for one store, or an expression keyed on the store for several.
  */
-function paidOrderStages(storeId: string | { $in: string[] }, from: string, to: string, target: unknown, language: string) {
+function paidOrderStages(
+  storeId: string | { $in: string[] },
+  from: string,
+  to: string,
+  target: unknown,
+  language: string,
+  includeTest: boolean,
+) {
   return [
     {
       $match: {
@@ -169,6 +184,7 @@ function paidOrderStages(storeId: string | { $in: string[] }, from: string, to: 
         createdAt: { $gte: startOf(from), $lt: endOf(to) },
         status: { $ne: "cancelled" },
         "payment.status": { $in: ["succeeded", "refunded"] },
+        ...(includeTest ? {} : { test: { $ne: true } }),
       },
     },
     {
@@ -333,7 +349,7 @@ export function analyticsPipeline(
   range: AnalyticsRange,
 ) {
   return [
-    ...paidOrderStages(store.id, range.previous.from, range.to, usdPerMinor(store.defaultCurrency), store.defaultLanguage),
+    ...paidOrderStages(store.id, range.previous.from, range.to, usdPerMinor(store.defaultCurrency), store.defaultLanguage, range.includeTest),
     ...costStages(),
     { $addFields: { period: { $cond: [{ $gte: ["$createdAt", startOf(range.from)] }, "current", "previous"] } } },
     {
@@ -368,7 +384,7 @@ export function dailySeriesPipeline(
   range: AnalyticsRange,
 ) {
   return [
-    ...paidOrderStages(store.id, range.from, range.to, usdPerMinor(store.defaultCurrency), store.defaultLanguage),
+    ...paidOrderStages(store.id, range.from, range.to, usdPerMinor(store.defaultCurrency), store.defaultLanguage, range.includeTest),
     ...costStages(),
     ...seriesStages(range, 1),
   ];
@@ -383,7 +399,7 @@ export function sparklinePipeline(stores: { id: string; defaultCurrency: string 
     },
   };
   return [
-    ...paidOrderStages({ $in: stores.map((store) => store.id) }, range.from, range.to, target, ""),
+    ...paidOrderStages({ $in: stores.map((store) => store.id) }, range.from, range.to, target, "", range.includeTest),
     { $group: { _id: { store: "$storeId", day: bucketExpr(range.from, 1) }, revenue: { $sum: "$net" } } },
   ];
 }

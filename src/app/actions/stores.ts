@@ -19,6 +19,7 @@ import {
   savePolicies as setPolicies,
   saveSupport as setSupport,
   setStoreStatus as setStatus,
+  setTestMode as switchTestMode,
 } from "@/lib/operations/store-settings";
 import { POLICY_KEYS } from "@/lib/policies";
 import { assertAgencyAdmin, assertStoreAccess, getSessionUser, operationContext } from "@/lib/session";
@@ -251,6 +252,13 @@ export async function disconnectStripe(formData: FormData): Promise<void> {
   const storeId = String(formData.get("storeId") ?? "");
   const access = await assertStoreAccess(storeId, "store.settings");
   await stopStripe(await operationContext(access));
+}
+
+/** Turns test payments on or off; the form says which, so a second click changes nothing. */
+export async function setTestMode(formData: FormData): Promise<void> {
+  const storeId = String(formData.get("storeId") ?? "");
+  const access = await assertStoreAccess(storeId, "store.settings");
+  await switchTestMode(await operationContext(access), { enabled: formData.get("enabled") === "on" });
 }
 
 export async function saveCarriers(_prev: ActionState, formData: FormData): Promise<ActionState> {

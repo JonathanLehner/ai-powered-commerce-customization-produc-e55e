@@ -20,7 +20,8 @@ import { siteOrigin } from "../email";
 import { storeAllowance } from "../plans";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type PolicyKey, type StorePolicies } from "../policies";
 import { forgetStorePolicies } from "../storefront-data";
-import { createExpressAccount, onboardingLink } from "../stripe";
+import { createExpressAccount, onboardingLink, type StripeFailure } from "../stripe";
+import { clearStripeAlert, reportStripeFailure, stripeFailureText, type StripeOperation } from "../stripe-alerts";
 import { isSupportEmail, isSupportPhone } from "../support";
 import { cleanDesign, type StoreDesign } from "../store-design";
 import { DRAFT_DESIGN_PROP } from "../templates/tree";
@@ -358,6 +359,13 @@ export async function setStoreStatus(ctx: OperationContext, status: Store["statu
   return { ...store, status, archivedAt };
 }
 
+/** The refusal for a failed Stripe call, after platform admins are told about a platform failure. */
+async function stripeRefusal(ctx: OperationContext, failure: StripeFailure, operation: StripeOperation) {
+  await reportStripeFailure(failure, { operation, store: ctx.store });
+  const t = await messages(ctx);
+  return new OperationError(failure.kind === "invalid" ? "invalid" : "payment_failed", stripeFailureText(failure, t));
+}
+
 /**
  * Starts or continues Stripe payments for the store: creates its Express
  * account on the first call, or reuses it to continue or update onboarding,
@@ -377,7 +385,7 @@ export async function connectStripe(
   if (!accountId) {
     const country = input.country ?? store.stripe.country;
     if (!STRIPE_COUNTRIES.some((c) => c.code === country)) throw new OperationError("invalid", t("stripeCountry"), "country");
-    const account = await createExpressAccount({
+    const created = await createExpressAccount({
       storeId,
       country,
       email: store.supportEmail ?? null,
@@ -385,7 +393,9 @@ export async function connectStripe(
       // disconnect makes a new one.
       attempt: `${country}-${store.stripe.previousAccountId ?? "first"}`,
     });
-    if (!account) throw new OperationError("payment_failed", t("stripeUnavailable"));
+    if (!created.ok) throw await stripeRefusal(ctx, created.failure, "create_account");
+    await clearStripeAlert();
+    const account = created.value;
     accountId = account.accountId;
     const patch = {
       stripe: {
@@ -412,10 +422,31 @@ export async function connectStripe(
   const origin = await siteOrigin();
   const back = `${origin}/app/stores/${storeId}/setup/stripe`;
   const link = await onboardingLink(accountId, `${back}/refresh`, back);
-  if (!link) throw new OperationError("payment_failed", t("stripeUnavailable"));
+  if (!link.ok) throw await stripeRefusal(ctx, link.failure, "onboarding_link");
+  await clearStripeAlert("onboarding_link");
   audit(ctx, "store.stripe_onboarding_started", `Opened Stripe onboarding for ${accountId}`, { accountId });
   revalidatePath(`/app/stores/${storeId}/setup`);
-  return { store, onboardingUrl: link };
+  return { store, onboardingUrl: link.value };
+}
+
+/**
+ * Turns test payments on or off. While on, checkout takes the test cards,
+ * nobody is charged and orders are marked as test orders. It comes before a
+ * connected account, so real payments only start once it is off.
+ */
+export async function setTestMode(ctx: OperationContext, input: { enabled: boolean }): Promise<Store> {
+  const { store } = ctx;
+  if (Boolean(store.testMode) === input.enabled) return store;
+  await updateStore(store.id, { testMode: input.enabled });
+  audit(
+    ctx,
+    input.enabled ? "store.test_mode_on" : "store.test_mode_off",
+    input.enabled ? "Turned on test payments" : "Turned off test payments",
+    { enabled: input.enabled },
+  );
+  revalidatePath("/app");
+  revalidatePath(`/app/stores/${store.id}/setup`);
+  return { ...store, testMode: input.enabled };
 }
 
 /** Disconnects the store's Stripe account; checkout stops taking card payments. */

@@ -904,7 +904,8 @@
       "archivedLabel": "· arquivada",
       "historicOrders": "{count, plural, one {# encomenda anterior} other {# encomendas anteriores}}",
       "recentActivity": "Atividade recente da plataforma"
-    }
+    },
+    "testMode": "Modo de teste"
   },
   "pager": {
     "orders": "{first}–{last} de {total} encomendas",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "Não foi possível atualizar as taxas de câmbio. Tente novamente mais tarde.",
       "ratesSaved": "Taxas de câmbio guardadas",
       "ratesRefreshed": "Taxas de câmbio atualizadas",
-      "templateMissing": "Esse modelo já não está disponível. Escolhe outro."
+      "templateMissing": "Esse modelo já não está disponível. Escolhe outro.",
+      "stripePlatformAttention": "Ainda não é possível configurar os pagamentos porque a conta Stripe da plataforma precisa de atenção."
     },
     "team": {
       "emailInvalid": "Introduza um email válido.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Envie eventos de encomendas, produtos, clientes e inventário para os seus próprios sistemas.",
-    "webhooksLink": "Gerir webhooks"
+    "webhooksLink": "Gerir webhooks",
+    "testModeTitle": "Pagamentos de teste",
+    "testModeOn": "Ativado",
+    "testModeOff": "Desativado",
+    "testModeBody": "O checkout aceita cartões de teste e ninguém é cobrado. Os pedidos são marcados como pedidos de teste e excluídos das análises.",
+    "testModeBlocksLive": "O Stripe está pronto. Desative o modo de teste para aceitar pagamentos reais.",
+    "testModeTurnOn": "Ativar modo de teste",
+    "testModeTurnOff": "Desativar modo de teste",
+    "testModeSaving": "Salvando…"
   },
   "team": {
     "agencyAdmins": "Administradores da agência",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Pedidos com exceções",
     "csvExceptionRate": "Taxa de exceções (%)",
     "fileName": "{store} vendas diárias",
-    "accessDenied": "Você não tem acesso a esta loja."
+    "accessDenied": "Você não tem acesso a esta loja.",
+    "includeTestOrders": "Incluir pedidos de teste",
+    "excludeTestOrders": "Excluir pedidos de teste"
   },
   "orders": {
     "recipients": "{count, plural, one {# destinatário} other {# destinatários}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {Nenhuma encomenda enviada aos fornecedores.} one {# encomenda enviada a um fornecedor.} other {# encomendas enviadas aos fornecedores.}}",
         "failed": "{count, plural, one {# encomenda falhou:} other {# encomendas falharam:}}"
       }
-    }
+    },
+    "testBadge": "TESTE"
   },
   "orderDetail": {
     "orders": "Encomendas",
@@ -3863,7 +3876,8 @@
       "undecided": "Indeciso",
       "planLabel": "Plano {plan}",
       "recentActivity": "Atividade recente da plataforma",
-      "fullAudit": "Registo de auditoria completo"
+      "fullAudit": "Registo de auditoria completo",
+      "testMode": "Modo de teste"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Mensagem",
       "noMessage": "Sem mensagem.",
       "reply": "Responder por email"
+    },
+    "stripeAlert": {
+      "title": "O Stripe precisa de atenção",
+      "body": "As lojas não podem configurar nem aceitar pagamentos até que isto seja resolvido no Dashboard do Stripe.",
+      "seen": "Última ocorrência: {when}",
+      "seenWithStore": "Última ocorrência: {when} em {store}",
+      "openDashboard": "Abrir o Dashboard do Stripe",
+      "emailSubject": "Ação necessária no seu Dashboard do Stripe",
+      "emailBody": "O Stripe recusou uma solicitação da conta da plataforma. As lojas não podem configurar nem aceitar pagamentos até que isto seja resolvido:",
+      "storeLabel": "Loja"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Modo de teste – sem pagamentos reais"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Envios",
       "shipmentNumber": "Volume {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Seguir volume"
+      "trackParcel": "Seguir volume",
+      "testBadge": "TESTE"
     },
     "status": {
       "awaitingPayment": "A aguardar pagamento",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "Reembolsámos {amount} no seu método de pagamento original.",
       "deliveredSubject": "A sua encomenda {code} na {store} foi entregue",
       "deliveredHeading": "A sua encomenda foi entregue",
-      "deliveredBody": "A encomenda {code} foi entregue. Contacte-nos se faltar alguma coisa ou se algo não estiver como esperava."
+      "deliveredBody": "A encomenda {code} foi entregue. Contacte-nos se faltar alguma coisa ou se algo não estiver como esperava.",
+      "testSubjectPrefix": "[TESTE]",
+      "testNotice": "Este é um pedido de teste. Nenhum pagamento foi cobrado."
     },
     "gift": {
       "chromeSubtitle": "Catálogo de presentes · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# novo pedido} other {# novos pedidos}} em {store}",
       "digestHeading": "{count, plural, one {# novo pedido} other {# novos pedidos}}",
       "digestCta": "Ver pedidos"
-    }
+    },
+    "testPrefix": "[TESTE]"
   },
   "storePolicies": {
     "refunds": "## Artigos personalizados e feitos por encomenda\nCada artigo da {store} é feito por encomenda, e muitos levam o seu nome, texto ou arte. Como são feitos para si, não podemos aceitar devoluções ou trocas por mudança de ideia, nem por um tamanho ou cor que tenha escolhido. Verifique o design, a ortografia e o tamanho antes de fazer a encomenda.\n\n## Artigos danificados, com defeito ou errados\nSe a sua encomenda chegar danificada, com defeito ou diferente do que encomendou, contacte-nos no prazo de 30 dias após a entrega com o número da encomenda e uma fotografia. Enviamos uma substituição ou reembolsamos o valor total, sem custos.\n\n## Artigos sem personalização\nArtigos não usados e sem personalização podem ser devolvidos no prazo de 14 dias após a entrega. Contacte-nos antes de enviar qualquer artigo. Os portes de devolução são por sua conta, salvo se o artigo tiver defeito.\n\n## Cancelamentos\nPode cancelar sem custos até a encomenda entrar em produção. Contacte-nos o mais cedo possível com o número da encomenda.\n\n## Reembolsos\nOs reembolsos aprovados são devolvidos ao método de pagamento original no prazo de 10 dias úteis.\n\n## Os seus direitos legais\nEsta política não afeta os seus direitos legais enquanto consumidor.",

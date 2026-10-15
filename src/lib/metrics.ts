@@ -89,6 +89,9 @@ const EXCEPTION = statusIs("exception");
  * attention reasons follow `attentionReason`: an exception first, then manual
  * routing, then a paid order still waiting for production.
  */
+/** Sales figures leave out orders placed in test mode; the order queue counts still include them. */
+const SOLD = { $and: [statusIn(REVENUE), { $ne: ["$test", true] }] };
+
 export function orderMetricsPipeline(storeIds: string[]) {
   return [
     { $match: { storeId: { $in: storeIds } } },
@@ -96,8 +99,8 @@ export function orderMetricsPipeline(storeIds: string[]) {
       $group: {
         _id: "$storeId",
         orderCount: { $sum: 1 },
-        paidOrders: count(statusIn(REVENUE)),
-        grossSales: { $sum: { $cond: [statusIn(REVENUE), "$total", 0] } },
+        paidOrders: count(SOLD),
+        grossSales: { $sum: { $cond: [SOLD, "$total", 0] } },
         inProduction: count(statusIn(["in_production", "paid"])),
         shipped: count(statusIs("shipped")),
         delivered: count(statusIs("delivered")),
@@ -192,7 +195,7 @@ export function productCountsPipeline(storeIds: string[]) {
  */
 export function topProductsPipeline(storeId: string) {
   return [
-    { $match: { storeId, status: { $in: REVENUE } } },
+    { $match: { storeId, status: { $in: REVENUE }, test: { $ne: true } } },
     { $sort: { createdAt: -1 } },
     { $unwind: { path: "$items", includeArrayIndex: "line" } },
     {

@@ -268,7 +268,11 @@ export default async function AgencyDashboard({
                                   : "size-4 text-amber-600"
                               }
                             />
-                            {paymentsReady(store) ? t("stripeConnected") : t("stripePending")}
+                            {store.testMode
+                              ? t("testMode")
+                              : paymentsReady(store)
+                                ? t("stripeConnected")
+                                : t("stripePending")}
                           </li>
                           {store.customDomain ? (
                             <li className="flex items-center gap-2">

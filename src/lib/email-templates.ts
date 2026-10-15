@@ -25,6 +25,8 @@ export interface EmailBrand {
   clientName: string;
   logoUrl: string | null;
   supportEmail: string | null;
+  /** About a test-mode order: the subject and the message say so. */
+  test?: boolean;
 }
 
 /** The language an email is written in: next-intl's translator and formatter for it. */
@@ -34,13 +36,18 @@ export interface EmailCopy {
   format: ReturnType<typeof createFormatter>;
 }
 
-export function brandFor(store: Pick<Store, "name" | "clientName" | "logoUrl" | "supportEmail">): EmailBrand {
+/** `order` marks an email about a test-mode order as a test. */
+export function brandFor(
+  store: Pick<Store, "name" | "clientName" | "logoUrl" | "supportEmail">,
+  order?: { test?: boolean } | null,
+): EmailBrand {
   const support = (store.supportEmail ?? "").trim().toLowerCase();
   return {
     storeName: store.name,
     clientName: store.clientName,
     logoUrl: store.logoUrl,
     supportEmail: support || null,
+    ...(order?.test ? { test: true } : {}),
   };
 }
 
@@ -72,6 +79,10 @@ function escape(value: string): string {
  */
 function render(brand: EmailBrand, copy: EmailCopy, subject: string, body: EmailBody): BuiltEmail {
   const { t, locale: lang } = copy;
+  if (brand.test) {
+    subject = `${t("testSubjectPrefix")} ${subject}`;
+    body = { ...body, paragraphs: [t("testNotice"), ...body.paragraphs] };
+  }
   const greeting = body.greetingName ? t("greeting", { name: body.greetingName }) : null;
   const footer =
     brand.clientName && brand.clientName !== brand.storeName

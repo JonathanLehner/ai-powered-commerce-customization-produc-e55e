@@ -6,7 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { applyConnectStatus } from "@/lib/connect";
 import { recordAudit } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
-import { retrieveAccount } from "@/lib/stripe";
+import { retrieveAccount, type StripeFailure } from "@/lib/stripe";
+import { clearStripeAlert, reportStripeFailure, stripeFailureText } from "@/lib/stripe-alerts";
 import { ConnectStatusList, ConnectStripeForm } from "../ConnectStripe";
 
 /**
@@ -14,16 +15,24 @@ import { ConnectStatusList, ConnectStripeForm } from "../ConnectStripe";
  * the account, so the account is read back from Stripe and its charges and
  * payouts state shown as Stripe reports it.
  */
-export default async function StripeReturnPage({ params }: { params: Promise<{ storeId: string }> }) {
+export default async function StripeReturnPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ storeId: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { storeId } = await params;
   const { user, store: loaded } = await requireStoreAccess(storeId, "store.settings");
-  const t = await getTranslations("settings");
+  const [t, actions] = await Promise.all([getTranslations("settings"), getTranslations("actions.stores")]);
 
   let store = loaded;
-  let unreadable = false;
+  let failure: StripeFailure | null = null;
   if (store.stripe.express && store.stripe.accountId) {
-    const status = await retrieveAccount(store.stripe.accountId);
-    if (status) {
+    const read = await retrieveAccount(store.stripe.accountId);
+    if (read.ok) {
+      const status = read.value;
+      await clearStripeAlert("read_account");
       store = await applyConnectStatus(store, status, user);
       recordAudit({
         category: "store_setup",
@@ -38,16 +47,28 @@ export default async function StripeReturnPage({ params }: { params: Promise<{ s
         meta: { accountId: status.accountId, chargesEnabled: status.chargesEnabled, payoutsEnabled: status.payoutsEnabled },
       });
     } else {
-      unreadable = true;
+      failure = read.failure;
+      await reportStripeFailure(failure, { operation: "read_account", store });
     }
   }
+  // A fresh onboarding link that could not be made sends the refresh route back here.
+  const { error } = await searchParams;
+  const linkFailed = error === "platform" || error === "unreachable";
   const express = Boolean(store.stripe.express && store.stripe.accountId);
   const ready = express && store.stripe.chargesEnabled && store.stripe.payoutsEnabled;
 
   return (
     <div className="max-w-2xl space-y-6">
       <PageHeader title={t("stripe")} />
-      {unreadable ? <Callout tone="amber">{t("stripeUnreadable")}</Callout> : null}
+      {failure ? (
+        <Callout tone="amber">
+          {failure.kind === "unreachable" ? t("stripeUnreadable") : stripeFailureText(failure, actions)}
+        </Callout>
+      ) : linkFailed ? (
+        <Callout tone="amber">
+          {actions(error === "platform" ? "stripePlatformAttention" : "stripeUnavailable")}
+        </Callout>
+      ) : null}
       <Card>
         <CardContent className="space-y-4">
           {express ? (

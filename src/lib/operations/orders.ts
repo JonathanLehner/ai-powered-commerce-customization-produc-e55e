@@ -204,7 +204,7 @@ export async function fulfilOrder(
   // The shopper is told their parcel is moving.
   const partial = !plan.complete || (order.shipments?.length ?? 0) > 0;
   await emailShopper(store, order, "shipping notification", (copy, statusUrl) =>
-    shippingNotificationEmail(brandFor(store), copy, {
+    shippingNotificationEmail(brandFor(store, order), copy, {
       customerName: order.customer.name,
       code: order.code,
       carrierName: CARRIER_LABELS[carrier],
@@ -437,12 +437,12 @@ export async function moveOrder(
   }
   if (notify && status === "cancelled") {
     await emailShopper(store, order, "order cancelled", (copy, statusUrl) =>
-      orderCancelledEmail(brandFor(store), copy, { customerName: order.customer.name, code: order.code, statusUrl }),
+      orderCancelledEmail(brandFor(store, order), copy, { customerName: order.customer.name, code: order.code, statusUrl }),
     );
   }
   if (notify && status === "delivered") {
     await emailShopper(store, order, "order delivered", (copy, statusUrl) =>
-      orderDeliveredEmail(brandFor(store), copy, { customerName: order.customer.name, code: order.code, statusUrl }),
+      orderDeliveredEmail(brandFor(store, order), copy, { customerName: order.customer.name, code: order.code, statusUrl }),
     );
   }
   revalidateOrder(store.id, order.id);
@@ -501,7 +501,7 @@ export async function saveCheckoutRecovery(
 async function refundPayment(store: Store, order: Order, amount: number, idempotencyKey: string): Promise<RefundResult> {
   const { paymentIntentId, stripeAccountId, checkoutSessionId } = order.payment;
   if (!checkoutSessionId) {
-    return refundSimulated({ store, paymentIntentId, amount, currency: order.currency, idempotencyKey });
+    return refundSimulated({ store, test: order.test, paymentIntentId, amount, currency: order.currency, idempotencyKey });
   }
   if (!paymentIntentId || !stripeAccountId) {
     return { ok: false, refundId: null, message: "No captured payment to refund.", code: "no_payment_intent" };
@@ -677,8 +677,8 @@ export async function refundOrder(
     const customerName = order.customer.name;
     await emailShopper(store, order, input.cancel ? "order cancelled" : "refund issued", (copy, statusUrl) =>
       input.cancel
-        ? orderCancelledEmail(brandFor(store), copy, { customerName, code: order.code, refund, statusUrl })
-        : refundIssuedEmail(brandFor(store), copy, { customerName, code: order.code, refund, statusUrl }),
+        ? orderCancelledEmail(brandFor(store, order), copy, { customerName, code: order.code, refund, statusUrl })
+        : refundIssuedEmail(brandFor(store, order), copy, { customerName, code: order.code, refund, statusUrl }),
     );
   }
   refreshCustomers(store, [order.customer.email]);

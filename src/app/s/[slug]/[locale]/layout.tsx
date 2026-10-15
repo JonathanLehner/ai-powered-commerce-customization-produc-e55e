@@ -15,6 +15,7 @@ import { StoreSearch } from "@/components/StoreSearch";
 import { LockIcon, SmileIcon, SparklesIcon, TruckIcon, UserRoundIcon } from "lucide-react";
 import { AnnouncementBar, HeaderScrollState, NewsletterForm } from "@/components/storefront/client";
 import { PaymentMarks, SocialIcon } from "@/components/storefront/marks";
+import { TestModeBar } from "@/components/storefront/TestModeBar";
 import { BLOG_PATH, resolveMenu, storeMenus } from "@/lib/content";
 import { menuLookups } from "@/lib/storefront-menus";
 import { StorefrontFallbackProvider } from "@/components/StorefrontFallback";
@@ -444,6 +445,7 @@ export default async function StorefrontLayout({
       >
         <BasketProvider lines={basketLines} subtotal={subtotal} currency={currency} base={base}>
           <div className="flex min-h-full flex-col bg-background">
+            {store.testMode ? <TestModeBar label={t("chrome.testModeBar")} /> : null}
             {announcements.length > 0 || countdownAt ? (
               <AnnouncementBar
                 messages={announcements}

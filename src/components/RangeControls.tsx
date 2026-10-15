@@ -20,12 +20,15 @@ export function RangeControls({
   from,
   to,
   today,
+  includeTest = false,
 }: {
   base: string;
   range: RangeKey;
   from: string;
   to: string;
   today: string;
+  /** Kept when the range changes. */
+  includeTest?: boolean;
 }) {
   const t = useTranslations("analytics");
   const router = useRouter();
@@ -34,6 +37,7 @@ export function RangeControls({
 
   return (
     <form method="get" action={base} className="flex flex-wrap items-end gap-2">
+      {includeTest ? <input type="hidden" name="test" value="1" /> : null}
       <Label htmlFor="range" className="sr-only">
         {t("rangeLabel")}
       </Label>
@@ -43,7 +47,7 @@ export function RangeControls({
         disabled={pending}
         onValueChange={(next) => {
           setKey(next as RangeKey);
-          if (next !== "custom") startTransition(() => router.push(`${base}?range=${next}`));
+          if (next !== "custom") startTransition(() => router.push(`${base}?range=${next}${includeTest ? "&test=1" : ""}`));
         }}
       >
         <SelectTrigger id="range" className="w-44">

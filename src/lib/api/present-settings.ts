@@ -16,6 +16,7 @@ export function presentPayments(store: Store) {
     payoutsEnabled: stripe.payoutsEnabled ?? null,
     detailsSubmitted: stripe.detailsSubmitted ?? null,
     connectedAt: stripe.connectedAt,
+    testMode: Boolean(store.testMode),
   };
 }
 

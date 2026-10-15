@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { recordAudit } from "@/lib/data";
 import { requireStoreAccess } from "@/lib/session";
 import { onboardingLink } from "@/lib/stripe";
+import { clearStripeAlert, reportStripeFailure } from "@/lib/stripe-alerts";
 
 /**
  * Stripe sends the administrator here when an onboarding link has expired or
@@ -12,8 +13,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { user, store } = await requireStoreAccess(storeId, "store.settings");
   const back = new URL(`/app/stores/${storeId}/setup/stripe`, request.url);
   const accountId = store.stripe.express ? store.stripe.accountId : null;
-  const link = accountId ? await onboardingLink(accountId, `${back.href}/refresh`, back.href) : null;
-  if (!link) return NextResponse.redirect(back, 303);
+  if (!accountId) return NextResponse.redirect(back, 303);
+  const link = await onboardingLink(accountId, `${back.href}/refresh`, back.href);
+  if (!link.ok) {
+    await reportStripeFailure(link.failure, { operation: "onboarding_link", store });
+    // Stripe's own refusal of the account is shown when the page reads the account back.
+    if (link.failure.kind !== "invalid") back.searchParams.set("error", link.failure.kind);
+    return NextResponse.redirect(back, 303);
+  }
+  await clearStripeAlert("onboarding_link");
   recordAudit({
     category: "store_setup",
     action: "store.stripe_onboarding_refreshed",
@@ -26,5 +34,5 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     entityId: storeId,
     meta: { accountId },
   });
-  return NextResponse.redirect(link, 303);
+  return NextResponse.redirect(link.value, 303);
 }

@@ -904,7 +904,8 @@
       "archivedLabel": "· gearchiveerd",
       "historicOrders": "{count, plural, one {# eerdere bestelling} other {# eerdere bestellingen}}",
       "recentActivity": "Recente platformactiviteit"
-    }
+    },
+    "testMode": "Testmodus"
   },
   "pager": {
     "orders": "{first}–{last} van {total} bestellingen",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "Wisselkoersen konden niet worden bijgewerkt. Probeer het later opnieuw.",
       "ratesSaved": "Wisselkoersen opgeslagen",
       "ratesRefreshed": "Wisselkoersen bijgewerkt",
-      "templateMissing": "Dat sjabloon is niet langer beschikbaar. Kies een ander."
+      "templateMissing": "Dat sjabloon is niet langer beschikbaar. Kies een ander.",
+      "stripePlatformAttention": "Betalingen kunnen nog niet worden ingesteld omdat het Stripe-account van het platform aandacht nodig heeft."
     },
     "team": {
       "emailInvalid": "Vul een geldig e-mailadres in.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Stuur gebeurtenissen over bestellingen, producten, klanten en voorraad naar je eigen systemen.",
-    "webhooksLink": "Webhooks beheren"
+    "webhooksLink": "Webhooks beheren",
+    "testModeTitle": "Testbetalingen",
+    "testModeOn": "Aan",
+    "testModeOff": "Uit",
+    "testModeBody": "De checkout accepteert testkaarten en er wordt niemand belast. Bestellingen worden gemarkeerd als testbestelling en niet meegeteld in de analyses.",
+    "testModeBlocksLive": "Stripe is klaar. Zet de testmodus uit om echte betalingen te ontvangen.",
+    "testModeTurnOn": "Testmodus aanzetten",
+    "testModeTurnOff": "Testmodus uitzetten",
+    "testModeSaving": "Opslaan…"
   },
   "team": {
     "agencyAdmins": "Bureaubeheerders",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Bestellingen met uitzonderingen",
     "csvExceptionRate": "Uitzonderingspercentage (%)",
     "fileName": "{store} dagelijkse verkopen",
-    "accessDenied": "Je hebt geen toegang tot deze winkel."
+    "accessDenied": "Je hebt geen toegang tot deze winkel.",
+    "includeTestOrders": "Testbestellingen meetellen",
+    "excludeTestOrders": "Testbestellingen weglaten"
   },
   "orders": {
     "recipients": "{count, plural, one {# ontvanger} other {# ontvangers}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {Geen bestellingen naar leveranciers gestuurd.} one {# bestelling naar een leverancier gestuurd.} other {# bestellingen naar leveranciers gestuurd.}}",
         "failed": "{count, plural, one {# bestelling mislukt:} other {# bestellingen mislukt:}}"
       }
-    }
+    },
+    "testBadge": "TEST"
   },
   "orderDetail": {
     "orders": "Bestellingen",
@@ -3863,7 +3876,8 @@
       "undecided": "Nog niet besloten",
       "planLabel": "{plan}-abonnement",
       "recentActivity": "Recente platformactiviteit",
-      "fullAudit": "Volledig auditlogboek"
+      "fullAudit": "Volledig auditlogboek",
+      "testMode": "Testmodus"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Bericht",
       "noMessage": "Geen bericht.",
       "reply": "Antwoorden per e-mail"
+    },
+    "stripeAlert": {
+      "title": "Stripe heeft aandacht nodig",
+      "body": "Winkels kunnen geen betalingen instellen of ontvangen totdat dit is opgelost in het Stripe-dashboard.",
+      "seen": "Laatst gezien: {when}",
+      "seenWithStore": "Laatst gezien: {when} bij {store}",
+      "openDashboard": "Stripe-dashboard openen",
+      "emailSubject": "Actie vereist in je Stripe-dashboard",
+      "emailBody": "Stripe heeft een verzoek van het platformaccount geweigerd. Winkels kunnen geen betalingen instellen of ontvangen totdat dit is opgelost:",
+      "storeLabel": "Winkel"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Testmodus – geen echte betalingen"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Zendingen",
       "shipmentNumber": "Pakket {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Pakket volgen"
+      "trackParcel": "Pakket volgen",
+      "testBadge": "TEST"
     },
     "status": {
       "awaitingPayment": "Wacht op betaling",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "We hebben {amount} terugbetaald via je oorspronkelijke betaalmethode.",
       "deliveredSubject": "Je bestelling {code} bij {store} is bezorgd",
       "deliveredHeading": "Je bestelling is bezorgd",
-      "deliveredBody": "Bestelling {code} is bezorgd. Neem contact met ons op als er iets ontbreekt of niet klopt."
+      "deliveredBody": "Bestelling {code} is bezorgd. Neem contact met ons op als er iets ontbreekt of niet klopt.",
+      "testSubjectPrefix": "[TEST]",
+      "testNotice": "Dit is een testbestelling. Er is geen betaling afgeschreven."
     },
     "gift": {
       "chromeSubtitle": "Cadeaucatalogus · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# nieuwe bestelling} other {# nieuwe bestellingen}} in {store}",
       "digestHeading": "{count, plural, one {# nieuwe bestelling} other {# nieuwe bestellingen}}",
       "digestCta": "Bestellingen bekijken"
-    }
+    },
+    "testPrefix": "[TEST]"
   },
   "storePolicies": {
     "refunds": "## Gepersonaliseerde en op bestelling gemaakte artikelen\nElk artikel van {store} wordt op bestelling gemaakt, en veel artikelen dragen je naam, tekst of ontwerp. Omdat ze voor jou worden gemaakt, kunnen we geen retouren of ruilingen accepteren als je van gedachten verandert, of voor een maat of kleur die je zelf hebt gekozen. Controleer je ontwerp, spelling en maat voordat je bestelt.\n\n## Beschadigde, defecte of verkeerde artikelen\nKomt je bestelling beschadigd, defect of anders dan besteld aan? Neem dan binnen 30 dagen na levering contact met ons op met je bestelnummer en een foto. We sturen kosteloos een vervanging of betalen het volledige bedrag terug.\n\n## Artikelen zonder personalisatie\nOngebruikte artikelen zonder personalisatie kun je binnen 14 dagen na levering retourneren. Neem contact met ons op voordat je iets terugstuurt. De retourkosten zijn voor jou, tenzij het artikel defect is.\n\n## Annuleren\nJe kunt kosteloos annuleren tot je bestelling in productie gaat. Neem zo snel mogelijk contact met ons op met je bestelnummer.\n\n## Terugbetalingen\nGoedgekeurde terugbetalingen gaan binnen 10 werkdagen terug naar de oorspronkelijke betaalmethode.\n\n## Je wettelijke rechten\nDit beleid doet geen afbreuk aan je wettelijke rechten als consument.",

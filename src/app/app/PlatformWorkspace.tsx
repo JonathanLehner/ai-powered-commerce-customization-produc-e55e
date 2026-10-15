@@ -183,7 +183,11 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                       <div className="flex flex-wrap gap-1.5">
                         <Badge tone="iris">{roles("platformAccess")}</Badge>
                         <Badge tone={paymentsReady(store) ? "green" : "amber"}>
-                          {paymentsReady(store) ? t("stripeConnected") : t("stripePending")}
+                          {store.testMode
+                            ? t("testMode")
+                            : paymentsReady(store)
+                              ? t("stripeConnected")
+                              : t("stripePending")}
                         </Badge>
                         {store.customDomain ? (
                           <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>

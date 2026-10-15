@@ -904,7 +904,8 @@
       "archivedLabel": "· archivada",
       "historicOrders": "{count, plural, one {# pedido anterior} other {# pedidos anteriores}}",
       "recentActivity": "Actividad reciente de la plataforma"
-    }
+    },
+    "testMode": "Modo de prueba"
   },
   "pager": {
     "orders": "{first}–{last} de {total} pedidos",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "No se han podido actualizar los tipos de cambio. Inténtalo de nuevo más tarde.",
       "ratesSaved": "Tipos de cambio guardados",
       "ratesRefreshed": "Tipos de cambio actualizados",
-      "templateMissing": "Esa plantilla ya no está disponible. Elige otra."
+      "templateMissing": "Esa plantilla ya no está disponible. Elige otra.",
+      "stripePlatformAttention": "Aún no se pueden configurar los pagos porque la cuenta de Stripe de la plataforma requiere atención."
     },
     "team": {
       "emailInvalid": "Introduce un correo válido.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Envía eventos de pedidos, productos, clientes e inventario a tus propios sistemas.",
-    "webhooksLink": "Gestionar webhooks"
+    "webhooksLink": "Gestionar webhooks",
+    "testModeTitle": "Pagos de prueba",
+    "testModeOn": "Activado",
+    "testModeOff": "Desactivado",
+    "testModeBody": "El pago acepta tarjetas de prueba y no se cobra a nadie. Los pedidos se marcan como pedidos de prueba y se excluyen de las analíticas.",
+    "testModeBlocksLive": "Stripe está listo. Desactiva el modo de prueba para aceptar pagos reales.",
+    "testModeTurnOn": "Activar modo de prueba",
+    "testModeTurnOff": "Desactivar modo de prueba",
+    "testModeSaving": "Guardando…"
   },
   "team": {
     "agencyAdmins": "Administradores de la agencia",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Pedidos con incidencias",
     "csvExceptionRate": "Tasa de incidencias (%)",
     "fileName": "{store} ventas diarias",
-    "accessDenied": "No tienes acceso a esta tienda."
+    "accessDenied": "No tienes acceso a esta tienda.",
+    "includeTestOrders": "Incluir pedidos de prueba",
+    "excludeTestOrders": "Excluir pedidos de prueba"
   },
   "orders": {
     "recipients": "{count, plural, one {# destinatario} other {# destinatarios}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {Ningún pedido enviado a proveedores.} one {# pedido enviado a un proveedor.} other {# pedidos enviados a proveedores.}}",
         "failed": "{count, plural, one {# pedido falló:} other {# pedidos fallaron:}}"
       }
-    }
+    },
+    "testBadge": "PRUEBA"
   },
   "orderDetail": {
     "orders": "Pedidos",
@@ -3863,7 +3876,8 @@
       "undecided": "Sin decidir",
       "planLabel": "Plan {plan}",
       "recentActivity": "Actividad reciente de la plataforma",
-      "fullAudit": "Registro de auditoría completo"
+      "fullAudit": "Registro de auditoría completo",
+      "testMode": "Modo de prueba"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Mensaje",
       "noMessage": "Sin mensaje.",
       "reply": "Responder por correo"
+    },
+    "stripeAlert": {
+      "title": "Stripe requiere atención",
+      "body": "Las tiendas no pueden configurar ni aceptar pagos hasta que esto se resuelva en el Dashboard de Stripe.",
+      "seen": "Última vez: {when}",
+      "seenWithStore": "Última vez: {when} en {store}",
+      "openDashboard": "Abrir el Dashboard de Stripe",
+      "emailSubject": "Acción necesaria en tu Dashboard de Stripe",
+      "emailBody": "Stripe rechazó una solicitud de la cuenta de la plataforma. Las tiendas no pueden configurar ni aceptar pagos hasta que esto se resuelva:",
+      "storeLabel": "Tienda"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Modo de prueba – sin pagos reales"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Envíos",
       "shipmentNumber": "Paquete {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Seguir paquete"
+      "trackParcel": "Seguir paquete",
+      "testBadge": "PRUEBA"
     },
     "status": {
       "awaitingPayment": "Pendiente de pago",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "Hemos reembolsado {amount} en tu método de pago original.",
       "deliveredSubject": "Tu pedido {code} de {store} se ha entregado",
       "deliveredHeading": "Tu pedido se ha entregado",
-      "deliveredBody": "El pedido {code} se ha entregado. Escríbenos si falta algo o no es lo que esperabas."
+      "deliveredBody": "El pedido {code} se ha entregado. Escríbenos si falta algo o no es lo que esperabas.",
+      "testSubjectPrefix": "[PRUEBA]",
+      "testNotice": "Este es un pedido de prueba. No se ha cobrado ningún pago."
     },
     "gift": {
       "chromeSubtitle": "Catálogo de regalos · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# pedido nuevo} other {# pedidos nuevos}} en {store}",
       "digestHeading": "{count, plural, one {# pedido nuevo} other {# pedidos nuevos}}",
       "digestCta": "Ver pedidos"
-    }
+    },
+    "testPrefix": "[PRUEBA]"
   },
   "storePolicies": {
     "refunds": "## Artículos personalizados y fabricados por encargo\nCada artículo de {store} se fabrica por encargo, y muchos llevan tu nombre, texto o diseño. Como se fabrican para ti, no podemos aceptar devoluciones ni cambios por cambio de opinión, ni por una talla o un color que hayas elegido. Revisa el diseño, la ortografía y la talla antes de hacer tu pedido.\n\n## Artículos dañados, defectuosos o incorrectos\nSi tu pedido llega dañado, defectuoso o distinto de lo que pediste, contáctanos en un plazo de 30 días desde la entrega con tu número de pedido y una foto. Te enviaremos un reemplazo o te reembolsaremos el importe completo sin coste.\n\n## Artículos sin personalización\nLos artículos sin usar y sin personalización se pueden devolver en un plazo de 14 días desde la entrega. Contáctanos antes de enviar nada. Los gastos de devolución corren de tu cuenta, salvo que el artículo sea defectuoso.\n\n## Cancelaciones\nPuedes cancelar sin coste hasta que tu pedido entre en producción. Contáctanos lo antes posible con tu número de pedido.\n\n## Reembolsos\nLos reembolsos aprobados se abonan en el método de pago original en un plazo de 10 días hábiles.\n\n## Tus derechos legales\nEsta política no afecta a tus derechos legales como consumidor.",

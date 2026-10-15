@@ -36,6 +36,7 @@ import { MAX_PER_RECIPIENT, MAX_RECIPIENTS, campaignCode, giftProductOptions, qu
 import { db } from "../mongo";
 import { paymentMode } from "../payment-mode";
 import { createConnectedCheckout, expireConnectedCheckout } from "../stripe";
+import { reportStripeFailure } from "../stripe-alerts";
 import { translationLocale } from "./storefront";
 import { withTranslation, type FieldTranslations } from "../translations";
 import type { CampaignRecipient, GiftCampaign, GiftCatalogue, Store } from "../types";
@@ -984,7 +985,8 @@ export async function payCampaign(
       last4: charge.last4,
       stripeAccountId: null,
       checkoutSessionId: null,
-      note: `${formatMoney(quote.total, campaign.currency)} paid on a demo store. No money moved.`,
+      test: Boolean(store.testMode),
+      note: `${formatMoney(quote.total, campaign.currency)} paid ${store.testMode ? "in test mode" : "on a demo store"}. No money moved.`,
     });
     return { status: "paid", returnPath };
   }
@@ -1024,9 +1026,18 @@ export async function payCampaign(
     successUrl: `${origin}${returnPath}&paid=1`,
     cancelUrl: `${origin}${returnPath}`,
   });
-  if (!checkout) throw new OperationError("payment_failed", shopper("payment.startFailed"));
+  if (!checkout.ok) {
+    const { failure } = checkout;
+    await reportStripeFailure(failure, { operation: "checkout", store });
+    throw new OperationError(
+      "payment_failed",
+      failure.kind === "invalid"
+        ? failure.message
+        : shopper(failure.kind === "platform" ? "payment.accountNotReady" : "payment.startFailed"),
+    );
+  }
   await updateGiftCampaign(campaign.id, {
-    payment: { ...campaign.payment, checkoutSessionId: checkout.id, stripeAccountId: accountId },
+    payment: { ...campaign.payment, checkoutSessionId: checkout.value.id, stripeAccountId: accountId },
   });
   recordAudit({
     category: "gifting",
@@ -1040,5 +1051,5 @@ export async function payCampaign(
     entityId: campaign.code,
     meta: { total: quote.total, currency: campaign.currency },
   });
-  return { status: "checkout", returnPath, checkoutUrl: checkout.url };
+  return { status: "checkout", returnPath, checkoutUrl: checkout.value.url };
 }

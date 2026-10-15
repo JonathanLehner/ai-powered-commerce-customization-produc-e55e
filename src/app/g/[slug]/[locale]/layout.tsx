@@ -7,6 +7,7 @@ import { LanguageSelect } from "@/components/LanguageSelect";
 import { PlainDocument } from "@/components/SiteChrome";
 import { StoreMark } from "@/components/StoreMark";
 import { shopperIntl, shopperMessages } from "@/i18n/storefront";
+import { TestModeBar } from "@/components/storefront/TestModeBar";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { getGiftCatalogueBySlug, getStore } from "@/lib/data";
 import { POLICY_KEYS, policyPath } from "@/lib/policies";
@@ -80,6 +81,7 @@ export default async function GiftPortalLayout({
         messages={{ common: messages.common, storefront: messages.storefront }}
       >
         <div className="flex min-h-full flex-col bg-background">
+          {store.testMode ? <TestModeBar label={t("chrome.testModeBar")} /> : null}
           <header className="border-b border-border bg-background">
             <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
               <Link href={base} className="flex min-w-0 items-center gap-2.5">

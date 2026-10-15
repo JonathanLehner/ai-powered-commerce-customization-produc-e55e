@@ -403,7 +403,7 @@ export const shopOperations: ApiOperation[] = [
     scope: "shop:read",
     summary: "Get the shop",
     description:
-      "The store's name and storefront address, the languages and currencies it sells in, where it ships, how it takes payment (stripe: the shopper pays on a Stripe Checkout page; demo: a demonstration store where test card 4242 4242 4242 4242 is accepted and nobody is charged; unavailable: no orders), its support contacts and its policies (refunds, shipping, terms, privacy) in the shopper's language. Read-only. Call it first to learn which locale and currency values to pass to the other operations, then listShopProducts or searchShop.",
+      "The store's name and storefront address, the languages and currencies it sells in, where it ships, how it takes payment (stripe: the shopper pays on a Stripe Checkout page; demo: a demonstration store, or one in test mode (testMode true), where test card 4242 4242 4242 4242 is accepted and nobody is charged; unavailable: no orders), its support contacts and its policies (refunds, shipping, terms, privacy) in the shopper's language. Read-only. Call it first to learn which locale and currency values to pass to the other operations, then listShopProducts or searchShop.",
     actions: ["shop#readCurrency", "shop#setCurrency"],
     input: z.object({ locale: shopLocale, currency }),
     run: async (ctx) => {
@@ -427,6 +427,7 @@ export const shopOperations: ApiOperation[] = [
         shipsTo: shippingCountries(zones),
         shipsEverywhere: zones.length === 0,
         payment: paymentMode(store),
+        testMode: Boolean(store.testMode),
         support: { email: support.email, phone: support.phone },
         policies: POLICY_KEYS.filter((key) => policies[key]).map((key) => ({
           kind: key,

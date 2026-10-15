@@ -88,6 +88,7 @@ export function presentOrder(order: Order) {
   const { checkoutUrl: _checkoutUrl, stripeAccountId: _stripeAccountId, ...payment } = rest.payment;
   return {
     ...rest,
+    test: Boolean(order.test),
     payment,
     refundedTotal: order.refunds.reduce((sum, refund) => sum + refund.amount, 0),
   };

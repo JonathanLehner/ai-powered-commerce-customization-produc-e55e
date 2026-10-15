@@ -1,4 +1,5 @@
 import { DownloadIcon } from "lucide-react";
+import Link from "next/link";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ export default async function AnalyticsPage({
   searchParams,
 }: {
   params: Promise<{ storeId: string }>;
-  searchParams: Promise<{ range?: string; from?: string; to?: string }>;
+  searchParams: Promise<{ range?: string; from?: string; to?: string; test?: string }>;
 }) {
   const { storeId } = await params;
   const { store, viaPlatform } = await requireStoreAccess(storeId, "store.view");
@@ -68,7 +69,13 @@ export default async function AnalyticsPage({
               from={range.from}
               to={range.to}
               today={now.toISOString().slice(0, 10)}
+              includeTest={range.includeTest}
             />
+            <Button asChild variant="ghost">
+              <Link href={`${base}${rangeQuery({ ...range, includeTest: !range.includeTest })}`}>
+                {range.includeTest ? t("excludeTestOrders") : t("includeTestOrders")}
+              </Link>
+            </Button>
             {showMoney ? (
               <Button asChild variant="outline">
                 <a href={`${base}/export${rangeQuery(range)}`} download>

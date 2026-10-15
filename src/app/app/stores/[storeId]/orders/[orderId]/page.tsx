@@ -132,6 +132,11 @@ export default async function OrderDetailPage({
         }
         actions={
           <>
+            {order.test ? (
+              <Badge variant="outline" className="font-semibold border-amber-200 bg-amber-50 text-amber-800">
+                {orders("testBadge")}
+              </Badge>
+            ) : null}
             <Badge variant="outline" className="gap-1.5">
               <Dot
                 tone={

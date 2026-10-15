@@ -6,6 +6,7 @@ import {
   saveCarriers,
   saveDefaultTax,
   setStoreStatus,
+  setTestMode,
 } from "../../operations/store-settings";
 import { STRIPE_COUNTRIES } from "../../util";
 import { define, type ApiOperation } from "../define";
@@ -44,7 +45,7 @@ export const settingsOperations: ApiOperation[] = [
     tag: "Store",
     summary: "Get the Stripe payments status",
     description:
-      "Whether the store takes card payments through Stripe: connected, the account's country, and whether Stripe has enabled charges and payouts. The account id is not shown.",
+      "Whether the store takes card payments through Stripe: connected, the account's country, whether Stripe has enabled charges and payouts, and whether test mode is on. The account id is not shown.",
     input: z.object({}),
     run: async (ctx) => presentPayments(ctx.store),
   }),
@@ -82,6 +83,20 @@ export const settingsOperations: ApiOperation[] = [
     input: z.object({}),
     actions: ["stores#disconnectStripe"],
     run: async (ctx) => presentPayments(await disconnectStripe(ctx)),
+  }),
+
+  define({
+    id: "updateTestMode",
+    method: "PUT",
+    path: "/payments/test-mode",
+    scope: "store:write",
+    tag: "Store",
+    summary: "Turn test payments on or off",
+    description:
+      "While on, checkout takes Stripe's test card numbers and nobody is charged, the storefront shows a test mode bar, and new orders are marked `test` and left out of analytics by default. It can be turned on before Stripe is connected, and takes precedence over a connected account: turn it off to take real payments.",
+    input: z.object({ enabled: z.boolean() }),
+    actions: ["stores#setTestMode"],
+    run: async (ctx, input) => presentPayments(await setTestMode(ctx, input)),
   }),
 
   /* ---------------------------------------------------------- carriers */

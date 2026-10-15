@@ -184,7 +184,7 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
     notify: {
       type: "order_paid",
       href: `/app/stores/${storeId}/orders/${order.id}`,
-      params: { code, amount: total, currency },
+      params: { code, amount: total, currency, ...(order.test ? { test: true } : {}) },
     },
   });
 
@@ -201,7 +201,7 @@ export async function confirmOrderPayment(order: Order, store: Store, payment: S
     const tax = orderTax(paid);
     sendEmail({
       to: customer.email,
-      message: orderConfirmationEmail(brandFor(store), await emailCopy(locale), {
+      message: orderConfirmationEmail(brandFor(store, order), await emailCopy(locale), {
         customerName: customer.name,
         code,
         total,
@@ -242,10 +242,11 @@ export async function abandonOrderPayment(
   order: Order,
   store: Store,
   reason: "failed" | "expired",
-  options: { superseded?: boolean } = {},
+  options: { superseded?: boolean; note?: string } = {},
 ): Promise<boolean> {
   const now = new Date().toISOString();
-  const note = reason === "failed" ? "The payment did not go through." : "Checkout was not completed in time.";
+  const note =
+    options.note ?? (reason === "failed" ? "The payment did not go through." : "Checkout was not completed in time.");
   // A Checkout session that ran out unpaid is an abandoned checkout, unless the
   // shopper replaced it with a new one themselves.
   const abandoned =

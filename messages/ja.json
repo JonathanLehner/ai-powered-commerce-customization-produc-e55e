@@ -904,7 +904,8 @@
       "archivedLabel": "· アーカイブ済み",
       "historicOrders": "{count, plural, other {過去の注文 # 件}}",
       "recentActivity": "プラットフォームの最近のアクティビティ"
-    }
+    },
+    "testMode": "テストモード"
   },
   "pager": {
     "orders": "注文 {total} 件中 {first}–{last} 件",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "為替レートを更新できませんでした。しばらくしてからもう一度お試しください。",
       "ratesSaved": "為替レートを保存しました",
       "ratesRefreshed": "為替レートを更新しました",
-      "templateMissing": "そのテンプレートは現在利用できません。別のテンプレートを選択してください。"
+      "templateMissing": "そのテンプレートは現在利用できません。別のテンプレートを選択してください。",
+      "stripePlatformAttention": "プラットフォームのStripeアカウントに対応が必要なため、まだ決済を設定できません。"
     },
     "team": {
       "emailInvalid": "有効なメールアドレスを入力してください。",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhook",
     "webhooksBody": "注文、商品、顧客、在庫のイベントを自社システムへ送信します。",
-    "webhooksLink": "Webhook を管理"
+    "webhooksLink": "Webhook を管理",
+    "testModeTitle": "テスト決済",
+    "testModeOn": "オン",
+    "testModeOff": "オフ",
+    "testModeBody": "チェックアウトではテストカードを使用し、請求は発生しません。注文はテスト注文として表示され、分析から除外されます。",
+    "testModeBlocksLive": "Stripeの準備ができました。実際の決済を受け付けるには、テストモードをオフにしてください。",
+    "testModeTurnOn": "テストモードをオンにする",
+    "testModeTurnOff": "テストモードをオフにする",
+    "testModeSaving": "保存中…"
   },
   "team": {
     "agencyAdmins": "エージェンシー管理者",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "例外のある注文",
     "csvExceptionRate": "例外発生率（%）",
     "fileName": "{store} 日次売上",
-    "accessDenied": "このストアへのアクセス権がありません。"
+    "accessDenied": "このストアへのアクセス権がありません。",
+    "includeTestOrders": "テスト注文を含める",
+    "excludeTestOrders": "テスト注文を除外"
   },
   "orders": {
     "recipients": "{count, plural, other {受取人 # 名}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {サプライヤーに送信した注文はありません。} other {# 件の注文をサプライヤーに送信しました。}}",
         "failed": "{count, plural, other {# 件失敗しました:}}"
       }
-    }
+    },
+    "testBadge": "テスト"
   },
   "orderDetail": {
     "orders": "注文",
@@ -3863,7 +3876,8 @@
       "undecided": "未定",
       "planLabel": "{plan} プラン",
       "recentActivity": "プラットフォームの最近のアクティビティ",
-      "fullAudit": "監査ログ全体"
+      "fullAudit": "監査ログ全体",
+      "testMode": "テストモード"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "内容",
       "noMessage": "メッセージはありません。",
       "reply": "メールで返信"
+    },
+    "stripeAlert": {
+      "title": "Stripeで対応が必要です",
+      "body": "Stripeダッシュボードでこの問題を解決するまで、ストアは決済の設定や受け付けができません。",
+      "seen": "最終発生: {when}",
+      "seenWithStore": "最終発生: {when}（{store}）",
+      "openDashboard": "Stripeダッシュボードを開く",
+      "emailSubject": "Stripeダッシュボードで対応が必要です",
+      "emailBody": "Stripeがプラットフォームアカウントからのリクエストを拒否しました。解決するまで、ストアは決済の設定や受け付けができません:",
+      "storeLabel": "ストア"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "テストモード – 実際の支払いは発生しません"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "発送",
       "shipmentNumber": "荷物 {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "荷物を追跡"
+      "trackParcel": "荷物を追跡",
+      "testBadge": "テスト"
     },
     "status": {
       "awaitingPayment": "お支払い待ち",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "{amount} を元のお支払い方法に返金しました。",
       "deliveredSubject": "{store} のご注文 {code} をお届けしました",
       "deliveredHeading": "ご注文をお届けしました",
-      "deliveredBody": "ご注文 {code} をお届けしました。不足しているものや気になる点があればご連絡ください。"
+      "deliveredBody": "ご注文 {code} をお届けしました。不足しているものや気になる点があればご連絡ください。",
+      "testSubjectPrefix": "[テスト]",
+      "testNotice": "これはテスト注文です。支払いは発生していません。"
     },
     "gift": {
       "chromeSubtitle": "ギフトカタログ · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{store}：{count, plural, other {新しい注文 #件}}",
       "digestHeading": "{count, plural, other {新しい注文 #件}}",
       "digestCta": "注文を見る"
-    }
+    },
+    "testPrefix": "[テスト]"
   },
   "storePolicies": {
     "refunds": "## 名入れ・受注生産の商品\n{store} の商品はすべて受注生産で、多くはお客様のお名前、文字、デザインが入ります。お客様のために製作するため、お客様都合による返品・交換、またはご自身で選んだサイズやカラーを理由とする返品・交換はお受けできません。ご注文前にデザイン、綴り、サイズをご確認ください。\n\n## 破損・不良・誤配送の商品\n商品が破損している、不良がある、またはご注文内容と異なる場合は、お届けから30日以内に注文番号と写真を添えてご連絡ください。無償で交換品をお送りするか、全額を返金いたします。\n\n## 名入れのない商品\n未使用で名入れのない商品は、お届けから14日以内であれば返品できます。返送の前に必ずご連絡ください。不良品の場合を除き、返送料はお客様のご負担となります。\n\n## キャンセル\nご注文が製作に入るまでは無料でキャンセルできます。注文番号を添えて、できるだけ早くご連絡ください。\n\n## 返金\n承認された返金は、10営業日以内に元のお支払い方法へ返金されます。\n\n## 法定の権利\n本ポリシーは、消費者としての法定の権利に影響を与えるものではありません。",

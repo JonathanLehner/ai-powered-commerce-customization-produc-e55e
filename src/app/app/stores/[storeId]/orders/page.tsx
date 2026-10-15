@@ -289,6 +289,11 @@ export default async function OrdersPage({
                       >
                         {order.code}
                       </Link>
+                      {order.test ? (
+                        <Badge variant="outline" className="ml-2 h-5 px-1.5 text-[10px] font-semibold border-amber-200 bg-amber-50 text-amber-800">
+                          {t("testBadge")}
+                        </Badge>
+                      ) : null}
                       <p className="text-xs text-muted-foreground">{formatDate(order.createdAt, locale)}</p>
                     </TableCell>
                     {viaPlatform ? null : (

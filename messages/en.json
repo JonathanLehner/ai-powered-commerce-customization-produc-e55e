@@ -904,7 +904,8 @@
       "archivedLabel": "· archived",
       "historicOrders": "{count, plural, one {# historic order} other {# historic orders}}",
       "recentActivity": "Recent platform activity"
-    }
+    },
+    "testMode": "Test mode"
   },
   "pager": {
     "orders": "Showing {first}–{last} of {total} orders",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "Exchange rates couldn't be updated. Try again later.",
       "ratesSaved": "Exchange rates saved",
       "ratesRefreshed": "Exchange rates updated",
-      "templateMissing": "That template is no longer available. Choose another one."
+      "templateMissing": "That template is no longer available. Choose another one.",
+      "stripePlatformAttention": "Payments can't be set up yet because the platform's Stripe account needs attention."
     },
     "team": {
       "emailInvalid": "Enter a valid email address.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Send order, product, customer and inventory events to your own systems.",
-    "webhooksLink": "Manage webhooks"
+    "webhooksLink": "Manage webhooks",
+    "testModeTitle": "Test payments",
+    "testModeOn": "On",
+    "testModeOff": "Off",
+    "testModeBody": "Checkout takes test cards and nobody is charged. Orders are marked as test orders and left out of analytics.",
+    "testModeBlocksLive": "Stripe is ready. Turn off test mode to take real payments.",
+    "testModeTurnOn": "Turn on test mode",
+    "testModeTurnOff": "Turn off test mode",
+    "testModeSaving": "Saving…"
   },
   "team": {
     "agencyAdmins": "Agency administrators",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Orders with exceptions",
     "csvExceptionRate": "Exception rate (%)",
     "fileName": "{store} daily sales",
-    "accessDenied": "You do not have access to this store."
+    "accessDenied": "You do not have access to this store.",
+    "includeTestOrders": "Include test orders",
+    "excludeTestOrders": "Exclude test orders"
   },
   "orders": {
     "recipients": "{count, plural, one {# recipient} other {# recipients}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {No orders sent to suppliers.} one {# order sent to a supplier.} other {# orders sent to suppliers.}}",
         "failed": "{count, plural, one {# order failed:} other {# orders failed:}}"
       }
-    }
+    },
+    "testBadge": "TEST"
   },
   "orderDetail": {
     "orders": "Orders",
@@ -3863,7 +3876,8 @@
       "undecided": "Undecided",
       "planLabel": "{plan} plan",
       "recentActivity": "Recent platform activity",
-      "fullAudit": "Full audit log"
+      "fullAudit": "Full audit log",
+      "testMode": "Test mode"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Message",
       "noMessage": "No message.",
       "reply": "Reply by email"
+    },
+    "stripeAlert": {
+      "title": "Stripe needs attention",
+      "body": "Stores can't set up or take payments until this is resolved in the Stripe Dashboard.",
+      "seen": "Last seen {when}",
+      "seenWithStore": "Last seen {when} on {store}",
+      "openDashboard": "Open Stripe Dashboard",
+      "emailSubject": "Action needed in your Stripe Dashboard",
+      "emailBody": "Stripe refused a request from the platform account. Stores can't set up or take payments until this is resolved:",
+      "storeLabel": "Store"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Test mode – no real payments"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Shipments",
       "shipmentNumber": "Parcel {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Track parcel"
+      "trackParcel": "Track parcel",
+      "testBadge": "TEST"
     },
     "status": {
       "awaitingPayment": "Awaiting payment",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "We've refunded {amount} to your original payment method.",
       "deliveredSubject": "Your {store} order {code} has been delivered",
       "deliveredHeading": "Your order has been delivered",
-      "deliveredBody": "Order {code} has been delivered. Contact us if anything is missing or not as expected."
+      "deliveredBody": "Order {code} has been delivered. Contact us if anything is missing or not as expected.",
+      "testSubjectPrefix": "[TEST]",
+      "testNotice": "This is a test order. No payment was taken."
     },
     "gift": {
       "chromeSubtitle": "Gift catalogue · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# new order} other {# new orders}} in {store}",
       "digestHeading": "{count, plural, one {# new order} other {# new orders}}",
       "digestCta": "View orders"
-    }
+    },
+    "testPrefix": "[TEST]"
   },
   "storePolicies": {
     "refunds": "## Personalised and made-to-order items\nEvery item from {store} is made to order, and many carry your own name, text or artwork. Because they are made for you, we cannot accept returns or exchanges for a change of mind, or for a size or colour you chose. Please check your design, spelling and size before you place your order.\n\n## Damaged, faulty or wrong items\nIf your order arrives damaged, faulty or different from what you ordered, contact us within 30 days of delivery with your order number and a photo. We will send a replacement or give you a full refund at no cost to you.\n\n## Items without personalisation\nUnused items without personalisation can be returned within 14 days of delivery. Contact us before sending anything back. Return shipping is paid by you unless the item is faulty.\n\n## Cancellations\nYou can cancel free of charge until your order goes into production. Contact us as soon as possible with your order number.\n\n## Refunds\nApproved refunds go back to the original payment method within 10 business days.\n\n## Your statutory rights\nThis policy does not affect your statutory rights as a consumer.",

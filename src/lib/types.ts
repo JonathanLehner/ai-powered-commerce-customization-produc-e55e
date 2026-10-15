@@ -236,6 +236,13 @@ export interface Store {
    * connected account that can take charges; nobody is charged.
    */
   demo?: boolean;
+  /**
+   * Test payments, turned on by the agency. Checkout takes the test cards and
+   * nobody is charged, the storefront says so, and every order is marked
+   * `test`. It takes precedence over a connected account, so it has to be
+   * turned off before the store takes real payments.
+   */
+  testMode?: boolean;
   carriers: CarrierAccount[];
   defaultTaxBracketId: string | null;
   pricesIncludeTax: boolean;
@@ -854,6 +861,8 @@ export interface Order {
   shopCurrency?: string;
   shopTotal?: number;
   exchangeRate?: number;
+  /** Placed while the store was in test mode: nobody was charged, and analytics leave it out by default. */
+  test?: boolean;
   /** Set on orders brought over from another platform: its order name, such as `#1001`. */
   imported?: { platform: "shopify"; name: string; importId: string } | null;
   /** The language the shopper checked out in. Emails about the order use it. */

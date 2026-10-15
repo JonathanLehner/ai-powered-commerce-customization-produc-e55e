@@ -904,7 +904,8 @@
       "archivedLabel": "· archiviert",
       "historicOrders": "{count, plural, one {# frühere Bestellung} other {# frühere Bestellungen}}",
       "recentActivity": "Letzte Aktivitäten auf der Plattform"
-    }
+    },
+    "testMode": "Testmodus"
   },
   "pager": {
     "orders": "{first}–{last} von {total} Bestellungen",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "Die Wechselkurse konnten nicht aktualisiert werden. Bitte versuchen Sie es später erneut.",
       "ratesSaved": "Wechselkurse gespeichert",
       "ratesRefreshed": "Wechselkurse aktualisiert",
-      "templateMissing": "Diese Vorlage ist nicht mehr verfügbar. Wähle eine andere."
+      "templateMissing": "Diese Vorlage ist nicht mehr verfügbar. Wähle eine andere.",
+      "stripePlatformAttention": "Zahlungen können noch nicht eingerichtet werden, weil das Stripe-Konto der Plattform geprüft werden muss."
     },
     "team": {
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Senden Sie Ereignisse zu Bestellungen, Produkten, Kunden und Lagerbestand an Ihre eigenen Systeme.",
-    "webhooksLink": "Webhooks verwalten"
+    "webhooksLink": "Webhooks verwalten",
+    "testModeTitle": "Testzahlungen",
+    "testModeOn": "An",
+    "testModeOff": "Aus",
+    "testModeBody": "Der Checkout akzeptiert Testkarten und niemand wird belastet. Bestellungen werden als Testbestellungen markiert und nicht in die Analysen einbezogen.",
+    "testModeBlocksLive": "Stripe ist bereit. Deaktivieren Sie den Testmodus, um echte Zahlungen anzunehmen.",
+    "testModeTurnOn": "Testmodus aktivieren",
+    "testModeTurnOff": "Testmodus deaktivieren",
+    "testModeSaving": "Wird gespeichert…"
   },
   "team": {
     "agencyAdmins": "Agenturadministratoren",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Bestellungen mit Ausnahmen",
     "csvExceptionRate": "Ausnahmequote (%)",
     "fileName": "{store} Tagesumsatz",
-    "accessDenied": "Sie haben keinen Zugriff auf diesen Shop."
+    "accessDenied": "Sie haben keinen Zugriff auf diesen Shop.",
+    "includeTestOrders": "Testbestellungen einbeziehen",
+    "excludeTestOrders": "Testbestellungen ausblenden"
   },
   "orders": {
     "recipients": "{count, plural, one {# Empfänger} other {# Empfänger}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {Keine Bestellung an Lieferanten gesendet.} one {# Bestellung an einen Lieferanten gesendet.} other {# Bestellungen an Lieferanten gesendet.}}",
         "failed": "{count, plural, one {# Bestellung fehlgeschlagen:} other {# Bestellungen fehlgeschlagen:}}"
       }
-    }
+    },
+    "testBadge": "TEST"
   },
   "orderDetail": {
     "orders": "Bestellungen",
@@ -3863,7 +3876,8 @@
       "undecided": "Unentschieden",
       "planLabel": "Tarif {plan}",
       "recentActivity": "Letzte Aktivität auf der Plattform",
-      "fullAudit": "Vollständiges Audit-Log"
+      "fullAudit": "Vollständiges Audit-Log",
+      "testMode": "Testmodus"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Nachricht",
       "noMessage": "Keine Nachricht.",
       "reply": "Per E-Mail antworten"
+    },
+    "stripeAlert": {
+      "title": "Stripe erfordert Ihre Aufmerksamkeit",
+      "body": "Shops können keine Zahlungen einrichten oder annehmen, bis dies im Stripe-Dashboard behoben ist.",
+      "seen": "Zuletzt aufgetreten: {when}",
+      "seenWithStore": "Zuletzt aufgetreten: {when} bei {store}",
+      "openDashboard": "Stripe-Dashboard öffnen",
+      "emailSubject": "Handlungsbedarf im Stripe-Dashboard",
+      "emailBody": "Stripe hat eine Anfrage des Plattformkontos abgelehnt. Shops können keine Zahlungen einrichten oder annehmen, bis dies behoben ist:",
+      "storeLabel": "Shop"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Testmodus – keine echten Zahlungen"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Sendungen",
       "shipmentNumber": "Paket {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Sendung verfolgen"
+      "trackParcel": "Sendung verfolgen",
+      "testBadge": "TEST"
     },
     "status": {
       "awaitingPayment": "Zahlung ausstehend",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "Wir haben {amount} auf Ihre ursprüngliche Zahlungsmethode erstattet.",
       "deliveredSubject": "Ihre Bestellung {code} bei {store} wurde zugestellt",
       "deliveredHeading": "Ihre Bestellung wurde zugestellt",
-      "deliveredBody": "Bestellung {code} wurde zugestellt. Melden Sie sich bei uns, falls etwas fehlt oder nicht wie erwartet ist."
+      "deliveredBody": "Bestellung {code} wurde zugestellt. Melden Sie sich bei uns, falls etwas fehlt oder nicht wie erwartet ist.",
+      "testSubjectPrefix": "[TEST]",
+      "testNotice": "Dies ist eine Testbestellung. Es wurde keine Zahlung eingezogen."
     },
     "gift": {
       "chromeSubtitle": "Geschenkkatalog · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# neue Bestellung} other {# neue Bestellungen}} in {store}",
       "digestHeading": "{count, plural, one {# neue Bestellung} other {# neue Bestellungen}}",
       "digestCta": "Bestellungen ansehen"
-    }
+    },
+    "testPrefix": "[TEST]"
   },
   "storePolicies": {
     "refunds": "## Personalisierte und auf Bestellung gefertigte Artikel\nJeder Artikel von {store} wird auf Bestellung gefertigt, und viele tragen Ihren Namen, Text oder Ihr Motiv. Da sie für Sie angefertigt werden, können wir Rückgaben oder Umtausch bei Nichtgefallen oder bei einer von Ihnen gewählten Größe oder Farbe nicht annehmen. Bitte prüfen Sie Design, Schreibweise und Größe, bevor Sie bestellen.\n\n## Beschädigte, fehlerhafte oder falsche Artikel\nKommt Ihre Bestellung beschädigt, fehlerhaft oder abweichend von Ihrer Bestellung an, kontaktieren Sie uns innerhalb von 30 Tagen nach Lieferung mit Ihrer Bestellnummer und einem Foto. Wir senden Ihnen kostenlos Ersatz oder erstatten den vollen Betrag.\n\n## Artikel ohne Personalisierung\nUnbenutzte Artikel ohne Personalisierung können innerhalb von 14 Tagen nach Lieferung zurückgegeben werden. Bitte kontaktieren Sie uns, bevor Sie etwas zurücksenden. Die Rücksendekosten tragen Sie, außer der Artikel ist fehlerhaft.\n\n## Stornierung\nSie können kostenlos stornieren, bis Ihre Bestellung in Produktion geht. Kontaktieren Sie uns so bald wie möglich mit Ihrer Bestellnummer.\n\n## Erstattungen\nGenehmigte Erstattungen gehen innerhalb von 10 Werktagen an die ursprüngliche Zahlungsmethode zurück.\n\n## Ihre gesetzlichen Rechte\nDiese Richtlinie berührt Ihre gesetzlichen Rechte als Verbraucher nicht.",

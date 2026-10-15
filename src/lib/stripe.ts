@@ -32,6 +32,71 @@ export function checkoutLocale(locale: string): Stripe.Checkout.SessionCreatePar
   return CHECKOUT_LOCALES.find((code) => code === locale) ?? "auto";
 }
 
+/* ------------------------------------------------------------- failures */
+
+/**
+ * Why a Stripe call failed, in the terms the caller acts on:
+ *
+ * - `unreachable`: the network, a Stripe outage or rate limit. Trying again
+ *   later can work.
+ * - `platform`: Parcelith's own Stripe account is refused: a missing or wrong
+ *   key, a permission, or a Connect setting the platform owner has to finish in
+ *   the Stripe Dashboard. No store can fix it, so platform admins are told.
+ * - `invalid`: Stripe refused the store's own details, such as its country,
+ *   email or currency. Stripe's message says what to change.
+ *
+ * `message` is Stripe's own, and `dashboardUrl` the Dashboard page it names.
+ */
+export type StripeFailureKind = "unreachable" | "platform" | "invalid";
+
+export interface StripeFailure {
+  kind: StripeFailureKind;
+  message: string;
+  dashboardUrl: string | null;
+}
+
+export type StripeResult<T> = { ok: true; value: T } | { ok: false; failure: StripeFailure };
+
+const DASHBOARD_URL = /https:\/\/dashboard\.stripe\.com\/[^\s"')]*/;
+
+function dashboardLink(message: string): string | null {
+  return DASHBOARD_URL.exec(message)?.[0].replace(/[.,;:]+$/, "") ?? null;
+}
+
+const MISSING_KEY: StripeFailure = {
+  kind: "platform",
+  message: "STRIPE_SECRET_KEY is not set.",
+  dashboardUrl: "https://dashboard.stripe.com/apikeys",
+};
+
+export function classifyStripeError(error: unknown): StripeFailure {
+  const { errors } = Stripe;
+  if (!(error instanceof errors.StripeError)) {
+    return { kind: "unreachable", message: error instanceof Error ? error.message : String(error), dashboardUrl: null };
+  }
+  const message = error.message;
+  const dashboardUrl = dashboardLink(message);
+  if (error instanceof errors.StripeAuthenticationError || error instanceof errors.StripePermissionError) {
+    return { kind: "platform", message, dashboardUrl };
+  }
+  if (error instanceof errors.StripeInvalidRequestError) {
+    // A request naming a Dashboard settings page, or a Connect or platform
+    // refusal tied to no field, is about the platform account, not the store.
+    const platform = Boolean(dashboardUrl) || (!error.param && /\b(connect|platform)\b/i.test(message));
+    return { kind: platform ? "platform" : "invalid", message, dashboardUrl };
+  }
+  if (error instanceof errors.StripeCardError || error instanceof errors.StripeIdempotencyError) {
+    return { kind: "invalid", message, dashboardUrl };
+  }
+  // Connection, API (5xx) and rate limit errors, and anything unknown.
+  return { kind: "unreachable", message, dashboardUrl };
+}
+
+function failed<T>(error: unknown, context: string): StripeResult<T> {
+  console.error(context, error);
+  return { ok: false, failure: classifyStripeError(error) };
+}
+
 /** An expandable reference reduced to its id. */
 export function refId(ref: string | { id: string } | null | undefined): string | null {
   return typeof ref === "string" ? ref : (ref?.id ?? null);
@@ -67,9 +132,9 @@ export async function createExpressAccount(input: {
   country: string;
   email: string | null;
   attempt: string;
-}): Promise<ConnectStatus | null> {
+}): Promise<StripeResult<ConnectStatus>> {
   const stripe = stripeClient();
-  if (!stripe) return null;
+  if (!stripe) return { ok: false, failure: MISSING_KEY };
   try {
     const account = await stripe.accounts.create(
       {
@@ -86,17 +151,20 @@ export async function createExpressAccount(input: {
       },
       { idempotencyKey: `connect-account-${input.storeId}-${input.attempt}` },
     );
-    return connectStatus(account);
+    return { ok: true, value: connectStatus(account) };
   } catch (error) {
-    console.error(`Stripe account for store ${input.storeId} could not be created`, error);
-    return null;
+    return failed(error, `Stripe account for store ${input.storeId} could not be created`);
   }
 }
 
 /** Stripe's hosted onboarding for an account. Links are single-use and short-lived, so one is made per visit. */
-export async function onboardingLink(accountId: string, refreshUrl: string, returnUrl: string): Promise<string | null> {
+export async function onboardingLink(
+  accountId: string,
+  refreshUrl: string,
+  returnUrl: string,
+): Promise<StripeResult<string>> {
   const stripe = stripeClient();
-  if (!stripe) return null;
+  if (!stripe) return { ok: false, failure: MISSING_KEY };
   try {
     const link = await stripe.accountLinks.create({
       account: accountId,
@@ -104,21 +172,19 @@ export async function onboardingLink(accountId: string, refreshUrl: string, retu
       refresh_url: refreshUrl,
       return_url: returnUrl,
     });
-    return link.url;
+    return { ok: true, value: link.url };
   } catch (error) {
-    console.error(`Onboarding link for ${accountId} could not be created`, error);
-    return null;
+    return failed(error, `Onboarding link for ${accountId} could not be created`);
   }
 }
 
-export async function retrieveAccount(accountId: string): Promise<ConnectStatus | null> {
+export async function retrieveAccount(accountId: string): Promise<StripeResult<ConnectStatus>> {
   const stripe = stripeClient();
-  if (!stripe) return null;
+  if (!stripe) return { ok: false, failure: MISSING_KEY };
   try {
-    return connectStatus(await stripe.accounts.retrieve(accountId));
+    return { ok: true, value: connectStatus(await stripe.accounts.retrieve(accountId)) };
   } catch (error) {
-    console.error(`Stripe account ${accountId} could not be read`, error);
-    return null;
+    return failed(error, `Stripe account ${accountId} could not be read`);
   }
 }
 
@@ -200,9 +266,9 @@ export interface CheckoutStart {
  * becomes a single-use coupon on the same account, so the session's total is
  * exactly the order's.
  */
-export async function createConnectedCheckout(input: ConnectedCheckoutInput): Promise<CheckoutStart | null> {
+export async function createConnectedCheckout(input: ConnectedCheckoutInput): Promise<StripeResult<CheckoutStart>> {
   const stripe = stripeClient();
-  if (!stripe) return null;
+  if (!stripe) return { ok: false, failure: MISSING_KEY };
   const options = { stripeAccount: input.accountId };
   const currency = input.currency.toLowerCase();
   const taxBehavior = input.automaticTax ? (input.automaticTax.inclusive ? "inclusive" : "exclusive") : null;
@@ -270,11 +336,12 @@ export async function createConnectedCheckout(input: ConnectedCheckoutInput): Pr
       },
       { ...options, idempotencyKey: input.idempotencyKey },
     );
-    if (!session.url) return null;
-    return { id: session.id, url: session.url };
+    if (!session.url) {
+      return { ok: false, failure: { kind: "unreachable", message: "Stripe returned no Checkout address.", dashboardUrl: null } };
+    }
+    return { ok: true, value: { id: session.id, url: session.url } };
   } catch (error) {
-    console.error(`Checkout session on ${input.accountId} could not be created`, error);
-    return null;
+    return failed(error, `Checkout session on ${input.accountId} could not be created`);
   }
 }
 

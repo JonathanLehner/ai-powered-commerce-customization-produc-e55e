@@ -181,7 +181,10 @@ export default async function OrderStatusPage({
             {t("order.placed", { when: dateTime(order.createdAt) })}
           </p>
         </div>
-        <Badge tone={status.tone}>{t(`status.${status.label}`)}</Badge>
+        <div className="flex flex-wrap gap-2">
+          {order.test ? <Badge tone="amber">{t("order.testBadge")}</Badge> : null}
+          <Badge tone={status.tone}>{t(`status.${status.label}`)}</Badge>
+        </div>
       </div>
 
       <p className="mt-3 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-inksoft">

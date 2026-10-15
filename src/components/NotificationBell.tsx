@@ -105,12 +105,13 @@ export function NotificationBell() {
 
   function title(item: Notification): string {
     const { code = "", name = "", count = 0, amount, currency } = item.params;
-    return t(`titles.${notificationTitleKey(item.type, item.params)}`, {
+    const text = t(`titles.${notificationTitleKey(item.type, item.params)}`, {
       code,
       name,
       count,
       amount: typeof amount === "number" && currency ? formatMinorUnits(format, amount, currency) : "",
     });
+    return item.params.test ? `${t("testPrefix")} ${text}` : text;
   }
 
   const unread = feed?.unread ?? 0;

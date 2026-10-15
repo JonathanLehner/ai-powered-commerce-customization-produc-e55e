@@ -33,6 +33,7 @@ const analyticsInput = z.object({
     .optional()
     .describe("A preset range ending today: 7d, 30d (the default), 90d or 12m. Ignored when `from` and `to` are given."),
   ...dateRange,
+  includeTest: z.boolean().optional().describe("Count orders placed in test mode too. They are left out by default."),
 });
 
 /**
@@ -44,7 +45,7 @@ function analyticsRange(input: z.output<typeof analyticsInput>) {
     throw new ApiError(422, "invalid_request", "Give both `from` and `to`, or neither.", input.from ? "to" : "from");
   }
   const params = input.from ? { range: "custom", from: input.from, to: input.to } : { range: input.range ?? "30d" };
-  return parseRange(params, new Date());
+  return parseRange({ ...params, test: input.includeTest ? "1" : undefined }, new Date());
 }
 
 const RANGE_NOTE = `\`range\` in the answer is the period actually reported: a custom range is clipped to today and to ${MAX_RANGE_DAYS} days.`;

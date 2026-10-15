@@ -81,6 +81,7 @@ export const COLLECTIONS = {
   jobLeases: "job_leases",
   passwordResetTokens: "password_reset_tokens",
   passwordResetLimits: "password_reset_limits",
+  platformAlerts: "platform_alerts",
 } as const;
 
 /* ------------------------------------------------------------------ paging */

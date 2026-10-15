@@ -904,7 +904,8 @@
       "archivedLabel": "· archivée",
       "historicOrders": "{count, plural, one {# commande passée} other {# commandes passées}}",
       "recentActivity": "Activité récente de la plateforme"
-    }
+    },
+    "testMode": "Mode test"
   },
   "pager": {
     "orders": "{first}–{last} sur {total} commandes",
@@ -1273,7 +1274,8 @@
       "ratesUnavailable": "Impossible de mettre à jour les taux de change. Réessayez plus tard.",
       "ratesSaved": "Taux de change enregistrés",
       "ratesRefreshed": "Taux de change mis à jour",
-      "templateMissing": "Ce thème n'est plus disponible. Choisissez-en un autre."
+      "templateMissing": "Ce thème n'est plus disponible. Choisissez-en un autre.",
+      "stripePlatformAttention": "Les paiements ne peuvent pas encore être configurés, car le compte Stripe de la plateforme nécessite une intervention."
     },
     "team": {
       "emailInvalid": "Saisissez une adresse e-mail valide.",
@@ -1867,7 +1869,15 @@
     },
     "webhooksTitle": "Webhooks",
     "webhooksBody": "Envoyez les événements de commandes, produits, clients et stock à vos propres systèmes.",
-    "webhooksLink": "Gérer les webhooks"
+    "webhooksLink": "Gérer les webhooks",
+    "testModeTitle": "Paiements de test",
+    "testModeOn": "Activé",
+    "testModeOff": "Désactivé",
+    "testModeBody": "Le paiement accepte les cartes de test et personne n'est débité. Les commandes sont marquées comme commandes de test et exclues des statistiques.",
+    "testModeBlocksLive": "Stripe est prêt. Désactivez le mode test pour accepter de vrais paiements.",
+    "testModeTurnOn": "Activer le mode test",
+    "testModeTurnOff": "Désactiver le mode test",
+    "testModeSaving": "Enregistrement…"
   },
   "team": {
     "agencyAdmins": "Administrateurs de l’agence",
@@ -2056,7 +2066,9 @@
     "csvExceptions": "Commandes avec incidents",
     "csvExceptionRate": "Taux d’incidents (%)",
     "fileName": "{store} ventes quotidiennes",
-    "accessDenied": "Vous n’avez pas accès à cette boutique."
+    "accessDenied": "Vous n’avez pas accès à cette boutique.",
+    "includeTestOrders": "Inclure les commandes de test",
+    "excludeTestOrders": "Exclure les commandes de test"
   },
   "orders": {
     "recipients": "{count, plural, one {# destinataire} other {# destinataires}}",
@@ -2162,7 +2174,8 @@
         "routed": "{count, plural, =0 {Aucune commande envoyée aux fournisseurs.} one {# commande envoyée à un fournisseur.} other {# commandes envoyées aux fournisseurs.}}",
         "failed": "{count, plural, one {# commande en échec :} other {# commandes en échec :}}"
       }
-    }
+    },
+    "testBadge": "TEST"
   },
   "orderDetail": {
     "orders": "Commandes",
@@ -3863,7 +3876,8 @@
       "undecided": "Indécis",
       "planLabel": "Offre {plan}",
       "recentActivity": "Activité récente de la plateforme",
-      "fullAudit": "Journal d’audit complet"
+      "fullAudit": "Journal d’audit complet",
+      "testMode": "Mode test"
     },
     "suppliers": {
       "capability": {
@@ -4135,6 +4149,16 @@
       "message": "Message",
       "noMessage": "Aucun message.",
       "reply": "Répondre par e-mail"
+    },
+    "stripeAlert": {
+      "title": "Stripe nécessite une intervention",
+      "body": "Les boutiques ne peuvent pas configurer ni accepter de paiements tant que ce point n'est pas réglé dans le Dashboard Stripe.",
+      "seen": "Dernière occurrence : {when}",
+      "seenWithStore": "Dernière occurrence : {when} sur {store}",
+      "openDashboard": "Ouvrir le Dashboard Stripe",
+      "emailSubject": "Action requise dans votre Dashboard Stripe",
+      "emailBody": "Stripe a refusé une requête du compte de la plateforme. Les boutiques ne peuvent pas configurer ni accepter de paiements tant que ce point n'est pas réglé :",
+      "storeLabel": "Boutique"
     }
   },
   "storefront": {
@@ -4173,7 +4197,8 @@
         "youtube": "YouTube",
         "facebook": "Facebook",
         "pinterest": "Pinterest"
-      }
+      },
+      "testModeBar": "Mode test – aucun paiement réel"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4424,7 +4449,8 @@
       "shipments": "Expéditions",
       "shipmentNumber": "Colis {number}",
       "shipmentLine": "{name} × {count}",
-      "trackParcel": "Suivre le colis"
+      "trackParcel": "Suivre le colis",
+      "testBadge": "TEST"
     },
     "status": {
       "awaitingPayment": "En attente de paiement",
@@ -4636,7 +4662,9 @@
       "cancelledRefund": "Nous avons remboursé {amount} sur votre moyen de paiement d’origine.",
       "deliveredSubject": "Votre commande {store} {code} a été livrée",
       "deliveredHeading": "Votre commande a été livrée",
-      "deliveredBody": "La commande {code} a été livrée. Contactez-nous s’il manque quelque chose ou si un article ne correspond pas."
+      "deliveredBody": "La commande {code} a été livrée. Contactez-nous s’il manque quelque chose ou si un article ne correspond pas.",
+      "testSubjectPrefix": "[TEST]",
+      "testNotice": "Ceci est une commande de test. Aucun paiement n'a été prélevé."
     },
     "gift": {
       "chromeSubtitle": "Catalogue cadeaux · {store}",
@@ -5040,7 +5068,8 @@
       "digestSubject": "{count, plural, one {# nouvelle commande} other {# nouvelles commandes}} sur {store}",
       "digestHeading": "{count, plural, one {# nouvelle commande} other {# nouvelles commandes}}",
       "digestCta": "Voir les commandes"
-    }
+    },
+    "testPrefix": "[TEST]"
   },
   "storePolicies": {
     "refunds": "## Articles personnalisés et fabriqués à la commande\nChaque article de {store} est fabriqué à la commande, et beaucoup portent votre nom, votre texte ou votre visuel. Comme ils sont fabriqués pour vous, nous ne pouvons pas accepter de retour ni d’échange en cas de changement d’avis, ou pour une taille ou une couleur que vous avez choisie. Vérifiez votre création, l’orthographe et la taille avant de passer commande.\n\n## Articles endommagés, défectueux ou erronés\nSi votre commande arrive endommagée, défectueuse ou différente de ce que vous avez commandé, contactez-nous dans les 30 jours suivant la livraison avec votre numéro de commande et une photo. Nous vous enverrons un remplacement ou vous rembourserons intégralement, sans frais.\n\n## Articles sans personnalisation\nLes articles non utilisés et sans personnalisation peuvent être retournés dans les 14 jours suivant la livraison. Contactez-nous avant tout renvoi. Les frais de retour sont à votre charge, sauf si l’article est défectueux.\n\n## Annulations\nVous pouvez annuler gratuitement tant que votre commande n’est pas entrée en production. Contactez-nous au plus vite avec votre numéro de commande.\n\n## Remboursements\nLes remboursements acceptés sont versés sur le moyen de paiement d’origine sous 10 jours ouvrés.\n\n## Vos droits légaux\nCette politique ne porte pas atteinte à vos droits légaux de consommateur.",

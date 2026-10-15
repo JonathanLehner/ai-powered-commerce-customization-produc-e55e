@@ -2,7 +2,7 @@ import type { ShopperTranslator } from "@/i18n/shopper-copy";
 import type { Store } from "./types";
 
 /**
- * The simulated gateway behind demo stores (`store.demo`) and the orders they
+ * The simulated gateway behind demo stores (`store.demo`), stores in test mode (`store.testMode`) and the orders they
  * took before Stripe Checkout. It settles Stripe's published test card numbers
  * locally and never reaches Stripe, so nobody is charged; live stores pay
  * through `lib/stripe.ts` instead.
@@ -74,7 +74,7 @@ function gatewayId(prefix: string, seed: string): string {
 
 export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
   const { store, t } = input;
-  if (!store.demo) {
+  if (!store.demo && !store.testMode) {
     return {
       ok: false,
       paymentIntentId: null,
@@ -143,6 +143,8 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
 
 export interface RefundInput {
   store: Store;
+  /** A test-mode order: refunded whether or not the store has connected Stripe since. */
+  test?: boolean;
   /** The intent the money was captured on; null on an order that never paid. */
   paymentIntentId: string | null;
   amount: number;
@@ -165,7 +167,7 @@ export interface RefundResult {
  */
 export async function refundSimulated(input: RefundInput): Promise<RefundResult> {
   const { store, paymentIntentId } = input;
-  if (!store.stripe.connected || !store.stripe.chargesEnabled) {
+  if (!input.test && (!store.stripe.connected || !store.stripe.chargesEnabled)) {
     return {
       ok: false,
       refundId: null,

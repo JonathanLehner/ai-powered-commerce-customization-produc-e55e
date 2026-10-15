@@ -53,6 +53,9 @@ assert.equal(paymentMode({ ...live, stripe: { connected: true, accountId: "acct_
 assert.equal(paymentMode({ status: "active", demo: true, stripe: { connected: true, accountId: "acct_1NwSupplyCo", chargesEnabled: true } }), "demo", "a seeded store simulates payment");
 assert.equal(paymentMode({ ...live, demo: true }), "stripe", "a demo store that finished onboarding takes real payments");
 assert.equal(paymentMode({ ...live, status: "archived" }), "unavailable");
+assert.equal(paymentMode({ status: "active", testMode: true, stripe: { connected: false, accountId: null, chargesEnabled: false } }), "demo", "test mode takes test cards before Stripe is connected");
+assert.equal(paymentMode({ ...live, testMode: true }), "demo", "test mode has to be turned off before real payments");
+assert.equal(paymentMode({ ...live, testMode: true, status: "archived" }), "unavailable");
 
 const seed = readFileSync(new URL("./seed.mjs", import.meta.url), "utf8");
 for (const account of ["acct_1NwSupplyCo", "acct_1LumenCreative", "acct_1FerroKaffee", "acct_1RivetHardware"]) {
@@ -63,7 +66,7 @@ for (const account of ["acct_1NwSupplyCo", "acct_1LumenCreative", "acct_1FerroKa
 
 answer("POST /v1/accounts", { id: "acct_new1", object: "account", country: "DE", charges_enabled: false, payouts_enabled: false, details_submitted: false });
 const account = await stripe.createExpressAccount({ storeId: "str_1", country: "DE", email: "shop@example.com", attempt: "DE-first" });
-assert.deepEqual(account, { accountId: "acct_new1", country: "DE", chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false });
+assert.deepEqual(account, { ok: true, value: { accountId: "acct_new1", country: "DE", chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false } });
 assert.equal(last().form.get("controller[stripe_dashboard][type]"), "express", "an Express account");
 assert.equal(last().form.get("controller[requirement_collection]"), "stripe");
 assert.equal(last().form.get("capabilities[card_payments][requested]"), "true");
@@ -72,13 +75,46 @@ assert.equal(last().headers.get("idempotency-key"), "connect-account-str_1-DE-fi
 assert.match(last().headers.get("user-agent") ?? "", /^Stripe\/v1 NodeBindings\//, "sent by the SDK");
 
 answer("POST /v1/account_links", { object: "account_link", url: "https://connect.stripe.com/setup/e/acct_new1/abc" });
-assert.equal(await stripe.onboardingLink("acct_new1", "https://p.test/back/refresh", "https://p.test/back"), "https://connect.stripe.com/setup/e/acct_new1/abc");
+assert.deepEqual(await stripe.onboardingLink("acct_new1", "https://p.test/back/refresh", "https://p.test/back"), { ok: true, value: "https://connect.stripe.com/setup/e/acct_new1/abc" });
 assert.equal(last().form.get("type"), "account_onboarding");
 assert.equal(last().form.get("return_url"), "https://p.test/back");
 assert.equal(last().form.get("refresh_url"), "https://p.test/back/refresh");
 
 answer("GET /v1/accounts/acct_new1", { id: "acct_new1", object: "account", country: "DE", charges_enabled: true, payouts_enabled: true, details_submitted: true });
-assert.equal((await stripe.retrieveAccount("acct_new1")).payoutsEnabled, true);
+assert.equal((await stripe.retrieveAccount("acct_new1")).value.payoutsEnabled, true);
+
+/* ------------------------------------------- why a Stripe call failed */
+
+// The platform profile refusal seen in production: the platform owner has to
+// finish it in the Dashboard, so it is a platform failure with its link.
+const LOSSES = "Please review the responsibilities of managing losses for connected accounts at https://dashboard.stripe.com/settings/connect/platform-profile.";
+answer("POST /v1/accounts", { error: { message: LOSSES, type: "invalid_request_error" } }, 400);
+assert.deepEqual(
+  await stripe.createExpressAccount({ storeId: "str_2", country: "DE", email: null, attempt: "DE-first" }),
+  { ok: false, failure: { kind: "platform", message: LOSSES, dashboardUrl: "https://dashboard.stripe.com/settings/connect/platform-profile" } },
+  "a platform setting keeps Stripe's words and the Dashboard link",
+);
+answer("POST /v1/accounts", { error: { message: "Invalid email address: nope", type: "invalid_request_error", param: "email" } }, 400);
+assert.deepEqual(
+  (await stripe.createExpressAccount({ storeId: "str_2", country: "DE", email: "nope", attempt: "DE-first" })).failure,
+  { kind: "invalid", message: "Invalid email address: nope", dashboardUrl: null },
+  "the store's own details show Stripe's message",
+);
+answer("POST /v1/account_links", { error: { message: "The provided key does not have access to account 'acct_x'.", type: "invalid_request_error" } }, 403);
+assert.equal((await stripe.onboardingLink("acct_x", "https://p.test/r", "https://p.test/b")).failure.kind, "platform", "a permission refusal is the platform's");
+answer("GET /v1/accounts/acct_new1", { error: { message: "Invalid API Key provided", type: "invalid_request_error" } }, 401);
+assert.equal((await stripe.retrieveAccount("acct_new1")).failure.kind, "platform", "a wrong key is the platform's");
+const { classifyStripeError } = stripe;
+assert.equal(classifyStripeError(new Stripe.errors.StripeConnectionError({ message: "socket hang up" })).kind, "unreachable", "a network error keeps 'could not be reached'");
+assert.equal(classifyStripeError(new Stripe.errors.StripeAPIError({ message: "Server error" })).kind, "unreachable");
+assert.equal(classifyStripeError(new Stripe.errors.StripeRateLimitError({ message: "Too many requests" })).kind, "unreachable");
+assert.equal(classifyStripeError(new Stripe.errors.StripePermissionError({ message: "No access" })).kind, "platform");
+assert.equal(classifyStripeError(new TypeError("fetch failed")).kind, "unreachable");
+const withoutKey = process.env.STRIPE_SECRET_KEY;
+delete process.env.STRIPE_SECRET_KEY;
+assert.equal((await stripe.createExpressAccount({ storeId: "str_3", country: "DE", email: null, attempt: "x" })).failure.kind, "platform", "a missing key is the platform's to fix");
+process.env.STRIPE_SECRET_KEY = withoutKey;
+answer("GET /v1/accounts/acct_new1", { id: "acct_new1", object: "account", country: "DE", charges_enabled: true, payouts_enabled: true, details_submitted: true });
 
 /* ---------------------------------------------- storefront Checkout */
 
@@ -101,7 +137,7 @@ const session = await stripe.createConnectedCheckout({
   successUrl: "https://p.test/s/ferro/orders/ORD-1?t=tok&paid=1",
   cancelUrl: "https://p.test/s/ferro/cart",
 });
-assert.deepEqual(session, { id: "cs_test_1", url: "https://checkout.stripe.com/c/pay/cs_test_1" });
+assert.deepEqual(session, { ok: true, value: { id: "cs_test_1", url: "https://checkout.stripe.com/c/pay/cs_test_1" } });
 const [coupon, create] = requests.slice(before);
 assert.equal(coupon.path, "/v1/coupons");
 assert.equal(coupon.headers.get("stripe-account"), "acct_live1", "the discount lives on the store's account");
@@ -138,7 +174,9 @@ answer("POST /v1/checkout/sessions/cs_test_2/expire", { error: { message: "Only 
 assert.equal(await stripe.expireConnectedCheckout("acct_live1", "cs_test_2"), false, "a paid session is left to the webhook");
 
 answer("POST /v1/checkout/sessions", { error: { message: "Your account cannot currently make live charges.", type: "invalid_request_error" } }, 400);
-assert.equal(await stripe.createConnectedCheckout({ accountId: "acct_live1", metadata: {}, idempotencyKey: "k", currency: "USD", locale: "en", email: "a@b.co", lines: [], shipping: null, discount: null, successUrl: "https://p.test/a", cancelUrl: "https://p.test/b" }), null, "a refused session leaves the order to be closed");
+const refusedSession = await stripe.createConnectedCheckout({ accountId: "acct_live1", metadata: {}, idempotencyKey: "k", currency: "USD", locale: "en", email: "a@b.co", lines: [], shipping: null, discount: null, successUrl: "https://p.test/a", cancelUrl: "https://p.test/b" });
+assert.equal(refusedSession.ok, false, "a refused session leaves the order to be closed");
+assert.deepEqual(refusedSession.failure, { kind: "invalid", message: "Your account cannot currently make live charges.", dashboardUrl: null }, "with Stripe's message for the store");
 
 /* -------------------------------------------------------------- refunds */
 
