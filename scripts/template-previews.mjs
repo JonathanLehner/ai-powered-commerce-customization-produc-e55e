@@ -1,7 +1,7 @@
 /**
  * Screenshots every template's demo store for the gallery: a thumbnail (the
  * top of the home page at 1440px), and the whole home page at 1440px and at
- * 390px. Uploaded to the platform asset store with responsive widths, and
+ * 390px. Uploaded through the app's upload API with responsive widths, and
  * written to src/lib/templates/assets.json as each template's `previews`.
  * Run against a production build of the app:
  *
@@ -13,12 +13,8 @@ import path from "node:path";
 import sharp from "sharp";
 import { chromium } from "playwright-core";
 import { TEMPLATE_DEFS } from "../src/lib/templates/index.ts";
+import { uploadViaApp } from "./app-upload.mjs";
 
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
 const args = process.argv.slice(2);
 const value = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
 const base = (value("--base") ?? "http://localhost:3000").replace(/\/$/, "");
@@ -27,25 +23,12 @@ const ASSETS = path.join(process.cwd(), "src/lib/templates/assets.json");
 const VARIANTS = path.join(process.cwd(), "scripts/image-variants.json");
 const WIDTHS = [256, 384, 640, 1024];
 
-async function upload(bytes, mimeType) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch("https://www.clawcorp.ai/api/platform/upload", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": mimeType },
-      body: bytes,
-    });
-    if (res.ok) return (await res.json()).url;
-    if (attempt === 4) throw new Error(`upload: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 1000 * attempt));
-  }
-}
-
 async function variantsOf(buffer) {
   const { width } = await sharp(buffer).metadata();
   const sizes = {};
   for (const w of WIDTHS) {
     if (w > width) continue;
-    sizes[w] = await upload(await sharp(buffer).resize({ width: w }).webp({ quality: 74 }).toBuffer(), "image/webp");
+    sizes[w] = await uploadViaApp(await sharp(buffer).resize({ width: w }).webp({ quality: 74 }).toBuffer(), "image/webp");
   }
   return sizes;
 }
@@ -82,9 +65,9 @@ for (const t of TEMPLATE_DEFS.filter((d) => !only || only.includes(d.id))) {
   const desktopShot = await sharp(full).resize({ width: 1200 }).webp({ quality: 72 }).toBuffer();
   const mobileShot = await sharp(phone).resize({ width: 600 }).webp({ quality: 72 }).toBuffer();
   const previews = {
-    thumbnail: await upload(thumbnail, "image/webp"),
-    desktop: await upload(desktopShot, "image/webp"),
-    mobile: await upload(mobileShot, "image/webp"),
+    thumbnail: await uploadViaApp(thumbnail, "image/webp"),
+    desktop: await uploadViaApp(desktopShot, "image/webp"),
+    mobile: await uploadViaApp(mobileShot, "image/webp"),
   };
   variants[previews.thumbnail] = await variantsOf(thumbnail);
   variants[previews.desktop] = await variantsOf(desktopShot);

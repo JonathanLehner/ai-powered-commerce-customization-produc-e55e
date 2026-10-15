@@ -3,16 +3,17 @@
  *
  * The deployment target has no runtime image processing, so `next/image` would
  * otherwise hand every visitor the full-size original. Each source image is
- * resized once here, uploaded to the platform asset store, and the permanent
+ * resized once here, uploaded through the app's upload API, and the permanent
  * URLs are written to `image-variants.json`, which the custom image loader in
  * `src/lib/image-loader.ts` reads at request time.
  *
- *   node scripts/generate-variants.mjs     # requires CLAWCORP_API_KEY
+ *   node --env-file=.env.local scripts/generate-variants.mjs   # requires UPLOAD_API_KEY and UPLOAD_STORE_ID
  */
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { uploadViaApp } from "./app-upload.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const MANIFEST = path.join(HERE, "image-manifest.json");
@@ -20,22 +21,6 @@ const VARIANTS = path.join(HERE, "image-variants.json");
 
 /** Must match `images.deviceSizes` and `images.imageSizes` in next.config.ts. */
 const WIDTHS = [256, 384, 640, 1024];
-
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY is not set.");
-  process.exit(1);
-}
-
-async function upload(bytes, mimeType) {
-  const res = await fetch("https://www.clawcorp.ai/api/platform/upload", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${KEY}`, "content-type": mimeType },
-    body: bytes,
-  });
-  if (!res.ok) throw new Error(`Upload failed: ${res.status} ${await res.text()}`);
-  return (await res.json()).url;
-}
 
 const manifest = JSON.parse(await readFile(MANIFEST, "utf8"));
 let existing = {};
@@ -58,7 +43,7 @@ for (const [key, url] of Object.entries(manifest)) {
   for (const width of WIDTHS) {
     if (width > sourceWidth) continue;
     const webp = await sharp(source).resize({ width }).webp({ quality: 74 }).toBuffer();
-    sizes[width] = await upload(webp, "image/webp");
+    sizes[width] = await uploadViaApp(webp, "image/webp");
     console.log(`  ${key} @${width} → ${Math.round(webp.length / 1024)} KB`);
   }
   out[url] = sizes;

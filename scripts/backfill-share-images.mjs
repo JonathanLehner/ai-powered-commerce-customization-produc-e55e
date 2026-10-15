@@ -11,22 +11,7 @@
  */
 import sharp from "sharp";
 import { openDatabase } from "./mongo.mjs";
-
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
-
-async function upload(bytes) {
-  const res = await fetch("https://www.clawcorp.ai/api/platform/upload", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${KEY}`, "content-type": "image/jpeg" },
-    body: bytes,
-  });
-  if (!res.ok) throw new Error(`upload: ${res.status} ${await res.text()}`);
-  return (await res.json()).url;
-}
+import { uploadViaApp } from "./app-upload.mjs";
 
 async function shareCopy(url) {
   const res = await fetch(url);
@@ -43,7 +28,7 @@ for (const product of await products.find({ "mockups.0": { $exists: true } }).to
   for (const mockup of product.mockups) {
     if (mockup.shareUrl) continue;
     try {
-      const shareUrl = await upload(await shareCopy(mockup.url));
+      const shareUrl = await uploadViaApp(await shareCopy(mockup.url), "image/jpeg");
       // Targets the one mockup by id, so a mockup regenerated meanwhile is left alone.
       await products.updateOne(
         { id: product.id, "mockups.id": mockup.id, "mockups.url": mockup.url },

@@ -331,6 +331,7 @@ uploaded earlier keep their `https://assets.clawcorp.ai` addresses. `next dev`
 gets a local bucket from `initOpenNextCloudflareForDev()`.
 
 The scripts that upload files (`seed.mjs`, `generate-template-assets.mjs`,
+`generate-variants.mjs`, `template-previews.mjs`, `backfill-share-images.mjs`,
 `backfill-colour-and-upload.mjs`) run outside the Worker, so they post to the
 app's Admin API upload route (`scripts/app-upload.mjs`) and need:
 
@@ -558,11 +559,6 @@ npm run template-check -- --base http://localhost:3000 --browser
 The asset, preview and check scripts drive a local Chrome through
 `playwright-core` (`CHROME_PATH`, default `/usr/bin/google-chrome`); they are
 build tools and never part of the deployed app.
-
-`scripts/migrate-to-mongodb.mjs` copied production off the ClawCorp platform
-database API into `parcelith`, keeping every `id` and `_id`. It pages past the
-API's per-read cap and upserts by `id`, so it is safe to re-run:
-`MONGODB_DB=parcelith node --env-file=.env.local --experimental-strip-types scripts/migrate-to-mongodb.mjs`.
 
 `scripts/seed-gifting.mjs` adds the corporate gifting demo — a private catalogue
 for Northwind, a paid campaign with one order per recipient (including an
