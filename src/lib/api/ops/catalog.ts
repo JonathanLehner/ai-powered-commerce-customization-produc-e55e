@@ -119,7 +119,7 @@ export const catalogOperations: ApiOperation[] = [
     input: z.object({
       productId: id("product"),
       printAreaId: id("print area"),
-      url: assetUrl.describe("The artwork's URL in the asset storage (https://assets.clawcorp.ai/…)."),
+      url: assetUrl.describe("The artwork's URL, as returned by uploadFile."),
       fileName: z.string().max(120).optional().describe("The name shown in the workspace and the activity history."),
     }),
     run: async (ctx, input) => {

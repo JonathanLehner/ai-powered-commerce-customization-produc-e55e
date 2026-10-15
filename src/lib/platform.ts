@@ -70,21 +70,3 @@ function escapeControlCharacters(json: string): string {
   }
   return out;
 }
-
-/** Uploads raw bytes to the platform asset store and returns a permanent URL. */
-export async function uploadFile(bytes: ArrayBuffer | Uint8Array | Buffer, mimeType: string): Promise<string> {
-  const body =
-    bytes instanceof ArrayBuffer ? new Uint8Array(bytes) : (bytes as Uint8Array);
-  const res = await fetch(`${BASE}/upload`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey()}`,
-      "content-type": mimeType,
-    },
-    body: body as unknown as BodyInit,
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`Upload failed: ${res.status} ${await res.text()}`);
-  const json = (await res.json()) as { url: string };
-  return json.url;
-}

@@ -1,5 +1,6 @@
 import "server-only";
 import { ImageResponse } from "next/og";
+import { readUpload, uploadKeyOf } from "./file-store";
 import { THEMES, type ThemeKey } from "./types";
 
 /**
@@ -20,6 +21,14 @@ const DRAWABLE = ["image/png", "image/jpeg", "image/gif", "image/svg+xml"];
 export async function drawableImage(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
   try {
+    // The app's own uploads are read from its bucket, not fetched from itself.
+    const key = uploadKeyOf(url);
+    if (key) {
+      const stored = await readUpload(key);
+      const type = (stored?.contentType ?? "").split(";")[0].trim();
+      if (!stored || !DRAWABLE.includes(type)) return null;
+      return `data:${type};base64,${Buffer.from(stored.bytes).toString("base64")}`;
+    }
     const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
     const type = (response.headers.get("content-type") ?? "").split(";")[0].trim();
     if (!response.ok || !DRAWABLE.includes(type)) return null;

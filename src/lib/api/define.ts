@@ -183,7 +183,7 @@ export const idempotencyKey = z
   .describe("Any unique string. Sending the same request again with the same key returns the first result instead of creating a second record.");
 export const assetUrl = z
   .string()
-  .refine(isStoredAsset, "Use an image already uploaded to the store's asset storage (https://assets.clawcorp.ai/…).");
+  .refine(isStoredAsset, "Use an image URL returned by uploadFile.");
 
 export const paging = {
   limit: z.coerce.number().int().min(1).max(100).default(50).describe("Records per page, 1 to 100."),

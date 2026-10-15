@@ -22,7 +22,7 @@
 // - old Shopify addresses resolve: recorded redirects, nested product links
 //   and /collections/all.
 //
-// No request leaves the machine: Shopify's CDN and the asset upload are mocked.
+// No request leaves the machine: Shopify's CDN and the upload bucket are mocked.
 // It needs MONGODB_URI and MONGODB_DB from `.env.local`, and refuses to run against production.
 import assert from "node:assert/strict";
 import sharp from "sharp";
@@ -32,22 +32,31 @@ if (!process.env.MONGODB_DB || process.env.MONGODB_DB === PRODUCTION_DB) {
   console.error("shopify-import-check writes test data: set MONGODB_DB to the development database (see .env.local).");
   process.exit(1);
 }
-process.env.CLAWCORP_API_KEY ||= "check-key";
 
 const photo = await sharp({ create: { width: 40, height: 30, channels: 3, background: "#c33" } }).jpeg().toBuffer();
 let uploads = 0;
 let downloads = 0;
-globalThis.fetch = async (input, init = {}) => {
+// The app's R2 bucket, as the Worker would hand it to getCloudflareContext().
+globalThis[Symbol.for("__cloudflare-context__")] = {
+  env: {
+    BUCKET: {
+      async put(key, bytes, options) {
+        uploads += 1;
+        assert.match(key, /^uploads\/[a-f0-9]{32}\.jpg$/);
+        assert.equal(options.httpMetadata.contentType, "image/jpeg");
+        assert.equal(bytes.byteLength, photo.length);
+      },
+    },
+  },
+  cf: undefined,
+  ctx: undefined,
+};
+globalThis.fetch = async (input) => {
   const url = String(input);
   if (url.startsWith("https://cdn.shopify.com/")) {
     downloads += 1;
     if (url.includes("missing")) return new Response("not found", { status: 404 });
     return new Response(photo, { status: 200, headers: { "content-type": "image/jpeg" } });
-  }
-  if (url === "https://www.clawcorp.ai/api/platform/upload") {
-    uploads += 1;
-    assert.equal(init.method, "POST");
-    return Response.json({ url: `https://assets.clawcorp.ai/check/${uploads}.jpg`, bytes: photo.length });
   }
   throw new Error(`shopify-import-check makes no other network calls (${url})`);
 };
@@ -272,7 +281,7 @@ try {
   assert.equal(importedTee.variants[1].availability, "out_of_stock");
   assert.equal(importedTee.seoTitle, "Field Tee | Rivet");
   assert.equal(importedTee.mockups.length, 3, "three photos copied; the missing one is reported");
-  assert.ok(importedTee.mockups.every((m) => m.url.startsWith("https://assets.clawcorp.ai/")), "photos live in the store's own storage");
+  assert.ok(importedTee.mockups.every((m) => m.url.startsWith("https://ai-powered-commerce-customization-produc-e55e.clawcorp.ai/api/files/uploads/")), "photos live in the store's own storage");
   assert.equal(importedTee.mockups.find((m) => m.colour === "Black")?.view, "front", "a variant photo is tied to its colour");
   assert.ok(hasApprovedPreviews(importedTee), "an imported product needs only its photos to sell");
   assert.deepEqual(importedTee.variants.map((v) => v.weightGrams), [180, 190, 180], "Variant Grams becomes the variant weight");

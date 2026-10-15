@@ -1,7 +1,7 @@
 import "server-only";
 
 import { inspectImage } from "./mockup";
-import { uploadFile } from "./platform";
+import { putUpload, uploadKeyOf } from "./file-store";
 import type { StoredImage, UploadScope } from "./types";
 
 /**
@@ -14,6 +14,7 @@ import type { StoredImage, UploadScope } from "./types";
  * them and returns metadata; the action only ever receives that small JSON.
  */
 
+/** Where files uploaded before the move to the app's own bucket still live. */
 export const ASSET_ORIGIN = "https://assets.clawcorp.ai";
 
 export interface UploadScopeRules {
@@ -91,7 +92,7 @@ export async function storeUpload(
     return { ok: false, status: 422, message: "That file could not be read as an image." };
   }
 
-  const url = await uploadFile(bytes, type);
+  const url = await putUpload(bytes, type);
   return {
     ok: true,
     image: {
@@ -109,7 +110,7 @@ export async function storeUpload(
 /** Guards a URL that arrived from the browser before it is written to a record. */
 export function isStoredAsset(url: string): boolean {
   try {
-    return new URL(url).origin === ASSET_ORIGIN;
+    return new URL(url).origin === ASSET_ORIGIN || uploadKeyOf(url) !== null;
   } catch {
     return false;
   }

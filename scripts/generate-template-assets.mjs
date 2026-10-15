@@ -14,8 +14,8 @@
  *   template sells a poster, placed on the starter products;
  * - responsive WebP widths of all of them, merged into image-variants.json.
  *
- * Everything is uploaded to the platform asset store and the URLs written to
- * src/lib/templates/assets.json, which is committed. Existing entries are
+ * Everything is uploaded through the app's upload API (scripts/app-upload.mjs)
+ * and the URLs written to src/lib/templates/assets.json, which is committed. Existing entries are
  * kept, so a rerun only fills what is missing.
  *
  *   node --env-file=.env.local --experimental-strip-types --import ./scripts/ts-resolve.mjs \
@@ -27,6 +27,7 @@ import sharp from "sharp";
 import { chromium } from "playwright-core";
 import { artworkPlacement, blankFamily, STARTER_CATALOG, TEMPLATE_DEFS } from "../src/lib/templates/index.ts";
 import { isDarkBlank } from "../src/lib/templates/demo.ts";
+import { uploadViaApp } from "./app-upload.mjs";
 
 const KEY = process.env.CLAWCORP_API_KEY;
 if (!KEY) {
@@ -47,18 +48,6 @@ const redoArt = args.includes("--redo-art");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function upload(bytes, mimeType) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/upload`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": mimeType },
-      body: bytes,
-    });
-    if (res.ok) return (await res.json()).url;
-    if (attempt === 4) throw new Error(`upload: ${res.status} ${await res.text()}`);
-    await sleep(1000 * attempt);
-  }
-}
 
 const RULES =
   "Original photograph for a fictional brand. There must be no text, letters, numbers, logos, brand marks, signage or watermarks anywhere in the image; all clothing is completely plain. Photorealistic, natural colour, high detail.";
@@ -344,7 +333,7 @@ async function buildVariants(url, variants) {
   // so a browser never falls back to the original photograph.
   for (const w of [...WIDTHS.filter((w) => w < width), Math.min(width, WIDTHS.at(-1))]) {
     const webp = await sharp(source).resize({ width: w }).webp({ quality: 74 }).toBuffer();
-    sizes[w] = await upload(webp, "image/webp");
+    sizes[w] = await uploadViaApp(webp, "image/webp");
   }
   variants[url] = sizes;
 }
@@ -441,7 +430,7 @@ for (const t of templates) {
     }
     const kind = family === "poster" ? "poster" : family === "sticker" ? "sticker" : isDarkBlank(product.colour) ? "dark" : "light";
     const webp = await compose(base, place, await art(kind), artworkPlacement(family, product.placement), family === "poster");
-    products.push(await upload(webp, "image/webp"));
+    products.push(await uploadViaApp(webp, "image/webp"));
   }
   entry.products = products;
   console.log(`ok  ${t.id} ${products.length} product shots`);
@@ -463,7 +452,7 @@ for (const t of templates) {
   for (const ink of todo) {
     const png = ink === "poster" ? await renderPoster(printPage, t, POSTER_ASPECT) : await renderArtwork(printPage, t.artwork, ink === "dark");
     const { width, height } = await sharp(png).metadata();
-    entry.artwork[ink] = { url: await upload(png, "image/png"), width, height, bytes: png.length };
+    entry.artwork[ink] = { url: await uploadViaApp(png, "image/png"), width, height, bytes: png.length };
   }
   console.log(`ok  ${t.id} print files ${todo.join(", ")}`);
   await save();

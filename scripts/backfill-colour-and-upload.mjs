@@ -10,26 +10,10 @@
  */
 import { randomBytes } from "node:crypto";
 import sharp from "sharp";
+import { uploadViaApp } from "./app-upload.mjs";
 import { openDatabase } from "./mongo.mjs";
 
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
-const BASE = "https://www.clawcorp.ai/api/platform";
-
 const { client, dbCall } = await openDatabase();
-
-async function upload(bytes, mimeType) {
-  const res = await fetch(`${BASE}/upload`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${KEY}`, "content-type": mimeType },
-    body: bytes,
-  });
-  if (!res.ok) throw new Error(`upload: ${res.status} ${await res.text()}`);
-  return (await res.json()).url;
-}
 
 async function fetchBuffer(url) {
   const res = await fetch(url);
@@ -54,7 +38,7 @@ async function composeMockup(baseUrl, area, art) {
     .composite([{ input: out.data, left: Math.max(0, left), top: Math.max(0, top) }])
     .webp({ quality: 82 })
     .toBuffer();
-  return upload(buf, "image/webp");
+  return uploadViaApp(buf, "image/webp");
 }
 
 const COLOUR = "Black";

@@ -73,7 +73,7 @@ gifting, orders, team, guided setup, activity.
   featured product, collection tiles, columns, story, impact numbers, gallery,
   video, logo strip, testimonials, FAQ, contact and more), each with background,
   spacing, alignment and width controls, image upload with a focal point (the
-  browser resizes photos before they go to the platform upload), generated
+  browser resizes photos before they are uploaded), generated
   settings panels, page reordering, desktop/tablet/phone preview, version history,
   publish, and revert-draft-to-published. The published tree is rendered
   server-side on the storefront. A language switcher edits the shop in any
@@ -311,8 +311,24 @@ between requests). The indexes in `src/lib/db-indexes.ts` are created with
 since they were last put in place (the version is recorded in `app_state`).
 
 `CLAWCORP_API_KEY` authenticates the ClawCorp platform services used from server
-code only: text generation, the chat assistant's model, and the asset upload
-endpoint that stores logos, artwork and rendered mockups.
+code only: text generation and the chat assistant's model.
+
+Uploaded files (logos, artwork, rendered mockups, storefront photos and video,
+shopper artwork) are stored in the project's R2 bucket through the `BUCKET`
+binding in `wrangler.jsonc` (`src/lib/file-store.ts`), under
+`uploads/<random>.<ext>`, and served back by `/api/files/uploads/<name>`. Files
+uploaded earlier keep their `https://assets.clawcorp.ai` addresses. `next dev`
+gets a local bucket from `initOpenNextCloudflareForDev()`.
+
+The scripts that upload files (`seed.mjs`, `generate-template-assets.mjs`,
+`backfill-colour-and-upload.mjs`) run outside the Worker, so they post to the
+app's Admin API upload route (`scripts/app-upload.mjs`) and need:
+
+```
+UPLOAD_API_KEY=…      # an Admin API key with products:write
+UPLOAD_STORE_ID=str_… # the store that key belongs to
+APP_URL=https://…     # optional; defaults to the deployed app
+```
 
 `ASSISTANT_MODEL` (optional) names the platform OpenAI deployment the chat
 assistant calls through `/api/platform/openai`; it must support tool calling.

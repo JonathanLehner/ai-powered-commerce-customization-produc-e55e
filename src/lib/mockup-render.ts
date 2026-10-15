@@ -1,6 +1,7 @@
 "use client";
 
 import type { Rect } from "./types";
+import { uploadNameOf } from "./upload-paths";
 
 export interface MockupLayer {
   artworkUrl?: string | null;
@@ -23,10 +24,17 @@ const MAX_EDGE = 1024;
  * Supplier photography and uploaded artwork live on the asset host, which sends
  * no CORS headers, so drawing them straight into a canvas would taint it and
  * `toBlob` would throw. Routing them through the app's own proxy keeps every
- * source same-origin.
+ * source same-origin. Files in the app's own bucket are served on every host
+ * the app answers, so they are read from the current one.
  */
 export function sameOriginAsset(url: string): string {
   if (url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("/")) return url;
+  try {
+    const { pathname, search } = new URL(url);
+    if (!search && uploadNameOf(pathname)) return pathname;
+  } catch {
+    // not an absolute address; the proxy turns it away
+  }
   return `/api/asset?u=${encodeURIComponent(url)}`;
 }
 

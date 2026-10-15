@@ -41,6 +41,7 @@ export const ROUTES = [
   "/login/reset/[token]",
   "/invite/[token]",
   "/api/asset",
+  "/api/files/uploads/[name]",
   "/api/uploads",
   "/api/stripe/webhook",
   "/api/cron",

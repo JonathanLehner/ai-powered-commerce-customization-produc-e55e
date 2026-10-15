@@ -15,18 +15,12 @@ import path from "node:path";
 import { hashSync } from "bcryptjs";
 import sharp from "sharp";
 import { BULK_SOURCING_PRODUCTS } from "./bulk-sourcing-catalog.mjs";
+import { uploadViaApp } from "./app-upload.mjs";
 import { openDatabase } from "./mongo.mjs";
 import { seedCollections } from "./seed-collections.mjs";
 import { seedGifting } from "./seed-gifting.mjs";
 import { STARTER_CATALOG_PRODUCTS } from "./starter-catalog.mjs";
 import { productContent, productFieldsFor, storeContent, withStoreContent } from "./store-content.mjs";
-
-const KEY = process.env.CLAWCORP_API_KEY;
-if (!KEY) {
-  console.error("CLAWCORP_API_KEY missing");
-  process.exit(1);
-}
-const BASE = "https://www.clawcorp.ai/api/platform";
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -36,18 +30,6 @@ const insertMany = (collection, documents) =>
   documents.length ? dbCall({ collection, action: "insertMany", documents }) : Promise.resolve();
 const clear = (collection) => dbCall({ collection, action: "deleteMany", filter: {} });
 
-async function upload(bytes, mimeType) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await fetch(`${BASE}/upload`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "content-type": mimeType },
-      body: bytes,
-    });
-    if (res.ok) return (await res.json()).url;
-    if (attempt === 4) throw new Error(`upload: ${res.status} ${await res.text()}`);
-    await new Promise((r) => setTimeout(r, 800 * attempt));
-  }
-}
 
 let seedCounter = 0;
 function id(prefix) {
@@ -86,7 +68,7 @@ async function makeLogoArtwork({ mark, word, tagline, colour, accent }) {
   </svg>`;
   const buf = await sharp(Buffer.from(svg)).png().toBuffer();
   const meta = await sharp(buf).metadata();
-  const url = await upload(buf, "image/png");
+  const url = await uploadViaApp(buf, "image/png");
   return { url, pixelWidth: meta.width, pixelHeight: meta.height, sizeBytes: buf.length, hasAlpha: true };
 }
 
@@ -117,7 +99,7 @@ async function composeMockup(baseUrl, area, layer) {
     composed.clone().webp({ quality: 82 }).toBuffer(),
     composed.clone().flatten({ background: "#ffffff" }).jpeg({ quality: 85 }).toBuffer(),
   ]);
-  const [url, shareUrl] = await Promise.all([upload(buf, "image/webp"), upload(share, "image/jpeg")]);
+  const [url, shareUrl] = await Promise.all([uploadViaApp(buf, "image/webp"), uploadViaApp(share, "image/jpeg")]);
   return { url, shareUrl };
 }
 

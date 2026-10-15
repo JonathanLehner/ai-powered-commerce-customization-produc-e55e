@@ -12,6 +12,12 @@
   "build": {
     "command": "node scripts/ascii-worker.mjs"
   },
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "ai-powered-commerce-customization-produc-e55e"
+    }
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

@@ -2,6 +2,7 @@ import "server-only";
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { getCatalogProduct, recordAudit, updateStoreProduct } from "../data";
+import { readUpload, uploadKeyOf } from "../file-store";
 import { inspectImage } from "../mockup";
 import { isStoredAsset, UPLOAD_SCOPES } from "../uploads";
 import type { MockupImage, Store, StoredImage, StoreProduct, UploadScope } from "../types";
@@ -39,28 +40,41 @@ export async function readStoredAsset(
   if (!isStoredAsset(url)) {
     throw new OperationError("invalid", "Use an image already uploaded to the store's asset storage.", field);
   }
-  let response: Response;
-  try {
-    response = await fetch(url, { cache: "no-store" });
-  } catch {
-    throw new OperationError("invalid", "That file could not be read from the asset storage.", field);
-  }
-  if (!response.ok) throw new OperationError("invalid", "That file could not be read from the asset storage.", field);
-
-  const mimeType = (response.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
-  if (!rules.types.includes(mimeType)) {
-    throw new OperationError("invalid", "Use a PNG, JPG or WEBP image.", field);
-  }
+  const unreadable = () => new OperationError("invalid", "That file could not be read from the asset storage.", field);
   const tooLarge = (bytes: number) =>
     new OperationError(
       "invalid",
       `That file is ${(bytes / 1024 / 1024).toFixed(1)} MB. The limit is ${Math.round(rules.maxBytes / 1024 / 1024)} MB.`,
       field,
     );
-  const declared = Number(response.headers.get("content-length") ?? 0);
-  if (declared > rules.maxBytes) throw tooLarge(declared);
+  const checkType = (contentType: string) => {
+    const type = contentType.split(";")[0].trim().toLowerCase();
+    if (!rules.types.includes(type)) throw new OperationError("invalid", "Use a PNG, JPG or WEBP image.", field);
+    return type;
+  };
 
-  const bytes = new Uint8Array(await response.arrayBuffer());
+  let mimeType: string;
+  let bytes: Uint8Array;
+  const key = uploadKeyOf(url);
+  if (key) {
+    // The app's own bucket is read directly rather than through its address.
+    const stored = await readUpload(key).catch(() => null);
+    if (!stored) throw unreadable();
+    mimeType = checkType(stored.contentType);
+    bytes = stored.bytes;
+  } else {
+    let response: Response;
+    try {
+      response = await fetch(url, { cache: "no-store" });
+    } catch {
+      throw unreadable();
+    }
+    if (!response.ok) throw unreadable();
+    mimeType = checkType(response.headers.get("content-type") ?? "");
+    const declared = Number(response.headers.get("content-length") ?? 0);
+    if (declared > rules.maxBytes) throw tooLarge(declared);
+    bytes = new Uint8Array(await response.arrayBuffer());
+  }
   if (bytes.byteLength === 0) throw new OperationError("invalid", "That file is empty.", field);
   if (bytes.byteLength > rules.maxBytes) throw tooLarge(bytes.byteLength);
 
