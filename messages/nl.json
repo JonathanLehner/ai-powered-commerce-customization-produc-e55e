@@ -667,10 +667,6 @@
       "dana": {
         "title": "Contactpersoon bij de klant",
         "blurb": "Alleen-lezentoegang tot Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Platformbeheer",
-        "blurb": "Leveranciers, gedeelde catalogus, btw-tarieven en bureaus."
       }
     },
     "continueAs": "Doorgaan als {name}",

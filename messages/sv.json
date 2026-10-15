@@ -667,10 +667,6 @@
       "dana": {
         "title": "Kontaktperson hos kunden",
         "blurb": "Läsbehörighet till Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Plattformsdrift",
-        "blurb": "Leverantörer, gemensam katalog, momssatser och byråer."
       }
     },
     "continueAs": "Fortsätt som {name}",

@@ -667,10 +667,6 @@
       "dana": {
         "title": "Client stakeholder",
         "blurb": "Read-only access to Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Platform operations",
-        "blurb": "Suppliers, shared catalog, tax brackets and agencies."
       }
     },
     "continueAs": "Continue as {name}",

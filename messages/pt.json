@@ -667,10 +667,6 @@
       "dana": {
         "title": "Contacto do cliente",
         "blurb": "Acesso só de leitura à Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Operações da plataforma",
-        "blurb": "Fornecedores, catálogo partilhado, taxas de imposto e agências."
       }
     },
     "continueAs": "Continuar como {name}",

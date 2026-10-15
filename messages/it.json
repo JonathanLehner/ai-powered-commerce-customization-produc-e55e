@@ -667,10 +667,6 @@
       "dana": {
         "title": "Referente del cliente",
         "blurb": "Accesso in sola lettura a Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Operazioni della piattaforma",
-        "blurb": "Fornitori, catalogo condiviso, aliquote fiscali e agenzie."
       }
     },
     "continueAs": "Continua come {name}",

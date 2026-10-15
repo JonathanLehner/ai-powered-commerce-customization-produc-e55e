@@ -667,10 +667,6 @@
       "dana": {
         "title": "クライアント側の担当者",
         "blurb": "Northwind Supply Co. への閲覧専用アクセス。"
-      },
-      "priya": {
-        "title": "プラットフォーム運用",
-        "blurb": "サプライヤー、共有カタログ、税区分、エージェンシー。"
       }
     },
     "continueAs": "{name} として続行",

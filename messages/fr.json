@@ -667,10 +667,6 @@
       "dana": {
         "title": "Interlocutrice côté client",
         "blurb": "Accès en lecture seule à Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Opérations plateforme",
-        "blurb": "Fournisseurs, catalogue partagé, taux de taxe et agences."
       }
     },
     "continueAs": "Continuer en tant que {name}",

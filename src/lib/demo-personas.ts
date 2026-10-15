@@ -1,14 +1,15 @@
 /**
  * The seeded demo accounts behind the one-click buttons on /login. They are
  * the only accounts that can be opened without a password: real agencies sign
- * up with one, and invited teammates set one when they accept.
+ * up with one, and invited teammates set one when they accept. All four belong
+ * to the demo agencies; the platform operations account is deliberately not
+ * here, since it can act on every agency.
  */
 export const DEMO_PERSONAS = [
   { key: "alex", email: "alex@northlight.studio", name: "Alex Moreau", tone: "brand" },
   { key: "sam", email: "sam@northlight.studio", name: "Sam Okafor", tone: "iris" },
   { key: "ines", email: "ines@northlight.studio", name: "Inés Duarte", tone: "amber" },
   { key: "dana", email: "dana@northwind.example", name: "Dana Whitfield", tone: "slate" },
-  { key: "priya", email: "ops@parcelith.com", name: "Priya Raman", tone: "green" },
 ] as const;
 
 export function isDemoPersona(email: string): boolean {

@@ -88,7 +88,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
         if (!email || !isDemoPersona(email)) return null;
 
         const user = await getUserByEmail(email);
-        if (!user) return null;
+        // Never a platform administrator, even if one is added to the list by mistake.
+        if (!user || user.platformRole === "platform_admin") return null;
 
         return { id: user.id, email: user.email, name: user.name };
       },

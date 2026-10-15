@@ -667,10 +667,6 @@
       "dana": {
         "title": "Ansprechpartnerin beim Kunden",
         "blurb": "Lesezugriff auf Northwind Supply Co."
-      },
-      "priya": {
-        "title": "Plattformbetrieb",
-        "blurb": "Lieferanten, gemeinsamer Katalog, Steuerklassen und Agenturen."
       }
     },
     "continueAs": "Weiter als {name}",

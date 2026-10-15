@@ -453,9 +453,13 @@ is pending and domains are saved without calling Cloudflare.
 
 Pick an account at `/login` — the persona cards sign you straight in, through
 Auth.js's `persona` credentials provider, so a one-click demo login gets the
-same signed session as a real one. The form below them signs in with an email
-address and password; every seeded account uses `parcelith`, stored as a bcrypt
-hash (`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that).
+same signed session as a real one. Only the four demo-agency accounts below have
+cards (`src/lib/demo-personas.ts`), and the provider refuses any platform
+administrator outright. The form below them signs in with an email address and
+password; seeded accounts start with `parcelith`, stored as a bcrypt hash
+(`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that). The
+platform operations account must be given its own private password on any
+public deployment, since it can act on every agency.
 
 "Forgot password?" next to the password field opens `/login/forgot`. It gives
 the same answer whether or not the address has an account; for one that does it
@@ -473,7 +477,7 @@ asked can set its first one this way. See `src/lib/password-reset.ts`.
 | `sam@northlight.studio` | Catalog producer — catalog rights on two stores, no access to Rivet |
 | `ines@northlight.studio` | Fulfilment lead — orders only, on Northwind |
 | `dana@northwind.example` | Client stakeholder — viewer on Northwind |
-| `ops@parcelith.com` | Platform operations — suppliers, catalog, tax, agencies |
+| `ops@parcelith.com` | Platform operations — suppliers, catalog, tax, agencies (password only, no persona card) |
 
 Storefronts are public: `/s/northwind-supply`, `/s/lumen-studio`,
 `/s/ferro-coffee`, `/s/rivet-hardware`.
