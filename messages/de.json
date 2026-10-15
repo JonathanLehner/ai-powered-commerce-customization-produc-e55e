@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "Neues Passwort wählen",
+      "inviteTitle": "Passwort festlegen",
       "lead": "Für {email}",
       "password": "Neues Passwort",
       "passwordHint": "Mindestens {count} Zeichen.",
@@ -802,6 +803,7 @@
       "quotes": "Angebotsanfragen",
       "tax": "Steuerklassen",
       "agencies": "Agenturen und Zugriff",
+      "admins": "Plattform-Admins",
       "audit": "Audit-Log",
       "apiKeys": "API-Schlüssel"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Handlungsbedarf im Stripe-Dashboard",
       "emailBody": "Stripe hat eine Anfrage des Plattformkontos abgelehnt. Shops können keine Zahlungen einrichten oder annehmen, bis dies behoben ist:",
       "storeLabel": "Shop"
+    },
+    "admins": {
+      "title": "Plattform-Admins",
+      "description": "Personen, die Lieferanten, den gemeinsamen Katalog, Steuern, Agenturen und alle Shops verwalten können.",
+      "addTitle": "Plattform-Admin hinzufügen",
+      "name": "Name",
+      "email": "E-Mail",
+      "add": "Plattform-Admin hinzufügen",
+      "adding": "Wird hinzugefügt…",
+      "added": "Einladung an {email} gesendet",
+      "resent": "Neue Einladung an {email} gesendet",
+      "removed": "Zugriff für {email} entfernt",
+      "linkBody": "Falls die E-Mail nicht ankommt, schicken Sie diesen Link. Er funktioniert einmal und läuft nach 7 Tagen ab.",
+      "copyLink": "Link kopieren",
+      "listTitle": "Admins",
+      "columns": {
+        "name": "Name",
+        "lastSignIn": "Letzte Anmeldung",
+        "password": "Passwort",
+        "actions": "Aktionen"
+      },
+      "you": "(Sie)",
+      "unknown": "Unbekannt",
+      "passwordSet": "Festgelegt",
+      "invited": "Einladung ausstehend",
+      "resend": "Einladung erneut senden",
+      "resending": "Wird gesendet…",
+      "remove": "Zugriff entfernen",
+      "removeTitle": "Zugriff für {name} entfernen?",
+      "removeBody": "{name} verliert die Plattform-Adminrechte und kann sich nicht mehr anmelden.",
+      "errors": {
+        "nameRequired": "Geben Sie einen Namen ein.",
+        "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
+        "alreadyAdmin": "Diese Person ist bereits Plattform-Admin.",
+        "agencyAccount": "Diese E-Mail gehört zu einem Agenturkonto. Verwenden Sie eine andere E-Mail-Adresse.",
+        "alreadyAccepted": "Diese Person hat bereits ein Passwort festgelegt.",
+        "notFound": "Dieser Plattform-Admin existiert nicht mehr.",
+        "removeSelf": "Sie können Ihren eigenen Zugriff nicht entfernen.",
+        "removeLast": "Der letzte Plattform-Admin, der sich anmelden kann, lässt sich nicht entfernen."
+      },
+      "inviteEmail": {
+        "subject": "Einladung zur Verwaltung von Parcelith",
+        "heading": "Sie sind Plattform-Admin bei Parcelith",
+        "body": "{inviter} hat Sie als Plattform-Admin hinzugefügt. Legen Sie ein Passwort fest, um sich anzumelden.",
+        "expiry": "Der Link funktioniert einmal und läuft nach {days} Tagen ab.",
+        "cta": "Passwort festlegen"
+      }
     }
   },
   "storefront": {

@@ -33,7 +33,9 @@ const sessionUserId = cache(async (): Promise<string | null> => {
 export const getSessionUser = cache(async (): Promise<User | null> => {
   const id = await sessionUserId();
   if (!id) return null;
-  return (await getUserById(id)) ?? null;
+  const user = await getUserById(id);
+  // A removed platform administrator's session ends with their access.
+  return user && !user.accessRemovedAt ? user : null;
 });
 
 export async function requireUser(): Promise<User> {

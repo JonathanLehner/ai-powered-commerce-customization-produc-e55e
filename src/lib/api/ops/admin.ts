@@ -31,6 +31,13 @@ import {
   taxBracketUsage,
   updateSupplierRegions,
 } from "../../operations/admin";
+import {
+  INVITE_LINK_DAYS,
+  addPlatformAdmin,
+  listPlatformAdmins,
+  removePlatformAdmin,
+  resendPlatformAdminInvitation,
+} from "../../operations/platform-admins";
 import { AUDIT_CATEGORY_LABELS, PRODUCT_CATEGORIES, type AuditCategory, type CatalogProduct, type PlanEnquiry, type QuoteRequest } from "../../types";
 import { CURRENCY_OPTIONS, newId } from "../../util";
 import {
@@ -572,6 +579,57 @@ const enquiries = [
   }),
 ];
 
+/* --------------------------------------------------------- platform admins */
+
+const platformAdmins = [
+  defineAdmin({
+    id: "listPlatformAdmins",
+    method: "GET",
+    path: "/platform-admins",
+    summary: "List platform administrators",
+    description:
+      "Every platform administrator with name, email, when they last signed in (null when not known) and whether they have set a password. Changes nothing.",
+    input: z.object({}),
+    run: async () => ({ data: await listPlatformAdmins() }),
+  }),
+  defineAdmin({
+    id: "addPlatformAdmin",
+    method: "POST",
+    path: "/platform-admins",
+    summary: "Add a platform administrator",
+    description: `Gives a person platform administration and emails them a single-use link to choose their password, valid for ${INVITE_LINK_DAYS} days. A new account is created when the email has none. An email that belongs to an agency's account is refused with a conflict. The link is returned once as invitationUrl, to pass on by hand if the email does not arrive.`,
+    status: 201,
+    actions: ["platform-admins#addPlatformAdmin"],
+    input: z.object({
+      name: z.string().describe("2 to 80 characters."),
+      email: z.string().describe("The person's email address."),
+    }),
+    run: async (ctx, input) => addPlatformAdmin(ctx, input),
+  }),
+  defineAdmin({
+    id: "resendPlatformAdminInvitation",
+    method: "POST",
+    path: "/platform-admins/{userId}/resend-invitation",
+    summary: "Resend a platform administrator's invitation",
+    description: `Emails a fresh ${INVITE_LINK_DAYS}-day link to choose a password and returns it once as invitationUrl. Earlier links stop working. Refused with a conflict once the person has set a password.`,
+    actions: ["platform-admins#resendPlatformAdminInvitation"],
+    input: z.object({ userId: id("user") }),
+    run: async (ctx, input) => resendPlatformAdminInvitation(ctx, input.userId),
+  }),
+  defineAdmin({
+    id: "removePlatformAdmin",
+    method: "DELETE",
+    path: "/platform-admins/{userId}",
+    summary: "Remove a platform administrator",
+    description:
+      "Takes platform administration away and closes the account: its password is replaced, outstanding links stop working and its platform keys stop working. Removing the person this key acts for, or the last administrator with a password, is refused with a conflict.",
+    destructive: true,
+    actions: ["platform-admins#removePlatformAdmin"],
+    input: z.object({ userId: id("user") }),
+    run: async (ctx, input) => ({ ...(await removePlatformAdmin(ctx, input.userId)), removed: true }),
+  }),
+];
+
 /* ---------------------------------------------------------------- audit log */
 
 const auditLog = [
@@ -628,5 +686,6 @@ export const adminOperations: ApiOperation[] = [
   ...agencies,
   ...quotes,
   ...enquiries,
+  ...platformAdmins,
   ...auditLog,
 ];

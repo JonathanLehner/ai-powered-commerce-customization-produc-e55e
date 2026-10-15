@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { cookies } from "next/headers";
 import { hasUsablePassword, isDemoPersona } from "@/lib/demo-personas";
-import { getUserByEmail, getUserById } from "@/lib/data";
+import { getUserByEmail, getUserById, updateUser } from "@/lib/data";
 import { readSignInTicket } from "@/lib/sign-in-token";
 import { SIGNED_IN_HINT_COOKIE } from "@/lib/signed-in-hint";
 
@@ -103,7 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
         if (!userId) return null;
 
         const user = await getUserById(userId);
-        if (!user) return null;
+        if (!user || user.accessRemovedAt) return null;
 
         return { id: user.id, email: user.email, name: user.name };
       },
@@ -111,8 +111,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   ],
   // The marketing pages' "Go to dashboard" link reads this; see `@/lib/signed-in-hint`.
   events: {
-    async signIn() {
+    async signIn({ user }) {
       (await cookies()).set(SIGNED_IN_HINT_COOKIE, "1", { path: "/", maxAge: SESSION_MAX_AGE, sameSite: "lax" });
+      if (user.id) await updateUser(user.id, { lastSignInAt: new Date().toISOString() });
     },
     async signOut() {
       (await cookies()).delete(SIGNED_IN_HINT_COOKIE);

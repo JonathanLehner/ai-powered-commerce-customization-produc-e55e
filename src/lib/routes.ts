@@ -59,6 +59,9 @@ export const ROUTES = [
   "/api/v1/admin/catalog/[catalogId]",
   "/api/v1/admin/plan-enquiries",
   "/api/v1/admin/plan-enquiries/[enquiryId]",
+  "/api/v1/admin/platform-admins",
+  "/api/v1/admin/platform-admins/[userId]",
+  "/api/v1/admin/platform-admins/[userId]/resend-invitation",
   "/api/v1/admin/quote-requests",
   "/api/v1/admin/quote-requests/[requestId]",
   "/api/v1/admin/quote-requests/[requestId]/decline",
@@ -273,6 +276,7 @@ export const ROUTES = [
   "/api/v1/stores/[storeId]/uploads",
 
   "/admin",
+  "/admin/admins",
   "/admin/agencies",
   "/admin/api-keys",
   "/admin/audit",

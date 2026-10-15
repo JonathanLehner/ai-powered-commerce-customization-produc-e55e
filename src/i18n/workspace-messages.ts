@@ -36,7 +36,7 @@ export const SECTION_NAMESPACES = {
   sourcing: ["enquiries", "labels", "sourcing.filters", "sourcing.form"],
   storefront: ["catalog.bulk", "editor", "labels", "storefront.basket", "storefront.chrome", "templates"],
   team: ["team"],
-  admin: ["admin.agencies", "admin.catalogForm", "admin.quoteDesk", "admin.suppliers", "admin.tax", "apiKeys", "audit", "labels", "pager"],
+  admin: ["admin.admins", "admin.agencies", "admin.catalogForm", "admin.quoteDesk", "admin.suppliers", "admin.tax", "apiKeys", "audit", "labels", "pager"],
   login: ["auth"],
 } satisfies Record<string, string[]>;
 

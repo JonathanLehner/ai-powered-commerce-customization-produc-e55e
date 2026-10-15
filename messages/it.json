@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "Scegli una nuova password",
+      "inviteTitle": "Scegli la tua password",
       "lead": "Per {email}",
       "password": "Nuova password",
       "passwordHint": "Almeno {count} caratteri.",
@@ -802,6 +803,7 @@
       "quotes": "Richieste di preventivo",
       "tax": "Aliquote fiscali",
       "agencies": "Agenzie e accessi",
+      "admins": "Amministratori della piattaforma",
       "audit": "Registro di controllo",
       "apiKeys": "Chiavi API"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Azione richiesta nella Dashboard di Stripe",
       "emailBody": "Stripe ha rifiutato una richiesta dell'account della piattaforma. I negozi non possono configurare né accettare pagamenti finché il problema non viene risolto:",
       "storeLabel": "Negozio"
+    },
+    "admins": {
+      "title": "Amministratori della piattaforma",
+      "description": "Persone che possono gestire fornitori, catalogo condiviso, imposte, agenzie e tutti i negozi.",
+      "addTitle": "Aggiungi amministratore",
+      "name": "Nome",
+      "email": "Email",
+      "add": "Aggiungi amministratore",
+      "adding": "Aggiunta…",
+      "added": "Invito inviato a {email}",
+      "resent": "Nuovo invito inviato a {email}",
+      "removed": "Accesso rimosso per {email}",
+      "linkBody": "Se l'email non arriva, invia questo link. Funziona una volta e scade tra 7 giorni.",
+      "copyLink": "Copia link",
+      "listTitle": "Amministratori",
+      "columns": {
+        "name": "Nome",
+        "lastSignIn": "Ultimo accesso",
+        "password": "Password",
+        "actions": "Azioni"
+      },
+      "you": "(tu)",
+      "unknown": "Sconosciuto",
+      "passwordSet": "Impostata",
+      "invited": "Invito in attesa",
+      "resend": "Invia di nuovo l'invito",
+      "resending": "Invio…",
+      "remove": "Rimuovi accesso",
+      "removeTitle": "Rimuovere l'accesso di {name}?",
+      "removeBody": "{name} perderà i diritti di amministratore della piattaforma e non potrà accedere.",
+      "errors": {
+        "nameRequired": "Inserisci un nome.",
+        "emailInvalid": "Inserisci un indirizzo email valido.",
+        "alreadyAdmin": "Questa persona è già amministratore della piattaforma.",
+        "agencyAccount": "Questa email appartiene a un account di agenzia. Usa un altro indirizzo.",
+        "alreadyAccepted": "Questa persona ha già impostato una password.",
+        "notFound": "Questo amministratore non esiste più.",
+        "removeSelf": "Non puoi rimuovere il tuo accesso.",
+        "removeLast": "Non puoi rimuovere l'ultimo amministratore che può accedere."
+      },
+      "inviteEmail": {
+        "subject": "Sei stato invitato ad amministrare Parcelith",
+        "heading": "Sei amministratore della piattaforma Parcelith",
+        "body": "{inviter} ti ha aggiunto come amministratore della piattaforma. Scegli una password per accedere.",
+        "expiry": "Il link funziona una volta e scade tra {days} giorni.",
+        "cta": "Scegli la password"
+      }
     }
   },
   "storefront": {

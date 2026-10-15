@@ -19,6 +19,7 @@ const NAV: { href: string; section: keyof Messages["shell"]["adminTabs"]; group?
   { href: "/admin/quotes", section: "quotes", group: "sourcing" },
   { href: "/admin/agencies", section: "agencies", group: "platform" },
   { href: "/admin/tax", section: "tax", group: "platform" },
+  { href: "/admin/admins", section: "admins", group: "platform" },
   { href: "/admin/api-keys", section: "apiKeys", group: "platform" },
   { href: "/admin/audit", section: "audit", group: "platform" },
 ];

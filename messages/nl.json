@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "Kies een nieuw wachtwoord",
+      "inviteTitle": "Kies je wachtwoord",
       "lead": "Voor {email}",
       "password": "Nieuw wachtwoord",
       "passwordHint": "Minstens {count} tekens.",
@@ -802,6 +803,7 @@
       "quotes": "Offerteaanvragen",
       "tax": "Btw-tarieven",
       "agencies": "Bureaus en toegang",
+      "admins": "Platformbeheerders",
       "audit": "Auditlogboek",
       "apiKeys": "API-sleutels"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Actie vereist in je Stripe-dashboard",
       "emailBody": "Stripe heeft een verzoek van het platformaccount geweigerd. Winkels kunnen geen betalingen instellen of ontvangen totdat dit is opgelost:",
       "storeLabel": "Winkel"
+    },
+    "admins": {
+      "title": "Platformbeheerders",
+      "description": "Mensen die leveranciers, de gedeelde catalogus, btw, bureaus en alle winkels kunnen beheren.",
+      "addTitle": "Platformbeheerder toevoegen",
+      "name": "Naam",
+      "email": "E-mail",
+      "add": "Platformbeheerder toevoegen",
+      "adding": "Toevoegen…",
+      "added": "Uitnodiging verstuurd naar {email}",
+      "resent": "Nieuwe uitnodiging verstuurd naar {email}",
+      "removed": "Toegang ingetrokken voor {email}",
+      "linkBody": "Komt de e-mail niet aan, stuur dan deze link. Hij werkt één keer en verloopt na 7 dagen.",
+      "copyLink": "Link kopiëren",
+      "listTitle": "Beheerders",
+      "columns": {
+        "name": "Naam",
+        "lastSignIn": "Laatst ingelogd",
+        "password": "Wachtwoord",
+        "actions": "Acties"
+      },
+      "you": "(jij)",
+      "unknown": "Onbekend",
+      "passwordSet": "Ingesteld",
+      "invited": "Uitnodiging openstaand",
+      "resend": "Uitnodiging opnieuw sturen",
+      "resending": "Versturen…",
+      "remove": "Toegang intrekken",
+      "removeTitle": "Toegang van {name} intrekken?",
+      "removeBody": "{name} verliest de rechten als platformbeheerder en kan niet meer inloggen.",
+      "errors": {
+        "nameRequired": "Vul een naam in.",
+        "emailInvalid": "Vul een geldig e-mailadres in.",
+        "alreadyAdmin": "Deze persoon is al platformbeheerder.",
+        "agencyAccount": "Dit e-mailadres hoort bij een bureau-account. Gebruik een ander e-mailadres.",
+        "alreadyAccepted": "Deze persoon heeft al een wachtwoord ingesteld.",
+        "notFound": "Deze platformbeheerder bestaat niet meer.",
+        "removeSelf": "Je kunt je eigen toegang niet intrekken.",
+        "removeLast": "Je kunt de laatste platformbeheerder die kan inloggen niet verwijderen."
+      },
+      "inviteEmail": {
+        "subject": "Je bent uitgenodigd om Parcelith te beheren",
+        "heading": "Je bent platformbeheerder van Parcelith",
+        "body": "{inviter} heeft je toegevoegd als platformbeheerder. Kies een wachtwoord om in te loggen.",
+        "expiry": "De link werkt één keer en verloopt na {days} dagen.",
+        "cta": "Wachtwoord kiezen"
+      }
     }
   },
   "storefront": {

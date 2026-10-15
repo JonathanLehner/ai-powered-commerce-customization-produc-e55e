@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "Välj ett nytt lösenord",
+      "inviteTitle": "Välj ditt lösenord",
       "lead": "För {email}",
       "password": "Nytt lösenord",
       "passwordHint": "Minst {count} tecken.",
@@ -802,6 +803,7 @@
       "quotes": "Offertförfrågningar",
       "tax": "Momssatser",
       "agencies": "Byråer och åtkomst",
+      "admins": "Plattformsadministratörer",
       "audit": "Granskningslogg",
       "apiKeys": "API-nycklar"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Åtgärd krävs i din Stripe Dashboard",
       "emailBody": "Stripe nekade en begäran från plattformskontot. Butiker kan inte konfigurera eller ta emot betalningar förrän detta har åtgärdats:",
       "storeLabel": "Butik"
+    },
+    "admins": {
+      "title": "Plattformsadministratörer",
+      "description": "Personer som kan hantera leverantörer, den delade katalogen, moms, byråer och alla butiker.",
+      "addTitle": "Lägg till administratör",
+      "name": "Namn",
+      "email": "E-post",
+      "add": "Lägg till administratör",
+      "adding": "Lägger till…",
+      "added": "Inbjudan skickad till {email}",
+      "resent": "Ny inbjudan skickad till {email}",
+      "removed": "Åtkomst borttagen för {email}",
+      "linkBody": "Om e-postmeddelandet inte kommer fram, skicka den här länken. Den fungerar en gång och upphör efter 7 dagar.",
+      "copyLink": "Kopiera länk",
+      "listTitle": "Administratörer",
+      "columns": {
+        "name": "Namn",
+        "lastSignIn": "Senaste inloggning",
+        "password": "Lösenord",
+        "actions": "Åtgärder"
+      },
+      "you": "(du)",
+      "unknown": "Okänd",
+      "passwordSet": "Angivet",
+      "invited": "Inbjudan väntar",
+      "resend": "Skicka inbjudan igen",
+      "resending": "Skickar…",
+      "remove": "Ta bort åtkomst",
+      "removeTitle": "Ta bort åtkomst för {name}?",
+      "removeBody": "{name} förlorar behörigheten som plattformsadministratör och kan inte logga in.",
+      "errors": {
+        "nameRequired": "Ange ett namn.",
+        "emailInvalid": "Ange en giltig e-postadress.",
+        "alreadyAdmin": "Personen är redan plattformsadministratör.",
+        "agencyAccount": "E-postadressen tillhör ett byråkonto. Använd en annan e-postadress.",
+        "alreadyAccepted": "Personen har redan angett ett lösenord.",
+        "notFound": "Plattformsadministratören finns inte längre.",
+        "removeSelf": "Du kan inte ta bort din egen åtkomst.",
+        "removeLast": "Du kan inte ta bort den sista plattformsadministratören som kan logga in."
+      },
+      "inviteEmail": {
+        "subject": "Du är inbjuden att administrera Parcelith",
+        "heading": "Du är plattformsadministratör för Parcelith",
+        "body": "{inviter} har lagt till dig som plattformsadministratör. Välj ett lösenord för att logga in.",
+        "expiry": "Länken fungerar en gång och upphör efter {days} dagar.",
+        "cta": "Välj lösenord"
+      }
     }
   },
   "storefront": {

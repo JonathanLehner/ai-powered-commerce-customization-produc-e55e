@@ -41,16 +41,24 @@ export function parseResetToken(value: string): { userId: string; token: string 
   return match ? { userId: match[1], token: match[2] } : null;
 }
 
-/** Issues a new link token for the user and invalidates every earlier one. */
-export async function issueResetToken(userId: string, now = Date.now()): Promise<string> {
+/**
+ * Issues a new link token for the user and invalidates every earlier one.
+ * Platform administrator invitations pass a longer lifetime.
+ */
+export async function issueResetToken(userId: string, now = Date.now(), minutes = RESET_LINK_MINUTES): Promise<string> {
   const token = Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) => b.toString(16).padStart(2, "0")).join("");
   await db.deleteMany(COLLECTIONS.passwordResetTokens, { identifier: userId });
   await adapter().createVerificationToken!({
     identifier: userId,
     token: await hashToken(token),
-    expires: new Date(now + RESET_LINK_MINUTES * 60 * 1000),
+    expires: new Date(now + minutes * 60 * 1000),
   });
   return `${userId}.${token}`;
+}
+
+/** Withdraws every link the user holds. */
+export async function revokeResetTokens(userId: string): Promise<void> {
+  await db.deleteMany(COLLECTIONS.passwordResetTokens, { identifier: userId });
 }
 
 /** The user id a link opens, without using it up; null when it is unknown, used or expired. */

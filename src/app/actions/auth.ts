@@ -90,7 +90,9 @@ export async function requestPasswordReset(formData: FormData): Promise<void> {
     allowResetRequest(`email:${email}`, RESET_LIMITS.email),
     allowResetRequest(`ip:${ip}`, RESET_LIMITS.ip),
   ]);
-  const user = emailAllowed && ipAllowed ? await getUserByEmail(email) : null;
+  const found = emailAllowed && ipAllowed ? await getUserByEmail(email) : null;
+  // An account whose platform access was removed stays closed.
+  const user = found && !found.accessRemovedAt ? found : null;
 
   if (user) {
     const locale = isLocale(user.uiLanguage) ? user.uiLanguage : await workspaceLocale();

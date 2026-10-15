@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "新しいパスワードを設定",
+      "inviteTitle": "パスワードを設定",
       "lead": "{email}",
       "password": "新しいパスワード",
       "passwordHint": "{count}文字以上。",
@@ -802,6 +803,7 @@
       "quotes": "見積もり依頼",
       "tax": "税区分",
       "agencies": "エージェンシーとアクセス",
+      "admins": "プラットフォーム管理者",
       "audit": "監査ログ",
       "apiKeys": "APIキー"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Stripeダッシュボードで対応が必要です",
       "emailBody": "Stripeがプラットフォームアカウントからのリクエストを拒否しました。解決するまで、ストアは決済の設定や受け付けができません:",
       "storeLabel": "ストア"
+    },
+    "admins": {
+      "title": "プラットフォーム管理者",
+      "description": "サプライヤー、共有カタログ、税、代理店、すべてのストアを管理できるユーザーです。",
+      "addTitle": "プラットフォーム管理者を追加",
+      "name": "名前",
+      "email": "メールアドレス",
+      "add": "プラットフォーム管理者を追加",
+      "adding": "追加中…",
+      "added": "{email} に招待を送信しました",
+      "resent": "{email} に新しい招待を送信しました",
+      "removed": "{email} のアクセスを削除しました",
+      "linkBody": "メールが届かない場合は、このリンクを送ってください。リンクは1回限り有効で、7日後に期限切れになります。",
+      "copyLink": "リンクをコピー",
+      "listTitle": "管理者",
+      "columns": {
+        "name": "名前",
+        "lastSignIn": "最終ログイン",
+        "password": "パスワード",
+        "actions": "操作"
+      },
+      "you": "（あなた）",
+      "unknown": "不明",
+      "passwordSet": "設定済み",
+      "invited": "招待中",
+      "resend": "招待を再送信",
+      "resending": "送信中…",
+      "remove": "アクセスを削除",
+      "removeTitle": "{name} のアクセスを削除しますか？",
+      "removeBody": "{name} はプラットフォーム管理者の権限を失い、ログインできなくなります。",
+      "errors": {
+        "nameRequired": "名前を入力してください。",
+        "emailInvalid": "有効なメールアドレスを入力してください。",
+        "alreadyAdmin": "このユーザーはすでにプラットフォーム管理者です。",
+        "agencyAccount": "このメールアドレスは代理店のアカウントで使用されています。別のアドレスを使用してください。",
+        "alreadyAccepted": "このユーザーはすでにパスワードを設定しています。",
+        "notFound": "このプラットフォーム管理者は存在しません。",
+        "removeSelf": "自分のアクセスは削除できません。",
+        "removeLast": "ログインできる最後のプラットフォーム管理者は削除できません。"
+      },
+      "inviteEmail": {
+        "subject": "Parcelith の管理者に招待されました",
+        "heading": "Parcelith のプラットフォーム管理者になりました",
+        "body": "{inviter} さんがあなたをプラットフォーム管理者に追加しました。パスワードを設定してログインしてください。",
+        "expiry": "リンクは1回限り有効で、{days}日後に期限切れになります。",
+        "cta": "パスワードを設定"
+      }
     }
   },
   "storefront": {

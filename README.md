@@ -16,7 +16,7 @@ FedEx or UPS tracking.
 | --- | --- |
 | Marketing | `/`, `/how-it-works`, `/pricing`, `/contact`, `/legal/terms`, `/legal/privacy` |
 | Agency workspace | `/app`, `/app/stores/new`, `/app/stores/[storeId]/…` |
-| Platform administration | `/admin/…` — suppliers, shared catalog, tax brackets, agencies, audit |
+| Platform administration | `/admin/…` — suppliers, shared catalog, tax brackets, agencies, platform admins, audit |
 | Client storefronts | `/s/[slug]/…` — catalog, collections, product, basket, checkout, order status |
 | Corporate gift portals | `/g/[slug]/…` — private gift catalogue, bulk order, campaign |
 
@@ -483,9 +483,9 @@ same signed session as a real one. Only the four demo-agency accounts below have
 cards (`src/lib/demo-personas.ts`), and the provider refuses any platform
 administrator outright. The form below them signs in with an email address and
 password; seeded accounts start with `parcelith`, stored as a bcrypt hash
-(`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that). The
-platform operations account must be given its own private password on any
-public deployment, since it can act on every agency.
+(`scripts/backfill-password-hashes.mjs` upgrades rows seeded before that). That
+password is published here, so never rely on the seeded `ops@parcelith.com`
+account on a public deployment.
 
 "Forgot password?" next to the password field opens `/login/forgot`. It gives
 the same answer whether or not the address has an account; for one that does it
@@ -503,7 +503,7 @@ asked can set its first one this way. See `src/lib/password-reset.ts`.
 | `sam@northlight.studio` | Catalog producer — catalog rights on two stores, no access to Rivet |
 | `ines@northlight.studio` | Fulfilment lead — orders only, on Northwind |
 | `dana@northwind.example` | Client stakeholder — viewer on Northwind |
-| `ops@parcelith.com` | Platform operations — suppliers, catalog, tax, agencies (password only, no persona card) |
+| `ops@parcelith.com` | Platform operations — suppliers, catalog, tax, agencies (password only, no persona card; remove it once your own admin works) |
 
 Storefronts are public: `/s/northwind-supply`, `/s/lumen-studio`,
 `/s/ferro-coffee`, `/s/rivet-hardware`.
@@ -513,6 +513,24 @@ their checkout is labelled "Demo store: no real payment" and simulates payment
 with Stripe's published test numbers, so nobody is charged. `4242 4242 4242 4242`
 succeeds, `4000 0000 0000 0002` is declined, `4000 0000 0000 9995` reports
 insufficient funds.
+
+### Platform admins
+
+Platform admins are managed at `/admin/admins`. "Add platform admin" takes a
+name and an email: a new account is created with no password and the person is
+emailed a single-use link to `/login/reset/<token>` to choose one, valid for 7
+days. The link is also shown once to the admin who added them, and "Resend
+invitation" issues a fresh one. An email that belongs to an agency account is
+refused. "Remove access" takes the rights away and closes the account (its
+password is replaced and its links and platform keys stop working); nobody can
+remove themselves or the last admin who has a password. Adding, resending and
+removing are written to the audit log, and the same actions are platform
+operations of the Admin API and MCP server (`listPlatformAdmins`,
+`addPlatformAdmin`, `resendPlatformAdminInvitation`, `removePlatformAdmin`).
+
+On a new deployment: sign in once as `ops@parcelith.com`, add your own admin
+(for this project, `jonathan@clawcorp.ai`), set its password from the
+invitation, sign in with it, then remove the `ops@parcelith.com` account.
 
 ## Seeding
 

@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "Escolha uma nova senha",
+      "inviteTitle": "Escolha sua senha",
       "lead": "Para {email}",
       "password": "Nova senha",
       "passwordHint": "Pelo menos {count} caracteres.",
@@ -802,6 +803,7 @@
       "quotes": "Pedidos de orçamento",
       "tax": "Taxas de imposto",
       "agencies": "Agências e acesso",
+      "admins": "Administradores da plataforma",
       "audit": "Registo de auditoria",
       "apiKeys": "Chaves de API"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Ação necessária no seu Dashboard do Stripe",
       "emailBody": "O Stripe recusou uma solicitação da conta da plataforma. As lojas não podem configurar nem aceitar pagamentos até que isto seja resolvido:",
       "storeLabel": "Loja"
+    },
+    "admins": {
+      "title": "Administradores da plataforma",
+      "description": "Pessoas que podem gerenciar fornecedores, o catálogo compartilhado, impostos, agências e todas as lojas.",
+      "addTitle": "Adicionar administrador",
+      "name": "Nome",
+      "email": "E-mail",
+      "add": "Adicionar administrador",
+      "adding": "Adicionando…",
+      "added": "Convite enviado para {email}",
+      "resent": "Novo convite enviado para {email}",
+      "removed": "Acesso removido para {email}",
+      "linkBody": "Se o e-mail não chegar, envie este link. Ele funciona uma vez e expira em 7 dias.",
+      "copyLink": "Copiar link",
+      "listTitle": "Administradores",
+      "columns": {
+        "name": "Nome",
+        "lastSignIn": "Último acesso",
+        "password": "Senha",
+        "actions": "Ações"
+      },
+      "you": "(você)",
+      "unknown": "Desconhecido",
+      "passwordSet": "Definida",
+      "invited": "Convite pendente",
+      "resend": "Reenviar convite",
+      "resending": "Enviando…",
+      "remove": "Remover acesso",
+      "removeTitle": "Remover o acesso de {name}?",
+      "removeBody": "{name} perderá os direitos de administrador da plataforma e não poderá entrar.",
+      "errors": {
+        "nameRequired": "Informe um nome.",
+        "emailInvalid": "Informe um e-mail válido.",
+        "alreadyAdmin": "Esta pessoa já é administradora da plataforma.",
+        "agencyAccount": "Este e-mail pertence a uma conta de agência. Use outro endereço.",
+        "alreadyAccepted": "Esta pessoa já definiu uma senha.",
+        "notFound": "Este administrador não existe mais.",
+        "removeSelf": "Você não pode remover seu próprio acesso.",
+        "removeLast": "Não é possível remover o último administrador que pode entrar."
+      },
+      "inviteEmail": {
+        "subject": "Você foi convidado para administrar a Parcelith",
+        "heading": "Você é administrador da plataforma Parcelith",
+        "body": "{inviter} adicionou você como administrador da plataforma. Escolha uma senha para entrar.",
+        "expiry": "O link funciona uma vez e expira em {days} dias.",
+        "cta": "Escolher senha"
+      }
     }
   },
   "storefront": {

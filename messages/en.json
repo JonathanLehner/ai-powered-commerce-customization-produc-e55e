@@ -698,6 +698,7 @@
     },
     "reset": {
       "title": "Choose a new password",
+      "inviteTitle": "Choose your password",
       "lead": "For {email}",
       "password": "New password",
       "passwordHint": "At least {count} characters.",
@@ -802,6 +803,7 @@
       "quotes": "Quote requests",
       "tax": "Tax brackets",
       "agencies": "Agencies and access",
+      "admins": "Platform admins",
       "audit": "Audit log",
       "apiKeys": "API keys"
     },
@@ -4212,6 +4214,53 @@
       "emailSubject": "Action needed in your Stripe Dashboard",
       "emailBody": "Stripe refused a request from the platform account. Stores can't set up or take payments until this is resolved:",
       "storeLabel": "Store"
+    },
+    "admins": {
+      "title": "Platform admins",
+      "description": "People who can manage suppliers, the shared catalog, tax, agencies and every store.",
+      "addTitle": "Add platform admin",
+      "name": "Name",
+      "email": "Email",
+      "add": "Add platform admin",
+      "adding": "Adding…",
+      "added": "Invitation sent to {email}",
+      "resent": "New invitation sent to {email}",
+      "removed": "Removed access for {email}",
+      "linkBody": "If the email doesn't arrive, send them this link. It works once and expires in 7 days.",
+      "copyLink": "Copy link",
+      "listTitle": "Admins",
+      "columns": {
+        "name": "Name",
+        "lastSignIn": "Last sign-in",
+        "password": "Password",
+        "actions": "Actions"
+      },
+      "you": "(you)",
+      "unknown": "Unknown",
+      "passwordSet": "Set",
+      "invited": "Invitation pending",
+      "resend": "Resend invitation",
+      "resending": "Sending…",
+      "remove": "Remove access",
+      "removeTitle": "Remove access for {name}?",
+      "removeBody": "{name} will lose platform admin rights and won't be able to sign in.",
+      "errors": {
+        "nameRequired": "Enter a name.",
+        "emailInvalid": "Enter a valid email address.",
+        "alreadyAdmin": "This person is already a platform admin.",
+        "agencyAccount": "This email belongs to an agency account. Use a different email address.",
+        "alreadyAccepted": "This person has already set a password.",
+        "notFound": "This platform admin no longer exists.",
+        "removeSelf": "You can't remove your own access.",
+        "removeLast": "You can't remove the last platform admin who can sign in."
+      },
+      "inviteEmail": {
+        "subject": "You're invited to administer Parcelith",
+        "heading": "You're a Parcelith platform admin",
+        "body": "{inviter} added you as a platform admin. Choose a password to sign in.",
+        "expiry": "The link works once and expires in {days} days.",
+        "cta": "Choose password"
+      }
     }
   },
   "storefront": {

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getUserById } from "@/lib/data";
+import { hasUsablePassword } from "@/lib/demo-personas";
 import { peekResetToken } from "@/lib/password-reset";
 import { MIN_PASSWORD_LENGTH } from "@/lib/signup";
 import { AuthShell } from "../../AuthShell";
@@ -35,7 +36,9 @@ export default async function ResetPasswordPage({
           <CardContent>
             {user ? (
               <>
-                <h1 className="font-heading text-lg font-semibold tracking-tight text-foreground">{t("title")}</h1>
+                <h1 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+                  {hasUsablePassword(user) ? t("title") : t("inviteTitle")}
+                </h1>
                 <p className="mt-2 text-sm text-muted-foreground">{t("lead", { email: user.email })}</p>
                 <form action={resetPassword} className="mt-6">
                   <input type="hidden" name="token" value={token} />

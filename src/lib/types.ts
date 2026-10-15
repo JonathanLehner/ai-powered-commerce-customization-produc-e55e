@@ -100,6 +100,10 @@ export interface User {
   notificationPrefs?: NotificationPrefs;
   /** The sign-up form that created the account, so a resubmission finds it again. */
   signupKey?: string;
+  /** When the person last signed in, recorded from the time this was added. */
+  lastSignInAt?: string;
+  /** Set when platform administrator access was removed; the account cannot sign in. */
+  accessRemovedAt?: string;
 }
 
 export interface Membership {
