@@ -31,7 +31,7 @@ import { siteOrigin } from "../email";
 import { storeAllowance } from "../plans";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type PolicyKey, type StorePolicies } from "../policies";
 import { forgetStorePolicies } from "../storefront-data";
-import { createExpressAccount, onboardingLink, type StripeFailure } from "../stripe";
+import { createConnectedAccount, onboardingLink, type StripeFailure } from "../stripe";
 import { clearStripeAlert, reportStripeFailure, stripeFailureText, type StripeOperation } from "../stripe-alerts";
 import { isSupportEmail, isSupportPhone } from "../support";
 import { cleanDesign, type StoreDesign } from "../store-design";
@@ -378,7 +378,7 @@ async function stripeRefusal(ctx: OperationContext, failure: StripeFailure, oper
 }
 
 /**
- * Starts or continues Stripe payments for the store: creates its Express
+ * Starts or continues Stripe payments for the store: creates its connected
  * account on the first call, or reuses it to continue or update onboarding,
  * and returns the Stripe-hosted onboarding address for an administrator to
  * open. `country` is used only when the account is created; null keeps the
@@ -396,7 +396,7 @@ export async function connectStripe(
   if (!accountId) {
     const country = input.country ?? store.stripe.country;
     if (!STRIPE_COUNTRIES.some((c) => c.code === country)) throw new OperationError("invalid", t("stripeCountry"), "country");
-    const created = await createExpressAccount({
+    const created = await createConnectedAccount({
       storeId,
       country,
       email: store.supportEmail ?? null,

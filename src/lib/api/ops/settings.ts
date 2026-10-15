@@ -57,7 +57,7 @@ export const settingsOperations: ApiOperation[] = [
     tag: "Store",
     summary: "Start or continue Stripe onboarding",
     description:
-      "Creates the store's Stripe Express account on the first call, or reuses it, and returns `onboardingUrl`: a short-lived Stripe-hosted page where a store administrator enters the business and bank details. Open it in a browser; it is not for display to shoppers.",
+      "Creates the store's connected Stripe account (full Stripe Dashboard, the store collects payments directly) on the first call, or reuses it, and returns `onboardingUrl`: a short-lived Stripe-hosted page where a store administrator enters the business and bank details. Open it in a browser; it is not for display to shoppers.",
     input: z.object({
       country: z
         .enum(STRIPE_COUNTRIES.map((c) => c.code) as [string, ...string[]])

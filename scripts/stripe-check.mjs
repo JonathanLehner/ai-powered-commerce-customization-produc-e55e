@@ -70,9 +70,11 @@ for (const account of ["acct_1NwSupplyCo", "acct_1LumenCreative", "acct_1FerroKa
 /* ------------------------------------------------------------- Connect */
 
 answer("POST /v1/accounts", { id: "acct_new1", object: "account", country: "DE", charges_enabled: false, payouts_enabled: false, details_submitted: false });
-const account = await stripe.createExpressAccount({ storeId: "str_1", country: "DE", email: "shop@example.com", attempt: "DE-first" });
+const account = await stripe.createConnectedAccount({ storeId: "str_1", country: "DE", email: "shop@example.com", attempt: "DE-first" });
 assert.deepEqual(account, { ok: true, value: { accountId: "acct_new1", country: "DE", chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false } });
-assert.equal(last().form.get("controller[stripe_dashboard][type]"), "express", "an Express account");
+assert.equal(last().form.get("controller[stripe_dashboard][type]"), "full", "the full Stripe Dashboard, as the platform profile says");
+assert.equal(last().form.get("controller[fees][payer]"), "account", "the store pays its own Stripe fees");
+assert.equal(last().form.get("controller[losses][payments]"), "stripe", "Stripe carries negative balances");
 assert.equal(last().form.get("controller[requirement_collection]"), "stripe");
 assert.equal(last().form.get("capabilities[card_payments][requested]"), "true");
 assert.equal(last().form.get("metadata[storeId]"), "str_1");
@@ -95,13 +97,13 @@ assert.equal((await stripe.retrieveAccount("acct_new1")).value.payoutsEnabled, t
 const LOSSES = "Please review the responsibilities of managing losses for connected accounts at https://dashboard.stripe.com/settings/connect/platform-profile.";
 answer("POST /v1/accounts", { error: { message: LOSSES, type: "invalid_request_error" } }, 400);
 assert.deepEqual(
-  await stripe.createExpressAccount({ storeId: "str_2", country: "DE", email: null, attempt: "DE-first" }),
+  await stripe.createConnectedAccount({ storeId: "str_2", country: "DE", email: null, attempt: "DE-first" }),
   { ok: false, failure: { kind: "platform", message: LOSSES, dashboardUrl: "https://dashboard.stripe.com/settings/connect/platform-profile" } },
   "a platform setting keeps Stripe's words and the Dashboard link",
 );
 answer("POST /v1/accounts", { error: { message: "Invalid email address: nope", type: "invalid_request_error", param: "email" } }, 400);
 assert.deepEqual(
-  (await stripe.createExpressAccount({ storeId: "str_2", country: "DE", email: "nope", attempt: "DE-first" })).failure,
+  (await stripe.createConnectedAccount({ storeId: "str_2", country: "DE", email: "nope", attempt: "DE-first" })).failure,
   { kind: "invalid", message: "Invalid email address: nope", dashboardUrl: null },
   "the store's own details show Stripe's message",
 );
@@ -117,7 +119,7 @@ assert.equal(classifyStripeError(new Stripe.errors.StripePermissionError({ messa
 assert.equal(classifyStripeError(new TypeError("fetch failed")).kind, "unreachable");
 const withoutKey = process.env.STRIPE_SECRET_KEY;
 delete process.env.STRIPE_SECRET_KEY;
-assert.equal((await stripe.createExpressAccount({ storeId: "str_3", country: "DE", email: null, attempt: "x" })).failure.kind, "platform", "a missing key is the platform's to fix");
+assert.equal((await stripe.createConnectedAccount({ storeId: "str_3", country: "DE", email: null, attempt: "x" })).failure.kind, "platform", "a missing key is the platform's to fix");
 process.env.STRIPE_SECRET_KEY = withoutKey;
 answer("GET /v1/accounts/acct_new1", { id: "acct_new1", object: "account", country: "DE", charges_enabled: true, payouts_enabled: true, details_submitted: true });
 

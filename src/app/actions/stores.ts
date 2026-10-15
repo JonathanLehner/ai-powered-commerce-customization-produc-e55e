@@ -229,7 +229,7 @@ export async function savePolicies(_prev: ActionState, formData: FormData): Prom
 }
 
 /**
- * "Connect Stripe" in guided setup: creates the store's Express account on the
+ * "Connect Stripe" in guided setup: creates the store's connected Stripe account on the
  * first visit, or reuses it to continue or update onboarding, then sends the
  * administrator to Stripe's hosted onboarding.
  */

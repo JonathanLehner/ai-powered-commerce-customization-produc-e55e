@@ -123,11 +123,16 @@ export function connectStatus(account: Stripe.Account): ConnectStatus {
 }
 
 /**
- * A new Express account for a store. Keyed on the store and the attempt, so a
- * double click creates one account, while "connect a different account" after
- * a disconnect makes a new one.
+ * A new connected account for a store, set up the way the platform's Connect
+ * profile is: the store collects payments directly (direct charges with no
+ * application fee), uses the full Stripe Dashboard, pays its own Stripe fees,
+ * and Stripe carries negative balances and runs onboarding and compliance.
+ * Asking for anything else (platform-paid fees or platform-owned losses) is
+ * refused by Stripe until the profile says so. Keyed on the store and the
+ * attempt, so a double click creates one account, while "connect a different
+ * account" after a disconnect makes a new one.
  */
-export async function createExpressAccount(input: {
+export async function createConnectedAccount(input: {
   storeId: string;
   country: string;
   email: string | null;
@@ -141,9 +146,9 @@ export async function createExpressAccount(input: {
         country: input.country,
         ...(input.email ? { email: input.email } : {}),
         controller: {
-          stripe_dashboard: { type: "express" },
-          fees: { payer: "application" },
-          losses: { payments: "application" },
+          stripe_dashboard: { type: "full" },
+          fees: { payer: "account" },
+          losses: { payments: "stripe" },
           requirement_collection: "stripe",
         },
         capabilities: { card_payments: { requested: true }, transfers: { requested: true } },

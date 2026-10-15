@@ -387,7 +387,9 @@ All calls go through the official `stripe` SDK with
 (`src/lib/stripe.ts`), so they run the same in Node and on Workers.
 
 - **Connect onboarding.** Guided setup → Stripe account → "Connect Stripe"
-  creates an Express account for the store in the chosen country and sends the
+  creates a connected account for the store in the chosen country (full Stripe
+  Dashboard, direct charges, Stripe-held negative balance liability, matching
+  the platform's Connect profile) and sends the
   store admin to Stripe's hosted onboarding (Account Links). Stripe returns to
   `/app/stores/<id>/setup/stripe`, which reads the account back and shows its
   payments (`charges_enabled`) and payouts (`payouts_enabled`) state; an
