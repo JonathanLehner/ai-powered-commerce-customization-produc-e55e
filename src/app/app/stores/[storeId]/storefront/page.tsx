@@ -9,7 +9,9 @@ import { formatMinorUnits } from "@/i18n/format";
 import { isLocale, LOCALES } from "@/i18n/locales";
 import { shopperMessages } from "@/i18n/storefront";
 import { storeLanguages } from "@/i18n/storefront-routing";
+import { approveBlock, mockupState, publishHoldups } from "@/lib/bulk-products";
 import { isUnpublishedStarter } from "@/lib/operations/templates";
+import { publishBlockersFor } from "@/lib/publish-blockers";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { flattenShopText, shopTextEntries } from "@/lib/shop-text";
 import { storefrontContext } from "@/lib/storefront-context";
@@ -43,6 +45,9 @@ export default async function StorefrontEditorPage({
 
   const published = products.filter((p) => p.status === "published");
   const starters = products.filter(isUnpublishedStarter);
+  const canPublishStarters = starters.length > 0 && roleCan(role, "store.catalog");
+  // The banner follows the catalog's bulk Publish rules, so it reads the same blockers.
+  const starterBlockers = canPublishStarters ? publishBlockersFor(starters) : null;
   // Until something is on sale, the preview shows the drafts that have photos,
   // so a store started from a template looks like the template's demo.
   const shown = published.length > 0 ? published : products.filter((p) => p.status !== "archived" && p.mockups.length > 0);
@@ -107,7 +112,7 @@ export default async function StorefrontEditorPage({
           }),
         ) as unknown as Record<string, unknown>);
 
-  const [pages, t, templateText, uiLocale, untitled] = await Promise.all([
+  const [pages, t, templateText, uiLocale, untitled, blockers, bulkText] = await Promise.all([
     getTranslations("pages.store"),
     getTranslations("editor"),
     getTranslations("templates"),
@@ -115,7 +120,27 @@ export default async function StorefrontEditorPage({
     // Older versions were saved under a placeholder name in whichever language
     // the editor was in; those are treated as unnamed and labelled for them.
     Promise.all(LOCALES.map((locale) => getTranslations({ locale, namespace: "editor" }).then((e) => e("untitled")))),
+    starterBlockers,
+    getTranslations("catalog.bulk"),
   ]);
+  const starterSummary = blockers
+    ? (() => {
+        const codes = starters.map((p) => ({ status: p.status, publishBlockerCodes: (blockers.get(p.id) ?? []).map((b) => b.code) }));
+        const publishable = codes.filter((c) => c.publishBlockerCodes.length === 0).length;
+        return {
+          productIds: starters.map((p) => p.id),
+          toApprove: starters.filter((p) => !approveBlock({ mockups: mockupState(p.mockups) })).length,
+          publishable,
+          holdups:
+            publishable === 0
+              ? publishHoldups(codes)
+                  .slice(0, 2)
+                  .map(({ code, count }) => bulkText(`holdup.${code}`, { count }))
+                  .join(", ")
+              : "",
+        };
+      })()
+    : null;
   const placeholders = new Set(["Untitled version", ...untitled]);
   const gallery = galleryTemplates(uiLocale);
   const currentTemplateId = treeTemplateId(tree);
@@ -156,7 +181,7 @@ export default async function StorefrontEditorPage({
       {starters.length > 0 ? (
         <Callout tone="amber" title={t("starters.title", { count: starters.length })}>
           {published.length === 0 ? t("starters.bodyPreview") : t("starters.body")}
-          {roleCan(role, "store.catalog") ? <PublishStartersButton storeId={storeId} /> : null}
+          {starterSummary ? <PublishStartersButton storeId={storeId} {...starterSummary} /> : null}
         </Callout>
       ) : published.length === 0 ? (
         <Callout tone="amber" title={t("noProductsTitle")}>

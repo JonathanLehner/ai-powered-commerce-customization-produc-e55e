@@ -119,7 +119,7 @@ export const templateOperations: ApiOperation[] = [
     tag: "Products",
     summary: "Publish a template's suggested products",
     description:
-      "Publishes every product a template added that is not on sale yet. Their template product photos are approved, then each is published with the same checks as updateProductStatus; a product that cannot go live is listed in failed with the reason, and nothing is written for it.",
+      "Publishes every product a template added that is not on sale yet, with the same checks as updateProductStatus. Mockups are not approved for you: approve them first with bulkUpdateProducts (approve) or approveProductMockups. A product that cannot go live is listed in failed with the reason, and nothing is written for it.",
     input: z.object({}),
     run: async (ctx) => publishStarterProducts(ctx),
     actions: ["storefront#publishStarterProducts"],

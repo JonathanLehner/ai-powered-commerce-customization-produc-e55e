@@ -8,6 +8,7 @@
  * without a database.
  */
 import { computeBreakdown } from "./pricing";
+import type { PublishBlockerCode } from "./publish-blockers";
 import type { CostBreakdown, StoreProduct, StoreVariant } from "./types";
 
 /** The most products one bulk action takes. */
@@ -36,6 +37,10 @@ export type BulkProduct = Pick<
   >;
   /** Why it cannot be published yet; empty when it can. Only filled in for unpublished products. */
   publishBlockers: string[];
+  /** The same blockers by kind, to sum up a selection ("6 need mockup approval"). */
+  publishBlockerCodes: PublishBlockerCode[];
+  /** Whether it has previews, and whether any still wait for approval. */
+  mockups: "none" | "unapproved" | "approved";
 };
 
 /** Why a product is skipped, as a key under `catalog.bulk.blocked`. */
@@ -46,11 +51,48 @@ export type ProductBlock =
   | "alreadyBracket"
   | "alreadyVisibility"
   | "belowCost"
-  | "notReady";
+  | "notReady"
+  | "noMockups"
+  | "alreadyApproved";
 
 export function publishBlock(product: Pick<BulkProduct, "status" | "publishBlockers">): ProductBlock | null {
   if (product.status === "published") return "alreadyPublished";
   return product.publishBlockers.length > 0 ? "notReady" : null;
+}
+
+/** Approving flips every preview of the product to approved, as the product page's Approve button does. */
+export function approveBlock(product: Pick<BulkProduct, "mockups">): ProductBlock | null {
+  if (product.mockups === "none") return "noMockups";
+  return product.mockups === "approved" ? "alreadyApproved" : null;
+}
+
+/** Where a product's previews stand. */
+export function mockupState(mockups: Pick<StoreProduct["mockups"][number], "approved">[]): BulkProduct["mockups"] {
+  if (mockups.length === 0) return "none";
+  return mockups.every((m) => m.approved) ? "approved" : "unapproved";
+}
+
+/**
+ * Why bulk Publish can do nothing for the selection: each kind of blocker with
+ * how many products it holds back, most common first, then any already live.
+ */
+export function publishHoldups(
+  products: Pick<BulkProduct, "status" | "publishBlockerCodes">[],
+): { code: PublishBlockerCode | "alreadyPublished"; count: number }[] {
+  const counts = new Map<PublishBlockerCode, number>();
+  let live = 0;
+  for (const product of products) {
+    if (product.status === "published") {
+      live++;
+      continue;
+    }
+    for (const code of new Set(product.publishBlockerCodes)) counts.set(code, (counts.get(code) ?? 0) + 1);
+  }
+  const out: { code: PublishBlockerCode | "alreadyPublished"; count: number }[] = [...counts]
+    .sort((a, b) => b[1] - a[1])
+    .map(([code, count]) => ({ code, count }));
+  if (live > 0) out.push({ code: "alreadyPublished", count: live });
+  return out;
 }
 
 /** Unpublishing sends a live product back to review, as the card's own button does. */

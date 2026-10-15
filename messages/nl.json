@@ -2597,6 +2597,7 @@
       "toolbar": "Bulkacties",
       "selected": "{count} geselecteerd",
       "clear": "Wissen",
+      "approve": "Mockups goedkeuren",
       "publish": "Publiceren",
       "unpublish": "Publicatie intrekken",
       "archive": "Archiveren",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "Er ging iets mis. Probeer het opnieuw.",
       "skipHeading": "{count, plural, one {# product wordt overgeslagen:} other {# producten worden overgeslagen:}}",
       "confirm": {
+        "approveTitle": "{count, plural, one {Mockups van # product goedkeuren?} other {Mockups van # producten goedkeuren?}}",
+        "approveBody": "Controleer de mockups eerst. Goedgekeurde mockups zien klanten zodra een product is gepubliceerd.",
         "publishTitle": "{count, plural, one {# product} other {# producten}} publiceren?",
         "publishBody": "De geselecteerde producten gaan live in de winkel.",
         "unpublishTitle": "Publicatie van {count, plural, one {# product} other {# producten}} intrekken?",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "Al ingesteld.",
         "belowCost": "De nieuwe prijs ligt op of onder de kostprijs.",
         "notReady": "Nog niet klaar om te publiceren.",
-        "priceChanged": "De prijs is gewijzigd sinds het voorbeeld. Controleer hem en probeer het opnieuw."
+        "priceChanged": "De prijs is gewijzigd sinds het voorbeeld. Controleer hem en probeer het opnieuw.",
+        "noMockups": "Geen mockups om goed te keuren.",
+        "alreadyApproved": "Mockups al goedgekeurd."
       },
       "result": {
+        "approve": "{count, plural, =0 {Geen mockups goedgekeurd.} one {Mockups goedgekeurd voor # product.} other {Mockups goedgekeurd voor # producten.}}",
         "publish": "{count, plural, =0 {Geen producten gepubliceerd.} one {# product gepubliceerd.} other {# producten gepubliceerd.}}",
         "unpublish": "{count, plural, =0 {Geen publicaties ingetrokken.} one {Publicatie van # product ingetrokken.} other {Publicatie van # producten ingetrokken.}}",
         "archive": "{count, plural, =0 {Geen producten gearchiveerd.} one {# product gearchiveerd.} other {# producten gearchiveerd.}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {Geen zichtbaarheid gewijzigd.} one {Zichtbaarheid gewijzigd bij # product.} other {Zichtbaarheid gewijzigd bij # producten.}}",
         "price": "{count, plural, =0 {Geen prijzen gewijzigd.} one {Prijs gewijzigd bij # product.} other {Prijzen gewijzigd bij # producten.}}",
         "failed": "{count, plural, one {# product overgeslagen:} other {# producten overgeslagen:}}"
+      },
+      "holdup": {
+        "unapproved": "{count, plural, one {# wacht op mockupgoedkeuring} other {# wachten op mockupgoedkeuring}}",
+        "noBracket": "{count, plural, one {# heeft een belastingcategorie nodig} other {# hebben een belastingcategorie nodig}}",
+        "noMockups": "{count, plural, one {# heeft mockups nodig} other {# hebben mockups nodig}}",
+        "noArtwork": "{count, plural, one {# heeft een ontwerp nodig} other {# hebben een ontwerp nodig}}",
+        "preflight": "{count, plural, one {# heeft problemen met het ontwerp} other {# hebben problemen met het ontwerp}}",
+        "noPhotos": "{count, plural, one {# heeft foto’s nodig} other {# hebben foto’s nodig}}",
+        "noShippingZone": "Voeg een verzendzone toe",
+        "retired": "{count, plural, one {# heeft een vervallen leveranciersproduct} other {# hebben een vervallen leveranciersproduct}}",
+        "notLinked": "{count, plural, one {# heeft een leverancierskoppeling nodig} other {# hebben een leverancierskoppeling nodig}}",
+        "belowCost": "{count, plural, one {# is onder de kostprijs geprijsd} other {# zijn onder de kostprijs geprijsd}}",
+        "noVariants": "{count, plural, one {# heeft geen actieve varianten} other {# hebben geen actieve varianten}}",
+        "notFound": "{count, plural, one {# niet gevonden} other {# niet gevonden}}",
+        "alreadyPublished": "{count, plural, one {# al gepubliceerd} other {# al gepubliceerd}}"
       }
     },
     "notLinked": "Niet gekoppeld",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "Teksten in negen talen",
     "sections": "Startpaginasecties",
     "starterTitle": "Voorgestelde producten",
-    "starterLead": "Met foto’s en prijzen aan je catalogus toegevoegd wanneer je met dit sjabloon begint, klaar om te publiceren.",
+    "starterLead": "Met foto’s en prijzen aan je catalogus toegevoegd wanneer je met dit sjabloon begint, klaar om goed te keuren en te publiceren.",
     "moreIn": "Meer in {category}",
     "previewExpired": "Deze voorbeeldlink is verlopen",
     "previewExpiredBody": "Open het sjabloon opnieuw vanuit de shopeditor om een nieuwe link te krijgen.",

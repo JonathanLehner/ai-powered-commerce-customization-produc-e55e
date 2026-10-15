@@ -22,7 +22,7 @@ import { SOCIAL_NETWORKS } from "../storefront-layout";
 import { emptyTree } from "../storefront-sections";
 import { capHistory } from "../storefront-versions";
 import { isDarkBlank, starterPrice, starterView } from "../templates/demo";
-import { getTemplate, STARTER_CATALOG, TEMPLATES, templateCopy, type StoreTemplate } from "../templates/index";
+import { getTemplate, STARTER_CATALOG, templateCopy, type StoreTemplate } from "../templates/index";
 import { artworkPlacement, blankFamily, type TemplatePrintFile } from "../templates/model";
 import { DRAFT_DESIGN_PROP, draftDesign, templateTree, type DraftDesign } from "../templates/tree";
 import { I18N_PROP, SEO_FIELDS, type FieldTranslations } from "../translations";
@@ -30,7 +30,7 @@ import type { CraftTree } from "../storefront-schema";
 import type { Artwork, FileRequirements, MockupImage, PrintArea, StorefrontVersion, StoreProduct } from "../types";
 import { newId, slugify } from "../util";
 import { OperationError, type OperationContext } from "./context";
-import { approveMockups, bulkUpdateProducts, type BulkProductOutcome } from "./products";
+import { bulkUpdateProducts, type BulkProductOutcome } from "./products";
 import { parseTree } from "./storefront";
 
 /**
@@ -252,17 +252,12 @@ export async function addStarterProducts(ctx: OperationContext, template: StoreT
 
 /**
  * Publishes the store's template products that are not on sale yet in one
- * step: their template product shots are approved, then each is published
- * with the same checks as the catalog's Publish button. A preview made after
- * the artwork changed is left for the team to approve on the product page.
+ * step, with the same checks as the catalog's bulk Publish: a product whose
+ * mockups are not approved yet stays back and says so.
  */
 export async function publishStarterProducts(ctx: OperationContext): Promise<BulkProductOutcome> {
   const starters = (await listStoreProducts(ctx.store.id)).filter(isUnpublishedStarter);
   if (starters.length === 0) return { succeeded: [], failed: [] };
-  const shots = new Set(TEMPLATES.flatMap((t) => t.assets.products));
-  for (const product of starters) {
-    if (product.mockups.length > 0 && product.mockups.every((m) => shots.has(m.url))) await approveMockups(ctx, product);
-  }
   const outcome = await bulkUpdateProducts(
     ctx,
     starters.map((p) => p.id),

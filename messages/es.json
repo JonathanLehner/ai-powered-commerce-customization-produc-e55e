@@ -2597,6 +2597,7 @@
       "toolbar": "Acciones en lote",
       "selected": "{count} seleccionados",
       "clear": "Borrar",
+      "approve": "Aprobar mockups",
       "publish": "Publicar",
       "unpublish": "Despublicar",
       "archive": "Archivar",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "Algo salió mal. Inténtalo de nuevo.",
       "skipHeading": "{count, plural, one {Se omitirá # producto:} other {Se omitirán # productos:}}",
       "confirm": {
+        "approveTitle": "{count, plural, one {¿Aprobar los mockups de # producto?} other {¿Aprobar los mockups de # productos?}}",
+        "approveBody": "Revisa antes los mockups. Los mockups aprobados son los que ven los clientes cuando el producto se publica.",
         "publishTitle": "¿Publicar {count, plural, one {# producto} other {# productos}}?",
         "publishBody": "Los productos seleccionados se publican en la tienda.",
         "unpublishTitle": "¿Despublicar {count, plural, one {# producto} other {# productos}}?",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "Ya configurado.",
         "belowCost": "El nuevo precio es igual o inferior al coste.",
         "notReady": "Aún no está listo para publicar.",
-        "priceChanged": "El precio cambió desde la vista previa. Revísalo e inténtalo de nuevo."
+        "priceChanged": "El precio cambió desde la vista previa. Revísalo e inténtalo de nuevo.",
+        "noMockups": "No hay mockups que aprobar.",
+        "alreadyApproved": "Mockups ya aprobados."
       },
       "result": {
+        "approve": "{count, plural, =0 {No se aprobó ningún mockup.} one {Mockups aprobados en # producto.} other {Mockups aprobados en # productos.}}",
         "publish": "{count, plural, =0 {Ningún producto publicado.} one {# producto publicado.} other {# productos publicados.}}",
         "unpublish": "{count, plural, =0 {Ningún producto despublicado.} one {# producto despublicado.} other {# productos despublicados.}}",
         "archive": "{count, plural, =0 {Ningún producto archivado.} one {# producto archivado.} other {# productos archivados.}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {Ninguna visibilidad cambiada.} one {Visibilidad cambiada en # producto.} other {Visibilidad cambiada en # productos.}}",
         "price": "{count, plural, =0 {Ningún precio cambiado.} one {Precio cambiado en # producto.} other {Precios cambiados en # productos.}}",
         "failed": "{count, plural, one {# producto omitido:} other {# productos omitidos:}}"
+      },
+      "holdup": {
+        "unapproved": "{count, plural, one {# necesita aprobar mockups} other {# necesitan aprobar mockups}}",
+        "noBracket": "{count, plural, one {# necesita un tramo impositivo} other {# necesitan un tramo impositivo}}",
+        "noMockups": "{count, plural, one {# necesita mockups} other {# necesitan mockups}}",
+        "noArtwork": "{count, plural, one {# necesita un diseño} other {# necesitan un diseño}}",
+        "preflight": "{count, plural, one {# tiene problemas con el diseño} other {# tienen problemas con el diseño}}",
+        "noPhotos": "{count, plural, one {# necesita fotos} other {# necesitan fotos}}",
+        "noShippingZone": "Añade una zona de envío",
+        "retired": "{count, plural, one {# tiene un producto de proveedor retirado} other {# tienen un producto de proveedor retirado}}",
+        "notLinked": "{count, plural, one {# necesita vincular un proveedor} other {# necesitan vincular un proveedor}}",
+        "belowCost": "{count, plural, one {# está por debajo del coste} other {# están por debajo del coste}}",
+        "noVariants": "{count, plural, one {# no tiene variantes activas} other {# no tienen variantes activas}}",
+        "notFound": "{count, plural, one {# no encontrado} other {# no encontrados}}",
+        "alreadyPublished": "{count, plural, one {# ya publicado} other {# ya publicados}}"
       }
     },
     "notLinked": "Sin vincular",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "Textos en nueve idiomas",
     "sections": "Secciones de página de inicio",
     "starterTitle": "Productos sugeridos",
-    "starterLead": "Se añaden a tu catálogo con sus fotos y precios cuando empiezas con esta plantilla, listos para publicar.",
+    "starterLead": "Se añaden a tu catálogo con sus fotos y precios cuando empiezas con esta plantilla, listos para aprobar y publicar.",
     "moreIn": "Más en {category}",
     "previewExpired": "Este enlace de vista previa ha caducado",
     "previewExpiredBody": "Abre la plantilla de nuevo desde el editor de la tienda para obtener un nuevo enlace.",

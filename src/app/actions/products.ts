@@ -285,7 +285,7 @@ export async function publishBlockers(productId: string): Promise<PublishBlocker
   const product = await getStoreProduct(productId);
   if (!product) {
     const t = await getTranslations("actions.products.blockers");
-    return [{ reason: t("notFound"), fix: t("reload") }];
+    return [{ code: "notFound", reason: t("notFound"), fix: t("reload") }];
   }
   // Anyone who can see the store's products may see what keeps one offline.
   await assertStoreAccess(product.storeId, "store.view");

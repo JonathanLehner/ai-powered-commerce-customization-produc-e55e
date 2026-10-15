@@ -2597,6 +2597,7 @@
       "toolbar": "Sammelaktionen",
       "selected": "{count} ausgewählt",
       "clear": "Auswahl aufheben",
+      "approve": "Mockups freigeben",
       "publish": "Veröffentlichen",
       "unpublish": "Veröffentlichung aufheben",
       "archive": "Archivieren",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
       "skipHeading": "{count, plural, one {# Produkt wird übersprungen:} other {# Produkte werden übersprungen:}}",
       "confirm": {
+        "approveTitle": "{count, plural, one {Mockups für # Produkt freigeben?} other {Mockups für # Produkte freigeben?}}",
+        "approveBody": "Prüfe die Mockups vorher. Freigegebene Mockups sehen Käufer, sobald ein Produkt veröffentlicht ist.",
         "publishTitle": "{count, plural, one {# Produkt} other {# Produkte}} veröffentlichen?",
         "publishBody": "Die ausgewählten Produkte gehen im Shop live.",
         "unpublishTitle": "Veröffentlichung von {count, plural, one {# Produkt} other {# Produkten}} aufheben?",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "Bereits so eingestellt.",
         "belowCost": "Der neue Preis liegt bei oder unter den Kosten.",
         "notReady": "Noch nicht bereit zur Veröffentlichung.",
-        "priceChanged": "Der Preis hat sich seit der Vorschau geändert. Prüfen Sie ihn und versuchen Sie es erneut."
+        "priceChanged": "Der Preis hat sich seit der Vorschau geändert. Prüfen Sie ihn und versuchen Sie es erneut.",
+        "noMockups": "Keine Mockups zum Freigeben.",
+        "alreadyApproved": "Mockups bereits freigegeben."
       },
       "result": {
+        "approve": "{count, plural, =0 {Keine Mockups freigegeben.} one {Mockups für # Produkt freigegeben.} other {Mockups für # Produkte freigegeben.}}",
         "publish": "{count, plural, =0 {Keine Produkte veröffentlicht.} one {# Produkt veröffentlicht.} other {# Produkte veröffentlicht.}}",
         "unpublish": "{count, plural, =0 {Keine Veröffentlichung aufgehoben.} one {Veröffentlichung von # Produkt aufgehoben.} other {Veröffentlichung von # Produkten aufgehoben.}}",
         "archive": "{count, plural, =0 {Keine Produkte archiviert.} one {# Produkt archiviert.} other {# Produkte archiviert.}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {Keine Sichtbarkeit geändert.} one {Sichtbarkeit bei # Produkt geändert.} other {Sichtbarkeit bei # Produkten geändert.}}",
         "price": "{count, plural, =0 {Keine Preise geändert.} one {Preis bei # Produkt geändert.} other {Preise bei # Produkten geändert.}}",
         "failed": "{count, plural, one {# Produkt übersprungen:} other {# Produkte übersprungen:}}"
+      },
+      "holdup": {
+        "unapproved": "{count, plural, one {# braucht Mockup-Freigabe} other {# brauchen Mockup-Freigabe}}",
+        "noBracket": "{count, plural, one {# braucht eine Steuerklasse} other {# brauchen eine Steuerklasse}}",
+        "noMockups": "{count, plural, one {# braucht Mockups} other {# brauchen Mockups}}",
+        "noArtwork": "{count, plural, one {# braucht ein Motiv} other {# brauchen ein Motiv}}",
+        "preflight": "{count, plural, one {# hat Probleme mit dem Motiv} other {# haben Probleme mit dem Motiv}}",
+        "noPhotos": "{count, plural, one {# braucht Fotos} other {# brauchen Fotos}}",
+        "noShippingZone": "Versandzone hinzufügen",
+        "retired": "{count, plural, one {# hat ein eingestelltes Lieferantenprodukt} other {# haben ein eingestelltes Lieferantenprodukt}}",
+        "notLinked": "{count, plural, one {# braucht eine Lieferantenverknüpfung} other {# brauchen eine Lieferantenverknüpfung}}",
+        "belowCost": "{count, plural, one {# liegt unter den Kosten} other {# liegen unter den Kosten}}",
+        "noVariants": "{count, plural, one {# hat keine aktiven Varianten} other {# haben keine aktiven Varianten}}",
+        "notFound": "{count, plural, one {# nicht gefunden} other {# nicht gefunden}}",
+        "alreadyPublished": "{count, plural, one {# bereits veröffentlicht} other {# bereits veröffentlicht}}"
       }
     },
     "notLinked": "Nicht verknüpft",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "Texte in neun Sprachen",
     "sections": "Startseiten-Abschnitte",
     "starterTitle": "Vorgeschlagene Produkte",
-    "starterLead": "Werden mit Fotos und Preisen zu deinem Katalog hinzugefügt, wenn du mit dieser Vorlage startest, bereit zum Veröffentlichen.",
+    "starterLead": "Werden mit Fotos und Preisen zu deinem Katalog hinzugefügt, wenn du mit dieser Vorlage startest, bereit zum Freigeben und Veröffentlichen.",
     "moreIn": "Mehr in {category}",
     "previewExpired": "Dieser Vorschaulink ist abgelaufen",
     "previewExpiredBody": "Öffne die Vorlage erneut aus dem Shop-Editor, um einen neuen Link zu erhalten.",

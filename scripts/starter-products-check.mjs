@@ -4,8 +4,9 @@
 // development database and asserts that each arrives in the demo's colour, at
 // the demo's rounded price, with the template's artwork placed inside the
 // print area and its product shot as the preview, that adding them twice adds
-// nothing, and that "Publish starter products" puts them all on sale in one
-// step once the store can ship and tax them. The Wax template's poster, tote
+// nothing, that they take the store's default tax bracket once it is set, and
+// that "Publish starter products" follows the catalog's bulk Publish rules:
+// nothing goes live until its mockups are approved, then all of it does. The Wax template's poster, tote
 // and sticker check the newer blanks: the poster sheet printed edge to edge,
 // the rest passing pre-flight. It refuses to run against production.
 import assert from "node:assert/strict";
@@ -23,6 +24,8 @@ const { db } = await import("../src/lib/mongo.ts");
 const { COLLECTIONS, getCatalogProduct, listStoreProducts } = await import("../src/lib/data.ts");
 const { blockingIssues, validateArtwork } = await import("../src/lib/artwork.ts");
 const { addStarterProducts, isUnpublishedStarter, publishStarterProducts } = await import("../src/lib/operations/templates.ts");
+const { bulkUpdateProducts } = await import("../src/lib/operations/products.ts");
+const { saveDefaultTax } = await import("../src/lib/operations/store-settings.ts");
 const { getTemplate } = await import("../src/lib/templates/index.ts");
 const { starterPrice } = await import("../src/lib/templates/demo.ts");
 
@@ -100,7 +103,7 @@ try {
   assert.equal(blocked.failed.length, template.products.length);
   assert.match(blocked.failed[0].reason, /shipping zone/i);
 
-  // With a shipping zone and a tax bracket, one step puts them all on sale.
+  // With a shipping zone and the store's default tax bracket, only approval is left.
   const now = new Date().toISOString();
   await db.insertOne(COLLECTIONS.shippingZones, {
     id: `shz_${RUN}`,
@@ -112,7 +115,20 @@ try {
     createdAt: now,
     updatedAt: now,
   });
-  await db.updateMany(COLLECTIONS.storeProducts, { storeId: store.id }, { $set: { taxBracketId: "tax_us825" } });
+  assert.ok((await listStoreProducts(store.id)).every((p) => p.taxBracketId === null), "the store had no default bracket yet");
+  await saveDefaultTax(ctx, { defaultTaxBracketId: "tax_us825", pricesIncludeTax: false });
+  const filed = await listStoreProducts(store.id);
+  assert.ok(filed.every((p) => p.taxBracketId === "tax_us825"), "every product takes the store's default bracket");
+  assert.ok(filed.every((p) => p.costs.taxBracketId === "tax_us825"), "and is costed under it");
+
+  const unapproved = await publishStarterProducts(ctx);
+  assert.equal(unapproved.succeeded.length, 0, "the editor publishes nothing the catalog would not");
+  assert.ok(unapproved.failed.every((f) => /approved/i.test(f.reason) && !/tax bracket/i.test(f.reason)), "mockup approval is all that is left");
+
+  const approved = await bulkUpdateProducts(ctx, added, { kind: "approve" });
+  assert.equal(approved.succeeded.length, template.products.length, "one bulk action approves every mockup");
+  assert.equal((await bulkUpdateProducts(ctx, added, { kind: "approve" })).succeeded.length, 0, "approving again changes nothing");
+
   const outcome = await publishStarterProducts(ctx);
   assert.deepEqual(outcome.failed, [], "nothing stays back");
   assert.equal(outcome.succeeded.length, template.products.length);
@@ -162,5 +178,5 @@ try {
   console.error = quiet;
 }
 
-console.log("starter-products-check ok: demo prices, photos and artwork; published in one step");
+console.log("starter-products-check ok: demo prices, photos and artwork; default bracket; approved, then published");
 process.exit(0);

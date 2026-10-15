@@ -6,6 +6,7 @@
 import assert from "node:assert/strict";
 import {
   BULK_PRODUCT_LIMIT,
+  approveBlock,
   archiveBlock,
   bracketBlock,
   changePrice,
@@ -13,7 +14,9 @@ import {
   parseProductIds,
   previewPrice,
   priceBlock,
+  mockupState,
   publishBlock,
+  publishHoldups,
   repriceProduct,
   unpublishBlock,
   visibilityBlock,
@@ -25,6 +28,30 @@ assert.equal(publishBlock({ status: "in_review", publishBlockers: [] }), null);
 assert.equal(publishBlock({ status: "draft", publishBlockers: ["The generated mockups have not been approved."] }), "notReady");
 assert.equal(publishBlock({ status: "archived", publishBlockers: ["No artwork has been placed."] }), "notReady");
 assert.equal(publishBlock({ status: "published", publishBlockers: [] }), "alreadyPublished");
+
+// Approving needs previews, and only touches ones still waiting.
+assert.equal(mockupState([]), "none");
+assert.equal(mockupState([{ approved: true }, { approved: false }]), "unapproved");
+assert.equal(mockupState([{ approved: true }]), "approved");
+assert.equal(approveBlock({ mockups: "unapproved" }), null);
+assert.equal(approveBlock({ mockups: "none" }), "noMockups");
+assert.equal(approveBlock({ mockups: "approved" }), "alreadyApproved");
+
+// A greyed-out Publish says what holds the selection back, most common first.
+const starter = (codes) => ({ status: "draft", publishBlockerCodes: codes });
+assert.deepEqual(
+  publishHoldups([
+    ...Array.from({ length: 6 }, () => starter(["unapproved"])),
+    starter(["unapproved", "noBracket"]),
+    { status: "published", publishBlockerCodes: [] },
+  ]),
+  [
+    { code: "unapproved", count: 7 },
+    { code: "noBracket", count: 1 },
+    { code: "alreadyPublished", count: 1 },
+  ],
+);
+assert.deepEqual(publishHoldups([starter(["preflight", "preflight"])]), [{ code: "preflight", count: 1 }], "a product counts once per kind");
 
 assert.equal(unpublishBlock({ status: "published" }), null);
 for (const status of ["draft", "in_review", "archived"]) assert.equal(unpublishBlock({ status }), "notPublished");
@@ -62,6 +89,8 @@ const tee = {
   ],
   costs: { supplierCost: 1000, customizationCost: 300, shippingEstimate: 400, taxRate: 0, marginAmount: 900, marginPct: 34.62 },
   publishBlockers: [],
+  publishBlockerCodes: [],
+  mockups: "approved",
 };
 
 // Every variant moves with the product; a fixed price sets them all.

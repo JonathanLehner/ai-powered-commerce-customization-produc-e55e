@@ -2597,6 +2597,7 @@
       "toolbar": "Azioni di gruppo",
       "selected": "{count} selezionati",
       "clear": "Cancella",
+      "approve": "Approva mockup",
       "publish": "Pubblica",
       "unpublish": "Annulla pubblicazione",
       "archive": "Archivia",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "Si è verificato un errore. Riprova.",
       "skipHeading": "{count, plural, one {# prodotto verrà saltato:} other {# prodotti verranno saltati:}}",
       "confirm": {
+        "approveTitle": "{count, plural, one {Approvare i mockup di # prodotto?} other {Approvare i mockup di # prodotti?}}",
+        "approveBody": "Controlla prima i mockup. I mockup approvati sono quelli che i clienti vedono quando il prodotto è pubblicato.",
         "publishTitle": "Pubblicare {count, plural, one {# prodotto} other {# prodotti}}?",
         "publishBody": "I prodotti selezionati vanno online nel negozio.",
         "unpublishTitle": "Annullare la pubblicazione di {count, plural, one {# prodotto} other {# prodotti}}?",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "Già impostato.",
         "belowCost": "Il nuovo prezzo è pari o inferiore al costo.",
         "notReady": "Non ancora pronto per la pubblicazione.",
-        "priceChanged": "Il prezzo è cambiato dopo l’anteprima. Controllalo e riprova."
+        "priceChanged": "Il prezzo è cambiato dopo l’anteprima. Controllalo e riprova.",
+        "noMockups": "Nessun mockup da approvare.",
+        "alreadyApproved": "Mockup già approvati."
       },
       "result": {
+        "approve": "{count, plural, =0 {Nessun mockup approvato.} one {Mockup approvati per # prodotto.} other {Mockup approvati per # prodotti.}}",
         "publish": "{count, plural, =0 {Nessun prodotto pubblicato.} one {# prodotto pubblicato.} other {# prodotti pubblicati.}}",
         "unpublish": "{count, plural, =0 {Nessuna pubblicazione annullata.} one {Pubblicazione annullata per # prodotto.} other {Pubblicazione annullata per # prodotti.}}",
         "archive": "{count, plural, =0 {Nessun prodotto archiviato.} one {# prodotto archiviato.} other {# prodotti archiviati.}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {Nessuna visibilità modificata.} one {Visibilità modificata su # prodotto.} other {Visibilità modificata su # prodotti.}}",
         "price": "{count, plural, =0 {Nessun prezzo modificato.} one {Prezzo modificato su # prodotto.} other {Prezzi modificati su # prodotti.}}",
         "failed": "{count, plural, one {# prodotto saltato:} other {# prodotti saltati:}}"
+      },
+      "holdup": {
+        "unapproved": "{count, plural, one {# richiede l’approvazione dei mockup} other {# richiedono l’approvazione dei mockup}}",
+        "noBracket": "{count, plural, one {# richiede una fascia fiscale} other {# richiedono una fascia fiscale}}",
+        "noMockups": "{count, plural, one {# richiede i mockup} other {# richiedono i mockup}}",
+        "noArtwork": "{count, plural, one {# richiede una grafica} other {# richiedono una grafica}}",
+        "preflight": "{count, plural, one {# ha problemi con la grafica} other {# hanno problemi con la grafica}}",
+        "noPhotos": "{count, plural, one {# richiede foto} other {# richiedono foto}}",
+        "noShippingZone": "Aggiungi una zona di spedizione",
+        "retired": "{count, plural, one {# ha un prodotto fornitore ritirato} other {# hanno un prodotto fornitore ritirato}}",
+        "notLinked": "{count, plural, one {# richiede un collegamento al fornitore} other {# richiedono un collegamento al fornitore}}",
+        "belowCost": "{count, plural, one {# è sotto costo} other {# sono sotto costo}}",
+        "noVariants": "{count, plural, one {# non ha varianti attive} other {# non hanno varianti attive}}",
+        "notFound": "{count, plural, one {# non trovato} other {# non trovati}}",
+        "alreadyPublished": "{count, plural, one {# già pubblicato} other {# già pubblicati}}"
       }
     },
     "notLinked": "Non collegato",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "Contenuti in nove lingue",
     "sections": "Sezioni della home page",
     "starterTitle": "Prodotti suggeriti",
-    "starterLead": "Aggiunti al tuo catalogo con foto e prezzi quando inizi da questo template, pronti da pubblicare.",
+    "starterLead": "Aggiunti al tuo catalogo con foto e prezzi quando inizi da questo template, pronti da approvare e pubblicare.",
     "moreIn": "Altro in {category}",
     "previewExpired": "Questo link di anteprima è scaduto",
     "previewExpiredBody": "Apri nuovamente il template dall'editor del negozio per ottenere un nuovo link.",

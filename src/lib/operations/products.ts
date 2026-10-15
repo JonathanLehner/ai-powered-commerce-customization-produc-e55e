@@ -10,8 +10,10 @@ import {
   validateArtwork,
 } from "../artwork";
 import {
+  approveBlock,
   archiveBlock,
   bracketBlock,
+  mockupState,
   parsePriceChange,
   parseProductIds,
   priceBlock,
@@ -695,6 +697,7 @@ export async function productPublishBlockers(product: StoreProduct, locale?: Loc
 /* ------------------------------------------------------------ bulk actions */
 
 export type BulkProductAction =
+  | { kind: "approve" }
   | { kind: "publish" }
   | { kind: "unpublish" }
   | { kind: "archive" }
@@ -731,7 +734,7 @@ export async function bulkUpdateProducts(
   if (ids.length === 0) throw new OperationError("invalid", t("noneSelected"), "productIds");
 
   const kind = action?.kind;
-  if (!["publish", "unpublish", "archive", "bracket", "visibility", "price"].includes(kind)) {
+  if (!["approve", "publish", "unpublish", "archive", "bracket", "visibility", "price"].includes(kind)) {
     throw new OperationError("invalid", t("failedGeneric"), "action");
   }
   const change = action.kind === "price" ? parsePriceChange(action.change) : null;
@@ -772,6 +775,12 @@ export async function bulkUpdateProducts(
 
   async function apply(product: StoreProduct): Promise<string | null> {
     const blocked = (reason: ProductBlock) => t(`blocked.${reason}`);
+    if (kind === "approve") {
+      const block = approveBlock({ mockups: mockupState(product.mockups) });
+      if (block) return blocked(block);
+      await approveMockups(ctx, product);
+      return null;
+    }
     if (kind === "publish") {
       const list = blockers?.get(product.id) ?? [];
       const block = publishBlock({ status: product.status, publishBlockers: list.map((b) => b.reason) });

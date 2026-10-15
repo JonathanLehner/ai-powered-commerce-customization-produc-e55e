@@ -157,7 +157,7 @@ export const settingsOperations: ApiOperation[] = [
     scope: "store:write",
     tag: "Taxes",
     summary: "Set the default tax bracket",
-    description: "Sets the default tax bracket, an id from listTaxBrackets, and whether displayed prices include tax.",
+    description: "Sets the default tax bracket, an id from listTaxBrackets, and whether displayed prices include tax. New products take the default bracket, and products that have no bracket yet are given it.",
     input: z.object({
       defaultTaxBracketId: z.string().describe("A tax bracket id from listTaxBrackets."),
       pricesIncludeTax: z.boolean().describe("Whether product prices already include tax."),

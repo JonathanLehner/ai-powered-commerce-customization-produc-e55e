@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { importedPath } from "@/lib/artwork";
 import { listStoreProducts, listTaxBrackets } from "@/lib/data";
-import type { BulkProduct } from "@/lib/bulk-products";
+import { mockupState, type BulkProduct } from "@/lib/bulk-products";
 import { marginTone } from "@/lib/pricing";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
-import { publishBlockersFor } from "@/lib/publish-blockers";
+import { publishBlockersFor, type PublishBlocker } from "@/lib/publish-blockers";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import type { StoreProduct } from "@/lib/types";
@@ -70,7 +70,7 @@ export default async function StoreCatalogPage({
     canEdit ? listTaxBrackets() : [],
     // What stops each unpublished product going live, so bulk Publish can say
     // up front which ones it will skip.
-    canEdit ? publishBlockersFor(filtered.filter((p) => p.status !== "published")) : new Map<string, { reason: string }[]>(),
+    canEdit ? publishBlockersFor(filtered.filter((p) => p.status !== "published")) : new Map<string, PublishBlocker[]>(),
   ]);
   const bulkProducts: BulkProduct[] = filtered.map((p) => ({
     id: p.id,
@@ -90,6 +90,8 @@ export default async function StoreCatalogPage({
       marginPct: p.costs.marginPct,
     },
     publishBlockers: (blockers.get(p.id) ?? []).map((b) => b.reason),
+    publishBlockerCodes: (blockers.get(p.id) ?? []).map((b) => b.code),
+    mockups: mockupState(p.mockups),
   }));
   const now = new Date();
   return (

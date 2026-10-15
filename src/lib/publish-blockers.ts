@@ -7,7 +7,23 @@ import { getCatalogProduct, listShippingZones } from "./data";
 import type { CatalogProduct, StoreProduct } from "./types";
 import { formatMoney } from "./util";
 
+/** What kind of thing stands in the way, so a list of products can be summed up by it. */
+export type PublishBlockerCode =
+  | "noShippingZone"
+  | "retired"
+  | "notLinked"
+  | "noArtwork"
+  | "preflight"
+  | "noPhotos"
+  | "noMockups"
+  | "unapproved"
+  | "noBracket"
+  | "belowCost"
+  | "noVariants"
+  | "notFound";
+
 export interface PublishBlocker {
+  code: PublishBlockerCode;
   reason: string;
   fix: string;
   /** Set on a supplier pre-flight issue in the placed artwork. */
@@ -47,48 +63,49 @@ export async function publishBlockersFor(
     out.set(product.id, blockers);
 
     if (!shipsAnywhere.get(product.storeId)) {
-      blockers.push({ reason: t("noShippingZone"), fix: t("noShippingZoneFix") });
+      blockers.push({ code: "noShippingZone", reason: t("noShippingZone"), fix: t("noShippingZoneFix") });
     }
     // An imported product that is not linked to a catalog product has no
     // print artwork; its own photos are what shoppers see. Until the store
     // links it or ships it itself, nobody would make or send an order.
     const ownPhotos = sellsOwnPhotos(product);
     if (!catalog && !ownPhotos) {
-      blockers.push({ reason: t("retired"), fix: t("retiredFix") });
+      blockers.push({ code: "retired", reason: t("retired"), fix: t("retiredFix") });
       continue;
     }
     if (importedPath(product) === "unlinked") {
-      blockers.push({ reason: t("notLinked"), fix: t("notLinkedFix") });
+      blockers.push({ code: "notLinked", reason: t("notLinked"), fix: t("notLinkedFix") });
     }
     if (catalog && product.artworks.length === 0) {
-      blockers.push({ reason: t("noArtwork"), fix: t("noArtworkFix") });
+      blockers.push({ code: "noArtwork", reason: t("noArtwork"), fix: t("noArtworkFix") });
     }
     for (const artwork of product.artworks) {
       const area = catalog?.printAreas.find((a) => a.id === artwork.printAreaId);
       if (!area || !catalog) continue;
       for (const issue of blockingIssues(validateArtwork(artwork, area, catalog.fileRequirements))) {
         const text = artworkIssueText(issuesT, issue, locale);
-        blockers.push({ reason: t("area", { area: area.name, message: text.message }), fix: text.fix, preflight: true });
+        blockers.push({ code: "preflight", reason: t("area", { area: area.name, message: text.message }), fix: text.fix, preflight: true });
       }
     }
     if (ownPhotos && product.mockups.length === 0) {
-      blockers.push({ reason: t("noPhotos"), fix: t("noPhotosFix") });
+      blockers.push({ code: "noPhotos", reason: t("noPhotos"), fix: t("noPhotosFix") });
     } else if (product.mockups.length === 0) {
-      blockers.push({ reason: t("noMockups"), fix: t("noMockupsFix") });
+      blockers.push({ code: "noMockups", reason: t("noMockups"), fix: t("noMockupsFix") });
     } else if (product.mockups.some((m) => !m.approved)) {
-      blockers.push({ reason: t("unapproved"), fix: t("unapprovedFix") });
+      blockers.push({ code: "unapproved", reason: t("unapproved"), fix: t("unapprovedFix") });
     }
     if (!product.taxBracketId) {
-      blockers.push({ reason: t("noBracket"), fix: t("noBracketFix") });
+      blockers.push({ code: "noBracket", reason: t("noBracket"), fix: t("noBracketFix") });
     }
     if (product.costs.marginAmount <= 0) {
       blockers.push({
+        code: "belowCost",
         reason: t("belowCost", { margin: formatMoney(product.costs.marginAmount, product.currency, locale) }),
         fix: t("belowCostFix"),
       });
     }
     if (!product.variants.some((v) => v.enabled)) {
-      blockers.push({ reason: t("noVariants"), fix: t("noVariantsFix") });
+      blockers.push({ code: "noVariants", reason: t("noVariants"), fix: t("noVariantsFix") });
     }
   }
   return out;

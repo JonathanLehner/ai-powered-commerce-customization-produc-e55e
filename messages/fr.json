@@ -2597,6 +2597,7 @@
       "toolbar": "Actions groupées",
       "selected": "{count} sélectionné(s)",
       "clear": "Effacer",
+      "approve": "Approuver les maquettes",
       "publish": "Publier",
       "unpublish": "Dépublier",
       "archive": "Archiver",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "Une erreur est survenue. Réessayez.",
       "skipHeading": "{count, plural, one {# produit sera ignoré :} other {# produits seront ignorés :}}",
       "confirm": {
+        "approveTitle": "{count, plural, one {Approuver les maquettes de # produit ?} other {Approuver les maquettes de # produits ?}}",
+        "approveBody": "Vérifiez d’abord les maquettes. Les maquettes approuvées sont celles que voient les clients une fois le produit publié.",
         "publishTitle": "Publier {count, plural, one {# produit} other {# produits}} ?",
         "publishBody": "Les produits sélectionnés seront en ligne sur la boutique.",
         "unpublishTitle": "Dépublier {count, plural, one {# produit} other {# produits}} ?",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "Déjà défini.",
         "belowCost": "Le nouveau prix est inférieur ou égal au coût.",
         "notReady": "Pas prêt à être publié.",
-        "priceChanged": "Le prix a changé depuis l’aperçu. Vérifiez-le et réessayez."
+        "priceChanged": "Le prix a changé depuis l’aperçu. Vérifiez-le et réessayez.",
+        "noMockups": "Aucune maquette à approuver.",
+        "alreadyApproved": "Maquettes déjà approuvées."
       },
       "result": {
+        "approve": "{count, plural, =0 {Aucune maquette approuvée.} one {Maquettes approuvées pour # produit.} other {Maquettes approuvées pour # produits.}}",
         "publish": "{count, plural, =0 {Aucun produit publié.} one {# produit publié.} other {# produits publiés.}}",
         "unpublish": "{count, plural, =0 {Aucun produit dépublié.} one {# produit dépublié.} other {# produits dépubliés.}}",
         "archive": "{count, plural, =0 {Aucun produit archivé.} one {# produit archivé.} other {# produits archivés.}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {Aucune visibilité modifiée.} one {Visibilité modifiée sur # produit.} other {Visibilité modifiée sur # produits.}}",
         "price": "{count, plural, =0 {Aucun prix modifié.} one {Prix modifié sur # produit.} other {Prix modifiés sur # produits.}}",
         "failed": "{count, plural, one {# produit ignoré :} other {# produits ignorés :}}"
+      },
+      "holdup": {
+        "unapproved": "{count, plural, one {# produit avec maquettes à approuver} other {# produits avec maquettes à approuver}}",
+        "noBracket": "{count, plural, one {# sans taux de TVA} other {# sans taux de TVA}}",
+        "noMockups": "{count, plural, one {# sans maquettes} other {# sans maquettes}}",
+        "noArtwork": "{count, plural, one {# sans visuel} other {# sans visuel}}",
+        "preflight": "{count, plural, one {# avec un visuel à corriger} other {# avec un visuel à corriger}}",
+        "noPhotos": "{count, plural, one {# sans photos} other {# sans photos}}",
+        "noShippingZone": "Ajoutez une zone de livraison",
+        "retired": "{count, plural, one {# avec un produit fournisseur retiré} other {# avec un produit fournisseur retiré}}",
+        "notLinked": "{count, plural, one {# sans lien fournisseur} other {# sans lien fournisseur}}",
+        "belowCost": "{count, plural, one {# sous le prix de revient} other {# sous le prix de revient}}",
+        "noVariants": "{count, plural, one {# sans variante active} other {# sans variante active}}",
+        "notFound": "{count, plural, one {# introuvable} other {# introuvables}}",
+        "alreadyPublished": "{count, plural, one {# déjà publié} other {# déjà publiés}}"
       }
     },
     "notLinked": "Non associé",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "Texte en neuf langues",
     "sections": "Sections de la page d'accueil",
     "starterTitle": "Produits suggérés",
-    "starterLead": "Ajoutés à votre catalogue avec leurs photos et leurs prix lorsque vous commencez avec ce thème, prêts à être publiés.",
+    "starterLead": "Ajoutés à votre catalogue avec leurs photos et leurs prix lorsque vous commencez avec ce thème, prêts à être approuvés et publiés.",
     "moreIn": "Plus dans {category}",
     "previewExpired": "Ce lien d'aperçu a expiré",
     "previewExpiredBody": "Ouvrez à nouveau le thème depuis l'éditeur de vitrine pour obtenir un nouveau lien.",

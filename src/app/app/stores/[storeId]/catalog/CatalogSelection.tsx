@@ -42,10 +42,12 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/sonner";
 import {
+  approveBlock,
   archiveBlock,
   bracketBlock,
   previewPrice,
   publishBlock,
+  publishHoldups,
   unpublishBlock,
   visibilityBlock,
   type BulkProduct,
@@ -172,7 +174,7 @@ export function BulkActionBar({
   const blockLabel = useBlockLabel();
   const [pending, startTransition] = useTransition();
   const [report, setReport] = useState<Report | null>(null);
-  const [dialog, setDialog] = useState<"publish" | "unpublish" | "archive" | "price" | null>(null);
+  const [dialog, setDialog] = useState<"approve" | "publish" | "unpublish" | "archive" | "price" | null>(null);
 
   const all = selected.length > 0 && selected.length === products.length;
   const ids = selected.map((product) => product.id);
@@ -193,18 +195,20 @@ export function BulkActionBar({
         return;
       }
       setReport({ kind: action.kind, outcome });
-      keepOnly(outcome.failed.map((entry) => entry.id));
+      // Approved products stay ticked, ready to publish next.
+      if (action.kind !== "approve") keepOnly(outcome.failed.map((entry) => entry.id));
       if (outcome.succeeded.length > 0) toast.success(t(`result.${action.kind}`, { count: outcome.succeeded.length }));
       onDone?.();
     });
   }
 
   const statusChecks = {
+    approve: approveBlock,
     publish: publishBlock,
     unpublish: unpublishBlock,
     archive: archiveBlock,
   } as const;
-  const confirming = dialog === "publish" || dialog === "unpublish" || dialog === "archive" ? dialog : null;
+  const confirming = dialog === "price" ? null : dialog;
   const skipped = confirming
     ? selected.flatMap((product) => {
         const block = statusChecks[confirming](product);
@@ -213,6 +217,15 @@ export function BulkActionBar({
     : [];
   const eligibleFor = (check: (product: BulkProduct) => ProductBlock | null) =>
     selected.filter((product) => !check(product)).length;
+  const publishable = eligibleFor(publishBlock);
+  // A greyed-out Publish says what holds the selection back.
+  const holdups =
+    publishable === 0
+      ? publishHoldups(selected)
+          .slice(0, 2)
+          .map(({ code, count }) => t(`holdup.${code}`, { count }))
+          .join(", ")
+      : "";
 
   return (
     <>
@@ -254,9 +267,23 @@ export function BulkActionBar({
               {t("clear")}
             </Button>
             <span className="flex flex-wrap items-center gap-2 sm:ml-auto">
+              {holdups ? (
+                <span id="bulk-publish-holdups" className="text-xs text-muted-foreground">
+                  {holdups}
+                </span>
+              ) : null}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pending || eligibleFor(approveBlock) === 0}
+                onClick={() => setDialog("approve")}
+              >
+                {t("approve")}
+              </Button>
               <Button
                 size="sm"
-                disabled={pending || eligibleFor(publishBlock) === 0}
+                disabled={pending || publishable === 0}
+                aria-describedby={holdups ? "bulk-publish-holdups" : undefined}
                 onClick={() => setDialog("publish")}
               >
                 {t("publish")}
@@ -354,7 +381,7 @@ export function BulkActionBar({
               <AlertDialogFooter>
                 <AlertDialogCancel />
                 <AlertDialogAction
-                  variant={confirming === "publish" ? "default" : "destructive"}
+                  variant={confirming === "publish" || confirming === "approve" ? "default" : "destructive"}
                   disabled={pending || skipped.length === selected.length}
                   onClick={() => run({ kind: confirming })}
                 >

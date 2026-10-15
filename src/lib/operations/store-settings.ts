@@ -13,9 +13,20 @@ import {
   type RateMode,
   type RoundingRule,
 } from "../currency";
-import { COLLECTIONS, countActiveStoresForAgency, getAgency, listTaxBrackets, recordAudit, updateStore } from "../data";
+import {
+  COLLECTIONS,
+  countActiveStoresForAgency,
+  getAgency,
+  getCatalogProduct,
+  listStoreProducts,
+  listTaxBrackets,
+  recordAudit,
+  updateStore,
+  updateStoreProduct,
+} from "../data";
 import { db } from "../mongo";
 import { refreshStoreFx } from "../fx-rates";
+import { breakdownFor } from "../pricing";
 import { siteOrigin } from "../email";
 import { storeAllowance } from "../plans";
 import { POLICY_KEYS, POLICY_MAX_LENGTH, normalizePolicy, type PolicyKey, type StorePolicies } from "../policies";
@@ -524,18 +535,36 @@ export async function saveDefaultTax(
   const { store } = ctx;
   const t = await messages(ctx);
   const { defaultTaxBracketId, pricesIncludeTax } = input;
-  if (!defaultTaxBracketId || !(await listTaxBrackets()).some((bracket) => bracket.id === defaultTaxBracketId)) {
+  const bracket = (await listTaxBrackets()).find((b) => b.id === defaultTaxBracketId);
+  if (!defaultTaxBracketId || !bracket) {
     throw new OperationError("invalid", t("taxRequired"), "defaultTaxBracketId");
   }
 
   const setup = { ...store.setup, tax: true };
   await updateStore(store.id, { defaultTaxBracketId, pricesIncludeTax, setup });
+  // Products added before the store had a default (a template's starter
+  // products, say) take it now; a bracket picked for a product is kept. Gift
+  // cards carry no tax.
+  const unfiled = (await listStoreProducts(store.id)).filter(
+    (p) => !p.taxBracketId && p.catalogProductId !== "gift-card" && p.status !== "archived",
+  );
+  const catalogs = new Map(
+    await Promise.all(
+      [...new Set(unfiled.map((p) => p.catalogProductId))].map(async (id) => [id, await getCatalogProduct(id)] as const),
+    ),
+  );
+  for (const product of unfiled) {
+    const next = { ...product, taxBracketId: bracket.id };
+    const costs = breakdownFor(next, catalogs.get(product.catalogProductId) ?? null, bracket, pricesIncludeTax);
+    await updateStoreProduct(product.id, { taxBracketId: bracket.id, costs }, product);
+  }
   audit(
     ctx,
     "store.tax_updated",
-    `Default tax bracket set; displayed prices ${pricesIncludeTax ? "include" : "exclude"} tax`,
-    { defaultTaxBracketId, pricesIncludeTax },
+    `Default tax bracket set; displayed prices ${pricesIncludeTax ? "include" : "exclude"} tax${unfiled.length ? `; applied to ${unfiled.length} product${unfiled.length === 1 ? "" : "s"} without one` : ""}`,
+    { defaultTaxBracketId, pricesIncludeTax, productsFiled: unfiled.length },
   );
   revalidatePath(`/app/stores/${store.id}/setup`);
+  if (unfiled.length > 0) revalidatePath(`/app/stores/${store.id}/catalog`);
   return { ...store, defaultTaxBracketId, pricesIncludeTax, setup };
 }

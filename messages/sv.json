@@ -2597,6 +2597,7 @@
       "toolbar": "Massåtgärder",
       "selected": "{count} markerade",
       "clear": "Rensa",
+      "approve": "Godkänn mockups",
       "publish": "Publicera",
       "unpublish": "Avpublicera",
       "archive": "Arkivera",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "Något gick fel. Försök igen.",
       "skipHeading": "{count, plural, one {# produkt hoppas över:} other {# produkter hoppas över:}}",
       "confirm": {
+        "approveTitle": "{count, plural, one {Godkänna mockups för # produkt?} other {Godkänna mockups för # produkter?}}",
+        "approveBody": "Granska mockupsen först. Godkända mockups är det kunderna ser när produkten är publicerad.",
         "publishTitle": "Publicera {count, plural, one {# produkt} other {# produkter}}?",
         "publishBody": "De markerade produkterna publiceras i butiken.",
         "unpublishTitle": "Avpublicera {count, plural, one {# produkt} other {# produkter}}?",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "Redan inställd.",
         "belowCost": "Det nya priset är lika med eller under kostnaden.",
         "notReady": "Inte redo att publiceras.",
-        "priceChanged": "Priset har ändrats sedan förhandsvisningen. Kontrollera det och försök igen."
+        "priceChanged": "Priset har ändrats sedan förhandsvisningen. Kontrollera det och försök igen.",
+        "noMockups": "Inga mockups att godkänna.",
+        "alreadyApproved": "Mockups redan godkända."
       },
       "result": {
+        "approve": "{count, plural, =0 {Inga mockups godkändes.} one {Mockups godkända för # produkt.} other {Mockups godkända för # produkter.}}",
         "publish": "{count, plural, =0 {Inga produkter publicerade.} one {# produkt publicerad.} other {# produkter publicerade.}}",
         "unpublish": "{count, plural, =0 {Inga produkter avpublicerade.} one {# produkt avpublicerad.} other {# produkter avpublicerade.}}",
         "archive": "{count, plural, =0 {Inga produkter arkiverade.} one {# produkt arkiverad.} other {# produkter arkiverade.}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {Ingen synlighet ändrad.} one {Synlighet ändrad på # produkt.} other {Synlighet ändrad på # produkter.}}",
         "price": "{count, plural, =0 {Inga priser ändrade.} one {Pris ändrat på # produkt.} other {Priser ändrade på # produkter.}}",
         "failed": "{count, plural, one {# produkt hoppades över:} other {# produkter hoppades över:}}"
+      },
+      "holdup": {
+        "unapproved": "{count, plural, one {# behöver godkända mockups} other {# behöver godkända mockups}}",
+        "noBracket": "{count, plural, one {# behöver en momssats} other {# behöver en momssats}}",
+        "noMockups": "{count, plural, one {# behöver mockups} other {# behöver mockups}}",
+        "noArtwork": "{count, plural, one {# behöver ett motiv} other {# behöver ett motiv}}",
+        "preflight": "{count, plural, one {# har problem med motivet} other {# har problem med motivet}}",
+        "noPhotos": "{count, plural, one {# behöver foton} other {# behöver foton}}",
+        "noShippingZone": "Lägg till en fraktzon",
+        "retired": "{count, plural, one {# har en utgången leverantörsprodukt} other {# har en utgången leverantörsprodukt}}",
+        "notLinked": "{count, plural, one {# behöver kopplas till en leverantör} other {# behöver kopplas till en leverantör}}",
+        "belowCost": "{count, plural, one {# är prissatt under kostnad} other {# är prissatta under kostnad}}",
+        "noVariants": "{count, plural, one {# har inga aktiva varianter} other {# har inga aktiva varianter}}",
+        "notFound": "{count, plural, one {# hittades inte} other {# hittades inte}}",
+        "alreadyPublished": "{count, plural, one {# redan publicerad} other {# redan publicerade}}"
       }
     },
     "notLinked": "Inte länkad",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "Texter på nio språk",
     "sections": "Startsidans sektioner",
     "starterTitle": "Föreslagna produkter",
-    "starterLead": "Läggs till i din katalog med foton och priser när du börjar med denna mall, redo att publiceras.",
+    "starterLead": "Läggs till i din katalog med foton och priser när du börjar med denna mall, redo att godkännas och publiceras.",
     "moreIn": "Mer i {category}",
     "previewExpired": "Denna förhandsgranskningslänk har löpt ut",
     "previewExpiredBody": "Öppna mallen igen från butiksredigeraren för att få en ny länk.",

@@ -262,11 +262,12 @@ export const catalogOperations: ApiOperation[] = [
     scope: "products:write",
     tag: "Products",
     summary: "Change many products at once",
-    description: `Applies one action to up to ${BULK_PRODUCT_LIMIT} products and reports each: publish (with the same checks as updateProductStatus), unpublish (back to in_review), archive, bracket (set the tax bracket, see listTaxBrackets), visibility, or price. A price change raises or lowers the product price and every variant price by a percentage, or sets them all to one amount in minor units; no variant may end up at or below its cost; from must give each product's current price, and a product whose price differs is skipped, so a repeated request does not change prices twice. Products that cannot take the change are listed in failed with the reason.`,
+    description: `Applies one action to up to ${BULK_PRODUCT_LIMIT} products and reports each: approve (approve every mockup, as approveProductMockups does), publish (with the same checks as updateProductStatus), unpublish (back to in_review), archive, bracket (set the tax bracket, see listTaxBrackets), visibility, or price. A price change raises or lowers the product price and every variant price by a percentage, or sets them all to one amount in minor units; no variant may end up at or below its cost; from must give each product's current price, and a product whose price differs is skipped, so a repeated request does not change prices twice. Products that cannot take the change are listed in failed with the reason.`,
     actions: ["products#bulkUpdateProducts"],
     input: z.object({
       productIds: z.array(id("product")).min(1).max(BULK_PRODUCT_LIMIT),
       action: z.discriminatedUnion("kind", [
+        z.object({ kind: z.literal("approve") }),
         z.object({ kind: z.literal("publish") }),
         z.object({ kind: z.literal("unpublish") }),
         z.object({ kind: z.literal("archive") }),

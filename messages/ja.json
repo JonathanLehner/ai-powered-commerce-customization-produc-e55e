@@ -2597,6 +2597,7 @@
       "toolbar": "一括操作",
       "selected": "{count} 件選択中",
       "clear": "クリア",
+      "approve": "モックアップを承認",
       "publish": "公開",
       "unpublish": "公開停止",
       "archive": "アーカイブ",
@@ -2613,6 +2614,8 @@
       "failedGeneric": "問題が発生しました。もう一度お試しください。",
       "skipHeading": "{count} 件の商品はスキップされます：",
       "confirm": {
+        "approveTitle": "{count} 件の商品のモックアップを承認しますか？",
+        "approveBody": "先にモックアップを確認してください。承認したモックアップは、商品の公開後に購入者に表示されます。",
         "publishTitle": "{count} 件の商品を公開しますか？",
         "publishBody": "選択した商品がストアに公開されます。",
         "unpublishTitle": "{count} 件の商品の公開を停止しますか？",
@@ -2647,9 +2650,12 @@
         "alreadyVisibility": "設定済みです。",
         "belowCost": "新しい価格が原価以下です。",
         "notReady": "まだ公開できる状態ではありません。",
-        "priceChanged": "プレビュー後に価格が変更されました。確認してもう一度お試しください。"
+        "priceChanged": "プレビュー後に価格が変更されました。確認してもう一度お試しください。",
+        "noMockups": "承認するモックアップがありません。",
+        "alreadyApproved": "モックアップは承認済みです。"
       },
       "result": {
+        "approve": "{count, plural, =0 {承認されたモックアップはありません。} other {# 件の商品のモックアップを承認しました。}}",
         "publish": "{count, plural, =0 {公開された商品はありません。} other {# 件の商品を公開しました。}}",
         "unpublish": "{count, plural, =0 {公開停止した商品はありません。} other {# 件の商品の公開を停止しました。}}",
         "archive": "{count, plural, =0 {アーカイブした商品はありません。} other {# 件の商品をアーカイブしました。}}",
@@ -2657,6 +2663,21 @@
         "visibility": "{count, plural, =0 {表示設定は変更されていません。} other {# 件の商品の表示設定を変更しました。}}",
         "price": "{count, plural, =0 {価格は変更されていません。} other {# 件の商品の価格を変更しました。}}",
         "failed": "{count} 件の商品をスキップしました："
+      },
+      "holdup": {
+        "unapproved": "{count, plural, other {# 件はモックアップの承認が必要}}",
+        "noBracket": "{count, plural, other {# 件は税区分の選択が必要}}",
+        "noMockups": "{count, plural, other {# 件はモックアップが必要}}",
+        "noArtwork": "{count, plural, other {# 件はデザインが必要}}",
+        "preflight": "{count, plural, other {# 件はデザインに問題あり}}",
+        "noPhotos": "{count, plural, other {# 件は写真が必要}}",
+        "noShippingZone": "配送ゾーンを追加してください",
+        "retired": "{count, plural, other {# 件は仕入れ先の商品が終了}}",
+        "notLinked": "{count, plural, other {# 件は仕入れ先との連携が必要}}",
+        "belowCost": "{count, plural, other {# 件は原価割れ}}",
+        "noVariants": "{count, plural, other {# 件は有効なバリエーションなし}}",
+        "notFound": "{count, plural, other {# 件が見つかりません}}",
+        "alreadyPublished": "{count, plural, other {# 件は公開済み}}"
       }
     },
     "notLinked": "未リンク",
@@ -5941,7 +5962,7 @@
     "includedLanguages": "9言語対応のテキスト",
     "sections": "ホームページセクション",
     "starterTitle": "おすすめ商品",
-    "starterLead": "このテンプレートから始めると、写真と価格付きでカタログに追加され、すぐに公開できます。",
+    "starterLead": "このテンプレートから始めると、写真と価格付きでカタログに追加され、承認するとすぐに公開できます。",
     "moreIn": "{category} のその他",
     "previewExpired": "このプレビューリンクは有効期限が切れました",
     "previewExpiredBody": "ストアフロントエディターからテンプレートを再度開くと、新しいリンクが取得できます。",

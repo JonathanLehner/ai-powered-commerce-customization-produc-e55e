@@ -34,7 +34,7 @@ export const SECTION_NAMESPACES = {
   setup: ["apiKeys", "labels", "settings", "storefront.policies", "webhooks"],
   shipping: ["labels", "shipping", "storefront.checkout"],
   sourcing: ["enquiries", "labels", "sourcing.filters", "sourcing.form"],
-  storefront: ["editor", "labels", "storefront.basket", "storefront.chrome", "templates"],
+  storefront: ["catalog.bulk", "editor", "labels", "storefront.basket", "storefront.chrome", "templates"],
   team: ["team"],
   admin: ["admin.agencies", "admin.catalogForm", "admin.quoteDesk", "admin.suppliers", "admin.tax", "apiKeys", "audit", "labels", "pager"],
   login: ["auth"],
