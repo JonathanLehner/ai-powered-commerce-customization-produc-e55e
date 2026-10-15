@@ -120,6 +120,7 @@ export const DRAFT_OPERATIONS = new Set([
   "updateStorefrontSiteContent",
   "updateStorefrontLayout",
   "updateProductPageTemplate",
+  "translateStorefrontDraft",
   "applyTemplate",
   "saveStorefrontDraft",
   "restoreStorefrontVersion",

@@ -55,6 +55,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
   const [items, setItems] = useState<ChatItem[]>([]);
   const [pending, setPending] = useState<PendingView | null>(null);
   const [undo, setUndo] = useState(false);
+  const [outdated, setOutdated] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Locks the controls the moment one is used, before React re-renders.
@@ -83,6 +84,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
         setItems(conversation?.items ?? []);
         setPending(conversation?.pending ?? null);
         setUndo(conversation?.undo ?? false);
+        setOutdated(conversation?.outdated ?? []);
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : t("failed"));
       } finally {
@@ -187,6 +189,9 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
           case "undo":
             setUndo(event.available);
             break;
+          case "outdated":
+            setOutdated(event.locales);
+            break;
           case "notice":
             setItems((list) => [...list, { id: `live_${++localId}`, kind: "note", note: event.note }]);
             break;
@@ -209,6 +214,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
     items,
     pending,
     undo,
+    outdated,
     busy,
     error,
     send(text, attachments = []) {
@@ -239,6 +245,11 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
       setUndo(false);
       void run({ action: "undo" });
     },
+    updateLanguage(locale) {
+      if (inFlight.current) return;
+      setOutdated((list) => list.filter((code) => code !== locale));
+      void run({ action: "translate", locale });
+    },
     openConversation(id) {
       if (inFlight.current) return;
       window.localStorage.setItem(LAST_KEY(storeId), id);
@@ -251,6 +262,7 @@ function useChat(storeId: string, open: boolean, onChanged: (storefront: boolean
       setItems([]);
       setPending(null);
       setUndo(false);
+      setOutdated([]);
       setError(null);
     },
   };

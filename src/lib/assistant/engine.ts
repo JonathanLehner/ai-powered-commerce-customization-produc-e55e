@@ -45,7 +45,7 @@ export interface MessageUi {
   /** Why a step failed, in words for the person. */
   message?: string;
   /** A message the chat wrote rather than the person or the model. */
-  note?: "undo" | "cancelled" | "stopped";
+  note?: "undo" | "cancelled" | "stopped" | "translated";
 }
 
 export type StoredMessage = ModelMessage & { ui?: MessageUi };
@@ -79,6 +79,8 @@ export interface ConversationState {
   undo: UndoPoint | null;
   /** Counts the person's messages, so a checkpoint is taken once per turn. */
   turn: number;
+  /** Languages whose storefront copy no longer matches the default language after the last request. */
+  outdated?: string[];
 }
 
 export interface PendingView {
@@ -92,6 +94,7 @@ export type AssistantEvent =
   | { type: "confirm"; pending: PendingView }
   | { type: "changed"; storefront: boolean }
   | { type: "undo"; available: boolean }
+  | { type: "outdated"; locales: string[] }
   | { type: "notice"; note: NonNullable<MessageUi["note"]> };
 
 export interface EngineDeps {
@@ -485,6 +488,40 @@ export async function undoLast(state: ConversationState, deps: EngineDeps): Prom
   deps.emit({ type: "notice", note: "undo" });
   deps.emit({ type: "changed", storefront: true });
   deps.emit({ type: "undo", available: false });
+  return true;
+}
+
+/**
+ * Machine-translates the storefront draft's out of date copy in one language,
+ * for the chat's "Update German too" button, and tells the model it was done.
+ */
+export async function translateOutdated(state: ConversationState, deps: EngineDeps, locale: string): Promise<boolean> {
+  const operation = assistantOperations(deps.operations).find((op) => op.id === "translateStorefrontDraft");
+  if (!operation || !scopeGranted(deps.scopes, operation.scope)) return false;
+  const call: ToolCall = { id: `translate_${newId("tr")}`, type: "function", function: { name: toolName(operation), arguments: "{}" } };
+  const label = deps.label(operation.id).step;
+  deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "running" });
+  try {
+    if (state.undo?.turn !== state.turn) {
+      const versionId = await runViaAssistant(() => deps.checkpoint());
+      if (versionId) state.undo = { versionId, turn: state.turn, at: now() };
+    }
+    await runViaAssistant(() => operation.run(deps.ctx, operation.input.parse({ language: locale }) as never));
+  } catch (error) {
+    const refused = refusalOf(error);
+    if (!refused) console.error("Assistant translation failed", error);
+    deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "error", message: refused?.message });
+    return false;
+  }
+  state.messages.push({
+    role: "user",
+    content: `(I used the Update button: the storefront draft's out of date ${locale} copy was machine-translated again to match.)`,
+    ui: { at: now(), note: "translated" },
+  });
+  deps.emit({ type: "step", id: call.id, operationId: operation.id, label, status: "done" });
+  deps.emit({ type: "notice", note: "translated" });
+  deps.emit({ type: "changed", storefront: true });
+  if (state.undo) deps.emit({ type: "undo", available: true });
   return true;
 }
 

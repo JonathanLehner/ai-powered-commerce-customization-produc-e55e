@@ -20,6 +20,7 @@ import { parseTree } from "../operations/storefront";
 import { assertStoreAccess, type StoreAccess } from "../session";
 import { storefrontPreviewLink } from "../storefront-preview";
 import { billingPending } from "../trial";
+import { outdatedTreeFields } from "../translations";
 import { STORE_ROLE_LABELS } from "../types";
 import { isStoredAsset } from "../uploads";
 import { newId } from "../util";
@@ -32,10 +33,12 @@ import {
   pendingView,
   requestSummary,
   sendMessage,
+  translateOutdated,
   undoLast,
   type AssistantEvent,
   type ConversationState,
   type EngineDeps,
+  type MessageUi,
   type PendingView,
   type StoredMessage,
 } from "./engine";
@@ -163,7 +166,8 @@ function systemPrompt(session: AssistantSession, page: string, state: Conversati
     "- Storefront page edits (sections, header and footer, site copy, product page, templates) change the draft only and show in the editor straight away. Publishing is a separate step: offer it when the work looks done, never publish unasked.",
     "- Calls that are irreversible or reach shoppers (publishing, deleting, refunds, emails, price and discount changes, live settings and translations) are shown to the person with a Confirm button and the exact arguments before they run. Call them directly; do not ask for confirmation in text first. If the person declines, do not try again unless they ask.",
     "- Before editing sections, read them (list_storefront_sections, list_storefront_section_types) for ids, field keys and allowed values, then change only what was asked. A darker look is usually the section's tone or the theme; check the field options.",
-    "- To translate storefront copy, the language has to be enabled for the store. Write each text field with the locale argument (update_storefront_section, update_storefront_site_content), keeping meaning and length.",
+    "- To translate storefront copy, the language has to be enabled for the store. Translate the whole draft in one call with translate_storefront_draft per language; write single fields with the locale argument (update_storefront_section, update_storefront_site_content) only when the person gives the wording. Products, collections and gift portals are translated with translate_missing.",
+    "- When an edit to the default language's copy returns outdatedTranslations, those languages still show the old copy. In the same turn, call translate_storefront_draft for each listed language, unless the person asked to change only one language, and say in your reply which languages were updated too.",
     "- You cannot create or upload images. Use the image URLs the person attached. If they want a photo they have not attached, ask them to attach it with the image button.",
     "- Money is in minor units of the currency: 2500 is 25.00.",
     "- Product ideas, copy, prices and supplier recommendations from request_* tools are saved as pending suggestions for review; apply one only when asked.",
@@ -184,7 +188,7 @@ export interface ChatItem {
   status?: "done" | "error" | "declined";
   /** Why a step failed. */
   message?: string;
-  note?: "undo" | "cancelled" | "stopped";
+  note?: NonNullable<MessageUi["note"]>;
 }
 
 export interface ConversationView {
@@ -194,6 +198,8 @@ export interface ConversationView {
   items: ChatItem[];
   pending: PendingView | null;
   undo: boolean;
+  /** Languages to offer "Update … too" for. */
+  outdated: string[];
 }
 
 /** What the chat shows of a conversation: the messages, the steps taken, and what waits. */
@@ -226,6 +232,7 @@ export function conversationView(record: ConversationRecord, locale: Locale): Co
     items,
     pending: record.pending ? pendingView(record.pending, { label: (id) => operationLabel(locale, id) }) : null,
     undo: Boolean(record.undo),
+    outdated: record.outdated ?? [],
   };
 }
 
@@ -252,7 +259,8 @@ export function findConversation(session: AssistantSession, id: string) {
 export type AssistantRequest =
   | { action: "message"; conversationId?: string | null; text: string; attachments?: string[]; page?: string }
   | { action: "confirm" | "cancel"; conversationId: string; pendingId: string; page?: string }
-  | { action: "undo"; conversationId: string; page?: string };
+  | { action: "undo"; conversationId: string; page?: string }
+  | { action: "translate"; conversationId: string; locale: string; page?: string };
 
 export type StreamEvent = AssistantEvent | { type: "conversation"; id: string; title: string } | { type: "error"; message: string } | { type: "done" };
 
@@ -281,6 +289,7 @@ async function save(record: ConversationRecord) {
         groups: record.groups,
         pending: record.pending,
         undo: record.undo,
+        outdated: record.outdated ?? [],
         turn: record.turn,
         title: record.title,
         updatedAt: new Date().toISOString(),
@@ -350,6 +359,16 @@ async function checkpoint(deps: Pick<EngineDeps, "ctx">, label: string): Promise
   return (await getStorefront(deps.ctx.store.id))?.history[0]?.id ?? null;
 }
 
+/** The store's other languages whose storefront draft copy no longer matches the default language. */
+async function outdatedLocales(session: AssistantSession): Promise<string[]> {
+  const { store } = session.access;
+  const { locales, defaultLocale } = storeLanguages(store);
+  if (locales.length < 2 || !session.scopes.includes("storefront:write")) return [];
+  const storefront = await getStorefront(store.id);
+  const tree = parseTree(storefront?.draft) ?? parseTree(storefront?.published);
+  return locales.filter((locale) => locale !== defaultLocale && Object.keys(outdatedTreeFields(tree, locale)).length > 0);
+}
+
 /**
  * Runs one request of the chat: a message, a confirmation, a cancellation or
  * an undo. Events go to `emit` as they happen; the conversation is saved at
@@ -358,9 +377,15 @@ async function checkpoint(deps: Pick<EngineDeps, "ctx">, label: string): Promise
 export async function runAssistantRequest(
   session: AssistantSession,
   request: AssistantRequest,
-  emit: (event: StreamEvent) => void,
+  send: (event: StreamEvent) => void,
   model: ModelCall = platformModel,
 ): Promise<void> {
+  // Whether this request changed the storefront, so the chat can offer to update the other languages.
+  let storefrontChanged = false;
+  const emit = (event: StreamEvent) => {
+    if (event.type === "changed" && event.storefront) storefrontChanged = true;
+    send(event);
+  };
   const t = await getTranslations("assistantChat");
   const { store, user } = session.access;
   const page = typeof request.page === "string" ? request.page.slice(0, 200) : "";
@@ -422,8 +447,17 @@ export async function runAssistantRequest(
       if (!(await confirmPending(record, deps, request.pendingId))) emit({ type: "error", message: t("alreadyHandled") });
     } else if (request.action === "cancel") {
       if (!cancelPending(record, deps, request.pendingId)) emit({ type: "error", message: t("alreadyHandled") });
+    } else if (request.action === "translate") {
+      if (!(await translateOutdated(record, deps, request.locale))) emit({ type: "error", message: t("translateFailed") });
     } else if (!(await undoLast(record, deps))) {
       emit({ type: "error", message: t("undoFailed") });
+    }
+    if (storefrontChanged) {
+      record.outdated = await outdatedLocales(session).catch((error) => {
+        console.error("Assistant could not check the translations", error);
+        return [];
+      });
+      emit({ type: "outdated", locales: record.outdated });
     }
   } catch (error) {
     console.error("Assistant request failed", error);

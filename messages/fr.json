@@ -3142,7 +3142,8 @@
     "notes": {
       "undo": "Modifications de la vitrine annulées.",
       "cancelled": "Annulé. Aucune modification n'a été effectuée.",
-      "stopped": "Arrêté après plusieurs étapes. Indiquez comment continuer."
+      "stopped": "Arrêté après plusieurs étapes. Indiquez comment continuer.",
+      "translated": "Traduction mise à jour."
     },
     "stepFailed": "Échec",
     "staleEditor": "L'assistant a modifié le brouillon. Rechargez l'éditeur pour le voir. Les modifications non enregistrées ici seront perdues.",
@@ -3156,7 +3157,9 @@
     "alreadyHandled": "Ceci a déjà été traité.",
     "undoFailed": "Rien à annuler.",
     "unavailable": "L'assistant n'est pas disponible avec l'accès à la plateforme.",
-    "checkpointLabel": "Avant : {request}"
+    "checkpointLabel": "Avant : {request}",
+    "updateLanguage": "Mettre à jour aussi en {language}",
+    "translateFailed": "Impossible de mettre à jour la traduction. Réessayez."
   },
   "assistantDescribe": {
     "none": "Aucun",
@@ -3530,7 +3533,8 @@
       "seoFallback": "Laissez vide pour utiliser le nom et la description du produit.",
       "saveSeo": "Enregistrer",
       "collection": "Collection",
-      "noCollections": "Aucune collection."
+      "noCollections": "Aucune collection.",
+      "outdated": "Obsolète"
     },
     "shopText": {
       "open": "Textes de la boutique",
@@ -3862,7 +3866,10 @@
       "review": "Vérifier dans le catalogue",
       "editPrice": "Modifier le prix",
       "failed": "Les produits n’ont pas pu être publiés. Réessayez."
-    }
+    },
+    "languageOutdated": "{language} · {count} obsolète(s)",
+    "outdatedCount": "{count} obsolète(s)",
+    "updateTranslations": "Mettre à jour les traductions"
   },
   "admin": {
     "overview": {

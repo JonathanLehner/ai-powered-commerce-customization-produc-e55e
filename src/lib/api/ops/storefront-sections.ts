@@ -35,7 +35,16 @@ import {
   updateSection,
   type FieldRules,
 } from "../../storefront-sections";
-import { I18N_PROP, SEO_FIELDS, SITE_FIELDS, siteContent, withTranslation, type FieldTranslations } from "../../translations";
+import { translateStorefrontDraft } from "../../operations/translations";
+import {
+  I18N_PROP,
+  outdatedTreeFields,
+  SEO_FIELDS,
+  SITE_FIELDS,
+  siteContent,
+  withTranslation,
+  type FieldTranslations,
+} from "../../translations";
 import { storeUpload, UPLOAD_SCOPES } from "../../uploads";
 import { ApiError } from "../auth";
 import { define, type ApiOperation } from "../define";
@@ -87,11 +96,31 @@ function checkLocale(ctx: OperationContext, locale: Locale | undefined, field = 
   }
 }
 
+/**
+ * The enabled languages whose copy on the draft no longer matches the default
+ * language, with how many fields each, so a caller that just changed the
+ * source knows to update them. Empty when every translation is current.
+ */
+function outdatedTranslations(ctx: OperationContext, tree: unknown) {
+  const { locales, defaultLocale } = storeLanguages(ctx.store);
+  const counts: Record<string, number> = {};
+  for (const locale of locales) {
+    const count = locale === defaultLocale ? 0 : Object.keys(outdatedTreeFields(tree, locale)).length;
+    if (count > 0) counts[locale] = count;
+  }
+  if (Object.keys(counts).length === 0) return {};
+  return {
+    outdatedTranslations: counts,
+    outdatedNote:
+      "These languages still show the copy as it was before. Update them with translateStorefrontDraft, once per language, or write the new copy with the locale argument.",
+  };
+}
+
 /** Runs a section edit, turning its problems into a field-level API error listing every one. */
 async function edit(ctx: OperationContext, summary: string, change: (tree: CraftTree) => CraftTree) {
   try {
     const tree = await editStorefrontDraft(ctx, summary, change);
-    return { sections: listSections(tree) };
+    return { sections: listSections(tree), ...outdatedTranslations(ctx, tree) };
   } catch (error) {
     if (error instanceof SectionEditError) {
       const [first] = error.issues;
@@ -289,13 +318,19 @@ export const storefrontSectionOperations: ApiOperation[] = [
           for (const key of changed) props[key] = values[key];
         } else {
           let translations = props[I18N_PROP] as FieldTranslations | undefined;
-          for (const key of changed) translations = withTranslation(translations, locale, key, values[key] ?? "");
+          for (const key of changed) {
+            translations = withTranslation(translations, locale, key, values[key] ?? "", false, String(props[key] ?? ""));
+          }
           props[I18N_PROP] = translations;
         }
         next.ROOT.props = props;
         return next;
       });
-      return { defaultLocale, content: Object.fromEntries(locales.map((l) => [l, siteContent(tree, l, defaultLocale)])) };
+      return {
+        defaultLocale,
+        content: Object.fromEntries(locales.map((l) => [l, siteContent(tree, l, defaultLocale)])),
+        ...outdatedTranslations(ctx, tree),
+      };
     },
   }),
   define({
@@ -478,7 +513,14 @@ export const storefrontSectionOperations: ApiOperation[] = [
             if ("message" in checked) {
               issues.push({ field: `blocks.${index}.settings.${key}`, message: checked.message });
             } else if (translating) {
-              props[I18N_PROP] = withTranslation(props[I18N_PROP] as FieldTranslations | undefined, input.locale!, key, String(checked.value));
+              props[I18N_PROP] = withTranslation(
+                props[I18N_PROP] as FieldTranslations | undefined,
+                input.locale!,
+                key,
+                String(checked.value),
+                false,
+                String(props[key] ?? ""),
+              );
             } else {
               props[key] = checked.value;
             }
@@ -496,7 +538,28 @@ export const storefrontSectionOperations: ApiOperation[] = [
         throw error;
       });
       if (issues.length > 0) throw new ApiError(422, "invalid_request", issues.map((i) => `\`${i.field}\`: ${i.message}`).join(" "), issues[0].field, { issues });
-      return { blocks: productBlocks(tree) };
+      return { blocks: productBlocks(tree), ...outdatedTranslations(ctx, tree) };
+    },
+  }),
+  define({
+    id: "translateStorefrontDraft",
+    method: "POST",
+    path: "/storefront/translations/{language}",
+    scope: "storefront:write",
+    tag: "Storefront",
+    summary: "Translate the draft's copy into one language",
+    description: `Machine-translates every text field of the storefront draft (sections, header and footer copy, search copy, product page template) that is missing or out of date in one enabled language, in one call. Translations that still match the default language are kept. Use it to translate the storefront into a language, and after changing copy in the default language, for each language listed under outdatedTranslations. Products, collections and gift portals are translated with translateMissing. Returns how many fields were translated. ${NEXT_STEPS}`,
+    input: z.object({
+      language: z.enum(LOCALES).describe("An enabled language other than the default."),
+    }),
+    run: async (ctx, input) => {
+      checkLocale(ctx, input.language, "language");
+      const { defaultLocale } = storeLanguages(ctx.store);
+      if (input.language === defaultLocale) {
+        throw new ApiError(422, "invalid_request", "This is the store's default language. Name another enabled language.", "language");
+      }
+      const { count } = await translateStorefrontDraft(ctx, input.language);
+      return { language: input.language, translated: count, ...outdatedTranslations(ctx, await draftOf(ctx)) };
     },
   }),
 ];

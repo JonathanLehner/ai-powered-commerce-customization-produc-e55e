@@ -11,7 +11,14 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ICONS, type SectionField } from "@/lib/storefront-schema";
-import { I18N_PROP, translationOf, translationState, withTranslation, type FieldTranslations } from "@/lib/translations";
+import {
+  I18N_PROP,
+  translationOf,
+  translationState,
+  withSourceChanged,
+  withTranslation,
+  type FieldTranslations,
+} from "@/lib/translations";
 import { uploadImage } from "@/lib/upload-client";
 import { StateBadge } from "./ContentTranslations";
 
@@ -294,8 +301,9 @@ export function FieldControl({ field, target, scope }: { field: SectionField; ta
 /**
  * One piece of copy. In the default language it edits the source; in any
  * other it edits that language's translation, with the source as the
- * placeholder and a badge while it is missing or machine-translated. Typing
- * is a person saving it, so the machine mark goes.
+ * placeholder and a badge while it is missing, out of date or
+ * machine-translated. Typing is a person saving it, so the machine mark goes.
+ * Changing the source marks the other languages' translations out of date.
  */
 export function CopyField({
   target,
@@ -319,8 +327,14 @@ export function CopyField({
 
   function change(next: string) {
     target.set((p) => {
-      if (isDefault) p[fieldKey] = next;
-      else p[I18N_PROP] = withTranslation(p[I18N_PROP] as FieldTranslations | undefined, locale, fieldKey, next);
+      const translations = p[I18N_PROP] as FieldTranslations | undefined;
+      if (!isDefault) {
+        p[I18N_PROP] = withTranslation(translations, locale, fieldKey, next, false, String(p[fieldKey] ?? ""));
+        return;
+      }
+      if (String(p[fieldKey] ?? "") === next) return;
+      p[fieldKey] = next;
+      if (translations) p[I18N_PROP] = withSourceChanged(translations, fieldKey);
     });
   }
 

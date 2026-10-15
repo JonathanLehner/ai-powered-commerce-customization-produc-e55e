@@ -3142,7 +3142,8 @@
     "notes": {
       "undo": "Ändringar i butiksfronten har ångrats.",
       "cancelled": "Avbrutet. Inget ändrades.",
-      "stopped": "Stannade efter flera steg. Ange hur du vill fortsätta."
+      "stopped": "Stannade efter flera steg. Ange hur du vill fortsätta.",
+      "translated": "Översättningen har uppdaterats."
     },
     "stepFailed": "Misslyckades",
     "staleEditor": "Assistenten ändrade utkastet. Ladda om redigeraren för att se det. Osparade ändringar här kommer att förloras.",
@@ -3156,7 +3157,9 @@
     "alreadyHandled": "Detta har redan hanterats.",
     "undoFailed": "Inget att ångra.",
     "unavailable": "Assistenten är inte tillgänglig med plattformsåtkomst.",
-    "checkpointLabel": "Före: {request}"
+    "checkpointLabel": "Före: {request}",
+    "updateLanguage": "Uppdatera {language} också",
+    "translateFailed": "Översättningen kunde inte uppdateras. Försök igen."
   },
   "assistantDescribe": {
     "none": "Inga",
@@ -3530,7 +3533,8 @@
       "seoFallback": "Lämna tomt för att använda produktnamn och beskrivning.",
       "saveSeo": "Spara",
       "collection": "Kollektion",
-      "noCollections": "Inga kollektioner ännu."
+      "noCollections": "Inga kollektioner ännu.",
+      "outdated": "Inaktuell"
     },
     "shopText": {
       "open": "Butikstexter",
@@ -3862,7 +3866,10 @@
       "review": "Granska i katalogen",
       "editPrice": "Redigera pris",
       "failed": "Produkterna kunde inte publiceras. Försök igen."
-    }
+    },
+    "languageOutdated": "{language} · {count} inaktuella",
+    "outdatedCount": "{count} inaktuella",
+    "updateTranslations": "Uppdatera översättningar"
   },
   "admin": {
     "overview": {

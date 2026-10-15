@@ -380,6 +380,10 @@
    "Disconnecting Stripe payments",
    "Disconnect Stripe payments"
   ],
+  "updateTestMode": [
+   "Turning test payments on or off",
+   "Turn test payments on or off"
+  ],
   "getCarriers": [
    "Listing shipping carriers",
    "List shipping carriers"
@@ -623,6 +627,10 @@
   "updateProductPageTemplate": [
    "Updating product page template",
    "Update product page template"
+  ],
+  "translateStorefrontDraft": [
+   "Translating storefront draft",
+   "Translate storefront draft"
   ],
   "listTemplates": [
    "Listing templates",
@@ -1326,6 +1334,10 @@
    "Stripe-Zahlungen werden getrennt",
    "Stripe-Zahlungen trennen"
   ],
+  "updateTestMode": [
+   "Testzahlungen ein-/ausschalten",
+   "Testzahlungen ein-/ausschalten"
+  ],
   "getCarriers": [
    "Versanddienstleister werden aufgelistet",
    "Versanddienstleister auflisten"
@@ -1569,6 +1581,10 @@
   "updateProductPageTemplate": [
    "Produktseiten-Vorlage wird aktualisiert",
    "Produktseiten-Vorlage aktualisieren"
+  ],
+  "translateStorefrontDraft": [
+   "Storefront-Entwurf übersetzen",
+   "Storefront-Entwurf übersetzen"
   ],
   "listTemplates": [
    "Vorlagen werden aufgelistet",
@@ -2272,6 +2288,10 @@
    "Déconnexion des paiements Stripe",
    "Déconnecter les paiements Stripe"
   ],
+  "updateTestMode": [
+   "Activation ou désactivation des paiements de test",
+   "Activer ou désactiver les paiements de test"
+  ],
   "getCarriers": [
    "Affichage des transporteurs",
    "Afficher les transporteurs"
@@ -2515,6 +2535,10 @@
   "updateProductPageTemplate": [
    "Mise à jour du modèle de page produit",
    "Mettre à jour le modèle de page produit"
+  ],
+  "translateStorefrontDraft": [
+   "Traduction du brouillon du storefront",
+   "Traduire le brouillon du storefront"
   ],
   "listTemplates": [
    "Liste des modèles",
@@ -3218,6 +3242,10 @@
    "Desconectando pagos de Stripe",
    "Desconectar pagos de Stripe"
   ],
+  "updateTestMode": [
+   "Activando o desactivando pagos de prueba",
+   "Activar o desactivar pagos de prueba"
+  ],
   "getCarriers": [
    "Listando empresas de envío",
    "Listar empresas de envío"
@@ -3461,6 +3489,10 @@
   "updateProductPageTemplate": [
    "Actualizando plantilla de página de producto",
    "Actualizar plantilla de página de producto"
+  ],
+  "translateStorefrontDraft": [
+   "Traduciendo borrador de la tienda",
+   "Traducir borrador de la tienda"
   ],
   "listTemplates": [
    "Listando plantillas",
@@ -4164,6 +4196,10 @@
    "Disconnessione pagamenti Stripe",
    "Disconnetti pagamenti Stripe"
   ],
+  "updateTestMode": [
+   "Attivazione o disattivazione pagamenti di prova",
+   "Attiva o disattiva pagamenti di prova"
+  ],
   "getCarriers": [
    "Elenco corrieri di spedizione",
    "Elenca corrieri di spedizione"
@@ -4407,6 +4443,10 @@
   "updateProductPageTemplate": [
    "Aggiornamento modello pagina prodotto",
    "Aggiorna modello pagina prodotto"
+  ],
+  "translateStorefrontDraft": [
+   "Traduzione bozza storefront",
+   "Traduci bozza storefront"
   ],
   "listTemplates": [
    "Elenco modelli",
@@ -5110,6 +5150,10 @@
    "Stripe-betalingen ontkoppelen",
    "Stripe-betalingen ontkoppelen"
   ],
+  "updateTestMode": [
+   "Testbetalingen aan- of uitzetten",
+   "Zet testbetalingen aan of uit"
+  ],
   "getCarriers": [
    "Vervoerders weergeven",
    "Vervoerders weergeven"
@@ -5353,6 +5397,10 @@
   "updateProductPageTemplate": [
    "Productpaginasjabloon bijwerken",
    "Productpaginasjabloon bijwerken"
+  ],
+  "translateStorefrontDraft": [
+   "Concept-storefront vertalen",
+   "Vertaal concept-storefront"
   ],
   "listTemplates": [
    "Sjablonen weergeven",
@@ -6056,6 +6104,10 @@
    "A desativar pagamentos Stripe",
    "Desativar pagamentos Stripe"
   ],
+  "updateTestMode": [
+   "A ligar ou desligar pagamentos de teste",
+   "Ligar ou desligar pagamentos de teste"
+  ],
   "getCarriers": [
    "A listar transportadoras",
    "Listar transportadoras"
@@ -6299,6 +6351,10 @@
   "updateProductPageTemplate": [
    "A atualizar modelo de página do produto",
    "Atualizar modelo de página do produto"
+  ],
+  "translateStorefrontDraft": [
+   "A traduzir rascunho da loja",
+   "Traduzir rascunho da loja"
   ],
   "listTemplates": [
    "A listar modelos",
@@ -7002,6 +7058,10 @@
    "Stripe決済連携を解除中",
    "Stripe決済連携を解除"
   ],
+  "updateTestMode": [
+   "テスト決済のオン/オフを切り替えています",
+   "テスト決済のオン/オフを切り替える"
+  ],
   "getCarriers": [
    "配送業者一覧表示中",
    "配送業者を一覧表示"
@@ -7245,6 +7305,10 @@
   "updateProductPageTemplate": [
    "商品ページテンプレートを更新中",
    "商品ページテンプレートを更新"
+  ],
+  "translateStorefrontDraft": [
+   "ストアフロントの下書きを翻訳しています",
+   "ストアフロントの下書きを翻訳する"
   ],
   "listTemplates": [
    "テンプレートを一覧表示中",
@@ -7948,6 +8012,10 @@
    "Kopplar bort Stripe-betalningar",
    "Koppla bort Stripe-betalningar"
   ],
+  "updateTestMode": [
+   "Slår på eller av testbetalningar",
+   "Slå på eller av testbetalningar"
+  ],
   "getCarriers": [
    "Visar fraktbolag",
    "Visa fraktbolag"
@@ -8191,6 +8259,10 @@
   "updateProductPageTemplate": [
    "Uppdaterar produktsidemall",
    "Uppdatera produktsidemall"
+  ],
+  "translateStorefrontDraft": [
+   "Översätter utkast till butiksfasaden",
+   "Översätt utkast till butiksfasaden"
   ],
   "listTemplates": [
    "Listar mallar",

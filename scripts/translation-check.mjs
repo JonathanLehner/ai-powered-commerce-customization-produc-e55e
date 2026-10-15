@@ -16,12 +16,15 @@ import {
   applyTreeTranslations,
   localized,
   localizedIntro,
+  markOutdatedTranslations,
+  outdatedTreeFields,
   localizeProduct,
   localizeSectionProps,
   missingProductFields,
   missingTreeFields,
   siteContent,
   translationState,
+  withSourceChanged,
   withTranslation,
   colourKey,
   tagKey,
@@ -123,6 +126,45 @@ assert.deepEqual(Object.keys(missingProductFields(product, "de")).sort(), ["colo
 const tagged = { ...product, tags: ["hoodies", "fleece"], translations: { de: { [tagKey("hoodies")]: { value: "Kapuzenpullis" } } } };
 assert.deepEqual(localizeProduct(tagged, "de", "en").tags, ["Kapuzenpullis", "fleece"]);
 assert.deepEqual(Object.keys(missingProductFields(tagged, "de")).filter((k) => k.startsWith("tag:")), ["tag:fleece"]);
+
+// Out of date: a translation records its source; changing the source shows it stale.
+const recorded = withTranslation(undefined, "de", "headline", "Neue Kollektion", false, "New collection");
+assert.equal(translationState("New collection", recorded, "de", "en", "headline"), "translated");
+assert.equal(translationState("Team gear", recorded, "de", "en", "headline"), "stale", "source changed since");
+assert.equal(translationState("Team gear", withTranslation(recorded, "de", "headline", "Teamausrüstung", false, "Team gear"), "de", "en", "headline"), "translated");
+// Translations saved before sources were recorded are marked when the source changes.
+const legacy = withSourceChanged(translations, "headline");
+assert.equal(legacy.de.headline.stale, true);
+assert.equal(translationState("anything", legacy, "de", "en", "headline"), "stale");
+assert.equal(localized("Team gear", legacy, "de", "en", "headline"), "Neue Kollektion", "shoppers keep the old translation until it is updated");
+assert.equal(withSourceChanged(recorded, "headline").de.headline.stale, undefined, "recorded sources need no mark");
+
+// A draft saved with a changed source marks the other languages, unless the same save rewrote them.
+const before = treeFromSections([{ type: "HeroSection" }]);
+const [beforeHero] = before.ROOT.nodes;
+before[beforeHero].props.i18n = { de: { headline: { value: "Alt" }, body: { value: "Text" } }, fr: { headline: { value: "Vieux" } } };
+before.ROOT.props = { announcement: "Free shipping over $50", i18n: { de: { announcement: { value: "Gratisversand ab 50 $" } } } };
+const after = structuredClone(before);
+after[beforeHero].props.headline = "Team gear for Commitly";
+after[beforeHero].props.i18n.fr.headline = { value: "Équipement", from: "Team gear for Commitly" };
+after.ROOT.props.announcement = "Free shipping over $75";
+const marked = markOutdatedTranslations(before, after);
+assert.equal(marked[beforeHero].props.i18n.de.headline.stale, true, "German headline is out of date");
+assert.equal(marked[beforeHero].props.i18n.de.body.stale, undefined, "unchanged body is not");
+assert.equal(marked[beforeHero].props.i18n.fr.headline.stale, undefined, "French was rewritten in the same save");
+assert.equal(marked.ROOT.props.i18n.de.announcement.stale, true, "site copy too");
+assert.equal(after[beforeHero].props.i18n.de.headline.stale, undefined, "the input tree is not mutated");
+assert.deepEqual(Object.keys(outdatedTreeFields(marked, "de")).sort(), ["section:" + beforeHero + ":headline", "site:announcement"].sort());
+assert.deepEqual(Object.keys(outdatedTreeFields(marked, "fr")), []);
+assert.equal(markOutdatedTranslations(before, structuredClone(before)).ROOT.props.i18n.de.announcement.stale, undefined, "no change, no mark");
+// Updating replaces out of date translations and records the new source.
+const updated = applyTreeTranslations(marked, "de", { [`section:${beforeHero}:headline`]: "Teamausrüstung für Commitly", "site:announcement": "Gratisversand ab 75 $" }, true);
+assert.deepEqual(updated[beforeHero].props.i18n.de.headline, { value: "Teamausrüstung für Commitly", machine: true, from: "Team gear for Commitly" });
+assert.equal(siteContent(updated, "de", "en").announcement, "Gratisversand ab 75 $");
+assert.deepEqual(Object.keys(outdatedTreeFields(updated, "de")), []);
+// Product fields whose source moved on are offered for translation again.
+const renamed = { ...product, name: "Heavyweight Hoodie 2.0", translations: withTranslation(undefined, "de", "name", "Schwerer Hoodie", false, "Heavyweight Hoodie") };
+assert.ok("name" in missingProductFields(renamed, "de"));
 
 assert.equal(localizedIntro({ intro: "Welcome", translations: { sv: { intro: { value: "Välkommen" } } } }, "sv", "en"), "Välkommen");
 assert.equal(localizedIntro({ intro: "Welcome" }, "sv", "en"), "Welcome");

@@ -362,7 +362,7 @@ export function updateSection(
   }
   let translations = node.props[I18N_PROP] as FieldTranslations | undefined;
   for (const [key, value] of Object.entries(fields)) {
-    translations = withTranslation(translations, input.locale, key, String(value));
+    translations = withTranslation(translations, input.locale, key, String(value), false, String(node.props[key] ?? ""));
   }
   node.props[I18N_PROP] = translations;
   return next;

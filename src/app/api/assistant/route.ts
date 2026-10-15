@@ -14,7 +14,8 @@ import {
  * The workspace chat assistant, for the signed-in person in one store.
  *
  * GET lists their conversations in the store and reads one. POST runs a turn
- * (a message, a confirmation, a cancellation or an undo) and answers with
+ * (a message, a confirmation, a cancellation, an undo or a translation update)
+ * and answers with
  * newline-delimited JSON events as the turn goes: the reply, each tool step,
  * a confirmation to show, and what changed.
  */
@@ -58,6 +59,10 @@ function readRequest(body: Record<string, unknown>): AssistantRequest | null {
     return pendingId ? { action: body.action, conversationId, pendingId, page } : null;
   }
   if (body.action === "undo") return { action: "undo", conversationId, page };
+  if (body.action === "translate") {
+    const locale = text(body.locale);
+    return locale ? { action: "translate", conversationId, locale, page } : null;
+  }
   return null;
 }
 

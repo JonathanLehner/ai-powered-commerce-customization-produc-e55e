@@ -53,6 +53,7 @@ const SEO_KEYS = ["seoTitle", "seoDescription"] as const;
 export function StateBadge({ state }: { state: TranslationState }) {
   const t = useTranslations("editor.content");
   if (state === "missing") return <Badge tone="amber">{t("notTranslated")}</Badge>;
+  if (state === "stale") return <Badge tone="amber">{t("outdated")}</Badge>;
   if (state === "machine") return <Badge tone="iris">{t("machine")}</Badge>;
   return null;
 }
@@ -60,6 +61,7 @@ export function StateBadge({ state }: { state: TranslationState }) {
 function rowState(item: TranslatableItem, locale: string, defaultLocale: string): TranslationState {
   const states = item.fields.map((f) => translationState(f.source, item.translations, locale, defaultLocale, f.key));
   if (states.includes("missing")) return "missing";
+  if (states.includes("stale")) return "stale";
   if (states.includes("machine")) return "machine";
   return states.includes("translated") ? "translated" : "source";
 }

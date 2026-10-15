@@ -23,7 +23,7 @@ import { sectionsFromTree, type CraftTree } from "../storefront-schema";
 import { draftDesign } from "../templates/tree";
 import { emptyTree } from "../storefront-sections";
 import { capHistory, sameTree } from "../storefront-versions";
-import { productFields, withTranslation, type FieldTranslations } from "../translations";
+import { markOutdatedTranslations, productFields, withTranslation, type FieldTranslations } from "../translations";
 import type { ProductCollection, Store, StorefrontVersion, StoreProduct } from "../types";
 import { newId } from "../util";
 import { OperationError, type OperationContext } from "./context";
@@ -87,8 +87,8 @@ export async function saveStorefrontDraft(
 ): Promise<void> {
   const { store, actor } = ctx;
   const t = await messages(ctx);
-  const tree = parseTree(input.tree);
-  if (!tree) throw new OperationError("invalid", t("unreadable"), "tree");
+  const edited = parseTree(input.tree);
+  if (!edited) throw new OperationError("invalid", t("unreadable"), "tree");
 
   // The language the draft was edited in, when it was not the default, so
   // the history says whose copy changed.
@@ -97,6 +97,7 @@ export async function saveStorefrontDraft(
     isLocale(locale) && locale !== storeLanguages(store).defaultLocale ? ` in ${languageName("en", locale)}` : "";
 
   const storefront = await getStorefront(store.id);
+  const tree = markOutdatedTranslations(parseTree(storefront?.draft) ?? parseTree(storefront?.published), edited);
   const now = new Date().toISOString();
   const history = storefront?.history ?? [];
   const unchanged = history.length > 0 && sameTree(history[0].data, tree);
@@ -123,13 +124,14 @@ export async function saveStorefrontDraft(
 export async function publishStorefront(ctx: OperationContext, input: { tree: unknown; label: string }): Promise<void> {
   const { store, actor } = ctx;
   const t = await messages(ctx);
-  const tree = parseTree(input.tree);
-  if (!tree) throw new OperationError("invalid", t("unreadable"), "tree");
-  const sections = sectionsFromTree(tree);
+  const edited = parseTree(input.tree);
+  if (!edited) throw new OperationError("invalid", t("unreadable"), "tree");
+  const sections = sectionsFromTree(edited);
   if (sections.length === 0) throw new OperationError("invalid", t("sectionRequired"), "tree");
   if (store.status === "archived") throw new OperationError("conflict", t("archived"));
 
   const storefront = await getStorefront(store.id);
+  const tree = markOutdatedTranslations(parseTree(storefront?.draft) ?? parseTree(storefront?.published), edited);
   const now = new Date().toISOString();
   const label = input.label.trim();
   const version: StorefrontVersion = { id: newId("ver"), label, kind: "published", data: tree, savedAt: now, savedBy: actor.name };
@@ -217,7 +219,7 @@ export async function editStorefrontDraft(
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const storefront = await getStorefront(store.id);
     const base = (parseTree(storefront?.draft) ?? parseTree(storefront?.published) ?? emptyTree()) as CraftTree;
-    const tree = edit(base);
+    const tree = markOutdatedTranslations(base, edit(base));
     const now = new Date().toISOString();
     const result = storefront
       ? await db.updateOne(
@@ -332,7 +334,7 @@ export async function saveProductTranslation(
   let translations = product.translations ?? {};
   for (const field of productFields(product)) {
     if (!(field.key in values)) continue;
-    translations = withTranslation(translations, locale, field.key, String(values[field.key] ?? "").trim());
+    translations = withTranslation(translations, locale, field.key, String(values[field.key] ?? "").trim(), false, field.source);
   }
   await updateStoreProduct(product.id, { translations });
   audit(
@@ -358,7 +360,7 @@ export async function saveCollectionTranslation(
   let translations = collection.translations ?? {};
   for (const field of collectionFields(collection)) {
     if (!(field.key in values)) continue;
-    translations = withTranslation(translations, locale, field.key, String(values[field.key] ?? "").trim());
+    translations = withTranslation(translations, locale, field.key, String(values[field.key] ?? "").trim(), false, field.source);
   }
   await updateProductCollection(collection.id, {}, { translations });
   audit(

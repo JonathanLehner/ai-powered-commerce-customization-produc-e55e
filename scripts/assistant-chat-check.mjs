@@ -70,6 +70,7 @@ const OPERATIONS = [
   }),
   op("restoreStorefrontVersion", "POST", "storefront:write", "Storefront", { input: z.object({ versionId: z.string() }) }),
   op("publishStorefront", "POST", "storefront:write", "Storefront", { input: z.object({ label: z.string().optional() }) }),
+  op("translateStorefrontDraft", "POST", "storefront:write", "Storefront", { input: z.object({ language: z.string() }) }),
   op("refundOrder", "POST", "orders:write", "Orders", { input: z.object({ orderId: z.string(), amount: z.number() }), destructive: true }),
   op("createDiscount", "POST", "discounts:write", "Discounts", { input: z.object({ code: z.string(), value: z.number() }) }),
   op("deleteProduct", "DELETE", "products:write", "Products", { input: z.object({ productId: z.string() }), destructive: true }),
@@ -410,6 +411,26 @@ function harness(role, replies, options = {}) {
   const viewer = harness("viewer", []);
   viewer.state.undo = { versionId: "ver_9", turn: 0, at: "" };
   assert.equal(await engine.undoLast(viewer.state, viewer.deps), false, "undo needs storefront write access too");
+}
+
+/* ------------------------------------------------- "Update German too" */
+
+{
+  ran.length = 0;
+  const h = harness("store_admin", [calls(call("update_storefront_section", { sectionId: "hero1", fields: { headline: "Team gear" } })), say("Updated the English headline.")]);
+  await engine.sendMessage(h.state, h.deps, { text: "change the headline" });
+  assert.equal(await engine.translateOutdated(h.state, h.deps, "de"), true);
+  assert.deepEqual(ran.at(-1), { id: "translateStorefrontDraft", actor: ACTOR.id, store: STORE.id, input: { language: "de" }, via: "assistant" });
+  assert.equal(h.checkpoints(), 1, "same turn as the edit: one checkpoint, so undo covers both");
+  assert.equal(h.state.messages.at(-1).ui.note, "translated", "the model is told German was updated");
+  assert.ok(h.events.some((e) => e.type === "changed" && e.storefront), "the editor refreshes");
+  // Running without the edit first, the draft is still checkpointed for undo.
+  const fresh = harness("store_admin", []);
+  assert.equal(await engine.translateOutdated(fresh.state, fresh.deps, "de"), true);
+  assert.equal(fresh.checkpoints(), 1);
+  assert.equal(await engine.translateOutdated(harness("viewer", []).state, harness("viewer", []).deps, "de"), false, "needs storefront write access");
+  // Translating the draft is a draft edit: it runs without a confirmation.
+  assert.deepEqual(confirmReasons({ id: "translateStorefrontDraft", method: "POST", scope: "storefront:write" }, { language: "de" }), []);
 }
 
 /* ----------------------------------------------------------------- secrets */

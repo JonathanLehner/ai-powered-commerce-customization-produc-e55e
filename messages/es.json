@@ -3142,7 +3142,8 @@
     "notes": {
       "undo": "Cambios del escaparate deshechos.",
       "cancelled": "Cancelado. No se cambió nada.",
-      "stopped": "Detenido después de muchos pasos. Di cómo continuar."
+      "stopped": "Detenido después de muchos pasos. Di cómo continuar.",
+      "translated": "Traducción actualizada."
     },
     "stepFailed": "Fallido",
     "staleEditor": "El asistente cambió el borrador. Vuelve a cargar el editor para verlo. Se perderán las ediciones no guardadas aquí.",
@@ -3156,7 +3157,9 @@
     "alreadyHandled": "Eso ya fue gestionado.",
     "undoFailed": "Nada que deshacer.",
     "unavailable": "El asistente no está disponible con acceso a la plataforma.",
-    "checkpointLabel": "Antes: {request}"
+    "checkpointLabel": "Antes: {request}",
+    "updateLanguage": "Actualizar también {language}",
+    "translateFailed": "No se pudo actualizar la traducción. Inténtalo de nuevo."
   },
   "assistantDescribe": {
     "none": "Ninguno",
@@ -3530,7 +3533,8 @@
       "seoFallback": "Déjalo vacío para usar el nombre y la descripción del producto.",
       "saveSeo": "Guardar",
       "collection": "Colección",
-      "noCollections": "Aún no hay colecciones."
+      "noCollections": "Aún no hay colecciones.",
+      "outdated": "Desactualizada"
     },
     "shopText": {
       "open": "Textos de la tienda",
@@ -3862,7 +3866,10 @@
       "review": "Revisar en el catálogo",
       "editPrice": "Editar precio",
       "failed": "No se pudieron publicar los productos. Inténtalo de nuevo."
-    }
+    },
+    "languageOutdated": "{language} · {count} desactualizadas",
+    "outdatedCount": "{count} desactualizadas",
+    "updateTranslations": "Actualizar traducciones"
   },
   "admin": {
     "overview": {

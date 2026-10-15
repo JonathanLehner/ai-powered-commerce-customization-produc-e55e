@@ -3142,7 +3142,8 @@
     "notes": {
       "undo": "Storefront changes undone.",
       "cancelled": "Cancelled. Nothing was changed.",
-      "stopped": "Stopped after many steps. Say how to continue."
+      "stopped": "Stopped after many steps. Say how to continue.",
+      "translated": "Translation updated."
     },
     "stepFailed": "Failed",
     "staleEditor": "The assistant changed the draft. Reload the editor to see it. Unsaved edits here will be lost.",
@@ -3156,7 +3157,9 @@
     "alreadyHandled": "That was already handled.",
     "undoFailed": "Nothing to undo.",
     "unavailable": "The assistant is not available with platform access.",
-    "checkpointLabel": "Before: {request}"
+    "checkpointLabel": "Before: {request}",
+    "updateLanguage": "Update {language} too",
+    "translateFailed": "The translation could not be updated. Try again."
   },
   "assistantDescribe": {
     "none": "None",
@@ -3530,7 +3533,8 @@
       "seoFallback": "Leave empty to use the product name and description.",
       "saveSeo": "Save",
       "collection": "Collection",
-      "noCollections": "No collections yet."
+      "noCollections": "No collections yet.",
+      "outdated": "Out of date"
     },
     "shopText": {
       "open": "Shop text",
@@ -3862,7 +3866,10 @@
       "review": "Review in catalog",
       "editPrice": "Edit price",
       "failed": "Products could not be published. Try again."
-    }
+    },
+    "languageOutdated": "{language} · {count} out of date",
+    "outdatedCount": "{count} out of date",
+    "updateTranslations": "Update translations"
   },
   "admin": {
     "overview": {

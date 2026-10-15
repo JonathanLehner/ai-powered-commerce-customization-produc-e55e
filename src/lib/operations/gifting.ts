@@ -324,7 +324,7 @@ export async function saveGiftCatalogueTranslation(
     const t = await getTranslations({ locale: ctx.locale, namespace: "actions.storefront" });
     throw new OperationError("invalid", t("languageUnavailable"), "locale");
   }
-  const translations = withTranslation(catalogue.translations, locale, "intro", intro.trim());
+  const translations = withTranslation(catalogue.translations, locale, "intro", intro.trim(), false, catalogue.intro);
   await updateGiftCatalogue(catalogue.id, { translations });
   recordAudit({
     category: "publishing",

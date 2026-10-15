@@ -39,6 +39,8 @@ export interface ChatState {
   items: ChatItem[];
   pending: PendingView | null;
   undo: boolean;
+  /** Languages whose storefront copy is out of date after the assistant's changes. */
+  outdated: string[];
   busy: boolean;
   error: string | null;
   /** Posts the message, or shows why it cannot and returns false. */
@@ -46,6 +48,8 @@ export interface ChatState {
   confirm(): void;
   cancel(): void;
   undoLast(): void;
+  /** Machine-translates the out of date storefront copy in one language. */
+  updateLanguage(locale: string): void;
   openConversation(id: string): void;
   newChat(): void;
 }

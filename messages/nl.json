@@ -3142,7 +3142,8 @@
     "notes": {
       "undo": "Etalagewijzigingen ongedaan gemaakt.",
       "cancelled": "Geannuleerd. Er is niets gewijzigd.",
-      "stopped": "Gestopt na veel stappen. Geef aan hoe u wilt doorgaan."
+      "stopped": "Gestopt na veel stappen. Geef aan hoe u wilt doorgaan.",
+      "translated": "Vertaling bijgewerkt."
     },
     "stepFailed": "Mislukt",
     "staleEditor": "De assistent heeft het concept gewijzigd. Laad de editor opnieuw om het te zien. Niet-opgeslagen wijzigingen hier gaan verloren.",
@@ -3156,7 +3157,9 @@
     "alreadyHandled": "Dat is al afgehandeld.",
     "undoFailed": "Niets om ongedaan te maken.",
     "unavailable": "De assistent is niet beschikbaar met platformtoegang.",
-    "checkpointLabel": "Vóór: {request}"
+    "checkpointLabel": "Vóór: {request}",
+    "updateLanguage": "Ook {language} bijwerken",
+    "translateFailed": "De vertaling kon niet worden bijgewerkt. Probeer het opnieuw."
   },
   "assistantDescribe": {
     "none": "Geen",
@@ -3530,7 +3533,8 @@
       "seoFallback": "Laat leeg om de productnaam en beschrijving te gebruiken.",
       "saveSeo": "Opslaan",
       "collection": "Collectie",
-      "noCollections": "Nog geen collecties."
+      "noCollections": "Nog geen collecties.",
+      "outdated": "Verouderd"
     },
     "shopText": {
       "open": "Winkelteksten",
@@ -3862,7 +3866,10 @@
       "review": "Bekijken in catalogus",
       "editPrice": "Prijs bewerken",
       "failed": "De producten konden niet worden gepubliceerd. Probeer het opnieuw."
-    }
+    },
+    "languageOutdated": "{language} · {count} verouderd",
+    "outdatedCount": "{count} verouderd",
+    "updateTranslations": "Vertalingen bijwerken"
   },
   "admin": {
     "overview": {

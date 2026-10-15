@@ -41,7 +41,9 @@ import { SECTION_CATEGORIES, SECTION_DEFS, SECTION_ORDER, type SectionType } fro
 import { summarizeSections, type SectionSummary } from "@/lib/storefront-versions";
 import {
   localizeSectionProps,
+  isOutdated,
   missingTreeFields,
+  outdatedTreeFields,
   siteContent,
   SEO_FIELDS,
   SITE_FIELDS,
@@ -451,16 +453,21 @@ function LayerList() {
     })),
     selectedId: [...state.events.selected][0],
   }));
-  const nodes = collected.map(({ id, type, props }) => ({
-    id,
-    type,
-    missing:
-      locale !== defaultLocale && type && type in SECTION_DEFS
-        ? Object.keys(
-            missingTreeFields({ ROOT: { nodes: [id] }, [id]: { type: { resolvedName: type }, props } }, locale),
-          ).length > 0
-        : false,
-  }));
+  const nodes = collected.map(({ id, type, props }) => {
+    const section = { ROOT: { nodes: [id] }, [id]: { type: { resolvedName: type }, props } };
+    const translating = locale !== defaultLocale && type && type in SECTION_DEFS;
+    return {
+      id,
+      type,
+      state: !translating
+        ? null
+        : Object.keys(missingTreeFields(section, locale)).length > 0
+          ? ("missing" as const)
+          : Object.keys(outdatedTreeFields(section, locale)).length > 0
+            ? ("stale" as const)
+            : null,
+    };
+  });
   const t = useTranslations("editor");
 
   return (
@@ -493,9 +500,9 @@ function LayerList() {
               >
                 <span className="w-5 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
                 {node.type && node.type in SECTION_DEFS ? t(`sections.${node.type}.name`) : t("section")}
-                {node.missing ? (
+                {node.state ? (
                   <span className="ml-auto">
-                    <StateBadge state="missing" />
+                    <StateBadge state={node.state} />
                   </span>
                 ) : null}
               </button>
@@ -640,6 +647,8 @@ function EditorShell(props: ShellProps) {
   // How much of the page has no translation in the selected language.
   const missingOnPage =
     props.locale === props.defaultLocale ? 0 : Object.keys(missingTreeFields(pageTree, props.locale)).length;
+  // How much is translated but no longer matches the default language, per language.
+  const outdatedOnPage = (code: string) => Object.keys(outdatedTreeFields(pageTree, code)).length;
   const [device, setDevice] = useState<(typeof PREVIEW_WIDTHS)[number]["key"]>("desktop");
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
   const [busy, setBusy] = useState<"save" | "publish" | "translate" | null>(null);
@@ -692,6 +701,20 @@ function EditorShell(props: ShellProps) {
         0,
       );
   const missing = missingOnPage + missingElsewhere;
+  const outdatedIn = (code: string) =>
+    code === props.defaultLocale
+      ? 0
+      : outdatedOnPage(code) +
+        [...products, ...collections, ...portals].reduce(
+          (sum, item) =>
+            sum +
+            item.fields.filter((f) => {
+              const entry = translationOf(item.translations, code, f.key);
+              return f.source.trim() !== "" && entry !== null && isOutdated(entry, f.source);
+            }).length,
+          0,
+        );
+  const outdated = isDefault ? 0 : outdatedIn(locale);
 
   async function run(kind: "save" | "publish") {
     if (busy) return;
@@ -770,13 +793,18 @@ function EditorShell(props: ShellProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {props.languages.map((code) => (
-                    <SelectItem key={code} value={code}>
-                      {code === props.defaultLocale
-                        ? t("defaultLanguage", { language: languageLabel(code) })
-                        : languageLabel(code)}
-                    </SelectItem>
-                  ))}
+                  {props.languages.map((code) => {
+                    const stale = outdatedIn(code);
+                    return (
+                      <SelectItem key={code} value={code}>
+                        {code === props.defaultLocale
+                          ? t("defaultLanguage", { language: languageLabel(code) })
+                          : stale > 0
+                            ? t("languageOutdated", { language: languageLabel(code), count: stale })
+                            : languageLabel(code)}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -864,14 +892,17 @@ function EditorShell(props: ShellProps) {
             </TabsTrigger>
           </TabsList>
           <div className="flex flex-wrap items-center gap-2">
-            {isDefault ? null : missing > 0 ? (
-              <Badge tone="amber">{t("missingCount", { count: missing })}</Badge>
+            {isDefault ? null : missing > 0 || outdated > 0 ? (
+              <>
+                {missing > 0 ? <Badge tone="amber">{t("missingCount", { count: missing })}</Badge> : null}
+                {outdated > 0 ? <Badge tone="amber">{t("outdatedCount", { count: outdated })}</Badge> : null}
+              </>
             ) : (
               <Badge tone="green">{t("allTranslated")}</Badge>
             )}
             {isDefault ? null : (
-              <Button type="button" variant="outline" onClick={translate} disabled={busy !== null || missing === 0}>
-                {busy === "translate" ? t("translating") : t("translateMissing")}
+              <Button type="button" variant="outline" onClick={translate} disabled={busy !== null || missing + outdated === 0}>
+                {busy === "translate" ? t("translating") : outdated > 0 ? t("updateTranslations") : t("translateMissing")}
               </Button>
             )}
             <ShopTextSheet

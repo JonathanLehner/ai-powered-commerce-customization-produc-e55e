@@ -6,6 +6,7 @@ import {
   ExternalLinkIcon,
   HistoryIcon,
   ImagePlusIcon,
+  LanguagesIcon,
   LoaderCircleIcon,
   MinusIcon,
   RotateCcwIcon,
@@ -14,7 +15,7 @@ import {
   SquarePenIcon,
   XIcon,
 } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
+import { languageName } from "@/i18n/display";
 import { formatAgo } from "@/i18n/format";
 import type { ChatItem } from "@/lib/assistant/service";
 import type { ConfirmReason } from "@/lib/assistant/policy";
@@ -280,6 +282,7 @@ function History() {
 export function AssistantPanel({ onClose, closeLabel }: { onClose?: () => void; closeLabel?: "close" | "collapse" }) {
   const assistant = useOptionalAssistant();
   const t = useTranslations("assistantChat");
+  const uiLocale = useLocale();
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -375,6 +378,16 @@ export function AssistantPanel({ onClose, closeLabel }: { onClose?: () => void; 
             <Button size="sm" variant="outline" className="mt-2" onClick={assistant.reloadEditor}>
               {t("reloadEditor")}
             </Button>
+          </div>
+        ) : null}
+        {chat.outdated.length > 0 && !chat.busy && !chat.pending ? (
+          <div className="flex flex-wrap gap-2">
+            {chat.outdated.map((code) => (
+              <Button key={code} size="sm" variant="outline" onClick={() => chat.updateLanguage(code)}>
+                <LanguagesIcon />
+                {t("updateLanguage", { language: languageName(uiLocale, code) })}
+              </Button>
+            ))}
           </div>
         ) : null}
         {chat.undo && !chat.busy && !chat.pending ? (

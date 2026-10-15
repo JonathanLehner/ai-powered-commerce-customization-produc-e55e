@@ -221,6 +221,19 @@ try {
   assert.equal(siteDe.content.de.announcement, "Gratis Versand");
   assert.equal(siteDe.content.en.announcement, "Free shipping");
 
+  // Changing the English copy leaves German out of date until it is updated.
+  assert.equal(siteDe.outdatedTranslations, undefined, "nothing out of date yet");
+  const siteEn = await run("updateStorefrontSiteContent", { announcement: "Free shipping over $75" });
+  assert.deepEqual(siteEn.outdatedTranslations, { de: 1 });
+  assert.equal(siteEn.content.de.announcement, "Gratis Versand", "shoppers keep the old German until it is updated");
+  const updatedDe = await run("translateStorefrontDraft", { language: "de" });
+  assert.ok(updatedDe.translated >= 1);
+  assert.equal(updatedDe.outdatedTranslations, undefined, "German is current again");
+  const siteAfter = await run("getStorefrontSiteContent", {});
+  assert.notEqual(siteAfter.content.de.announcement, "Gratis Versand");
+  assert.match(siteAfter.content.de.announcement, /75/);
+  assert.equal((await refused("translateStorefrontDraft", { language: "en" })).status, 422, "not the default language");
+
   const preview = await run("previewStorefront", {});
   const url = new URL(preview.url);
   assert.equal(url.pathname, `/s/${store.slug}/preview`);
