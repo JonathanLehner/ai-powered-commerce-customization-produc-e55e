@@ -144,7 +144,7 @@ export function DesignPanel({
   );
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-1">
       {template ? (
         <Card size="sm">
           <CardHeader>
@@ -302,7 +302,7 @@ export function DesignPanel({
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
+      <div className="flex flex-wrap items-center gap-3 lg:col-span-2 xl:col-span-1">
         {drafted ? null : (
           <Button type="button" onClick={save} disabled={busy || !dirty}>
             {busy ? t("saving") : t("save")}

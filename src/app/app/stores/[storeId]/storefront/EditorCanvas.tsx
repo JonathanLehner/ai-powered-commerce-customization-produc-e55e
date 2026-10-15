@@ -642,7 +642,7 @@ function DesignSample({ ctx }: { ctx: StorefrontContext }) {
     : { ...SECTION_DEFS.ProductGrid.defaults, title: "", subtitle: "" };
   return (
     <>
-      {/* A full-height hero is drawn at its shortest so the settings below stay in reach. */}
+      {/* A full-height hero is drawn at its shortest so the preview stays short beside the settings. */}
       <RenderSection type={hero?.type ?? "HeroSection"} props={"height" in heroProps ? { ...heroProps, height: "medium" } : heroProps} ctx={ctx} index={0} />
       {ctx.products.length > 0 ? (
         <RenderSection type="ProductGrid" props={{ ...gridProps, source: "all", columns: "4", limit: 4, quickAdd: false }} ctx={ctx} />
@@ -666,6 +666,11 @@ function EditorShell(props: ShellProps) {
   // How much is translated but no longer matches the default language, per language.
   const outdatedOnPage = (code: string) => Object.keys(outdatedTreeFields(pageTree, code)).length;
   const [device, setDevice] = useState<(typeof PREVIEW_WIDTHS)[number]["key"]>("desktop");
+  // A phone opens the editor at the phone width rather than a shrunken desktop.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (window.matchMedia("(max-width: 639px)").matches) setDevice("mobile");
+  }, []);
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
   const [busy, setBusy] = useState<"save" | "publish" | "translate" | null>(null);
   const [label, setLabel] = useState("");
@@ -1041,27 +1046,36 @@ function EditorShell(props: ShellProps) {
             device={preview}
           />
         </TabsContent>
-        <TabsContent value="design" className="space-y-4">
-          <div
-            {...canvasAttributes}
-            className={`${STORE_FONT_CLASSES} overflow-hidden rounded-xl border border-border bg-background font-sans text-base text-foreground`}
-            style={canvasStyle}
-          >
-            <DesignSample ctx={context} />
-          </div>
-          <div className={STORE_FONT_CLASSES}>
-          <DesignPanel
-            storeId={props.storeId}
-            value={design}
-            saved={savedDesign}
-            template={props.template}
-            drafted={drafted}
-            onChange={changeDesign}
-            onSaved={(next) => {
-              setSavedDesign(next);
-              setDesign(next);
-            }}
-          />
+        <TabsContent value="design">
+          {/* Settings sit beside the preview, which stays in view while they
+              scroll, so a change shows as it is made. In one column the
+              preview comes first. */}
+          <div className="grid gap-4 xl:grid-cols-[22rem_minmax(0,1fr)] xl:items-start">
+            <div className={`order-2 xl:order-none ${STORE_FONT_CLASSES}`}>
+              <DesignPanel
+                storeId={props.storeId}
+                value={design}
+                saved={savedDesign}
+                template={props.template}
+                drafted={drafted}
+                onChange={changeDesign}
+                onSaved={(next) => {
+                  setSavedDesign(next);
+                  setDesign(next);
+                }}
+              />
+            </div>
+            <div className="order-1 min-w-0 rounded-xl border border-border bg-canvas p-3 xl:sticky xl:top-[4.5rem] xl:order-none xl:max-h-[calc(100dvh-5.5rem)] xl:overflow-y-auto">
+              <PreviewFrame device={preview}>
+                <div
+                  {...canvasAttributes}
+                  className={`${STORE_FONT_CLASSES} font-sans overflow-hidden rounded-lg border border-border bg-background text-base text-foreground`}
+                  style={canvasStyle}
+                >
+                  <DesignSample ctx={context} />
+                </div>
+              </PreviewFrame>
+            </div>
           </div>
         </TabsContent>
         <TabsContent value="products">
