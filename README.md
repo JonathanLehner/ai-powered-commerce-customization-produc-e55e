@@ -263,6 +263,16 @@ gifting, orders, team, guided setup, activity.
   five templates per category, each led by a different style, and no two
   templates whose palette, type, shape and page order make them look alike
   (`--likeness` prints the closest pairs).
+  A template's shipping and delivery claims, order deadlines, countdown dates
+  and testimonials are flagged in the editor as "Sample copy – review before
+  publishing" until they are edited or marked as reviewed. Before publishing,
+  the editor checks shipping and delivery claims in the page, product page,
+  header and footer against the store's shipping rates (free shipping, a free
+  shipping threshold, delivery times) and lists mismatches and leftover sample
+  copy for review. The API returns the same as `shippingClaims` and
+  `sampleCopyLeft`, with the matching "Free over an amount" rate for each
+  unbacked free shipping promise, which the assistant offers to create
+  (`npm run sample-copy-check`).
 - **API and MCP for everything.** Every operation is defined once in
   `src/lib/api/operations.ts` (modules under `src/lib/api/ops`) and served as a
   REST endpoint, an OpenAPI operation and an MCP tool. The Admin API

@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} desactualizadas",
     "outdatedCount": "{count} desactualizadas",
-    "updateTranslations": "Actualizar traducciones"
+    "updateTranslations": "Actualizar traducciones",
+    "sample": {
+      "badge": "Texto de ejemplo – revísalo antes de publicar",
+      "keep": "Marcar como revisado",
+      "layer": "Texto de ejemplo",
+      "count": "{count, plural, one {# campo de ejemplo por revisar} other {# campos de ejemplo por revisar}}"
+    },
+    "review": {
+      "title": "Revisar antes de publicar",
+      "body": "Parte del texto puede no coincidir con los envíos de esta tienda. Revísalo antes de publicarlo.",
+      "free": "Promete envío gratis, pero tus tarifas de envío lo cobran.",
+      "freeOver": "Promete envío gratis a partir de {amount}, pero ninguna tarifa es gratuita desde ese importe.",
+      "days": "Promete entrega en {days, plural, one {# día} other {# días}}, pero tu tarifa más rápida tarda hasta {fastest}.",
+      "sample": "Promesa de entrega de ejemplo de la plantilla.",
+      "sampleLeft": "{count, plural, one {# campo de ejemplo más de la plantilla sigue sin cambios.} other {# campos de ejemplo más de la plantilla siguen sin cambios.}}",
+      "shipping": "Tarifas de envío",
+      "publishAnyway": "Publicar de todos modos",
+      "keepEditing": "Seguir editando"
+    }
   },
   "admin": {
     "overview": {

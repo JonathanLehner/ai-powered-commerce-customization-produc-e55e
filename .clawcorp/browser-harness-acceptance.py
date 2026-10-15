@@ -554,6 +554,9 @@ try:
         return bs.map(b=>b.textContent.trim());})()""")
     reverted = order_reverted == order_before and order_saved == order_after
     click_text("button", "Publish"); time.sleep(4); wait_for_load()
+    # Shipping claims or template sample copy are listed for review first.
+    if "Review before publishing" in text():
+        click_text("button", "Publish anyway"); time.sleep(4); wait_for_load()
     published = "Published by" in text()
     shot(4)
     record(4, "pass" if (draggables >= 8 and moved and reordered and reverted and published) else "fail",

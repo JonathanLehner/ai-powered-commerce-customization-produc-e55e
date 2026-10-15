@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} inaktuella",
     "outdatedCount": "{count} inaktuella",
-    "updateTranslations": "Uppdatera översättningar"
+    "updateTranslations": "Uppdatera översättningar",
+    "sample": {
+      "badge": "Exempeltext – granska innan publicering",
+      "keep": "Markera som granskad",
+      "layer": "Exempeltext",
+      "count": "{count, plural, one {# exempelfält att granska} other {# exempelfält att granska}}"
+    },
+    "review": {
+      "title": "Granska innan publicering",
+      "body": "En del text kanske inte stämmer med hur butiken skickar. Kontrollera den innan den publiceras.",
+      "free": "Lovar fri frakt, men dina fraktpriser tar betalt för den.",
+      "freeOver": "Lovar fri frakt över {amount}, men inget fraktpris är gratis från det beloppet.",
+      "days": "Lovar leverans inom {days, plural, one {# dag} other {# dagar}}, men ditt snabbaste fraktpris tar upp till {fastest}.",
+      "sample": "Exempel på leveranslöfte från mallen.",
+      "sampleLeft": "{count, plural, one {# exempelfält till från mallen är oförändrat.} other {# exempelfält till från mallen är oförändrade.}}",
+      "shipping": "Fraktpriser",
+      "publishAnyway": "Publicera ändå",
+      "keepEditing": "Fortsätt redigera"
+    }
   },
   "admin": {
     "overview": {

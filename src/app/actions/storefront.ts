@@ -1,8 +1,10 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
+import { formatMinorUnits } from "@/i18n/format";
 import { refusal } from "@/lib/operations/action-state";
 import {
+  publishReview,
   publishStorefront as publish,
   restoreStorefrontVersion as restore,
   revertStorefront as revert,
@@ -38,15 +40,64 @@ export async function saveStorefrontDraft(_prev: ActionState, formData: FormData
   return { status: "success", message: t("draftSaved") };
 }
 
-export async function publishStorefront(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/** Copy to look at before publishing: where it is, what it says and what is wrong with it. */
+export interface PublishReviewView {
+  items: { key: string; where: string; text: string; message: string }[];
+  /** Template sample fields left as written that are not listed above. */
+  sampleLeft: number;
+  shippingHref: string;
+}
+
+export type PublishState = ActionState & { review?: PublishReviewView };
+
+/**
+ * Publishes the editor's page. Unless `confirmed` is set, shipping claims the
+ * store's rates do not back and template sample copy are returned for review
+ * first, and nothing is published.
+ */
+export async function publishStorefront(_prev: ActionState, formData: FormData): Promise<PublishState> {
   const storeId = String(formData.get("storeId") ?? "");
   const access = await assertStoreAccess(storeId, "store.storefront");
   const t = await getTranslations("actions.storefront");
   try {
-    await publish(await operationContext(access), {
-      tree: String(formData.get("tree") ?? ""),
-      label: String(formData.get("label") ?? ""),
-    });
+    const ctx = await operationContext(access);
+    const tree = String(formData.get("tree") ?? "");
+    if (formData.get("confirmed") !== "1") {
+      const review = await publishReview(ctx, tree);
+      if (review.claims.length > 0 || review.sample.length > 0) {
+        const [e, format] = await Promise.all([getTranslations("editor"), getFormatter()]);
+        const where = (area: string, type: string, field: string) =>
+          area === "site"
+            ? e(`site.fields.${field}` as "site.title")
+            : area === "block"
+              ? `${e("tabs.productPage")}: ${e(`blocks.${type}.name` as "blocks.ProductMain.name")}`
+              : e(`sections.${type}.name` as "sections.HeroSection.name");
+        // Promises the rates contradict first, then sample promises to rewrite.
+        const claims = [...review.claims].sort((a, b) => Number(a.problem.kind === "sample") - Number(b.problem.kind === "sample"));
+        const items = claims.map((claim) => {
+          const p = claim.problem;
+          const message =
+            p.kind === "free"
+              ? e("review.free")
+              : p.kind === "freeOver"
+                ? e("review.freeOver", { amount: formatMinorUnits(format, p.threshold, access.store.defaultCurrency) })
+                : p.kind === "days"
+                  ? e("review.days", { days: p.days, fastest: p.fastest })
+                  : e("review.sample");
+          return { key: claim.key, where: where(claim.area, claim.type, claim.field), text: claim.text, message };
+        });
+        const listed = new Set(items.map((item) => item.key));
+        return {
+          status: "idle",
+          review: {
+            items,
+            sampleLeft: review.sample.filter((field) => !listed.has(field.key)).length,
+            shippingHref: `/app/stores/${storeId}/shipping`,
+          },
+        };
+      }
+    }
+    await publish(ctx, { tree, label: String(formData.get("label") ?? "") });
   } catch (error) {
     return refusal(error);
   }

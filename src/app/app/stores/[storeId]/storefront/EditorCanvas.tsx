@@ -3,7 +3,7 @@
 import { Editor, Frame, useEditor, useNode } from "@craftjs/core";
 import { createTranslator, useLocale, useTranslations } from "next-intl";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { publishStorefront, saveStorefrontDraft } from "@/app/actions/storefront";
+import { publishStorefront, saveStorefrontDraft, type PublishReviewView, type PublishState } from "@/app/actions/storefront";
 import type { ActionState } from "@/app/actions/stores";
 import { translateMissing } from "@/app/actions/translations";
 import { AssistantEmbed } from "@/components/assistant/AssistantPanel";
@@ -11,6 +11,16 @@ import { useOptionalAssistant } from "@/components/assistant/context";
 import { FormStatus } from "@/components/forms";
 import { RenderSection, type StorefrontContext } from "@/components/sections";
 import { Badge } from "@/components/ui";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -31,6 +41,7 @@ import { languageName } from "@/i18n/display";
 import { localeBase } from "@/i18n/storefront-routing";
 import type { Locale } from "@/i18n/locales";
 import { NAV_COLLECTIONS_PROP, navCollectionIds } from "@/lib/collections";
+import { sampleFieldsOf, sampleTreeFields } from "@/lib/sample-copy";
 import { resolveDesign } from "@/lib/store-design";
 import { DRAFT_DESIGN_PROP } from "@/lib/templates/tree";
 import { STORE_FONT_CLASSES } from "@/lib/store-fonts";
@@ -459,6 +470,7 @@ function LayerList() {
     return {
       id,
       type,
+      sample: !translating && type && type in SECTION_DEFS && sampleFieldsOf(props ?? {}).length > 0,
       state: !translating
         ? null
         : Object.keys(missingTreeFields(section, locale)).length > 0
@@ -503,6 +515,10 @@ function LayerList() {
                 {node.state ? (
                   <span className="ml-auto">
                     <StateBadge state={node.state} />
+                  </span>
+                ) : node.sample ? (
+                  <span className="ml-auto">
+                    <Badge tone="amber">{t("sample.layer")}</Badge>
                   </span>
                 ) : null}
               </button>
@@ -653,6 +669,9 @@ function EditorShell(props: ShellProps) {
   const [status, setStatus] = useState<ActionState>({ status: "idle" });
   const [busy, setBusy] = useState<"save" | "publish" | "translate" | null>(null);
   const [label, setLabel] = useState("");
+  const [review, setReview] = useState<PublishReviewView | null>(null);
+  // Template sample copy still on the page, header, footer and product page.
+  const sampleLeft = sampleTreeFields(pageTree).length;
   const [products, setProducts] = useState(props.products);
   const [portals, setPortals] = useState(props.portals);
   const [collections, setCollections] = useState(props.collections);
@@ -716,20 +735,27 @@ function EditorShell(props: ShellProps) {
         );
   const outdated = isDefault ? 0 : outdatedIn(locale);
 
-  async function run(kind: "save" | "publish") {
+  async function run(kind: "save" | "publish", confirmed = false) {
     if (busy) return;
     setBusy(kind);
     setStatus({ status: "idle" });
+    setReview(null);
     try {
       const data = new FormData();
       data.set("storeId", props.storeId);
       data.set("tree", query.serialize());
       data.set("locale", locale);
       data.set("label", label);
-      const result =
+      if (confirmed) data.set("confirmed", "1");
+      const result: PublishState =
         kind === "save"
           ? await saveStorefrontDraft({ status: "idle" }, data)
           : await publishStorefront({ status: "idle" }, data);
+      // Claims to check first: nothing was published.
+      if (result.review) {
+        setReview(result.review);
+        return;
+      }
       setStatus(result);
       if (result.status === "success") baseline.current = data.get("tree") as string;
     } catch {
@@ -853,10 +879,47 @@ function EditorShell(props: ShellProps) {
 
       <FormStatus state={status} />
 
+      <AlertDialog open={review !== null} onOpenChange={(open) => !open && setReview(null)}>
+        <AlertDialogContent className="sm:max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("review.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("review.body")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          {review ? (
+            <div className="max-h-80 space-y-3 overflow-y-auto text-sm">
+              {review.items.length > 0 ? (
+                <ul className="space-y-3">
+                  {review.items.map((item) => (
+                    <li key={item.key} className="rounded-lg border border-border p-3">
+                      <p className="text-xs font-medium text-muted-foreground">{item.where}</p>
+                      <p className="mt-1 font-medium text-foreground">“{item.text}”</p>
+                      <p className="mt-1 text-amber-700 dark:text-amber-400">{item.message}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {review.sampleLeft > 0 ? (
+                <p className="text-muted-foreground">{t("review.sampleLeft", { count: review.sampleLeft })}</p>
+              ) : null}
+              {review.items.length > 0 ? (
+                <a href={review.shippingHref} className="inline-block font-medium text-primary hover:underline">
+                  {t("review.shipping")}
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("review.keepEditing")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => run("publish", true)}>{t("review.publishAnyway")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         <Badge tone={props.publishedAt ? "green" : "amber"}>
           {props.publishedAt ? t("publishedBy", { name: props.publishedBy ?? "" }) : t("neverPublished")}
         </Badge>
+        {sampleLeft > 0 ? <Badge tone="amber">{t("sample.count", { count: sampleLeft })}</Badge> : null}
         <span>{t("draftSaved", { date: formatDateTime(props.draftUpdatedAt, uiLocale) })}</span>
         <a
           href={localeBase(`/s/${props.storeSlug}`, locale, props.defaultLocale)}

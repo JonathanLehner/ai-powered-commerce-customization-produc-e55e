@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import React, { createContext, useContext, useId, useState } from "react";
 import { SfIcon, type StorefrontContext } from "@/components/storefront/kit";
+import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { isSampleField, SAMPLE_PROP, withoutSample } from "@/lib/sample-copy";
 import { ICONS, type SectionField } from "@/lib/storefront-schema";
 import {
   I18N_PROP,
@@ -265,7 +267,12 @@ export function FieldControl({ field, target, scope }: { field: SectionField; ta
           type="datetime-local"
           disabled={!isDefault}
           value={local}
-          onChange={(e) => set(e.target.value ? new Date(e.target.value).toISOString() : "")}
+          onChange={(e) =>
+            target.set((p) => {
+              p[field.key] = e.target.value ? new Date(e.target.value).toISOString() : "";
+              p[SAMPLE_PROP] = withoutSample(p, field.key);
+            })
+          }
         />
       );
       break;
@@ -293,7 +300,36 @@ export function FieldControl({ field, target, scope }: { field: SectionField; ta
         {label}
       </Label>
       {control}
+      <SampleFlag target={target} fieldKey={field.key} />
       {help ? <p className="text-xs text-muted-foreground">{help}</p> : null}
+    </div>
+  );
+}
+
+/**
+ * Marks a field still holding a template's sample claim, deadline or
+ * testimonial, until it is edited or marked as reviewed.
+ */
+function SampleFlag({ target, fieldKey }: { target: PropTarget; fieldKey: string }) {
+  const { locale, defaultLocale } = useEnv();
+  const t = useTranslations("editor.sample");
+  if (!isSampleField(target.props, fieldKey)) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <Badge tone="amber">{t("badge")}</Badge>
+      {locale === defaultLocale ? (
+        <button
+          type="button"
+          onClick={() =>
+            target.set((p) => {
+              p[SAMPLE_PROP] = withoutSample(p, fieldKey);
+            })
+          }
+          className="text-xs font-medium text-primary hover:underline"
+        >
+          {t("keep")}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -335,6 +371,8 @@ export function CopyField({
       if (String(p[fieldKey] ?? "") === next) return;
       p[fieldKey] = next;
       if (translations) p[I18N_PROP] = withSourceChanged(translations, fieldKey);
+      // Rewritten copy is the store's own, no longer the template's sample.
+      if (p[SAMPLE_PROP]) p[SAMPLE_PROP] = withoutSample(p, fieldKey);
     });
   }
 
@@ -351,6 +389,7 @@ export function CopyField({
       ) : (
         <Input id={id} value={value} placeholder={isDefault ? undefined : source} onChange={(e) => change(e.target.value)} />
       )}
+      <SampleFlag target={target} fieldKey={fieldKey} />
       {help ? <p className="text-xs text-muted-foreground">{help}</p> : null}
     </div>
   );

@@ -2,7 +2,9 @@ import "server-only";
 import { z } from "zod";
 import { LOCALES } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
+import { getStorefront } from "../../data";
 import { siteOrigin } from "../../email";
+import { shippingClaimNotes } from "../claims";
 import { applyTemplate, publishStarterProducts, requireTemplate } from "../../operations/templates";
 import { PRODUCT_BLOCK_DEFS } from "../../product-template";
 import { SECTION_DEFS } from "../../storefront-schema";
@@ -103,12 +105,15 @@ export const templateOperations: ApiOperation[] = [
     tag: "Storefront",
     summary: "Apply a template to the draft",
     description:
-      "Makes the template the storefront draft: its sections, product page, header and footer, collection layout and design, with its copy in the store's languages. Products, orders and settings are not changed, and shoppers see nothing until publishStorefront is called. The draft it replaces is kept in the version history (previousVersionId); restore it with restoreStorefrontVersion. With addStarterProducts, the template's suggested shared-catalog products are added as draft products, once per template, each with the template's artwork, product photo and demo price (raised to a clean price with a margin of at least 25% when the demo price leaves less); publish them with publishStarterProducts.",
+      "Makes the template the storefront draft: its sections, product page, header and footer, collection layout and design, with its copy in the store's languages. Products, orders and settings are not changed, and shoppers see nothing until publishStorefront is called. The draft it replaces is kept in the version history (previousVersionId); restore it with restoreStorefrontVersion. With addStarterProducts, the template's suggested shared-catalog products are added as draft products, once per template, each with the template's artwork, product photo and demo price (raised to a clean price with a margin of at least 25% when the demo price leaves less); publish them with publishStarterProducts. The template's shipping and delivery claims, order deadlines, countdown dates and testimonials are sample copy written for its fictional brand: they are flagged in the editor, counted under sampleCopyLeft, and the ones the store's shipping rates do not back are listed under shippingClaims. Point these out and offer to rewrite them before publishing.",
     input: z.object({
       templateId,
       addStarterProducts: z.boolean().optional().describe("Also add the template's suggested products as drafts. Off unless set."),
     }),
-    run: async (ctx, input) => applyTemplate(ctx, { templateId: input.templateId, addStarterProducts: input.addStarterProducts }),
+    run: async (ctx, input) => {
+      const result = await applyTemplate(ctx, { templateId: input.templateId, addStarterProducts: input.addStarterProducts });
+      return { ...result, ...(await shippingClaimNotes(ctx, (await getStorefront(ctx.store.id))?.draft)) };
+    },
     actions: ["storefront#applyStoreTemplate"],
   }),
   define({

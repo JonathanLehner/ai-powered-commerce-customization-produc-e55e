@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} veraltet",
     "outdatedCount": "{count} veraltet",
-    "updateTranslations": "Übersetzungen aktualisieren"
+    "updateTranslations": "Übersetzungen aktualisieren",
+    "sample": {
+      "badge": "Beispieltext – vor dem Veröffentlichen prüfen",
+      "keep": "Als geprüft markieren",
+      "layer": "Beispieltext",
+      "count": "{count, plural, one {# Beispielfeld zu prüfen} other {# Beispielfelder zu prüfen}}"
+    },
+    "review": {
+      "title": "Vor dem Veröffentlichen prüfen",
+      "body": "Einige Texte passen möglicherweise nicht zum Versand dieses Shops. Prüfen Sie sie, bevor sie live gehen.",
+      "free": "Verspricht kostenlosen Versand, aber Ihre Versandtarife berechnen Versandkosten.",
+      "freeOver": "Verspricht kostenlosen Versand ab {amount}, aber kein Versandtarif ist ab diesem Betrag kostenlos.",
+      "days": "Verspricht Lieferung in {days, plural, one {# Tag} other {# Tagen}}, aber Ihr schnellster Tarif dauert bis zu {fastest}.",
+      "sample": "Beispiel-Lieferversprechen aus der Vorlage.",
+      "sampleLeft": "{count, plural, one {# weiteres Beispielfeld aus der Vorlage ist unverändert.} other {# weitere Beispielfelder aus der Vorlage sind unverändert.}}",
+      "shipping": "Versandtarife",
+      "publishAnyway": "Trotzdem veröffentlichen",
+      "keepEditing": "Weiter bearbeiten"
+    }
   },
   "admin": {
     "overview": {

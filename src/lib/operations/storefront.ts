@@ -5,9 +5,11 @@ import { languageName } from "@/i18n/display";
 import { isLocale, type Locale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { collectionFields } from "../collections";
+import { storeFxTable } from "../currency";
 import {
   COLLECTIONS,
   getStorefront,
+  listShippingZones,
   recordAudit,
   updateProductCollection,
   updateStore,
@@ -15,7 +17,9 @@ import {
   updateStoreProduct,
 } from "../data";
 import { db } from "../mongo";
+import { sampleTreeFields, type SampleField } from "../sample-copy";
 import { SEO_LIMITS } from "../seo";
+import { shippingClaimIssues, type ClaimIssue } from "../shipping-claims";
 import { isShopTextKey } from "../shop-text";
 import { overrideProblem } from "../shop-text-validate";
 import { cleanDesign } from "../store-design";
@@ -118,6 +122,23 @@ export async function saveStorefrontDraft(
     inLanguage ? { locale } : {},
   );
   revalidatePath(`/app/stores/${store.id}/storefront`);
+}
+
+export interface PublishReview {
+  /** Shipping and delivery claims the store's shipping rates do not back. */
+  claims: ClaimIssue[];
+  /** Template sample copy left as the template wrote it. */
+  sample: SampleField[];
+}
+
+/** What to look at before a page tree goes live: claims its shipping rates do not back, and sample copy left from a template. */
+export async function publishReview(ctx: OperationContext, tree: unknown): Promise<PublishReview> {
+  const page = parseTree(tree);
+  const zones = await listShippingZones(ctx.store.id);
+  return {
+    claims: shippingClaimIssues(page, zones, ctx.store.defaultCurrency, storeFxTable(ctx.store)),
+    sample: sampleTreeFields(page),
+  };
 }
 
 /** Publishes a page tree, which also becomes the draft. */

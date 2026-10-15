@@ -74,6 +74,7 @@ import {
   saveStorefrontDraft,
   shopperMessages,
 } from "../operations/storefront";
+import { shippingClaimNotes } from "./claims";
 import { POLICY_KEYS, storePolicyText } from "../policies";
 import { flattenShopText, shopTextEntries } from "../shop-text";
 import { shipBlock } from "../bulk-orders";
@@ -1558,14 +1559,15 @@ const storefront = [
     scope: "storefront:write",
     tag: "Storefront",
     summary: "Publish the storefront",
-    description: "Puts a page live for shoppers. Without a tree, the saved draft is published.",
+    description:
+      "Puts a page live for shoppers. Without a tree, the saved draft is published. The result lists shipping claims in the copy that the store's shipping rates do not back (shippingClaims) and how many template sample fields were left as written (sampleCopyLeft).",
     actions: ["storefront#publishStorefront"],
     input: z.object({ tree: tree.optional(), label: z.string().default("") }),
     run: async (ctx, input) => {
       const page = input.tree ?? (await getStorefront(ctx.store.id))?.draft;
       if (!page) throw new ApiError(409, "conflict", "There is no draft to publish.", "tree");
       await publishStorefront(ctx, { tree: page, label: input.label });
-      return { published: true };
+      return { published: true, ...(await shippingClaimNotes(ctx, page)) };
     },
   }),
   define({

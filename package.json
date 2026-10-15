@@ -21,6 +21,7 @@
     "copy-identity-check": "node --experimental-strip-types scripts/copy-identity-check.mjs",
     "form-restore-check": "node --experimental-strip-types scripts/form-restore-check.mjs",
     "publish-guard-check": "node --experimental-strip-types scripts/publish-guard-check.mjs",
+    "sample-copy-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/sample-copy-check.mjs",
     "plan-limit-check": "node --experimental-strip-types scripts/plan-limit-check.mjs",
     "auth-check": "node --conditions=react-server --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/auth-check.mjs",
     "signup-check": "node --experimental-strip-types --import ./scripts/ts-resolve.mjs scripts/signup-check.mjs",

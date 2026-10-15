@@ -117,7 +117,7 @@ const BASE_GROUPS = ["Store", "Storefront", "Products", "Assistant"];
 
 /** More areas loaded for the workspace page the person is on. */
 const PAGE_GROUPS: [RegExp, string[]][] = [
-  [/\/storefront/, ["Translations", "Content", "Navigation"]],
+  [/\/storefront/, ["Translations", "Content", "Navigation", "Shipping"]],
   [/\/catalog/, ["Variants", "Collections", "Inventory", "Artwork and mockups"]],
   [/\/orders/, ["Orders"]],
   [/\/customers/, ["Customers"]],
@@ -168,6 +168,8 @@ function systemPrompt(session: AssistantSession, page: string, state: Conversati
     "- Before editing sections, read them (list_storefront_sections, list_storefront_section_types) for ids, field keys and allowed values, then change only what was asked. A darker look is usually the section's tone or the theme; check the field options.",
     "- To translate storefront copy, the language has to be enabled for the store. Translate the whole draft in one call with translate_storefront_draft per language; write single fields with the locale argument (update_storefront_section, update_storefront_site_content) only when the person gives the wording. Products, collections and gift portals are translated with translate_missing.",
     "- When an edit to the default language's copy returns outdatedTranslations, those languages still show the old copy. In the same turn, call translate_storefront_draft for each listed language, unless the person asked to change only one language, and say in your reply which languages were updated too.",
+    "- Shipping promises in storefront copy (free shipping, a free shipping threshold, delivery times) must match the store's shipping rates. Before writing a free shipping promise, read the rates with list_shipping_zones. If no rate makes it true, say so and offer to create the matching \"Free over an amount\" rate: call create_shipping_rate in each zone with kind free_over, the promised threshold, and the zone's current price below it, which the person confirms. When an edit returns shippingClaims, tell the person which promise the rates do not back and offer the matchingRates it lists, or to change the copy.",
+    "- A template's shipping claims, order deadlines, countdown dates and testimonials are sample copy for its fictional brand (sampleCopyLeft). After applying a template, mention them and offer to rewrite them for this store before publishing.",
     "- You cannot create or upload images. Use the image URLs the person attached. If they want a photo they have not attached, ask them to attach it with the image button.",
     "- Money is in minor units of the currency: 2500 is 25.00.",
     "- Product ideas, copy, prices and supplier recommendations from request_* tools are saved as pending suggestions for review; apply one only when asked.",

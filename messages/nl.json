@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} verouderd",
     "outdatedCount": "{count} verouderd",
-    "updateTranslations": "Vertalingen bijwerken"
+    "updateTranslations": "Vertalingen bijwerken",
+    "sample": {
+      "badge": "Voorbeeldtekst – controleer voor publicatie",
+      "keep": "Markeren als gecontroleerd",
+      "layer": "Voorbeeldtekst",
+      "count": "{count, plural, one {# voorbeeldveld te controleren} other {# voorbeeldvelden te controleren}}"
+    },
+    "review": {
+      "title": "Controleer voor publicatie",
+      "body": "Sommige tekst past mogelijk niet bij hoe deze winkel verzendt. Controleer het voordat het live gaat.",
+      "free": "Belooft gratis verzending, maar je verzendtarieven rekenen kosten.",
+      "freeOver": "Belooft gratis verzending vanaf {amount}, maar geen verzendtarief is gratis vanaf dat bedrag.",
+      "days": "Belooft levering in {days, plural, one {# dag} other {# dagen}}, maar je snelste tarief duurt tot {fastest}.",
+      "sample": "Voorbeeldbelofte over levering uit de template.",
+      "sampleLeft": "{count, plural, one {Nog # voorbeeldveld uit de template is ongewijzigd.} other {Nog # voorbeeldvelden uit de template zijn ongewijzigd.}}",
+      "shipping": "Verzendtarieven",
+      "publishAnyway": "Toch publiceren",
+      "keepEditing": "Verder bewerken"
+    }
   },
   "admin": {
     "overview": {

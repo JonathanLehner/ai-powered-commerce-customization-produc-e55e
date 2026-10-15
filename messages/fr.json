@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} obsolète(s)",
     "outdatedCount": "{count} obsolète(s)",
-    "updateTranslations": "Mettre à jour les traductions"
+    "updateTranslations": "Mettre à jour les traductions",
+    "sample": {
+      "badge": "Texte d’exemple – à vérifier avant publication",
+      "keep": "Marquer comme vérifié",
+      "layer": "Texte d’exemple",
+      "count": "{count, plural, one {# champ d’exemple à vérifier} other {# champs d’exemple à vérifier}}"
+    },
+    "review": {
+      "title": "À vérifier avant publication",
+      "body": "Certains textes ne correspondent peut-être pas à la livraison de cette boutique. Vérifiez-les avant la mise en ligne.",
+      "free": "Promet la livraison gratuite, mais vos tarifs de livraison la facturent.",
+      "freeOver": "Promet la livraison gratuite dès {amount}, mais aucun tarif n’est gratuit à partir de ce montant.",
+      "days": "Promet une livraison en {days, plural, one {# jour} other {# jours}}, mais votre tarif le plus rapide prend jusqu’à {fastest}.",
+      "sample": "Promesse de livraison d’exemple issue du modèle.",
+      "sampleLeft": "{count, plural, one {# autre champ d’exemple du modèle n’a pas été modifié.} other {# autres champs d’exemple du modèle n’ont pas été modifiés.}}",
+      "shipping": "Tarifs de livraison",
+      "publishAnyway": "Publier quand même",
+      "keepEditing": "Continuer à modifier"
+    }
   },
   "admin": {
     "overview": {

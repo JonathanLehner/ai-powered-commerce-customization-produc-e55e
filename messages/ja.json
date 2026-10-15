@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} 件が古い",
     "outdatedCount": "{count} 件が古い",
-    "updateTranslations": "翻訳を更新"
+    "updateTranslations": "翻訳を更新",
+    "sample": {
+      "badge": "サンプル文 – 公開前に確認してください",
+      "keep": "確認済みにする",
+      "layer": "サンプル文",
+      "count": "{count, plural, other {確認が必要なサンプル項目: #件}}"
+    },
+    "review": {
+      "title": "公開前の確認",
+      "body": "このストアの配送内容と一致しない文があります。公開前に確認してください。",
+      "free": "送料無料をうたっていますが、配送料金では送料がかかります。",
+      "freeOver": "{amount}以上で送料無料をうたっていますが、その金額から無料になる配送料金がありません。",
+      "days": "{days, plural, other {#日}}でのお届けをうたっていますが、最速の配送料金でも最大{fastest}日かかります。",
+      "sample": "テンプレートのサンプルのお届け表記です。",
+      "sampleLeft": "{count, plural, other {テンプレートのサンプル項目があと#件そのままです。}}",
+      "shipping": "配送料金",
+      "publishAnyway": "このまま公開",
+      "keepEditing": "編集を続ける"
+    }
   },
   "admin": {
     "overview": {

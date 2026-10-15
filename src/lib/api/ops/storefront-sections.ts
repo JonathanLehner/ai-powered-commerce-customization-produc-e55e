@@ -47,6 +47,7 @@ import {
 } from "../../translations";
 import { storeUpload, UPLOAD_SCOPES } from "../../uploads";
 import { ApiError } from "../auth";
+import { shippingClaimNotes } from "../claims";
 import { define, type ApiOperation } from "../define";
 
 /**
@@ -120,7 +121,7 @@ function outdatedTranslations(ctx: OperationContext, tree: unknown) {
 async function edit(ctx: OperationContext, summary: string, change: (tree: CraftTree) => CraftTree) {
   try {
     const tree = await editStorefrontDraft(ctx, summary, change);
-    return { sections: listSections(tree), ...outdatedTranslations(ctx, tree) };
+    return { sections: listSections(tree), ...outdatedTranslations(ctx, tree), ...(await shippingClaimNotes(ctx, tree)) };
   } catch (error) {
     if (error instanceof SectionEditError) {
       const [first] = error.issues;
@@ -330,6 +331,7 @@ export const storefrontSectionOperations: ApiOperation[] = [
         defaultLocale,
         content: Object.fromEntries(locales.map((l) => [l, siteContent(tree, l, defaultLocale)])),
         ...outdatedTranslations(ctx, tree),
+        ...(await shippingClaimNotes(ctx, tree)),
       };
     },
   }),
@@ -538,7 +540,7 @@ export const storefrontSectionOperations: ApiOperation[] = [
         throw error;
       });
       if (issues.length > 0) throw new ApiError(422, "invalid_request", issues.map((i) => `\`${i.field}\`: ${i.message}`).join(" "), issues[0].field, { issues });
-      return { blocks: productBlocks(tree), ...outdatedTranslations(ctx, tree) };
+      return { blocks: productBlocks(tree), ...outdatedTranslations(ctx, tree), ...(await shippingClaimNotes(ctx, tree)) };
     },
   }),
   define({

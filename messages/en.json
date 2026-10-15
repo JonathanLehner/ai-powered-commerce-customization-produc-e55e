@@ -3869,7 +3869,25 @@
     },
     "languageOutdated": "{language} · {count} out of date",
     "outdatedCount": "{count} out of date",
-    "updateTranslations": "Update translations"
+    "updateTranslations": "Update translations",
+    "sample": {
+      "badge": "Sample copy – review before publishing",
+      "keep": "Mark as reviewed",
+      "layer": "Sample copy",
+      "count": "{count, plural, one {# sample field to review} other {# sample fields to review}}"
+    },
+    "review": {
+      "title": "Review before publishing",
+      "body": "Some copy may not match how this store ships. Check it before it goes live.",
+      "free": "Promises free shipping, but your shipping rates charge for it.",
+      "freeOver": "Promises free shipping over {amount}, but no shipping rate is free from that amount.",
+      "days": "Promises delivery in {days, plural, one {# day} other {# days}}, but your fastest rate takes up to {fastest}.",
+      "sample": "Sample delivery promise from the template.",
+      "sampleLeft": "{count, plural, one {# more sample field from the template is unchanged.} other {# more sample fields from the template are unchanged.}}",
+      "shipping": "Shipping rates",
+      "publishAnyway": "Publish anyway",
+      "keepEditing": "Keep editing"
+    }
   },
   "admin": {
     "overview": {

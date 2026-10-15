@@ -8,6 +8,7 @@ import { PRODUCT_PAGE_PROP, PRODUCT_BLOCK_DEFS, translatableBlockFields } from "
 import { LAYOUT_DEFAULTS } from "../storefront-layout";
 import { SECTION_DEFS, treeFromSections, type CraftTree, type SectionType } from "../storefront-schema";
 import { I18N_PROP, SITE_FIELDS, translatableSectionFields, type FieldTranslations } from "../translations";
+import { SAMPLE_PROP, sampleKeys, sampleRecord } from "../sample-copy";
 import type { StoreDesign } from "../store-design";
 import type { ThemeKey } from "../types";
 import { templateCopy } from "./index";
@@ -103,34 +104,43 @@ export function templateTree(template: StoreTemplate, options: TemplateTreeOptio
     ]),
   );
 
-  const sections = template.sections.map((section, i) => ({
-    type: section.type as SectionType,
-    props: localize(
+  // Shipping claims, deadlines, countdowns and testimonials are written for
+  // the template's brand: each is flagged as sample copy, judged from the
+  // English, with the value it is written in here.
+  const flagSample = (props: Record<string, unknown>, keys: string[]) => {
+    const sample = sampleRecord(props, keys);
+    return sample ? { ...props, [SAMPLE_PROP]: sample } : props;
+  };
+
+  const sections = template.sections.map((section, i) => {
+    const copyKeys = translatableSectionFields(section.type);
+    const english = { ...SECTION_DEFS[section.type].defaults, ...section.props };
+    const props = localize(
       { ...SECTION_DEFS[section.type].defaults, ...resolveProps(template, section.props, now) },
       `section:${i}:`,
-      translatableSectionFields(section.type),
+      copyKeys,
       tables,
       source,
       others,
-    ),
-  }));
+    );
+    return { type: section.type as SectionType, props: flagSample(props, sampleKeys("section", section.type, english, copyKeys)) };
+  });
 
-  const blocks = template.productPage.map((block, i) => ({
-    id: `b${template.id.replace(/[^a-z0-9]/g, "")}${i}`,
-    type: block.type,
-    props: localize(
-      { ...PRODUCT_BLOCK_DEFS[block.type].defaults, ...(block.props ?? {}) },
-      `block:${i}:`,
-      translatableBlockFields(block.type),
-      tables,
-      source,
-      others,
-    ),
-  }));
+  const blocks = template.productPage.map((block, i) => {
+    const copyKeys = translatableBlockFields(block.type);
+    const english = { ...PRODUCT_BLOCK_DEFS[block.type].defaults, ...(block.props ?? {}) };
+    const props = localize(english, `block:${i}:`, copyKeys, tables, source, others);
+    return {
+      id: `b${template.id.replace(/[^a-z0-9]/g, "")}${i}`,
+      type: block.type,
+      props: flagSample(props, sampleKeys("block", block.type, english, copyKeys)),
+    };
+  });
 
   const siteKeys = SITE_FIELDS.map((f) => f.key as string);
   const emptySite = Object.fromEntries(siteKeys.map((key) => [key, ""]));
   const site = localize({ ...emptySite }, "site:", siteKeys, tables, source, others);
+  const siteSample = sampleKeys("site", "site", { ...emptySite, ...template.site }, siteKeys);
 
   const root: Record<string, unknown> = {
     ...LAYOUT_DEFAULTS,
@@ -143,6 +153,8 @@ export function templateTree(template: StoreTemplate, options: TemplateTreeOptio
     [TEMPLATE_PROP]: template.id,
   };
   if (template.layout.announcementCountdown === "@soon") root.announcementCountdown = soon(now);
+  const rootSample = sampleRecord(root, [...siteSample, ...(root.announcementCountdown ? ["announcementCountdown"] : [])]);
+  if (rootSample) root[SAMPLE_PROP] = rootSample;
   return treeFromSections(sections, root);
 }
 
