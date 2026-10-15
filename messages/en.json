@@ -866,7 +866,7 @@
     "emptyTitle": "No stores yet",
     "emptyBody": "Create your first client store to get started.",
     "stripeConnected": "Stripe connected",
-    "stripePending": "Stripe pending",
+    "notTakingOrders": "Not taking orders",
     "revenue": "Revenue",
     "revenuePeriod": "Revenue, {from} to {to}",
     "orders": "Orders",
@@ -1062,6 +1062,12 @@
     "title": "Shopper emails are not being sent",
     "body": "Order confirmation, production, shipping, delivery and cancellation emails will not go out until an email provider is configured.",
     "missing": "Missing settings:"
+  },
+  "paymentsSetup": {
+    "title": "Not taking orders",
+    "body": "Shoppers can browse but cannot check out until Stripe is connected.",
+    "connect": "Connect Stripe",
+    "adminCanConnect": "Ask a store admin to connect Stripe."
   },
   "overview": {
     "deniedPlatform": "That page is not available with platform access.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Checkout",
-      "unavailableTitle": "Checkout is unavailable",
-      "unavailableBody": "Your basket is saved. Please try again later.",
+      "unavailableTitle": "This store is not taking orders yet",
+      "unavailableBody": "Orders cannot be placed right now. Your basket is saved.",
+      "unavailableContact": "Contact {store} with any questions:",
       "backToBasket": "Back to basket",
       "summaryTitle": "Order summary",
       "shipping": "Shipping",

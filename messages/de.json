@@ -866,7 +866,7 @@
     "emptyTitle": "Noch keine Shops",
     "emptyBody": "Legen Sie Ihren ersten Kundenshop an.",
     "stripeConnected": "Stripe verbunden",
-    "stripePending": "Stripe ausstehend",
+    "notTakingOrders": "Nimmt keine Bestellungen an",
     "revenue": "Umsatz",
     "revenuePeriod": "Umsatz, {from} bis {to}",
     "orders": "Bestellungen",
@@ -1062,6 +1062,12 @@
     "title": "Kunden-E-Mails werden nicht versendet",
     "body": "Bestellbestätigungen sowie E-Mails zu Produktion, Versand, Zustellung und Stornierung werden erst versendet, wenn ein E-Mail-Anbieter eingerichtet ist.",
     "missing": "Fehlende Einstellungen:"
+  },
+  "paymentsSetup": {
+    "title": "Nimmt keine Bestellungen an",
+    "body": "Kunden können stöbern, aber erst bezahlen, wenn Stripe verbunden ist.",
+    "connect": "Stripe verbinden",
+    "adminCanConnect": "Bitten Sie einen Shop-Admin, Stripe zu verbinden."
   },
   "overview": {
     "deniedPlatform": "Diese Seite ist mit Plattformzugriff nicht verfügbar.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Kasse",
-      "unavailableTitle": "Kasse nicht verfügbar",
-      "unavailableBody": "Ihr Warenkorb ist gespeichert. Bitte versuchen Sie es später erneut.",
+      "unavailableTitle": "Dieser Shop nimmt noch keine Bestellungen an",
+      "unavailableBody": "Bestellungen sind derzeit nicht möglich. Ihr Warenkorb ist gespeichert.",
+      "unavailableContact": "Bei Fragen wenden Sie sich an {store}:",
       "backToBasket": "Zurück zum Warenkorb",
       "summaryTitle": "Bestellübersicht",
       "shipping": "Versand",

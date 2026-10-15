@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
+import { PaymentsSetupWarning } from "@/components/PaymentsSetupWarning";
 import {
   approveMockups,
   publishBlockers,
@@ -21,6 +22,7 @@ import {
   listTaxBrackets,
   updateStoreProduct,
 } from "@/lib/data";
+import { notTakingOrders } from "@/lib/payment-mode";
 import { marginTone } from "@/lib/pricing";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan } from "@/lib/session";
@@ -100,6 +102,8 @@ export default async function ProductEditorPage({
   const preflightFailed =
     product.unpublishedReason === "preflight_failed" && product.status === "in_review" && blockers.length > 0;
   const showBlockers = blockers.length > 0 && unpublished;
+  // Published or about to be, while shoppers cannot pay.
+  const checkoutClosed = notTakingOrders(store) && product.status !== "archived";
   const [t, labels, locale] = await Promise.all([
     getTranslations("product"),
     getTranslations("labels"),
@@ -232,8 +236,9 @@ export default async function ProductEditorPage({
             ) : null}
           </CardHeader>
 
-          {artworkChanged || preflightFailed || showBlockers ? (
+          {checkoutClosed || artworkChanged || preflightFailed || showBlockers ? (
             <CardContent className="space-y-4">
+              {checkoutClosed ? <PaymentsSetupWarning store={store} canConnect={roleCan(role, "store.settings")} /> : null}
               {artworkChanged ? (
                 <Callout tone="amber" title={t("takenOffTitle")}>
                   {t("takenOffBody")}

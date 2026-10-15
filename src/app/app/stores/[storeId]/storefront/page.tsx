@@ -1,5 +1,6 @@
 import { getFormatter, getLocale, getMessages, getTranslations } from "next-intl/server";
 import { revertStorefront } from "@/app/actions/storefront";
+import { PaymentsSetupWarning } from "@/components/PaymentsSetupWarning";
 import { Callout, PageHeader } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import type { StorefrontContext } from "@/components/sections";
@@ -177,6 +178,8 @@ export default async function StorefrontEditorPage({
           </div>
         }
       />
+
+      <PaymentsSetupWarning store={store} canConnect={roleCan(role, "store.settings")} />
 
       {starters.length > 0 ? (
         <Callout tone="amber" title={t("starters.title", { count: starters.length })}>

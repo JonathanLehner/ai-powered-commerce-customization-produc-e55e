@@ -12,7 +12,6 @@ import { giftCardRefusal } from "@/lib/gift-cards";
 import { presentmentAmount, storeFxTable } from "@/lib/currency";
 import { notFoundRobots, UnknownStoreView } from "@/components/NotFoundViews";
 import { LineThumbnail } from "@/components/LineThumbnail";
-import { Callout } from "@/components/ui";
 import { basketTotals } from "@/lib/basket";
 import { isCountryCode, type FulfillmentSource } from "@/lib/countries";
 import { emailDeliveryOption, shippingCountries, shippingOptions } from "@/lib/shipping";
@@ -24,6 +23,7 @@ import { storefrontBySlug } from "@/lib/storefront-data";
 import { variantPhoto } from "@/lib/line-preview";
 import { CheckoutDeliveryProvider, SummaryTotals, type CheckoutQuote } from "./CheckoutDelivery";
 import { CheckoutForm } from "./CheckoutForm";
+import { CheckoutClosed } from "../CheckoutClosed";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -126,14 +126,13 @@ export default async function CheckoutPage({
 
       {mode === "unavailable" ? (
         <div className="mt-8">
-          <Callout tone="rose" title={t("checkout.unavailableTitle")}>
-            {t("checkout.unavailableBody")}
+          <CheckoutClosed store={store} t={t}>
             <p className="mt-3">
               <Link href={`${base}/cart`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                 {t("checkout.backToBasket")}
               </Link>
             </p>
-          </Callout>
+          </CheckoutClosed>
         </div>
       ) : (
         <CheckoutDeliveryProvider quote={quote} defaultCountry={defaultCountry}>

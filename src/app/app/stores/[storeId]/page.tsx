@@ -2,6 +2,7 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { AuditSummary, SUMMARY_SLOT } from "@/components/AuditSummary";
 import { EmailSetupWarning } from "@/components/EmailSetupWarning";
+import { PaymentsSetupWarning } from "@/components/PaymentsSetupWarning";
 import { KpiCards } from "@/components/KpiCards";
 import { RangeControls } from "@/components/RangeControls";
 import { Badge, Callout, DataList, EmptyState, ProgressBar, StatCard } from "@/components/ui";
@@ -129,6 +130,8 @@ export default async function StoreOverviewPage({
       ) : null}
 
       <EmailSetupWarning />
+
+      <PaymentsSetupWarning store={store} canConnect={roleCan(role, "store.settings")} />
 
       {allowance && agency ? (
         <Callout tone="amber" title={t("limitTitle", { plan: allowance.plan.name })}>

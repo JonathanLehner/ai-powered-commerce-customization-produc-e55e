@@ -42,7 +42,7 @@ const quiet = console.error;
 console.error = () => {};
 
 const stripe = await import("../src/lib/stripe.ts");
-const { paymentMode } = await import("../src/lib/payment-mode.ts");
+const { notTakingOrders, paymentMode } = await import("../src/lib/payment-mode.ts");
 
 /* --------------------------------------------------- who pays on Stripe */
 
@@ -56,6 +56,11 @@ assert.equal(paymentMode({ ...live, status: "archived" }), "unavailable");
 assert.equal(paymentMode({ status: "active", testMode: true, stripe: { connected: false, accountId: null, chargesEnabled: false } }), "demo", "test mode takes test cards before Stripe is connected");
 assert.equal(paymentMode({ ...live, testMode: true }), "demo", "test mode has to be turned off before real payments");
 assert.equal(paymentMode({ ...live, testMode: true, status: "archived" }), "unavailable");
+// A live store without Stripe is flagged as not taking orders; archived ones are offline anyway.
+assert.equal(notTakingOrders({ ...live, stripe: { ...live.stripe, chargesEnabled: false } }), true, "browsable but no checkout");
+assert.equal(notTakingOrders(live), false);
+assert.equal(notTakingOrders({ ...live, stripe: { connected: false, accountId: null, chargesEnabled: false }, testMode: true }), false, "test mode takes test cards");
+assert.equal(notTakingOrders({ ...live, stripe: { connected: false, accountId: null, chargesEnabled: false }, status: "archived" }), false);
 
 const seed = readFileSync(new URL("./seed.mjs", import.meta.url), "utf8");
 for (const account of ["acct_1NwSupplyCo", "acct_1LumenCreative", "acct_1FerroKaffee", "acct_1RivetHardware"]) {

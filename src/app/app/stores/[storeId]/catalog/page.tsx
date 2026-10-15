@@ -2,6 +2,7 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { TriangleAlertIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { PaymentsSetupWarning } from "@/components/PaymentsSetupWarning";
 import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -107,6 +108,8 @@ export default async function StoreCatalogPage({
           ) : null
         }
       />
+
+      {canEdit ? <PaymentsSetupWarning store={store} canConnect={roleCan(role, "store.settings")} /> : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label={t("products")} value={String(products.length)} />

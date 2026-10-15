@@ -28,3 +28,11 @@ export function paymentMode(store: Pick<Store, "stripe" | "demo" | "status" | "t
 export function paymentsReady(store: Pick<Store, "stripe" | "demo" | "testMode">): boolean {
   return !store.testMode && paymentMode({ ...store, status: "active" }) !== "unavailable";
 }
+
+/**
+ * A live store whose checkout is closed: shoppers can browse and fill a basket
+ * but cannot pay until Stripe is connected. Archived stores are offline anyway.
+ */
+export function notTakingOrders(store: Pick<Store, "stripe" | "demo" | "status" | "testMode">): boolean {
+  return store.status === "active" && paymentMode(store) === "unavailable";
+}

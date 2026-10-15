@@ -866,7 +866,7 @@
     "emptyTitle": "Aucune boutique pour le moment",
     "emptyBody": "Créez votre première boutique client pour commencer.",
     "stripeConnected": "Stripe connecté",
-    "stripePending": "Stripe en attente",
+    "notTakingOrders": "Ne prend pas de commandes",
     "revenue": "Chiffre d’affaires",
     "revenuePeriod": "Chiffre d’affaires, du {from} au {to}",
     "orders": "Commandes",
@@ -1062,6 +1062,12 @@
     "title": "Les e-mails clients ne sont pas envoyés",
     "body": "Les e-mails de confirmation, de production, d’expédition, de livraison et d’annulation des commandes ne seront pas envoyés tant qu’aucun fournisseur d’e-mail n’est configuré.",
     "missing": "Paramètres manquants :"
+  },
+  "paymentsSetup": {
+    "title": "Ne prend pas de commandes",
+    "body": "Les clients peuvent parcourir la boutique mais ne peuvent pas payer tant que Stripe n’est pas connecté.",
+    "connect": "Connecter Stripe",
+    "adminCanConnect": "Demandez à un administrateur de la boutique de connecter Stripe."
   },
   "overview": {
     "deniedPlatform": "Cette page n’est pas disponible avec l’accès plateforme.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Paiement",
-      "unavailableTitle": "Paiement indisponible",
-      "unavailableBody": "Votre panier est enregistré. Veuillez réessayer plus tard.",
+      "unavailableTitle": "Cette boutique ne prend pas encore de commandes",
+      "unavailableBody": "Les commandes ne sont pas possibles pour le moment. Votre panier est enregistré.",
+      "unavailableContact": "Pour toute question, contactez {store} :",
       "backToBasket": "Retour au panier",
       "summaryTitle": "Récapitulatif de la commande",
       "shipping": "Livraison",

@@ -21,6 +21,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { CheckoutClosed } from "../CheckoutClosed";
 
 export async function generateMetadata({
   params,
@@ -209,12 +210,18 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
               card={giftCard ? { last4: giftCard.last4, balance: money(presentmentAmount(store, giftCard.balance, giftCard.currency, currency), currency) } : null}
               note={giftCard && !giftUsable ? t("giftCard.notUsable") : null}
             />
-            <Link
-              href={`${base}/checkout`}
-              className={cn(buttonVariants({ size: "lg" }), "mt-5 w-full")}
-            >
-              {t("basket.checkout")}
-            </Link>
+            {paymentMode(store) === "unavailable" ? (
+              <div className="mt-5">
+                <CheckoutClosed store={store} t={t} />
+              </div>
+            ) : (
+              <Link
+                href={`${base}/checkout`}
+                className={cn(buttonVariants({ size: "lg" }), "mt-5 w-full")}
+              >
+                {t("basket.checkout")}
+              </Link>
+            )}
             <Link
               href={`${base}/products`}
               className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "mt-2 w-full")}

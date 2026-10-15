@@ -187,7 +187,7 @@ export async function PlatformWorkspace({ user, denied }: { user: User; denied?:
                             ? t("testMode")
                             : paymentsReady(store)
                               ? t("stripeConnected")
-                              : t("stripePending")}
+                              : t("notTakingOrders")}
                         </Badge>
                         {store.customDomain ? (
                           <Badge tone={store.domainStatus === "verified" ? "green" : "amber"}>

@@ -866,7 +866,7 @@
     "emptyTitle": "Ancora nessun negozio",
     "emptyBody": "Crea il tuo primo negozio cliente per iniziare.",
     "stripeConnected": "Stripe collegato",
-    "stripePending": "Stripe in attesa",
+    "notTakingOrders": "Non accetta ordini",
     "revenue": "Ricavi",
     "revenuePeriod": "Ricavi, dal {from} al {to}",
     "orders": "Ordini",
@@ -1062,6 +1062,12 @@
     "title": "Le email ai clienti non vengono inviate",
     "body": "Le email di conferma, produzione, spedizione, consegna e annullamento degli ordini non verranno inviate finché non è configurato un provider email.",
     "missing": "Impostazioni mancanti:"
+  },
+  "paymentsSetup": {
+    "title": "Non accetta ordini",
+    "body": "I clienti possono navigare ma non possono pagare finché Stripe non è collegato.",
+    "connect": "Collega Stripe",
+    "adminCanConnect": "Chiedi a un amministratore del negozio di collegare Stripe."
   },
   "overview": {
     "deniedPlatform": "Questa pagina non è disponibile con l’accesso di piattaforma.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Pagamento",
-      "unavailableTitle": "Pagamento non disponibile",
-      "unavailableBody": "Il carrello è salvato. Riprova più tardi.",
+      "unavailableTitle": "Questo negozio non accetta ancora ordini",
+      "unavailableBody": "Al momento non è possibile effettuare ordini. Il tuo carrello è salvato.",
+      "unavailableContact": "Per qualsiasi domanda, contatta {store}:",
       "backToBasket": "Torna al carrello",
       "summaryTitle": "Riepilogo dell’ordine",
       "shipping": "Spedizione",

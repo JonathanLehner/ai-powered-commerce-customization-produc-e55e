@@ -866,7 +866,7 @@
     "emptyTitle": "Nog geen winkels",
     "emptyBody": "Maak je eerste klantwinkel aan om te beginnen.",
     "stripeConnected": "Stripe gekoppeld",
-    "stripePending": "Stripe in behandeling",
+    "notTakingOrders": "Neemt geen bestellingen aan",
     "revenue": "Omzet",
     "revenuePeriod": "Omzet, {from} tot {to}",
     "orders": "Bestellingen",
@@ -1062,6 +1062,12 @@
     "title": "E-mails naar klanten worden niet verstuurd",
     "body": "E-mails voor orderbevestiging, productie, verzending, levering en annulering worden pas verstuurd als er een e-mailprovider is ingesteld.",
     "missing": "Ontbrekende instellingen:"
+  },
+  "paymentsSetup": {
+    "title": "Neemt geen bestellingen aan",
+    "body": "Klanten kunnen rondkijken, maar kunnen pas afrekenen als Stripe is gekoppeld.",
+    "connect": "Stripe koppelen",
+    "adminCanConnect": "Vraag een winkelbeheerder om Stripe te koppelen."
   },
   "overview": {
     "deniedPlatform": "Die pagina is niet beschikbaar met platformtoegang.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Afrekenen",
-      "unavailableTitle": "Afrekenen is niet beschikbaar",
-      "unavailableBody": "Je winkelmand is bewaard. Probeer het later opnieuw.",
+      "unavailableTitle": "Deze winkel neemt nog geen bestellingen aan",
+      "unavailableBody": "Bestellen is op dit moment niet mogelijk. Je winkelmand is bewaard.",
+      "unavailableContact": "Neem bij vragen contact op met {store}:",
       "backToBasket": "Terug naar de winkelmand",
       "summaryTitle": "Besteloverzicht",
       "shipping": "Verzending",

@@ -866,7 +866,7 @@
     "emptyTitle": "ストアはまだありません",
     "emptyBody": "最初のクライアントストアを作成しましょう。",
     "stripeConnected": "Stripe 接続済み",
-    "stripePending": "Stripe 未接続",
+    "notTakingOrders": "注文受付停止中",
     "revenue": "売上",
     "revenuePeriod": "売上（{from}〜{to}）",
     "orders": "注文",
@@ -1062,6 +1062,12 @@
     "title": "お客様へのメールが送信されていません",
     "body": "メールプロバイダーが設定されるまで、注文確認・制作・発送・配達・キャンセルのメールは送信されません。",
     "missing": "未設定の項目:"
+  },
+  "paymentsSetup": {
+    "title": "注文受付停止中",
+    "body": "Stripe が接続されるまで、お客様は商品を閲覧できますが購入手続きはできません。",
+    "connect": "Stripe を接続",
+    "adminCanConnect": "ストア管理者に Stripe の接続を依頼してください。"
   },
   "overview": {
     "deniedPlatform": "プラットフォームアクセスではこのページを表示できません。",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "購入手続き",
-      "unavailableTitle": "現在お支払いいただけません",
-      "unavailableBody": "カートは保存されています。しばらくしてからもう一度お試しください。",
+      "unavailableTitle": "このストアはまだ注文を受け付けていません",
+      "unavailableBody": "現在ご注文いただけません。カートの内容は保存されています。",
+      "unavailableContact": "ご不明な点は {store} までお問い合わせください：",
       "backToBasket": "カートに戻る",
       "summaryTitle": "ご注文内容",
       "shipping": "送料",

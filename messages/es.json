@@ -866,7 +866,7 @@
     "emptyTitle": "Aún no hay tiendas",
     "emptyBody": "Crea tu primera tienda de cliente para empezar.",
     "stripeConnected": "Stripe conectado",
-    "stripePending": "Stripe pendiente",
+    "notTakingOrders": "No acepta pedidos",
     "revenue": "Ingresos",
     "revenuePeriod": "Ingresos, del {from} al {to}",
     "orders": "Pedidos",
@@ -1062,6 +1062,12 @@
     "title": "Los correos a clientes no se están enviando",
     "body": "Los correos de confirmación, producción, envío, entrega y cancelación de pedidos no se enviarán hasta que se configure un proveedor de correo.",
     "missing": "Ajustes que faltan:"
+  },
+  "paymentsSetup": {
+    "title": "No acepta pedidos",
+    "body": "Los clientes pueden navegar, pero no pueden pagar hasta que Stripe esté conectado.",
+    "connect": "Conectar Stripe",
+    "adminCanConnect": "Pide a un administrador de la tienda que conecte Stripe."
   },
   "overview": {
     "deniedPlatform": "Esa página no está disponible con acceso de plataforma.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Pago",
-      "unavailableTitle": "El pago no está disponible",
-      "unavailableBody": "Tu cesta está guardada. Inténtalo de nuevo más tarde.",
+      "unavailableTitle": "Esta tienda aún no acepta pedidos",
+      "unavailableBody": "Ahora mismo no se pueden realizar pedidos. Tu cesta está guardada.",
+      "unavailableContact": "Si tienes alguna pregunta, contacta con {store}:",
       "backToBasket": "Volver a la cesta",
       "summaryTitle": "Resumen del pedido",
       "shipping": "Envío",

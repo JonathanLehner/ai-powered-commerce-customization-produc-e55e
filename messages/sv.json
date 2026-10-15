@@ -866,7 +866,7 @@
     "emptyTitle": "Inga butiker än",
     "emptyBody": "Skapa din första kundbutik för att komma igång.",
     "stripeConnected": "Stripe anslutet",
-    "stripePending": "Stripe väntar",
+    "notTakingOrders": "Tar inte emot beställningar",
     "revenue": "Intäkter",
     "revenuePeriod": "Intäkter, {from} till {to}",
     "orders": "Ordrar",
@@ -1062,6 +1062,12 @@
     "title": "E-post till kunder skickas inte",
     "body": "Orderbekräftelser och mejl om produktion, leverans, utdelning och avbokning skickas inte förrän en e-postleverantör har konfigurerats.",
     "missing": "Inställningar som saknas:"
+  },
+  "paymentsSetup": {
+    "title": "Tar inte emot beställningar",
+    "body": "Kunder kan titta runt men kan inte gå till kassan förrän Stripe är anslutet.",
+    "connect": "Anslut Stripe",
+    "adminCanConnect": "Be en butiksadministratör att ansluta Stripe."
   },
   "overview": {
     "deniedPlatform": "Sidan är inte tillgänglig med plattformsåtkomst.",
@@ -4367,8 +4373,9 @@
     },
     "checkout": {
       "title": "Kassa",
-      "unavailableTitle": "Kassan är inte tillgänglig",
-      "unavailableBody": "Din varukorg är sparad. Försök igen senare.",
+      "unavailableTitle": "Den här butiken tar inte emot beställningar än",
+      "unavailableBody": "Det går inte att beställa just nu. Din varukorg är sparad.",
+      "unavailableContact": "Kontakta {store} om du har frågor:",
       "backToBasket": "Tillbaka till varukorgen",
       "summaryTitle": "Ordersammanfattning",
       "shipping": "Frakt",
