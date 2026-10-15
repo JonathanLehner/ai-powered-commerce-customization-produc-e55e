@@ -16,7 +16,7 @@ import {
   updateStoreProduct,
 } from "../data";
 import { db } from "../mongo";
-import { breakdownFor } from "../pricing";
+import { breakdownFor, HEALTHY_MARGIN_PCT, priceForMargin } from "../pricing";
 import { SHIP_DAYS_PROP } from "../shipping-promise";
 import { SOCIAL_NETWORKS } from "../storefront-layout";
 import { emptyTree } from "../storefront-sections";
@@ -183,8 +183,9 @@ export async function applyTemplate(
 /**
  * Copies the template's starter selection into the store as draft products,
  * named and described in the store's language, in the colour the demo shows,
- * at the demo's price, with the template's artwork placed and its product
- * shot as the preview. Each is keyed to the template, so applying the same
+ * at the demo's price or, when that leaves a thin margin over landed cost,
+ * the clean price that makes it a healthy one, with the template's artwork
+ * placed and its product shot as the preview. Each is keyed to the template, so applying the same
  * template again does not add them twice.
  */
 export async function addStarterProducts(ctx: OperationContext, template: StoreTemplate): Promise<string[]> {
@@ -209,9 +210,8 @@ export async function addStarterProducts(ctx: OperationContext, template: StoreT
     const slug = name === product.name || slugs.has(slugify(name)) ? product.slug : slugify(name);
     slugs.add(slug);
 
-    const price = starterPrice(item.price, product.currency, defaultLocale);
     const inColour = product.variants.some((v) => v.colour === item.colour);
-    const variants = product.variants.map((v) => ({ ...v, price, enabled: !inColour || v.colour === item.colour }));
+    const enabled = product.variants.map((v) => ({ ...v, enabled: !inColour || v.colour === item.colour }));
     const area = catalog?.printAreas[starterView(template, index)] ?? catalog?.printAreas[0];
     const poster = blankFamily(item.starter) === "poster";
     const file = template.assets.artwork?.[poster ? "poster" : isDarkBlank(item.colour) ? "dark" : "light"];
@@ -232,6 +232,17 @@ export async function addStarterProducts(ctx: OperationContext, template: StoreT
           },
         ]
       : [];
+    const landed = breakdownFor({ ...product, variants: enabled, artworks }, catalog, bracket, store.pricesIncludeTax);
+    const price = Math.max(
+      starterPrice(item.price, product.currency, defaultLocale),
+      priceForMargin(
+        landed.supplierCost + landed.customizationCost + landed.shippingEstimate,
+        HEALTHY_MARGIN_PCT,
+        landed.taxRate,
+        store.pricesIncludeTax,
+      ),
+    );
+    const variants = enabled.map((v) => ({ ...v, price }));
     const next = { ...product, price, variants, artworks, mockups };
     await updateStoreProduct(product.id, {
       name,

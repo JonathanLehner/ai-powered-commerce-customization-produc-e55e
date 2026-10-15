@@ -3854,6 +3854,7 @@
       "published": "{count, plural, one {# produkt publicerad.} other {# produkter publicerade.}}",
       "notPublished": "Vissa produkter publicerades inte:",
       "review": "Granska i katalogen",
+      "editPrice": "Redigera pris",
       "failed": "Produkterna kunde inte publiceras. Försök igen."
     }
   },

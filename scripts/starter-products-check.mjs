@@ -2,7 +2,8 @@
 //
 // Adds the Roastery template's starter products to throwaway stores in the
 // development database and asserts that each arrives in the demo's colour, at
-// the demo's rounded price, with the template's artwork placed inside the
+// the demo's rounded price (raised to a clean price with a healthy margin
+// where the demo's leaves a thin one), with the template's artwork placed inside the
 // print area and its product shot as the preview, that adding them twice adds
 // nothing, that they take the store's default tax bracket once it is set, and
 // that "Publish starter products" follows the catalog's bulk Publish rules:
@@ -28,6 +29,7 @@ const { bulkUpdateProducts } = await import("../src/lib/operations/products.ts")
 const { saveDefaultTax } = await import("../src/lib/operations/store-settings.ts");
 const { getTemplate } = await import("../src/lib/templates/index.ts");
 const { starterPrice } = await import("../src/lib/templates/demo.ts");
+const { HEALTHY_MARGIN_PCT, priceForMargin } = await import("../src/lib/pricing.ts");
 
 const quiet = console.error;
 console.error = () => {};
@@ -61,6 +63,11 @@ try {
   assert.equal(starterPrice(1800, "JPY", "ja"), 2700, "JPY is written in yen, as the demo shows it");
   assert.equal(starterPrice(1800, "EUR", "en") % 100, 0, "a converted price is a whole unit");
 
+  // Margin floor: cost over (1 - margin), tax added when included, rounded up to a whole unit.
+  assert.equal(priceForMargin(400, 25, 0, false), 600, "a $4.00 cost starts at $6.00");
+  assert.equal(priceForMargin(1790, 25, 20, true), 2900, "tax-inclusive prices carry the tax on top");
+  assert.equal(priceForMargin(300, 25, 0, false), 400, "an exact whole unit is kept");
+
   /* ------------------------------------------------- a USD store, English */
   const store = makeStore("usd", { defaultCurrency: "USD", currencies: ["USD"], defaultLanguage: "en", languages: ["en"] });
   await db.insertOne(COLLECTIONS.stores, store);
@@ -73,8 +80,8 @@ try {
   const products = await listStoreProducts(store.id);
   assert.deepEqual(
     template.products.map((item) => products.find((p) => p.name === item.name)?.price),
-    [1800, 2400, 2200, 3200, 2800, 2200, 5800],
-    "each product is priced like the demo",
+    [1900, 2400, 2200, 3200, 2800, 2400, 5800],
+    "each product is priced like the demo, the two thin ones raised to a healthy margin",
   );
   for (const [index, item] of template.products.entries()) {
     const product = products.find((p) => p.importKey === `template:roastery:${index}`);
@@ -143,8 +150,8 @@ try {
   const euroProducts = await listStoreProducts(euro.id);
   assert.deepEqual(
     template.products.map((_, i) => euroProducts.find((p) => p.importKey === `template:roastery:${i}`)?.price),
-    [1800, 2400, 2200, 3200, 2800, 2200, 5800],
-    "a German store sells at the German demo's euro prices",
+    [1900, 2400, 2200, 3200, 2800, 2400, 5800],
+    "a German store sells at the German demo's euro prices, with the same margin floor",
   );
   assert.ok(euroProducts.every((p) => p.currency === "EUR"));
 
@@ -165,6 +172,21 @@ try {
       assert.equal(product.artworks[0].scale, 1, "the poster sheet fills the paper");
     }
   }
+
+  /* ------------- Terminal: demo prices at or near cost start above it */
+  const terminal = getTemplate("terminal");
+  const termStore = makeStore("term", { defaultCurrency: "USD", currencies: ["USD"], defaultLanguage: "en", languages: ["en"] });
+  await db.insertOne(COLLECTIONS.stores, termStore);
+  await addStarterProducts({ ...ctx, store: termStore }, terminal);
+  const termProducts = await listStoreProducts(termStore.id);
+  for (const [index, item] of terminal.products.entries()) {
+    const product = termProducts.find((p) => p.importKey === `template:terminal:${index}`);
+    assert.ok(product.costs.marginPct >= HEALTHY_MARGIN_PCT, `${item.name} starts at a healthy margin (${product.costs.marginPct}%)`);
+    assert.equal(product.price % 100, 0, `${item.name} starts at a whole-dollar price`);
+    assert.ok(product.price >= item.price, `${item.name} never starts below the demo price`);
+  }
+  const sticker = termProducts.find((p) => p.name === "Commitly Sticker");
+  assert.ok(sticker.price > 400, "the sticker no longer starts at its $4.00 cost");
 } finally {
   await Promise.all(
     stores.flatMap((store) => [

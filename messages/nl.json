@@ -3854,6 +3854,7 @@
       "published": "{count, plural, one {# product gepubliceerd.} other {# producten gepubliceerd.}}",
       "notPublished": "Sommige producten zijn niet gepubliceerd:",
       "review": "Bekijken in catalogus",
+      "editPrice": "Prijs bewerken",
       "failed": "De producten konden niet worden gepubliceerd. Probeer het opnieuw."
     }
   },

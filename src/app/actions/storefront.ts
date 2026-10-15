@@ -14,7 +14,7 @@ import { isLocale } from "@/i18n/locales";
 import { storeLanguages } from "@/i18n/storefront-routing";
 import { listStoreProducts } from "@/lib/data";
 import { siteOrigin } from "@/lib/email";
-import { publishBlockersFor } from "@/lib/publish-blockers";
+import { publishBlockersFor, type PublishBlockerCode } from "@/lib/publish-blockers";
 import { templatePreviewLink } from "@/lib/storefront-preview";
 import { getTemplate } from "@/lib/templates/index";
 import { assertStoreAccess, operationContext } from "@/lib/session";
@@ -101,24 +101,35 @@ export async function applyStoreTemplate(input: {
   }
 }
 
-/** Publishes the products a template added that are not on sale yet; reports why any could not go live. */
+/** Publishes the products a template added that are not on sale yet; reports which stayed back and why. */
 export async function publishStarterProducts(input: {
   storeId: string;
-}): Promise<{ published: number; blockers: { reason: string; fix: string }[] } | { error: string }> {
+}): Promise<{ published: number; skipped: SkippedStarter[] } | { error: string }> {
   const access = await assertStoreAccess(input.storeId, "store.catalog");
   try {
     const ctx = await operationContext(access);
     const outcome = await publishStarters(ctx);
     const failed = new Set(outcome.failed.map((f) => f.id));
     const held = (await listStoreProducts(access.store.id)).filter((p) => failed.has(p.id));
-    const blockers = new Map<string, string>();
-    for (const list of (await publishBlockersFor(held, ctx.locale)).values()) {
-      for (const { reason, fix } of list) blockers.set(reason, fix);
-    }
-    return { published: outcome.succeeded.length, blockers: [...blockers].map(([reason, fix]) => ({ reason, fix })) };
+    const blockers = await publishBlockersFor(held, ctx.locale);
+    const skipped = outcome.failed.map(({ id, name, reason }) => {
+      const list = blockers.get(id) ?? [];
+      return {
+        id,
+        name,
+        blockers: list.length > 0 ? list.map(({ code, reason, fix }) => ({ code, reason, fix })) : [{ code: null, reason, fix: "" }],
+      };
+    });
+    return { published: outcome.succeeded.length, skipped };
   } catch (error) {
     return { error: refusal(error).message ?? "" };
   }
+}
+
+export interface SkippedStarter {
+  id: string;
+  name: string;
+  blockers: { code: PublishBlockerCode | null; reason: string; fix: string }[];
 }
 
 /** A signed link to the store's products in a template, before it is applied. */

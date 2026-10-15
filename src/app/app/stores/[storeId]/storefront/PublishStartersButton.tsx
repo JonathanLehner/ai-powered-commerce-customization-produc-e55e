@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { bulkUpdateProducts } from "@/app/actions/products";
-import { publishStarterProducts } from "@/app/actions/storefront";
+import { publishStarterProducts, type SkippedStarter } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -33,7 +33,7 @@ export function PublishStartersButton({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<
-    | { published: number; blockers: { reason: string; fix: string }[] }
+    | { published: number; skipped: SkippedStarter[] }
     | { approved: number }
     | { error: string }
     | null
@@ -90,13 +90,28 @@ export function PublishStartersButton({
       ) : result ? (
         <div role="status" className="space-y-1">
           {result.published > 0 ? <p>{t("published", { count: result.published })}</p> : null}
-          {result.blockers.length > 0 ? (
+          {result.skipped.length > 0 ? (
             <>
               <p className="font-medium">{t("notPublished")}</p>
               <ul className="list-disc pl-5">
-                {result.blockers.map(({ reason, fix }) => (
-                  <li key={reason}>
-                    {reason} {fix}
+                {result.skipped.map(({ id, name, blockers }) => (
+                  <li key={id}>
+                    <Link href={`/app/stores/${storeId}/catalog/${id}`} className="font-medium underline underline-offset-4">
+                      {name}
+                    </Link>
+                    :{" "}
+                    {blockers.map(({ reason, fix }) => `${reason} ${fix}`.trim()).join(" ")}
+                    {blockers.some((b) => b.code === "belowCost") ? (
+                      <>
+                        {" "}
+                        <Link
+                          href={`/app/stores/${storeId}/catalog/${id}#price`}
+                          className="font-medium underline underline-offset-4"
+                        >
+                          {t("editPrice")}
+                        </Link>
+                      </>
+                    ) : null}
                   </li>
                 ))}
               </ul>

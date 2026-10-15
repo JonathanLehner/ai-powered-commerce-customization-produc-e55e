@@ -3854,6 +3854,7 @@
       "published": "{count, plural, one {# produit publié.} other {# produits publiés.}}",
       "notPublished": "Certains produits n’ont pas été publiés :",
       "review": "Vérifier dans le catalogue",
+      "editPrice": "Modifier le prix",
       "failed": "Les produits n’ont pas pu être publiés. Réessayez."
     }
   },

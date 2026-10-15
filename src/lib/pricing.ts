@@ -119,9 +119,28 @@ export function breakdownFor(
   });
 }
 
+/**
+ * The lowest clean price, minor units, that keeps `marginPct` of net revenue
+ * over `landedCost`: tax added on top when prices include it, then rounded up
+ * to 100 minor units: a whole unit, or 100 yen.
+ */
+export function priceForMargin(
+  landedCost: number,
+  marginPct: number,
+  taxRate: number,
+  pricesIncludeTax: boolean,
+): number {
+  const net = landedCost / (1 - marginPct / 100);
+  const gross = pricesIncludeTax ? net * (1 + taxRate / 100) : net;
+  return Math.max(100, Math.ceil(gross / 100) * 100);
+}
+
+/** The margin, as a percentage of net revenue, from which a price reads as healthy. */
+export const HEALTHY_MARGIN_PCT = 25;
+
 export function marginTone(pct: number): "healthy" | "thin" | "negative" {
   if (pct < 0) return "negative";
-  if (pct < 25) return "thin";
+  if (pct < HEALTHY_MARGIN_PCT) return "thin";
   return "healthy";
 }
 
