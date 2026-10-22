@@ -6102,5 +6102,25 @@
     "384": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/debba64c21753359d4802ea991f2e8ce.webp",
     "640": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/30d3aacee214a515fe2cf77510b3dc9c.webp",
     "1024": "https://assets.clawcorp.ai/6a6d61c4c5a5e409b7afe7ad/uploads/7745c3b031bbc5f0a97b85f925fbebe8.webp"
+  },
+  "/screens/sourcing-1024.webp": {
+    "384": "/screens/sourcing-384.webp",
+    "640": "/screens/sourcing-640.webp",
+    "1024": "/screens/sourcing-1024.webp"
+  },
+  "/screens/artwork-1024.webp": {
+    "384": "/screens/artwork-384.webp",
+    "640": "/screens/artwork-640.webp",
+    "1024": "/screens/artwork-1024.webp"
+  },
+  "/screens/orders-1024.webp": {
+    "384": "/screens/orders-384.webp",
+    "640": "/screens/orders-640.webp",
+    "1024": "/screens/orders-1024.webp"
+  },
+  "/screens/gifting-1024.webp": {
+    "384": "/screens/gifting-384.webp",
+    "640": "/screens/gifting-640.webp",
+    "1024": "/screens/gifting-1024.webp"
   }
 }

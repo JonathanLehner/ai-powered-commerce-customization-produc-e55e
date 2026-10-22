@@ -92,7 +92,8 @@
           "Regioni di spedizione coperte",
           "Copia nel catalogo di un negozio"
         ],
-        "alt": "Campioni di merchandising neutro e scampoli di tessuto su una superficie chiara"
+        "alt": "Catalogo fornitori filtrato per magliette, con il confronto di fornitore, costo unitario, costo di stampa, spedizione e tempi per tre opzioni",
+        "screen": "Catalogo fornitori"
       },
       "artwork": {
         "title": "Grafiche controllate prima della produzione",
@@ -102,7 +103,8 @@
           "Controlli di risoluzione, limiti e file",
           "Mockup fronte, retro e lato"
         ],
-        "alt": "Mani che posizionano un foglio transfer su una t-shirt neutra piegata"
+        "alt": "Editor dell'area di stampa con un logo posizionato su una tazza, con dimensioni, rotazione, risoluzione di stampa effettiva e un controllo di risoluzione non superato",
+        "screen": "Editor dell'area di stampa"
       },
       "fulfilment": {
         "title": "Gli ordini pagati passano in produzione",
@@ -112,7 +114,8 @@
           "Rimborsi, annullamenti ed eccezioni",
           "Registro di controllo completo"
         ],
-        "alt": "Scatole di cartone kraft, nastro adesivo e un lettore di codici a barre su un banco da lavoro"
+        "alt": "Coda ordini filtrata sugli ordini che richiedono attenzione, con due ordini segnalati come eccezioni di evasione",
+        "screen": "Ordini"
       }
     },
     "giftingEyebrow": "Regali aziendali",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "Come funzionano i regali",
     "giftingIncluded": "Incluso in tutti i piani",
-    "giftingAlt": "Scatole regalo in kraft con nastro accanto a una felpa blu navy piegata e a una tazza bianca in ceramica",
+    "giftingAlt": "Portale regali privato con limite di spesa per destinatario, approvatore e regali del catalogo",
     "giftFlow": {
       "publish": {
         "title": "Pubblica un catalogo",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Prova lo spazio di lavoro demo",
     "demoBody": "Quattro negozi clienti di esempio con prodotti, ordini e campagne regalo.",
-    "demoCta": "Accedi alla demo"
+    "demoCta": "Accedi alla demo",
+    "giftingScreen": "Portale regali",
+    "exampleData": "Dati di esempio"
   },
   "howItWorks": {
     "metaTitle": "Come funziona",

@@ -92,7 +92,8 @@
           "Régions de livraison couvertes",
           "Copie dans le catalogue d’une boutique"
         ],
-        "alt": "Échantillons de produits vierges et échantillons de tissu disposés sur une surface claire"
+        "alt": "Catalogue fournisseurs filtré sur les t-shirts, comparant fournisseur, coût unitaire, coût d'impression, livraison et délai pour trois options",
+        "screen": "Catalogue fournisseurs"
       },
       "artwork": {
         "title": "Des visuels vérifiés avant production",
@@ -102,7 +103,8 @@
           "Contrôle de la résolution, des limites et du fichier",
           "Maquettes de face, de dos et de côté"
         ],
-        "alt": "Des mains positionnent une feuille de transfert sur un t-shirt vierge plié"
+        "alt": "Éditeur de zone d'impression avec un logo placé sur une tasse, affichant la taille, la rotation, la résolution d'impression effective et un contrôle de résolution échoué",
+        "screen": "Éditeur de zone d'impression"
       },
       "fulfilment": {
         "title": "Les commandes payées partent en production",
@@ -112,7 +114,8 @@
           "Remboursements, annulations et exceptions",
           "Journal d’audit complet"
         ],
-        "alt": "Cartons d’expédition, ruban adhésif et lecteur de codes-barres sur un établi"
+        "alt": "File des commandes filtrée sur les commandes à traiter, dont deux signalées en exception d'expédition",
+        "screen": "Commandes"
       }
     },
     "giftingEyebrow": "Cadeaux d’entreprise",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "Fonctionnement des cadeaux",
     "giftingIncluded": "Inclus dans toutes les offres",
-    "giftingAlt": "Boîtes cadeaux en kraft nouées d’un ruban, à côté d’un sweat à capuche bleu marine plié et d’un mug blanc en céramique",
+    "giftingAlt": "Portail cadeaux privé affichant la limite de dépense par destinataire, l'approbateur et les cadeaux du catalogue",
     "giftFlow": {
       "publish": {
         "title": "Publier un catalogue",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Essayez l’espace de démonstration",
     "demoBody": "Quatre boutiques clients d’exemple avec produits, commandes et campagnes cadeaux.",
-    "demoCta": "Se connecter à la démo"
+    "demoCta": "Se connecter à la démo",
+    "giftingScreen": "Portail cadeaux",
+    "exampleData": "Données d'exemple"
   },
   "howItWorks": {
     "metaTitle": "Fonctionnement",

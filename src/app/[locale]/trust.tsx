@@ -1,14 +1,8 @@
-import { CreditCardIcon, ScrollTextIcon, ShieldCheckIcon, UsersIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Section, SectionHeading } from "./kit";
 
-const SECURITY = [
-  { key: "payments", icon: CreditCardIcon },
-  { key: "separation", icon: ShieldCheckIcon },
-  { key: "roles", icon: UsersIcon },
-  { key: "audit", icon: ScrollTextIcon },
-] as const;
+const SECURITY = ["payments", "separation", "roles", "audit"] as const;
 
 type Quote = { quote: string; name: string; role: string; agency: string };
 
@@ -48,12 +42,11 @@ export async function SecurityBlock({ tone }: { tone?: "plain" | "muted" }) {
   return (
     <Section tone={tone}>
       <SectionHeading lead={t("securityLead")}>{t("securityTitle")}</SectionHeading>
-      <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {SECURITY.map((item) => (
-          <li key={item.key}>
-            <item.icon aria-hidden className="size-5 text-primary" />
-            <h3 className="mt-3 text-sm font-semibold text-foreground">{t(`security.${item.key}.title`)}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t(`security.${item.key}.body`)}</p>
+      <ul className="mt-8 grid gap-x-14 sm:grid-cols-2">
+        {SECURITY.map((key) => (
+          <li key={key} className="border-t border-border py-5">
+            <h3 className="text-sm font-semibold text-foreground">{t(`security.${key}.title`)}</h3>
+            <p className="mt-1.5 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">{t(`security.${key}.body`)}</p>
           </li>
         ))}
       </ul>

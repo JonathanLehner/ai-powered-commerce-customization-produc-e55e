@@ -92,7 +92,8 @@
           "Täckta leveransregioner",
           "Kopiera till en butikskatalog"
         ],
-        "alt": "Blanka profilprodukter och tygprover på en ljus yta"
+        "alt": "Leverantörskatalog filtrerad på t-shirts som jämför leverantör, styckkostnad, tryckkostnad, frakt och ledtid för tre alternativ",
+        "screen": "Leverantörskatalog"
       },
       "artwork": {
         "title": "Original kontrolleras före produktion",
@@ -102,7 +103,8 @@
           "Kontroll av upplösning, gränser och fil",
           "Mockups framifrån, bakifrån och från sidan"
         ],
-        "alt": "Händer som placerar ett transferark på en vikt blank t-shirt"
+        "alt": "Tryckytsredigerare med en logotyp placerad på en mugg, med storlek, rotation, effektiv tryckupplösning och en underkänd upplösningskontroll",
+        "screen": "Tryckytsredigerare"
       },
       "fulfilment": {
         "title": "Betalda ordrar går till produktion",
@@ -112,7 +114,8 @@
           "Återbetalningar, avbokningar och avvikelser",
           "Fullständig granskningslogg"
         ],
-        "alt": "Kartonger, packtejp och en streckkodsläsare på en arbetsbänk"
+        "alt": "Orderkö filtrerad på ordrar som behöver åtgärdas, där två ordrar är flaggade som leveransundantag",
+        "screen": "Ordrar"
       }
     },
     "giftingEyebrow": "Företagsgåvor",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "Så fungerar företagsgåvor",
     "giftingIncluded": "Ingår i alla abonnemang",
-    "giftingAlt": "Presentaskar i kraftpapper med band bredvid en vikt marinblå huvtröja och en vit keramikmugg",
+    "giftingAlt": "Privat gåvoportal med utgiftsgräns per mottagare, godkännare och gåvorna i katalogen",
     "giftFlow": {
       "publish": {
         "title": "Publicera en katalog",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Prova demoarbetsytan",
     "demoBody": "Fyra exempelbutiker med produkter, ordrar och gåvokampanjer.",
-    "demoCta": "Logga in i demon"
+    "demoCta": "Logga in i demon",
+    "giftingScreen": "Gåvoportal",
+    "exampleData": "Exempeldata"
   },
   "howItWorks": {
     "metaTitle": "Så fungerar det",

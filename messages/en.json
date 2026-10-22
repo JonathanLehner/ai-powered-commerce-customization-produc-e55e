@@ -92,7 +92,8 @@
           "Fulfilment region coverage",
           "Copy into a store catalog"
         ],
-        "alt": "Blank merchandise samples and fabric swatches arranged on a pale surface"
+        "alt": "Supplier catalog searched for tees, comparing supplier, unit cost, print cost, shipping and lead time for three options",
+        "screen": "Supplier catalog"
       },
       "artwork": {
         "title": "Artwork checked before production",
@@ -102,7 +103,8 @@
           "Resolution, bounds and file checks",
           "Front, back and side mockups"
         ],
-        "alt": "Hands positioning a transfer sheet over a folded blank t-shirt"
+        "alt": "Print-area editor with a logo placed on a mug, showing size, rotation, the effective print resolution and a failed resolution check",
+        "screen": "Print-area editor"
       },
       "fulfilment": {
         "title": "Paid orders go to production",
@@ -112,7 +114,8 @@
           "Refunds, cancellations and exceptions",
           "Full audit log"
         ],
-        "alt": "Kraft parcel boxes, packing tape and a barcode scanner on a workbench"
+        "alt": "Orders queue filtered to orders that need attention, with two orders flagged as fulfilment exceptions",
+        "screen": "Orders"
       }
     },
     "giftingEyebrow": "Corporate gifting",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "How gifting works",
     "giftingIncluded": "Included on every plan",
-    "giftingAlt": "Kraft gift boxes tied with ribbon beside a folded navy hoodie and a white ceramic mug",
+    "giftingAlt": "Private gift portal showing the spend limit per recipient, the approver and the gifts in the catalogue",
     "giftFlow": {
       "publish": {
         "title": "Publish a catalogue",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Try the demo workspace",
     "demoBody": "Four sample client stores with products, orders and gift campaigns.",
-    "demoCta": "Sign in to the demo"
+    "demoCta": "Sign in to the demo",
+    "giftingScreen": "Gift portal",
+    "exampleData": "Example data"
   },
   "howItWorks": {
     "metaTitle": "How it works",

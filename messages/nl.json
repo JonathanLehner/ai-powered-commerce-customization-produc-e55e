@@ -92,7 +92,8 @@
           "Gedekte leveringsregio’s",
           "Kopiëren naar een winkelcatalogus"
         ],
-        "alt": "Blanco merchandisestalen en stofstalen op een licht oppervlak"
+        "alt": "Leverancierscatalogus gezocht op T-shirts, met leverancier, stukprijs, drukkosten, verzending en levertijd van drie opties naast elkaar",
+        "screen": "Leverancierscatalogus"
       },
       "artwork": {
         "title": "Ontwerpen gecontroleerd vóór productie",
@@ -102,7 +103,8 @@
           "Controle van resolutie, grenzen en bestand",
           "Mockups van voor, achter en opzij"
         ],
-        "alt": "Handen leggen een transfervel op een opgevouwen blanco T-shirt"
+        "alt": "Printvlak-editor met een logo op een mok, met formaat, rotatie, effectieve printresolutie en een mislukte resolutiecontrole",
+        "screen": "Printvlak-editor"
       },
       "fulfilment": {
         "title": "Betaalde bestellingen gaan in productie",
@@ -112,7 +114,8 @@
           "Terugbetalingen, annuleringen en uitzonderingen",
           "Volledig auditlogboek"
         ],
-        "alt": "Kartonnen verzenddozen, tape en een barcodescanner op een werkbank"
+        "alt": "Bestellijst gefilterd op bestellingen die aandacht nodig hebben, met twee bestellingen gemarkeerd als fulfilmentuitzondering",
+        "screen": "Bestellingen"
       }
     },
     "giftingEyebrow": "Relatiegeschenken",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "Zo werken relatiegeschenken",
     "giftingIncluded": "Inbegrepen in elk abonnement",
-    "giftingAlt": "Kraftpapieren cadeaudozen met lint naast een opgevouwen marineblauwe hoodie en een witte keramische mok",
+    "giftingAlt": "Privé cadeauportaal met het bestedingslimiet per ontvanger, de goedkeurder en de cadeaus in de catalogus",
     "giftFlow": {
       "publish": {
         "title": "Publiceer een catalogus",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Probeer de demo-omgeving",
     "demoBody": "Vier voorbeeldwinkels met producten, bestellingen en cadeaucampagnes.",
-    "demoCta": "Inloggen bij de demo"
+    "demoCta": "Inloggen bij de demo",
+    "giftingScreen": "Cadeauportaal",
+    "exampleData": "Voorbeeldgegevens"
   },
   "howItWorks": {
     "metaTitle": "Zo werkt het",

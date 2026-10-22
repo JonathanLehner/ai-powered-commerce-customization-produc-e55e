@@ -20,10 +20,11 @@ const PILLARS = [
   { key: "approval", icon: ShieldCheckIcon },
 ] as const;
 
+/** Screenshots of the workspace, captured with example data (see scripts/capture-screens.mjs). */
 const FEATURES = [
-  { key: "sourcing", image: IMAGES["marketing-sourcing"] },
-  { key: "artwork", image: IMAGES["marketing-mockup"] },
-  { key: "fulfilment", image: IMAGES["marketing-fulfilment"] },
+  { key: "sourcing", screen: "/screens/sourcing-1024.webp" },
+  { key: "artwork", screen: "/screens/artwork-1024.webp" },
+  { key: "fulfilment", screen: "/screens/orders-1024.webp" },
 ] as const;
 
 const GIFT_FLOW = ["publish", "recipients", "approve", "pay"] as const;
@@ -37,6 +38,28 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
   const locale = asLocale((await params).locale);
   const t = await getTranslations({ locale, namespace: "meta" });
   return { alternates: alternatesFor("/", locale), ...shareFor("/", locale, t("title"), t("description")) };
+}
+
+/** A product screenshot in a window frame, labelled with the screen it shows. */
+function ScreenFrame({ src, label, note, alt }: { src: string; label: string; note: string; alt: string }) {
+  return (
+    <figure className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+      <figcaption className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 text-xs">
+        <span className="font-semibold text-foreground">{label}</span>
+        <span className="text-muted-foreground">{note}</span>
+      </figcaption>
+      <Image
+        src={src}
+        alt={alt}
+        width={1024}
+        height={709}
+        loading="lazy"
+        sizes="(min-width: 1024px) 512px, 100vw"
+        className="h-auto w-full"
+        style={{ aspectRatio: "1040 / 720" }}
+      />
+    </figure>
+  );
 }
 
 /** A numbered step, used by the gifting flow and the lifecycle. */
@@ -144,18 +167,12 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
               <CheckList items={t.raw(`features.${feature.key}.points`) as string[]} className="mt-6" />
             </div>
             <div className={index % 2 === 1 ? "lg:order-1" : undefined}>
-              <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
-                <Image
-                  src={feature.image}
-                  alt={t(`features.${feature.key}.alt`)}
-                  width={1024}
-                  height={1024}
-                  loading="lazy"
-                  sizes="(min-width: 1024px) 512px, 100vw"
-                  className="h-auto w-full object-cover"
-                  style={{ aspectRatio: "1 / 1" }}
-                />
-              </div>
+              <ScreenFrame
+                src={feature.screen}
+                label={t(`features.${feature.key}.screen`)}
+                note={t("exampleData")}
+                alt={t(`features.${feature.key}.alt`)}
+              />
             </div>
           </div>
         </Section>
@@ -185,18 +202,12 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
               </IntlLink>
             </div>
           </div>
-          <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
-            <Image
-              src={IMAGES["marketing-gifting"]}
-              alt={t("giftingAlt")}
-              width={1024}
-              height={1024}
-              loading="lazy"
-              sizes="(min-width: 1024px) 512px, 100vw"
-              className="h-auto w-full object-cover"
-              style={{ aspectRatio: "1 / 1" }}
-            />
-          </div>
+          <ScreenFrame
+            src="/screens/gifting-1024.webp"
+            label={t("giftingScreen")}
+            note={t("exampleData")}
+            alt={t("giftingAlt")}
+          />
         </div>
 
         <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

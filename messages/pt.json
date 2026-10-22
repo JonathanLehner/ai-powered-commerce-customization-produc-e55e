@@ -92,7 +92,8 @@
           "Regiões de entrega cobertas",
           "Cópia para o catálogo de uma loja"
         ],
-        "alt": "Amostras de merchandising liso e retalhos de tecido sobre uma superfície clara"
+        "alt": "Catálogo de fornecedores filtrado por camisetas, comparando fornecedor, custo unitário, custo de impressão, frete e prazo de três opções",
+        "screen": "Catálogo de fornecedores"
       },
       "artwork": {
         "title": "Designs verificados antes da produção",
@@ -102,7 +103,8 @@
           "Verificação de resolução, limites e ficheiro",
           "Mockups de frente, costas e lado"
         ],
-        "alt": "Mãos a posicionar uma folha de transfer sobre uma t-shirt lisa dobrada"
+        "alt": "Editor de área de impressão com um logotipo numa caneca, mostrando tamanho, rotação, resolução de impressão efetiva e uma verificação de resolução reprovada",
+        "screen": "Editor de área de impressão"
       },
       "fulfilment": {
         "title": "As encomendas pagas seguem para produção",
@@ -112,7 +114,8 @@
           "Reembolsos, cancelamentos e exceções",
           "Registo de auditoria completo"
         ],
-        "alt": "Caixas de cartão kraft, fita adesiva e um leitor de códigos de barras numa bancada"
+        "alt": "Fila de pedidos filtrada pelos que precisam de atenção, com dois pedidos marcados como exceções de atendimento",
+        "screen": "Pedidos"
       }
     },
     "giftingEyebrow": "Ofertas empresariais",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "Como funcionam as ofertas",
     "giftingIncluded": "Incluído em todos os planos",
-    "giftingAlt": "Caixas de oferta em kraft com laço ao lado de um hoodie azul-marinho dobrado e de uma caneca branca de cerâmica",
+    "giftingAlt": "Portal de presentes privado com o limite de gasto por destinatário, o aprovador e os presentes do catálogo",
     "giftFlow": {
       "publish": {
         "title": "Publique um catálogo",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Experimente o espaço de demonstração",
     "demoBody": "Quatro lojas de clientes de exemplo com produtos, encomendas e campanhas de ofertas.",
-    "demoCta": "Iniciar sessão na demonstração"
+    "demoCta": "Iniciar sessão na demonstração",
+    "giftingScreen": "Portal de presentes",
+    "exampleData": "Dados de exemplo"
   },
   "howItWorks": {
     "metaTitle": "Como funciona",

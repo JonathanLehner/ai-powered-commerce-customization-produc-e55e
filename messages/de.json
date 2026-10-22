@@ -92,7 +92,8 @@
           "Abgedeckte Lieferregionen",
           "In einen Shop-Katalog übernehmen"
         ],
-        "alt": "Blanko-Merchandise-Muster und Stoffproben auf einer hellen Fläche"
+        "alt": "Lieferantenkatalog mit Suche nach T-Shirts, der Lieferant, Stückkosten, Druckkosten, Versand und Lieferzeit für drei Optionen vergleicht",
+        "screen": "Lieferantenkatalog"
       },
       "artwork": {
         "title": "Artwork vor der Produktion geprüft",
@@ -102,7 +103,8 @@
           "Prüfung von Auflösung, Grenzen und Datei",
           "Mockups von vorne, hinten und seitlich"
         ],
-        "alt": "Hände legen ein Transferblatt auf ein gefaltetes Blanko-T-Shirt"
+        "alt": "Druckbereich-Editor mit einem Logo auf einer Tasse, mit Größe, Drehung, effektiver Druckauflösung und einer fehlgeschlagenen Auflösungsprüfung",
+        "screen": "Druckbereich-Editor"
       },
       "fulfilment": {
         "title": "Bezahlte Bestellungen gehen in Produktion",
@@ -112,7 +114,8 @@
           "Erstattungen, Stornierungen und Ausnahmen",
           "Vollständiges Audit-Log"
         ],
-        "alt": "Versandkartons, Packband und ein Barcodescanner auf einer Werkbank"
+        "alt": "Bestellliste gefiltert auf Bestellungen, die Aufmerksamkeit brauchen, mit zwei als Fulfillment-Ausnahme markierten Bestellungen",
+        "screen": "Bestellungen"
       }
     },
     "giftingEyebrow": "Firmengeschenke",
@@ -125,7 +128,7 @@
     ],
     "giftingHow": "So funktionieren Firmengeschenke",
     "giftingIncluded": "In jedem Tarif enthalten",
-    "giftingAlt": "Geschenkboxen aus Kraftpapier mit Schleife neben einem gefalteten marineblauen Hoodie und einer weißen Keramiktasse",
+    "giftingAlt": "Privates Geschenkportal mit Ausgabenlimit pro Empfänger, der freigebenden Person und den Geschenken im Katalog",
     "giftFlow": {
       "publish": {
         "title": "Katalog veröffentlichen",
@@ -169,7 +172,9 @@
     },
     "demoTitle": "Demo-Arbeitsbereich ausprobieren",
     "demoBody": "Vier Beispiel-Kundenshops mit Produkten, Bestellungen und Geschenkkampagnen.",
-    "demoCta": "Bei der Demo anmelden"
+    "demoCta": "Bei der Demo anmelden",
+    "giftingScreen": "Geschenkportal",
+    "exampleData": "Beispieldaten"
   },
   "howItWorks": {
     "metaTitle": "So funktioniert’s",
