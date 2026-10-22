@@ -161,13 +161,17 @@ export async function generateMockups(
   ctx: OperationContext,
   product: StoreProduct,
   rendered: Record<string, RenderedMockup>,
+  /** The colour shown on the canvas; ignored unless an enabled variant has it. */
+  requestedColour = "",
 ): Promise<{ count: number }> {
   const t = await getTranslations({ locale: ctx.locale, namespace: "actions.products" });
   const catalog = await getCatalogProduct(product.catalogProductId);
   if (!catalog) throw new OperationError("conflict", t("supplierMissing"));
   if (product.artworks.length === 0) throw new OperationError("invalid", t("artworkRequired"));
 
-  const colour = product.variants.find((v) => v.enabled)?.colour ?? catalog.variants[0]?.colour ?? "";
+  const colour = product.variants.some((v) => v.enabled && v.colour === requestedColour)
+    ? requestedColour
+    : (product.variants.find((v) => v.enabled)?.colour ?? catalog.variants[0]?.colour ?? "");
   const mockups: MockupImage[] = [];
 
   for (const artwork of product.artworks) {

@@ -189,3 +189,27 @@ for (const code of LOCALES) {
 }
 
 console.log("artwork-check ok");
+
+// The configurator canvas opens on the colour the product is described in.
+{
+  const { canvasColours, initialCanvasColour } = await import("../src/lib/canvas-colour.ts");
+  const variant = (colour, colourHex, enabled = true) => ({ colour, colourHex, enabled });
+  const nightRoast = {
+    name: "Night Roast Tee",
+    description: "Black tee with the roast curve on the back.",
+    mockups: [],
+    variants: [variant("White", "#ffffff"), variant("White", "#ffffff"), variant("Black", "#111111")],
+  };
+  const colours = canvasColours(nightRoast, { variants: [] });
+  assert.deepEqual(colours, [{ name: "White", hex: "#ffffff" }, { name: "Black", hex: "#111111" }]);
+  assert.equal(initialCanvasColour(nightRoast, colours), "Black");
+  // Existing mockups win over the description; a plain name falls back to the first colour.
+  assert.equal(initialCanvasColour({ ...nightRoast, mockups: [{ colour: "White" }] }, colours), "White");
+  assert.equal(initialCanvasColour({ ...nightRoast, description: "Blackberry print." }, colours), "White");
+  // Disabled variants are not offered.
+  assert.deepEqual(
+    canvasColours({ variants: [variant("Navy", "#1f2a44", false), variant("Sand", "#d8c8a8")] }, { variants: [] }).map((c) => c.name),
+    ["Sand"],
+  );
+  console.log("canvas colour ok");
+}

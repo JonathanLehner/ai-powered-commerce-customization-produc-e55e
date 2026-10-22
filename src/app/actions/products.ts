@@ -255,7 +255,12 @@ export async function generateMockups(_prev: ActionState, formData: FormData): P
   }
 
   try {
-    const { count } = await renderMockups(await operationContext(access), product, rendered);
+    const { count } = await renderMockups(
+      await operationContext(access),
+      product,
+      rendered,
+      String(formData.get("colour") ?? ""),
+    );
     return { status: "success", message: t("mockupsGenerated", { count }) };
   } catch (error) {
     return refusal(error);

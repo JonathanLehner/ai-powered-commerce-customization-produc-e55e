@@ -22,6 +22,7 @@ import {
   validateArtwork,
   type ArtworkIssue,
 } from "@/lib/artwork";
+import { canvasColours, initialCanvasColour } from "@/lib/canvas-colour";
 import { renderMockupWithShareCopy, sameOriginAsset } from "@/lib/mockup-render";
 import { appendStoredImage, uploadImage } from "@/lib/upload-client";
 import type { Artwork, CatalogProduct, FileRequirements, StoreProduct } from "@/lib/types";
@@ -35,54 +36,34 @@ interface Placement {
 }
 
 /**
- * Artwork goes up the moment a file is chosen — there is no second "upload"
- * click to forget. The file itself is posted to `/api/uploads`, which has no
- * 1 MB Server Action body cap; the action that records it then only carries the
- * returned metadata. The input locks while the upload is in flight so a second
- * pick cannot race the first.
+ * Artwork goes up the moment a file is chosen or dropped — there is no second
+ * "upload" click to forget. The file itself is posted to `/api/uploads`, which
+ * has no 1 MB Server Action body cap; the action that records it then only
+ * carries the returned metadata. Picking and dropping lock while an upload is
+ * in flight so a second file cannot race the first.
  */
-function UploadForm({
-  storeId,
-  productId,
-  areaId,
-  areaName,
-  rules,
-  minDpi,
-}: {
-  storeId: string;
-  productId: string;
-  areaId: string;
-  areaName: string;
-  rules: FileRequirements;
-  minDpi: number;
-}) {
+function useArtworkUpload(storeId: string, productId: string, areaId: string, rules: FileRequirements) {
   const [state, formAction, saving] = useActionState<ActionState, FormData>(attachArtwork, {
     status: "idle",
   });
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  // Errors and results belong to the print area they were raised on.
+  const [result, setResult] = useState<{ areaId: string; error: string | null }>({ areaId, error: null });
   const t = useTranslations("configurator");
   const busy = uploading || saving;
-  const invalid = uploadError !== null || state.field === "artwork";
+  const current = result.areaId === areaId;
+  const error = current ? result.error : null;
 
-  async function onFileChosen(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.currentTarget.files?.[0];
-    // Clearing the input straight away means picking the same file again still
-    // fires a change event, and a second pick cannot ride on the first.
-    event.currentTarget.value = "";
-    if (!file) return;
-
-    setUploadError(null);
+  async function upload(file: File) {
+    if (busy) return;
+    const fail = (message: string) => setResult({ areaId, error: message });
+    setResult({ areaId, error: null });
     if (!isAcceptedFormat(file.type, rules)) {
-      setUploadError(
-        t("badFormat", { format: formatOf(file.type || file.name.split(".").pop() || ""), formats: acceptedFormats(rules).join(", ") }),
-      );
+      fail(t("badFormat", { format: formatOf(file.type || file.name.split(".").pop() || ""), formats: acceptedFormats(rules).join(", ") }));
       return;
     }
     if (file.size > rules.maxFileMb * 1024 * 1024) {
-      setUploadError(
-        t("fileTooLarge", { size: (file.size / 1024 / 1024).toFixed(1), max: rules.maxFileMb }),
-      );
+      fail(t("fileTooLarge", { size: (file.size / 1024 / 1024).toFixed(1), max: rules.maxFileMb }));
       return;
     }
 
@@ -96,51 +77,20 @@ function UploadForm({
       appendStoredImage(formData, "artwork", image);
       startTransition(() => formAction(formData));
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : t("uploadFailed"));
+      fail(error instanceof Error ? error.message : t("uploadFailed"));
     } finally {
       setUploading(false);
     }
   }
 
-  return (
-    <Card size="sm">
-      <CardContent className="grid gap-1.5">
-        <Label htmlFor="artwork">{t("artworkFor", { area: areaName })}</Label>
-        <Input
-          id="artwork"
-          type="file"
-          accept={acceptedMimeTypes(rules)}
-          disabled={busy}
-          onChange={onFileChosen}
-          aria-invalid={invalid ? true : undefined}
-          aria-describedby="artwork-hint"
-          className={classNames(
-            "file:mr-3 file:rounded-md file:border-0 file:bg-canvas file:px-3 file:py-1.5 file:text-sm",
-            busy && "opacity-60",
-          )}
-        />
-        <p id="artwork-hint" className="text-xs text-muted-foreground">
-          {t("fileHint", { formats: acceptedFormats(rules).join(", "), max: rules.maxFileMb, dpi: minDpi })}
-          {rules.transparentBackgroundRequired ? t("needsTransparency") : ""}
-        </p>
-        {busy ? (
-          <p role="status" aria-live="polite" className="mt-3 text-sm text-muted-foreground">
-            {uploading ? t("uploading") : t("saving")}
-          </p>
-        ) : uploadError ? (
-          <p
-            role="status"
-            aria-live="polite"
-            className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
-          >
-            {uploadError}
-          </p>
-        ) : (
-          <FormStatus state={state} />
-        )}
-      </CardContent>
-    </Card>
-  );
+  return {
+    upload,
+    busy,
+    uploading,
+    error,
+    state: current ? state : ({ status: "idle" } as ActionState),
+    invalid: error !== null || (current && state.field === "artwork"),
+  };
 }
 
 export function Configurator({
@@ -171,7 +121,9 @@ export function Configurator({
   const artwork = product.artworks.find((a) => a.printAreaId === area?.id);
   const placement = artwork ? (placements[artwork.id] ?? { x: artwork.x, y: artwork.y, scale: artwork.scale, rotation: artwork.rotation }) : null;
 
-  const colour = product.variants.find((v) => v.enabled)?.colour ?? catalog.variants[0]?.colour ?? "";
+  const colours = useMemo(() => canvasColours(product, catalog), [product, catalog]);
+  const [colour, setColour] = useState(() => initialCanvasColour(product, colours));
+  const colourHex = colours.find((c) => c.name === colour)?.hex ?? "";
   const base = useMemo(() => {
     if (!area) return null;
     return (
@@ -180,6 +132,28 @@ export function Configurator({
       null
     );
   }, [area, catalog.mockups, colour]);
+  // No photograph in this colour: tint the nearest one so the garment still reads right.
+  const tint = base && base.colour !== colour && colourHex ? colourHex : null;
+
+  const uploader = useArtworkUpload(product.storeId, product.id, area?.id ?? "", catalog.fileRequirements);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const formats = acceptedFormats(catalog.fileRequirements).join(", ");
+
+  function onFileChosen(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    // Clearing the input straight away means picking the same file again still
+    // fires a change event.
+    event.currentTarget.value = "";
+    if (file) void uploader.upload(file);
+  }
+
+  function onDrop(event: React.DragEvent<HTMLElement>) {
+    event.preventDefault();
+    setDragOver(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) void uploader.upload(file);
+  }
 
   const liveArtwork: Artwork | null =
     artwork && placement ? { ...artwork, ...placement } : null;
@@ -323,8 +297,9 @@ export function Configurator({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,40rem)_22rem]">
       <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
         <ToggleGroup
           type="single"
           variant="outline"
@@ -345,11 +320,32 @@ export function Configurator({
             );
           })}
         </ToggleGroup>
+        {colours.length > 1 ? (
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            aria-label={t("colour")}
+            value={colour}
+            onValueChange={(next) => next && setColour(next)}
+            className="flex-wrap"
+          >
+            {colours.map((c) => (
+              <ToggleGroupItem key={c.name} value={c.name}>
+                <span
+                  aria-hidden
+                  className="size-3 rounded-full border border-black/15"
+                  style={{ backgroundColor: c.hex }}
+                />
+                {c.name}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        ) : null}
+        </div>
 
         <div
           ref={canvasRef}
-          className="relative mt-4 overflow-hidden rounded-xl border border-border bg-canvas"
-          style={{ aspectRatio: "1 / 1" }}
+          className="relative mt-4 aspect-square w-full max-w-160 overflow-hidden rounded-xl border border-border bg-canvas"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -358,16 +354,57 @@ export function Configurator({
             className="h-full w-full select-none object-cover"
             draggable={false}
           />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute rounded-sm border-2 border-dashed border-brand-500/70"
-            style={{
-              left: `${area.rect.x * 100}%`,
-              top: `${area.rect.y * 100}%`,
-              width: `${area.rect.w * 100}%`,
-              height: `${area.rect.h * 100}%`,
-            }}
-          />
+          {tint ? (
+            <div aria-hidden className="pointer-events-none absolute inset-0 mix-blend-multiply" style={{ backgroundColor: tint }} />
+          ) : null}
+          {!liveArtwork && !readOnly ? (
+            <button
+              type="button"
+              disabled={uploader.busy}
+              onClick={() => fileInputRef.current?.click()}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
+              className={classNames(
+                "absolute flex items-center justify-center rounded-sm border-2 border-dashed p-2 text-center text-xs font-medium text-foreground transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-progress",
+                dragOver
+                  ? "border-brand-600 bg-brand-50/90"
+                  : "border-brand-500/70 bg-background/60 hover:bg-background/80",
+              )}
+              style={{
+                left: `${area.rect.x * 100}%`,
+                top: `${area.rect.y * 100}%`,
+                width: `${area.rect.w * 100}%`,
+                height: `${area.rect.h * 100}%`,
+              }}
+            >
+              {uploader.uploading ? (
+                t("uploading")
+              ) : (
+                <span>
+                  {t.rich("dropHere", {
+                    formats,
+                    browse: (chunks) => <span className="text-brand-700 underline underline-offset-2">{chunks}</span>,
+                  })}
+                </span>
+              )}
+            </button>
+          ) : (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute rounded-sm border-2 border-dashed border-brand-500/70"
+              style={{
+                left: `${area.rect.x * 100}%`,
+                top: `${area.rect.y * 100}%`,
+                width: `${area.rect.w * 100}%`,
+                height: `${area.rect.h * 100}%`,
+              }}
+            />
+          )}
           {liveArtwork && placement ? (
             <div
               className="absolute"
@@ -628,15 +665,52 @@ export function Configurator({
         )}
 
         {!readOnly ? (
-          <UploadForm
-            key={area.id}
-            storeId={product.storeId}
-            productId={product.id}
-            areaId={area.id}
-            areaName={area.name}
-            rules={catalog.fileRequirements}
-            minDpi={requiredDpi(area, catalog.fileRequirements)}
-          />
+          <Card size="sm">
+            <CardContent className="grid gap-1.5">
+              <input
+                ref={fileInputRef}
+                id="artwork"
+                type="file"
+                accept={acceptedMimeTypes(catalog.fileRequirements)}
+                disabled={uploader.busy}
+                onChange={onFileChosen}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                disabled={uploader.busy}
+                onClick={() => fileInputRef.current?.click()}
+                aria-label={t("uploadFor", { area: area.name })}
+                aria-invalid={uploader.invalid ? true : undefined}
+                aria-describedby="artwork-hint"
+              >
+                {uploader.busy ? (uploader.uploading ? t("uploading") : t("saving")) : t("upload")}
+              </Button>
+              <p id="artwork-hint" className="text-xs text-muted-foreground">
+                {t("fileHint", { formats, max: catalog.fileRequirements.maxFileMb, dpi: requiredDpi(area, catalog.fileRequirements) })}
+                {catalog.fileRequirements.transparentBackgroundRequired ? t("needsTransparency") : ""}
+              </p>
+              {uploader.busy ? (
+                <p role="status" aria-live="polite" className="sr-only">
+                  {uploader.uploading ? t("uploading") : t("saving")}
+                </p>
+              ) : uploader.error ? (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+                >
+                  {uploader.error}
+                </p>
+              ) : (
+                <FormStatus state={uploader.state} />
+              )}
+            </CardContent>
+          </Card>
         ) : null}
 
         {!readOnly ? (
@@ -647,7 +721,7 @@ export function Configurator({
             submitLabel={t("generate")}
             pendingLabel={t("rendering")}
             submitVariant="secondary" submitClassName="w-full"
-            hidden={{ storeId: product.storeId, productId: product.id }}
+            hidden={{ storeId: product.storeId, productId: product.id, colour }}
             actionsClassName="px-(--card-spacing)"
           >
             <CardHeader>
