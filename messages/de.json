@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Shop-Einrichtung",
-        "body": "Sechs Schritte für Branding, Sprache, Domain, Zahlungen, Versanddienste und Steuern.",
+        "body": "Zehn Schritte für Branding, Sprachen, Währungen, Support-Kontakte, Domain, Zahlungen, Versanddienste, Versandzonen, Steuern und Shop-Richtlinien.",
         "detail": [
-          "Logo, Design und Standardsprache",
+          "Vorlage und Logo",
+          "Sprachen",
           "Verkaufswährungen",
+          "Support-Kontakte",
           "Eigene Domain",
           "Stripe-Konto",
-          "Konten bei DHL, FedEx und UPS",
-          "Steuerklasse und Bruttopreise"
+          "Versanddienstleister",
+          "Versandzonen und Tarife",
+          "Steuereinstellungen",
+          "Shop-Richtlinien"
         ]
       },
       "sourcing": {

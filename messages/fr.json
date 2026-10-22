@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Configuration de la boutique",
-        "body": "Six étapes couvrent l’image de marque, la langue, le domaine, les paiements, les transporteurs et les taxes.",
+        "body": "Dix étapes couvrent l’image de marque, les langues, les devises, les contacts d’assistance, le domaine, les paiements, les transporteurs, les zones d’expédition, les taxes et les politiques de la boutique.",
         "detail": [
-          "Logo, thème et langue par défaut",
+          "Thème et logo",
+          "Langues",
           "Devises de vente",
+          "Contacts d’assistance",
           "Domaine personnalisé",
           "Compte Stripe",
-          "Comptes DHL, FedEx et UPS",
-          "Taux de taxe et prix TTC"
+          "Transporteurs",
+          "Zones et tarifs d’expédition",
+          "Configuration des taxes",
+          "Politiques de la boutique"
         ]
       },
       "sourcing": {

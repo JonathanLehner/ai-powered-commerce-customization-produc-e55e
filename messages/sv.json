@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Butiksinställning",
-        "body": "Sex steg för varumärke, språk, domän, betalningar, transportörer och moms.",
+        "body": "Tio steg för varumärke, språk, valutor, supportkontakter, domän, betalningar, transportörer, fraktzoner, moms och butikens policyer.",
         "detail": [
-          "Logotyp, tema och standardspråk",
+          "Mall och logotyp",
+          "Språk",
           "Försäljningsvalutor",
+          "Supportkontakter",
           "Egen domän",
           "Stripe-konto",
-          "Konton hos DHL, FedEx och UPS",
-          "Momssats och priser inklusive moms"
+          "Fraktbolag",
+          "Fraktzoner och priser",
+          "Momsinställningar",
+          "Butikens policyer"
         ]
       },
       "sourcing": {

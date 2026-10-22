@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Configurazione del negozio",
-        "body": "Sei passaggi coprono branding, lingua, dominio, pagamenti, corrieri e imposte.",
+        "body": "Dieci passaggi coprono branding, lingue, valute, contatti di assistenza, dominio, pagamenti, corrieri, zone di spedizione, imposte e politiche del negozio.",
         "detail": [
-          "Logo, tema e lingua predefinita",
+          "Template e logo",
+          "Lingue",
           "Valute di vendita",
+          "Contatti di assistenza",
           "Dominio personalizzato",
           "Account Stripe",
-          "Account DHL, FedEx e UPS",
-          "Aliquota fiscale e prezzi IVA inclusa"
+          "Corrieri",
+          "Zone e tariffe di spedizione",
+          "Configurazione fiscale",
+          "Politiche del negozio"
         ]
       },
       "sourcing": {

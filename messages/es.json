@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Configuración de la tienda",
-        "body": "Seis pasos cubren la marca, el idioma, el dominio, los pagos, los transportistas y los impuestos.",
+        "body": "Diez pasos cubren la marca, los idiomas, las monedas, los contactos de soporte, el dominio, los pagos, los transportistas, las zonas de envío, los impuestos y las políticas de la tienda.",
         "detail": [
-          "Logotipo, tema e idioma predeterminado",
+          "Plantilla y logotipo",
+          "Idiomas",
           "Monedas de venta",
+          "Contactos de soporte",
           "Dominio propio",
           "Cuenta de Stripe",
-          "Cuentas de DHL, FedEx y UPS",
-          "Tipo impositivo y precios con impuestos incluidos"
+          "Transportistas",
+          "Zonas y tarifas de envío",
+          "Configuración de impuestos",
+          "Políticas de la tienda"
         ]
       },
       "sourcing": {

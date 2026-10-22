@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Store setup",
-        "body": "A six-step setup covers branding, language, domain, payments, carriers and tax.",
+        "body": "A ten-step setup covers branding, languages, currencies, support contacts, domain, payments, carriers, shipping zones, tax and store policies.",
         "detail": [
-          "Logo, theme and default language",
+          "Template and logo",
+          "Languages",
           "Selling currencies",
+          "Support contacts",
           "Custom domain",
           "Stripe account",
-          "DHL, FedEx and UPS accounts",
-          "Tax bracket and tax-inclusive prices"
+          "Shipping carriers",
+          "Shipping zones and rates",
+          "Tax configuration",
+          "Store policies"
         ]
       },
       "sourcing": {

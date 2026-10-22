@@ -179,14 +179,18 @@
     "stages": {
       "setup": {
         "title": "1. Winkel inrichten",
-        "body": "Zes stappen voor huisstijl, taal, domein, betalingen, vervoerders en btw.",
+        "body": "Tien stappen voor huisstijl, talen, valuta, supportcontacten, domein, betalingen, vervoerders, verzendzones, btw en winkelbeleid.",
         "detail": [
-          "Logo, thema en standaardtaal",
+          "Sjabloon en logo",
+          "Talen",
           "Verkoopvaluta",
+          "Supportcontacten",
           "Eigen domein",
           "Stripe-account",
-          "Accounts bij DHL, FedEx en UPS",
-          "Btw-tarief en prijzen inclusief btw"
+          "Vervoerders",
+          "Verzendzones en tarieven",
+          "Belastinginstellingen",
+          "Winkelbeleid"
         ]
       },
       "sourcing": {
