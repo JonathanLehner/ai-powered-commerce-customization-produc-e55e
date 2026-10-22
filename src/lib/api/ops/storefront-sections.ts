@@ -6,6 +6,7 @@ import { getStorefront, listProductCollections, listStoreProducts } from "../../
 import { siteOrigin } from "../../email";
 import type { OperationContext } from "../../operations/context";
 import { editStorefrontDraft, parseTree } from "../../operations/storefront";
+import { sectionAddedSummary, sectionChangedSummary } from "../../storefront-activity";
 import { storefrontPreviewLink } from "../../storefront-preview";
 import { SECTION_ORDER, type CraftTree, type SectionType } from "../../storefront-schema";
 import { layoutValues, LAYOUT_DEFAULTS, LAYOUT_FIELDS } from "../../storefront-layout";
@@ -118,7 +119,7 @@ function outdatedTranslations(ctx: OperationContext, tree: unknown) {
 }
 
 /** Runs a section edit, turning its problems into a field-level API error listing every one. */
-async function edit(ctx: OperationContext, summary: string, change: (tree: CraftTree) => CraftTree) {
+async function edit(ctx: OperationContext, summary: string | ((base: CraftTree) => string), change: (tree: CraftTree) => CraftTree) {
   try {
     const tree = await editStorefrontDraft(ctx, summary, change);
     return { sections: listSections(tree), ...outdatedTranslations(ctx, tree), ...(await shippingClaimNotes(ctx, tree)) };
@@ -197,7 +198,7 @@ export const storefrontSectionOperations: ApiOperation[] = [
     run: async (ctx, input) => {
       const rules = await fieldRules(ctx);
       let added = "";
-      const result = await edit(ctx, `Added a ${input.type} section to the storefront draft`, (tree) => {
+      const result = await edit(ctx, sectionAddedSummary(input.type), (tree) => {
         const next = addSection(tree, input, rules);
         added = next.id;
         return next.tree;
@@ -220,7 +221,12 @@ export const storefrontSectionOperations: ApiOperation[] = [
       const { defaultLocale } = storeLanguages(ctx.store);
       return edit(
         ctx,
-        `Changed ${Object.keys(input.fields).join(", ")} of a storefront draft section${input.locale && input.locale !== defaultLocale ? ` in ${input.locale}` : ""}`,
+        (base) =>
+          sectionChangedSummary(
+            base[input.sectionId]?.type?.resolvedName,
+            Object.keys(input.fields),
+            input.locale && input.locale !== defaultLocale ? input.locale : undefined,
+          ),
         (tree) => updateSection(tree, { ...input, defaultLocale }, rules),
       );
     },

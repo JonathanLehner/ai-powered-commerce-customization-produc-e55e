@@ -7,6 +7,7 @@ import { db } from "./mongo";
 import type { NotifyInput } from "./notifications";
 import { storeAllowance, type StoreAllowance } from "./plans";
 import { quoteCode } from "./sourcing";
+import { readableStorefrontEntry } from "./storefront-activity";
 import { treeTemplateId } from "./templates/tree";
 import { storefrontsClosed } from "./trial";
 import { newId } from "./util";
@@ -859,8 +860,9 @@ async function writeAudit(input: AuditInput, origin: Promise<string>, via: Audit
   }
 }
 
-export function listAudit(filter: Record<string, unknown>, limit = 60) {
-  return db.find<AuditLog>(COLLECTIONS.audit, filter, { sort: { at: -1 }, limit });
+export async function listAudit(filter: Record<string, unknown>, limit = 60) {
+  const rows = await db.find<AuditLog>(COLLECTIONS.audit, filter, { sort: { at: -1 }, limit });
+  return rows.map(readableStorefrontEntry);
 }
 
 export interface AuditWindow {
@@ -888,11 +890,9 @@ export async function loadAuditWindow(
   const at: Record<string, string> = { $lt: window.to };
   if (!window.openStart) at.$gte = window.from;
   // One past the cap says whether anything older was left behind.
-  const rows = await db.find<AuditLog>(
-    COLLECTIONS.audit,
-    { ...scope, at },
-    { sort: { at: -1, id: -1 }, limit: cap + 1 },
-  );
+  const rows = (
+    await db.find<AuditLog>(COLLECTIONS.audit, { ...scope, at }, { sort: { at: -1, id: -1 }, limit: cap + 1 })
+  ).map(readableStorefrontEntry);
   if (rows.length <= cap) return { entries: rows, coveredFrom: window.from, truncated: false };
   const entries = rows.slice(0, cap);
   return { entries, coveredFrom: entries[entries.length - 1].at, truncated: true };

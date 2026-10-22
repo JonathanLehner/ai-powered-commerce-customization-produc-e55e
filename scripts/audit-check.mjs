@@ -26,6 +26,11 @@ import {
   AUDIT_PAGE_SIZE,
 } from "../src/lib/audit-log.ts";
 import { PLANS, auditExportMessage } from "../src/lib/plans.ts";
+import {
+  readableStorefrontEntry,
+  sectionAddedSummary,
+  sectionChangedSummary,
+} from "../src/lib/storefront-activity.ts";
 
 let counter = 0;
 function entry(overrides = {}) {
@@ -479,6 +484,32 @@ assert.deepEqual(
   "an older publish entry recorded against the store opens the editor",
 );
 assert.deepEqual(linked(entry({ storeId: null, summary: "Routed ORD-1 to Gelato", entity: "order", entityId: "ORD-1" })), []);
+
+/* --------------------------------------------------- storefront section edits */
+
+// Section edits name the section and its fields as the editor does, never the
+// raw type or the field keys.
+assert.equal(sectionAddedSummary("Faq"), "Added a FAQ section to the storefront draft");
+assert.equal(sectionAddedSummary("ProductGrid"), "Added a Product grid section to the storefront draft");
+assert.equal(sectionAddedSummary("ImageWithText"), "Added an Image + text section to the storefront draft");
+assert.equal(
+  sectionChangedSummary("Faq", ["title", "subtitle", "q1", "a1", "q2", "a2", "q3", "a3"]),
+  "Changed the title, subtitle and 3 questions and answers of the FAQ section",
+);
+assert.equal(sectionChangedSummary("Faq", ["q2"], "fr"), "Changed question 2 of the FAQ section in French");
+assert.equal(sectionChangedSummary("Faq", ["q1", "a1", "q2", "a2"]), "Changed 2 questions and answers of the FAQ section");
+assert.equal(sectionChangedSummary("HeroSection", ["ctaLabel", "imageUrlFocal"]), "Changed the button label and image of the Hero section");
+
+const legacy = (summary) => readableStorefrontEntry(entry({ category: "storefront", action: "storefront.draft_edited", summary })).summary;
+assert.equal(legacy("Added a Faq section to the storefront draft"), "Added a FAQ section to the storefront draft");
+assert.equal(
+  legacy("Changed title, subtitle, q1, a1, q2, a2, q3, a3 of a storefront draft section"),
+  "Changed the title, subtitle and 3 questions and answers of the FAQ section",
+);
+assert.equal(legacy("Saved a storefront draft with 4 sections"), "Saved a storefront draft with 4 sections");
+for (const summary of ["Added a Faq section to the storefront draft", "Changed q1 of a storefront draft section"]) {
+  assert.doesNotMatch(legacy(summary), /\bFaq\b|\bq1\b/, summary);
+}
 
 /* ---------------------------------------------------- what the plans include */
 

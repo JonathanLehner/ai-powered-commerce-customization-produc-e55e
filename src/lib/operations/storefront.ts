@@ -233,7 +233,7 @@ export async function restoreStorefrontVersion(ctx: OperationContext, versionId:
  */
 export async function editStorefrontDraft(
   ctx: OperationContext,
-  summary: string,
+  summary: string | ((base: CraftTree) => string),
   edit: (tree: CraftTree) => CraftTree,
 ): Promise<CraftTree> {
   const { store } = ctx;
@@ -263,7 +263,7 @@ export async function editStorefrontDraft(
     } else if (result?.matchedCount === 0) {
       continue;
     }
-    audit(ctx, "storefront.draft_edited", summary, "storefront", store.id, {});
+    audit(ctx, "storefront.draft_edited", typeof summary === "function" ? summary(base) : summary, "storefront", store.id, {});
     revalidatePath(`/app/stores/${store.id}/storefront`);
     return tree;
   }
