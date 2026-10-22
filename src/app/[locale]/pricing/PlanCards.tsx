@@ -47,7 +47,7 @@ export function PlanCards({ plans, yearlySaving }: { plans: PlanCard[]; yearlySa
             </TabsTrigger>
             <TabsTrigger value="yearly" className="gap-2 px-4">
               {t("yearly")}
-              <span className="text-xs font-medium text-primary">{t("save", { percent: yearlySaving })}</span>
+              <span className="text-xs font-medium text-brand-700">{t("save", { percent: yearlySaving })}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>

@@ -164,7 +164,7 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
       <Section id="gifting" tone="muted">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-primary uppercase">{t("giftingEyebrow")}</p>
+            <p className="text-xs font-semibold tracking-wide text-brand-700 uppercase">{t("giftingEyebrow")}</p>
             <SectionHeading className="mt-3">
               {t("giftingTitle")}
             </SectionHeading>
@@ -178,7 +178,7 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
               </Button>
               <IntlLink
                 href="/pricing"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-700 hover:underline"
               >
                 {t("giftingIncluded")}
                 <ArrowRightIcon aria-hidden className="size-4" />
