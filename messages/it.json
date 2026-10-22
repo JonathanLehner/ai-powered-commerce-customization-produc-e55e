@@ -2711,6 +2711,7 @@
     "publication": "Pubblicazione",
     "live": "Questo prodotto è online nella vetrina.",
     "ready": "Pronto per la pubblicazione.",
+    "readyNotTakingOrders": "Pronto per la pubblicazione. I clienti non possono pagare finché Stripe non è collegato.",
     "issues": "{count, plural, one {# problema da risolvere prima di pubblicare.} other {# problemi da risolvere prima di pubblicare.}}",
     "publishing": "Pubblicazione…",
     "publish": "Pubblica nella vetrina",

@@ -2711,6 +2711,7 @@
     "publication": "Veröffentlichung",
     "live": "Dieses Produkt ist in der Storefront live.",
     "ready": "Bereit zur Veröffentlichung.",
+    "readyNotTakingOrders": "Bereit zur Veröffentlichung. Kunden können erst bezahlen, wenn Stripe verbunden ist.",
     "issues": "{count, plural, one {# Problem muss vor der Veröffentlichung gelöst werden.} other {# Probleme müssen vor der Veröffentlichung gelöst werden.}}",
     "publishing": "Wird veröffentlicht…",
     "publish": "In der Storefront veröffentlichen",

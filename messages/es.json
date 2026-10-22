@@ -2711,6 +2711,7 @@
     "publication": "Publicación",
     "live": "Este producto está publicado en el escaparate.",
     "ready": "Listo para publicar.",
+    "readyNotTakingOrders": "Listo para publicar. Los clientes no pueden pagar hasta que Stripe esté conectado.",
     "issues": "{count, plural, one {# problema por resolver antes de publicar.} other {# problemas por resolver antes de publicar.}}",
     "publishing": "Publicando…",
     "publish": "Publicar en el escaparate",

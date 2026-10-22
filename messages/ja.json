@@ -2711,6 +2711,7 @@
     "publication": "公開",
     "live": "この商品はストアフロントで公開中です。",
     "ready": "公開できます。",
+    "readyNotTakingOrders": "公開できます。Stripe を接続するまで、購入者は決済できません。",
     "issues": "{count, plural, other {公開前に解決が必要な問題が # 件あります。}}",
     "publishing": "公開中…",
     "publish": "ストアフロントに公開",

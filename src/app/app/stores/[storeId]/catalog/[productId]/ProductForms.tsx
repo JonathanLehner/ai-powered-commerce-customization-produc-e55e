@@ -97,7 +97,7 @@ export function ProductDetailsForm({
                 />
               </div>
 
-              <div className="grid content-start gap-1.5">
+              <div id="price-field" className="grid scroll-mt-24 content-start gap-1.5">
                 <Label htmlFor="price">{t("price", { currency: product.currency })}</Label>
                 <Input
                   id="price"
@@ -146,7 +146,7 @@ export function ProductDetailsForm({
                 </p>
               </div>
 
-              <div className="grid content-start gap-1.5">
+              <div id="tax-bracket" className="grid scroll-mt-24 content-start gap-1.5">
                 <Label htmlFor="taxBracketId">{t("taxBracket")}</Label>
                 <input type="hidden" name="taxBracketId" value={bracket === NO_BRACKET ? "" : bracket} />
                 <Select value={bracket} onValueChange={setBracket}>
@@ -291,7 +291,7 @@ export function VariantsForm({ product }: { product: StoreProduct }) {
       return next;
     });
   return (
-    <Card asChild>
+    <Card id="variants" className="scroll-mt-24" asChild>
       <ActionForm
         action={saveVariants}
         submitLabel={t("saveVariants")}

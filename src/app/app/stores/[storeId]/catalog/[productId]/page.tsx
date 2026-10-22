@@ -1,8 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
+import { CircleAlert } from "lucide-react";
 import { StoreWorkspaceNotFoundView } from "@/components/NotFoundViews";
-import { PaymentsSetupWarning } from "@/components/PaymentsSetupWarning";
 import {
   approveMockups,
   publishBlockers,
@@ -23,11 +23,13 @@ import {
   updateStoreProduct,
 } from "@/lib/data";
 import { notTakingOrders } from "@/lib/payment-mode";
+import type { PublishBlockerCode } from "@/lib/publish-blockers";
 import { marginTone } from "@/lib/pricing";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { requireStoreAccess, roleCan } from "@/lib/session";
 import { storeSku } from "@/lib/sku";
 import { isQuoteOnly } from "@/lib/sourcing";
+import { SETUP_STEPS } from "@/lib/types";
 import { formatDate, formatDateTime, formatMoney, formatPercent } from "@/lib/util";
 import { Configurator } from "./Configurator";
 import { ImportedFulfilment, type LinkableProduct } from "./ImportedFulfilment";
@@ -104,11 +106,51 @@ export default async function ProductEditorPage({
   const showBlockers = blockers.length > 0 && unpublished;
   // Published or about to be, while shoppers cannot pay.
   const checkoutClosed = notTakingOrders(store) && product.status !== "archived";
-  const [t, labels, locale] = await Promise.all([
+  const canSettings = roleCan(role, "store.settings");
+  const [t, labels, paymentsT, locale] = await Promise.all([
     getTranslations("product"),
     getTranslations("labels"),
+    getTranslations("paymentsSetup"),
     getLocale(),
   ]);
+  // Where each fix is made: a section further down this page, or the settings
+  // page that owns it. Fields only rendered for editors are linked for them only.
+  const fixHref = (code: PublishBlockerCode): string | null => {
+    switch (code) {
+      case "noArtwork":
+      case "preflight":
+      case "noMockups":
+      case "notLinked":
+        return "#artwork";
+      case "unapproved":
+        return "#mockups";
+      case "noBracket":
+        return canEdit ? "#tax-bracket" : null;
+      case "belowCost":
+        return canEdit ? "#price-field" : null;
+      case "noVariants":
+        return canEdit ? "#variants" : null;
+      case "noShippingZone":
+        return canSettings ? `/app/stores/${storeId}/shipping` : null;
+      case "noPhotos":
+        return canSettings ? `/app/stores/${storeId}/import` : null;
+      default:
+        return null;
+    }
+  };
+  const issues = [
+    ...(checkoutClosed
+      ? [{
+          key: "payments",
+          reason: paymentsT("body"),
+          fix: canSettings ? paymentsT("connect") : paymentsT("adminCanConnect"),
+          href: canSettings ? `/app/stores/${storeId}/setup#step-${SETUP_STEPS.indexOf("payments") + 1}` : null,
+        }]
+      : []),
+    ...(showBlockers
+      ? blockers.map((blocker, index) => ({ key: `${blocker.code}-${index}`, reason: blocker.reason, fix: blocker.fix, href: fixHref(blocker.code) }))
+      : []),
+  ];
   const money = (minor: number) => formatMoney(minor, product.currency, locale);
 
   return (
@@ -181,19 +223,22 @@ export default async function ProductEditorPage({
       {/* ------------------------------------------------------ publishing */}
       <Card asChild>
       <section>
-          <CardHeader>
+          <CardHeader className="max-sm:grid-cols-1!">
             <CardTitle asChild>
               <h2>{t("publication")}</h2>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               {product.status === "published"
                 ? t("live")
-                : blockers.length === 0
-                  ? t("ready")
-                  : t("issues", { count: blockers.length })}
+                : blockers.length > 0
+                  ? t("issues", { count: issues.length })
+                  : checkoutClosed
+                    ? t("readyNotTakingOrders")
+                    : t("ready")}
             </p>
             {canEdit ? (
-              <CardAction className="flex flex-wrap gap-2">
+              // Below the heading on a phone, so the status line keeps the full width.
+              <CardAction className="flex flex-wrap gap-2 max-sm:col-start-1 max-sm:row-span-1 max-sm:row-start-auto max-sm:mt-2 max-sm:justify-self-start">
               {product.status !== "published" ? (
                 <form action={setProductStatus}>
                   <input type="hidden" name="storeId" value={storeId} />
@@ -236,29 +281,41 @@ export default async function ProductEditorPage({
             ) : null}
           </CardHeader>
 
-          {checkoutClosed || artworkChanged || preflightFailed || showBlockers ? (
-            <CardContent className="space-y-4">
-              {checkoutClosed ? <PaymentsSetupWarning store={store} canConnect={roleCan(role, "store.settings")} /> : null}
-              {artworkChanged ? (
-                <Callout tone="amber" title={t("takenOffTitle")}>
-                  {t("takenOffBody")}
-                </Callout>
-              ) : preflightFailed ? (
-                <Callout tone="amber" title={t("takenOffTitle")}>
-                  {t("takenOffPreflightBody")}
-                </Callout>
-              ) : null}
-
-              {showBlockers ? (
-                <ul className="space-y-2.5" role="alert">
-                  {blockers.map((blocker, index) => (
-                    <li key={index} className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                      <p className="text-sm font-medium text-amber-900">{blocker.reason}</p>
-                      <p className="mt-1 text-xs text-amber-800">{t("howToFix", { fix: blocker.fix })}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+          {issues.length > 0 || artworkChanged || preflightFailed ? (
+            <CardContent>
+              <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-900">
+                {artworkChanged || preflightFailed ? (
+                  <div className={issues.length > 0 ? "border-b border-amber-200 px-4 py-3" : "px-4 py-3"}>
+                    <p className="font-medium">{t("takenOffTitle")}</p>
+                    <p className="mt-1 text-amber-800">{artworkChanged ? t("takenOffBody") : t("takenOffPreflightBody")}</p>
+                  </div>
+                ) : null}
+                {issues.length > 0 ? (
+                  <ul className="divide-y divide-amber-200">
+                    {issues.map((issue) => (
+                      <li key={issue.key} className="flex gap-3 px-4 py-3">
+                        <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-amber-700" />
+                        <div className="min-w-0">
+                          <p className="font-medium">{issue.reason}</p>
+                          <p className="mt-0.5 text-amber-800">
+                            {issue.href?.startsWith("#") ? (
+                              <a href={issue.href} className="font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950">
+                                {issue.fix}
+                              </a>
+                            ) : issue.href ? (
+                              <Link href={issue.href} className="font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950">
+                                {issue.fix}
+                              </Link>
+                            ) : (
+                              issue.fix
+                            )}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
             </CardContent>
           ) : null}
       </section>
@@ -266,7 +323,7 @@ export default async function ProductEditorPage({
 
       {/* ---------------------------------------------------- configurator */}
       <Card asChild>
-      <section>
+      <section id="artwork" className="scroll-mt-24">
           <CardHeader>
             <CardTitle asChild>
               <h2>{ownPhotos ? t("fulfilment") : t("artwork")}</h2>
@@ -301,7 +358,7 @@ export default async function ProductEditorPage({
 
       {/* --------------------------------------------------------- mockups */}
       <Card asChild>
-      <section>
+      <section id="mockups" className="scroll-mt-24">
           <CardHeader>
             <CardTitle asChild>
               <h2>{ownPhotos ? t("photos") : t("mockupApproval")}</h2>

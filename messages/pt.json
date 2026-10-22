@@ -2711,6 +2711,7 @@
     "publication": "Publicação",
     "live": "Este produto está publicado na montra.",
     "ready": "Pronto a publicar.",
+    "readyNotTakingOrders": "Pronto a publicar. Os clientes não podem pagar até o Stripe estar ligado.",
     "issues": "{count, plural, one {# problema a resolver antes de publicar.} other {# problemas a resolver antes de publicar.}}",
     "publishing": "A publicar…",
     "publish": "Publicar na montra",

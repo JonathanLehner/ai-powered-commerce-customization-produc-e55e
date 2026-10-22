@@ -2711,6 +2711,7 @@
     "publication": "Publicering",
     "live": "Produkten är live i butiksfronten.",
     "ready": "Redo att publiceras.",
+    "readyNotTakingOrders": "Redo att publiceras. Kunder kan inte betala förrän Stripe är anslutet.",
     "issues": "{count, plural, one {# problem att lösa före publicering.} other {# problem att lösa före publicering.}}",
     "publishing": "Publicerar…",
     "publish": "Publicera i butiksfronten",

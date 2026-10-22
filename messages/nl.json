@@ -2711,6 +2711,7 @@
     "publication": "Publicatie",
     "live": "Dit product staat live in de etalage.",
     "ready": "Klaar om te publiceren.",
+    "readyNotTakingOrders": "Klaar om te publiceren. Klanten kunnen pas afrekenen als Stripe is gekoppeld.",
     "issues": "{count, plural, one {# probleem op te lossen voor publicatie.} other {# problemen op te lossen voor publicatie.}}",
     "publishing": "Publiceren…",
     "publish": "Publiceren in de etalage",

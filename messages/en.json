@@ -2711,6 +2711,7 @@
     "publication": "Publication",
     "live": "This product is live on the storefront.",
     "ready": "Ready to publish.",
+    "readyNotTakingOrders": "Ready to publish. Shoppers cannot check out until Stripe is connected.",
     "issues": "{count, plural, one {# issue to resolve before publishing.} other {# issues to resolve before publishing.}}",
     "publishing": "Publishing…",
     "publish": "Publish to storefront",
