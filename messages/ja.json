@@ -2579,6 +2579,8 @@
     "browse": "サプライヤーカタログを見る",
     "mockupAlt": "{name} のモックアップ",
     "noMockup": "モックアップ未作成",
+    "mockupPending": "モックアップ未承認",
+    "blankAlt": "{name} の無地商品写真",
     "hidden": "非表示",
     "preflightFailed": "プリフライト不合格",
     "manualFulfilment": "手動フルフィルメント・{code}",

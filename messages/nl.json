@@ -2579,6 +2579,8 @@
     "browse": "Leverancierscatalogus bekijken",
     "mockupAlt": "Mockup van {name}",
     "noMockup": "Nog geen mockup",
+    "mockupPending": "Mockup in afwachting",
+    "blankAlt": "{name}, foto van het basisproduct",
     "hidden": "Verborgen",
     "preflightFailed": "Preflight mislukt",
     "manualFulfilment": "Handmatige afhandeling · {code}",

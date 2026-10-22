@@ -2579,6 +2579,8 @@
     "browse": "Bläddra i leverantörskatalogen",
     "mockupAlt": "Mockup av {name}",
     "noMockup": "Ingen mockup ännu",
+    "mockupPending": "Mockup väntar",
+    "blankAlt": "{name}, foto av basprodukten",
     "hidden": "Dold",
     "preflightFailed": "Förkontroll misslyckades",
     "manualFulfilment": "Manuell leverans · {code}",

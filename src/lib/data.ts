@@ -266,6 +266,12 @@ export function getCatalogProduct(id: string) {
   return db.findOne<CatalogProduct>(COLLECTIONS.catalog, { id });
 }
 
+/** Several shared-catalog products by id, in one read. */
+export async function getCatalogProductsByIds(ids: string[]): Promise<Map<string, CatalogProduct>> {
+  const rows = await db.findIn<CatalogProduct>(COLLECTIONS.catalog, "id", [...new Set(ids.filter(Boolean))]);
+  return new Map(rows.map((row) => [row.id, row]));
+}
+
 /* ---------------------------------------------------------- store products */
 
 export function listStoreProducts(storeId: string) {

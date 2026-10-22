@@ -7,8 +7,9 @@ import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { importedPath } from "@/lib/artwork";
-import { listStoreProducts, listTaxBrackets } from "@/lib/data";
+import { getCatalogProductsByIds, listStoreProducts, listTaxBrackets } from "@/lib/data";
 import { mockupState, type BulkProduct } from "@/lib/bulk-products";
+import { catalogCover } from "@/lib/catalog-cover";
 import { marginTone } from "@/lib/pricing";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
 import { publishBlockersFor, type PublishBlocker } from "@/lib/publish-blockers";
@@ -41,7 +42,10 @@ export default async function StoreCatalogPage({
   const { store, role } = await requireStoreAccess(storeId);
   // A live product that now fails its supplier's file check comes off the
   // storefront before the list is drawn, so its row shows why.
-  const products = await takeOffFailingPreflight(await listStoreProducts(storeId));
+  const stored = await listStoreProducts(storeId);
+  // The supplier listings give drafts a blank photo to show until a mockup is approved.
+  const catalogs = await getCatalogProductsByIds(stored.map((p) => p.catalogProductId));
+  const products = await takeOffFailingPreflight(stored, catalogs);
   const canEdit = roleCan(role, "store.catalog");
 
   const filtered = products
@@ -153,29 +157,32 @@ export default async function StoreCatalogPage({
         ) : null}
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((product) => {
-            const cover = product.mockups[0];
+            const cover = catalogCover(product, catalogs.get(product.catalogProductId));
             const tone = marginTone(product.costs.marginPct);
             const path = importedPath(product);
             return (
               <SelectableItem key={product.id} id={product.id} className="flex">
                 <Card className="flex-1 gap-0 py-0 group-data-[state=selected]:ring-2 group-data-[state=selected]:ring-primary">
-                  <div className="relative border-b border-border bg-canvas">
+                  <div className="relative flex justify-center border-b border-border bg-canvas">
                     {cover ? (
-                      <Image
-                        src={cover.url}
-                        alt={t("mockupAlt", { name: product.name })}
-                        width={640}
-                        height={640}
-                        loading="lazy"
-                        sizes="(min-width: 1280px) 380px, (min-width: 768px) 45vw, 90vw"
-                        className="h-auto w-full object-cover"
-                        style={{ aspectRatio: "1 / 1" }}
-                      />
+                      <div className="relative w-60 max-w-full">
+                        <Image
+                          src={cover.url}
+                          alt={t(cover.pending ? "blankAlt" : "mockupAlt", { name: product.name })}
+                          width={480}
+                          height={480}
+                          loading="lazy"
+                          sizes="240px"
+                          className="aspect-square h-auto w-full object-cover"
+                        />
+                        {cover.pending ? (
+                          <span className="absolute right-2 bottom-2">
+                            <Badge tone="neutral">{t("mockupPending")}</Badge>
+                          </span>
+                        ) : null}
+                      </div>
                     ) : (
-                      <div
-                        className="flex w-full items-center justify-center text-sm text-muted-foreground"
-                        style={{ aspectRatio: "1 / 1" }}
-                      >
+                      <div className="flex aspect-square w-60 max-w-full items-center justify-center text-sm text-muted-foreground">
                         {t("noMockup")}
                       </div>
                     )}
