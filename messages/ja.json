@@ -2579,6 +2579,8 @@
     "browse": "サプライヤーカタログを見る",
     "mockupAlt": "{name} のモックアップ",
     "noMockup": "モックアップ未作成",
+    "mockupPending": "モックアップ準備中",
+    "baseAlt": "{name}（無地のベース商品、{colour}）",
     "hidden": "非表示",
     "preflightFailed": "プリフライト不合格",
     "manualFulfilment": "手動フルフィルメント・{code}",

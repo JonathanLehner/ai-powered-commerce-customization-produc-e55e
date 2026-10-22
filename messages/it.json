@@ -2579,6 +2579,8 @@
     "browse": "Sfoglia il catalogo fornitori",
     "mockupAlt": "Mockup di {name}",
     "noMockup": "Ancora nessun mockup",
+    "mockupPending": "Mockup in attesa",
+    "baseAlt": "{name}, prodotto base neutro in {colour}",
     "hidden": "Nascosto",
     "preflightFailed": "Controllo preliminare non superato",
     "manualFulfilment": "Evasione manuale · {code}",

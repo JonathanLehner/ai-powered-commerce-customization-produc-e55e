@@ -2579,6 +2579,8 @@
     "browse": "Browse the supplier catalog",
     "mockupAlt": "{name} mockup",
     "noMockup": "No mockup yet",
+    "mockupPending": "Mockup pending",
+    "baseAlt": "{name}, blank {colour} base product",
     "hidden": "Hidden",
     "preflightFailed": "Failed pre-flight",
     "manualFulfilment": "Manual fulfilment · {code}",

@@ -2579,6 +2579,8 @@
     "browse": "Parcourir le catalogue fournisseurs",
     "mockupAlt": "Maquette de {name}",
     "noMockup": "Pas encore de maquette",
+    "mockupPending": "Maquette en attente",
+    "baseAlt": "{name}, produit de base vierge en {colour}",
     "hidden": "Masqué",
     "preflightFailed": "Pré-contrôle échoué",
     "manualFulfilment": "Exécution manuelle · {code}",

@@ -2579,6 +2579,8 @@
     "browse": "Lieferantenkatalog durchsuchen",
     "mockupAlt": "Mockup von {name}",
     "noMockup": "Noch kein Mockup",
+    "mockupPending": "Mockup ausstehend",
+    "baseAlt": "{name}, Basisprodukt ohne Druck in {colour}",
     "hidden": "Ausgeblendet",
     "preflightFailed": "Preflight fehlgeschlagen",
     "manualFulfilment": "Manuelle Abwicklung · {code}",

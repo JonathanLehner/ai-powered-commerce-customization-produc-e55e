@@ -7,7 +7,8 @@ import { Badge, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { importedPath } from "@/lib/artwork";
-import { listStoreProducts, listTaxBrackets } from "@/lib/data";
+import { catalogCover } from "@/lib/catalog-cover";
+import { listCatalogProducts, listStoreProducts, listTaxBrackets } from "@/lib/data";
 import { mockupState, type BulkProduct } from "@/lib/bulk-products";
 import { marginTone } from "@/lib/pricing";
 import { takeOffFailingPreflight } from "@/lib/preflight-guard";
@@ -62,7 +63,7 @@ export default async function StoreCatalogPage({
       ? costed.reduce((sum, p) => sum + p.costs.marginPct, 0) / costed.length
       : 0;
 
-  const [pages, t, labels, locale, format, brackets, blockers] = await Promise.all([
+  const [pages, t, labels, locale, format, brackets, blockers, catalog] = await Promise.all([
     getTranslations("pages.store"),
     getTranslations("catalog"),
     getTranslations("labels"),
@@ -72,7 +73,9 @@ export default async function StoreCatalogPage({
     // What stops each unpublished product going live, so bulk Publish can say
     // up front which ones it will skip.
     canEdit ? publishBlockersFor(filtered.filter((p) => p.status !== "published")) : new Map<string, PublishBlocker[]>(),
+    listCatalogProducts(),
   ]);
+  const catalogById = new Map(catalog.map((c) => [c.id, c]));
   const bulkProducts: BulkProduct[] = filtered.map((p) => ({
     id: p.id,
     name: p.name,
@@ -153,29 +156,36 @@ export default async function StoreCatalogPage({
         ) : null}
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((product) => {
-            const cover = product.mockups[0];
+            const cover = catalogCover(product, catalogById.get(product.catalogProductId));
             const tone = marginTone(product.costs.marginPct);
             const path = importedPath(product);
             return (
               <SelectableItem key={product.id} id={product.id} className="flex">
                 <Card className="flex-1 gap-0 py-0 group-data-[state=selected]:ring-2 group-data-[state=selected]:ring-primary">
-                  <div className="relative border-b border-border bg-canvas">
+                  <div className="relative flex h-60 justify-center border-b border-border bg-canvas py-3">
                     {cover ? (
-                      <Image
-                        src={cover.url}
-                        alt={t("mockupAlt", { name: product.name })}
-                        width={640}
-                        height={640}
-                        loading="lazy"
-                        sizes="(min-width: 1280px) 380px, (min-width: 768px) 45vw, 90vw"
-                        className="h-auto w-full object-cover"
-                        style={{ aspectRatio: "1 / 1" }}
-                      />
+                      <div className="relative aspect-square h-full">
+                        <Image
+                          src={cover.url}
+                          alt={
+                            cover.pending
+                              ? t("baseAlt", { name: product.name, colour: cover.colour })
+                              : t("mockupAlt", { name: product.name })
+                          }
+                          width={432}
+                          height={432}
+                          loading="lazy"
+                          sizes="216px"
+                          className="size-full rounded-lg object-cover ring-1 ring-foreground/10"
+                        />
+                        {cover.pending ? (
+                          <span className="absolute right-2 bottom-2">
+                            <Badge tone="neutral" className="bg-card">{t("mockupPending")}</Badge>
+                          </span>
+                        ) : null}
+                      </div>
                     ) : (
-                      <div
-                        className="flex w-full items-center justify-center text-sm text-muted-foreground"
-                        style={{ aspectRatio: "1 / 1" }}
-                      >
+                      <div className="flex items-center justify-center text-sm text-muted-foreground">
                         {t("noMockup")}
                       </div>
                     )}
