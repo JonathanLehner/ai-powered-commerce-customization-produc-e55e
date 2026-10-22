@@ -910,10 +910,10 @@
     "testMode": "Modalità di prova"
   },
   "pager": {
-    "orders": "{first}–{last} di {total} ordini",
-    "audit": "{first}–{last} di {total} voci",
+    "orders": "{first}-{last} di {total} ordini",
+    "audit": "{first}-{last} di {total} voci",
     "auditCoverage": "Attività dal {date}. Imposta un intervallo di date per vedere le voci precedenti.",
-    "variants": "{first}–{last} di {total} varianti"
+    "variants": "{first}-{last} di {total} varianti"
   },
   "fallback": {
     "goToDashboard": "Vai alla dashboard",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Attivo",
       "retired": "Ritirato"
-    }
+    },
+    "none": "Nessuno",
+    "notSet": "Non impostato"
   },
   "plans": {
     "noLimit": "{agency} ha il piano {plan}, senza limiti di negozi attivi.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} pagati",
     "lifetimeSales": "Vendite totali",
     "sales": "Vendite",
+    "noSalesYet": "Ancora nessuna vendita. Ricavi, margine e tasso di eccezioni compaiono dopo il primo ordine pagato.",
     "viewAnalytics": "Vedi analisi",
     "paidOrders": "{count, plural, one {# ordine pagato} other {# ordini pagati}}",
     "published": "Prodotti pubblicati",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Attiva almeno una taglia o un colore.",
         "noShippingZone": "Il negozio non ha zone di spedizione.",
         "noShippingZoneFix": "Aggiungi una zona di spedizione in Spedizioni e imposte.",
-        "notLinked": "Importato da Shopify – non ancora collegato a un fornitore.",
+        "notLinked": "Importato da Shopify, non ancora collegato a un fornitore.",
         "notLinkedFix": "Collegalo a un prodotto del catalogo o segnalo come evaso da te.",
         "noPhotos": "Questo prodotto non ha foto.",
         "noPhotosFix": "Aggiungi gli URL delle immagini all'esportazione di Shopify e importala di nuovo."
@@ -1449,7 +1452,7 @@
       "listingGone": "Questo articolo del catalogo non è più disponibile. Scegline un altro o descrivilo.",
       "noPartner": "Al momento nessun partner per l’approvvigionamento in quantità accetta richieste.",
       "alreadySent": "La richiesta {code} è già stata inviata.",
-      "sent": "La richiesta {code} è presso {supplier}. I fornitori rispondono in {min}–{max} giorni lavorativi e i preventivi compaiono in Richieste di approvvigionamento in quantità.",
+      "sent": "La richiesta {code} è presso {supplier}. I fornitori rispondono in {min}-{max} giorni lavorativi e i preventivi compaiono in Richieste di approvvigionamento in quantità.",
       "sentUsual": "La richiesta {code} è presso {supplier}. Di solito i fornitori rispondono in pochi giorni lavorativi e i preventivi compaiono in Richieste di approvvigionamento in quantità.",
       "check": {
         "productName": "Indica il prodotto o scegli un articolo del catalogo come riferimento.",
@@ -1558,7 +1561,7 @@
         "variantsUnreadable": "Non è stato possibile leggere le varianti. Ricarica la pagina e riprova.",
         "variantsEmpty": "Aggiungi almeno una variante.",
         "variantsTooMany": "Un prodotto può avere al massimo 200 varianti.",
-        "variantSku": "Ogni variante richiede uno SKU di 2–40 caratteri tra lettere, numeri, punti, trattini o trattini bassi.",
+        "variantSku": "Ogni variante richiede uno SKU di 2-40 caratteri tra lettere, numeri, punti, trattini o trattini bassi.",
         "variantSkuDuplicate": "Lo SKU {sku} è usato da più di una variante.",
         "variantOption": "Aggiungi un colore o una taglia alla variante {sku}.",
         "variantCost": "Inserisci il costo base del fornitore per la variante {sku}."
@@ -2245,7 +2248,7 @@
     "supplierRef": "Riferimento del fornitore",
     "submitted": "Inviato",
     "leadTime": "Tempi di consegna",
-    "leadDays": "{min}–{max} giorni",
+    "leadDays": "{min}-{max} giorni",
     "rerouted": "Reinstradato",
     "movedFrom": "Spostato da",
     "unassigned": "Non assegnato",
@@ -2260,7 +2263,7 @@
     "optionManual": "Emetti manualmente un ordine d’acquisto e registra il riferimento qui sotto.",
     "optionRefund": "Annulla e rimborsa l’ordine qui sotto.",
     "optionAdmin": "Chiedi a un amministratore della piattaforma di aggiungere un fornitore per {region}, poi riesegui l’instradamento.",
-    "choice": "{name} · {kind}, consegna in {min}–{max} giorni",
+    "choice": "{name} · {kind}, consegna in {min}-{max} giorni",
     "sendJob": "Invia il lavoro al fornitore",
     "sending": "Invio…",
     "alternativePartner": "Partner di produzione alternativo",
@@ -2335,7 +2338,7 @@
     "empty": "Ancora nessun cliente",
     "noMatches": "Nessun cliente corrispondente",
     "tryFilters": "Prova filtri diversi.",
-    "showing": "{first}–{last} di {total} clienti",
+    "showing": "{first}-{last} di {total} clienti",
     "colCustomer": "Cliente",
     "colCountry": "Paese",
     "colOrders": "Ordini",
@@ -2572,6 +2575,8 @@
     "drafts": "Bozze e revisioni",
     "averageMargin": "Margine medio",
     "publishedProducts": "Prodotti pubblicati",
+    "noPublished": "Ancora nessun prodotto pubblicato",
+    "notCosted": "Costi non ancora disponibili",
     "noProducts": "Ancora nessun prodotto",
     "noMatches": "Nessun prodotto corrispondente",
     "noProductsBody": "Importa un prodotto dal catalogo fornitori per iniziare.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "Il margine è inferiore al 25%.",
     "fulfilledByStore": " · evaso da te",
     "fulfilment": "Evasione",
-    "unlinkedTitle": "Importato da Shopify – non ancora collegato a un fornitore",
+    "unlinkedTitle": "Importato da Shopify, non ancora collegato a un fornitore",
     "unlinkedBody": "Scegli come viene evaso questo prodotto prima di pubblicarlo.",
     "merchantTitle": "Evaso da te",
     "merchantBody": "Spedisci gli ordini di questo prodotto a {cost} per unità. Le foto importate sostituiscono i mockup.",
@@ -2936,12 +2941,12 @@
     "copyAgain": "Copia di nuovo",
     "byQuote": "Su preventivo",
     "units": "{count, plural, one {# pezzo} other {# pezzi}}",
-    "indicative": "{low}–{high} al pezzo per {quantity}",
+    "indicative": "{low}-{high} al pezzo per {quantity}",
     "quotedWithRun": "Quotato con la produzione",
     "freightQuoted": "Trasporto quotato con la produzione",
     "manualPo": "Ordine d’acquisto manuale",
     "routedAutomatically": "Instradato automaticamente al fornitore",
-    "days": "{min}–{max} giorni",
+    "days": "{min}-{max} giorni",
     "quoteOn": "Preventivo su {code} · {supplier}",
     "via": "{supplier} tramite {marketplace}",
     "quoted": "{amount} da preventivo",
@@ -2955,7 +2960,7 @@
     "tryFilters": "Prova filtri diversi o cancellali per vedere tutto il catalogo.",
     "startEnquiry": "Avvia una richiesta in quantità",
     "requestQuoteFor": "Richiedi un preventivo: {name}",
-    "askingMeta": "{supplier} · prezzo tipico {range} · risposta in {min}–{max} giorni lavorativi",
+    "askingMeta": "{supplier} · prezzo tipico {range} · risposta in {min}-{max} giorni lavorativi",
     "generalTitle": "Avvia una richiesta di approvvigionamento in quantità",
     "generalBody": "Scegli un articolo del catalogo o descrivi il prodotto.",
     "close": "Chiudi",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} non aggiornate",
     "updateTranslations": "Aggiorna traduzioni",
     "sample": {
-      "badge": "Testo di esempio – da rivedere prima di pubblicare",
+      "badge": "Testo di esempio: da rivedere prima di pubblicare",
       "keep": "Segna come rivisto",
       "layer": "Testo di esempio",
       "count": "{count, plural, one {# campo di esempio da rivedere} other {# campi di esempio da rivedere}}"
@@ -3952,7 +3957,7 @@
       },
       "orderApi": "API ordini",
       "manualOrders": "Ordini manuali",
-      "meta": "consegna in {min}–{max} giorni · {count, plural, one {# prodotto in catalogo} other {# prodotti in catalogo}}",
+      "meta": "consegna in {min}-{max} giorni · {count, plural, one {# prodotto in catalogo} other {# prodotti in catalogo}}",
       "quoteRequests": "Richieste di preventivo",
       "addProduct": "Aggiungi un prodotto al catalogo",
       "approve": "Approva",
@@ -4007,9 +4012,9 @@
       "bulkBody": "Articolo per grandi quantità. I fornitori quotano ogni produzione.",
       "minimumOrder": "Ordine minimo",
       "indicative": "Indicativo",
-      "indicativeValue": "{low}–{high} al pezzo per {quantity}",
+      "indicativeValue": "{low}-{high} al pezzo per {quantity}",
       "response": "Risposta del fornitore",
-      "responseDays": "{min}–{max} giorni lavorativi",
+      "responseDays": "{min}-{max} giorni lavorativi",
       "terms": "Condizioni mostrate agli acquirenti",
       "viewQuotes": "Vedi le richieste di preventivo",
       "photography": "Foto del fornitore",
@@ -4029,7 +4034,7 @@
       "orderApi": "API ordini",
       "manual": "Manuale",
       "leadTime": "Tempi di consegna",
-      "days": "{min}–{max} giorni",
+      "days": "{min}-{max} giorni",
       "currency": "Valuta"
     },
     "catalogForm": {
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Modalità di prova – nessun pagamento reale"
+      "testModeBar": "Modalità di prova: nessun pagamento reale"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4357,7 +4362,7 @@
       "madeToOrder": "Prodotto su ordinazione",
       "shipsWithin": "{days, plural, one {Spedito entro # giorno lavorativo.} other {Spedito entro # giorni lavorativi.}}",
       "producedBy": "Spedito in {lead}.",
-      "leadDays": "{from}–{to} giorni",
+      "leadDays": "{from}-{to} giorni",
       "leadUnknown": "pochi giorni",
       "printDetail": "{count, plural, one {Area di stampa} other {Aree di stampa}}",
       "printDetailBody": "{area}, {width} × {height} mm",
@@ -4503,7 +4508,8 @@
       "free": "Gratuita",
       "tax": "Imposte",
       "taxAtPayment": "Calcolate al pagamento",
-      "deliveryDays": "{min}–{max} giorni lavorativi",
+      "unavailable": "Non disponibile",
+      "deliveryDays": "{min}-{max} giorni lavorativi",
       "deliveryDaysExact": "{days, plural, one {# giorno lavorativo} other {# giorni lavorativi}}",
       "noShippingOptions": "Non spediamo ancora in questo paese.",
       "emailDelivery": "Consegna via e-mail",
@@ -5429,7 +5435,7 @@
     "tierUpTo": "Fino a {limit}: {price}",
     "tierAbove": "Oltre: {price}",
     "grams": "{value, number} g",
-    "deliveryDays": "{min}–{max} giorni lavorativi",
+    "deliveryDays": "{min}-{max} giorni lavorativi",
     "editRate": "Modifica {name}",
     "addRate": "Aggiungi tariffa",
     "rateLimit": "Una zona può avere fino a {max} tariffe.",

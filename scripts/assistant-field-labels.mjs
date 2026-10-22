@@ -78,7 +78,7 @@ async function ask(prompt, keys) {
       const out = parseJson((await res.json()).text ?? "");
       const bad = keys.filter((k) => typeof out[k] !== "string" || !out[k].trim());
       if (bad.length > 0) throw new Error(`missing ${bad.slice(0, 5).join(", ")}`);
-      return Object.fromEntries(keys.map((k) => [k, out[k].trim().replace(/[.…:]+$/, "").replace(/\s*—\s*/g, ", ")]));
+      return Object.fromEntries(keys.map((k) => [k, out[k].trim().replace(/[.…:]+$/, "").replace(/\s*[—–]\s*/g, ", ")]));
     } catch (error) {
       last = String(error);
       console.log(`  retry ${attempt}: ${last}`);

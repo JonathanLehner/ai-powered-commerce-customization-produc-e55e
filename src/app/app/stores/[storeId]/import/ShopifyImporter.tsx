@@ -74,8 +74,8 @@ function IssuesTable({ issues, limit = 100 }: { issues: ImportIssue[]; limit?: n
             {issues.slice(0, limit).map((issue, index) => (
               <TableRow key={`${issue.kind}-${issue.line}-${issue.key}-${index}`}>
                 <TableCell className="px-3 text-xs">{t(`files.${issue.kind}.short`)}</TableCell>
-                <TableCell className="px-3 text-xs tabular-nums">{issue.line || "–"}</TableCell>
-                <TableCell className="max-w-48 truncate px-3 font-mono text-xs">{issue.ref || "–"}</TableCell>
+                <TableCell className="px-3 text-xs tabular-nums">{issue.line || null}</TableCell>
+                <TableCell className="max-w-48 truncate px-3 font-mono text-xs">{issue.ref}</TableCell>
                 <TableCell className="px-3 text-xs">
                   <span className="flex items-start gap-2">
                     <Badge tone={issue.severity === "error" ? "rose" : "amber"}>
@@ -364,19 +364,19 @@ export function ShopifyImporter({
                               <span className="block font-mono text-xs text-muted-foreground">/products/{product.handle}</span>
                             </TableCell>
                             <TableCell className="px-3 text-xs">
-                              {product.options.length > 0 ? product.options.join(", ") : "–"}
+                              {product.options.join(", ")}
                               <span className="block text-muted-foreground">{t("variantCount", { count: product.variants.length })}</span>
                             </TableCell>
                             <TableCell className="px-3 text-xs tabular-nums">
                               {low === high
                                 ? formatMinorUnits(format, low, currency)
-                                : `${formatMinorUnits(format, low, currency)} – ${formatMinorUnits(format, high, currency)}`}
+                                : `${formatMinorUnits(format, low, currency)}-${formatMinorUnits(format, high, currency)}`}
                             </TableCell>
                             <TableCell className="px-3 text-xs tabular-nums">
                               {tracked ? format.number(product.variants.reduce((sum, v) => sum + Math.max(0, v.quantity ?? 0), 0)) : t("notTracked")}
                             </TableCell>
                             <TableCell className="px-3 text-xs tabular-nums">{product.images.length}</TableCell>
-                            <TableCell className="max-w-56 truncate px-3 text-xs">{product.seoTitle || "–"}</TableCell>
+                            <TableCell className="max-w-56 truncate px-3 text-xs">{product.seoTitle}</TableCell>
                           </TableRow>
                         );
                       })}

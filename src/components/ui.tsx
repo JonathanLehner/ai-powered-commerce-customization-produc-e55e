@@ -138,6 +138,7 @@ export function StatCard({
   sub,
   tone = "neutral",
   href,
+  empty = false,
 }: {
   label: string;
   value: string;
@@ -145,6 +146,8 @@ export function StatCard({
   tone?: Tone;
   /** Makes the whole card a link to the list behind the figure. */
   href?: string;
+  /** The value is a short line saying there is no figure yet, set as plain text. */
+  empty?: boolean;
 }) {
   const accents: Record<Tone, string> = {
     neutral: "text-foreground",
@@ -159,9 +162,13 @@ export function StatCard({
     <Card size="sm" className={cn("border border-border ring-0", href && "h-full transition-colors group-hover:bg-muted/50")}>
       <CardContent>
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className={cn("mt-1 text-2xl font-semibold tracking-tight tabular-nums", accents[tone])}>
-          {value}
-        </p>
+        {empty ? (
+          <p className="mt-1 text-sm text-muted-foreground">{value}</p>
+        ) : (
+          <p className={cn("mt-1 text-2xl font-semibold tracking-tight tabular-nums", accents[tone])}>
+            {value}
+          </p>
+        )}
         {sub ? <p className="mt-1 text-xs text-muted-foreground">{sub}</p> : null}
       </CardContent>
     </Card>

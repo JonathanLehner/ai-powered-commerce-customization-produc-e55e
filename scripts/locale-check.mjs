@@ -69,8 +69,8 @@ for (const code of LOCALES) {
     // A dropped placeholder silently prints the wrong sentence, e.g. a total
     // with no amount in it, so parity with English is enforced.
     assert.deepEqual(placeholders(value), placeholders(english[key]), `${code}.${key} does not carry English's placeholders`);
-    // The copy rules: no em dashes anywhere a shopper reads.
-    assert.ok(!value.includes("\u2014"), `${code}.${key} uses an em dash`);
+    // The copy rules: no em or en dashes anywhere a shopper reads.
+    assert.ok(!/[\u2013\u2014]/.test(value), `${code}.${key} uses an em or en dash`);
   }
 }
 

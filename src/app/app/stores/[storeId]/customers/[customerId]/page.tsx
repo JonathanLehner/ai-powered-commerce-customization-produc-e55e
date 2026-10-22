@@ -155,10 +155,10 @@ export default async function CustomerDetailPage({
               <CardContent>
                 <DataList
                   rows={[
-                    { label: t("email"), value: deleted ? "–" : customer.email },
-                    { label: t("country"), value: customer.country ? countryName(locale, customer.country) : "–" },
-                    { label: t("firstOrder"), value: customer.firstOrderAt ? formatDate(customer.firstOrderAt, locale) : "–" },
-                    { label: t("lastOrder"), value: customer.lastOrderAt ? formatDate(customer.lastOrderAt, locale) : "–" },
+                    { label: t("email"), value: deleted ? labels("none") : customer.email },
+                    { label: t("country"), value: customer.country ? countryName(locale, customer.country) : labels("notSet") },
+                    { label: t("firstOrder"), value: customer.firstOrderAt ? formatDate(customer.firstOrderAt, locale) : labels("none") },
+                    { label: t("lastOrder"), value: customer.lastOrderAt ? formatDate(customer.lastOrderAt, locale) : labels("none") },
                     { label: t("orders"), value: String(customer.orderCount) },
                     { label: t("spend"), value: formatMoney(customer.lifetimeSpend, customer.currency, locale) },
                     { label: t("refunded"), value: formatMoney(customer.refundedTotal, customer.currency, locale) },

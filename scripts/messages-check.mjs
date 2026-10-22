@@ -81,8 +81,8 @@ for (const locale of LOCALES) {
     if (expected.join() !== actual.join()) {
       problems.push(`${locale}: ${key} uses ${actual.join(", ") || "nothing"}, English uses ${expected.join(", ") || "nothing"}`);
     }
-    // The copy rules: no em dashes in interface text.
-    if (value.includes("—")) problems.push(`${locale}: ${key} contains an em dash`);
+    // The copy rules: no em or en dashes in interface text.
+    if (/[—–]/.test(value)) problems.push(`${locale}: ${key} contains an em or en dash`);
   }
   for (const key of messages.keys()) {
     if (!source.has(key)) problems.push(`${locale}: ${key} is not in English`);
@@ -173,6 +173,13 @@ for (const file of components(srcDir)) {
     if (close < 0) continue;
     report(open, "sr-only text", spokenText(code.slice(end + 1, close)));
   }
+
+  // No em or en dash on screen, including "–" standing in for an empty value.
+  code.split("\n").forEach((line, index) => {
+    if (/[—–]/.test(line) && !/^\s*(\/\/|\*|\/\*|\{\/\*)/.test(line)) {
+      problems.push(`${file.slice(srcDir.length - 3)}:${index + 1}: em or en dash in interface code`);
+    }
+  });
 }
 assert.ok(scanned > 50, "no components were scanned");
 

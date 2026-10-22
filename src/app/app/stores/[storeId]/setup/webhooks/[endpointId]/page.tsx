@@ -135,7 +135,7 @@ export default async function WebhookEndpointPage({
                                   ? last.responseCode !== null
                                     ? <span className="font-mono">{last.responseCode}</span>
                                     : t(`error.${last.error ?? "network"}`)
-                                  : "–"}
+                                  : t("never")}
                                 {last ? <span className="block text-muted-foreground">{t("duration", { ms: last.durationMs })}</span> : null}
                               </TableCell>
                               <TableCell className="px-0 py-3 align-top text-xs text-inksoft tabular-nums">

@@ -182,7 +182,7 @@ export default async function AdminCatalogItemPage({
             <CardContent>
             <DataList
               rows={[
-                { label: t("supplier"), value: supplier?.name ?? "–" },
+                { label: t("supplier"), value: supplier?.name ?? labels("none") },
                 { label: t("integration"), value: supplier?.integration === "api" ? t("orderApi") : t("manual") },
                 { label: t("leadTime"), value: t("days", { min: item.leadTimeDays[0], max: item.leadTimeDays[1] }) },
                 { label: t("currency"), value: item.currency },

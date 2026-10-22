@@ -910,10 +910,10 @@
     "testMode": "Testläge"
   },
   "pager": {
-    "orders": "{first}–{last} av {total} ordrar",
-    "audit": "{first}–{last} av {total} poster",
+    "orders": "{first}-{last} av {total} ordrar",
+    "audit": "{first}-{last} av {total} poster",
     "auditCoverage": "Aktivitet sedan {date}. Ange ett datumintervall för att se äldre poster.",
-    "variants": "Visar {first}–{last} av {total} varianter"
+    "variants": "Visar {first}-{last} av {total} varianter"
   },
   "fallback": {
     "goToDashboard": "Till översikten",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Aktiv",
       "retired": "Utgått"
-    }
+    },
+    "none": "Ingen",
+    "notSet": "Inte angiven"
   },
   "plans": {
     "noLimit": "{agency} har planen {plan}, utan gräns för antal publicerade butiker.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} betalda",
     "lifetimeSales": "Total försäljning",
     "sales": "Försäljning",
+    "noSalesYet": "Ingen försäljning än. Intäkter, marginal och avvikelsegrad visas efter den första betalda beställningen.",
     "viewAnalytics": "Visa analys",
     "paidOrders": "{count, plural, one {# betald order} other {# betalda ordrar}}",
     "published": "Publicerade produkter",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Aktivera minst en storlek eller färg.",
         "noShippingZone": "Butiken har inga fraktzoner.",
         "noShippingZoneFix": "Lägg till en fraktzon under Frakt och moms.",
-        "notLinked": "Importerad från Shopify – inte länkad till någon leverantör än.",
+        "notLinked": "Importerad från Shopify, inte länkad till någon leverantör än.",
         "notLinkedFix": "Länka den till en katalogprodukt eller markera att du skickar den själv.",
         "noPhotos": "Produkten har inga foton.",
         "noPhotosFix": "Lägg till bild-URL:er i Shopify-exporten och importera den igen."
@@ -1449,7 +1452,7 @@
       "listingGone": "Katalogartikeln erbjuds inte längre. Välj en annan eller beskriv den.",
       "noPartner": "Just nu tar ingen inköpspartner emot förfrågningar om större volymer.",
       "alreadySent": "Förfrågan {code} har redan skickats.",
-      "sent": "Förfrågan {code} ligger hos {supplier}. Leverantörerna svarar inom {min}–{max} arbetsdagar och offerterna visas under Inköpsförfrågningar för större volymer.",
+      "sent": "Förfrågan {code} ligger hos {supplier}. Leverantörerna svarar inom {min}-{max} arbetsdagar och offerterna visas under Inköpsförfrågningar för större volymer.",
       "sentUsual": "Förfrågan {code} ligger hos {supplier}. Leverantörerna svarar oftast inom några arbetsdagar och offerterna visas under Inköpsförfrågningar för större volymer.",
       "check": {
         "productName": "Ange produkten eller välj en katalogartikel att hänvisa till.",
@@ -1541,7 +1544,7 @@
       "nameClash": "{supplier} har redan en katalogprodukt som heter ”{name}”. Ge den här ett annat namn.",
       "productUpdated": "Produkten har uppdaterats.",
       "bracketName": "Ge momssatsen ett namn.",
-      "bracketCode": "Koder har 2–12 tecken: bokstäver, siffror, punkter och bindestreck.",
+      "bracketCode": "Koder har 2-12 tecken: bokstäver, siffror, punkter och bindestreck.",
       "bracketRate": "Ange en sats mellan 0 och 50 procent.",
       "bracketRegions": "Välj regionerna som momssatsen gäller för.",
       "bracketGone": "Momssatsen finns inte längre.",
@@ -1558,7 +1561,7 @@
         "variantsUnreadable": "Varianterna kunde inte läsas. Ladda om sidan och försök igen.",
         "variantsEmpty": "Lägg till minst en variant.",
         "variantsTooMany": "En produkt kan ha högst 200 varianter.",
-        "variantSku": "Varje variant behöver en SKU på 2–40 bokstäver, siffror, punkter, bindestreck eller understreck.",
+        "variantSku": "Varje variant behöver en SKU på 2-40 bokstäver, siffror, punkter, bindestreck eller understreck.",
         "variantSkuDuplicate": "SKU {sku} används av fler än en variant.",
         "variantOption": "Lägg till en färg eller storlek för variant {sku}.",
         "variantCost": "Ange leverantörens baskostnad för variant {sku}."
@@ -2245,7 +2248,7 @@
     "supplierRef": "Leverantörsreferens",
     "submitted": "Skickad",
     "leadTime": "Ledtid",
-    "leadDays": "{min}–{max} dagar",
+    "leadDays": "{min}-{max} dagar",
     "rerouted": "Omdirigerad",
     "movedFrom": "Flyttad från",
     "unassigned": "Inte tilldelad",
@@ -2260,7 +2263,7 @@
     "optionManual": "Skapa en inköpsorder manuellt och registrera referensen nedan.",
     "optionRefund": "Avbryt och återbetala ordern nedan.",
     "optionAdmin": "Be en plattformsadministratör lägga till en leverantör för {region} och kör sedan routningen igen.",
-    "choice": "{name} · {kind}, ledtid {min}–{max} dagar",
+    "choice": "{name} · {kind}, ledtid {min}-{max} dagar",
     "sendJob": "Skicka jobbet till leverantören",
     "sending": "Skickar…",
     "alternativePartner": "Alternativ produktionspartner",
@@ -2335,7 +2338,7 @@
     "empty": "Inga kunder ännu",
     "noMatches": "Inga matchande kunder",
     "tryFilters": "Prova andra filter.",
-    "showing": "{first}–{last} av {total} kunder",
+    "showing": "{first}-{last} av {total} kunder",
     "colCustomer": "Kund",
     "colCountry": "Land",
     "colOrders": "Beställningar",
@@ -2572,6 +2575,8 @@
     "drafts": "Utkast och granskningar",
     "averageMargin": "Genomsnittlig marginal",
     "publishedProducts": "Publicerade produkter",
+    "noPublished": "Inga publicerade produkter än",
+    "notCosted": "Inga kostnader än",
     "noProducts": "Inga produkter ännu",
     "noMatches": "Inga matchande produkter",
     "noProductsBody": "Importera en produkt från leverantörskatalogen för att komma igång.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "Marginalen är under 25 %.",
     "fulfilledByStore": " · skickas av dig",
     "fulfilment": "Leverans",
-    "unlinkedTitle": "Importerad från Shopify – inte länkad till någon leverantör än",
+    "unlinkedTitle": "Importerad från Shopify, inte länkad till någon leverantör än",
     "unlinkedBody": "Välj hur produkten levereras innan du publicerar den.",
     "merchantTitle": "Skickas av dig",
     "merchantBody": "Du skickar beställningar för produkten till {cost} per styck. De importerade fotona visas i stället för mockups.",
@@ -2936,12 +2941,12 @@
     "copyAgain": "Kopiera igen",
     "byQuote": "Enligt offert",
     "units": "{count, plural, one {# st} other {# st}}",
-    "indicative": "{low}–{high} per styck vid {quantity}",
+    "indicative": "{low}-{high} per styck vid {quantity}",
     "quotedWithRun": "Offereras med upplagan",
     "freightQuoted": "Frakten offereras med upplagan",
     "manualPo": "Manuell inköpsorder",
     "routedAutomatically": "Routas automatiskt till leverantören",
-    "days": "{min}–{max} dagar",
+    "days": "{min}-{max} dagar",
     "quoteOn": "Offert på {code} · {supplier}",
     "via": "{supplier} via {marketplace}",
     "quoted": "{amount} enligt offert",
@@ -2955,7 +2960,7 @@
     "tryFilters": "Prova andra filter eller rensa dem för att se hela katalogen.",
     "startEnquiry": "Skapa en volymförfrågan",
     "requestQuoteFor": "Begär offert: {name}",
-    "askingMeta": "{supplier} · vanligt pris {range} · svar inom {min}–{max} arbetsdagar",
+    "askingMeta": "{supplier} · vanligt pris {range} · svar inom {min}-{max} arbetsdagar",
     "generalTitle": "Skapa en inköpsförfrågan för större volymer",
     "generalBody": "Välj en katalogartikel eller beskriv produkten.",
     "close": "Stäng",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} inaktuella",
     "updateTranslations": "Uppdatera översättningar",
     "sample": {
-      "badge": "Exempeltext – granska innan publicering",
+      "badge": "Exempeltext: granska innan publicering",
       "keep": "Markera som granskad",
       "layer": "Exempeltext",
       "count": "{count, plural, one {# exempelfält att granska} other {# exempelfält att granska}}"
@@ -3952,7 +3957,7 @@
       },
       "orderApi": "Order-API",
       "manualOrders": "Manuella ordrar",
-      "meta": "ledtid {min}–{max} dagar · {count, plural, one {# katalogprodukt} other {# katalogprodukter}}",
+      "meta": "ledtid {min}-{max} dagar · {count, plural, one {# katalogprodukt} other {# katalogprodukter}}",
       "quoteRequests": "Offertförfrågningar",
       "addProduct": "Lägg till katalogprodukt",
       "approve": "Godkänn",
@@ -4007,9 +4012,9 @@
       "bulkBody": "Volymartikel. Leverantörer lämnar offert på varje upplaga.",
       "minimumOrder": "Minsta order",
       "indicative": "Riktpris",
-      "indicativeValue": "{low}–{high} per styck vid {quantity}",
+      "indicativeValue": "{low}-{high} per styck vid {quantity}",
       "response": "Leverantörens svarstid",
-      "responseDays": "{min}–{max} arbetsdagar",
+      "responseDays": "{min}-{max} arbetsdagar",
       "terms": "Villkor som visas för beställare",
       "viewQuotes": "Visa offertförfrågningar",
       "photography": "Leverantörsbilder",
@@ -4029,7 +4034,7 @@
       "orderApi": "Order-API",
       "manual": "Manuell",
       "leadTime": "Ledtid",
-      "days": "{min}–{max} dagar",
+      "days": "{min}-{max} dagar",
       "currency": "Valuta"
     },
     "catalogForm": {
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Testläge – inga riktiga betalningar"
+      "testModeBar": "Testläge: inga riktiga betalningar"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4357,7 +4362,7 @@
       "madeToOrder": "Tillverkas på beställning",
       "shipsWithin": "{days, plural, one {Skickas inom # arbetsdag.} other {Skickas inom # arbetsdagar.}}",
       "producedBy": "Skickas inom {lead}.",
-      "leadDays": "{from}–{to} dagar",
+      "leadDays": "{from}-{to} dagar",
       "leadUnknown": "några dagar",
       "printDetail": "{count, plural, one {Tryckyta} other {Tryckytor}}",
       "printDetailBody": "{area}, {width} × {height} mm",
@@ -4503,7 +4508,8 @@
       "free": "Gratis",
       "tax": "Moms",
       "taxAtPayment": "Beräknas vid betalning",
-      "deliveryDays": "{min}–{max} arbetsdagar",
+      "unavailable": "Inte tillgänglig",
+      "deliveryDays": "{min}-{max} arbetsdagar",
       "deliveryDaysExact": "{days, plural, one {# arbetsdag} other {# arbetsdagar}}",
       "noShippingOptions": "Vi skickar inte till det här landet än.",
       "emailDelivery": "Leverans via e-post",
@@ -5429,7 +5435,7 @@
     "tierUpTo": "Upp till {limit}: {price}",
     "tierAbove": "Över: {price}",
     "grams": "{value, number} g",
-    "deliveryDays": "{min}–{max} arbetsdagar",
+    "deliveryDays": "{min}-{max} arbetsdagar",
     "editRate": "Redigera {name}",
     "addRate": "Lägg till fraktsätt",
     "rateLimit": "En zon kan ha upp till {max} fraktsätt.",

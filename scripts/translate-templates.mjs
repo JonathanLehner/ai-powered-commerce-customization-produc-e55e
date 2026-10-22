@@ -55,7 +55,7 @@ Respond with raw JSON only.`;
       const out = parseJson((await res.json()).text ?? "");
       const missing = Object.keys(strings).filter((k) => typeof out[k] !== "string" || !out[k].trim());
       if (missing.length > 0) throw new Error(`missing ${missing.slice(0, 5).join(", ")}`);
-      return Object.fromEntries(Object.keys(strings).map((k) => [k, out[k].replace(/\s*—\s*/g, ", ")]));
+      return Object.fromEntries(Object.keys(strings).map((k) => [k, out[k].replace(/\s*[—–]\s*/g, ", ")]));
     } catch (err) {
       last = String(err);
       console.log(`  retry ${locale} ${attempt}: ${last}`);

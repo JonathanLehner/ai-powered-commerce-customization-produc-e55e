@@ -93,7 +93,7 @@ export function formatQuantity(units: number): string {
 /** The indicative band shown beside a quote-priced listing, never a promise. */
 export function indicativeRange(product: BulkSourcingProduct): string {
   const [low, high] = product.bulkSourcing.indicativeUnitCost;
-  return `${formatMoney(low, product.currency)}–${formatMoney(high, product.currency)} a unit at ${formatQuantity(
+  return `${formatMoney(low, product.currency)}-${formatMoney(high, product.currency)} a unit at ${formatQuantity(
     product.bulkSourcing.minimumOrderQuantity,
   )}`;
 }

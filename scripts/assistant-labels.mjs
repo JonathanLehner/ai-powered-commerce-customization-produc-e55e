@@ -52,7 +52,7 @@ async function ask(prompt, keys) {
         (k) => !Array.isArray(out[k]) || out[k].length !== 2 || out[k].some((s) => typeof s !== "string" || !s.trim()),
       );
       if (bad.length > 0) throw new Error(`missing ${bad.slice(0, 5).join(", ")}`);
-      return Object.fromEntries(keys.map((k) => [k, out[k].map((s) => s.trim().replace(/[.…]+$/, "").replace(/\s*—\s*/g, ", "))]));
+      return Object.fromEntries(keys.map((k) => [k, out[k].map((s) => s.trim().replace(/[.…]+$/, "").replace(/\s*[—–]\s*/g, ", "))]));
     } catch (error) {
       last = String(error);
       console.log(`  retry ${attempt}: ${last}`);

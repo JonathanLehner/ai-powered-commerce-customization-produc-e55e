@@ -163,7 +163,7 @@ export function SourcingFilters({
                 className="w-20"
               />
               <span aria-hidden className="text-muted-foreground">
-                –
+                -
               </span>
               <Input
                 id="maxCost"

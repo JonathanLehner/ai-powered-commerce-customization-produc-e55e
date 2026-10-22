@@ -150,7 +150,7 @@ export function parseVariants(
     const sku = text(row.sku).toUpperCase();
     if (!/^[A-Z0-9][A-Z0-9._-]{1,39}$/.test(sku)) {
       return {
-        error: "Every variant needs a SKU of 2–40 letters, numbers, dots, dashes or underscores.",
+        error: "Every variant needs a SKU of 2-40 letters, numbers, dots, dashes or underscores.",
         code: "variantSku",
       };
     }

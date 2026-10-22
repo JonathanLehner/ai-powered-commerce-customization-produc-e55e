@@ -910,10 +910,10 @@
     "testMode": "Mode test"
   },
   "pager": {
-    "orders": "{first}–{last} sur {total} commandes",
-    "audit": "{first}–{last} sur {total} entrées",
+    "orders": "{first}-{last} sur {total} commandes",
+    "audit": "{first}-{last} sur {total} entrées",
     "auditCoverage": "Activité depuis le {date}. Définissez une période pour voir les entrées plus anciennes.",
-    "variants": "{first}–{last} sur {total} variantes"
+    "variants": "{first}-{last} sur {total} variantes"
   },
   "fallback": {
     "goToDashboard": "Aller au tableau de bord",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Actif",
       "retired": "Retiré"
-    }
+    },
+    "none": "Aucun",
+    "notSet": "Non défini"
   },
   "plans": {
     "noLimit": "{agency} est sur l’offre {plan}, sans limite de boutiques en ligne.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} payées",
     "lifetimeSales": "Ventes totales",
     "sales": "Ventes",
+    "noSalesYet": "Aucune vente pour l’instant. Le chiffre d’affaires, la marge et le taux d’incidents apparaissent après la première commande payée.",
     "viewAnalytics": "Voir les statistiques",
     "paidOrders": "{count, plural, one {# commande payée} other {# commandes payées}}",
     "published": "Produits publiés",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Activez au moins une taille ou une couleur.",
         "noShippingZone": "La boutique n’a aucune zone d’expédition.",
         "noShippingZoneFix": "Ajoutez une zone d’expédition dans Expédition et taxes.",
-        "notLinked": "Importé depuis Shopify – pas encore associé à un fournisseur.",
+        "notLinked": "Importé depuis Shopify, pas encore associé à un fournisseur.",
         "notLinkedFix": "Associez-le à un produit du catalogue ou indiquez que vous l'expédiez vous-même.",
         "noPhotos": "Ce produit n'a pas de photos.",
         "noPhotosFix": "Ajoutez les URL des images à l'export Shopify et importez-le à nouveau."
@@ -2335,7 +2338,7 @@
     "empty": "Aucun client pour le moment",
     "noMatches": "Aucun client correspondant",
     "tryFilters": "Essayez d'autres filtres.",
-    "showing": "{first}–{last} sur {total} clients",
+    "showing": "{first}-{last} sur {total} clients",
     "colCustomer": "Client",
     "colCountry": "Pays",
     "colOrders": "Commandes",
@@ -2572,6 +2575,8 @@
     "drafts": "Brouillons et revues",
     "averageMargin": "Marge moyenne",
     "publishedProducts": "Produits publiés",
+    "noPublished": "Aucun produit publié pour l’instant",
+    "notCosted": "Pas encore de coûts",
     "noProducts": "Aucun produit",
     "noMatches": "Aucun produit correspondant",
     "noProductsBody": "Importez un produit du catalogue fournisseurs pour commencer.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "La marge est inférieure à 25 %.",
     "fulfilledByStore": " · expédié par vous",
     "fulfilment": "Expédition",
-    "unlinkedTitle": "Importé depuis Shopify – pas encore associé à un fournisseur",
+    "unlinkedTitle": "Importé depuis Shopify, pas encore associé à un fournisseur",
     "unlinkedBody": "Choisissez comment ce produit est expédié avant de le publier.",
     "merchantTitle": "Expédié par vous",
     "merchantBody": "Vous expédiez les commandes de ce produit à {cost} l'unité. Ses photos importées remplacent les maquettes.",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} obsolète(s)",
     "updateTranslations": "Mettre à jour les traductions",
     "sample": {
-      "badge": "Texte d’exemple – à vérifier avant publication",
+      "badge": "Texte d’exemple: à vérifier avant publication",
       "keep": "Marquer comme vérifié",
       "layer": "Texte d’exemple",
       "count": "{count, plural, one {# champ d’exemple à vérifier} other {# champs d’exemple à vérifier}}"
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Mode test – aucun paiement réel"
+      "testModeBar": "Mode test: aucun paiement réel"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4503,6 +4508,7 @@
       "free": "Gratuit",
       "tax": "Taxes",
       "taxAtPayment": "Calculé au paiement",
+      "unavailable": "Non disponible",
       "deliveryDays": "{min} à {max} jours ouvrés",
       "deliveryDaysExact": "{days, plural, one {# jour ouvré} other {# jours ouvrés}}",
       "noShippingOptions": "Nous ne livrons pas encore dans ce pays.",

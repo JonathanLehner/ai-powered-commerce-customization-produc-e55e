@@ -910,10 +910,10 @@
     "testMode": "Testmodus"
   },
   "pager": {
-    "orders": "{first}–{last} von {total} Bestellungen",
-    "audit": "{first}–{last} von {total} Einträgen",
+    "orders": "{first}-{last} von {total} Bestellungen",
+    "audit": "{first}-{last} von {total} Einträgen",
     "auditCoverage": "Aktivitäten seit {date}. Legen Sie einen Zeitraum fest, um ältere Einträge zu sehen.",
-    "variants": "{first}–{last} von {total} Varianten"
+    "variants": "{first}-{last} von {total} Varianten"
   },
   "fallback": {
     "goToDashboard": "Zum Dashboard",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Aktiv",
       "retired": "Eingestellt"
-    }
+    },
+    "none": "Keine",
+    "notSet": "Nicht festgelegt"
   },
   "plans": {
     "noLimit": "{agency} nutzt den Tarif {plan} ohne Limit für Live-Shops.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} bezahlt",
     "lifetimeSales": "Umsatz gesamt",
     "sales": "Umsatz",
+    "noSalesYet": "Noch keine Verkäufe. Umsatz, Marge und Ausnahmequote erscheinen nach der ersten bezahlten Bestellung.",
     "viewAnalytics": "Analysen ansehen",
     "paidOrders": "{count, plural, one {# bezahlte Bestellung} other {# bezahlte Bestellungen}}",
     "published": "Veröffentlichte Produkte",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Aktivieren Sie mindestens eine Größe oder Farbe.",
         "noShippingZone": "Der Shop hat keine Versandzonen.",
         "noShippingZoneFix": "Füge unter Versand und Steuern eine Versandzone hinzu.",
-        "notLinked": "Aus Shopify importiert – noch mit keinem Lieferanten verknüpft.",
+        "notLinked": "Aus Shopify importiert, noch mit keinem Lieferanten verknüpft.",
         "notLinkedFix": "Verknüpfen Sie es mit einem Katalogprodukt oder markieren Sie es als selbst versendet.",
         "noPhotos": "Dieses Produkt hat keine Fotos.",
         "noPhotosFix": "Ergänzen Sie Bild-URLs im Shopify-Export und importieren Sie ihn erneut."
@@ -1449,7 +1452,7 @@
       "listingGone": "Dieser Katalogartikel wird nicht mehr angeboten. Wählen Sie einen anderen oder beschreiben Sie ihn.",
       "noPartner": "Derzeit nimmt kein Partner für Großmengenbeschaffung Anfragen an.",
       "alreadySent": "Anfrage {code} wurde bereits gesendet.",
-      "sent": "Anfrage {code} liegt bei {supplier}. Lieferanten antworten innerhalb von {min}–{max} Werktagen, die Angebote erscheinen unter Großmengenanfragen.",
+      "sent": "Anfrage {code} liegt bei {supplier}. Lieferanten antworten innerhalb von {min}-{max} Werktagen, die Angebote erscheinen unter Großmengenanfragen.",
       "sentUsual": "Anfrage {code} liegt bei {supplier}. Lieferanten antworten meist innerhalb weniger Werktage, die Angebote erscheinen unter Großmengenanfragen.",
       "check": {
         "productName": "Nennen Sie das Produkt oder wählen Sie einen Katalogartikel als Referenz.",
@@ -1541,7 +1544,7 @@
       "nameClash": "{supplier} hat bereits ein Katalogprodukt namens „{name}“. Geben Sie diesem einen anderen Namen.",
       "productUpdated": "Produkt aktualisiert.",
       "bracketName": "Geben Sie der Steuerklasse einen Namen.",
-      "bracketCode": "Codes haben 2–12 Zeichen: Buchstaben, Ziffern, Punkte und Bindestriche.",
+      "bracketCode": "Codes haben 2-12 Zeichen: Buchstaben, Ziffern, Punkte und Bindestriche.",
       "bracketRate": "Geben Sie einen Satz zwischen 0 und 50 Prozent ein.",
       "bracketRegions": "Wählen Sie die Regionen, für die diese Steuerklasse gilt.",
       "bracketGone": "Diese Steuerklasse existiert nicht mehr.",
@@ -1558,7 +1561,7 @@
         "variantsUnreadable": "Die Varianten konnten nicht gelesen werden. Laden Sie die Seite neu und versuchen Sie es erneut.",
         "variantsEmpty": "Fügen Sie mindestens eine Variante hinzu.",
         "variantsTooMany": "Ein Produkt hat höchstens 200 Varianten.",
-        "variantSku": "Jede Variante braucht eine SKU aus 2–40 Buchstaben, Ziffern, Punkten, Binde- oder Unterstrichen.",
+        "variantSku": "Jede Variante braucht eine SKU aus 2-40 Buchstaben, Ziffern, Punkten, Binde- oder Unterstrichen.",
         "variantSkuDuplicate": "Die SKU {sku} wird von mehreren Varianten verwendet.",
         "variantOption": "Geben Sie für die Variante {sku} eine Farbe oder Größe an.",
         "variantCost": "Geben Sie den Grundpreis des Lieferanten für die Variante {sku} ein."
@@ -2245,7 +2248,7 @@
     "supplierRef": "Lieferantenreferenz",
     "submitted": "Übermittelt",
     "leadTime": "Lieferzeit",
-    "leadDays": "{min}–{max} Tage",
+    "leadDays": "{min}-{max} Tage",
     "rerouted": "Umgeleitet",
     "movedFrom": "Verlagert von",
     "unassigned": "Nicht zugewiesen",
@@ -2260,7 +2263,7 @@
     "optionManual": "Bestellung manuell auslösen und die Referenz unten erfassen.",
     "optionRefund": "Bestellung unten stornieren und erstatten.",
     "optionAdmin": "Einen Plattformadministrator bitten, einen Lieferanten für {region} hinzuzufügen, und dann das Routing erneut ausführen.",
-    "choice": "{name} · {kind}, {min}–{max} Tage Lieferzeit",
+    "choice": "{name} · {kind}, {min}-{max} Tage Lieferzeit",
     "sendJob": "Auftrag an Lieferanten senden",
     "sending": "Wird gesendet…",
     "alternativePartner": "Alternativer Produktionspartner",
@@ -2335,7 +2338,7 @@
     "empty": "Noch keine Kunden",
     "noMatches": "Keine passenden Kunden",
     "tryFilters": "Versuchen Sie andere Filter.",
-    "showing": "{first}–{last} von {total} Kunden",
+    "showing": "{first}-{last} von {total} Kunden",
     "colCustomer": "Kunde",
     "colCountry": "Land",
     "colOrders": "Bestellungen",
@@ -2572,6 +2575,8 @@
     "drafts": "Entwürfe und Prüfungen",
     "averageMargin": "Durchschnittliche Marge",
     "publishedProducts": "Veröffentlichte Produkte",
+    "noPublished": "Noch keine veröffentlichten Produkte",
+    "notCosted": "Noch keine Kosten",
     "noProducts": "Noch keine Produkte",
     "noMatches": "Keine passenden Produkte",
     "noProductsBody": "Importieren Sie ein Produkt aus dem Lieferantenkatalog, um zu beginnen.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "Die Marge liegt unter 25 %.",
     "fulfilledByStore": " · selbst versendet",
     "fulfilment": "Versand",
-    "unlinkedTitle": "Aus Shopify importiert – noch mit keinem Lieferanten verknüpft",
+    "unlinkedTitle": "Aus Shopify importiert, noch mit keinem Lieferanten verknüpft",
     "unlinkedBody": "Legen Sie fest, wie dieses Produkt versendet wird, bevor Sie es veröffentlichen.",
     "merchantTitle": "Selbst versendet",
     "merchantBody": "Sie versenden Bestellungen für dieses Produkt zu {cost} pro Stück. Die importierten Fotos ersetzen die Mockups.",
@@ -2936,12 +2941,12 @@
     "copyAgain": "Erneut kopieren",
     "byQuote": "Auf Anfrage",
     "units": "{count, plural, one {# Stück} other {# Stück}}",
-    "indicative": "{low}–{high} pro Stück bei {quantity}",
+    "indicative": "{low}-{high} pro Stück bei {quantity}",
     "quotedWithRun": "Wird mit der Auflage angeboten",
     "freightQuoted": "Fracht wird mit der Auflage angeboten",
     "manualPo": "Manuelle Bestellung",
     "routedAutomatically": "Automatisch an den Lieferanten geroutet",
-    "days": "{min}–{max} Tage",
+    "days": "{min}-{max} Tage",
     "quoteOn": "Angebot zu {code} · {supplier}",
     "via": "{supplier} über {marketplace}",
     "quoted": "{amount} angeboten",
@@ -2955,7 +2960,7 @@
     "tryFilters": "Versuchen Sie andere Filter oder setzen Sie sie zurück, um den gesamten Katalog zu sehen.",
     "startEnquiry": "Großmengenanfrage starten",
     "requestQuoteFor": "Angebot anfragen: {name}",
-    "askingMeta": "{supplier} · üblicher Preis {range} · Antwort in {min}–{max} Werktagen",
+    "askingMeta": "{supplier} · üblicher Preis {range} · Antwort in {min}-{max} Werktagen",
     "generalTitle": "Großmengenanfrage starten",
     "generalBody": "Wählen Sie einen Katalogartikel oder beschreiben Sie das Produkt.",
     "close": "Schließen",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} veraltet",
     "updateTranslations": "Übersetzungen aktualisieren",
     "sample": {
-      "badge": "Beispieltext – vor dem Veröffentlichen prüfen",
+      "badge": "Beispieltext: vor dem Veröffentlichen prüfen",
       "keep": "Als geprüft markieren",
       "layer": "Beispieltext",
       "count": "{count, plural, one {# Beispielfeld zu prüfen} other {# Beispielfelder zu prüfen}}"
@@ -3952,7 +3957,7 @@
       },
       "orderApi": "Bestell-API",
       "manualOrders": "Manuelle Bestellungen",
-      "meta": "Lieferzeit {min}–{max} Tage · {count, plural, one {# Katalogprodukt} other {# Katalogprodukte}}",
+      "meta": "Lieferzeit {min}-{max} Tage · {count, plural, one {# Katalogprodukt} other {# Katalogprodukte}}",
       "quoteRequests": "Angebotsanfragen",
       "addProduct": "Katalogprodukt hinzufügen",
       "approve": "Freigeben",
@@ -4007,9 +4012,9 @@
       "bulkBody": "Großmengenangebot. Lieferanten erstellen für jede Auflage ein Angebot.",
       "minimumOrder": "Mindestbestellmenge",
       "indicative": "Richtwert",
-      "indicativeValue": "{low}–{high} pro Stück bei {quantity}",
+      "indicativeValue": "{low}-{high} pro Stück bei {quantity}",
       "response": "Antwortzeit des Lieferanten",
-      "responseDays": "{min}–{max} Werktage",
+      "responseDays": "{min}-{max} Werktage",
       "terms": "Für Besteller sichtbare Bedingungen",
       "viewQuotes": "Angebotsanfragen ansehen",
       "photography": "Lieferantenfotos",
@@ -4029,7 +4034,7 @@
       "orderApi": "Bestell-API",
       "manual": "Manuell",
       "leadTime": "Lieferzeit",
-      "days": "{min}–{max} Tage",
+      "days": "{min}-{max} Tage",
       "currency": "Währung"
     },
     "catalogForm": {
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Testmodus – keine echten Zahlungen"
+      "testModeBar": "Testmodus: keine echten Zahlungen"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4357,7 +4362,7 @@
       "madeToOrder": "Auf Bestellung gefertigt",
       "shipsWithin": "{days, plural, one {Versand innerhalb von # Werktag.} other {Versand innerhalb von # Werktagen.}}",
       "producedBy": "Versand in {lead}.",
-      "leadDays": "{from}–{to} Tagen",
+      "leadDays": "{from}-{to} Tagen",
       "leadUnknown": "wenigen Tagen",
       "printDetail": "{count, plural, one {Druckbereich} other {Druckbereiche}}",
       "printDetailBody": "{area}, {width} × {height} mm",
@@ -4503,7 +4508,8 @@
       "free": "Kostenlos",
       "tax": "Steuern",
       "taxAtPayment": "Wird bei der Zahlung berechnet",
-      "deliveryDays": "{min}–{max} Werktage",
+      "unavailable": "Nicht verfügbar",
+      "deliveryDays": "{min}-{max} Werktage",
       "deliveryDaysExact": "{days, plural, one {# Werktag} other {# Werktage}}",
       "noShippingOptions": "Wir liefern noch nicht in dieses Land.",
       "emailDelivery": "E-Mail-Zustellung",
@@ -5429,7 +5435,7 @@
     "tierUpTo": "Bis {limit}: {price}",
     "tierAbove": "Darüber: {price}",
     "grams": "{value, number} g",
-    "deliveryDays": "{min}–{max} Werktage",
+    "deliveryDays": "{min}-{max} Werktage",
     "editRate": "{name} bearbeiten",
     "addRate": "Tarif hinzufügen",
     "rateLimit": "Eine Zone kann bis zu {max} Tarife haben.",

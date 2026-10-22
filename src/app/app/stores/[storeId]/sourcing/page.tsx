@@ -155,11 +155,11 @@ const COMPARE_ROWS = [
   "availability",
 ] as const satisfies readonly (keyof CompareColumn)[];
 
-function listingTerms(c: CatalogProduct | undefined) {
+function listingTerms(c: CatalogProduct | undefined, none: string) {
   return {
-    variants: c ? `${c.variants.length}` : "–",
-    printAreas: c ? c.printAreas.map((a) => `${a.name} (${a.widthMm}×${a.heightMm} mm)`).join(", ") : "–",
-    minDpi: c ? `${c.fileRequirements.minDpi}` : "–",
+    variants: c ? `${c.variants.length}` : none,
+    printAreas: c ? c.printAreas.map((a) => `${a.name} (${a.widthMm}×${a.heightMm} mm)`).join(", ") : none,
+    minDpi: c ? `${c.fileRequirements.minDpi}` : none,
   };
 }
 
@@ -381,7 +381,7 @@ export default async function SourcingPage({
       shipping: quoteOnly ? t("freightQuoted") : money(c.shippingEstimate, c.currency),
       ordering: quoteOnly ? t("manualPo") : t("routedAutomatically"),
       leadTime: t("days", { min: c.leadTimeDays[0], max: c.leadTimeDays[1] }),
-      ...listingTerms(c),
+      ...listingTerms(c, labels("none")),
       fulfils: c.fulfillmentRegions.map(region).join(", "),
       availability: labels(`catalogAvailability.${c.availability}`),
       action: catalogAction(c),
@@ -409,7 +409,7 @@ export default async function SourcingPage({
       shipping: t("freightQuoted"),
       ordering: t("manualPo"),
       leadTime: t("productionDays", { days: quote.leadTimeDays }),
-      ...listingTerms(catalog.find((c) => c.id === quote.baseCatalogProductId)),
+      ...listingTerms(catalog.find((c) => c.id === quote.baseCatalogProductId), labels("none")),
       fulfils: region(request.destination),
       availability: quote.validUntil
         ? live

@@ -910,10 +910,10 @@
     "testMode": "Testmodus"
   },
   "pager": {
-    "orders": "{first}–{last} van {total} bestellingen",
-    "audit": "{first}–{last} van {total} items",
+    "orders": "{first}-{last} van {total} bestellingen",
+    "audit": "{first}-{last} van {total} items",
     "auditCoverage": "Activiteit sinds {date}. Kies een periode om oudere items te zien.",
-    "variants": "{first}–{last} van {total} varianten"
+    "variants": "{first}-{last} van {total} varianten"
   },
   "fallback": {
     "goToDashboard": "Naar het dashboard",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Actief",
       "retired": "Uit assortiment"
-    }
+    },
+    "none": "Geen",
+    "notSet": "Niet ingesteld"
   },
   "plans": {
     "noLimit": "{agency} heeft het {plan}-abonnement, zonder limiet op live winkels.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} betaald",
     "lifetimeSales": "Totale omzet",
     "sales": "Omzet",
+    "noSalesYet": "Nog geen verkopen. Omzet, marge en uitzonderingspercentage verschijnen na de eerste betaalde bestelling.",
     "viewAnalytics": "Analyses bekijken",
     "paidOrders": "{count, plural, one {# betaalde bestelling} other {# betaalde bestellingen}}",
     "published": "Gepubliceerde producten",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Schakel minstens één maat of kleur in.",
         "noShippingZone": "De winkel heeft geen verzendzones.",
         "noShippingZoneFix": "Voeg een verzendzone toe onder Verzending en btw.",
-        "notLinked": "Geïmporteerd uit Shopify – nog niet gekoppeld aan een leverancier.",
+        "notLinked": "Geïmporteerd uit Shopify, nog niet gekoppeld aan een leverancier.",
         "notLinkedFix": "Koppel het aan een catalogusproduct of markeer het als zelf verzonden.",
         "noPhotos": "Dit product heeft geen foto's.",
         "noPhotosFix": "Voeg afbeeldings-URL's toe aan de Shopify-export en importeer opnieuw."
@@ -1449,7 +1452,7 @@
       "listingGone": "Dat catalogusartikel wordt niet meer aangeboden. Kies een ander of beschrijf het.",
       "noPartner": "Er is op dit moment geen inkooppartner die aanvragen voor grote aantallen aanneemt.",
       "alreadySent": "Aanvraag {code} is al verstuurd.",
-      "sent": "Aanvraag {code} ligt bij {supplier}. Leveranciers reageren binnen {min}–{max} werkdagen en de offertes verschijnen onder Inkoopaanvragen voor grote aantallen.",
+      "sent": "Aanvraag {code} ligt bij {supplier}. Leveranciers reageren binnen {min}-{max} werkdagen en de offertes verschijnen onder Inkoopaanvragen voor grote aantallen.",
       "sentUsual": "Aanvraag {code} ligt bij {supplier}. Leveranciers reageren meestal binnen een paar werkdagen en de offertes verschijnen onder Inkoopaanvragen voor grote aantallen.",
       "check": {
         "productName": "Noem het product of kies een catalogusartikel als referentie.",
@@ -1541,7 +1544,7 @@
       "nameClash": "{supplier} heeft al een catalogusproduct met de naam ‘{name}’. Geef dit product een andere naam.",
       "productUpdated": "Product bijgewerkt.",
       "bracketName": "Geef het tarief een naam.",
-      "bracketCode": "Codes hebben 2–12 tekens: letters, cijfers, punten en streepjes.",
+      "bracketCode": "Codes hebben 2-12 tekens: letters, cijfers, punten en streepjes.",
       "bracketRate": "Vul een tarief tussen 0 en 50 procent in.",
       "bracketRegions": "Kies de regio’s waarvoor dit tarief geldt.",
       "bracketGone": "Dat btw-tarief bestaat niet meer.",
@@ -1558,7 +1561,7 @@
         "variantsUnreadable": "De varianten konden niet worden gelezen. Laad de pagina opnieuw en probeer het nog eens.",
         "variantsEmpty": "Voeg minstens één variant toe.",
         "variantsTooMany": "Een product heeft maximaal 200 varianten.",
-        "variantSku": "Elke variant heeft een SKU van 2–40 letters, cijfers, punten, streepjes of underscores nodig.",
+        "variantSku": "Elke variant heeft een SKU van 2-40 letters, cijfers, punten, streepjes of underscores nodig.",
         "variantSkuDuplicate": "SKU {sku} wordt door meer dan één variant gebruikt.",
         "variantOption": "Voeg een kleur of maat toe aan variant {sku}.",
         "variantCost": "Vul de basisprijs van de leverancier in voor variant {sku}."
@@ -2245,7 +2248,7 @@
     "supplierRef": "Referentie leverancier",
     "submitted": "Doorgestuurd",
     "leadTime": "Levertijd",
-    "leadDays": "{min}–{max} dagen",
+    "leadDays": "{min}-{max} dagen",
     "rerouted": "Omgeleid",
     "movedFrom": "Verplaatst van",
     "unassigned": "Niet toegewezen",
@@ -2260,7 +2263,7 @@
     "optionManual": "Maak handmatig een inkooporder aan en leg de referentie hieronder vast.",
     "optionRefund": "Annuleer de bestelling hieronder en betaal terug.",
     "optionAdmin": "Vraag een platformbeheerder om een leverancier voor {region} toe te voegen en voer de routering daarna opnieuw uit.",
-    "choice": "{name} · {kind}, levertijd {min}–{max} dagen",
+    "choice": "{name} · {kind}, levertijd {min}-{max} dagen",
     "sendJob": "Opdracht naar leverancier sturen",
     "sending": "Versturen…",
     "alternativePartner": "Alternatieve productiepartner",
@@ -2335,7 +2338,7 @@
     "empty": "Nog geen klanten",
     "noMatches": "Geen overeenkomende klanten",
     "tryFilters": "Probeer andere filters.",
-    "showing": "{first}–{last} van {total} klanten",
+    "showing": "{first}-{last} van {total} klanten",
     "colCustomer": "Klant",
     "colCountry": "Land",
     "colOrders": "Bestellingen",
@@ -2572,6 +2575,8 @@
     "drafts": "Concepten en beoordelingen",
     "averageMargin": "Gemiddelde marge",
     "publishedProducts": "Gepubliceerde producten",
+    "noPublished": "Nog geen gepubliceerde producten",
+    "notCosted": "Nog geen kosten",
     "noProducts": "Nog geen producten",
     "noMatches": "Geen overeenkomende producten",
     "noProductsBody": "Importeer een product uit de leverancierscatalogus om te beginnen.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "De marge is lager dan 25%.",
     "fulfilledByStore": " · zelf verzonden",
     "fulfilment": "Verzending",
-    "unlinkedTitle": "Geïmporteerd uit Shopify – nog niet gekoppeld aan een leverancier",
+    "unlinkedTitle": "Geïmporteerd uit Shopify, nog niet gekoppeld aan een leverancier",
     "unlinkedBody": "Kies hoe dit product wordt verzonden voordat je het publiceert.",
     "merchantTitle": "Zelf verzonden",
     "merchantBody": "Je verzendt bestellingen voor dit product voor {cost} per stuk. De geïmporteerde foto's vervangen de mockups.",
@@ -2936,12 +2941,12 @@
     "copyAgain": "Opnieuw kopiëren",
     "byQuote": "Op offerte",
     "units": "{count, plural, one {# stuk} other {# stuks}}",
-    "indicative": "{low}–{high} per stuk bij {quantity}",
+    "indicative": "{low}-{high} per stuk bij {quantity}",
     "quotedWithRun": "Geoffreerd bij de oplage",
     "freightQuoted": "Vracht geoffreerd bij de oplage",
     "manualPo": "Handmatige inkooporder",
     "routedAutomatically": "Automatisch naar de leverancier gerouteerd",
-    "days": "{min}–{max} dagen",
+    "days": "{min}-{max} dagen",
     "quoteOn": "Offerte voor {code} · {supplier}",
     "via": "{supplier} via {marketplace}",
     "quoted": "{amount} geoffreerd",
@@ -2955,7 +2960,7 @@
     "tryFilters": "Probeer andere filters of wis ze om de volledige catalogus te zien.",
     "startEnquiry": "Aanvraag voor grote aantallen starten",
     "requestQuoteFor": "Offerte aanvragen: {name}",
-    "askingMeta": "{supplier} · gebruikelijke prijs {range} · antwoord binnen {min}–{max} werkdagen",
+    "askingMeta": "{supplier} · gebruikelijke prijs {range} · antwoord binnen {min}-{max} werkdagen",
     "generalTitle": "Inkoopaanvraag voor grote aantallen starten",
     "generalBody": "Kies een catalogusartikel of beschrijf het product.",
     "close": "Sluiten",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} verouderd",
     "updateTranslations": "Vertalingen bijwerken",
     "sample": {
-      "badge": "Voorbeeldtekst – controleer voor publicatie",
+      "badge": "Voorbeeldtekst: controleer voor publicatie",
       "keep": "Markeren als gecontroleerd",
       "layer": "Voorbeeldtekst",
       "count": "{count, plural, one {# voorbeeldveld te controleren} other {# voorbeeldvelden te controleren}}"
@@ -3952,7 +3957,7 @@
       },
       "orderApi": "Order-API",
       "manualOrders": "Handmatige bestellingen",
-      "meta": "levertijd {min}–{max} dagen · {count, plural, one {# catalogusproduct} other {# catalogusproducten}}",
+      "meta": "levertijd {min}-{max} dagen · {count, plural, one {# catalogusproduct} other {# catalogusproducten}}",
       "quoteRequests": "Offerteaanvragen",
       "addProduct": "Catalogusproduct toevoegen",
       "approve": "Goedkeuren",
@@ -4007,9 +4012,9 @@
       "bulkBody": "Artikel voor grote aantallen. Leveranciers maken voor elke oplage een offerte.",
       "minimumOrder": "Minimale afname",
       "indicative": "Indicatief",
-      "indicativeValue": "{low}–{high} per stuk bij {quantity}",
+      "indicativeValue": "{low}-{high} per stuk bij {quantity}",
       "response": "Reactietijd leverancier",
-      "responseDays": "{min}–{max} werkdagen",
+      "responseDays": "{min}-{max} werkdagen",
       "terms": "Voorwaarden voor kopers",
       "viewQuotes": "Offerteaanvragen bekijken",
       "photography": "Leveranciersfoto’s",
@@ -4029,7 +4034,7 @@
       "orderApi": "Order-API",
       "manual": "Handmatig",
       "leadTime": "Levertijd",
-      "days": "{min}–{max} dagen",
+      "days": "{min}-{max} dagen",
       "currency": "Valuta"
     },
     "catalogForm": {
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Testmodus – geen echte betalingen"
+      "testModeBar": "Testmodus: geen echte betalingen"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4357,7 +4362,7 @@
       "madeToOrder": "Op bestelling gemaakt",
       "shipsWithin": "{days, plural, one {Verzonden binnen # werkdag.} other {Verzonden binnen # werkdagen.}}",
       "producedBy": "Verzonden binnen {lead}.",
-      "leadDays": "{from}–{to} dagen",
+      "leadDays": "{from}-{to} dagen",
       "leadUnknown": "een paar dagen",
       "printDetail": "{count, plural, one {Printgebied} other {Printgebieden}}",
       "printDetailBody": "{area}, {width} × {height} mm",
@@ -4503,7 +4508,8 @@
       "free": "Gratis",
       "tax": "Btw",
       "taxAtPayment": "Berekend bij betaling",
-      "deliveryDays": "{min}–{max} werkdagen",
+      "unavailable": "Niet beschikbaar",
+      "deliveryDays": "{min}-{max} werkdagen",
       "deliveryDaysExact": "{days, plural, one {# werkdag} other {# werkdagen}}",
       "noShippingOptions": "We verzenden nog niet naar dit land.",
       "emailDelivery": "Levering via e-mail",
@@ -5429,7 +5435,7 @@
     "tierUpTo": "Tot {limit}: {price}",
     "tierAbove": "Daarboven: {price}",
     "grams": "{value, number} g",
-    "deliveryDays": "{min}–{max} werkdagen",
+    "deliveryDays": "{min}-{max} werkdagen",
     "editRate": "{name} bewerken",
     "addRate": "Tarief toevoegen",
     "rateLimit": "Een zone kan maximaal {max} tarieven hebben.",

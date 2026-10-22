@@ -186,7 +186,7 @@ const suppliers = [
     integration: "api",
     capabilities: { catalog: true, quotes: true, inventory: true, mockups: true, orderSubmission: true, tracking: true, cancellation: true },
     leadTimeDays: [2, 6],
-    notes: "Best choice when a store sells worldwide — local production avoids cross-border duties.",
+    notes: "Best choice when a store sells worldwide. Local production avoids cross-border duties.",
     createdAt: iso(205),
   },
   {
@@ -201,7 +201,7 @@ const suppliers = [
     integration: "api",
     capabilities: { catalog: true, quotes: true, inventory: true, mockups: true, orderSubmission: true, tracking: true, cancellation: false },
     leadTimeDays: [3, 8],
-    notes: "No cancellation API — cancellations must be raised with the assigned print provider by email.",
+    notes: "No cancellation API. Cancellations must be raised with the assigned print provider by email.",
     createdAt: iso(190),
   },
   {
@@ -210,7 +210,7 @@ const suppliers = [
     kind: "sourcing_marketplace",
     website: "https://www.alibaba.com",
     summary:
-      "Sourcing and RFQ marketplace for bulk manufacturing. Used for discovery, supplier comparison and quote requests only — transaction APIs differ per supplier, so orders are raised manually under Trade Assurance.",
+      "Sourcing and RFQ marketplace for bulk manufacturing. Used for discovery, supplier comparison and quote requests only. Transaction APIs differ per supplier, so orders are raised manually under Trade Assurance.",
     status: "approved",
     regions: ["North America", "European Union", "United Kingdom", "LATAM", "APAC", "Middle East", "Africa", "Oceania"],
     integration: "manual",
@@ -232,7 +232,7 @@ const suppliers = [
     integration: "api",
     capabilities: { catalog: true, quotes: true, inventory: true, mockups: false, orderSubmission: true, tracking: true, cancellation: true },
     leadTimeDays: [4, 9],
-    notes: "Pending platform approval — sample quality assessment in progress. Not selectable by stores until approved.",
+    notes: "Pending platform approval: sample quality assessment in progress. Not selectable by stores until approved.",
     createdAt: iso(35),
   },
 ];
@@ -1201,7 +1201,7 @@ async function main() {
         submittedAt: routing === "submitted" ? iso(plan.daysAgo, 10) : null,
         submissionMessage:
           routing === "submitted"
-            ? `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} day lead time).`
+            ? `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}-${supplier.leadTimeDays[1]} day lead time).`
             : `${supplier.name} does not fulfil to ${region}. Route this job to an alternative production partner.`,
         carrier: carrier ?? null,
         trackingNumber: tracking,
@@ -1265,11 +1265,11 @@ async function main() {
     { id: id("aud"), category: "administration", action: "store.archived", summary: "Archived store “Halcyon Events Store” after the event series closed", storeId: "str_halcyon", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "store", entityId: "str_halcyon", meta: {}, at: iso(21) },
     { id: id("aud"), category: "administration", action: "tax.bracket_created", summary: "Created global tax bracket “Australia GST” at 10%", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "tax_bracket", entityId: "tax_au10", meta: { rate: 10 }, at: iso(198) },
     { id: id("aud"), category: "administration", action: "supplier.pending", summary: "Added Gooten for commercial review before release to stores", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "supplier", entityId: "sup_gooten", meta: {}, at: iso(35) },
-    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code WELCOME10 — 10% off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_welcome", meta: { code: "WELCOME10", kind: "percentage", value: 10 }, at: iso(40) },
-    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code TEAM25 — $25.00 off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_bulk", meta: { code: "TEAM25", kind: "fixed", value: 2500, minimumSubtotal: 15000 }, at: iso(21) },
+    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code WELCOME10, 10% off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_welcome", meta: { code: "WELCOME10", kind: "percentage", value: 10 }, at: iso(40) },
+    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code TEAM25, $25.00 off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_bulk", meta: { code: "TEAM25", kind: "fixed", value: 2500, minimumSubtotal: 15000 }, at: iso(21) },
     { id: id("aud"), category: "discounts", action: "discount.updated", summary: "Changed discount code TEAM25: usage limit 50 → 100", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_alex", actorName: "Alex Moreau", entity: "discount_code", entityId: "dsc_nw_bulk", meta: { code: "TEAM25", usageLimit: 100 }, at: iso(14) },
     { id: id("aud"), category: "discounts", action: "discount.updated", summary: "Changed discount code LAUNCH50: switched off", storeId: "str_northwind", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "discount_code", entityId: "dsc_nw_launch", meta: { code: "LAUNCH50", active: false }, at: iso(3) },
-    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code ROESTFRISCH — €5.00 off", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "discount_code", entityId: "dsc_fe_start", meta: { code: "ROESTFRISCH", kind: "fixed", value: 500 }, at: iso(6) },
+    { id: id("aud"), category: "discounts", action: "discount.created", summary: "Created discount code ROESTFRISCH, €5.00 off", storeId: "str_ferro", agencyId: "agc_northlight", actorId: "usr_sam", actorName: "Sam Okafor", entity: "discount_code", entityId: "dsc_fe_start", meta: { code: "ROESTFRISCH", kind: "fixed", value: 500 }, at: iso(6) },
     { id: id("aud"), category: "administration", action: "catalog.product_added", summary: "Added “Matte Black 15oz Mug” to the shared supplier catalog", storeId: null, agencyId: null, actorId: "usr_priya", actorName: "Priya Raman", entity: "catalog_product", entityId: "cat_mug_matte", meta: { supplier: "Printify" }, at: iso(120) },
   );
 

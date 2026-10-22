@@ -55,9 +55,10 @@ export default async function AdminOverviewPage({ searchParams }: { searchParams
   const agencyName = (id: string) => agencies.find((a) => a.id === id)?.name;
   const storeList = filterStoreList(stores, filters, agencyName);
 
-  const [pages, t, locale] = await Promise.all([
+  const [pages, t, labels, locale] = await Promise.all([
     getTranslations("pages.admin"),
     getTranslations("admin.overview"),
+    getTranslations("labels"),
     getLocale(),
   ]);
   return (
@@ -203,7 +204,7 @@ export default async function AdminOverviewPage({ searchParams }: { searchParams
                         <p className="text-xs text-muted-foreground">{store.clientName}</p>
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
-                        {agencyName(store.agencyId) ?? "–"}
+                        {agencyName(store.agencyId) ?? labels("none")}
                       </TableCell>
                       <TableCell className="px-0 py-3 align-top whitespace-normal text-muted-foreground">
                         {store.currencies.join(", ")}

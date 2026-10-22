@@ -140,9 +140,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
                                       ) : null}
                                     </Link>
                                   ) : (
-                                    <span className="text-sm text-muted-foreground" aria-label={t("noAccess")}>
-                                      –
-                                    </span>
+                                    <span className="text-sm text-muted-foreground">{t("noAccess")}</span>
                                   )}
                                 </TableCell>
                               );

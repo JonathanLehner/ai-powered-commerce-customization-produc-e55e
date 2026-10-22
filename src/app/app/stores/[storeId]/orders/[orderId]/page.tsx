@@ -664,9 +664,9 @@ export default async function OrderDetailPage({
                             label: t("intent"),
                             value: <span className="font-mono text-xs">{order.payment.paymentIntentId}</span>,
                           },
-                          { label: t("card"), value: order.payment.last4 ? `•••• ${order.payment.last4}` : "–" },
+                          { label: t("card"), value: order.payment.last4 ? `•••• ${order.payment.last4}` : labels("none") },
                         ]),
-                    { label: t("paid"), value: order.payment.paidAt ? when(order.payment.paidAt) : "–" },
+                    { label: t("paid"), value: order.payment.paidAt ? when(order.payment.paidAt) : labels("none") },
                   ]}
                 />
               </CardContent>
@@ -686,7 +686,7 @@ export default async function OrderDetailPage({
                     { label: t("supplier"), value: order.fulfillment.supplierName ?? t("notAssigned") },
                     {
                       label: t("integration"),
-                      value: supplier ? (supplier.integration === "api" ? t("orderApi") : t("manual")) : "–",
+                      value: supplier ? (supplier.integration === "api" ? t("orderApi") : t("manual")) : labels("none"),
                     },
                     {
                       label: t("routing"),
@@ -705,16 +705,16 @@ export default async function OrderDetailPage({
                         </Badge>
                       ),
                     },
-                    { label: t("supplierRef"), value: order.fulfillment.supplierOrderRef ?? "–" },
+                    { label: t("supplierRef"), value: order.fulfillment.supplierOrderRef ?? labels("none") },
                     {
                       label: t("submitted"),
-                      value: order.fulfillment.submittedAt ? when(order.fulfillment.submittedAt) : "–",
+                      value: order.fulfillment.submittedAt ? when(order.fulfillment.submittedAt) : labels("none"),
                     },
                     {
                       label: t("leadTime"),
                       value: supplier
                         ? t("leadDays", { min: supplier.leadTimeDays[0], max: supplier.leadTimeDays[1] })
-                        : "–",
+                        : labels("none"),
                     },
                     ...(order.fulfillment.reroute
                       ? [

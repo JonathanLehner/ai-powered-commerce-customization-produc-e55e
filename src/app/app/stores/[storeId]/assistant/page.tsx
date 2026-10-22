@@ -14,7 +14,7 @@ import { formatAgo } from "@/i18n/format";
 import { formatDateTime } from "@/lib/util";
 
 async function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
-  const t = await getTranslations("assistant");
+  const [t, labels] = await Promise.all([getTranslations("assistant"), getTranslations("labels")]);
   const payload = suggestion.payload as Record<string, unknown>;
   if (suggestion.kind === "description") {
     return (
@@ -58,8 +58,8 @@ async function SuggestionBody({ suggestion }: { suggestion: AiSuggestion }) {
       <p className="whitespace-pre-line">{String(payload.description ?? "")}</p>
       <p className="mt-2 text-xs text-muted-foreground">
         {t("ideaMeta", {
-          price: String(payload.suggestedPriceMajor ?? "–"),
-          tags: Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : "–",
+          price: String(payload.suggestedPriceMajor ?? labels("notSet")),
+          tags: Array.isArray(payload.tags) ? (payload.tags as string[]).join(", ") : labels("none"),
         })}
       </p>
     </div>

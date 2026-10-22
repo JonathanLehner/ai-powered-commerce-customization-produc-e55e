@@ -17,6 +17,7 @@
  *   npm run template-check
  *   npm run template-check -- --base http://localhost:3000 [--browser] [--only id,id]
  */
+import { readFileSync } from "node:fs";
 import { LOCALES } from "../src/i18n/locales.ts";
 import { PRODUCT_BLOCK_DEFS } from "../src/lib/product-template.ts";
 import { contrastRatio, contrastReport, designVariables, readableOn, resolveDesign } from "../src/lib/store-design.ts";
@@ -133,7 +134,16 @@ for (const t of templates) {
   for (const locale of LOCALES) if (!templateTranslated(t, locale)) fail(t.id, `copy not translated into ${locale}`);
   const copy = templateSourceCopy(t);
   for (const [key, text] of Object.entries(copy)) {
-    if (/—/.test(text)) fail(t.id, `copy ${key} uses an em dash`);
+    if (/[—–]/.test(text)) fail(t.id, `copy ${key} uses an em or en dash`);
+  }
+}
+// The translated copy follows the same rule as the English it comes from.
+const translatedCopy = JSON.parse(readFileSync(new URL("../src/lib/templates/i18n.json", import.meta.url), "utf8"));
+for (const [id, locales] of Object.entries(translatedCopy)) {
+  for (const [locale, copy] of Object.entries(locales)) {
+    for (const [key, text] of Object.entries(copy)) {
+      if (typeof text === "string" && /[—–]/.test(text)) fail(id, `${locale} copy ${key} uses an em or en dash`);
+    }
   }
 }
 console.log(`data: ${templates.length} templates checked`);

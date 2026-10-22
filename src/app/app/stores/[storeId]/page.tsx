@@ -117,6 +117,8 @@ export default async function StoreOverviewPage({
   ).length;
   const attentionTotal = metrics.awaitingAction + preflightFailed;
   const attentionSub = await attentionSummary(metrics.attention, preflightFailed);
+  // Before the first paid order every sales figure is zero, so one line stands in for them.
+  const hasSales = metrics.paidOrders > 0;
   const day = (value: string) => format.dateTime(new Date(`${value}T00:00:00Z`), { dateStyle: "medium", timeZone: "UTC" });
 
   return (
@@ -191,69 +193,81 @@ export default async function StoreOverviewPage({
         </section>
       ) : null}
 
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-base font-semibold text-foreground">{t("sales")}</h2>
-            <p className="text-sm text-muted-foreground">
-              {analytics("period", {
-                from: day(range.from),
-                to: day(range.to),
-                previousFrom: day(range.previous.from),
-                previousTo: day(range.previous.to),
-              })}
-            </p>
+      {hasSales ? (
+        <section className="space-y-3">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-foreground">{t("sales")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {analytics("period", {
+                  from: day(range.from),
+                  to: day(range.to),
+                  previousFrom: day(range.previous.from),
+                  previousTo: day(range.previous.to),
+                })}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-end gap-2">
+              <RangeControls
+                key={rangeQuery(range)}
+                base={`/app/stores/${store.id}`}
+                range={range.key}
+                from={range.from}
+                to={range.to}
+                today={now.toISOString().slice(0, 10)}
+              />
+              <Button asChild variant="outline">
+                <Link href={`/app/stores/${store.id}/analytics${rangeQuery(range)}`}>{t("viewAnalytics")}</Link>
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-end gap-2">
-            <RangeControls
-              key={rangeQuery(range)}
-              base={`/app/stores/${store.id}`}
-              range={range.key}
-              from={range.from}
-              to={range.to}
-              today={now.toISOString().slice(0, 10)}
-            />
-            <Button asChild variant="outline">
-              <Link href={`/app/stores/${store.id}/analytics${rangeQuery(range)}`}>{t("viewAnalytics")}</Link>
-            </Button>
-          </div>
-        </div>
-        {/* Money is the store's own; platform access counts orders instead. */}
-        <KpiCards
-          report={report}
-          keys={["revenue", "margin", "orders", "exceptionRate"]}
-          showMoney={!viaPlatform}
-          className={viaPlatform ? "lg:grid-cols-2" : "lg:grid-cols-4"}
-        />
-      </section>
-
-      <section className="grid gap-4 sm:grid-cols-3">
-        {viaPlatform ? (
-          <StatCard label={t("ordersLifetime")} value={String(metrics.orderCount)} sub={t("paid", { count: metrics.paidOrders })} />
-        ) : (
-          <StatCard
-            label={t("lifetimeSales")}
-            value={formatMoney(metrics.grossSales, store.defaultCurrency, locale)}
-            sub={t("paidOrders", { count: metrics.paidOrders })}
+          {/* Money is the store's own; platform access counts orders instead. */}
+          <KpiCards
+            report={report}
+            keys={["revenue", "margin", "orders", "exceptionRate"]}
+            showMoney={!viaPlatform}
+            className={viaPlatform ? "lg:grid-cols-2" : "lg:grid-cols-4"}
           />
-        )}
-        <StatCard
-          label={t("published")}
-          value={String(metrics.publishedProducts)}
-          sub={t("inDraft", { count: metrics.draftProducts })}
-        />
-        <StatCard
-          label={t("attention")}
-          value={String(attentionTotal)}
-          tone={attentionTotal > 0 ? "amber" : "green"}
-          sub={attentionSub}
-          href={
-            metrics.awaitingAction === 0 && preflightFailed > 0
-              ? `/app/stores/${store.id}/catalog?status=in_review`
-              : `/app/stores/${store.id}/orders?view=attention`
-          }
-        />
-      </section>
+        </section>
+      ) : (
+        <section className="space-y-1">
+          <h2 className="text-base font-semibold text-foreground">{t("sales")}</h2>
+          <p className="text-sm text-muted-foreground">{t("noSalesYet")}</p>
+        </section>
+      )}
+
+      {/* Without sales only the attention tile stays, and only when something waits. */}
+      {hasSales || attentionTotal > 0 ? (
+        <section className="grid gap-4 sm:grid-cols-3">
+          {!hasSales ? null : viaPlatform ? (
+            <StatCard label={t("ordersLifetime")} value={String(metrics.orderCount)} sub={t("paid", { count: metrics.paidOrders })} />
+          ) : (
+            <StatCard
+              label={t("lifetimeSales")}
+              value={formatMoney(metrics.grossSales, store.defaultCurrency, locale)}
+              sub={t("paidOrders", { count: metrics.paidOrders })}
+            />
+          )}
+          {hasSales ? (
+            <StatCard
+              label={t("published")}
+              value={String(metrics.publishedProducts)}
+              sub={t("inDraft", { count: metrics.draftProducts })}
+            />
+          ) : null}
+          <StatCard
+            label={t("attention")}
+            value={String(attentionTotal)}
+            tone={attentionTotal > 0 ? "amber" : "green"}
+            sub={attentionSub}
+            href={
+              metrics.awaitingAction === 0 && preflightFailed > 0
+                ? `/app/stores/${store.id}/catalog?status=in_review`
+                : `/app/stores/${store.id}/orders?view=attention`
+            }
+          />
+        </section>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="min-w-0 lg:col-span-2">

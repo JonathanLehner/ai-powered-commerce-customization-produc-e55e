@@ -181,7 +181,7 @@ export async function routeOrder(order: Order, store: Store): Promise<RoutingDec
     supplierId: supplier.id,
     supplierName: supplier.name,
     supplierOrderRef: supplierRef(supplier, order),
-    message: `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} day lead time).`,
+    message: `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}-${supplier.leadTimeDays[1]} day lead time).`,
     exception: null,
   };
 }
@@ -261,7 +261,7 @@ export async function submitToSupplier(
     supplierId: supplier.id,
     supplierName: supplier.name,
     supplierOrderRef: supplierRef(supplier, order),
-    message: `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}–${supplier.leadTimeDays[1]} day lead time).`,
+    message: `Production job accepted by ${supplier.name} (${supplier.leadTimeDays[0]}-${supplier.leadTimeDays[1]} day lead time).`,
     exception: null,
   };
 }

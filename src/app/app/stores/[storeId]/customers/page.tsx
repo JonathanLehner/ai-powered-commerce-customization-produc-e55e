@@ -36,9 +36,10 @@ export default async function CustomersPage({
   const filters = parseCustomerFilters(await searchParams);
   await requireStoreAccess(storeId, "store.orders");
 
-  const [customers, t, locale] = await Promise.all([
+  const [customers, t, labels, locale] = await Promise.all([
     listCustomers(storeId),
     getTranslations("customers"),
+    getTranslations("labels"),
     getLocale(),
   ]);
   const now = new Date();
@@ -134,17 +135,17 @@ export default async function CustomersPage({
                       ) : null}
                     </TableCell>
                     <TableCell className="px-4 py-3 align-top text-inksoft">
-                      {customer.country ? countryName(locale, customer.country) : "–"}
+                      {customer.country ? countryName(locale, customer.country) : labels("notSet")}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right align-top tabular-nums">{customer.orderCount}</TableCell>
                     <TableCell className="px-4 py-3 text-right align-top font-medium tabular-nums text-foreground">
                       {formatMoney(customer.lifetimeSpend, customer.currency, locale)}
                     </TableCell>
                     <TableCell className="px-4 py-3 align-top text-inksoft">
-                      {customer.firstOrderAt ? formatDate(customer.firstOrderAt, locale) : "–"}
+                      {customer.firstOrderAt ? formatDate(customer.firstOrderAt, locale) : labels("none")}
                     </TableCell>
                     <TableCell className="px-4 py-3 align-top text-inksoft">
-                      {customer.lastOrderAt ? formatDate(customer.lastOrderAt, locale) : "–"}
+                      {customer.lastOrderAt ? formatDate(customer.lastOrderAt, locale) : labels("none")}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -910,10 +910,10 @@
     "testMode": "テストモード"
   },
   "pager": {
-    "orders": "注文 {total} 件中 {first}–{last} 件",
-    "audit": "{total} 件中 {first}–{last} 件",
+    "orders": "注文 {total} 件中 {first}-{last} 件",
+    "audit": "{total} 件中 {first}-{last} 件",
     "auditCoverage": "{date} 以降のアクティビティを表示しています。それより前の記録を見るには期間を指定してください。",
-    "variants": "{total}件中 {first}–{last}件のバリエーション"
+    "variants": "{total}件中 {first}-{last}件のバリエーション"
   },
   "fallback": {
     "goToDashboard": "ダッシュボードへ",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "有効",
       "retired": "提供終了"
-    }
+    },
+    "none": "なし",
+    "notSet": "未設定"
   },
   "plans": {
     "noLimit": "{agency} は {plan} プランです。公開ストア数の上限はありません。",
@@ -1088,6 +1090,7 @@
     "paid": "支払い済み {count} 件",
     "lifetimeSales": "累計売上",
     "sales": "売上",
+    "noSalesYet": "まだ売上はありません。売上、利益率、例外率は最初の支払い済み注文の後に表示されます。",
     "viewAnalytics": "分析を表示",
     "paidOrders": "{count, plural, other {支払い済み注文 # 件}}",
     "published": "公開中の商品",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "サイズまたはカラーを 1 つ以上有効にしてください。",
         "noShippingZone": "ストアに配送ゾーンがありません。",
         "noShippingZoneFix": "「配送と税」で配送ゾーンを追加してください。",
-        "notLinked": "Shopifyからインポート済み – まだサプライヤーにリンクされていません。",
+        "notLinked": "Shopifyからインポート済み、まだサプライヤーにリンクされていません。",
         "notLinkedFix": "カタログ商品にリンクするか、ストアで発送する商品として設定してください。",
         "noPhotos": "この商品には写真がありません。",
         "noPhotosFix": "Shopifyのエクスポートに画像URLを追加して、もう一度インポートしてください。"
@@ -2335,7 +2338,7 @@
     "empty": "まだ顧客がいません",
     "noMatches": "該当する顧客はいません",
     "tryFilters": "別の条件をお試しください。",
-    "showing": "{total}人中 {first}–{last}人を表示",
+    "showing": "{total}人中 {first}-{last}人を表示",
     "colCustomer": "顧客",
     "colCountry": "国",
     "colOrders": "注文数",
@@ -2572,6 +2575,8 @@
     "drafts": "下書き・レビュー中",
     "averageMargin": "平均利益率",
     "publishedProducts": "公開中の商品",
+    "noPublished": "公開済みの商品はまだありません",
+    "notCosted": "コストはまだありません",
     "noProducts": "まだ商品はありません",
     "noMatches": "該当する商品はありません",
     "noProductsBody": "サプライヤーカタログから商品を取り込んで始めましょう。",
@@ -2756,7 +2761,7 @@
     "thinMargin": "利益率が 25% 未満です。",
     "fulfilledByStore": " · ストアで発送",
     "fulfilment": "フルフィルメント",
-    "unlinkedTitle": "Shopifyからインポート済み – まだサプライヤーにリンクされていません",
+    "unlinkedTitle": "Shopifyからインポート済み、まだサプライヤーにリンクされていません",
     "unlinkedBody": "公開する前に、この商品の発送方法を選択してください。",
     "merchantTitle": "ストアで発送",
     "merchantBody": "この商品の注文は1点あたり{cost}でストアから発送します。インポートした写真がモックアップの代わりに表示されます。",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} 件が古い",
     "updateTranslations": "翻訳を更新",
     "sample": {
-      "badge": "サンプル文 – 公開前に確認してください",
+      "badge": "サンプル文：公開前に確認してください",
       "keep": "確認済みにする",
       "layer": "サンプル文",
       "count": "{count, plural, other {確認が必要なサンプル項目: #件}}"
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "テストモード – 実際の支払いは発生しません"
+      "testModeBar": "テストモード：実際の支払いは発生しません"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4503,6 +4508,7 @@
       "free": "無料",
       "tax": "税",
       "taxAtPayment": "支払い時に計算",
+      "unavailable": "利用できません",
       "deliveryDays": "{min}〜{max} 営業日",
       "deliveryDaysExact": "{days, plural, other {# 営業日}}",
       "noShippingOptions": "この国への配送はまだ行っていません。",

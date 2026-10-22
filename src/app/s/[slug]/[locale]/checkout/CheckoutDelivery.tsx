@@ -115,7 +115,7 @@ export function SummaryTotals({
           {option?.name ? t("checkout.shippingWith", { rate: option.name }) : t("checkout.shipping")}
         </dt>
         <dd className="tabular-nums text-foreground">
-          {option ? (option.amount === 0 ? t("checkout.free") : money(quote.shipping)) : "–"}
+          {option ? (option.amount === 0 ? t("checkout.free") : money(quote.shipping)) : t("checkout.unavailable")}
         </dd>
       </div>
       {discount ? (
@@ -132,7 +132,7 @@ export function SummaryTotals({
       ) : quote.taxUnavailable ? (
         <div className="flex justify-between gap-3">
           <dt className="text-muted-foreground">{t("checkout.tax")}</dt>
-          <dd className="text-foreground">–</dd>
+          <dd className="text-muted-foreground">{t("checkout.unavailable")}</dd>
         </div>
       ) : (
         quote.taxRows.map((row) => (

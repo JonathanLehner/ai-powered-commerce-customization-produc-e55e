@@ -910,10 +910,10 @@
     "testMode": "Test mode"
   },
   "pager": {
-    "orders": "Showing {first}–{last} of {total} orders",
-    "audit": "Showing {first}–{last} of {total} entries",
+    "orders": "Showing {first}-{last} of {total} orders",
+    "audit": "Showing {first}-{last} of {total} entries",
     "auditCoverage": "Showing activity since {date}. Set a date range to see older entries.",
-    "variants": "Showing {first}–{last} of {total} variants"
+    "variants": "Showing {first}-{last} of {total} variants"
   },
   "fallback": {
     "goToDashboard": "Go to the dashboard",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Active",
       "retired": "Retired"
-    }
+    },
+    "none": "None",
+    "notSet": "Not set"
   },
   "plans": {
     "noLimit": "{agency} is on the {plan} plan, which has no live-store limit.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} paid",
     "lifetimeSales": "Lifetime sales",
     "sales": "Sales",
+    "noSalesYet": "No sales yet. Revenue, margin and exception rate appear after the first paid order.",
     "viewAnalytics": "View analytics",
     "paidOrders": "{count, plural, one {# paid order} other {# paid orders}}",
     "published": "Published products",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Enable at least one size or colour.",
         "noShippingZone": "The store has no shipping zones.",
         "noShippingZoneFix": "Add a shipping zone under Shipping and taxes.",
-        "notLinked": "Imported from Shopify – not linked to a supplier yet.",
+        "notLinked": "Imported from Shopify, not linked to a supplier yet.",
         "notLinkedFix": "Link it to a catalog product, or mark it as fulfilled by you.",
         "noPhotos": "This product has no photos.",
         "noPhotosFix": "Add image URLs to the Shopify export and import it again."
@@ -1449,7 +1452,7 @@
       "listingGone": "That catalog item is no longer offered. Pick another or describe it.",
       "noPartner": "No bulk sourcing partner is taking enquiries right now.",
       "alreadySent": "Enquiry {code} was already sent.",
-      "sent": "Enquiry {code} is with {supplier}. Suppliers answer in {min}–{max} working days, and the quotes appear under Bulk sourcing enquiries.",
+      "sent": "Enquiry {code} is with {supplier}. Suppliers answer in {min}-{max} working days, and the quotes appear under Bulk sourcing enquiries.",
       "sentUsual": "Enquiry {code} is with {supplier}. Suppliers usually answer in a few working days, and the quotes appear under Bulk sourcing enquiries.",
       "check": {
         "productName": "Name the product, or pick a catalog item to refer to.",
@@ -1541,7 +1544,7 @@
       "nameClash": "{supplier} already has a catalog product called “{name}”. Give this one a different name.",
       "productUpdated": "Product updated.",
       "bracketName": "Give the bracket a name.",
-      "bracketCode": "Codes are 2–12 characters, letters, numbers, dots and dashes.",
+      "bracketCode": "Codes are 2-12 characters, letters, numbers, dots and dashes.",
       "bracketRate": "Enter a rate between 0 and 50 percent.",
       "bracketRegions": "Choose the regions this bracket applies to.",
       "bracketGone": "That tax bracket no longer exists.",
@@ -1558,7 +1561,7 @@
         "variantsUnreadable": "The variants could not be read. Reload the page and try again.",
         "variantsEmpty": "Add at least one variant.",
         "variantsTooMany": "A product carries at most 200 variants.",
-        "variantSku": "Every variant needs a SKU of 2–40 letters, numbers, dots, dashes or underscores.",
+        "variantSku": "Every variant needs a SKU of 2-40 letters, numbers, dots, dashes or underscores.",
         "variantSkuDuplicate": "SKU {sku} is used by more than one variant.",
         "variantOption": "Add a colour or size to variant {sku}.",
         "variantCost": "Enter the supplier's base cost for variant {sku}."
@@ -2245,7 +2248,7 @@
     "supplierRef": "Supplier reference",
     "submitted": "Submitted",
     "leadTime": "Lead time",
-    "leadDays": "{min}–{max} days",
+    "leadDays": "{min}-{max} days",
     "rerouted": "Rerouted",
     "movedFrom": "Moved from",
     "unassigned": "Unassigned",
@@ -2260,7 +2263,7 @@
     "optionManual": "Raise a purchase order manually and record the reference below.",
     "optionRefund": "Cancel and refund the order below.",
     "optionAdmin": "Ask a platform administrator to add a supplier for {region}, then re-run routing.",
-    "choice": "{name} · {kind}, {min}–{max} day lead time",
+    "choice": "{name} · {kind}, {min}-{max} day lead time",
     "sendJob": "Send job to supplier",
     "sending": "Sending…",
     "alternativePartner": "Alternative production partner",
@@ -2335,7 +2338,7 @@
     "empty": "No customers yet",
     "noMatches": "No matching customers",
     "tryFilters": "Try different filters.",
-    "showing": "Showing {first}–{last} of {total} customers",
+    "showing": "Showing {first}-{last} of {total} customers",
     "colCustomer": "Customer",
     "colCountry": "Country",
     "colOrders": "Orders",
@@ -2572,6 +2575,8 @@
     "drafts": "Drafts and reviews",
     "averageMargin": "Average margin",
     "publishedProducts": "Published products",
+    "noPublished": "No published products yet",
+    "notCosted": "No costs yet",
     "noProducts": "No products yet",
     "noMatches": "No matching products",
     "noProductsBody": "Import a product from the supplier catalog to get started.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "Margin is under 25%.",
     "fulfilledByStore": " · fulfilled by you",
     "fulfilment": "Fulfilment",
-    "unlinkedTitle": "Imported from Shopify – not linked to a supplier yet",
+    "unlinkedTitle": "Imported from Shopify, not linked to a supplier yet",
     "unlinkedBody": "Choose how this product is fulfilled before you publish it.",
     "merchantTitle": "Fulfilled by you",
     "merchantBody": "You ship orders for this product at {cost} per unit. Its imported photos are shown in place of mockups.",
@@ -2936,12 +2941,12 @@
     "copyAgain": "Copy again",
     "byQuote": "By quote",
     "units": "{count, plural, one {# unit} other {# units}}",
-    "indicative": "{low}–{high} a unit at {quantity}",
+    "indicative": "{low}-{high} a unit at {quantity}",
     "quotedWithRun": "Quoted with the run",
     "freightQuoted": "Freight quoted with the run",
     "manualPo": "Manual purchase order",
     "routedAutomatically": "Routed to the supplier automatically",
-    "days": "{min}–{max} days",
+    "days": "{min}-{max} days",
     "quoteOn": "Quote on {code} · {supplier}",
     "via": "{supplier} via {marketplace}",
     "quoted": "{amount} quoted",
@@ -2955,7 +2960,7 @@
     "tryFilters": "Try different filters, or clear them to see the full catalog.",
     "startEnquiry": "Start a bulk enquiry",
     "requestQuoteFor": "Request a quote: {name}",
-    "askingMeta": "{supplier} · typical price {range} · reply in {min}–{max} business days",
+    "askingMeta": "{supplier} · typical price {range} · reply in {min}-{max} business days",
     "generalTitle": "Start a bulk sourcing enquiry",
     "generalBody": "Choose a catalog item or describe the product.",
     "close": "Close",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} out of date",
     "updateTranslations": "Update translations",
     "sample": {
-      "badge": "Sample copy – review before publishing",
+      "badge": "Sample copy: review before publishing",
       "keep": "Mark as reviewed",
       "layer": "Sample copy",
       "count": "{count, plural, one {# sample field to review} other {# sample fields to review}}"
@@ -3952,7 +3957,7 @@
       },
       "orderApi": "Order API",
       "manualOrders": "Manual orders",
-      "meta": "lead time {min}–{max} days · {count, plural, one {# catalog product} other {# catalog products}}",
+      "meta": "lead time {min}-{max} days · {count, plural, one {# catalog product} other {# catalog products}}",
       "quoteRequests": "Quote requests",
       "addProduct": "Add catalog product",
       "approve": "Approve",
@@ -4007,9 +4012,9 @@
       "bulkBody": "Bulk listing. Suppliers quote each run.",
       "minimumOrder": "Minimum order",
       "indicative": "Indicative",
-      "indicativeValue": "{low}–{high} a unit at {quantity}",
+      "indicativeValue": "{low}-{high} a unit at {quantity}",
       "response": "Supplier response",
-      "responseDays": "{min}–{max} business days",
+      "responseDays": "{min}-{max} business days",
       "terms": "Terms shown to buyers",
       "viewQuotes": "View quote requests",
       "photography": "Supplier photography",
@@ -4029,7 +4034,7 @@
       "orderApi": "Order API",
       "manual": "Manual",
       "leadTime": "Lead time",
-      "days": "{min}–{max} days",
+      "days": "{min}-{max} days",
       "currency": "Currency"
     },
     "catalogForm": {
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Test mode – no real payments"
+      "testModeBar": "Test mode: no real payments"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4357,7 +4362,7 @@
       "madeToOrder": "Made to order",
       "shipsWithin": "{days, plural, one {Ships within # business day.} other {Ships within # business days.}}",
       "producedBy": "Ships in {lead}.",
-      "leadDays": "{from}–{to} days",
+      "leadDays": "{from}-{to} days",
       "leadUnknown": "a few days",
       "printDetail": "{count, plural, one {Print area} other {Print areas}}",
       "printDetailBody": "{area}, {width} × {height} mm",
@@ -4503,7 +4508,8 @@
       "free": "Free",
       "tax": "Tax",
       "taxAtPayment": "Calculated at payment",
-      "deliveryDays": "{min}–{max} business days",
+      "unavailable": "Not available",
+      "deliveryDays": "{min}-{max} business days",
       "deliveryDaysExact": "{days, plural, one {# business day} other {# business days}}",
       "noShippingOptions": "We don't ship to this country yet.",
       "emailDelivery": "Email delivery",
@@ -5429,7 +5435,7 @@
     "tierUpTo": "Up to {limit}: {price}",
     "tierAbove": "Above: {price}",
     "grams": "{value, number} g",
-    "deliveryDays": "{min}–{max} business days",
+    "deliveryDays": "{min}-{max} business days",
     "editRate": "Edit {name}",
     "addRate": "Add rate",
     "rateLimit": "A zone can have up to {max} rates.",

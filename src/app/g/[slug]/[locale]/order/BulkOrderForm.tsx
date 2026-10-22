@@ -337,12 +337,12 @@ export function BulkOrderForm({
                         ) : null}
                       </TableCell>
                       <TableCell className="text-xs text-inksoft">
-                        {row.productName || "–"}
+                        {row.productName}
                         {row.variantName ? ` · ${row.variantName}` : ""}
                         {row.quantity > 1 ? ` × ${row.quantity}` : ""}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-foreground">
-                        {row.issues.length > 0 ? "–" : money(row.total, preview.currency)}
+                        {row.issues.length > 0 ? null : money(row.total, preview.currency)}
                       </TableCell>
                     </TableRow>
                   ))}

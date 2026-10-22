@@ -910,10 +910,10 @@
     "testMode": "Modo de prueba"
   },
   "pager": {
-    "orders": "{first}–{last} de {total} pedidos",
-    "audit": "{first}–{last} de {total} entradas",
+    "orders": "{first}-{last} de {total} pedidos",
+    "audit": "{first}-{last} de {total} entradas",
     "auditCoverage": "Actividad desde el {date}. Define un intervalo de fechas para ver entradas anteriores.",
-    "variants": "Mostrando {first}–{last} de {total} variantes"
+    "variants": "Mostrando {first}-{last} de {total} variantes"
   },
   "fallback": {
     "goToDashboard": "Ir al panel",
@@ -1043,7 +1043,9 @@
     "catalogStatus": {
       "active": "Activo",
       "retired": "Retirado"
-    }
+    },
+    "none": "Ninguno",
+    "notSet": "Sin definir"
   },
   "plans": {
     "noLimit": "{agency} tiene el plan {plan}, sin límite de tiendas activas.",
@@ -1088,6 +1090,7 @@
     "paid": "{count} pagados",
     "lifetimeSales": "Ventas totales",
     "sales": "Ventas",
+    "noSalesYet": "Aún no hay ventas. Los ingresos, el margen y la tasa de incidencias aparecen tras el primer pedido pagado.",
     "viewAnalytics": "Ver analíticas",
     "paidOrders": "{count, plural, one {# pedido pagado} other {# pedidos pagados}}",
     "published": "Productos publicados",
@@ -1432,7 +1435,7 @@
         "noVariantsFix": "Activa al menos una talla o un color.",
         "noShippingZone": "La tienda no tiene zonas de envío.",
         "noShippingZoneFix": "Añade una zona de envío en Envíos e impuestos.",
-        "notLinked": "Importado de Shopify – aún sin vincular a un proveedor.",
+        "notLinked": "Importado de Shopify, aún sin vincular a un proveedor.",
         "notLinkedFix": "Vincúlalo a un producto del catálogo o márcalo como gestionado por ti.",
         "noPhotos": "Este producto no tiene fotos.",
         "noPhotosFix": "Añade las URL de las imágenes a la exportación de Shopify e impórtala de nuevo."
@@ -1449,7 +1452,7 @@
       "listingGone": "Ese artículo del catálogo ya no se ofrece. Elige otro o descríbelo.",
       "noPartner": "Ahora mismo ningún socio de abastecimiento por volumen acepta solicitudes.",
       "alreadySent": "La solicitud {code} ya se envió.",
-      "sent": "La solicitud {code} está con {supplier}. Los proveedores responden en {min}–{max} días hábiles y los presupuestos aparecen en Solicitudes de abastecimiento por volumen.",
+      "sent": "La solicitud {code} está con {supplier}. Los proveedores responden en {min}-{max} días hábiles y los presupuestos aparecen en Solicitudes de abastecimiento por volumen.",
       "sentUsual": "La solicitud {code} está con {supplier}. Los proveedores suelen responder en pocos días hábiles y los presupuestos aparecen en Solicitudes de abastecimiento por volumen.",
       "check": {
         "productName": "Indica el producto o elige un artículo del catálogo como referencia.",
@@ -2245,7 +2248,7 @@
     "supplierRef": "Referencia del proveedor",
     "submitted": "Enviado",
     "leadTime": "Plazo",
-    "leadDays": "{min}–{max} días",
+    "leadDays": "{min}-{max} días",
     "rerouted": "Redirigido",
     "movedFrom": "Movido desde",
     "unassigned": "Sin asignar",
@@ -2260,7 +2263,7 @@
     "optionManual": "Hacer una orden de compra manual y registrar la referencia abajo.",
     "optionRefund": "Cancelar y reembolsar el pedido abajo.",
     "optionAdmin": "Pedir a un administrador de la plataforma que añada un proveedor para {region} y volver a ejecutar el enrutamiento.",
-    "choice": "{name} · {kind}, plazo de {min}–{max} días",
+    "choice": "{name} · {kind}, plazo de {min}-{max} días",
     "sendJob": "Enviar el trabajo al proveedor",
     "sending": "Enviando…",
     "alternativePartner": "Socio de producción alternativo",
@@ -2335,7 +2338,7 @@
     "empty": "Aún no hay clientes",
     "noMatches": "No hay clientes que coincidan",
     "tryFilters": "Prueba con otros filtros.",
-    "showing": "{first}–{last} de {total} clientes",
+    "showing": "{first}-{last} de {total} clientes",
     "colCustomer": "Cliente",
     "colCountry": "País",
     "colOrders": "Pedidos",
@@ -2572,6 +2575,8 @@
     "drafts": "Borradores y revisiones",
     "averageMargin": "Margen medio",
     "publishedProducts": "Productos publicados",
+    "noPublished": "Aún no hay productos publicados",
+    "notCosted": "Aún sin costes",
     "noProducts": "Aún no hay productos",
     "noMatches": "No hay productos que coincidan",
     "noProductsBody": "Importa un producto del catálogo de proveedores para empezar.",
@@ -2756,7 +2761,7 @@
     "thinMargin": "El margen es inferior al 25 %.",
     "fulfilledByStore": " · gestionado por ti",
     "fulfilment": "Gestión de pedidos",
-    "unlinkedTitle": "Importado de Shopify – aún sin vincular a un proveedor",
+    "unlinkedTitle": "Importado de Shopify, aún sin vincular a un proveedor",
     "unlinkedBody": "Elige cómo se gestionan los pedidos de este producto antes de publicarlo.",
     "merchantTitle": "Gestionado por ti",
     "merchantBody": "Envías los pedidos de este producto a {cost} por unidad. Sus fotos importadas sustituyen a los mockups.",
@@ -2936,12 +2941,12 @@
     "copyAgain": "Copiar otra vez",
     "byQuote": "Bajo presupuesto",
     "units": "{count, plural, one {# unidad} other {# unidades}}",
-    "indicative": "{low}–{high} por unidad en {quantity}",
+    "indicative": "{low}-{high} por unidad en {quantity}",
     "quotedWithRun": "Se presupuesta con la tirada",
     "freightQuoted": "El flete se presupuesta con la tirada",
     "manualPo": "Orden de compra manual",
     "routedAutomatically": "Se envía al proveedor automáticamente",
-    "days": "{min}–{max} días",
+    "days": "{min}-{max} días",
     "quoteOn": "Presupuesto de {code} · {supplier}",
     "via": "{supplier} a través de {marketplace}",
     "quoted": "{amount} presupuestado",
@@ -2955,7 +2960,7 @@
     "tryFilters": "Prueba otros filtros o bórralos para ver todo el catálogo.",
     "startEnquiry": "Crear una solicitud por volumen",
     "requestQuoteFor": "Pedir presupuesto: {name}",
-    "askingMeta": "{supplier} · precio habitual {range} · respuesta en {min}–{max} días hábiles",
+    "askingMeta": "{supplier} · precio habitual {range} · respuesta en {min}-{max} días hábiles",
     "generalTitle": "Crear una solicitud de abastecimiento por volumen",
     "generalBody": "Elige un artículo del catálogo o describe el producto.",
     "close": "Cerrar",
@@ -3879,7 +3884,7 @@
     "outdatedCount": "{count} desactualizadas",
     "updateTranslations": "Actualizar traducciones",
     "sample": {
-      "badge": "Texto de ejemplo – revísalo antes de publicar",
+      "badge": "Texto de ejemplo: revísalo antes de publicar",
       "keep": "Marcar como revisado",
       "layer": "Texto de ejemplo",
       "count": "{count, plural, one {# campo de ejemplo por revisar} other {# campos de ejemplo por revisar}}"
@@ -3952,7 +3957,7 @@
       },
       "orderApi": "API de pedidos",
       "manualOrders": "Pedidos manuales",
-      "meta": "plazo de {min}–{max} días · {count, plural, one {# producto en el catálogo} other {# productos en el catálogo}}",
+      "meta": "plazo de {min}-{max} días · {count, plural, one {# producto en el catálogo} other {# productos en el catálogo}}",
       "quoteRequests": "Solicitudes de presupuesto",
       "addProduct": "Añadir producto al catálogo",
       "approve": "Aprobar",
@@ -4007,9 +4012,9 @@
       "bulkBody": "Ficha por volumen. Los proveedores presupuestan cada tirada.",
       "minimumOrder": "Pedido mínimo",
       "indicative": "Orientativo",
-      "indicativeValue": "{low}–{high} por unidad en {quantity}",
+      "indicativeValue": "{low}-{high} por unidad en {quantity}",
       "response": "Respuesta del proveedor",
-      "responseDays": "{min}–{max} días hábiles",
+      "responseDays": "{min}-{max} días hábiles",
       "terms": "Condiciones que ven los compradores",
       "viewQuotes": "Ver solicitudes de presupuesto",
       "photography": "Fotos del proveedor",
@@ -4029,7 +4034,7 @@
       "orderApi": "API de pedidos",
       "manual": "Manual",
       "leadTime": "Plazo",
-      "days": "{min}–{max} días",
+      "days": "{min}-{max} días",
       "currency": "Moneda"
     },
     "catalogForm": {
@@ -4306,7 +4311,7 @@
         "facebook": "Facebook",
         "pinterest": "Pinterest"
       },
-      "testModeBar": "Modo de prueba – sin pagos reales"
+      "testModeBar": "Modo de prueba: sin pagos reales"
     },
     "meta": {
       "homeTitle": "{store}",
@@ -4357,7 +4362,7 @@
       "madeToOrder": "Fabricado bajo pedido",
       "shipsWithin": "{days, plural, one {Se envía en # día hábil.} other {Se envía en # días hábiles.}}",
       "producedBy": "Se envía en {lead}.",
-      "leadDays": "{from}–{to} días",
+      "leadDays": "{from}-{to} días",
       "leadUnknown": "unos días",
       "printDetail": "{count, plural, one {Área de impresión} other {Áreas de impresión}}",
       "printDetailBody": "{area}, {width} × {height} mm",
@@ -4503,7 +4508,8 @@
       "free": "Gratis",
       "tax": "Impuestos",
       "taxAtPayment": "Se calcula al pagar",
-      "deliveryDays": "{min}–{max} días hábiles",
+      "unavailable": "No disponible",
+      "deliveryDays": "{min}-{max} días hábiles",
       "deliveryDaysExact": "{days, plural, one {# día hábil} other {# días hábiles}}",
       "noShippingOptions": "Todavía no enviamos a este país.",
       "emailDelivery": "Envío por correo electrónico",
@@ -5429,7 +5435,7 @@
     "tierUpTo": "Hasta {limit}: {price}",
     "tierAbove": "Más: {price}",
     "grams": "{value, number} g",
-    "deliveryDays": "{min}–{max} días hábiles",
+    "deliveryDays": "{min}-{max} días hábiles",
     "editRate": "Editar {name}",
     "addRate": "Añadir tarifa",
     "rateLimit": "Una zona puede tener hasta {max} tarifas.",

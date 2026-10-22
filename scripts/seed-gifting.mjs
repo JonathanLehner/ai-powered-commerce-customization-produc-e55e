@@ -172,7 +172,7 @@ export async function seedGifting(call) {
       {
         at: paidAt,
         status: "Payment captured",
-        note: `Part of gift campaign CMP-40118 — one payment covered all ${orderedLines.length} recipients.`,
+        note: `Part of gift campaign CMP-40118. One payment covered all ${orderedLines.length} recipients.`,
         actor: "Stripe",
       },
     ];
@@ -398,7 +398,7 @@ export async function seedGifting(call) {
       id: id("aud"),
       category: "gifting",
       action: "gifting.campaign_ordered",
-      summary: `Gift campaign CMP-40118 paid — ${orders.length} orders raised, 1 awaiting manual routing`,
+      summary: `Gift campaign CMP-40118 paid: ${orders.length} orders raised, 1 awaiting manual routing`,
       storeId: store.id,
       agencyId: store.agencyId,
       actorId: "gifting",
@@ -412,7 +412,7 @@ export async function seedGifting(call) {
       id: id("aud"),
       category: "gifting",
       action: "gifting.campaign_created",
-      summary: "Rowan Ellis submitted gift campaign CMP-51740 “December client thank-yous” — 4 recipients",
+      summary: "Rowan Ellis submitted gift campaign CMP-51740 “December client thank-yous”, 4 recipients",
       storeId: store.id,
       agencyId: store.agencyId,
       actorId: "gifting",

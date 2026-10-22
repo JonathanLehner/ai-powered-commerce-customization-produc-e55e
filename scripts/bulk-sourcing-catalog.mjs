@@ -151,7 +151,7 @@ export const BULK_SOURCING_PRODUCTS = [
       indicativeUnitCost: [780, 1290],
       responseDays: [3, 7],
       quoteNotes:
-        "Embroidery digitising is charged once per logo. Ask for a pre-production sample before the run is released — colour matching on dyed fleece varies between dye lots.",
+        "Embroidery digitising is charged once per logo. Ask for a pre-production sample before the run is released. Colour matching on dyed fleece varies between dye lots.",
     },
     createdAt: iso(92),
   },

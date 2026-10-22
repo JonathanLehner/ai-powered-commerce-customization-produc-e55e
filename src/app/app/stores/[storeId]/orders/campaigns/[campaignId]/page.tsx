@@ -305,7 +305,7 @@ export default async function CampaignFulfilmentPage({
                               ) : null}
                             </>
                           ) : (
-                            <span className="text-xs text-muted-foreground">–</span>
+                            <span className="text-xs text-muted-foreground">{labels("none")}</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -347,7 +347,7 @@ export default async function CampaignFulfilmentPage({
             <CardContent>
             <DataList
               rows={[
-                { label: t("company"), value: catalogue?.companyName ?? "–" },
+                { label: t("company"), value: catalogue?.companyName ?? labels("notSet") },
                 ...(viaPlatform
                   ? []
                   : [

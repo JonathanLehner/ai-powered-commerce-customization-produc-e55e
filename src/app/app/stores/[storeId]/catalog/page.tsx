@@ -59,9 +59,7 @@ export default async function StoreCatalogPage({
   // An import nobody has linked or costed yet has no margin to count.
   const costed = published.filter((p) => importedPath(p) !== "unlinked");
   const avgMargin =
-    costed.length > 0
-      ? costed.reduce((sum, p) => sum + p.costs.marginPct, 0) / costed.length
-      : 0;
+    costed.length > 0 ? costed.reduce((sum, p) => sum + p.costs.marginPct, 0) / costed.length : null;
 
   const [pages, t, labels, locale, format, brackets, blockers, catalog] = await Promise.all([
     getTranslations("pages.store"),
@@ -121,12 +119,20 @@ export default async function StoreCatalogPage({
           label={t("drafts")}
           value={String(products.filter((p) => p.status !== "published" && p.status !== "archived").length)}
         />
-        <StatCard
-          label={t("averageMargin")}
-          value={formatPercent(avgMargin)}
-          tone={marginTone(avgMargin) === "healthy" ? "green" : marginTone(avgMargin) === "thin" ? "amber" : "rose"}
-          sub={t("publishedProducts")}
-        />
+        {avgMargin === null ? (
+          <StatCard
+            label={t("averageMargin")}
+            value={published.length === 0 ? t("noPublished") : t("notCosted")}
+            empty
+          />
+        ) : (
+          <StatCard
+            label={t("averageMargin")}
+            value={formatPercent(avgMargin)}
+            tone={marginTone(avgMargin) === "healthy" ? "green" : marginTone(avgMargin) === "thin" ? "amber" : "rose"}
+            sub={t("publishedProducts")}
+          />
+        )}
       </div>
 
       <CatalogToolbar base={`/app/stores/${storeId}/catalog`} q={q ?? ""} status={status ?? ""} />
@@ -250,7 +256,7 @@ export default async function StoreCatalogPage({
                         <dt className="text-muted-foreground">{t("cost")}</dt>
                         <dd className="font-semibold tabular-nums text-foreground">
                           {path === "unlinked"
-                            ? "–"
+                            ? labels("notSet")
                             : formatMoney(
                                 product.costs.supplierCost +
                                   product.costs.customizationCost +
@@ -273,7 +279,7 @@ export default async function StoreCatalogPage({
                                   : "font-semibold tabular-nums text-rose-700"
                           }
                         >
-                          {path === "unlinked" ? "–" : formatPercent(product.costs.marginPct)}
+                          {path === "unlinked" ? labels("notSet") : formatPercent(product.costs.marginPct)}
                         </dd>
                       </div>
                     </dl>
