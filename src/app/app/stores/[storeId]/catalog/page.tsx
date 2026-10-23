@@ -168,7 +168,7 @@ export default async function StoreCatalogPage({
             return (
               <SelectableItem key={product.id} id={product.id} className="flex">
                 <Card className="flex-1 gap-0 py-0 group-data-[state=selected]:ring-2 group-data-[state=selected]:ring-primary">
-                  <div className="relative flex h-60 justify-center border-b border-border bg-canvas py-3">
+                  <div className="relative flex h-56 justify-center border-b border-border bg-canvas py-3">
                     {cover ? (
                       <div className="relative aspect-square h-full">
                         <Image
@@ -178,10 +178,10 @@ export default async function StoreCatalogPage({
                               ? t("baseAlt", { name: product.name, colour: cover.colour })
                               : t("mockupAlt", { name: product.name })
                           }
-                          width={432}
-                          height={432}
+                          width={400}
+                          height={400}
                           loading="lazy"
-                          sizes="216px"
+                          sizes="200px"
                           className="size-full rounded-lg object-cover ring-1 ring-foreground/10"
                         />
                         {cover.pending ? (
@@ -206,37 +206,29 @@ export default async function StoreCatalogPage({
                     ) : null}
                   </div>
 
-                  <CardContent className="flex flex-1 flex-col py-4">
+                  <CardContent className="flex flex-1 flex-col py-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       <Link href={`/app/stores/${storeId}/catalog/${product.id}`} className="hover:underline">
                         {product.name}
                       </Link>
                     </h3>
-                    <p className="mt-1 font-mono text-xs text-muted-foreground">
-                      {storeSku(product, store.channelCode)}
-                    </p>
-                    {product.status === "in_review" && product.unpublishedReason === "preflight_failed" ? (
-                      <p className="mt-1.5">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p className="font-mono text-xs text-muted-foreground">{storeSku(product, store.channelCode)}</p>
+                      {product.status === "in_review" && product.unpublishedReason === "preflight_failed" ? (
                         <Badge tone="amber">
                           <TriangleAlertIcon aria-hidden className="size-3" />
                           {t("preflightFailed")}
                         </Badge>
-                      </p>
-                    ) : null}
-                    {path === "unlinked" ? (
-                      <p className="mt-1.5">
+                      ) : null}
+                      {path === "unlinked" ? (
                         <Badge tone="amber">{t("notLinked")}</Badge>
-                      </p>
-                    ) : path === "merchant" ? (
-                      <p className="mt-1.5">
+                      ) : path === "merchant" ? (
                         <Badge tone="iris">{t("fulfilledByStore")}</Badge>
-                      </p>
-                    ) : null}
-                    {product.manualFulfilment ? (
-                      <p className="mt-1.5">
+                      ) : null}
+                      {product.manualFulfilment ? (
                         <Badge tone="iris">{t("manualFulfilment", { code: product.manualFulfilment.quoteCode })}</Badge>
-                      </p>
-                    ) : null}
+                      ) : null}
+                    </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {t("meta", {
                         count: product.variants.filter((v) => v.enabled).length,
@@ -245,7 +237,7 @@ export default async function StoreCatalogPage({
                       })}
                     </p>
 
-                    <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-border py-3 text-xs">
+                    <dl className="mt-2 grid grid-cols-3 gap-2 border-y border-border py-2 text-xs">
                       <div>
                         <dt className="text-muted-foreground">{t("price")}</dt>
                         <dd className="font-semibold tabular-nums text-foreground">
@@ -285,7 +277,7 @@ export default async function StoreCatalogPage({
                     </dl>
                   </CardContent>
 
-                  <CardFooter className="mt-auto flex-wrap gap-2">
+                  <CardFooter className="mt-auto flex-wrap gap-2 py-1.5">
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/app/stores/${storeId}/catalog/${product.id}`}>
                         {canEdit ? t("edit") : t("view")}
