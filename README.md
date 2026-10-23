@@ -668,8 +668,8 @@ recognises, reports anything else, and changes nothing without `--apply`.
     handful of non-ASCII characters in the server code; one of them is enough
     for V8 to hold the whole source as two bytes per character. wrangler also
     minifies the bundle (`wrangler.jsonc`).
-  - Upload size. Cloudflare rejects a deploy whose source maps are over 15 MB
-    gzipped, so `upload_source_maps` is off in `wrangler.jsonc`. The interface
+  - Upload size. Cloudflare rejects a deploy whose source maps total over 60 MiB
+    (this app's are about 82 MiB), so `upload_source_maps` is off in `wrangler.jsonc`. The interface
     messages are not bundled: `scripts/worker-data.mjs` (also part of
     wrangler's build step) copies `messages/*.json` into the static assets and
     `src/i18n/load-messages.ts` reads them through the `ASSETS` binding (from

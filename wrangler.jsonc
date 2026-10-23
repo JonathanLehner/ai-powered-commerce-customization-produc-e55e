@@ -3,8 +3,6 @@
   "name": "ai-powered-commerce-customization-produc-e55e",
   "main": ".open-next/worker.js",
   "minify": true,
-  // Newer wrangler uploads source maps unless told not to; this bundle's maps
-  // are over the 15 MB (gzipped) limit Cloudflare accepts, so deploys fail.
   "upload_source_maps": false,
   "compatibility_date": "2026-07-28",
   "compatibility_flags": [
