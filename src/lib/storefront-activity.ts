@@ -17,9 +17,24 @@ export function sectionTypeName(type: string): string {
   return sectionDef(type)?.name ?? type;
 }
 
+/** Editor labels that are instructions or toggles, as the thing they change. */
+const LABEL_NOUNS: Record<string, string> = {
+  "Shown once the time has passed": "message after the end",
+  "Scroll the message across": "scrolling",
+  "Advance automatically": "autoplay",
+  "Play muted on loop": "looping",
+  "Show prices": "price display",
+  "Show badges": "badge display",
+  "Show colour swatches": "colour swatch display",
+  "Show logos in one colour": "logo colour",
+  Show: "media",
+  Signed: "signature",
+};
+
 /** "Section title" -> "title", "Button label" -> "button label", "CTA" stays. */
 function lowerFirst(label: string): string {
-  const text = label.replace(/^Section (?=\S)/, "");
+  const plain = label.replace(/ \([^)]*\)$/, "");
+  const text = (LABEL_NOUNS[plain] ?? plain).replace(/^Section (?=\S)/, "");
   return /^[A-Z][a-z]/.test(text) ? text.charAt(0).toLowerCase() + text.slice(1) : text;
 }
 
@@ -37,6 +52,7 @@ function fieldLabel(def: SectionDef | undefined, key: string): string {
 }
 
 function plural(noun: string): string {
+  if (noun.includes(" / ")) return noun.split(" / ").map(plural).join(" / ");
   if (/[^aeiou]y$/.test(noun)) return `${noun.slice(0, -1)}ies`;
   if (/(s|x|ch|sh)$/.test(noun)) return `${noun}es`;
   return `${noun}s`;

@@ -506,6 +506,15 @@ assert.equal(
   legacy("Changed title, subtitle, q1, a1, q2, a2, q3, a3 of a storefront draft section"),
   "Changed the title, subtitle and 3 questions and answers of the FAQ section",
 );
+// Labels that are instructions read as what they change.
+assert.equal(
+  legacy("Changed eyebrow, heading, body, endedText, ctaLabel of a storefront draft section in de"),
+  "Changed the eyebrow, heading, copy, message after the end and button label of the Countdown section in German",
+);
+assert.equal(
+  legacy("Changed title, quote1, author1, role1, quote2, author2, role2 of a storefront draft section"),
+  "Changed the title and 2 quotes, quote authors and quote roles / companies of the Testimonials carousel section",
+);
 assert.equal(legacy("Saved a storefront draft with 4 sections"), "Saved a storefront draft with 4 sections");
 for (const summary of ["Added a Faq section to the storefront draft", "Changed q1 of a storefront draft section"]) {
   assert.doesNotMatch(legacy(summary), /\bFaq\b|\bq1\b/, summary);
