@@ -612,6 +612,11 @@ seeded before the password was checked at all: it replaces each user's
 plain-text password with a bcrypt hash and leaves rows that already hold one
 alone, so it is safe to re-run.
 
+`scripts/backfill-dash-free-copy.mjs` rewrites supplier notes, activity log
+entries, order timeline notes and quote notes stored with em or en dashes into
+the wording the code and seeds write today. It only touches lines it
+recognises, reports anything else, and changes nothing without `--apply`.
+
 ## Architecture notes
 
 - Next.js App Router, React 19, Tailwind CSS v4, TypeScript. Marketing, login and

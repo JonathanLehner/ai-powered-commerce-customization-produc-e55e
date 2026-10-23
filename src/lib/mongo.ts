@@ -59,10 +59,13 @@ function requestContext(): RequestContext | undefined {
  * On Workers the name comes from the Worker's own bindings, not `process.env`:
  * OpenNext copies the build machine's `.env*` files into the bundle and fills
  * `process.env` from them, so a deploy built next to `.env.local` would
- * otherwise carry its development database into production.
+ * otherwise carry its development database into production. `next dev` has a
+ * context too (initOpenNextCloudflareForDev) whose bindings lack MONGODB_DB, so
+ * there `.env.local` decides, or local development would write to production.
  */
 function databaseName(context: RequestContext | undefined): string {
-  const name = context ? context.env?.MONGODB_DB : process.env.MONGODB_DB;
+  const fromBindings = context && process.env.NODE_ENV === "production";
+  const name = fromBindings ? context.env?.MONGODB_DB : process.env.MONGODB_DB;
   return typeof name === "string" && name ? name : PRODUCTION_DB;
 }
 
