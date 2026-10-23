@@ -8,6 +8,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   turbopack: { root: path.join(import.meta.dirname ?? process.cwd()) },
+  // Left to the adapter's bundler, which includes it once: bundled by Next,
+  // every route group that reaches it carried its own multi-megabyte copy.
+  serverExternalPackages: ["cloudflare"],
   experimental: {
     serverActions: {
       // Files never travel through a Server Action — they are posted to

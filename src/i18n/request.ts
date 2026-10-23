@@ -1,4 +1,5 @@
 import { getRequestConfig } from "next-intl/server";
+import { loadMessages } from "./load-messages";
 import { isLocale } from "./locales";
 import { workspaceLocale } from "./user-locale";
 
@@ -16,7 +17,7 @@ export default getRequestConfig(async ({ locale, requestLocale }) => {
   const resolved = isLocale(requested) ? requested : await workspaceLocale();
   return {
     locale: resolved,
-    messages: (await import(`../../messages/${resolved}.json`)).default,
+    messages: await loadMessages(resolved),
     // The server's clock, so dates read the same in the HTML and after hydration.
     timeZone: "UTC",
     formats: {

@@ -13,7 +13,7 @@
     "global_fetch_strictly_public"
   ],
   "build": {
-    "command": "node scripts/ascii-worker.mjs"
+    "command": "node scripts/ascii-worker.mjs && node scripts/worker-data.mjs"
   },
   "r2_buckets": [
     {

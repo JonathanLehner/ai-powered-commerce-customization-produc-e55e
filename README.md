@@ -668,6 +668,15 @@ recognises, reports anything else, and changes nothing without `--apply`.
     handful of non-ASCII characters in the server code; one of them is enough
     for V8 to hold the whole source as two bytes per character. wrangler also
     minifies the bundle (`wrangler.jsonc`).
+  - Upload size. Cloudflare rejects a deploy whose source maps are over 15 MB
+    gzipped, so `upload_source_maps` is off in `wrangler.jsonc`. The interface
+    messages are not bundled: `scripts/worker-data.mjs` (also part of
+    wrangler's build step) copies `messages/*.json` into the static assets and
+    `src/i18n/load-messages.ts` reads them through the `ASSETS` binding (from
+    `messages/` under Node). The `cloudflare` SDK is in
+    `serverExternalPackages`, so the adapter bundles it once instead of once
+    per route group. Check the size with
+    `npx @opennextjs/cloudflare build && npx wrangler deploy --dry-run`.
   - The browser gets only the messages its client components read: the shell's
     from `WorkspaceDocument`, and each section's from `ClientMessages` in its
     layout (`src/i18n/workspace-messages.ts`, `npm run client-messages-check`).
